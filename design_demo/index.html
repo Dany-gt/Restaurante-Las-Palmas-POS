@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Demo de Diseño Responsive PRO 2026 - Mobile First, Fluid Typography y Dark Mode">
+    <title>Responsive Design 2026 Demo</title>
+    <style>
+        /* 
+         * =============================================
+         * 1. VARIABLES & TOKENS (CSS Custom Properties)
+         * =============================================
+         */
+        :root {
+            /* Colors - Light Mode Default */
+            --bg-body: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-main: #1a1a1a;
+            --text-muted: #555555;
+            --accent: #2563eb;
+            /* Royal Blue */
+            --accent-hover: #1d4ed8;
+            --border: #e5e7eb;
+
+            /* Spacing Scale (Fluid) */
+            --space-xs: clamp(0.5rem, 1vw, 0.75rem);
+            /* 8px - 12px */
+            --space-sm: clamp(1rem, 2vw, 1.5rem);
+            /* 16px - 24px */
+            --space-md: clamp(2rem, 4vw, 3rem);
+            /* 32px - 48px */
+            --space-lg: clamp(4rem, 6vw, 6rem);
+            /* 64px - 96px */
+
+            /* Typography - Fluid Scale (rem based) 
+               Calculate clamp: (min, preferred, max)
+            */
+            --font-sm: clamp(0.875rem, 0.8rem + 0.25vw, 1rem);
+            /* 14px -> 16px */
+            --font-base: clamp(1.1rem, 1rem + 0.5vw, 1.25rem);
+            /* ~17.6px -> 20px (Body text requested > 16px) */
+            --font-lg: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+            /* ~24px -> 32px */
+            --font-xl: clamp(2rem, 1.5rem + 2.5vw, 3.5rem);
+            /* ~32px -> 56px (Titles) */
+
+            /* Layout */
+            --container-width: clamp(100%, 90vw, 1600px);
+            /* Max 1600px, 90% viewport normally */
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: #0f172a;
+                /* Slate 900 */
+                --bg-card: #1e293b;
+                /* Slate 800 */
+                --text-main: #f1f5f9;
+                --text-muted: #94a3b8;
+                --accent: #60a5fa;
+                /* Blue 400 */
+                --accent-hover: #3b82f6;
+                --border: #334155;
+            }
+        }
+
+        /* 
+         * =============================================
+         * 2. RESET & BASE STYLES
+         * =============================================
+         */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 100%;
+            /* Base 16px */
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            /* Optimal readability */
+            font-size: var(--font-base);
+            /* 1.1rem - 1.25rem responsive */
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius);
+        }
+
+        h1,
+        h2,
+        h3 {
+            line-height: 1.2;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: var(--space-sm);
+        }
+
+        h1 {
+            font-size: var(--font-xl);
+        }
+
+        h2 {
+            font-size: var(--font-lg);
+        }
+
+        p {
+            max-width: 75ch;
+            /* 75 characters per line readability rule */
+            margin-bottom: var(--space-sm);
+            color: var(--text-muted);
+        }
+
+        button,
+        .btn {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 0.8em 1.6em;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        button:hover,
+        .btn:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        /* 
+         * =============================================
+         * 3. LAYOUT UTILITIES
+         * =============================================
+         */
+        .container {
+            width: 100%;
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding-inline: var(--space-sm);
+            /* Padding lateral lógico */
+        }
+
+        .grid {
+            display: grid;
+            gap: var(--space-md);
+        }
+
+        /* 
+         * =============================================
+         * 4. SECTIONS & COMPONENTS (Mobile First)
+         * =============================================
+         */
+
+        /* Navbar */
+        .navbar {
+            padding: var(--space-sm) 0;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg-body);
+            /* Supports translucency if needed */
+            opacity: 0.98;
+            z-index: 100;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: var(--space-lg) 0;
+            text-align: center;
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        /* Cards Grid Default (Mobile: 1 column) */
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .card {
+            background: var(--bg-card);
+            padding: var(--space-md);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: var(--space-lg);
+            padding: var(--space-md) 0;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            font-size: var(--font-sm);
+        }
+
+        /* 
+         * =============================================
+         * 5. RESPONSIVE BREAKPOINTS
+         * =============================================
+         */
+
+        /* 
+         * Tablet / Small Laptop (Min 640px)
+         * Introduces 2-column grids 
+         */
+        @media (min-width: 640px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            :root {
+                --container-width: 92vw;
+                /* Use slightly more space */
+            }
+        }
+
+        /* 
+         * Laptop / Horizontal Tablet (Min 1024px)
+         * Standard Desktop Layout starts here
+         */
+        @media (min-width: 1024px) {
+            .hero {
+                text-align: left;
+                padding: var(--space-lg) 0;
+            }
+
+            .hero .container {
+                display: grid;
+                grid-template-columns: 1.2fr 1fr;
+                /* Text larger than image */
+                align-items: center;
+                gap: var(--space-lg);
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(3, 1fr);
+                /* 3 Columns */
+            }
+
+            .hero-content {
+                align-items: flex-start;
+                /* Align text left */
+            }
+        }
+
+        /* 
+         * Standard Laptop 13-14" (Min 1280px)
+         * Refine typography and spacing for wider screens
+         */
+        @media (min-width: 1280px) {
+            :root {
+                --font-base: 1.2rem;
+                /* Ensure nice readable text */
+            }
+
+            .container {
+                padding-inline: var(--space-md);
+            }
+        }
+
+        /* 
+         * Full HD / Desktop (Min 1440px)
+         * Ample breathing room
+         */
+        @media (min-width: 1440px) {
+            .features-grid {
+                gap: var(--space-lg);
+                /* More space between cards */
+            }
+
+            .hero {
+                min-height: 80vh;
+                /* Immersive hero */
+                display: flex;
+                align-items: center;
+            }
+        }
+
+        /* 
+         * Large Screens (Min 1920px) 
+         * Prevent content from stretching too wide
+         */
+        @media (min-width: 1920px) {
+
+            /* 
+               Grid auto-fit can be useful here to add a 4th column if content permits,
+               or keep max-width constraints. 
+            */
+            :root {
+                --container-width: 1600px;
+                /* Hard cap for readability */
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(3, 1fr);
+                /* Keep 3 robust cols or go to 4 */
+            }
+
+            p {
+                font-size: 1.25rem;
+                /* Slightly larger reading text */
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">FutureWeb.</div>
+            <a href="#" class="btn">Get Started</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Diseño Web del Futuro: Fluido & Adaptable</h1>
+                <p>
+                    Esta es una demostración de arquitectura web responsive moderna.
+                    Utilizamos unidades relativas, tipografía fluida y CSS Grid
+                    para garantizar una experiencia perfecta desde móviles de 320px
+                    hasta monitores 4K de 2560px.
+                </p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <a href="#" class="btn">Explorar Demo</a>
+                    <a href="#" class="btn"
+                        style="background: transparent; border: 2px solid var(--border); color: var(--text-main);">Leer
+                        Documentación</a>
+                </div>
+            </div>
+            <!-- Placeholder Image: Using abstract geometry for theme -->
+            <div class="hero-image">
+                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1000"
+                    alt="Abstract 3D Shape" loading="lazy" width="800" height="600" style="box-shadow: var(--shadow);">
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section style="margin-bottom: var(--space-lg);">
+            <div style="text-align: center; margin-bottom: var(--space-md);">
+                <h2>Características Principales</h2>
+                <p style="margin: 0 auto;">Todo lo que necesitas para un sitio web de alto rendimiento.</p>
+            </div>
+
+            <div class="grid features-grid">
+                <article class="card">
+                    <h3>📱 Mobile First</h3>
+                    <p>Diseñado desde la pantalla más pequeña hacia arriba. La estructura base es ligera y se expande
+                        según el espacio disponible.</p>
+                </article>
+                <article class="card">
+                    <h3>🎨 Fluid Typography</h3>
+                    <p>Sin saltos bruscos. El tamaño de fuente escala matemáticamente usando <code>clamp()</code> para
+                        una legibilidad perfecta en cualquier dispositivo.</p>
+                </article>
+                <article class="card">
+                    <h3>🌑 Dark Mode Nativo</h3>
+                    <p>Detecta automáticamente la preferencia de tu sistema operativo gracias a
+                        <code>prefers-color-scheme</code>.</p>
+                </article>
+                <article class="card">
+                    <h3>📐 Grid Layout</h3>
+                    <p>Sistemas de rejilla CSS robustos que pasan de 1 columna en móvil a 2 en tablet y 3 en desktop sin
+                        media queries complejas.</p>
+                </article>
+                <article class="card">
+                    <h3>⚡ Performance</h3>
+                    <p>Código limpio sin frameworks pesados. Carga instantánea y métricas de Core Web Vitals
+                        optimizadas.</p>
+                </article>
+                <article class="card">
+                    <h3>👁️ Accesibilidad</h3>
+                    <p>Colores contrastados, etiquetas semánticas y tamaños de fuente legibles (mínimo 1.1rem) para
+                        todos los usuarios.</p>
+                </article>
+            </div>
+        </section>
+
+        <section style="padding: var(--space-lg) 0; border-top: 1px solid var(--border);">
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: center;">
+                <div>
+                    <h2>Optimizado para Pantallas Grandes</h2>
+                    <p>
+                        En monitores de más de 1920px, el contenido se centra y mantiene un ancho máximo de 1600px para
+                        evitar que las líneas de texto sean demasiado largas e ilegibles.
+                        Usamos unidades <code>rem</code> y <code>em</code> para que si el usuario cambia el zoom del
+                        navegador, todo el diseño responda proporcionalmente.
+                    </p>
+                </div>
+                <div>
+                    <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=1000"
+                        alt="Laptop Workspace" loading="lazy" style="width: 100%; height: 300px; object-fit: cover;">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Responsive Demo. Construido con estándares modernos.</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

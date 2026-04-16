@@ -1,0 +1,35 @@
+{
+    "builds": [
+        {
+            "src": "api/sat-sync.py",
+            "use": "@vercel/python",
+            "config": { "maxDuration": 60 }
+        },
+        {
+            "src": "package.json",
+            "use": "@vercel/static-build",
+            "config": { "distDir": "dist" }
+        }
+    ],
+    "rewrites": [
+        {
+            "source": "/api/sat-sync",
+            "destination": "/api/sat-sync.py"
+        },
+        {
+            "source": "/((?!api/).*)",
+            "destination": "/index.html"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/index.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+                }
+            ]
+        }
+    ]
+}

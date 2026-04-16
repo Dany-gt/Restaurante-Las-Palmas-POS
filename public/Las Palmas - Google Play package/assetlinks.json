@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "gt.laspalmas.restaurantepos",
+        "sha256_cert_fingerprints": ["E4:DD:CD:71:53:6C:D7:0F:DC:7E:FB:FD:EE:47:B3:2A:93:FD:7A:87:ED:D8:68:3F:D3:BF:BC:0B:4E:CD:14:AE"]
+      }
+    }]

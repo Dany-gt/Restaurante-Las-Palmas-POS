@@ -1,0 +1,16 @@
+Para que el sistema Use un correo de Gmail (recomendado) para hacer los envíos automáticos de los reportes, debes llenar esos datos exactamente así:
+
+SERVIDOR SMTP: smtp.gmail.com
+PUERTO: 465
+USUARIO (CORREO REMITENTE): Tu cuenta de correo (ejemplo: mirestaurante@gmail.com). Este será el correo desde el cual saldrán todos los reportes.
+CONTRASEÑA: Aquí NO va tu contraseña normal de Google. Para que funcione por seguridad, debes crear una Contraseña de Aplicación exclusiva para el POS.
+¿Cómo crear la "Contraseña de Aplicación" en Gmail? Es totalmente gratis y toma 2 minutos:
+
+Desde tu celular o computadora, abre tu cuenta de Google (Gmail) y ve a Gestionar tu cuenta de Google.
+Ve a la pestaña de Seguridad.
+Asegúrate de tener activada la Verificación en dos pasos. (Es requisito obligatorio de Google).
+En el buscador de ajustes que está ahí mismo arriba, escribe "Contraseñas de aplicaciones" y haz clic ahí.
+Te pedirá que inicies sesión. Luego, en "Seleccionar aplicación", pon "Otra (Nombre personalizado)", escribe por ejemplo "POS Las Palmas" y dale a Generar.
+Te aparecerá una contraseña en un recuadro amarillo de 16 letras (algo como abcd efgh ijkl mnop).
+Esa contraseña de 16 letras, sin espacios, es la que debes pegar en el campo "Contraseña" de nuestro sistema.
+Una vez puestos los 4 datos, dale a "GUARDAR CAMBIOS" arriba a la derecha. Ya con eso, cualquier Cajero que le dé a "ENVIAR" al cierre, el sistema lo mandará automáticamente al correo de destino (que en tu caso veo que ya pusiste edvincastro1983@gmail.com).

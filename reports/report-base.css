@@ -1,0 +1,83 @@
+/* report-base.css */
+body {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    width: 80mm;
+    margin: 0 auto;
+    color: #000;
+    background: #fff;
+    padding: 10px;
+}
+
+.header {
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.logo-text {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.title {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 10px 0;
+    border-top: 1px dashed #000;
+    border-bottom: 1px dashed #000;
+    padding: 5px 0;
+    text-align: center;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    margin: 2px 0;
+}
+
+.row.bold {
+    font-weight: bold;
+}
+
+.divider {
+    border-top: 1px dashed #000;
+    margin: 8px 0;
+}
+
+.section-title {
+    font-weight: bold;
+    text-decoration: underline;
+    margin: 10px 0 5px 0;
+    text-align: center;
+}
+
+.total-row {
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    border-bottom: 1px dashed #000;
+}
+
+td {
+    padding: 2px 0;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.footer-info {
+    text-align: center;
+    font-size: 10px;
+    margin-top: 20px;
+}

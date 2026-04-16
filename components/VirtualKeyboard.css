@@ -1,0 +1,262 @@
+/* Global Virtual Keyboard Styles */
+.hg-theme-default {
+    background-color: transparent !important;
+    padding: 5px !important;
+}
+
+.hg-theme-default .hg-button {
+    background: #374151 !important;
+    color: white !important;
+    border-bottom: 2px solid #111827 !important;
+    height: 45px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    transition: all 0.1s ease !important;
+    margin: 2px !important;
+}
+
+.hg-theme-default .hg-button:active {
+    background: #4b5563 !important;
+    transform: translateY(2px) !important;
+    border-bottom-width: 0 !important;
+}
+
+/* Active State for Shift/Caps */
+.hg-button-shift-toggled,
+.hg-button-caps-locked {
+    background-color: #374151 !important;
+    /* Keep default background */
+}
+
+/* Base style for the icon */
+.keyboard-shift-svg {
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Single Tap (Shift): Outline Highlight */
+.hg-button-shift-toggled .keyboard-shift-svg {
+    stroke: #3b82f6;
+    /* Intense Blue */
+    stroke-width: 3;
+    fill: none;
+}
+
+/* Double Tap (Caps Lock): Solid Fill Highlight */
+.hg-button-caps-locked .keyboard-shift-svg {
+    stroke: #3b82f6;
+    stroke-width: 2;
+    fill: #3b82f6;
+    /* Solid Blue Fill */
+}
+
+.hg-theme-default .hg-button.hg-functionBtn {
+    background-color: #4b5563 !important;
+}
+
+.hg-theme-default .hg-button.hg-button-enter,
+.hg-theme-default .hg-button.hg-button-shift,
+.hg-theme-default .hg-button.hg-button-backspace {
+    background-color: #6366f1 !important;
+    color: white !important;
+}
+
+.keyboard-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    left: auto;
+    transform: translateY(120%);
+    z-index: 20000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #2d2e3d;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    border-radius: 24px;
+    overflow: hidden;
+    width: 90%;
+    max-width: 850px;
+}
+
+.keyboard-container.numpad-only {
+    width: 260px;
+    max-width: 260px;
+    border-radius: 20px;
+}
+
+.keyboard-container.visible {
+    transform: translateY(0);
+}
+
+.keyboard-header {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 8px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.keyboard-title {
+    color: #4b5563;
+    text-transform: uppercase;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+}
+
+.keyboard-close-btn {
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.keyboard-close-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Flex layout for QWERTY + Numpad */
+.keyboard-body {
+    display: flex;
+    padding: 10px;
+    gap: 8px;
+    justify-content: center;
+    background: #2d2e3d;
+}
+
+.keyboard-main {
+    flex: 3;
+}
+
+.keyboard-numpad {
+    flex: 1;
+    min-width: 200px;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    padding-left: 8px;
+}
+
+.keyboard-container.numpad-only .keyboard-numpad {
+    padding-left: 0;
+    border-left: 0;
+    min-width: 100%;
+}
+
+/* Button Stylings */
+.hg-theme-default .hg-button {
+    background: #3a3b4d !important;
+    color: #e5e7eb !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    height: 54px !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    margin: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.hg-theme-default .hg-button:active {
+    background: #374151 !important;
+    transform: scale(0.96) !important;
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Functional Buttons */
+.hg-theme-default .hg-button.hg-functionBtn {
+    background-color: #4b5563 !important;
+}
+
+.hg-theme-default .hg-button.hg-button-backspace {
+    background-color: #ef444410 !important;
+    color: #ef4444 !important;
+    font-size: 20px !important;
+}
+
+.hg-theme-default .hg-button.hg-button-enter {
+    background-color: #6366f1 !important;
+    color: white !important;
+}
+
+/* Numeric Layout adjustments */
+.keyboard-container.numpad-only .hg-button {
+    height: 54px !important;
+    font-size: 18px !important;
+    margin: 3px !important;
+    border-radius: 12px !important;
+}
+
+.keyboard-container.numpad-only .hg-button-enter {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3) !important;
+}
+
+.hg-theme-default .hg-button.hg-activeButton,
+.hg-theme-default .hg-button.hg-button-shift-toggled,
+.hg-theme-default .hg-button.hg-button-caps-locked {
+    background-color: #6366f1 !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* ================================================================
+   PORTRAIT / VERTICAL ORIENTATION MODE
+   When the device is held vertically, stack keyboard sections
+================================================================ */
+.keyboard-container.portrait {
+    width: 98%;
+    max-width: 98%;
+}
+
+.keyboard-container.portrait .keyboard-body {
+    flex-direction: column;
+    align-items: center;
+}
+
+.keyboard-container.portrait .keyboard-main {
+    width: 100%;
+}
+
+.keyboard-container.portrait .keyboard-numpad {
+    width: 100%;
+    min-width: unset;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-left: 0;
+    padding-top: 8px;
+}
+
+/* In portrait, make the numpad row horizontal (4 across) */
+.keyboard-container.portrait .keyboard-numpad .hg-row {
+    display: flex;
+    justify-content: center;
+}
+
+.keyboard-container.portrait .keyboard-numpad .hg-button {
+    flex: 0 0 22%;
+    max-width: 22%;
+    height: 52px !important;
+}
+
+/* Portrait: slightly smaller keys so everything fits */
+.keyboard-container.portrait .keyboard-main .hg-button {
+    height: 46px !important;
+    font-size: 14px !important;
+    margin: 3px !important;
+}
