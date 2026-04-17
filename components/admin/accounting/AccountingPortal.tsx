@@ -96,26 +96,21 @@ export const AccountingPortal: React.FC = () => {
             // @ts-ignore
             const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-            // ── Para EMITIDAS: dividir en bloques diarios para evitar timeout y ver avance más rápido ──
+            // ── Dividir en bloques diarios para evitar timeout y ver avance más rápido ──
             const chunks: { start: string; end: string }[] = [];
-            const startDate = new Date(sat.dateStart + 'T00:00:00');
-            const endDate = new Date(sat.dateEnd + 'T00:00:00');
+            const startDate = dayjs(sat.dateStart);
+            const endDate = dayjs(sat.dateEnd);
 
-            if (sat.tipo === 'emitida') {
-                // Dividir en bloques DIARIOS
-                let cursor = new Date(startDate);
-                while (cursor <= endDate) {
-                    const chunkStr = cursor.toISOString().split('T')[0];
-                    chunks.push({ start: chunkStr, end: chunkStr });
-                    cursor.setDate(cursor.getDate() + 1);
-                }
-            } else {
-                // Recibidas: un solo bloque
-                chunks.push({ start: sat.dateStart, end: sat.dateEnd });
+            let cursor = startDate;
+            while (cursor.isBefore(endDate) || cursor.isSame(endDate)) {
+                const chunkStr = cursor.format('YYYY-MM-DD');
+                chunks.push({ start: chunkStr, end: chunkStr });
+                cursor = cursor.add(1, 'day');
             }
 
             let totalImported = 0;
             let totalFound = 0;
+            let totalErrors = 0;
 
             for (let i = 0; i < chunks.length; i++) {
                 const chunk = chunks[i];
@@ -158,11 +153,12 @@ export const AccountingPortal: React.FC = () => {
 
                 totalFound += data.total || 0;
                 totalImported += data.imported || 0;
+                totalErrors += data.errors || 0;
             }
 
             setSat(s => ({ 
                 ...s, syncing: false, status: '✅ Sincronización completada', progress: 100,
-                result: { total: totalFound, imported: totalImported, skipped: totalFound - totalImported, errors: 0 },
+                result: { total: totalFound, imported: totalImported, skipped: Math.max(0, totalFound - totalImported - totalErrors), errors: totalErrors },
                 lastCompletedAt: new Date().toISOString()
             }));
         } catch (err: any) {
@@ -352,16 +348,20 @@ export const AccountingPortal: React.FC = () => {
                                                 <h4 className="text-[18px] font-black text-black uppercase">Sync Completada</h4>
                                             </div>
                                             
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 font-black">{sat.result.imported}</div>
-                                                    <div><span className="block text-[8px] font-black text-slate-400 uppercase">Nuevas</span><span className="text-[10px] font-bold text-slate-700">Registradas</span></div>
-                                                </div>
-                                                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 font-black">{sat.result.skipped}</div>
-                                                    <div><span className="block text-[8px] font-black text-slate-400 uppercase">Omitidas</span><span className="text-[10px] font-bold text-slate-700">Existentes</span></div>
-                                                </div>
-                                            </div>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
+                                                     <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px] font-black">{sat.result.imported}</div>
+                                                     <div><span className="block text-[7px] font-black text-slate-400 uppercase">Nuevas</span><span className="text-[9px] font-bold text-slate-700">Hecho</span></div>
+                                                 </div>
+                                                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
+                                                     <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 text-[10px] font-black">{sat.result.skipped}</div>
+                                                     <div><span className="block text-[7px] font-black text-slate-400 uppercase">Omitidas</span><span className="text-[9px] font-bold text-slate-700">Existían</span></div>
+                                                 </div>
+                                                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
+                                                     <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center text-red-600 text-[10px] font-black">{sat.result.errors}</div>
+                                                     <div><span className="block text-[7px] font-black text-slate-400 uppercase">Errores</span><span className="text-[9px] font-bold text-slate-700">Fallas</span></div>
+                                                 </div>
+                                             </div>
 
                                             <button onClick={() => setSat(s => ({ ...s, showModal: false }))} className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-black uppercase rounded-xl transition-all">Regresar</button>
                                         </div>

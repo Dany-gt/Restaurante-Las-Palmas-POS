@@ -18,7 +18,7 @@ interface Producto {
 interface ListadoProductosProps {
     categorias: Set<string>;
     sucursalId: string;
-    onEdit: (id: string) => void;
+    onEdit: (id: string, type: 'platillo' | 'producto') => void;
     onNew: () => void;
     onDelete: (id: string) => void;
     onRefresh: () => void;
@@ -34,32 +34,49 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number, product: Producto | null }>({ visible: false, x: 0, y: 0, product: null });
 
+    const formatAmount = (num: number) => {
+        return new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(num);
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                // Sincronizar registros desde products (Materia Prima)
                 let query = supabase.from('products').select('*, product_categories(nombre)').eq('es_platillo', false);
-                if (categorias.size > 0) query = query.in('product_category_id', Array.from(categorias));
+                if (categorias.size > 0) query = query.in('category_id', Array.from(categorias));
 
                 const { data, error } = await query.order('name');
 
                 if (data) {
-                    const mapped = data.map((i: any) => ({
-                        ...i,
-                        codigo: i.product_code || '',
-                        nombre: i.name,
-                        categoria: i.product_categories?.nombre || 'SIN CATEGORÍA',
-                        existencia: i.stock_actual || 0, // Ajustar si tienen campo de stock real en products
-                        presentacion: i.unit_measure || 'UNIDAD',
-                        precio_costo: i.cost_price || 0,
-                        habilitado: i.is_enabled
-                    }));
+                    const mapped = data.map((i: any) => {
+                        const conversion = parseFloat(i.conversion_factor) || 1;
+                        let presentationStr = '';
+                        try {
+                            presentationStr = `${i.presentation_unit || ''} ${formatAmount(conversion)} ${i.unit_measure === 'Mililitro' ? 'ml' : (i.unit_measure || '')}`.trim();
+                        } catch (e) {
+                            presentationStr = `${i.presentation_unit || ''} ${conversion} ${i.unit_measure || ''}`.trim();
+                        }
+
+                        return {
+                            ...i,
+                            id: i?.id,
+                            codigo: i?.product_code || i?.codigo || '',
+                            nombre: i?.name || i?.nombre || 'SIN NOMBRE',
+                            categoria: i?.product_categories?.nombre || i?.categories?.name || i?.menu_categories?.nombre || 'SIN CATEGORÍA',
+                            existencia: parseFloat(i?.stock_actual || i?.existencia || 0) || 0,
+                            presentacion: presentationStr || 'UNIDAD',
+                            precio_costo: parseFloat(i?.cost_price || i?.precio_costo || 0) || 0,
+                            habilitado: i?.is_enabled !== undefined ? i.is_enabled : (i?.habilitado !== undefined ? i.habilitado : true)
+                        };
+                    });
                     setItems(mapped);
                 }
                 
-                if (itemsRes.error) console.error('Error fetching inventory items:', itemsRes.error.message);
-            } catch (e) {
+                if (error) console.error('Error fetching inventory items:', error.message);
+            } catch (e: any) {
                 console.error('Fetch error:', e);
             } finally {
                 setLoading(false);
@@ -110,13 +127,13 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                 <table className="w-full border-collapse border-spacing-0 min-w-max">
                     <thead className="sticky top-0 z-10">
                         <tr className="bg-[#f5f5f5] border-b border-gray-300 h-7 select-none">
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-28">Código</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-44">Categoría</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 min-w-[350px]">Producto / Insumo</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-200 w-24">Existencia</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-32">Presentación</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-right border-r border-gray-300 w-28">Precio Costo</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center w-24">Habilitado</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-32">Código</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-56">Categoría</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 min-w-[500px]">Producto / Insumo</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-200 w-32">Existencia</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-72">Presentación</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-right border-r border-gray-300 w-40">Precio Costo</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center w-32">Habilitado</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white">
@@ -129,6 +146,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                 <tr 
                                     key={item.id} 
                                     onClick={(e) => { e.stopPropagation(); setSelectedId(item.id); }}
+                                    onDoubleClick={() => onEdit(item.id, 'producto')}
                                     onContextMenu={(e) => handleContextMenu(e, item)}
                                     className={`
                                         h-6 border-b border-gray-100 cursor-pointer transition-colors
@@ -136,7 +154,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                     `}
                                 >
                                     <td className="px-4 text-[10px] border-r border-gray-100 tabular-nums">{item.codigo || '---'}</td>
-                                    <td className="px-4 text-[10px] border-r border-gray-100 uppercase italic text-gray-400" style={{ color: selectedId === item.id ? 'white' : '' }}>
+                                    <td className="px-4 text-[10px] border-r border-gray-100 uppercase text-gray-400" style={{ color: selectedId === item.id ? 'white' : '' }}>
                                         {item.categoria}
                                     </td>
                                     <td className="px-4 text-[10px] uppercase truncate">{item.nombre}</td>
@@ -144,7 +162,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                         {item.existencia?.toFixed(2) || '0.00'}
                                     </td>
                                     <td className="px-4 text-[10px] border-r border-gray-100 uppercase">{item.presentacion || 'UNIDAD'}</td>
-                                    <td className="px-4 text-[10px] border-r border-gray-100 text-right tabular-nums">Q{item.precio_costo?.toFixed(2) || '0.00'}</td>
+                                    <td className="px-4 text-[10px] border-r border-gray-100 text-right tabular-nums">Q. {item.precio_costo?.toFixed(2) || '0.00'}</td>
                                     <td className="px-4 border-gray-100">
                                         <div className="flex justify-center">
                                             <input type="checkbox" checked={item.habilitado} readOnly className="w-3.5 h-3.5 outline-none" />
@@ -184,7 +202,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                 onClick={(e) => { 
                                     if (!contextMenu.product) return;
                                     e.stopPropagation(); 
-                                    onEdit(contextMenu.product.id); 
+                                    onEdit(contextMenu.product.id, 'producto'); 
                                     setContextMenu({ ...contextMenu, visible: false }); 
                                 }}
                                 className={`w-full h-7 flex items-center gap-2.5 px-3 transition-none group ${!contextMenu.product ? 'opacity-40 cursor-not-allowed text-gray-400' : 'hover:bg-[#106ebe] hover:text-white text-slate-800'}`}

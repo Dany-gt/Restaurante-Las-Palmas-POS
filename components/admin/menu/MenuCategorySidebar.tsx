@@ -36,7 +36,7 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
     const { categories, load, loading, create, update, remove } = useDomainCategories({
         table: DOMAIN_TABLE,
         extraFilters: { activo: true },
-        orderBy: 'sort_order',
+        orderBy: 'nombre',
     });
 
     const [branches, setBranches] = useState<any[]>([]);
@@ -102,13 +102,18 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
 
     const handleDelete = async (id: string, nombre: string) => {
         setContextMenu(null);
-        if (!confirm(`¿Eliminar categoría "${nombre}"?\nLos platillos quedarán sin categoría.`)) return;
+        if (!confirm(`¿Eliminar categoría "${nombre}"?\nSi contiene platillos, asegúrese de reasignarlos primero.`)) return;
         try {
             await remove(id);
             if (selectedId === id) onSelect(null);
             notify.success('Categoría eliminada');
         } catch (e: any) {
-            notify.error(e.message);
+            // El API de supabase de DomainCategories probablemente lanza error de constraint  23503
+            if (e.message?.includes('foreign key constraint') || e.code === '23503' || e.message?.includes('viola la llave')) {
+                notify.error('IMPOSIBLE ELIMINAR: Esta categoría aún tiene platillos asignados a ella. Reasigne o elimine los platillos primero.');
+            } else {
+                notify.error('No se pudo eliminar: ' + (e.message || 'Error desconocido'));
+            }
         }
     };
 
@@ -153,16 +158,6 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
             >
                 {depth > 0 && <span className="text-gray-300 mr-1 text-[8px]">└</span>}
                 <span className="flex-1 text-[10px] uppercase truncate leading-none">{cat.nombre}</span>
-                <div className="hidden group-hover:flex items-center gap-0.5">
-                    <button
-                        onClick={(e) => { e.stopPropagation(); handleOpenForm(cat.id); }}
-                        className="p-0.5 hover:bg-blue-100 rounded"
-                    ><Edit2 size={9} /></button>
-                    <button
-                        onClick={(e) => { e.stopPropagation(); handleDelete(cat.id, cat.nombre); }}
-                        className="p-0.5 hover:bg-red-100 text-red-500 rounded"
-                    ><Trash2 size={9} /></button>
-                </div>
             </div>
             {getChildren(cat.id).map(child => renderCat(child, depth + 1))}
         </React.Fragment>

@@ -2,63 +2,21 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useReactToPrint } from 'react-to-print';
 import { Search, Plus, Edit2, Trash2, Folder, Package, X, RefreshCw, ChefHat, FolderOpen, Layers, Save, Check, Image as ImageIcon, Printer, FileText, Sparkles, Loader2, AlertCircle, FolderPlus } from 'lucide-react';
-// ═══ SIDEBARS INDEPENDIENTES POR DOMINIO ═════════════
+// ÔòÉÔòÉÔòÉ SIDEBARS INDEPENDIENTES POR DOMINIO ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 import { MenuCategorySidebar } from '../menu/MenuCategorySidebar';       // D1: menu_categories
 import { ProductCategorySidebar } from '../products/ProductCategorySidebar'; // D2: product_categories
 // D3 y D4 se usan en InventarioUnificado (insumos/utensilios)
 import { ListadoPlatillos } from './ListadoPlatillos';
 import { ListadoProductos } from './ListadoProductos';
+import { PlatilloModal } from './PlatilloModal';
+import { ProductoModal } from './ProductoModal';
 import { supabase } from '../../../supabase';
 import { useNotify } from '../../../hooks/useNotify';
 import { registrarAuditoria, detectarCambios } from '../../../services/auditService';
 import { WindowsSaveButton } from '../../WindowsSaveButton';
+import { DraggableWindow } from '../shared/DraggableWindow';
 
-// Draggable Window Component for Classic Desktop Feel
-const DraggableWindow: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [isDragging, setIsDragging] = useState(false);
-    const [offset, setOffset] = useState({ x: 0, y: 0 });
 
-    const handleMouseDown = (e: React.MouseEvent) => {
-        if ((e.target as HTMLElement).closest('.modal-header')) {
-            setIsDragging(true);
-            setOffset({
-                x: e.clientX - position.x,
-                y: e.clientY - position.y
-            });
-        }
-    };
-
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            if (isDragging) {
-                setPosition({
-                    x: e.clientX - offset.x,
-                    y: e.clientY - offset.y
-                });
-            }
-        };
-        const handleMouseUp = () => setIsDragging(false);
-
-        if (isDragging) {
-            window.addEventListener('mousemove', handleMouseMove);
-            window.addEventListener('mouseup', handleMouseUp);
-        }
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
-        };
-    }, [isDragging, offset]);
-
-    return (
-        <div 
-            style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
-            onMouseDown={handleMouseDown}
-        >
-            {children}
-        </div>
-    );
-};
 
 interface InventariosLayoutProps {
     initialTab: 'platillos' | 'productos';
@@ -82,16 +40,16 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
         }
     });
     
-    // ═══ ESTADO DE CATEGORÍA POR DOMINIO (ID único, no Set) ══
-    // D1: Menú — solo lee menu_categories
+    // ÔòÉÔòÉÔòÉ ESTADO DE CATEGOR├ìA POR DOMINIO (ID ├║nico, no Set) ÔòÉÔòÉ
+    // D1: Men├║ ÔÇö solo lee menu_categories
     const [categoryMenuId, setCategoryMenuId] = useState<string | null>(null);
-    // D2: Productos — solo lee product_categories
+    // D2: Productos ÔÇö solo lee product_categories
     const [categoryProdId, setCategoryProdId] = useState<string | null>(null);
     // Compatibilidad con ListadoPlatillos/ListadoProductos que esperan Set<string>
     const categoriaMenuSel = useMemo(() => categoryMenuId ? new Set([categoryMenuId]) : new Set<string>(), [categoryMenuId]);
     const categoriaProdSel = useMemo(() => categoryProdId ? new Set([categoryProdId]) : new Set<string>(), [categoryProdId]);
 
-    // Estados para Modales de Edición
+    // Estados para Modales de Edici├│n
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [modalType, setModalType] = useState<'platillo' | 'producto'>('platillo');
@@ -134,13 +92,13 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
 
         setIsImproving(true);
         try {
-            const systemPrompt = `Rol: Eres un experto en redacción técnica culinaria.
-Tarea: Revisa el siguiente texto para corregir errores ortográficos, gramaticales y de puntuación, mejorando la fluidez sin alterar el contenido original.
+            const systemPrompt = `Rol: Eres un experto en redacci├│n t├®cnica culinaria.
+Tarea: Revisa el siguiente texto para corregir errores ortogr├íficos, gramaticales y de puntuaci├│n, mejorando la fluidez sin alterar el contenido original.
 Reglas estrictas:
-- NO modifiques la información técnica ni el sentido original del texto.
-- Corrige únicamente la ortografía y gramática para que el texto sea profesional.
-- Mantén el estilo original (si hay listas, respétalas; si es párrafo, respétalo) pero con redacción impecable.
-- Formato de salida: Devuelve ÚNICAMENTE el texto corregido. No agregues comentarios, saludos ni introducciones.`;
+- NO modifiques la informaci├│n t├®cnica ni el sentido original del texto.
+- Corrige ├║nicamente la ortograf├¡a y gram├ítica para que el texto sea profesional.
+- Mant├®n el estilo original (si hay listas, resp├®talas; si es p├írrafo, resp├®talo) pero con redacci├│n impecable.
+- Formato de salida: Devuelve ├ÜNICAMENTE el texto corregido. No agregues comentarios, saludos ni introducciones.`;
 
             const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY || 'AIzaSyAHJeRT6nwLk1W4v4FXMvXjkxwn26zL8nw';
 
@@ -212,7 +170,7 @@ Reglas estrictas:
                     nombre: i.name,
                     codigo: i.product_code,
                     presentacion: i.unit_measure,
-                    categoria: i.product_categories?.nombre || 'SIN CATEGORÍA'
+                    categoria: i.product_categories?.nombre || 'SIN CATEGOR├ìA'
                 }));
                 setInventoryItems(mapped);
             }
@@ -232,7 +190,7 @@ Reglas estrictas:
         return () => window.removeEventListener('click', handleGlobalClick);
     }, [optionsContextMenu.visible]);
     
-    // Estados para Acciones Rápidas
+    // Estados para Acciones R├ípidas
     const [showQuickModal, setShowQuickModal] = useState<'category' | 'station' | null>(null);
     const [showQuickCatModal, setShowQuickCatModal] = useState(false);
     const [newCatName, setNewCatName] = useState('');
@@ -341,7 +299,7 @@ Reglas estrictas:
 
     const handleSave = async () => {
         if (!newProduct.name || !newProduct.category_id) {
-            notify.error('El nombre y la categoría son obligatorios');
+            notify.error('El nombre y la categor├¡a son obligatorios');
             return;
         }
 
@@ -522,7 +480,7 @@ Reglas estrictas:
                     >
                         Mostrar Todos los Registros
                     </button>
-                    {/* Botón rápido de creación estilo Desktop */}
+                    {/* Bot├│n r├ípido de creaci├│n estilo Desktop */}
                     <button 
                         onClick={() => handleNew(initialTab === 'platillos' ? 'platillo' : 'producto')}
                         className="px-3 h-5 bg-[#106ebe] text-white text-[9px] font-black uppercase hover:bg-[#0d5aa0] shadow-sm flex items-center gap-1"
@@ -534,9 +492,9 @@ Reglas estrictas:
 
             {/* Main Content Area */}
             <div className="flex-1 flex overflow-hidden">
-                {/* ═══ SIDEBAR CORRECTO POR DOMINIO ═══════════════
-                    D1: Menú → MenuCategorySidebar (lee SOLO menu_categories)
-                    D2: Productos → ProductCategorySidebar (lee SOLO product_categories) */}
+                {/* ÔòÉÔòÉÔòÉ SIDEBAR CORRECTO POR DOMINIO ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+                    D1: Men├║ ÔåÆ MenuCategorySidebar (lee SOLO menu_categories)
+                    D2: Productos ÔåÆ ProductCategorySidebar (lee SOLO product_categories) */}
                 {initialTab === 'platillos' ? (
                     <MenuCategorySidebar
                         selectedId={categoryMenuId}
@@ -544,8 +502,10 @@ Reglas estrictas:
                     />
                 ) : (
                     <ProductCategorySidebar
-                        selectedId={categoryProdId}
-                        onSelect={setCategoryProdId}
+                        selectedIds={categoriaProdSel}
+                        onToggle={(id) => setCategoryProdId(categoryProdId === id ? null : id)}
+                        onSelectAll={(ids) => setCategoryProdId(ids[0] || null)}
+                        onClearAll={() => setCategoryProdId(null)}
                     />
                 )}
 
@@ -572,14 +532,14 @@ Reglas estrictas:
                             onDelete={(id) => handleDelete(id, 'producto')}
                             onRefresh={handleRefresh}
                             onChangeCategory={handleChangeCategory}
-                            onKardex={(id) => console.log('Kardex no implementado aún', id)}
+                            onKardex={(id) => console.log('Kardex no implementado a├║n', id)}
                         />
                     )}
                 </div>
             </div>
         </div>
 
-        {/* Quick Change Modal (Categoría / Cocina) */}
+        {/* Quick Change Modal (Categor├¡a / Cocina) */}
             {showQuickModal && quickTargetId && createPortal(
                 <div className="fixed inset-0 z-[2000000] flex items-center justify-center p-4 pointer-events-none">
                     <div className="absolute inset-0 pointer-events-auto" onClick={() => setShowQuickModal(null)}></div>
@@ -592,7 +552,7 @@ Reglas estrictas:
                                             {showQuickModal === 'category' ? <Folder size={14} className="text-white" /> : <ChefHat size={14} className="text-white" />}
                                         </div>
                                         <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">
-                                            {showQuickModal === 'category' ? 'Seleccionar Nueva Categoría' : 'Seleccionar Estación de Cocina'}
+                                            {showQuickModal === 'category' ? 'Seleccionar Nueva Categor├¡a' : 'Seleccionar Estaci├│n de Cocina'}
                                         </h3>
                                     </div>
                                     <button onClick={() => setShowQuickModal(null)} className="text-white/60 hover:text-white hover:bg-red-500 w-6 h-6 flex items-center justify-center transition-all">
@@ -643,389 +603,47 @@ Reglas estrictas:
                 document.body
             )}
 
-            {/* MANTENIMIENTO DE PLATILLOS (UI RESTORATION) */}
-            {showModal && createPortal(
-                <div className="fixed inset-0 z-[2000000] flex items-center justify-center p-4 bg-black/10 pointer-events-none">
-                    <div className="absolute inset-0 pointer-events-auto" onClick={() => { setShowModal(false); resetForm(); }}></div>
-                    <div className="pointer-events-auto">
-                        <DraggableWindow>
-                            <div className="bg-[#f0f0f0] border border-[#106ebe] shadow-[0_30px_60px_-12px_rgba(0,0,0,0.6)] w-[820px] overflow-hidden flex flex-col max-h-[94vh] animate-in zoom-in-95 duration-200">
-                                {modalType === 'producto' ? (
-                                    <>
-                                        {/* HEADER PRODUCTO (EXACT SCREENSHOT) */}
-                                        <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 cursor-move select-none border-b border-[#004578]">
-                                            <span className="text-[12px] font-bold uppercase tracking-tight">Mantenimiento de Productos</span>
-                                            <div className="flex h-full">
-                                                <WindowsSaveButton onClick={handleSave} loading={isSaving} variant="minimal" title="Guardar" />
-                                                <button 
-                                                    onClick={() => { setShowModal(false); resetForm(); }}
-                                                    className="w-10 h-full flex items-center justify-center hover:bg-red-500 transition-colors"
-                                                    title="Cerrar"
-                                                >
-                                                    <X size={18} strokeWidth={2.5} />
-                                                </button>
-                                            </div>
-                                        </div>
+            {/* MODALS FACTORED OUT */}
+            <PlatilloModal 
+                isOpen={showModal && modalType === 'platillo'}
+                onClose={() => { setShowModal(false); resetForm(); }}
+                editingId={editingId}
+                newProduct={newProduct}
+                setNewProduct={setNewProduct}
+                handleSave={handleSave}
+                isSaving={isSaving}
+                menuCategories={menuCategories}
+                kitchens={kitchens}
+                branches={branches}
+                recipeItems={recipeItems}
+                setRecipeItems={setRecipeItems}
+                setRecipeContextMenu={setRecipeContextMenu}
+                setSearchModal={setSearchModal}
+                branchPrices={branchPrices}
+                setBranchPrices={setBranchPrices}
+                assignedModifierGroups={assignedModifierGroups}
+                assignedOptionGroups={assignedOptionGroups}
+                setOptionsContextMenu={setOptionsContextMenu}
+            />
 
-                                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-5">
-                                            {/* DATOS DE PRODUCTO */}
-                                            <div className="space-y-1.5">
-                                                <h4 className="text-[12px] font-black text-slate-700 uppercase tracking-tight">Datos de Producto</h4>
-                                                <div className="bg-white border border-gray-300 p-5 space-y-2 shadow-sm rounded-sm">
-                                                    <div className="flex items-center gap-2">
-                                                        <label className="text-[10px] font-bold text-slate-500 w-32 shrink-0">Código</label>
-                                                        <input 
-                                                            type="text" 
-                                                            className="flex-1 h-6 bg-white border border-gray-300 px-2 text-[11px] font-bold text-slate-800 outline-none focus:border-[#106ebe] uppercase"
-                                                            value={newProduct.product_code || ''}
-                                                            onChange={e => setNewProduct({...newProduct, product_code: e.target.value.toUpperCase()})}
-                                                        />
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <label className="text-[10px] font-bold text-slate-500 w-32 shrink-0">Producto</label>
-                                                        <input 
-                                                            type="text" 
-                                                            className="flex-1 h-6 bg-white border border-gray-300 px-2 text-[11px] font-black text-[#106ebe] outline-none focus:border-[#106ebe] uppercase"
-                                                            value={newProduct.name || ''}
-                                                            onChange={e => setNewProduct({...newProduct, name: e.target.value.toUpperCase()})}
-                                                        />
-                                                    </div>
-                                                    <div className="grid grid-cols-2 gap-x-8">
-                                                        <div className="flex items-center gap-2">
-                                                            <label className="text-[10px] font-bold text-slate-500 w-32 shrink-0">Unidad de Medida</label>
-                                                            <select 
-                                                                className="flex-1 h-6 bg-white border border-gray-300 px-2 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe]"
-                                                                value={newProduct.unit_measure}
-                                                                onChange={e => setNewProduct({...newProduct, unit_measure: e.target.value})}
-                                                            >
-                                                                <option value="Libra">Libra</option>
-                                                                <option value="Unidad">Unidad</option>
-                                                                <option value="Kilo">Kilo</option>
-                                                                <option value="Litro">Litro</option>
-                                                                <option value="Galon">Galon</option>
-                                                                <option value="Docena">Docena</option>
-                                                                <option value="Ciento">Ciento</option>
-                                                                <option value="Onza">Onza</option>
-                                                                <option value="Gramo">Gramo</option>
-                                                                <option value="Mililitro">Mililitro</option>
-                                                            </select>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <label className="text-[10px] font-bold text-slate-500 w-24 shrink-0 px-2">Presentación</label>
-                                                            <select 
-                                                                className="flex-1 h-6 bg-white border border-gray-300 px-2 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe]"
-                                                                value={newProduct.presentation_unit}
-                                                                onChange={e => setNewProduct({...newProduct, presentation_unit: e.target.value})}
-                                                            >
-                                                                <option value="Caja">Caja</option>
-                                                                <option value="Unidad">Unidad</option>
-                                                                <option value="Bolsa">Bolsa</option>
-                                                                <option value="Frasco">Frasco</option>
-                                                                <option value="Bote">Bote</option>
-                                                                <option value="Garrafon">Garrafon</option>
-                                                                <option value="Paquete">Paquete</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div className="grid grid-cols-2 gap-x-8">
-                                                        <div className="flex items-center gap-2">
-                                                            <label className="text-[10px] font-bold text-slate-500 w-32 shrink-0">
-                                                                Cantidad de {newProduct.unit_measure} en 1 {newProduct.presentation_unit}
-                                                            </label>
-                                                            <input 
-                                                                type="text" 
-                                                                className="flex-1 h-6 bg-white border border-gray-300 px-2 text-[11px] font-black text-[#106ebe] outline-none focus:border-[#106ebe] text-center"
-                                                                value={newProduct.conversion_factor}
-                                                                onChange={e => setNewProduct({...newProduct, conversion_factor: e.target.value.replace(/[^0-9.]/g, '')})}
-                                                            />
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <label className="text-[10px] font-bold text-slate-500 w-24 shrink-0 px-2">Precio Costo</label>
-                                                            <div className="flex-1 relative">
-                                                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">Q</span>
-                                                                <input 
-                                                                    type="text" 
-                                                                    className="w-full h-6 bg-white border border-gray-300 pl-6 pr-2 text-[11px] font-black text-slate-800 outline-none focus:border-[#106ebe] text-right"
-                                                                    placeholder="00.00"
-                                                                    value={newProduct.cost_price || ''}
-                                                                    onChange={e => setNewProduct({...newProduct, cost_price: e.target.value.replace(/[^0-9.]/g, '')})}
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <label className="text-[10px] font-bold text-slate-500 w-32 shrink-0">Categoría</label>
-                                                        <div className="flex-1 flex gap-1 relative">
-                                                            <div className="flex-1 relative">
-                                                                <button 
-                                                                    type="button"
-                                                                    onClick={() => setOpenPicker(openPicker === 'category' ? null : 'category')}
-                                                                    className="w-full h-6 bg-white border border-gray-300 px-2 text-[11px] font-bold text-[#106ebe] text-left uppercase flex items-center justify-between shadow-sm active:bg-gray-50"
-                                                                >
-                                                                    <span className="truncate">{inventoryCategories.find(c => c.id === newProduct.category_id)?.name || '[Elija una Categoría]'}</span>
-                                                                    <span className="text-[8px] opacity-40">▼</span>
-                                                                </button>
-                                                                
-                                                                {openPicker === 'category' && (
-                                                                    <>
-                                                                        <div className="fixed inset-0 z-[100] pointer-events-auto" onClick={() => setOpenPicker(null)}></div>
-                                                                        <div className="absolute top-full left-0 w-full bg-white border border-[#106ebe] shadow-xl z-[101] max-h-[200px] overflow-y-auto custom-scrollbar animate-in slide-in-from-top-1 duration-100">
-                                                                            <button 
-                                                                                onClick={() => { setNewProduct({...newProduct, category_id: ''}); setOpenPicker(null); }}
-                                                                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-slate-400 hover:bg-gray-100 italic"
-                                                                            >[Elija una Categoría]</button>
-                                                                            {inventoryCategories.map(cat => (
-                                                                                <button
-                                                                                    key={cat.id}
-                                                                                    onClick={() => { setNewProduct({...newProduct, category_id: cat.id}); setOpenPicker(null); }}
-                                                                                    className={`w-full text-left px-3 py-1.5 text-[10px] font-bold uppercase transition-colors hover:bg-[#106ebe] hover:text-white ${newProduct.category_id === cat.id ? 'bg-[#106ebe]/10 text-[#106ebe]' : 'text-slate-600'}`}
-                                                                                >
-                                                                                    {cat.name}
-                                                                                </button>
-                                                                            ))}
-                                                                        </div>
-                                                                    </>
-                                                                )}
-                                                            </div>
-                                                            <button onClick={() => setShowQuickCatModal(true)} className="px-2 h-6 bg-white border border-gray-300 text-[#106ebe] font-bold hover:bg-gray-100 shadow-sm">...</button>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <label className="text-[10px] font-bold text-slate-500 w-32 shrink-0">Proveedor</label>
-                                                        <div className="flex-1 flex gap-1 relative">
-                                                            <div className="flex-1 relative">
-                                                                <button 
-                                                                    type="button"
-                                                                    onClick={() => setOpenPicker(openPicker === 'supplier' ? null : 'supplier')}
-                                                                    className="w-full h-6 bg-white border border-gray-300 px-2 text-[11px] font-bold text-[#106ebe] text-left uppercase flex items-center justify-between shadow-sm active:bg-gray-50"
-                                                                >
-                                                                    <span className="truncate">{suppliers.find(s => s.id === newProduct.supplier_id)?.name || '[Elija un Proveedor]'}</span>
-                                                                    <span className="text-[8px] opacity-40">▼</span>
-                                                                </button>
-                                                                
-                                                                {openPicker === 'supplier' && (
-                                                                    <>
-                                                                        <div className="fixed inset-0 z-[100] pointer-events-auto" onClick={() => setOpenPicker(null)}></div>
-                                                                        <div className="absolute top-full left-0 w-full bg-white border border-[#106ebe] shadow-xl z-[101] max-h-[200px] overflow-y-auto custom-scrollbar animate-in slide-in-from-top-1 duration-100">
-                                                                            <button 
-                                                                                onClick={() => { setNewProduct({...newProduct, supplier_id: ''}); setOpenPicker(null); }}
-                                                                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-slate-400 hover:bg-gray-100 italic"
-                                                                            >[Elija un Proveedor]</button>
-                                                                            {suppliers.map(s => (
-                                                                                <button
-                                                                                    key={s.id}
-                                                                                    onClick={() => { setNewProduct({...newProduct, supplier_id: s.id}); setOpenPicker(null); }}
-                                                                                    className={`w-full text-left px-3 py-1.5 text-[10px] font-bold uppercase transition-colors hover:bg-[#106ebe] hover:text-white ${newProduct.supplier_id === s.id ? 'bg-[#106ebe]/10 text-[#106ebe]' : 'text-slate-600'}`}
-                                                                                >
-                                                                                    {s.name}
-                                                                                </button>
-                                                                            ))}
-                                                                        </div>
-                                                                    </>
-                                                                )}
-                                                            </div>
-                                                            <button className="px-2 h-6 bg-white border border-gray-300 text-[#106ebe] font-bold hover:bg-gray-100 shadow-sm">...</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* CONFIGURACIÓN */}
-                                            <div className="space-y-1.5 flex-1 flex flex-col min-h-[220px]">
-                                                <h4 className="text-[12px] font-black text-slate-700 uppercase tracking-tight">Configuración</h4>
-                                                <div className="bg-white border border-gray-300 flex-1 flex flex-col shadow-sm rounded-sm overflow-hidden">
-                                                    <div className="flex bg-[#e1e5eb] border-b border-gray-300 h-8">
-                                                        <button 
-                                                            onClick={() => setActiveTab('general')}
-                                                            className={`px-6 h-full text-[10px] font-black uppercase transition-all ${activeTab === 'general' ? 'bg-white text-[#106ebe] border-x border-t-2 border-t-[#106ebe] z-10' : 'text-slate-500 hover:bg-gray-200'}`}
-                                                        >Sucursales</button>
-                                                        <button 
-                                                            onClick={() => setActiveTab('receta')}
-                                                            className={`px-6 h-full text-[10px] font-black uppercase transition-all ${activeTab === 'receta' ? 'bg-white text-[#106ebe] border-x border-t-2 border-t-[#106ebe] z-10' : 'text-slate-500 hover:bg-gray-200'}`}
-                                                        >Receta</button>
-                                                    </div>
-                                                    <div className="flex-1 p-2 overflow-auto custom-scrollbar">
-                                                        {activeTab === 'general' ? (
-                                                            <table className="w-full border-collapse">
-                                                                <thead>
-                                                                    <tr className="bg-[#f5f5f5] text-[10px] font-bold text-slate-600 border-b border-gray-200 h-7 uppercase">
-                                                                        <th className="px-3 text-left border-r border-gray-200">Sucursal</th>
-                                                                        <th className="px-3 text-center border-r border-gray-200">Existencia</th>
-                                                                        <th className="px-3 text-center border-r border-gray-200">Punto de Reorden</th>
-                                                                        <th className="px-3 text-center border-r border-gray-200">Habilitado</th>
-                                                                        <th className="px-3 text-center">Asignado a Sucursal</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody className="divide-y divide-gray-100">
-                                                                    {branches.map(b => (
-                                                                        <tr key={b.id} className="h-8 text-[11px] font-bold text-slate-700 hover:bg-blue-50/50">
-                                                                            <td className="px-3 border-r border-gray-100 flex items-center gap-2 uppercase">
-                                                                                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm"></div>
-                                                                                {b.name}
-                                                                            </td>
-                                                                            <td className="px-2 border-r border-gray-100">
-                                                                                <input type="text" className="w-full h-6 border border-gray-200 text-center text-[#106ebe]" defaultValue="0.00" />
-                                                                            </td>
-                                                                            <td className="px-2 border-r border-gray-100">
-                                                                                <input type="text" className="w-full h-6 border border-gray-200 text-center text-[#106ebe]" defaultValue="0.00" />
-                                                                            </td>
-                                                                            <td className="px-2 border-r border-gray-100 text-center">
-                                                                                <input type="checkbox" defaultChecked className="w-3.5 h-3.5 accent-[#106ebe]" />
-                                                                            </td>
-                                                                            <td className="px-2 text-center">
-                                                                                <input type="checkbox" defaultChecked className="w-3.5 h-3.5 accent-[#106ebe]" />
-                                                                            </td>
-                                                                        </tr>
-                                                                    ))}
-                                                                </tbody>
-                                                            </table>
-                                                        ) : (
-                                                            <div 
-                                                                className="flex-1 flex flex-col min-h-[220px] bg-white relative group"
-                                                                onContextMenu={(e) => {
-                                                                    e.preventDefault();
-                                                                    setRecipeContextMenu({ visible: true, x: e.clientX, y: e.clientY });
-                                                                }}
-                                                            >
-                                                                {recipeItems.length === 0 ? (
-                                                                    <div className="flex-1 flex flex-col items-center justify-center gap-3 text-gray-200 group-hover:text-[#106ebe]/20 transition-all pointer-events-none">
-                                                                        <Layers size={40} strokeWidth={1} />
-                                                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Sin Ingredientes - Clic derecho para buscar</span>
-                                                                    </div>
-                                                                ) : (
-                                                                    <table className="w-full border-collapse">
-                                                                        <thead className="bg-[#f8fafc] sticky top-0 border-b border-gray-200 z-10 shadow-sm">
-                                                                            <tr className="h-7 uppercase text-[9px] font-black text-slate-500 tracking-tighter">
-                                                                                <th className="px-3 text-left border-r border-gray-100">Insumo / Ingrediente</th>
-                                                                                <th className="w-20 text-center border-r border-gray-100">Cant.</th>
-                                                                                <th className="w-20 text-center border-r border-gray-100">Unidad</th>
-                                                                                <th className="w-24 text-right px-3">Subtotal</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody className="divide-y divide-gray-100 bg-white">
-                                                                            {recipeItems.map((ri, idx) => {
-                                                                                const cost = (ri.inventory_items?.precio_costo || 0);
-                                                                                const total = (parseFloat(ri.quantity) || 0) * cost;
-                                                                                return (
-                                                                                    <tr 
-                                                                                        key={idx} 
-                                                                                        className="h-7 text-[10px] font-bold text-slate-700 hover:bg-blue-50/50 cursor-context-menu"
-                                                                                        onContextMenu={(e) => {
-                                                                                            e.preventDefault();
-                                                                                            e.stopPropagation();
-                                                                                            setRecipeContextMenu({ visible: true, x: e.clientX, y: e.clientY, itemIdx: idx });
-                                                                                        }}
-                                                                                    >
-                                                                                        <td className="px-3 border-r border-gray-50 uppercase truncate max-w-[150px]">{ri.inventory_items?.nombre}</td>
-                                                                                        <td className="px-1 border-r border-gray-50">
-                                                                                            <input 
-                                                                                                type="text" 
-                                                                                                className="w-full h-5 text-center bg-transparent border-0 font-black text-[#106ebe] outline-none"
-                                                                                                value={ri.quantity}
-                                                                                                onChange={e => {
-                                                                                                    const n = [...recipeItems];
-                                                                                                    n[idx].quantity = e.target.value.replace(/[^0-9.]/g, '');
-                                                                                                    setRecipeItems(n);
-                                                                                                }}
-                                                                                            />
-                                                                                        </td>
-                                                                                        <td className="px-2 text-center border-r border-gray-50 text-slate-400 uppercase">{ri.unit_measure || 'GR'}</td>
-                                                                                        <td className="px-3 text-right font-black text-slate-600">Q {total.toFixed(2)}</td>
-                                                                                    </tr>
-                                                                                );
-                                                                            })}
-                                                                        </tbody>
-                                                                    </table>
-                                                                )}
-                                                                
-                                                                {/* Summary Bar for Recipe Tab */}
-                                                                <div className="mt-auto h-7 bg-blue-50/50 border-t border-gray-200 px-3 flex items-center justify-between shrink-0">
-                                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter italic">* CLIC DERECHO PARA EDITAR COMPOSICIÓN</span>
-                                                                    <div className="flex items-center gap-2">
-                                                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">Costo Insumos:</span>
-                                                                        <span className="text-[11px] font-black text-[#106ebe]">Q {recipeItems.reduce((acc, ri) => acc + ((parseFloat(ri.quantity) || 0) * (ri.inventory_items?.precio_costo || 0)), 0).toFixed(2)}</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        {/* HEADER PLATILLO */}
-                                        <div className="modal-header bg-[#106ebe] h-10 px-4 flex justify-between items-center text-white shrink-0 cursor-move select-none">
-                                            <div className="flex flex-col">
-                                                <span className="text-[11px] font-black uppercase tracking-widest leading-none">Mantenimiento de Platillos</span>
-                                                <span className="text-[9px] font-bold text-white/50 uppercase">{editingId ? `Editando: ${newProduct.name}` : 'Nuevo Registro'}</span>
-                                            </div>
-                                            <div className="flex h-full">
-                                                <WindowsSaveButton onClick={handleSave} loading={isSaving} variant="minimal" title="Guardar" />
-                                                <button 
-                                                    onClick={() => { setShowModal(false); resetForm(); }}
-                                                    className="w-10 h-full flex items-center justify-center hover:bg-red-500 transition-colors"
-                                                    title="Cerrar"
-                                                >
-                                                    ✕
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex bg-[#f5f5f5] shrink-0 border-b border-gray-300 h-10">
-                                            {['general', 'sucursales', 'receta', 'configuracion'].map(t => (
-                                                <button 
-                                                    key={t}
-                                                    onClick={() => setActiveTab(t as any)}
-                                                    className={`px-6 h-full text-[10px] font-black uppercase transition-all border-r border-gray-200 ${activeTab === t ? 'bg-white text-[#106ebe] border-t-2 border-t-[#106ebe]' : 'text-slate-500 hover:bg-gray-200'}`}
-                                                >{t}</button>
-                                            ))}
-                                        </div>
-
-                                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
-                                            {loadingForm ? (
-                                                <div className="flex flex-col items-center justify-center py-20 gap-3">
-                                                    <Loader2 size={30} className="animate-spin text-[#106ebe]" />
-                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-[#106ebe]">Cargando Ficha...</span>
-                                                </div>
-                                            ) : (
-                                                <div className="space-y-4">
-                                                    <div className="border border-gray-300 bg-white p-4 flex gap-6 shadow-sm">
-                                                        <div className="flex-1 space-y-3">
-                                                            <div className="flex items-center gap-2">
-                                                                <label className="text-[10px] font-bold text-gray-400 w-24 uppercase">Código</label>
-                                                                <input type="text" className="flex-1 h-7 bg-gray-50 border border-gray-300 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] uppercase" value={newProduct.product_code || ''} onChange={e => setNewProduct({...newProduct, product_code: e.target.value.toUpperCase()})} />
-                                                            </div>
-                                                            <div className="flex items-center gap-2">
-                                                                <label className="text-[10px] font-bold text-gray-400 w-24 uppercase">Producto</label>
-                                                                <input type="text" className="flex-1 h-7 bg-blue-50 border border-[#106ebe]/30 px-3 text-[11px] font-black text-[#106ebe] outline-none focus:border-[#106ebe] uppercase" value={newProduct.name || ''} onChange={e => setNewProduct({...newProduct, name: e.target.value.toUpperCase()})} />
-                                                            </div>
-                                                            <div className="flex items-center gap-2">
-                                                                <label className="text-[10px] font-bold text-gray-400 w-24 uppercase">Categoría</label>
-                                                                <select className="flex-1 h-7 bg-white border border-gray-300 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe]" value={newProduct.category_id || ''} onChange={e => setNewProduct({...newProduct, category_id: e.target.value})}>
-                                                                    <option value="">[SELECCIONAR CATEGORIA]</option>
-                                                                    {menuCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                        <div className="w-32 aspect-square bg-[#e8e8e8] border border-gray-300 flex items-center justify-center overflow-hidden relative group">
-                                                            {newProduct.image_url ? <img src={newProduct.image_url} className="w-full h-full object-cover" /> : <ChefHat size={40} className="text-gray-300" />}
-                                                            <button onClick={() => document.getElementById('imgUpload')?.click()} className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[9px] font-bold uppercase transition-opacity">Subir</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </>
-                                )}
-                                {/* No footer as per user request */}
-                            </div>
-                        </DraggableWindow>
-                    </div>
-                </div>,
-                document.body
-            )}
+            <ProductoModal 
+                isOpen={showModal && modalType === 'producto'}
+                onClose={() => { setShowModal(false); resetForm(); }}
+                editingId={editingId}
+                newProduct={newProduct}
+                setNewProduct={setNewProduct}
+                handleSave={handleSave}
+                isSaving={isSaving}
+                inventoryCategories={inventoryCategories}
+                suppliers={suppliers}
+                branches={branches}
+                recipeItems={recipeItems}
+                setRecipeItems={setRecipeItems}
+                setRecipeContextMenu={setRecipeContextMenu}
+                setShowQuickCatModal={setShowQuickCatModal}
+                openPicker={openPicker}
+                setOpenPicker={setOpenPicker}
+            />
 
             {optionsContextMenu.visible && createPortal(
                 <div 
@@ -1064,25 +682,25 @@ Reglas estrictas:
                             <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 select-none relative group">
                                 <div className="flex items-center gap-2 relative z-10 font-[Arial]">
                                     <Search size={14} className="text-blue-100" />
-                                    <span className="text-[10px] font-black uppercase tracking-tight">
-                                        Explorador de Insumos - Seleccionando para: <span className="text-blue-100 font-black">{newProduct.name || 'NUEVO PRODUCTO'}</span>
-                                    </span>
-                                </div>
-                                <button onClick={() => setSearchModal({ visible: false, type: null, query: '' })} className="hover:bg-red-500 w-8 h-8 flex items-center justify-center transition-colors font-bold text-[16px] relative z-10">✕</button>
-                            </div>
-                                <div className="p-3 bg-[#f0f0f0] flex gap-2 border-b border-gray-300">
-                                    <div className="relative flex-1 flex bg-white border border-gray-400 p-0.5 shadow-inner">
-                                        <div className="flex items-center px-3 text-gray-400">
-                                            <Search size={14} />
+                                            <span className="text-[10px] font-black uppercase tracking-tight">
+                                                Explorador de Insumos - Seleccionando para: <span className="text-blue-100 font-black">{newProduct.name || 'NUEVO PRODUCTO'}</span>
+                                            </span>
                                         </div>
-                                        <input 
-                                            type="text" 
-                                            autoFocus
-                                            placeholder="INTRODUZCA EL TEXTO A BUSCAR (CODIGO O NOMBRE)..."
-                                            className="grow h-8 bg-transparent text-[11px] font-bold text-[#106ebe] outline-none placeholder:text-gray-300 placeholder:font-normal"
-                                            value={searchModal.query}
-                                            onChange={e => setSearchModal({ ...searchModal, query: e.target.value.toUpperCase() })}
-                                        />
+                                        <button onClick={() => setSearchModal({ visible: false, type: null, query: '' })} className="hover:bg-red-500 w-8 h-8 flex items-center justify-center transition-colors font-bold text-[16px] relative z-10">✕</button>
+                                    </div>
+                                    <div className="p-3 bg-[#f0f0f0] flex gap-2 border-b border-gray-300">
+                                        <div className="relative flex-1 flex bg-white border border-gray-400 p-0.5 shadow-inner">
+                                            <div className="flex items-center px-3 text-gray-400">
+                                                <Search size={14} />
+                                            </div>
+                                            <input 
+                                                type="text" 
+                                                autoFocus
+                                                placeholder="INTRODUZCA EL TEXTO A BUSCAR (CODIGO O NOMBRE)..."
+                                                className="grow h-8 bg-transparent text-[11px] font-bold text-[#106ebe] outline-none placeholder:text-gray-300 placeholder:font-normal"
+                                                value={searchModal.query}
+                                                onChange={e => setSearchModal({ ...searchModal, query: e.target.value.toUpperCase() })}
+                                            />
                                         <button className="bg-[#106ebe] text-white px-6 h-8 text-[11px] font-black uppercase hover:bg-[#004578] transition-colors shadow-md">Buscar</button>
                                     </div>
                                 </div>
@@ -1176,8 +794,7 @@ Reglas estrictas:
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>,
+                    </div>,
                 document.body
             )}
 
@@ -1279,7 +896,7 @@ Reglas estrictas:
                                                         />
                                                     </div>
                                                     <div className="flex items-center gap-2">
-                                                        <label className="text-[10px] font-bold text-slate-500 w-24 uppercase">Tamaño Porción</label>
+                                                        <label className="text-[10px] font-bold text-slate-500 w-24 uppercase">Tama├▒o Porci├│n</label>
                                                         <input 
                                                             type="text" 
                                                             className="flex-1 h-7 bg-white border border-gray-300 px-2 text-[10px] font-black text-slate-600 uppercase outline-none focus:border-[#106ebe] shadow-inner"
@@ -1304,12 +921,12 @@ Reglas estrictas:
                                         <div className="grid grid-cols-2 gap-4 shrink-0">
                                             <div className="space-y-1">
                                                 <div className="flex justify-between items-center">
-                                                    <label className="text-[10px] font-black text-[#106ebe] uppercase tracking-wider">Preparación / Procedimiento</label>
+                                                    <label className="text-[10px] font-black text-[#106ebe] uppercase tracking-wider">Preparaci├│n / Procedimiento</label>
                                                     <button 
                                                         onClick={() => handleImproveText('prep_procedure')}
                                                         disabled={isImproving}
                                                         className="text-[#106ebe] p-1 h-6 px-2 hover:bg-white rounded border border-gray-200 shadow-sm flex items-center gap-1 group transition-all"
-                                                        title="Mejorar redacción con IA"
+                                                        title="Mejorar redacci├│n con IA"
                                                     >
                                                         {isImproving ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={11} className="group-hover:text-amber-500 transition-colors" />}
                                                         <span className="text-[8px] font-black uppercase">IA</span>
@@ -1317,7 +934,7 @@ Reglas estrictas:
                                                 </div>
                                                 <textarea 
                                                     className="w-full h-20 p-2 bg-white border border-gray-300 text-[10px] font-bold text-slate-700 outline-none focus:border-[#106ebe] shadow-inner resize-none uppercase"
-                                                    placeholder="Pasos de preparación..."
+                                                    placeholder="Pasos de preparaci├│n..."
                                                     value={newProduct.prep_procedure || ''}
                                                     onChange={e => setNewProduct({...newProduct, prep_procedure: e.target.value})}
                                                 ></textarea>
@@ -1329,7 +946,7 @@ Reglas estrictas:
                                                         onClick={() => handleImproveText('observations')}
                                                         disabled={isImproving}
                                                         className="text-[#106ebe] p-1 h-6 px-2 hover:bg-white rounded border border-gray-200 shadow-sm flex items-center gap-1 group transition-all"
-                                                        title="Mejorar redacción con IA"
+                                                        title="Mejorar redacci├│n con IA"
                                                     >
                                                         {isImproving ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={11} className="group-hover:text-amber-500 transition-colors" />}
                                                         <span className="text-[8px] font-black uppercase">IA</span>
@@ -1476,7 +1093,7 @@ Reglas estrictas:
                                                     ) : (
                                                         <div className="w-full h-full border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-300">
                                                             <ImageIcon size={32} strokeWidth={1} />
-                                                            <span className="text-[8px] font-black uppercase mt-1">FOTOGRAFÍA</span>
+                                                            <span className="text-[8px] font-black uppercase mt-1">FOTOGRAF├ìA</span>
                                                         </div>
                                                     )}
                                                 </div>
@@ -1489,7 +1106,7 @@ Reglas estrictas:
                                                         <th className="border-r border-black p-1 w-20 text-center">Cantidad</th>
                                                         <th className="border-r border-black p-1 w-32 text-center">Unidad de Medida</th>
                                                         <th className="border-r border-black p-1 text-center">Ingrediente</th>
-                                                        <th className="p-1 w-48 text-center">Especificaciones técnicas</th>
+                                                        <th className="p-1 w-48 text-center">Especificaciones t├®cnicas</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -1514,9 +1131,9 @@ Reglas estrictas:
                                                 </tbody>
                                             </table>
 
-                                            {/* Preparación Section */}
+                                            {/* Preparaci├│n Section */}
                                             <div className="bg-gray-200 border-y-2 border-black text-center py-1">
-                                                <h3 className="text-[10px] font-black uppercase tracking-widest">Preparación</h3>
+                                                <h3 className="text-[10px] font-black uppercase tracking-widest">Preparaci├│n</h3>
                                             </div>
                                             <div className="p-3 min-h-[150px] border-b-2 border-black">
                                                 <p className="text-[10px] leading-relaxed text-left whitespace-pre-wrap uppercase font-medium">
@@ -1540,7 +1157,7 @@ Reglas estrictas:
                                         {/* Footer Print Info */}
                                         <div className="mt-4 flex justify-between text-[8px] font-bold text-gray-400 uppercase italic">
                                             <span>Documento Generado por Antigravity OS</span>
-                                            <span>Restaurante Las Palmas • Guatemala</span>
+                                            <span>Restaurante Las Palmas ÔÇó Guatemala</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1548,7 +1165,7 @@ Reglas estrictas:
                                 <div className="px-4 py-2 bg-[#e1e5eb] border-t border-gray-300 flex justify-between items-center shrink-0 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
                                     <div className="flex items-center gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
-                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Ficha Técnica Pro • v2.0 • Antigravity OS</span>
+                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Ficha T├®cnica Pro ÔÇó v2.0 ÔÇó Antigravity OS</span>
                                     </div>
                                     <button onClick={() => setShowTechnicalModal(false)} className="px-6 h-8 bg-white border border-gray-400 text-slate-500 text-[9px] font-black uppercase shadow-sm hover:bg-gray-50 transition-all hover:border-gray-500 active:bg-gray-100">Cerrar Ventana</button>
                                 </div>
@@ -1567,8 +1184,8 @@ Reglas estrictas:
                         <DraggableWindow>
                             <div className="bg-[#f0f0f0] border border-[#707070] shadow-xl w-[450px] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
                                 <div className="modal-header bg-white h-7 px-3 flex items-center justify-between border-b border-gray-300 shrink-0 cursor-move select-none">
-                                    <span className="text-[11px] font-medium text-black">Configuración - Esc (Cerrar)</span>
-                                    <button onClick={() => setConfigModal(null)} className="hover:bg-red-500 hover:text-white w-7 h-7 flex items-center justify-center transition-colors text-black font-bold text-xs">✕</button>
+                                    <span className="text-[11px] font-medium text-black">Configuraci├│n - Esc (Cerrar)</span>
+                                    <button onClick={() => setConfigModal(null)} className="hover:bg-red-500 hover:text-white w-7 h-7 flex items-center justify-center transition-colors text-black font-bold text-xs">Ô£ò</button>
                                 </div>
                                 <div className="p-5 space-y-3">
                                     <div className="flex items-center gap-2">
@@ -1649,7 +1266,7 @@ Reglas estrictas:
                             <div className="modal-header px-4 py-2 bg-[#106ebe] flex items-center justify-between cursor-move select-none">
                                 <div className="flex items-center gap-2">
                                     <FolderPlus size={14} className="text-white" />
-                                    <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">Nueva Categoría ({modalType === 'platillo' ? 'Venta' : 'Inventario'})</h3>
+                                    <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">Nueva Categor├¡a ({modalType === 'platillo' ? 'Venta' : 'Inventario'})</h3>
                                 </div>
                                 <button onClick={() => setShowQuickCatModal(false)} className="text-white/60 hover:text-white hover:bg-red-500 w-6 h-6 flex items-center justify-center transition-all">
                                     <X size={16} />
@@ -1657,7 +1274,7 @@ Reglas estrictas:
                             </div>
                             <div className="p-4 bg-white m-1 border border-gray-300 space-y-4">
                                 <div>
-                                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Nombre de Categoría</label>
+                                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Nombre de Categor├¡a</label>
                                     <input 
                                         autoFocus
                                         type="text" 

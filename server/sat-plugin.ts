@@ -182,7 +182,7 @@ async function insertToSupabase(
             }
 
             // Preparar Record Auditoría
-            auditRecords.push({
+            const auditBody: any = {
                 org_id: 'default',
                 uuid_dte: audit.uuid,
                 serie: audit.serie,
@@ -199,10 +199,7 @@ async function insertToSupabase(
                 iva_monto: audit.iva_monto,
                 iva_credito_fiscal: audit.iva_credito_fiscal,
                 idp_monto: audit.idp_monto,
-                impuesto_bebidas_alcoh: audit.impuesto_bebidas_alcoh,
-                impuesto_bebidas_no_alcoh: audit.impuesto_bebidas_no_alcoh,
-                isr_retenido: audit.isr_retenido,
-                iva_retenido: audit.iva_retenido,
+                isr_retenido: audit.isr_retenido || 0,
                 items: audit.items,
                 clasificacion_compra: audit.clasificacion_compra,
                 categoria_gasto: audit.categoria_gasto,
@@ -211,7 +208,13 @@ async function insertToSupabase(
                 procesado_fecha: new Date().toISOString(),
                 procesado_por: "Turbo Bulk Sync v3",
                 xml_origen: audit.xml_origen
-            });
+            };
+            
+            // Eliminar campos que no existen en historico_auditoria_sat para evitar errores de DB
+            // @ts-ignore
+            delete auditBody.iva_retenido; 
+            
+            auditRecords.push(auditBody);
 
             // Preparar Record Tabla Operativa
             const opBody: any = {
@@ -237,8 +240,6 @@ async function insertToSupabase(
                 opBody.supplier_name = inv.nombre_emisor;
                 opBody.tipo_dte = audit.tipo_dte;
                 opBody.idp_monto = audit.idp_monto || 0;
-                opBody.impuesto_bebidas_alcoh = audit.impuesto_bebidas_alcoh || 0;
-                opBody.impuesto_bebidas_no_alcoh = audit.impuesto_bebidas_no_alcoh || 0;
                 opBody.iva_retenido = audit.iva_retenido || 0;
                 opBody.isr_retenido = audit.isr_retenido || 0;
                 opBody.payment_status = 'paid';

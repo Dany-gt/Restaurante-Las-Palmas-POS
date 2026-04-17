@@ -617,6 +617,7 @@ export const TabCompras: React.FC<{
                                     <th className="px-3 py-2">Categoría</th>
                                     <th className="px-3 py-2 text-right">Total</th>
                                     <th className="px-3 py-2 text-right">IVA</th>
+                                    <th className="px-3 py-2 text-right">Otros Imp.</th>
                                     <th className="px-3 py-2 text-center">SAT</th>
                                     <th className="px-3 py-2">Estado</th>
                                     <th className="px-3 py-2"></th>
@@ -624,7 +625,7 @@ export const TabCompras: React.FC<{
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {paginatedInvoices.length === 0 ? (
-                                    <tr><td colSpan={10} className="px-4 py-8 text-center text-slate-400 text-[10px] font-bold">Sin facturas encontradas</td></tr>
+                                    <tr><td colSpan={11} className="px-4 py-8 text-center text-slate-400 text-[10px] font-bold">Sin facturas encontradas</td></tr>
                                 ) : paginatedInvoices.map(inv => {
                                     const isAnulado = inv.status?.toLowerCase() === 'anulado' || inv.payment_status === 'anulado';
                                     return (
@@ -655,6 +656,11 @@ export const TabCompras: React.FC<{
                                             ) : (
                                                 <span className={isAnulado ? 'line-through' : ''}>{fmtQ(inv.iva_amount)}</span>
                                             )}
+                                        </td>
+                                        <td className="px-3 py-2 text-right font-black text-emerald-600">
+                                            <span className={isAnulado ? 'line-through opacity-30' : ''}>
+                                                {inv.tipo_dte !== 'CRE' && fmtQ((inv.idp_monto || 0) + (inv.impuesto_bebidas_alcoh || 0) + (inv.impuesto_bebidas_no_alcoh || 0))}
+                                            </span>
                                         </td>
                                         <td className="px-3 py-2 text-center">
                                             {(() => {
@@ -699,7 +705,7 @@ export const TabCompras: React.FC<{
                                 <tr>
                                     <td colSpan={6} className="px-3 py-2 text-[10px] font-black uppercase text-black">Total Facturas de Compra</td>
                                     <td className="px-3 py-2 text-right font-black text-[12px] text-black">{fmtQ(totalPurchasesAmount)}</td>
-                                    <td colSpan={5}></td>
+                                    <td colSpan={6}></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -1196,11 +1202,46 @@ export const TabCompras: React.FC<{
                                     </table>
                                 </div>
 
-                                {/* Blue Totals Bar (Original Style) */}
-                                <div className="bg-[#EBF5FF] border-b border-x border-gray-200 p-4 px-8 flex items-center justify-between shrink-0 mb-4 rounded-b shadow-sm">
-                                    <span className="text-[11px] font-black text-black uppercase tracking-widest leading-none">TOTAL DE FACTURA</span>
-                                    <span className="text-[24px] font-black text-black leading-none tracking-tighter tabular-nums">{fmtQ(selectedInv.total_amount)}</span>
+                                {/* Resumen Fiscal Mejorado y Cuadrado */}
+                                <div className="grid grid-cols-5 gap-3 mb-4 shrink-0 px-6">
+                                    <div className="bg-gray-50 border border-gray-200 p-3 rounded-sm flex flex-col items-end">
+                                        <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Monto Neto</span>
+                                        <span className="text-[12px] font-black text-black">{fmtQ(selectedInv.total_amount - (selectedInv.iva_amount || 0) - (selectedInv.idp_monto || 0) - (selectedInv.impuesto_bebidas_alcoh || 0) - (selectedInv.impuesto_bebidas_no_alcoh || 0))}</span>
+                                    </div>
+                                    <div className="bg-gray-50 border border-gray-200 p-3 rounded-sm flex flex-col items-end">
+                                        <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">IVA (12%)</span>
+                                        <span className="text-[12px] font-black text-black">{fmtQ(selectedInv.iva_amount)}</span>
+                                    </div>
+                                    <div className="bg-gray-50 border border-gray-200 p-3 rounded-sm flex flex-col items-end">
+                                        <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Otros Imp.</span>
+                                        <span className="text-[12px] font-black text-emerald-600">
+                                            {fmtQ((selectedInv.idp_monto || 0) + (selectedInv.impuesto_bebidas_alcoh || 0) + (selectedInv.impuesto_bebidas_no_alcoh || 0))}
+                                        </span>
+                                    </div>
+                                    <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-sm flex flex-col items-end">
+                                        <span className="text-[7px] font-black text-emerald-600 uppercase tracking-widest mb-1">Total Impuestos</span>
+                                        <span className="text-[12px] font-black text-emerald-700">
+                                            {fmtQ((selectedInv.iva_amount || 0) + (selectedInv.idp_monto || 0) + (selectedInv.impuesto_bebidas_alcoh || 0) + (selectedInv.impuesto_bebidas_no_alcoh || 0))}
+                                        </span>
+                                    </div>
+                                    <div className="bg-[#106ebe] border border-[#106ebe] p-3 rounded-sm flex flex-col items-end shadow-lg">
+                                        <span className="text-[7px] font-black text-white/70 uppercase tracking-widest mb-1">Total Factura</span>
+                                        <span className="text-[15px] font-black text-white">{fmtQ(selectedInv.total_amount)}</span>
+                                    </div>
                                 </div>
+
+                                {((selectedInv.iva_retenido || 0) > 0 || (selectedInv.isr_retenido || 0) > 0) && (
+                                    <div className="mx-6 mb-4 p-2 bg-amber-50 border border-amber-200 rounded flex gap-6 items-center justify-center shrink-0">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[9px] font-black text-amber-800 uppercase">IVA Retenido:</span>
+                                            <span className="text-[11px] font-black text-amber-900">{fmtQ(selectedInv.iva_retenido)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[9px] font-black text-amber-800 uppercase">ISR Retenido:</span>
+                                            <span className="text-[11px] font-black text-amber-900">{fmtQ(selectedInv.isr_retenido)}</span>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Central Close Button (Original Style) */}
                                 <div className="flex justify-center pb-8 pt-2">

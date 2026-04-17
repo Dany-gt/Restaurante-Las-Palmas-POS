@@ -204,7 +204,7 @@ export const MenuEngineeringModal: React.FC<MenuEngineeringModalProps> = ({ onCl
     };
 
     const generateAIReport = async (data: AnalysisResult[]) => {
-        const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY || 'AIzaSyCbpxAHAv0bsGzX818NlG_JA0iCoNxJHT8';
+        const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY || (import.meta as any).env.GOOGLE_API_KEY || 'AIzaSyDMMkHXj1dBGKHVIdS3Pd0zWM0yP5GJTFg';
 
         // Group data by category for the prompt
         const estrellas = data.filter(d => d.category === 'ESTRELLA').map(d => `- ${d.name} | Q${d.realMargin.toFixed(2)} | ${d.unitsSold}`).join('\n');
@@ -259,7 +259,7 @@ Usa quetzales (Q). Español guatemalteco directo. Máximo 250 palabras en total.
         };
 
         try {
-            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemma-3-12b-it:generateContent?key=${apiKey}`, {
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody)

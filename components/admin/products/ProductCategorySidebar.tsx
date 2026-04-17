@@ -18,8 +18,10 @@ import { WindowsSaveButton } from '../../WindowsSaveButton';
 const DOMAIN_TABLE = 'product_categories' as const;
 
 interface ProductCategorySidebarProps {
-    selectedId: string | null;
-    onSelect: (id: string | null) => void;
+    selectedIds: Set<string>;
+    onToggle: (id: string) => void;
+    onSelectAll: (ids: string[]) => void;
+    onClearAll: () => void;
 }
 
 interface FormState { 
@@ -32,11 +34,11 @@ interface FormState {
     imagen_url: string;
 }
 
-export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ selectedId, onSelect }) => {
+export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ selectedIds, onToggle, onSelectAll, onClearAll }) => {
     const notify = useNotify();
     const { categories, load, loading, create, update, remove } = useDomainCategories({
         table: DOMAIN_TABLE,
-        orderBy: 'sort_order',
+        orderBy: 'nombre',
     });
 
     const [branches, setBranches] = useState<any[]>([]);
@@ -102,13 +104,25 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
 
     const handleDelete = async (id: string, nombre: string) => {
         setContextMenu(null);
-        if (!confirm(`¿Eliminar categoría "${nombre}"?`)) return;
+        notify.info('Eliminando categoría: ' + nombre);
+
         try {
-            await remove(id);
-            if (selectedId === id) onSelect(null);
-            notify.success('Categoría eliminada');
+            const { error } = await supabase.from(DOMAIN_TABLE).delete().eq('id', id);
+            
+            if (error) {
+                if (error.code === '23503') {
+                    notify.error('No se puede eliminar: Tiene productos vinculados.');
+                } else {
+                    notify.error('Error al eliminar: ' + error.message);
+                }
+                return;
+            }
+
+            notify.success(`Categoría "${nombre}" eliminada`);
+            if (selectedIds.has(id)) onToggle(id);
+            load(); 
         } catch (e: any) {
-            notify.error(e.message);
+            notify.error('Error inesperado al eliminar');
         }
     };
 
@@ -142,30 +156,44 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
     const roots = categories.filter(c => !(c as any).parent_id);
     const getChildren = (parentId: string) => categories.filter(c => (c as any).parent_id === parentId);
 
-    const renderCat = (cat: typeof categories[0], depth = 0) => (
-        <React.Fragment key={cat.id}>
-            <div
-                className={`flex items-center h-[22px] px-3 cursor-pointer group ${selectedId === cat.id ? 'bg-blue-50 text-[#106ebe] font-black' : 'hover:bg-[#cce8ff] text-slate-800'}`}
-                style={{ paddingLeft: `${8 + depth * 12}px` }}
-                onClick={() => onSelect(cat.id)}
-                onContextMenu={(e) => handleContextMenu(e, cat.id, cat.nombre)}
-            >
-                {depth > 0 && <span className="text-gray-300 mr-1 text-[8px]">└</span>}
-                <span className="flex-1 text-[10px] uppercase truncate leading-none">{cat.nombre}</span>
-                <div className="hidden group-hover:flex items-center gap-0.5">
-                    <button
-                        onClick={(e) => { e.stopPropagation(); handleOpenForm(cat.id); }}
-                        className="p-0.5 hover:bg-blue-100 rounded"
-                    ><Edit2 size={9} /></button>
-                    <button
-                        onClick={(e) => { e.stopPropagation(); handleDelete(cat.id, cat.nombre); }}
-                        className="p-0.5 hover:bg-red-100 text-red-500 rounded"
-                    ><Trash2 size={9} /></button>
+    const renderCat = (cat: typeof categories[0], depth = 0) => {
+        const isSelected = selectedIds.has(cat.id);
+        const isParent = depth === 0;
+        
+        return (
+            <React.Fragment key={cat.id}>
+                <div
+                    className={`flex items-center cursor-pointer group transition-colors
+                        ${isParent
+                            ? `h-[26px] border-t border-gray-200 ${isSelected ? 'bg-[#dbeafe]' : 'hover:bg-[#cce8ff] bg-white'}`
+                            : `h-[22px] ${isSelected ? 'bg-blue-50/60' : 'hover:bg-[#e8f4ff] bg-[#fafafa]'}`
+                        }`}
+                    style={{ paddingLeft: `${isParent ? 8 : 20 + (depth - 1) * 10}px`, paddingRight: '8px' }}
+                    onClick={() => onToggle(cat.id)}
+                    onContextMenu={(e) => handleContextMenu(e, cat.id, cat.nombre)}
+                >
+                    {/* Checkbox */}
+                    <div className="mr-2 flex items-center justify-center shrink-0">
+                        <div className={`border flex items-center justify-center shadow-sm transition-all
+                            ${isParent ? 'w-3.5 h-3.5' : 'w-3 h-3'}
+                            ${isSelected ? 'bg-[#106ebe] border-[#106ebe]' : 'bg-white border-gray-400'}`}>
+                            {isSelected && <div className="w-1.5 h-1.5 bg-white rounded-full shadow-inner" />}
+                        </div>
+                    </div>
+                    {/* Nombre */}
+                    {!isParent && <span className="text-gray-300 mr-1 text-[8px] shrink-0">└</span>}
+                    <span className={`flex-1 truncate leading-none uppercase
+                        ${isParent
+                            ? `text-[11px] font-black tracking-wide ${isSelected ? 'text-[#106ebe]' : 'text-slate-800'}`
+                            : `text-[10px] font-normal ${isSelected ? 'text-[#106ebe] font-semibold' : 'text-slate-500'}`
+                        }`}>
+                        {cat.nombre}
+                    </span>
                 </div>
-            </div>
-            {getChildren(cat.id).map(child => renderCat(child, depth + 1))}
-        </React.Fragment>
-    );
+                {getChildren(cat.id).map(child => renderCat(child, depth + 1))}
+            </React.Fragment>
+        );
+    };
 
     return (
         <>
