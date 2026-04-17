@@ -6,7 +6,8 @@ import { DraggableWindow } from './AdminPortal';
 
 const PlaceholderLogo = () => (
     <div className="w-full h-full flex flex-col items-center justify-center opacity-40 transition-opacity">
-        <span className="text-[8px] font-black tracking-widest text-[#94a3b8]">PÁLADAR</span>
+        <span className="text-[6px] font-black tracking-widest text-orange-400">RESTAURANTE</span>
+        <span className="text-[8px] font-black tracking-widest text-[#94a3b8]">LAS PALMAS</span>
         <div className="h-px w-6 bg-red-500 my-1"></div>
         <span className="text-[10px] font-black tracking-widest text-white">POS</span>
     </div>
@@ -55,8 +56,8 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
         const fetchData = async () => {
             setLoading(true);
             const [catRes, prodRes, branchRes] = await Promise.all([
-                supabase.from('categories').select('*').order('priority', { ascending: true }),
-                supabase.from('products').select('*').order('priority', { ascending: true }),
+                supabase.from('menu_categories').select('*').order('nombre', { ascending: true }),
+                supabase.from('products').select('*').eq('es_platillo', true).eq('is_enabled', true).order('name', { ascending: true }),
                 supabase.from('branches').select('*').order('name')
             ]);
 
@@ -142,13 +143,13 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
                                         className="group relative aspect-square bg-[#2b2f3a] rounded-lg p-3 flex flex-col items-center justify-between border-2 border-transparent hover:border-[#106ebe] transition-all shadow-md overflow-hidden"
                                     >
                                         <div className="flex-1 flex flex-col items-center justify-center w-full mb-2">
-                                            {cat.image_url ? (
-                                                <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover rounded-md opacity-90 group-hover:scale-110 transition-transform duration-500" />
+                                            {cat.imagen_url ? (
+                                                <img src={cat.imagen_url} alt={cat.nombre} className="w-full h-full object-cover rounded-md opacity-90 group-hover:scale-110 transition-transform duration-500" />
                                             ) : (
                                                 <PlaceholderLogo />
                                             )}
                                         </div>
-                                        <span className="w-full text-center text-[10px] font-black uppercase tracking-widest text-white leading-tight pb-1 truncate">{cat.name}</span>
+                                        <span className="w-full text-center text-[10px] font-black uppercase tracking-widest text-white leading-tight pb-1 truncate">{cat.nombre}</span>
                                     </button>
                                 ))}
 
@@ -161,24 +162,24 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
                                                 className="group relative aspect-square bg-[#2b2f3a] rounded-lg p-3 flex flex-col items-center justify-between border-2 border-transparent hover:border-[#106ebe] transition-all shadow-md overflow-hidden"
                                             >
                                                 <div className="flex-1 flex flex-col items-center justify-center w-full mb-2">
-                                                    {sub.image_url ? (
-                                                        <img src={sub.image_url} alt={sub.name} className="w-full h-full object-cover rounded-md opacity-90 group-hover:scale-110 transition-transform duration-500" />
+                                                    {sub.imagen_url ? (
+                                                        <img src={sub.imagen_url} alt={sub.nombre} className="w-full h-full object-cover rounded-md opacity-90 group-hover:scale-110 transition-transform duration-500" />
                                                     ) : (
                                                         <PlaceholderLogo />
                                                     )}
                                                 </div>
-                                                <span className="w-full text-center text-[10px] font-black uppercase tracking-widest text-white leading-tight pb-1 truncate">{sub.name}</span>
+                                                <span className="w-full text-center text-[10px] font-black uppercase tracking-widest text-white leading-tight pb-1 truncate">{sub.nombre}</span>
                                             </button>
                                         ))}
                                         {categories.filter(c => c.parent_id === selectedCat.id).length === 0 && (
-                                            products.filter(p => p.category_id === selectedCat.id).map(p => (
+                                            products.filter(p => p.menu_category_id === selectedCat.id).map(p => (
                                                 <ProductCard key={p.id} product={p} currency={currency} />
                                             ))
                                         )}
                                     </>
                                 )}
 
-                                {selectedSubCat && products.filter(p => p.category_id === selectedSubCat.id).map(p => (
+                                {selectedSubCat && products.filter(p => p.menu_category_id === selectedSubCat.id).map(p => (
                                     <ProductCard key={p.id} product={p} currency={currency} />
                                 ))}
                             </div>
@@ -188,8 +189,8 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
 
                 {/* Status Bar */}
                 <div className="bg-[#f0f2f5] border-t border-gray-300 px-4 py-1.5 flex justify-between items-center shrink-0">
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Páladar POS - Plataforma de Gestión de Menú</span>
-                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">{categories.length} Categorías | {products.length} Productos</span>
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Restaurante Las Palmas POS - Plataforma de Gestión de Menú</span>
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">{categories.length} Categorías | {products.length} Platillos</span>
                 </div>
             </div>
         </DraggableWindow>

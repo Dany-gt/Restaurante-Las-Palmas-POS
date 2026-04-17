@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Save, Image as ImageIcon, FileText, Layers, Trash2 } from 'lucide-react';
+import { X, Save, Image as ImageIcon, FileText, Layers, Trash2, ChevronDown, Loader2 } from 'lucide-react';
 import { DraggableWindow } from '../shared/DraggableWindow';
+import { supabase } from '../../../supabase';
+import { removeBackground } from '@imgly/background-removal';
 
 interface PlatilloModalProps {
     isOpen: boolean;
@@ -20,18 +22,86 @@ interface PlatilloModalProps {
     setSearchModal: (val: any) => void;
     branchPrices: any[];
     setBranchPrices: (val: any[]) => void;
-    assignedModifierGroups: any[];
     assignedOptionGroups: any[];
     setOptionsContextMenu: (val: any) => void;
+    setShowTechnicalModal: (val: boolean) => void;
 }
+
+const CustomSelect = ({ value, onChange, options, placeholder = "SELECCIONAR..." }: any) => {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+       <div className="relative flex-1">
+           <div 
+               onClick={() => setIsOpen(!isOpen)} 
+               className="h-[26px] bg-white border border-[#e2e8f0] px-2 flex items-center justify-between cursor-pointer hover:border-[#106ebe] transition-colors"
+           >
+               <span className="text-[11px] text-slate-700 uppercase truncate">
+                   {options.find((o: any) => o.value === value)?.label || placeholder}
+               </span>
+               <ChevronDown size={14} className="text-gray-400 shrink-0" />
+           </div>
+           {isOpen && (
+               <>
+                   <div className="fixed inset-0 z-[2000001]" onClick={() => setIsOpen(false)} />
+                   <div className="absolute top-[calc(100%+2px)] left-0 w-full bg-white border border-[#106ebe] shadow-xl z-[2000002] max-h-[140px] overflow-y-auto custom-scrollbar">
+                       <div 
+                           onClick={() => { onChange(''); setIsOpen(false); }} 
+                           className="px-2 py-2 text-[10px] text-gray-400 hover:bg-[#106ebe] hover:text-white cursor-pointer uppercase border-b border-[#f1f5f9] font-bold"
+                       >
+                           {placeholder}
+                       </div>
+                       {options.map((o: any) => (
+                           <div 
+                               key={o.value} 
+                               onClick={() => { onChange(o.value); setIsOpen(false); }} 
+                               className={`px-2 py-1.5 text-[11px] text-slate-700 hover:bg-[#106ebe] hover:text-white cursor-pointer uppercase border-b border-[#f8fafc] last:border-none ${value === o.value ? 'bg-blue-50 font-bold text-[#106ebe]' : ''}`}
+                           >
+                               {o.label}
+                           </div>
+                       ))}
+                   </div>
+               </>
+           )}
+       </div>
+    );
+};
+
 
 export const PlatilloModal: React.FC<PlatilloModalProps> = ({
     isOpen, onClose, editingId, newProduct, setNewProduct, handleSave, isSaving,
     menuCategories, kitchens, branches, recipeItems, setRecipeItems, setRecipeContextMenu,
     setSearchModal, branchPrices, setBranchPrices, assignedModifierGroups, assignedOptionGroups,
-    setOptionsContextMenu
+    setOptionsContextMenu, setShowTechnicalModal
 }) => {
     const [activeTab, setActiveTab] = useState<'sucursales' | 'opciones'>('sucursales');
+    const [uploadingImage, setUploadingImage] = useState(false);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploadingImage(true);
+        try {
+            const blob = await removeBackground(file);
+            const processedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".png", { type: "image/png" });
+
+            const fileName = `platillo-${Math.random()}-${Date.now()}.png`;
+            const filePath = `products/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage.from('menu').upload(filePath, processedFile);
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage.from('menu').getPublicUrl(filePath);
+            setNewProduct({ ...newProduct, image_url: publicUrl });
+        } catch (error: any) {
+            console.error('Error al subir imagen:', error);
+            alert('Error al subir la imagen y remover fondo: ' + error.message);
+        } finally {
+            setUploadingImage(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -50,9 +120,20 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                 <span className="text-[11px] font-semibold uppercase tracking-tight">Mantenimiento de Platillos</span>
                             </div>
                             <div className="flex items-center h-full">
-                                <button className="h-full px-3 flex items-center gap-1.5 hover:bg-white/10 transition-colors">
-                                    <ImageIcon size={14} className="text-white/80" />
-                                    <span className="text-[9.5px] font-bold uppercase tracking-widest">Imagen</span>
+                                <input 
+                                    type="file" 
+                                    ref={fileInputRef} 
+                                    onChange={handleImageUpload} 
+                                    className="hidden" 
+                                    accept="image/*" 
+                                />
+                                <button 
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={uploadingImage}
+                                    className="h-full px-3 flex items-center gap-1.5 hover:bg-white/10 transition-colors disabled:opacity-50"
+                                >
+                                    {uploadingImage ? <Loader2 size={14} className="animate-spin text-white/80" /> : <ImageIcon size={14} className="text-white/80" />}
+                                    <span className="text-[9.5px] font-bold uppercase tracking-widest">{uploadingImage ? 'Subiendo...' : 'Imagen'}</span>
                                 </button>
                                 <button 
                                     onClick={handleSave}
@@ -70,12 +151,13 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                             </div>
                         </div>
 
-                        <div className="p-[20px] space-y-[15px] bg-[#f0f3f6]">
+                        {/* APLICANDO EL TAMAÑO DEL ALTO QUE LE GUSTÓ AL USUARIO PERO COMPACTADO */}
+                        <div className="p-3 space-y-2 bg-[#f0f3f6] overflow-y-auto max-h-[85vh] custom-scrollbar">
                             {/* SECCIÓN 1 */}
-                            <fieldset className="border border-[#ced4da] p-[25px] pt-[8px] bg-white relative">
-                                <legend className="px-1.5 text-[10px] font-semibold text-[#106ebe] uppercase italic">Datos de Platillo</legend>
-                                <div className="flex gap-[35px] mt-1">
-                                    <div className="flex-1 space-y-[12px]">
+                            <fieldset className="border border-[#ced4da] p-3 pt-2 bg-white relative">
+                                <legend className="px-1.5 text-[10px] font-semibold text-[#106ebe] uppercase">Datos de Platillo</legend>
+                                <div className="flex gap-4 mt-1">
+                                    <div className="flex-1 space-y-1.5">
                                         {[
                                             { label: 'Código', key: 'product_code' },
                                             { label: 'Plato', key: 'name' },
@@ -86,7 +168,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                 <label className="text-[11px] text-gray-400 w-[100px] shrink-0 uppercase tracking-tighter">{f.label}</label>
                                                 <input 
                                                     type="text" 
-                                                    className="flex-1 h-[32px] bg-white border border-[#e2e8f0] px-3 text-[12px] text-slate-700 outline-none focus:border-[#106ebe] uppercase"
+                                                    className="flex-1 h-[26px] bg-white border border-[#e2e8f0] px-3 text-[11px] text-slate-700 outline-none focus:border-[#106ebe] uppercase"
                                                     value={newProduct[f.key] || ''}
                                                     onChange={e => setNewProduct({...newProduct, [f.key]: e.target.value.toUpperCase()})}
                                                 />
@@ -100,17 +182,17 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-300">Q</span>
                                                     <input 
                                                         type="text" 
-                                                        className="w-full h-[32px] bg-white border border-[#e2e8f0] pl-7 pr-3 text-[12px] text-slate-700 outline-none focus:border-[#106ebe] text-right"
+                                                        className="w-full h-[26px] bg-white border border-[#e2e8f0] pl-7 pr-3 text-[11px] text-slate-700 outline-none focus:border-[#106ebe] text-right"
                                                         value={newProduct.cost_price || '0'}
                                                         onChange={e => setNewProduct({...newProduct, cost_price: e.target.value})}
                                                     />
                                                 </div>
                                             </div>
-                                            <div className="flex items-center ml-[25px]">
-                                                <label className="text-[11px] text-gray-400 mr-4 uppercase tracking-tighter">Prioridad</label>
+                                            <div className="flex items-center ml-4">
+                                                <label className="text-[11px] text-gray-400 mr-3 uppercase tracking-tighter">Prioridad</label>
                                                 <input 
                                                     type="text" 
-                                                    className="w-[100px] h-[32px] bg-white border border-[#e2e8f0] px-2 text-[12px] text-slate-700 outline-none focus:border-[#106ebe] text-center"
+                                                    className="w-[80px] h-[26px] bg-white border border-[#e2e8f0] px-2 text-[11px] text-slate-700 outline-none focus:border-[#106ebe] text-center"
                                                     value={newProduct.sort_order || '100'}
                                                     onChange={e => setNewProduct({...newProduct, sort_order: e.target.value})}
                                                 />
@@ -119,67 +201,86 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
 
                                         <div className="flex items-center">
                                             <label className="text-[11px] text-gray-400 w-[100px] shrink-0 uppercase tracking-tighter">Categoría</label>
-                                            <select 
-                                                className="flex-1 h-[32px] bg-white border border-[#e2e8f0] px-2 text-[12px] text-slate-700 outline-none focus:border-[#106ebe] uppercase cursor-pointer"
+                                            <CustomSelect 
                                                 value={newProduct.category_id || ''}
-                                                onChange={e => setNewProduct({...newProduct, category_id: e.target.value})}
-                                            >
-                                                <option value="">Seleccionar...</option>
-                                                {menuCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                            </select>
+                                                onChange={(val: string) => setNewProduct({...newProduct, category_id: val})}
+                                                options={menuCategories.map(c => ({ value: c.id, label: c.name }))}
+                                                placeholder="Seleccionar..."
+                                            />
                                         </div>
                                         <div className="flex items-center">
                                             <label className="text-[11px] text-gray-400 w-[100px] shrink-0 uppercase tracking-tighter">Cocina</label>
-                                            <select 
-                                                className="flex-1 h-[32px] bg-white border border-[#e2e8f0] px-2 text-[12px] text-slate-700 outline-none focus:border-[#106ebe] uppercase cursor-pointer"
+                                            <CustomSelect 
                                                 value={newProduct.kitchen_station_id || ''}
-                                                onChange={e => setNewProduct({...newProduct, kitchen_station_id: e.target.value})}
-                                            >
-                                                <option value="">Ninguna</option>
-                                                {kitchens.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}
-                                            </select>
+                                                onChange={(val: string) => setNewProduct({...newProduct, kitchen_station_id: val})}
+                                                options={kitchens.map(k => ({ value: k.id, label: k.name }))}
+                                                placeholder="Ninguna"
+                                            />
                                         </div>
                                     </div>
                                     
-                                    <div className="w-[170px] flex flex-col items-center">
-                                        <div className="w-full aspect-square border border-[#e2e8f0] bg-[#f8fafc] flex items-center justify-center text-gray-300 relative shadow-inner">
+                                    <div className="w-[140px] flex flex-col items-center">
+                                        <div className="w-full aspect-square border border-[#e2e8f0] bg-[#f8fafc] flex items-center justify-center text-gray-300 relative shadow-inner overflow-hidden group">
                                             {newProduct.image_url ? (
                                                 <img src={newProduct.image_url} className="w-full h-full object-cover" alt="Plato" />
                                             ) : (
-                                                <ImageIcon size={48} strokeWidth={0.5} className="opacity-20" />
+                                                <ImageIcon size={40} strokeWidth={0.5} className="opacity-20" />
                                             )}
+                                            {uploadingImage && (
+                                                <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
+                                                    <Loader2 className="animate-spin text-[#106ebe]" size={24} />
+                                                </div>
+                                            )}
+                                            <button 
+                                                onClick={() => fileInputRef.current?.click()}
+                                                disabled={uploadingImage}
+                                                className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold uppercase transition-opacity"
+                                            >
+                                                Subir
+                                            </button>
                                         </div>
-                                        <button className="mt-3 text-[10px] font-bold uppercase text-gray-400 hover:text-[#106ebe] tracking-tighter">Cambiar Imagen</button>
+                                        <button 
+                                            onClick={() => newProduct.image_url ? setNewProduct({...newProduct, image_url: ''}) : fileInputRef.current?.click()}
+                                            disabled={uploadingImage}
+                                            className={`mt-2 text-[9px] font-bold uppercase tracking-tighter ${newProduct.image_url ? 'text-gray-400 hover:text-red-500' : 'text-gray-400 hover:text-[#106ebe]'}`}
+                                        >
+                                            {newProduct.image_url ? 'Quitar Imagen' : 'Subir Imagen'}
+                                        </button>
                                     </div>
                                 </div>
                             </fieldset>
 
                             {/* SECCIÓN 2 */}
-                            <fieldset className="border border-[#ced4da] p-[25px] pt-[8px] bg-white relative">
-                                <legend className="px-1.5 text-[10px] font-semibold text-[#106ebe] uppercase italic">Precios de Venta</legend>
-                                <div className="grid grid-cols-4 gap-[20px] items-end mt-1">
+                            <fieldset className="border border-[#ced4da] p-3 pt-2 bg-white relative">
+                                <legend className="px-1.5 text-[10px] font-semibold text-[#106ebe] uppercase">Precios de Venta</legend>
+                                <div className="grid grid-cols-4 gap-4 items-end mt-1">
                                     {[ 
                                         { label: 'Precio Venta', key: 'price', color: '#106ebe' },
                                         { label: 'Precio Domicilio', key: 'delivery_price' },
                                         { label: 'Precio Plataformas', key: 'platform_price' }
                                     ].map((f) => (
-                                        <div key={f.key} className="space-y-1.5">
+                                        <div key={f.key} className="space-y-1">
                                             <label className="text-[10px] text-gray-400 block text-center uppercase tracking-tighter">{f.label}</label>
                                             <div className="relative">
                                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-300">Q</span>
                                                 <input 
                                                     type="text" 
-                                                    className={`w-full h-[34px] bg-white border border-[#e2e8f0] pl-8 pr-3 text-[13px] font-bold text-center outline-none focus:border-[#106ebe]`}
+                                                    className={`w-full h-[28px] bg-white border border-[#e2e8f0] pl-8 pr-3 text-[12px] font-bold text-center outline-none focus:border-[#106ebe]`}
                                                     style={{ color: f.color || '#475569' }}
-                                                    value={newProduct[f.key] || '00.00'}
+                                                    value={(!newProduct[f.key] || newProduct[f.key] === '0') ? '00.00' : newProduct[f.key]}
                                                     onChange={e => setNewProduct({...newProduct, [f.key]: e.target.value})}
                                                 />
                                             </div>
                                         </div>
                                     ))}
                                     <button 
-                                        className="h-[34px] bg-[#106ebe] text-white text-[11px] font-bold uppercase hover:bg-[#0d5aa0] transition-colors shadow-sm"
-                                        onClick={() => branchPrices.forEach(bp => { bp.price = newProduct.price; })}
+                                        className="h-[28px] bg-[#106ebe] text-white text-[10px] font-bold uppercase hover:bg-[#0d5aa0] transition-colors shadow-sm"
+                                        onClick={() => setBranchPrices(branchPrices.map(bp => ({ 
+                                            ...bp, 
+                                            price: newProduct.price,
+                                            delivery_price: newProduct.delivery_price,
+                                            platform_price: newProduct.platform_price
+                                        })))}
                                     >
                                         Aplicar a Todos
                                     </button>
@@ -187,55 +288,55 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                             </fieldset>
 
                             {/* TABS Y TABLA */}
-                            <div className="flex-1 border border-[#ced4da] bg-white shadow-sm overflow-hidden flex flex-col min-h-[400px]">
-                                <div className="h-[40px] bg-[#f8fafc] border-b border-[#ced4da] flex justify-between items-center px-1">
+                            <div className="flex-1 border border-[#ced4da] bg-white shadow-sm overflow-hidden flex flex-col min-h-[220px]">
+                                <div className="h-8 bg-[#f8fafc] border-b border-[#ced4da] flex justify-between items-center px-1">
                                     <div className="flex h-full items-center">
                                         <button 
                                             onClick={() => setActiveTab('sucursales')}
-                                            className={`px-6 h-full text-[11px] font-bold uppercase transition-all flex items-center gap-2 ${activeTab === 'sucursales' ? 'bg-white text-[#106ebe] border-x border-t-[3px] border-t-[#106ebe] z-10' : 'text-gray-400 border-r border-[#e2e8f0]'}`}
+                                            className={`px-5 h-full text-[10px] font-bold uppercase transition-all flex items-center gap-2 ${activeTab === 'sucursales' ? 'bg-white text-[#106ebe] border-x border-t-[3px] border-t-[#106ebe] z-10' : 'text-gray-400 border-r border-[#e2e8f0]'}`}
                                         >
                                             Sucursales
                                         </button>
                                         <button 
                                             onClick={() => setActiveTab('opciones')}
-                                            className={`px-6 h-full text-[11px] font-bold uppercase transition-all flex items-center gap-2 ${activeTab === 'opciones' ? 'bg-white text-[#106ebe] border-x border-t-[3px] border-t-[#106ebe] z-10' : 'text-gray-400'}`}
+                                            className={`px-5 h-full text-[10px] font-bold uppercase transition-all flex items-center gap-2 ${activeTab === 'opciones' ? 'bg-white text-[#106ebe] border-x border-t-[3px] border-t-[#106ebe] z-10' : 'text-gray-400'}`}
                                         >
                                             Opciones y Modificadores
                                         </button>
                                     </div>
                                     <button 
-                                        className="h-[30px] px-5 bg-[#106ebe] text-white text-[11px] font-bold uppercase flex items-center gap-2 hover:bg-[#0d5aa0]"
-                                        onClick={() => setSearchModal({ visible: true, type: 'inventory' })}
+                                        className="h-[26px] px-4 bg-[#106ebe] text-white text-[10px] font-bold uppercase flex items-center gap-2 hover:bg-[#0d5aa0]"
+                                        onClick={() => setShowTechnicalModal(true)}
                                     >
-                                        <FileText size={15} /> Receta / Ficha Técnica
+                                        <FileText size={14} /> Ficha Técnica
                                     </button>
                                 </div>
 
                                 <div className="flex-1 overflow-auto custom-scrollbar">
                                     {activeTab === 'sucursales' ? (
-                                        <div className="p-4">
+                                        <div className="p-2">
                                             <table className="w-full border-collapse">
                                                 <thead>
-                                                    <tr className="h-[40px] text-[11px] text-gray-400 uppercase border-b border-[#e2e8f0] bg-[#f8fafc]">
-                                                        <th className="px-5 text-left border-r border-[#f1f5f9]">Sucursal</th>
-                                                        <th className="px-5 text-center border-r border-[#f1f5f9] w-[140px]">Precio Venta</th>
-                                                        <th className="px-5 text-center border-r border-[#f1f5f9] w-[140px]">Precio Domicilio</th>
-                                                        <th className="px-5 text-center border-r border-[#f1f5f9] w-[140px]">Precio Plataformas</th>
-                                                        <th className="px-5 text-center border-r border-[#f1f5f9] w-[100px]">Habilitado</th>
-                                                        <th className="px-5 text-center w-[100px]">Asignado</th>
+                                                    <tr className="h-8 text-[10px] text-gray-400 uppercase border-b border-[#e2e8f0] bg-[#f8fafc]">
+                                                        <th className="px-3 text-left border-r border-[#f1f5f9]">Sucursal</th>
+                                                        <th className="px-3 text-center border-r border-[#f1f5f9] w-[130px]">Precio Venta</th>
+                                                        <th className="px-3 text-center border-r border-[#f1f5f9] w-[130px]">Precio Domicilio</th>
+                                                        <th className="px-3 text-center border-r border-[#f1f5f9] w-[130px]">Precio Plataformas</th>
+                                                        <th className="px-3 text-center border-r border-[#f1f5f9] w-[90px]">Habilitado</th>
+                                                        <th className="px-3 text-center w-[90px]">Asignado</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-[#f1f5f9]">
                                                     {branchPrices.map((bp, idx) => (
-                                                        <tr key={bp.branch_id} className="h-[44px] hover:bg-blue-50/10">
-                                                            <td className="px-5 text-[11px] font-bold text-slate-600 uppercase truncate max-w-[240px]">{branches.find(b => b.id === bp.branch_id)?.name || '---'}</td>
+                                                        <tr key={bp.branch_id} className="h-8 hover:bg-blue-50/10">
+                                                            <td className="px-3 text-[10px] font-bold text-slate-600 uppercase truncate max-w-[200px]">{branches.find(b => b.id === bp.branch_id)?.name || '---'}</td>
                                                             {[ 'price', 'delivery_price', 'platform_price' ].map(field => (
-                                                                <td key={field} className="px-5 border-r border-[#f1f5f9] text-center">
+                                                                <td key={field} className="px-3 border-r border-[#f1f5f9] text-center">
                                                                     <div className="relative">
-                                                                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-300">Q</span>
+                                                                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[9px] text-gray-300">Q</span>
                                                                         <input 
                                                                             type="text" 
-                                                                            className="w-full h-7 border-b border-[#f1f5f9] text-center text-slate-700 font-bold text-[12px] outline-none" 
+                                                                            className="w-full h-6 border-b border-[#f1f5f9] text-center text-slate-700 font-bold text-[11px] outline-none" 
                                                                             value={bp[field]} 
                                                                             onChange={e => {
                                                                                 const n = [...branchPrices];
@@ -246,11 +347,11 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                                     </div>
                                                                 </td>
                                                             ))}
-                                                            <td className="px-5 border-r border-[#f1f5f9] text-center">
-                                                                <input type="checkbox" checked={bp.is_enabled} className="w-4 h-4 accent-[#106ebe]" />
+                                                            <td className="px-3 border-r border-[#f1f5f9] text-center">
+                                                                <input type="checkbox" readOnly checked={bp.is_enabled} className="w-3.5 h-3.5 accent-[#106ebe]" />
                                                             </td>
-                                                            <td className="px-5 text-center">
-                                                                <input type="checkbox" checked={true} className="w-4 h-4 accent-[#106ebe]" />
+                                                            <td className="px-3 text-center">
+                                                                <input type="checkbox" readOnly checked={true} className="w-3.5 h-3.5 accent-[#106ebe]" />
                                                             </td>
                                                         </tr>
                                                     ))}
@@ -260,17 +361,54 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                     ) : (
                                         <div className="flex h-full divide-x divide-[#e2e8f0]">
                                             {[ 
-                                                { title: 'Opciones Asignadas', data: assignedOptionGroups },
-                                                { title: 'Modificadores Asignadas', data: assignedModifierGroups }
+                                                { title: 'Opciones Asignadas', data: assignedOptionGroups, type: 'options' },
+                                                { title: 'Modificadores Asignadas', data: assignedModifierGroups, type: 'modifiers' }
                                             ].map((panel, idx) => (
-                                                <div key={idx} className="flex-1 flex flex-col bg-white">
+                                                <div 
+                                                    key={idx} 
+                                                    className="flex-1 flex flex-col bg-white"
+                                                    onContextMenu={(e) => {
+                                                        e.preventDefault();
+                                                        setOptionsContextMenu({
+                                                            visible: true,
+                                                            x: e.clientX,
+                                                            y: e.clientY,
+                                                            type: panel.type,
+                                                            targetGroupId: null
+                                                        });
+                                                    }}
+                                                >
                                                     <div className="h-[40px] bg-[#f5faff] border-b border-[#ced4da] flex items-center px-8">
                                                         <span className="text-[11px] font-bold text-[#106ebe] uppercase tracking-tighter">{panel.title}</span>
                                                     </div>
-                                                    <div className="flex-1 flex flex-col items-center justify-center p-10 select-none opacity-20">
-                                                        <Layers size={50} strokeWidth={1} className="text-gray-300 mb-4" />
-                                                        <p className="text-[11px] font-black tracking-[0.3em] text-gray-400">HAZ CLIC DERECHO PARA AGREGAR</p>
-                                                    </div>
+                                                    
+                                                    {panel.data.length > 0 ? (
+                                                        <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                                                            {panel.data.map((item: any) => (
+                                                                <div key={item.id} className="p-3 border border-gray-200 bg-gray-50 flex justify-between items-center group">
+                                                                    <span className="text-[11px] font-bold uppercase text-gray-700">{item.name || item.option_groups?.name || item.modifier_groups?.name || 'GRUPO'}</span>
+                                                                    <button 
+                                                                        className="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            if (panel.type === 'options') {
+                                                                                setOptionsContextMenu({ visible: true, type: 'options', x: e.clientX, y: e.clientY, targetGroupId: item.id });
+                                                                            } else {
+                                                                                setOptionsContextMenu({ visible: true, type: 'modifiers', x: e.clientX, y: e.clientY, targetGroupId: item.id });
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <X size={14} />
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex-1 flex flex-col items-center justify-center p-10 select-none opacity-20 relative pointer-events-none">
+                                                            <Layers size={50} strokeWidth={1} className="text-gray-300 mb-4" />
+                                                            <p className="text-[11px] font-black tracking-[0.3em] text-gray-400">HAZ CLIC DERECHO PARA AGREGAR</p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             ))}
                                         </div>

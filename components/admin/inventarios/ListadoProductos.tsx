@@ -45,36 +45,39 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
         const fetchData = async () => {
             setLoading(true);
             try {
-                let query = supabase.from('products').select('*, product_categories(nombre)').eq('es_platillo', false);
-                if (categorias.size > 0) query = query.in('category_id', Array.from(categorias));
+                // Insumos/Productos — tabla: products con es_platillo=false
+                let query = supabase
+                    .from('products')
+                    .select('*, categories(name)')
+                    .eq('es_platillo', false);
+
+                if (categorias.size > 0) {
+                    query = query.in('category_id', Array.from(categorias));
+                }
 
                 const { data, error } = await query.order('name');
 
                 if (data) {
                     const mapped = data.map((i: any) => {
                         const conversion = parseFloat(i.conversion_factor) || 1;
-                        let presentationStr = '';
-                        try {
-                            presentationStr = `${i.presentation_unit || ''} ${formatAmount(conversion)} ${i.unit_measure === 'Mililitro' ? 'ml' : (i.unit_measure || '')}`.trim();
-                        } catch (e) {
-                            presentationStr = `${i.presentation_unit || ''} ${conversion} ${i.unit_measure || ''}`.trim();
-                        }
+                        const presentacion = `${i.presentation_unit || ''} ${conversion} ${i.unit_measure || ''}`.trim();
 
                         return {
                             ...i,
-                            id: i?.id,
-                            codigo: i?.product_code || i?.codigo || '',
-                            nombre: i?.name || i?.nombre || 'SIN NOMBRE',
-                            categoria: i?.product_categories?.nombre || i?.categories?.name || i?.menu_categories?.nombre || 'SIN CATEGORÍA',
-                            existencia: parseFloat(i?.stock_actual || i?.existencia || 0) || 0,
-                            presentacion: presentationStr || 'UNIDAD',
-                            precio_costo: parseFloat(i?.cost_price || i?.precio_costo || 0) || 0,
-                            habilitado: i?.is_enabled !== undefined ? i.is_enabled : (i?.habilitado !== undefined ? i.habilitado : true)
+                            id: i.id,
+                            codigo: i.product_code || '',
+                            nombre: i.name || 'SIN NOMBRE',
+                            categoria: i.categories?.name || 'SIN CATEGORÍA',
+                            categoria_id: i.category_id,
+                            existencia: parseFloat(i.stock_actual || 0) || 0,
+                            presentacion: presentacion || 'UNIDAD',
+                            precio_costo: parseFloat(i.cost_price || 0) || 0,
+                            habilitado: i.is_enabled !== undefined ? i.is_enabled : true,
                         };
                     });
                     setItems(mapped);
                 }
-                
+
                 if (error) console.error('Error fetching inventory items:', error.message);
             } catch (e: any) {
                 console.error('Fetch error:', e);

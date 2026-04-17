@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Folder, FolderOpen, Package, Plus, Edit2, Trash2, X, RefreshCw, Save } from 'lucide-react';
 import { supabase } from '../../../supabase';
 import { useNotify } from '../../../hooks/useNotify';
+import { ConfirmDialog } from '../ConfirmDialog';
 
 interface Category {
     id: string;
@@ -39,6 +40,7 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
     const [showParentSelect, setShowParentSelect] = useState(false);
     const [branches, setBranches] = useState<any[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState<Category | null>(null);
 
     // Eliminamos la lógica de tablas múltiples para usar solo 'categories' con filtro de sección
 
@@ -146,13 +148,20 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
         setIsSaving(false);
     };
 
-    const handleDeleteCategory = async (cat: Category) => {
-        if (!confirm(`¿Eliminar la categoría "${cat.name}"?`)) return;
+    const handleDeleteCategory = (cat: Category) => {
+        setConfirmDelete(cat);
+    };
+
+    const executeDelete = async () => {
+        if (!confirmDelete) return;
+        const cat = confirmDelete;
+        setConfirmDelete(null);
+        
         const { error } = await supabase.from('categories').delete().eq('id', cat.id);
         if (error) {
             notify.error('Error al eliminar: ' + error.message);
         } else {
-            notify.success('Categoría eliminada');
+            notify.success('Categor├¡a eliminada');
             fetchCategories();
         }
     };
@@ -474,6 +483,16 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
                 </div>,
                 document.body
             )}
+
+            <ConfirmDialog 
+                isOpen={!!confirmDelete}
+                title="Confirmar Eliminaci├│n"
+                message={`¿Eliminar la categor├¡a "${confirmDelete?.name}"?`}
+                description="Si contiene elementos vinculados, la operaci├│n podr├¡a fallar o afectar la integridad del sistema."
+                onConfirm={executeDelete}
+                onCancel={() => setConfirmDelete(null)}
+                type="danger"
+            />
         </>
     );
 };

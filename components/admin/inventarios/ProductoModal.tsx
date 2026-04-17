@@ -12,16 +12,25 @@ interface ProductoModalProps {
     setNewProduct: (val: any) => void;
     handleSave: () => void;
     isSaving: boolean;
-    categories: any[];
-    units: any[];
-    branches: any[];
-    branchInventory: any[];
-    setBranchInventory: (val: any[]) => void;
+    categories?: any[];
+    inventoryCategories?: any[];
+    units?: any[];
+    branches?: any[];
+    branchInventory?: any[];
+    setBranchInventory?: (val: any[]) => void;
+    // adding missing ones
+    suppliers?: any[];
+    recipeItems?: any[];
+    setRecipeItems?: any;
+    setRecipeContextMenu?: any;
+    setShowQuickCatModal?: any;
+    openPicker?: any;
+    setOpenPicker?: any;
 }
 
 export const ProductoModal: React.FC<ProductoModalProps> = ({
     isOpen, onClose, editingId, newProduct, setNewProduct, handleSave, isSaving,
-    categories, units, branches, branchInventory, setBranchInventory
+    categories = [], inventoryCategories = [], units = [], branches = [], branchInventory = [], setBranchInventory
 }) => {
     if (!isOpen) return null;
 
@@ -83,7 +92,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                     onChange={e => setNewProduct({...newProduct, category_id: e.target.value})}
                                                 >
                                                     <option value="">Seleccionar...</option>
-                                                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                                    {(categories.length > 0 ? categories : inventoryCategories).map(c => <option key={c.id} value={c.id}>{c.name || c.nombre}</option>)}
                                                 </select>
                                             </div>
                                             <div className="flex-1 flex items-center gap-4">

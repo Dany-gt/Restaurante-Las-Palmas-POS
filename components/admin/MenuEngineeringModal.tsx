@@ -204,87 +204,61 @@ export const MenuEngineeringModal: React.FC<MenuEngineeringModalProps> = ({ onCl
     };
 
     const generateAIReport = async (data: AnalysisResult[]) => {
-        const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY || (import.meta as any).env.GOOGLE_API_KEY || 'AIzaSyDMMkHXj1dBGKHVIdS3Pd0zWM0yP5GJTFg';
-
         // Group data by category for the prompt
-        const estrellas = data.filter(d => d.category === 'ESTRELLA').map(d => `- ${d.name} | Q${d.realMargin.toFixed(2)} | ${d.unitsSold}`).join('\n');
-        const caballos = data.filter(d => d.category === 'CABALLO').map(d => `- ${d.name} | Q${d.realMargin.toFixed(2)} | ${d.unitsSold}`).join('\n');
-        const rompecabezas = data.filter(d => d.category === 'ROMPECABEZAS').map(d => `- ${d.name} | Q${d.realMargin.toFixed(2)} | ${d.unitsSold}`).join('\n');
-        const perros = data.filter(d => d.category === 'PERRO').map(d => `- ${d.name} | Q${d.realMargin.toFixed(2)} | ${d.unitsSold}`).join('\n');
+        const estrellas = data.filter(d => d.category === 'ESTRELLA').map(d => '- ' + d.name + ' | Q' + d.realMargin.toFixed(2) + ' | ' + d.unitsSold).join('\n');
+        const caballos = data.filter(d => d.category === 'CABALLO').map(d => '- ' + d.name + ' | Q' + d.realMargin.toFixed(2) + ' | ' + d.unitsSold).join('\n');
+        const rompecabezas = data.filter(d => d.category === 'ROMPECABEZAS').map(d => '- ' + d.name + ' | Q' + d.realMargin.toFixed(2) + ' | ' + d.unitsSold).join('\n');
+        const perros = data.filter(d => d.category === 'PERRO').map(d => '- ' + d.name + ' | Q' + d.realMargin.toFixed(2) + ' | ' + d.unitsSold).join('\n');
 
-        const prompt = `Eres un consultor experto en ingeniería de menú para restaurantes en Guatemala.
-
-Analiza esta matriz de rentabilidad y dame recomendaciones concretas en 6 puntos.
-
-PERÍODO: ${startDate} al ${endDate}
-PARÁMETROS: ${cardSalesRatio}% ventas con tarjeta, NeoNet ${cardCommission}%, Costo laboral ${laborCostRatio}%
-
-ESTRELLAS (alto margen + alto volumen):
-${estrellas || 'Ninguno'}
-
-CABALLOS DE BATALLA (popular + bajo margen):
-${caballos || 'Ninguno'}
-
-ROMPECABEZAS (alto margen + pocas ventas):
-${rompecabezas || 'Ninguno'}
-
-PERROS (bajo margen + pocas ventas):
-${perros || 'Ninguno'}
-
-RESPONDE EXACTAMENTE ASÍ — sin markdown, sin asteriscos, sin #, sin tablas, sin guiones:
-
-EVALUACIÓN GENERAL
-[2 oraciones sobre el estado del menú en Q]
-
-OPORTUNIDAD URGENTE
-[El rompecabezas con mayor margen y qué hacer]
-
-ACCIÓN CON LOS PERROS
-[Qué hacer con los platillos menos rentables]
-
-CABALLOS DE BATALLA
-[Cómo mejorar su margen]
-
-ALERTA
-[Si hay estrellas con margen negativo, indicarlo. Si no hay, escribir: Sin alertas críticas.]
-
-ACCIÓN ESTA SEMANA
-[Una sola acción concreta sin cambiar precios]
-
-Usa quetzales (Q). Español guatemalteco directo. Máximo 250 palabras en total.`;
-
-        const requestBody = {
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.2 }
-        };
+        const prompt = 'Eres un consultor experto en ingeniería de menú para restaurantes en Guatemala.\n\n' +
+            'Analiza esta matriz de rentabilidad y dame recomendaciones concretas en 6 puntos.\n\n' +
+            'PERÍODO: ' + startDate + ' al ' + endDate + '\n' +
+            'PARÁMETROS: ' + cardSalesRatio + '% ventas con tarjeta, NeoNet ' + cardCommission + '%, Costo laboral ' + laborCostRatio + '%\n\n' +
+            'ESTRELLAS (alto margen + alto volumen):\n' + (estrellas || 'Ninguno') + '\n\n' +
+            'CABALLOS DE BATALLA (popular + bajo margen):\n' + (caballos || 'Ninguno') + '\n\n' +
+            'ROMPECABEZAS (alto margen + pocas ventas):\n' + (rompecabezas || 'Ninguno') + '\n\n' +
+            'PERROS (bajo margen + pocas ventas):\n' + (perros || 'Ninguno') + '\n\n' +
+            'RESPONDE EXACTAMENTE ASÍ — sin markdown, sin asteriscos, sin #, sin tablas, sin guiones:\n\n' +
+            'EVALUACIÓN GENERAL\n' +
+            '[2 oraciones sobre el estado del menú en Q]\n\n' +
+            'OPORTUNIDAD URGENTE\n' +
+            '[El rompecabezas con mayor margen y qué hacer]\n\n' +
+            'ACCIÓN CON LOS PERROS\n' +
+            '[Qué hacer con los platillos menos rentables]\n\n' +
+            'CABALLOS DE BATALLA\n' +
+            '[Cómo mejorar su margen]\n\n' +
+            'ALERTA\n' +
+            '[Si hay estrellas con margen negativo, indicarlo. Si no hay, escribir: Sin alertas críticas.]\n\n' +
+            'ACCIÓN ESTA SEMANA\n' +
+            '[Una sola acción concreta sin cambiar precios]\n\n' +
+            'Usa quetzales (Q). Español guatemalteco directo. Máximo 250 palabras en total.';
 
         try {
-            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+            const resp = await fetch('/api/ai/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
+                body: JSON.stringify({
+                    model: 'gemini-2.0-flash',
+                    prompt,
+                    temperature: 0.2
+                })
             });
 
             if (!resp.ok) {
-                const errText = await resp.text();
-                throw new Error(errText);
+                const errData = await resp.json();
+                throw new Error(errData.error || 'Error en el servidor de IA');
             }
 
             const json = await resp.json();
-            const aiText = json.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (aiText) {
-                setReport(aiText);
+            if (json.success && json.text) {
+                setReport(json.text);
             } else {
-                throw new Error('No se recibió respuesta válida de Gemini.');
+                throw new Error('No se recibió respuesta válida de la IA.');
             }
 
         } catch (err: any) {
-            console.error('Gemini API Error:', err);
-            let errMsg = err.message;
-            if (errMsg.includes('429') || errMsg.includes('Quota exceeded')) {
-                errMsg = 'Límite de solicitudes de API alcanzado (Quota exceeded).';
-            }
-            setErrorIA(errMsg);
+            console.error('AI Proxy Error:', err);
+            setErrorIA(err.message);
             setReport(null);
         }
     };

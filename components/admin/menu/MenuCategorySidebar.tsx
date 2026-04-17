@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Plus, Edit2, Trash2, X, Save, Loader2, Utensils, RefreshCw, Folder, Image as ImageIcon } from 'lucide-react';
 import { useRef } from 'react';
+import { ConfirmDialog } from '../ConfirmDialog';
 import { useDomainCategories } from '../../../hooks/useDomainCategories';
 import { useNotify } from '../../../hooks/useNotify';
 import { supabase } from '../../../supabase';
@@ -48,6 +49,7 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
     const [isSaving, setIsSaving] = useState(false);
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number; id: string | null; nombre: string | null } | null>(null);
     const [showParentSelect, setShowParentSelect] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState<{ id: string, name: string } | null>(null);
     
     // Image Upload
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -102,15 +104,21 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
 
     const handleDelete = async (id: string, nombre: string) => {
         setContextMenu(null);
-        if (!confirm(`¿Eliminar categoría "${nombre}"?\nSi contiene platillos, asegúrese de reasignarlos primero.`)) return;
+        setConfirmDelete({ id, name: nombre });
+    };
+
+    const executeDelete = async () => {
+        if (!confirmDelete) return;
+        const { id, name } = confirmDelete;
+        setConfirmDelete(null);
+
         try {
             await remove(id);
             if (selectedId === id) onSelect(null);
-            notify.success('Categoría eliminada');
+            notify.success('Categor├¡a eliminada');
         } catch (e: any) {
-            // El API de supabase de DomainCategories probablemente lanza error de constraint  23503
             if (e.message?.includes('foreign key constraint') || e.code === '23503' || e.message?.includes('viola la llave')) {
-                notify.error('IMPOSIBLE ELIMINAR: Esta categoría aún tiene platillos asignados a ella. Reasigne o elimine los platillos primero.');
+                notify.error('IMPOSIBLE ELIMINAR: Esta categor├¡a a├║n tiene platillos asignados. Reasigne o elimine los platillos primero.');
             } else {
                 notify.error('No se pudo eliminar: ' + (e.message || 'Error desconocido'));
             }
@@ -401,6 +409,16 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
                     </DraggableWindow>
                 </div>, document.body
             )}
+
+            <ConfirmDialog 
+                isOpen={!!confirmDelete}
+                title="Confirmar Eliminación"
+                message={`¿Eliminar categoría "${confirmDelete?.name}"?`}
+                description="Si contiene platillos, asegúrese de reasignarlos primero."
+                onConfirm={executeDelete}
+                onCancel={() => setConfirmDelete(null)}
+                type="danger"
+            />
         </>
     );
 };

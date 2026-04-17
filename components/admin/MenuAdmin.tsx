@@ -679,46 +679,34 @@ export const MenuAdmin: React.FC = () => {
 
     setIsImproving(true);
     try {
-      const systemPrompt = `Rol: Eres un experto en redacción técnica culinaria.
-Tarea: Revisa el siguiente texto para corregir errores ortográficos, gramaticales y de puntuación, mejorando la fluidez sin alterar el contenido original.
-Reglas estrictas:
-- NO modifiques la información técnica ni el sentido original del texto.
-- Corrige únicamente la ortografía y gramática para que el texto sea profesional.
-- Mantén el estilo original (si hay listas, respétalas; si es párrafo, respétalo) pero con redacción impecable.
-- Formato de salida: Devuelve ÚNICAMENTE el texto corregido. No agregues comentarios, saludos ni introducciones.`;
+      const systemPrompt = 'Eres un experto en redacción técnica culinaria. ' +
+        'Revisa el siguiente texto para corregir errores ortográficos, gramaticales y de puntuación, mejorando la fluidez sin alterar el contenido original. ' +
+        'Devuelve ÚNICAMENTE el texto corregido.';
 
-      const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY || 'AIzaSyAHJeRT6nwLk1W4v4FXMvXjkxwn26zL8nw';
-
-      const requestBody = {
-        contents: [{
-          parts: [{ text: `${systemPrompt}\n\nTEXTO A MEJORAR:\n${textToImprove}` }]
-        }],
-        generationConfig: {
-          temperature: 0.3,
-        }
-      };
-
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemma-3-1b-it:generateContent?key=${apiKey}`, {
+      const response = await fetch('/api/ai/generate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'gemini-2.0-flash',
+          prompt: systemPrompt + '\n\nTEXTO A MEJORAR:\n' + textToImprove,
+          temperature: 0.3
+        })
       });
 
       if (!response.ok) {
-        throw new Error('Error al conectar con la API de IA Gemini');
+          const errData = await response.json();
+          throw new Error(errData.error || 'Error al conectar con la IA');
       }
 
       const data = await response.json();
-      const improvedText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      const improvedText = data.text?.trim();
 
       if (improvedText) {
         setNewProduct(prev => ({ ...prev, [field]: improvedText }));
       }
-    } catch (error) {
-      console.error('Error improving text with Gemini:', error);
-      notify.error('Hubo un error al mejorar el texto.');
+    } catch (error: any) {
+      console.error('Error improving text:', error);
+      notify.error('Hubo un error al mejorar el texto: ' + error.message);
     } finally {
       setIsImproving(false);
     }
