@@ -156,7 +156,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 supabase.from('kitchen_stations').select('*').order('name'),
                 supabase.from('option_groups').select('*').order('name'),
                 supabase.from('modifier_groups').select('*').order('name'),
-                supabase.from('products').select('*, product_categories!product_category_id(nombre)').eq('es_platillo', false).order('name'),
+                supabase.from('products').select('*, product_categories(nombre)').eq('es_platillo', false).order('name'),
                 supabase.from('suppliers').select('*').order('name'),
                 supabase.from('menu_categories').select('*').order('nombre')
             ]);
@@ -284,6 +284,8 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     setAssignedModifierGroups([]);
                     setAssignedOptionGroups([]);
                     
+                    setBranchInventory(fullBranchInventory);
+                    
                     // Receta para Insumos
                     const { data: recipeData } = await supabase.from('product_recipes').select('*, inventory_items(*)').eq('product_id', id);
                     if (recipeData) setRecipeItems(recipeData);
@@ -358,10 +360,9 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     name: (newProduct.name || '').toUpperCase(),
                     short_name: (newProduct.short_name || '').toUpperCase() || null,
                     description: newProduct.description || null,
-                    category_id: null, // Evitamos el FK error usando null en la columna vieja
-                    menu_category_id: newProduct.category_id || null, // Guardamos en la columna de menú
                     price: parseFloat(newProduct.price) || 0,
                     cost_price: parseFloat(newProduct.cost_price) || 0,
+                    menu_category_id: newProduct.category_id || null,  // FK → menu_categories
                     kitchen_station_id: newProduct.kitchen_station_id || null,
                     image_url: newProduct.image_url || null,
                     is_enabled: newProduct.is_enabled !== undefined ? newProduct.is_enabled : true,
@@ -433,8 +434,8 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     name: (newProduct.name || '').toUpperCase(),
                     short_name: (newProduct.short_name || '').toUpperCase() || null,
                     description: newProduct.description || null,
-                    category_id: null, // Evitamos el FK error usando null en la columna vieja
-                    product_category_id: newProduct.category_id || null, // Guardamos en la columna de productos
+                    category_id: null, // Deshabilitamos la columna antigua
+                    product_category_id: newProduct.category_id || null, // Usamos la columna de insumos
                     unit_measure: newProduct.unit_measure || '',
                     presentation_unit: newProduct.presentation_unit || '',
                     conversion_factor: parseFloat(newProduct.conversion_factor) || 1,
@@ -454,13 +455,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     if (error) throw error;
                     if (data?.[0]) savedId = data[0].id;
                 }
-                if (savedId) {
-                    const invData = branchInventory.map(bi => ({
-                        item_id: savedId,
-                        branch_id: bi.branch_id,
-                        quantity: parseFloat(bi.quantity) || 0,
-                        min_stock: parseFloat(bi.min_stock) || 0
-                    }));
+
                     await supabase.from('inventory_item_branches').upsert(invData, { onConflict: 'item_id,branch_id' });
                 }
 

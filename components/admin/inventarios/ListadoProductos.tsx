@@ -48,11 +48,11 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                 // Insumos/Productos — tabla: products con es_platillo=false
                 let query = supabase
                     .from('products')
-                    .select('*, product_categories(nombre)')
+                    .select('*, product_categories!product_category_id(nombre)')
                     .eq('es_platillo', false);
 
                 if (categorias.size > 0) {
-                    query = query.in('category_id', Array.from(categorias));
+                    query = query.in('product_category_id', Array.from(categorias));
                 }
 
                 const { data, error } = await query.order('name');
@@ -60,7 +60,8 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                 if (data) {
                     const mapped = data.map((i: any) => {
                         const conversion = parseFloat(i.conversion_factor) || 1;
-                        const presentacion = `${i.presentation_unit || ''} ${conversion} ${i.unit_measure || ''}`.trim();
+                        const formattedConv = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(conversion);
+                        const presentacion = `${i.presentation_unit || ''} ${formattedConv} ${i.unit_measure || ''}`.trim();
 
                         return {
                             ...i,
@@ -68,7 +69,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                             codigo: i.product_code || '',
                             nombre: i.name || 'SIN NOMBRE',
                             categoria: i.product_categories?.nombre || 'SIN CATEGORÍA',
-                            categoria_id: i.category_id,
+                            categoria_id: i.product_category_id,
                             existencia: parseFloat(i.stock_actual || 0) || 0,
                             presentacion: presentacion || 'UNIDAD',
                             precio_costo: parseFloat(i.cost_price || 0) || 0,
@@ -134,7 +135,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-56">Categoría</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 min-w-[500px]">Producto / Insumo</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-200 w-32">Existencia</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-72">Presentación</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-72">Presentación</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-right border-r border-gray-300 w-40">Precio Costo</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-center w-32">Habilitado</th>
                         </tr>
@@ -164,7 +165,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                     <td className={`px-4 text-[10px] border-x border-gray-100 text-center tabular-nums font-black ${selectedId === item.id ? 'text-white' : item.existencia <= 0 ? 'text-red-600' : 'text-emerald-700'}`}>
                                         {item.existencia?.toFixed(2) || '0.00'}
                                     </td>
-                                    <td className="px-4 text-[10px] border-r border-gray-100 uppercase">{item.presentacion || 'UNIDAD'}</td>
+                                    <td className="px-4 text-[10px] border-r border-gray-100 uppercase text-center">{item.presentacion || 'UNIDAD'}</td>
                                     <td className="px-4 text-[10px] border-r border-gray-100 text-right tabular-nums">Q. {item.precio_costo?.toFixed(2) || '0.00'}</td>
                                     <td className="px-4 border-gray-100">
                                         <div className="flex justify-center">

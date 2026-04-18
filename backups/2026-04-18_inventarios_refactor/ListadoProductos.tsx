@@ -1,60 +1,85 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase } from '../../../supabase';
-import { Search, Plus, Edit2, Trash2, Folder, ChefHat, X, RefreshCw, Package } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Folder, Package, X, RefreshCw } from 'lucide-react';
 
-interface Platillo {
+interface Producto {
     id: string;
     codigo: string;
-    nombre: string;
     categoria: string;
     categoria_id: string;
-    cocina: string;
-    kitchen_station_id: string;
-    prioridad: number;
+    nombre: string;
     existencia: number;
+    presentacion: string;
     precio_costo: number;
-    precio_venta: number;
     habilitado: boolean;
 }
 
-interface ListadoPlatillosProps {
+interface ListadoProductosProps {
     categorias: Set<string>;
     sucursalId: string;
-    onEdit: (id: string) => void;
+    onEdit: (id: string, type: 'platillo' | 'producto') => void;
     onNew: () => void;
     onDelete: (id: string) => void;
     onRefresh: () => void;
     onChangeCategory: (id: string) => void;
-    onChangeKitchen: (id: string) => void;
+    onKardex: (id: string) => void;
 }
 
-export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({ 
-    categorias, sucursalId, onEdit, onNew, onDelete, onRefresh, onChangeCategory, onChangeKitchen 
+export const ListadoProductos: React.FC<ListadoProductosProps> = ({ 
+    categorias, sucursalId, onEdit, onNew, onDelete, onRefresh, onChangeCategory, onKardex 
 }) => {
-    const [items, setItems] = useState<Platillo[]>([]);
+    const [items, setItems] = useState<Producto[]>([]);
     const [loading, setLoading] = useState(true);
-    const [search, setSearch] = useState('');
     const [selectedId, setSelectedId] = useState<string | null>(null);
-    const [branchStock, setBranchStock] = useState<any[]>([]);
-    const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number, product: Platillo | null }>({ visible: false, x: 0, y: 0, product: null });
+    const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number, product: Producto | null }>({ visible: false, x: 0, y: 0, product: null });
+
+    const formatAmount = (num: number) => {
+        return new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(num);
+    };
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                let query = supabase.from('products').select('*, menu_categories!menu_category_id(nombre), kitchen_stations(name)')
-                    .eq('es_platillo', true);
-                
-                if (categorias.size > 0) query = query.in('menu_category_id', Array.from(categorias));
+                // Insumos/Productos — tabla: products con es_platillo=false
+                let query = supabase
+                    .from('products')
+                    .select('*, product_categories(nombre)')
+                    .eq('es_platillo', false);
+
+                if (categorias.size > 0) {
+                    query = query.in('category_id', Array.from(categorias));
+                }
 
                 const { data, error } = await query.order('name');
-                const { data: stockData } = await supabase.from('inventory_item_branches').select('*');
-                
-                if (data) setItems(data);
-                if (stockData) setBranchStock(stockData);
-                if (error) console.error('Error fetching platillos:', error.message);
-            } catch (e) {
+
+                if (data) {
+                    const mapped = data.map((i: any) => {
+                        const conversion = parseFloat(i.conversion_factor) || 1;
+                        const presentacion = `${i.presentation_unit || ''} ${conversion} ${i.unit_measure || ''}`.trim();
+
+                        return {
+                            ...i,
+                            id: i.id,
+                            codigo: i.product_code || '',
+                            nombre: i.name || 'SIN NOMBRE',
+                            categoria: i.product_categories?.nombre || 'SIN CATEGORÍA',
+                            categoria_id: i.category_id,
+                            existencia: parseFloat(i.stock_actual || 0) || 0,
+                            presentacion: presentacion || 'UNIDAD',
+                            precio_costo: parseFloat(i.cost_price || 0) || 0,
+                            habilitado: i.is_enabled !== undefined ? i.is_enabled : true,
+                        };
+                    });
+                    setItems(mapped);
+                }
+
+                if (error) console.error('Error fetching inventory items:', error.message);
+            } catch (e: any) {
                 console.error('Fetch error:', e);
             } finally {
                 setLoading(false);
@@ -63,14 +88,14 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
         fetchData();
     }, [categorias, sucursalId]);
 
-    const handleContextMenu = (e: React.MouseEvent, product: Platillo | null = null) => {
+    const handleContextMenu = (e: React.MouseEvent, product: Producto | null = null) => {
         e.preventDefault();
         e.stopPropagation();
         
         let x = e.clientX;
         let y = e.clientY;
         const menuWidth = 220;
-        const menuHeight = product ? 220 : 80;
+        const menuHeight = product ? 200 : 80;
 
         if (x + menuWidth > window.innerWidth) x = window.innerWidth - menuWidth - 10;
         if (y + menuHeight > window.innerHeight) y = window.innerHeight - menuHeight - 10;
@@ -83,19 +108,11 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
         const hideMenu = () => setContextMenu(prev => ({ ...prev, visible: false }));
         window.addEventListener('click', hideMenu);
         window.addEventListener('contextmenu', (e) => {
-            // Si el clic no fue dentro de nuestra grilla, cerramos el menú personalizado
             const target = e.target as HTMLElement;
             if (!target.closest('.grid-container')) hideMenu();
         });
-        return () => {
-            window.removeEventListener('click', hideMenu);
-        };
+        return () => window.removeEventListener('click', hideMenu);
     }, []);
-
-    const filtered = items.filter(item =>
-        ((item as any).name || item.nombre || '').toLowerCase().includes(search.toLowerCase()) ||
-        ((item as any).product_code || item.codigo || '').toLowerCase().includes(search.toLowerCase())
-    );
 
     return (
         <div 
@@ -103,22 +120,8 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
             onContextMenu={(e) => handleContextMenu(e)}
         >
             {/* Toolbar Superior */}
-            <div className="h-8 bg-[#f5f5f5] border-b border-gray-300 flex items-center justify-between px-2 shrink-0">
-                <span className="text-[11px] font-bold text-slate-800 uppercase tracking-tighter">Listado de Platillos</span>
-                <div className="flex items-center gap-1">
-                    <div className="relative flex items-center h-5">
-                        <input 
-                            type="text"
-                            placeholder="Introduzca el texto a buscar..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="bg-white border border-gray-400 h-full px-2 text-[10px] w-56 outline-none focus:border-[#106ebe]"
-                        />
-                        <button className="bg-[#f0f0f0] border border-gray-400 h-full px-4 text-[9px] font-bold border-l-0 hover:bg-white transition-colors active:bg-gray-200 text-black">
-                            BUSCAR
-                        </button>
-                    </div>
-                </div>
+            <div className="h-8 bg-[#f5f5f5] border-b border-gray-300 flex items-center px-2 shrink-0">
+                <span className="text-[11px] font-bold text-slate-800 uppercase tracking-tighter">Listado de Productos / Insumos</span>
             </div>
 
 
@@ -127,45 +130,45 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                 <table className="w-full border-collapse border-spacing-0 min-w-max">
                     <thead className="sticky top-0 z-10">
                         <tr className="bg-[#f5f5f5] border-b border-gray-300 h-7 select-none">
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-28">Código</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 min-w-[350px]">Platillo</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-44">Categoría</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-32">Cocina</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-24">Prioridad</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-right border-r border-gray-300 w-28">Precio Costo</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-right border-r border-gray-300 w-28">Precio Venta</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center w-24">Habilitado</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-32">Código</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-56">Categoría</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 min-w-[500px]">Producto / Insumo</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-200 w-32">Existencia</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-72">Presentación</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-right border-r border-gray-300 w-40">Precio Costo</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center w-32">Habilitado</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white">
                         {loading ? (
-                            <tr><td colSpan={8} className="py-20 text-center text-[10px] uppercase font-bold text-slate-400">Consultando Base de Datos...</td></tr>
-                        ) : filtered.length === 0 ? (
-                            <tr><td colSpan={8} className="py-20 text-center text-[10px] uppercase font-bold text-slate-400 italic">No se encontraron registros</td></tr>
+                            <tr><td colSpan={7} className="py-20 text-center text-[10px] uppercase font-bold text-slate-400 font-sans">Sincronizando Inventario...</td></tr>
+                        ) : items.length === 0 ? (
+                            <tr><td colSpan={7} className="py-20 text-center text-[10px] uppercase font-bold text-slate-400 font-sans italic">No se encontraron productos</td></tr>
                         ) : (
-                            filtered.map((item) => (
+                            items.map((item) => (
                                 <tr 
                                     key={item.id} 
                                     onClick={(e) => { e.stopPropagation(); setSelectedId(item.id); }}
+                                    onDoubleClick={() => onEdit(item.id, 'producto')}
                                     onContextMenu={(e) => handleContextMenu(e, item)}
                                     className={`
                                         h-6 border-b border-gray-100 cursor-pointer transition-colors
-                                        ${selectedId === item.id ? 'bg-[#106ebe] text-white' : 'hover:bg-blue-50 text-slate-800'}
+                                        ${selectedId === item.id ? 'bg-[#106ebe] text-white font-bold' : 'hover:bg-blue-50 text-slate-800'}
                                     `}
                                 >
-                                    <td className="px-4 text-[10px] font-bold border-r border-gray-100">{(item as any).product_code || '---'}</td>
-                                    <td className="px-4 text-[10px] font-bold uppercase truncate">{(item as any).name}</td>
-                                    <td className="px-4 text-[10px] border-x border-gray-100 uppercase italic text-gray-500" style={{ color: selectedId === item.id ? 'white' : '' }}>
-                                        {item.categoria || (item as any).menu_categories?.nombre}
+                                    <td className="px-4 text-[10px] border-r border-gray-100 tabular-nums">{item.codigo || '---'}</td>
+                                    <td className="px-4 text-[10px] border-r border-gray-100 uppercase text-gray-400" style={{ color: selectedId === item.id ? 'white' : '' }}>
+                                        {item.categoria}
                                     </td>
-                                    <td className="px-4 text-[10px] border-r border-gray-100 uppercase">{item.cocina || (item as any).kitchen_stations?.name}</td>
-                                    <td className="px-4 text-[10px] border-r border-gray-100 text-center">{(item as any).priority || 100}</td>
-                                    
-                                    <td className="px-4 text-[10px] border-r border-gray-100 text-right tabular-nums">Q{(item as any).cost_price?.toFixed(2) || '0.00'}</td>
-                                    <td className="px-4 text-[10px] border-r border-gray-100 text-right tabular-nums font-bold">Q{(item as any).price?.toFixed(2) || '0.00'}</td>
+                                    <td className="px-4 text-[10px] uppercase truncate">{item.nombre}</td>
+                                    <td className={`px-4 text-[10px] border-x border-gray-100 text-center tabular-nums font-black ${selectedId === item.id ? 'text-white' : item.existencia <= 0 ? 'text-red-600' : 'text-emerald-700'}`}>
+                                        {item.existencia?.toFixed(2) || '0.00'}
+                                    </td>
+                                    <td className="px-4 text-[10px] border-r border-gray-100 uppercase">{item.presentacion || 'UNIDAD'}</td>
+                                    <td className="px-4 text-[10px] border-r border-gray-100 text-right tabular-nums">Q. {item.precio_costo?.toFixed(2) || '0.00'}</td>
                                     <td className="px-4 border-gray-100">
                                         <div className="flex justify-center">
-                                            <input type="checkbox" checked={item.habilitado || (item as any).is_enabled} readOnly className="w-3.5 h-3.5" />
+                                            <input type="checkbox" checked={item.habilitado} readOnly className="w-3.5 h-3.5 outline-none" />
                                         </div>
                                     </td>
                                 </tr>
@@ -177,7 +180,7 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
 
             {/* Footer */}
             <div className="h-6 bg-[#f0f0f0] border-t border-gray-300 px-2 flex items-center shrink-0">
-                <span className="text-[10px] font-bold text-slate-800">Platos: {filtered.length}</span>
+                <span className="text-[10px] font-bold text-slate-800 uppercase tracking-tighter">Productos: {items.length}</span>
             </div>
 
             {/* Context Menu Portal */}
@@ -202,7 +205,7 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                                 onClick={(e) => { 
                                     if (!contextMenu.product) return;
                                     e.stopPropagation(); 
-                                    onEdit(contextMenu.product.id); 
+                                    onEdit(contextMenu.product.id, 'producto'); 
                                     setContextMenu({ ...contextMenu, visible: false }); 
                                 }}
                                 className={`w-full h-7 flex items-center gap-2.5 px-3 transition-none group ${!contextMenu.product ? 'opacity-40 cursor-not-allowed text-gray-400' : 'hover:bg-[#106ebe] hover:text-white text-slate-800'}`}
@@ -246,7 +249,7 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                                 className={`w-full h-7 flex items-center gap-2.5 px-3 transition-none group ${!contextMenu.product ? 'opacity-40 cursor-not-allowed text-gray-400' : 'hover:bg-[#106ebe] hover:text-white text-slate-800'}`}
                             >
                                 <Folder size={14} className={!contextMenu.product ? 'text-gray-400' : 'text-amber-500 group-hover:text-white'} />
-                                <span className="text-[11px] font-bold uppercase tracking-tight">Cambiar Categoría</span>
+                                <span className="text-[11px] font-bold uppercase tracking-tight">Mover a Categoría</span>
                             </button>
                             
                             <button 
@@ -254,13 +257,13 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                                 onClick={(e) => { 
                                     if (!contextMenu.product) return;
                                     e.stopPropagation(); 
-                                    onChangeKitchen(contextMenu.product.id); 
+                                    onKardex(contextMenu.product.id); 
                                     setContextMenu({ ...contextMenu, visible: false }); 
                                 }}
                                 className={`w-full h-7 flex items-center gap-2.5 px-3 transition-none group ${!contextMenu.product ? 'opacity-40 cursor-not-allowed text-gray-400' : 'hover:bg-[#106ebe] hover:text-white text-slate-800'}`}
                             >
-                                <ChefHat size={14} className={!contextMenu.product ? 'text-gray-400' : 'text-blue-500 group-hover:text-white'} />
-                                <span className="text-[11px] font-bold uppercase tracking-tight">Cambiar Cocina</span>
+                                <Package size={14} className={!contextMenu.product ? 'text-gray-400' : 'text-blue-500 group-hover:text-white'} />
+                                <span className="text-[11px] font-bold uppercase tracking-tight">Ver Kardex</span>
                             </button>
                         </div>
                     </div>

@@ -216,14 +216,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                         <CustomSelect 
                                             value={newProduct.category_id || ''}
                                             onChange={v => setNewProduct({...newProduct, category_id: v})}
-                                            options={(() => {
-                                                const unique = new Map();
-                                                safeCategories.forEach(c => {
-                                                    const name = (c.nombre || c.name || '').toUpperCase();
-                                                    if (!unique.has(name)) unique.set(name, { value: c.id, label: name });
-                                                });
-                                                return Array.from(unique.values()).sort((a, b) => a.label.localeCompare(b.label));
-                                            })()}
+                                            options={safeCategories.map(c => ({ value: c.id, label: c.nombre || c.name }))}
                                         />
                                     </div>
                                     <div className="grid grid-cols-[165px_1fr] items-center gap-2 pr-8">

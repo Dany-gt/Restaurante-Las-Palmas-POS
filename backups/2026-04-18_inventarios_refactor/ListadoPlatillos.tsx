@@ -43,7 +43,7 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
         const fetchData = async () => {
             setLoading(true);
             try {
-                let query = supabase.from('products').select('*, menu_categories!menu_category_id(nombre), kitchen_stations(name)')
+                let query = supabase.from('products').select('*, menu_categories(nombre), kitchen_stations(name)')
                     .eq('es_platillo', true);
                 
                 if (categorias.size > 0) query = query.in('menu_category_id', Array.from(categorias));
