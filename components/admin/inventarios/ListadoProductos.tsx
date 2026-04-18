@@ -48,7 +48,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                 // Insumos/Productos — tabla: products con es_platillo=false
                 let query = supabase
                     .from('products')
-                    .select('*, categories(name)')
+                    .select('*, product_categories(nombre)')
                     .eq('es_platillo', false);
 
                 if (categorias.size > 0) {
@@ -67,7 +67,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                             id: i.id,
                             codigo: i.product_code || '',
                             nombre: i.name || 'SIN NOMBRE',
-                            categoria: i.categories?.name || 'SIN CATEGORÍA',
+                            categoria: i.product_categories?.nombre || 'SIN CATEGORÍA',
                             categoria_id: i.category_id,
                             existencia: parseFloat(i.stock_actual || 0) || 0,
                             presentacion: presentacion || 'UNIDAD',

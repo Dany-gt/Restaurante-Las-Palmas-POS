@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Save, Image as ImageIcon, Trash2, Package } from 'lucide-react';
+import { X, Save, Plus, Trash2 } from 'lucide-react';
 import { DraggableWindow } from '../shared/DraggableWindow';
 import { WindowsSaveButton } from '../../WindowsSaveButton';
 
@@ -12,202 +12,384 @@ interface ProductoModalProps {
     setNewProduct: (val: any) => void;
     handleSave: () => void;
     isSaving: boolean;
-    categories?: any[];
     inventoryCategories?: any[];
-    units?: any[];
+    suppliers?: any[];
     branches?: any[];
     branchInventory?: any[];
     setBranchInventory?: (val: any[]) => void;
-    // adding missing ones
-    suppliers?: any[];
-    recipeItems?: any[];
-    setRecipeItems?: any;
+    setRecipeItems?: (val: any[]) => void;
+    searchModal?: (val: any) => void;
     setRecipeContextMenu?: any;
     setShowQuickCatModal?: any;
     openPicker?: any;
     setOpenPicker?: any;
 }
 
+const CustomSelect = ({ value, onChange, options, placeholder = "Seleccionar..." }: { value: string, onChange: (v: string) => void, options: {value: string, label: string}[], placeholder?: string }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const selectedLabel = options.find(o => o.value === value)?.label || placeholder;
+    return (
+        <div className="relative flex-1">
+            <div 
+                className="h-6 bg-white border border-gray-400 px-1 text-[11px] text-[#202020] flex items-center justify-between cursor-pointer outline-none"
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <span className="truncate">{selectedLabel}</span>
+                <span className="text-[8px] text-[#202020] ml-1">▼</span>
+            </div>
+            {isOpen && (
+                <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
+                    <div className="absolute top-full left-0 right-0 mt-[1px] max-h-[140px] overflow-y-auto bg-white border border-gray-400 shadow-lg z-50 drop-shadow-md custom-scrollbar">
+                        <div 
+                            className="px-2 py-1 text-[11px] hover:bg-[#106ebe] hover:text-white cursor-pointer text-gray-500 italic"
+                            onClick={() => { onChange(''); setIsOpen(false); }}
+                        >
+                            {placeholder}
+                        </div>
+                        {options.map(o => (
+                            <div 
+                                key={o.value} 
+                                className="px-2 py-1.5 text-[11px] text-[#202020] hover:bg-[#106ebe] hover:text-white cursor-pointer truncate border-b border-gray-100 last:border-b-0"
+                                onClick={() => { onChange(o.value); setIsOpen(false); }}
+                                title={o.label}
+                            >
+                                {o.label}
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
+
 export const ProductoModal: React.FC<ProductoModalProps> = ({
     isOpen, onClose, editingId, newProduct, setNewProduct, handleSave, isSaving,
-    categories = [], inventoryCategories = [], units = [], branches = [], branchInventory = [], setBranchInventory
+    inventoryCategories = [], suppliers = [], branches = [], branchInventory = [], setBranchInventory,
+    recipeItems = [], setRecipeItems, searchModal
 }) => {
-    if (!isOpen) return null;
+    const [activeTab, setActiveTab] = useState<'sucursales' | 'receta'>('sucursales');
+
+    if (!isOpen || !newProduct) return null;
+
+    const safeBranchInventory = branchInventory || [];
+    const safeBranches = branches || [];
+    const safeCategories = inventoryCategories || [];
+    const safeSuppliers = suppliers || [];
+
+    const handleUpdateBranchQuantity = (branchId: string, value: string) => {
+        if (!setBranchInventory) return;
+        setBranchInventory(safeBranchInventory.map(bi => 
+            bi.branch_id === branchId ? { ...bi, quantity: value } : bi
+        ));
+    };
+
+    const handleUpdateBranchReorder = (branchId: string, value: string) => {
+        if (!setBranchInventory) return;
+        setBranchInventory(safeBranchInventory.map(bi => 
+            bi.branch_id === branchId ? { ...bi, min_stock: value } : bi
+        ));
+    };
+
+    const handleUpdateBranchEnabled = (branchId: string, key: string, value: boolean) => {
+        if (!setBranchInventory) return;
+        setBranchInventory(safeBranchInventory.map(bi => 
+            bi.branch_id === branchId ? { ...bi, [key]: value } : bi
+        ));
+    };
 
     return createPortal(
         <div className="fixed inset-0 z-[2000000] flex items-center justify-center p-2 bg-black/5 pointer-events-none font-sans overflow-hidden">
             <div className="absolute inset-0 pointer-events-auto" onClick={onClose}></div>
             <div className="pointer-events-auto">
                 <DraggableWindow>
-                    <div className="bg-[#f2f4f7] border border-[#106ebe] w-[820px] overflow-hidden flex flex-col shadow-[0_25px_80px_rgba(0,0,0,0.35)] animate-in fade-in duration-100">
-                        {/* HEADER - PIXEL PERFECT */}
-                        <div className="modal-header bg-[#106ebe] h-9 px-3 flex justify-between items-center text-white shrink-0 cursor-move active:cursor-grabbing select-none shadow-md">
-                            <div className="flex items-center gap-1.5 pt-0.5">
-                                <span className="text-[12px] font-bold uppercase tracking-tight">MANTENIMIENTO DE PRODUCTO / INSUMO</span>
-                            </div>
-                            <div className="flex h-full items-center">
-                                <button className="h-full px-4 hover:bg-white/10 flex items-center gap-1.5 transition-colors group">
-                                    <ImageIcon size={15} className="text-white/80 group-hover:text-white" />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest leading-none">IMAGEN</span>
-                                </button>
-                                <div className="h-full flex items-center px-1 border-l border-white/10">
-                                    <WindowsSaveButton onClick={handleSave} loading={isSaving} variant="minimal" title="Guardar" />
-                                </div>
-                                <button onClick={onClose} className="w-10 h-full flex items-center justify-center hover:bg-[#e81123] transition-all ml-1" title="Cerrar">
-                                    <X size={20} strokeWidth={2.5} />
+                    <div className="bg-white border border-[#106ebe] w-[750px] shadow-[0_25px_80px_rgba(0,0,0,0.35)] flex flex-col font-sans animate-in zoom-in-95 duration-100">
+                        {/* Windows Title Bar */}
+                        <div className="modal-header bg-[#106ebe] h-[34px] flex justify-between items-center pl-3 pr-1 shrink-0 cursor-move active:cursor-grabbing">
+                            <span className="text-white text-[12px] font-bold tracking-wide">Mantenimiento de Productos</span>
+                            <div className="flex items-center gap-1">
+                                <WindowsSaveButton 
+                                    onClick={handleSave} 
+                                    loading={isSaving}
+                                    title="Guardar"
+                                    className={`w-[28px] h-[26px] flex items-center justify-center transition-all border border-transparent rounded-sm ${isSaving ? 'opacity-50 cursor-wait' : 'hover:bg-[#1a7cd8] hover:border-[#3891e6]'}`}
+                                />
+                                <button 
+                                    onClick={onClose}
+                                    title="Cerrar"
+                                    className="w-[34px] h-[26px] bg-[#e81123] hover:bg-[#f1707a] flex items-center justify-center transition-colors shadow-sm ml-1"
+                                >
+                                    <X className="text-white" size={16} strokeWidth={2.5} />
                                 </button>
                             </div>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-4 bg-[#f2f4f7]">
-                            {/* DATOS BÁSICOS */}
-                            <fieldset className="border border-gray-300 p-6 pt-1.5 bg-white relative shadow-sm">
-                                <legend className="px-2 text-[10.5px] font-bold text-[#106ebe] uppercase italic tracking-tighter">DATOS DEL PRODUCTO</legend>
-                                <div className="flex gap-10 mt-2">
-                                    <div className="flex-1 space-y-3">
-                                        <div className="flex items-center gap-4">
-                                            <label className="text-[10px] font-bold text-gray-400 w-24 shrink-0 uppercase tracking-tighter whitespace-nowrap leading-none">Nombre</label>
+                        {/* Modal Body */}
+                        <div className="p-3 gap-3 flex flex-col">
+                            {/* Datos de Producto Section */}
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[#106ebe] text-[13px] font-bold font-[Arial]">Datos de Producto</span>
+                                <div className="flex flex-col gap-2">
+                                    <div className="grid grid-cols-[165px_1fr] items-center gap-2 pr-8">
+                                        <label className="text-[11px] text-[#202020] font-[Arial]">Código</label>
+                                        <input 
+                                            type="text" 
+                                            value={newProduct.product_code || ''}
+                                            onChange={e => setNewProduct({...newProduct, product_code: e.target.value})}
+                                            className="h-6 border border-gray-400 px-2 text-[11px] w-full outline-none focus:border-blue-500" 
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-[165px_1fr] items-center gap-2 pr-8">
+                                        <label className="text-[11px] text-[#202020] font-[Arial]">Producto</label>
+                                        <input 
+                                            type="text" 
+                                            value={newProduct.name || ''}
+                                            onChange={e => setNewProduct({...newProduct, name: e.target.value})}
+                                            className="h-6 border border-gray-400 px-2 text-[11px] w-full outline-none focus:bg-[#3399ff] focus:text-white" 
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-[165px_1fr_100px_1fr] items-center gap-2 pr-8">
+                                        <label className="text-[11px] text-[#202020] font-[Arial]">Unidad de Medida</label>
+                                        <CustomSelect 
+                                            value={newProduct.unit_measure || ''}
+                                            onChange={v => setNewProduct({...newProduct, unit_measure: v})}
+                                            options={[
+                                                {value: 'Mililitro', label: 'Mililitro'},
+                                                {value: 'Gramo', label: 'Gramo'},
+                                                {value: 'Onza', label: 'Onza'},
+                                                {value: 'Litro', label: 'Litro'},
+                                                {value: 'Libra', label: 'Libra'},
+                                                {value: 'Kilogramo', label: 'Kilogramo'},
+                                                {value: 'Unidad', label: 'Unidad'}
+                                            ]}
+                                        />
+                                        <label className="text-[11px] text-[#202020] font-[Arial] pl-2">Presentación</label>
+                                        <CustomSelect 
+                                            value={newProduct.presentation_unit || ''}
+                                            onChange={v => setNewProduct({...newProduct, presentation_unit: v})}
+                                            options={[
+                                                {value: 'Frasco', label: 'Frasco'},
+                                                {value: 'Botella', label: 'Botella'},
+                                                {value: 'Caja', label: 'Caja'},
+                                                {value: 'Saco', label: 'Saco'},
+                                                {value: 'Bolsa', label: 'Bolsa'},
+                                                {value: 'Lata', label: 'Lata'},
+                                                {value: 'Galón', label: 'Galón'},
+                                                {value: 'Unidad', label: 'Unidad'}
+                                            ]}
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-[165px_1fr_100px_1fr] items-center gap-2 pr-8">
+                                        <label className="text-[8.5px] tracking-tighter whitespace-nowrap text-[#202020] font-[Arial]">
+                                            {`Cantidad de ${newProduct.unit_measure === 'Mililitro' ? 'ml' : newProduct.unit_measure === 'Gramo' ? 'g' : newProduct.unit_measure === 'Litro' ? 'L' : newProduct.unit_measure === 'Libra' ? 'lb' : newProduct.unit_measure === 'Kilogramo' ? 'kg' : newProduct.unit_measure === 'Onza' ? 'oz' : newProduct.unit_measure || 'ml'} en 1 ${newProduct.presentation_unit || 'Frasco'}`}
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            value={newProduct.conversion_factor ? newProduct.conversion_factor.toString().split('.').map((p: string, i: number) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : p).join('.') : ''}
+                                            onChange={e => {
+                                                const raw = e.target.value.replace(/,/g, '');
+                                                if (/^\d*\.?\d*$/.test(raw)) {
+                                                    setNewProduct({...newProduct, conversion_factor: raw});
+                                                }
+                                            }}
+                                            className="h-6 border border-gray-400 px-2 text-[11px] text-center outline-none focus:border-blue-500 font-bold" 
+                                        />
+                                        <label className="text-[11px] text-[#202020] font-[Arial] pl-2">Precio Costo</label>
+                                        <div className="relative">
+                                            <span className="absolute left-2 top-1.5 text-[11px] text-gray-500">Q</span>
                                             <input 
                                                 type="text" 
-                                                className="flex-1 h-8.5 bg-white border border-gray-300 px-3 text-[12px] font-bold text-slate-700 outline-none focus:border-[#106ebe] uppercase shadow-sm"
-                                                value={newProduct.name || ''}
-                                                onChange={e => setNewProduct({...newProduct, name: e.target.value.toUpperCase()})}
+                                                value={newProduct.cost_price ? newProduct.cost_price.toString().split('.').map((p: string, i: number) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : p).join('.') : ''}
+                                                onChange={e => {
+                                                    const raw = e.target.value.replace(/,/g, '');
+                                                    if (/^\d*\.?\d*$/.test(raw)) {
+                                                        setNewProduct({...newProduct, cost_price: raw});
+                                                    }
+                                                }}
+                                                className="h-6 w-full border border-gray-400 pl-6 pr-2 text-[11px] text-center outline-none focus:border-blue-500 font-bold" 
                                             />
                                         </div>
-                                        <div className="flex items-center gap-4">
-                                            <label className="text-[10px] font-bold text-gray-400 w-24 shrink-0 uppercase tracking-tighter whitespace-nowrap leading-none">Descripción</label>
-                                            <input 
-                                                type="text" 
-                                                className="flex-1 h-8.5 bg-white border border-gray-300 px-3 text-[12px] font-bold text-slate-700 outline-none focus:border-[#106ebe] uppercase shadow-sm"
-                                                value={newProduct.description || ''}
-                                                onChange={e => setNewProduct({...newProduct, description: e.target.value.toUpperCase()})}
-                                            />
-                                        </div>
-                                        <div className="flex gap-4">
-                                            <div className="flex-1 flex items-center gap-4">
-                                                <label className="text-[10px] font-bold text-gray-400 w-24 shrink-0 uppercase tracking-tighter whitespace-nowrap leading-none">Categoría</label>
-                                                <select 
-                                                    className="flex-1 h-8.5 bg-white border border-gray-300 px-2 text-[12px] font-bold text-slate-700 outline-none focus:border-[#106ebe] uppercase cursor-pointer shadow-sm"
-                                                    value={newProduct.category_id || ''}
-                                                    onChange={e => setNewProduct({...newProduct, category_id: e.target.value})}
-                                                >
-                                                    <option value="">Seleccionar...</option>
-                                                    {(categories.length > 0 ? categories : inventoryCategories).map(c => <option key={c.id} value={c.id}>{c.name || c.nombre}</option>)}
-                                                </select>
-                                            </div>
-                                            <div className="flex-1 flex items-center gap-4">
-                                                <label className="text-[10px] font-bold text-gray-400 w-16 shrink-0 uppercase tracking-tighter whitespace-nowrap leading-none">Unidad</label>
-                                                <select 
-                                                    className="flex-1 h-8.5 bg-white border border-gray-300 px-2 text-[12px] font-bold text-slate-700 outline-none focus:border-[#106ebe] uppercase cursor-pointer shadow-sm"
-                                                    value={newProduct.unit_id || ''}
-                                                    onChange={e => setNewProduct({...newProduct, unit_id: e.target.value})}
-                                                >
-                                                    <option value="">Seleccionar...</option>
-                                                    {units.map(u => <option key={u.id} value={u.id}>{u.name} ({u.abbreviation})</option>)}
-                                                </select>
-                                            </div>
-                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-[165px_1fr] items-center gap-2 pr-8">
+                                        <label className="text-[11px] text-[#202020] font-[Arial]">Categoría</label>
+                                        <CustomSelect 
+                                            value={newProduct.category_id || ''}
+                                            onChange={v => setNewProduct({...newProduct, category_id: v})}
+                                            options={safeCategories.map(c => ({ value: c.id, label: c.nombre || c.name }))}
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-[165px_1fr] items-center gap-2 pr-8">
+                                        <label className="text-[11px] text-[#202020] font-[Arial]">Proveedor</label>
+                                        <CustomSelect 
+                                            value={newProduct.supplier_id || ''}
+                                            onChange={v => setNewProduct({...newProduct, supplier_id: v})}
+                                            options={safeSuppliers.map(c => ({ value: c.id, label: c.name }))}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Configuración Section */}
+                            <div className="flex flex-col mt-2 gap-1 mb-1">
+                                <span className="text-[#106ebe] text-[13px] font-bold font-[Arial]">Configuración</span>
+                                <div className="bg-white border-t border-gray-200 flex flex-col gap-0 relative pt-5">
+                                    {/* Sub-tabs header superimposed on top padding */}
+                                    <div className="absolute top-0 left-0 right-0 h-[24px] flex z-10">
+                                        <button 
+                                            className={`px-4 text-[11px] font-[Arial] border border-gray-300 rounded-t-sm transition-all overflow-hidden ${activeTab === 'sucursales' ? 'bg-white font-bold text-black border-b-white border-t-white relative z-20 mt-[-1px] h-[26px]' : 'bg-[#e4e4e4] text-gray-700 hover:bg-[#d4d4d4] border-b-gray-300 mt-[1px] h-[23px]'}`} 
+                                            onClick={() => setActiveTab('sucursales')}
+                                        >
+                                            Sucursales
+                                        </button>
+                                        <button 
+                                            className={`px-4 text-[11px] font-[Arial] border border-gray-300 border-l-0 rounded-t-sm transition-all overflow-hidden ${activeTab === 'receta' ? 'bg-white font-bold text-black border-b-white border-t-white border-l border-l-gray-300 relative z-20 mt-[-1px] h-[26px]' : 'bg-[#e4e4e4] text-gray-700 hover:bg-[#d4d4d4] border-b-gray-300 mt-[1px] h-[23px]'}`} 
+                                            onClick={() => setActiveTab('receta')}
+                                        >
+                                            Receta
+                                        </button>
+                                        <div className="flex-1 border-b border-gray-300 mt-[23px]"></div>
                                     </div>
                                     
-                                    <div className="w-[180px] flex flex-col items-center gap-3 pt-2">
-                                        <div className="w-full aspect-square border border-gray-200 bg-[#f8f9fa] flex flex-col items-center justify-center text-gray-400 overflow-hidden relative shadow-inner">
-                                            {newProduct.image_url ? (
-                                                <img src={newProduct.image_url} className="w-full h-full object-cover" alt="Producto" />
-                                            ) : (
-                                                <ImageIcon size={52} strokeWidth={0.5} className="opacity-20" />
-                                            )}
-                                        </div>
-                                        <button className="text-[10px] font-bold uppercase text-gray-400 hover:text-[#106ebe] transition-colors tracking-widest leading-none pt-1">CAMBIAR IMAGEN</button>
+                                    {/* Tab Content Area */}
+                                    <div className="bg-white border border-gray-300 border-t-0 p-2 h-[180px] flex flex-col z-10 relative">
+                                        {activeTab === 'sucursales' && (
+                                            <div className="flex-1 border border-gray-300 overflow-y-auto custom-scrollbar flex flex-col">
+                                                <table className="w-full border-collapse">
+                                                    <thead className="sticky top-0 z-10 select-none">
+                                                        <tr className="bg-[#f0f0f0] h-[22px]">
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-left">Sucursal</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-28">Existencia</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-32">Pto. Reorden</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-20">Hab.</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-32">Asignado</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {safeBranches.map((b, idx) => {
+                                                            const bi = safeBranchInventory.find((i: any) => i.branch_id === b.id) || {
+                                                                quantity: '0', min_stock: '0', is_enabled: true, is_assigned: true
+                                                            };
+                                                            return (
+                                                                <tr key={b.id} className={`border-b border-gray-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'} hover:bg-[#e8f2fe] transition-colors`}>
+                                                                    <td className="px-2 py-1 border-r border-gray-200 text-[11px] text-[#202020] font-[Arial]">{b.name}</td>
+                                                                    <td className="px-1 border-r border-gray-200">
+                                                                        <input 
+                                                                            type="text"
+                                                                            value={bi.quantity ? bi.quantity.toString().split('.').map((p: string, i: number) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : p).join('.') : '0'}
+                                                                            onChange={(e) => {
+                                                                                const raw = e.target.value.replace(/,/g, '');
+                                                                                if (/^\d*\.?\d*$/.test(raw)) {
+                                                                                    handleUpdateBranchQuantity(b.id, raw);
+                                                                                }
+                                                                            }}
+                                                                            className="w-full text-center px-1 text-[11px] font-bold font-[Arial] h-6 bg-transparent outline-none focus:bg-white focus:border focus:border-blue-400"
+                                                                        />
+                                                                    </td>
+                                                                    <td className="px-1 border-r border-gray-200">
+                                                                        <input 
+                                                                            type="text"
+                                                                            value={bi.min_stock ? bi.min_stock.toString().split('.').map((p: string, i: number) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : p).join('.') : '0'}
+                                                                            onChange={(e) => {
+                                                                                const raw = e.target.value.replace(/,/g, '');
+                                                                                if (/^\d*\.?\d*$/.test(raw)) {
+                                                                                    handleUpdateBranchReorder(b.id, raw);
+                                                                                }
+                                                                            }}
+                                                                            className="w-full text-center px-1 text-[11px] font-bold font-[Arial] h-6 bg-transparent outline-none focus:bg-white focus:border focus:border-blue-400"
+                                                                        />
+                                                                    </td>
+                                                                    <td className="px-2 py-0.5 border-r border-gray-200 text-center">
+                                                                        <input 
+                                                                            type="checkbox" 
+                                                                            checked={bi.is_enabled !== false} 
+                                                                            onChange={(e) => handleUpdateBranchEnabled(b.id, 'is_enabled', e.target.checked)}
+                                                                            className="w-[11px] h-[11px]" 
+                                                                        />
+                                                                    </td>
+                                                                    <td className="px-2 py-0.5 border-gray-200 text-center">
+                                                                        <input 
+                                                                            type="checkbox" 
+                                                                            checked={bi.is_assigned !== false} 
+                                                                            onChange={(e) => handleUpdateBranchEnabled(b.id, 'is_assigned', e.target.checked)}
+                                                                            className="w-[11px] h-[11px]" 
+                                                                        />
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
+                                        {activeTab === 'receta' && (
+                                            <div className="flex-1 border border-gray-300 overflow-y-auto custom-scrollbar flex flex-col bg-white">
+                                                <div className="bg-[#f0f0f0] h-[26px] flex items-center px-1 border-b border-gray-400 gap-1">
+                                                    <button 
+                                                        onClick={() => searchModal && searchModal({ visible: true, type: 'inventory' })}
+                                                        className="flex items-center gap-1.5 px-2 bg-white border border-gray-400 h-[20px] hover:bg-gray-100 transition-colors shadow-sm"
+                                                    >
+                                                        <Plus size={12} className="text-green-600" />
+                                                        <span className="text-[10px] font-bold text-gray-700 uppercase">Agregar Insumo</span>
+                                                    </button>
+                                                </div>
+                                                <table className="w-full border-collapse">
+                                                    <thead className="sticky top-0 z-10 select-none bg-[#f0f0f0]">
+                                                        <tr className="h-[22px]">
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-left">Insumo</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Cantidad</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Unidad</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-10"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {(recipeItems || []).length > 0 ? (recipeItems || []).map((ri, idx) => (
+                                                            <tr key={ri.id || idx} className={`border-b border-gray-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'} hover:bg-[#e8f2fe] transition-colors`}>
+                                                                <td className="px-2 py-1 border-r border-gray-200 text-[11px] text-[#202020] font-[Arial] uppercase truncate">
+                                                                    {ri.inventory_items?.name || 'DESCONOCIDO'}
+                                                                </td>
+                                                                <td className="px-1 border-r border-gray-200">
+                                                                    <input 
+                                                                        type="text"
+                                                                        value={ri.quantity ? ri.quantity.toString().split('.').map((p: any, i: number) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : p).join('.') : '0'}
+                                                                        onChange={(e) => {
+                                                                            const raw = e.target.value.replace(/,/g, '');
+                                                                            if (/^\d*\.?\d*$/.test(raw)) {
+                                                                                const newItems = [...(recipeItems || [])];
+                                                                                newItems[idx].quantity = raw;
+                                                                                setRecipeItems && setRecipeItems(newItems);
+                                                                            }
+                                                                        }}
+                                                                        className="w-full text-center px-1 text-[11px] font-bold font-[Arial] h-6 bg-transparent outline-none focus:bg-white focus:border focus:border-blue-400"
+                                                                    />
+                                                                </td>
+                                                                <td className="px-2 py-1 border-r border-gray-200 text-center text-[10px] text-[#202020] font-[Arial]">
+                                                                    {ri.unit_measure || ri.inventory_items?.unit_measure || 'UNI'}
+                                                                </td>
+                                                                <td className="px-2 py-1 text-center">
+                                                                    <button 
+                                                                        onClick={() => {
+                                                                            const newItems = (recipeItems || []).filter((_, i) => i !== idx);
+                                                                            setRecipeItems && setRecipeItems(newItems);
+                                                                        }}
+                                                                        className="text-red-500 hover:text-red-700 transition-colors"
+                                                                    >
+                                                                        <Trash2 size={12} />
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        )) : (
+                                                            <tr>
+                                                                <td colSpan={4} className="py-10 text-center text-[11px] text-gray-400 font-bold uppercase italic select-none">
+                                                                    No hay insumos agregados a esta receta
+                                                                </td>
+                                                            </tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
-                            </fieldset>
-
-                            {/* COSTOS Y STOCK */}
-                            <fieldset className="border border-gray-300 p-5 pt-1.5 bg-white relative shadow-sm">
-                                <legend className="px-2 text-[10.5px] font-bold text-[#106ebe] uppercase italic tracking-tighter">COSTOS Y RENDIMIENTO</legend>
-                                <div className="grid grid-cols-3 gap-8 items-end mt-2">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-gray-400 block text-center uppercase tracking-tighter">COSTO ÚLTIMA COMPRA</label>
-                                        <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] text-gray-400 font-bold">Q</span>
-                                            <input 
-                                                type="text" 
-                                                className="w-full h-8.5 bg-white border border-gray-300 pl-8 pr-3 text-[13px] font-bold text-[#106ebe] outline-none focus:border-[#106ebe] text-center shadow-sm"
-                                                value={newProduct.last_cost || '0.00'}
-                                                onChange={e => setNewProduct({...newProduct, last_cost: e.target.value})}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-gray-400 block text-center uppercase tracking-tighter">STOCK MÍNIMO</label>
-                                        <div className="relative">
-                                            <input 
-                                                type="text" 
-                                                className="w-full h-8.5 bg-white border border-gray-300 px-3 text-[13px] font-bold text-slate-600 outline-none focus:border-[#106ebe] text-center shadow-sm"
-                                                value={newProduct.min_stock || '0'}
-                                                onChange={e => setNewProduct({...newProduct, min_stock: e.target.value})}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1.5 text-center">
-                                        <label className="text-[10px] font-black text-gray-400 block uppercase tracking-tighter mb-2">CONTROLAR STOCK</label>
-                                        <div className="flex justify-center h-8.5 items-center">
-                                            <input 
-                                                type="checkbox" 
-                                                checked={newProduct.track_inventory}
-                                                onChange={e => setNewProduct({...newProduct, track_inventory: e.target.checked})}
-                                                className="w-5 h-5 accent-[#106ebe] cursor-pointer"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </fieldset>
-
-                            {/* TABLA DE INVENTARIO POR SUCURSAL */}
-                            <div className="flex-1 flex flex-col min-h-[350px] border border-gray-300 bg-white shadow-sm overflow-hidden">
-                                <div className="h-10 bg-[#f8f9fa] border-b border-gray-300 flex items-center px-4 shrink-0">
-                                    <span className="text-[11px] font-extrabold text-[#106ebe] uppercase tracking-tighter leading-none">Existencias por Sucursal</span>
-                                </div>
-
-                                <div className="flex-1 overflow-auto custom-scrollbar">
-                                    <table className="w-full border-collapse">
-                                        <thead>
-                                            <tr className="h-11 text-[11px] font-bold text-slate-400 uppercase border-b border-gray-200 bg-gray-50/20">
-                                                <th className="px-5 text-left border-r border-gray-100">SUCURSAL</th>
-                                                <th className="px-5 text-center border-r border-gray-100 w-48 leading-none">EXISTENCIA ACTUAL</th>
-                                                <th className="px-5 text-center w-36 leading-none">HABILITADO</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-100">
-                                            {branchInventory.map((bi, idx) => {
-                                                const branchName = branches.find(b => b.id === bi.branch_id)?.name || '---';
-                                                return (
-                                                    <tr key={bi.branch_id} className="h-12 hover:bg-blue-50/10 transition-colors">
-                                                        <td className="px-5 text-[11px] font-bold text-slate-600 uppercase leading-none truncate max-w-[300px]">{branchName}</td>
-                                                        <td className="px-5 border-r border-gray-50 text-center">
-                                                            <div className="relative">
-                                                                <input 
-                                                                    type="text" 
-                                                                    className="w-full h-8 border border-gray-200 text-center text-slate-700 font-bold text-[12.5px] outline-none bg-transparent shadow-inner" 
-                                                                    value={bi.stock} 
-                                                                    onChange={e => {
-                                                                        const n = [...branchInventory];
-                                                                        n[idx].stock = e.target.value.replace(/[^0-9.]/g, '');
-                                                                        setBranchInventory(n);
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-5 text-center">
-                                                            <div className="flex justify-center">
-                                                                <input type="checkbox" checked={true} className="w-4.5 h-4.5 accent-[#106ebe] cursor-pointer" />
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
                                 </div>
                             </div>
                         </div>

@@ -67,6 +67,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
     });
     const [globalPrices, setGlobalPrices] = useState({ price: '', delivery_price: '', platform_price: '' });
     const [branchPrices, setBranchPrices] = useState<any[]>([]);
+    const [branchInventory, setBranchInventory] = useState<any[]>([]);
     const [recipeItems, setRecipeItems] = useState<any[]>([]);
     const [optionGroups, setOptionGroups] = useState<any[]>([]);
     const [modifierGroups, setModifierGroups] = useState<any[]>([]);
@@ -151,7 +152,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
         try {
             const [brRes, invCatRes, kRes, optRes, modRes, invRes, supRes, menuCatRes] = await Promise.all([
                 supabase.from('branches').select('*').order('name'),
-                supabase.from('categories').select('*').eq('section', 'INVENTARIO').order('name'),
+                supabase.from('product_categories').select('*').order('nombre'),
                 supabase.from('kitchen_stations').select('*').order('name'),
                 supabase.from('option_groups').select('*').order('name'),
                 supabase.from('modifier_groups').select('*').order('name'),
@@ -165,7 +166,10 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 const mapped = menuCatRes.data.map(c => ({ id: c.id, name: c.nombre }));
                 setMenuCategories(mapped);
             }
-            if (invCatRes.data) setInventoryCategories(invCatRes.data);
+            if (invCatRes.data) {
+                const mapped = invCatRes.data.map(c => ({ ...c, name: c.nombre }));
+                setInventoryCategories(mapped);
+            }
             if (kRes.data) setKitchens(kRes.data);
             if (optRes.data) setOptionGroups(optRes.data);
             if (modRes.data) setModifierGroups(modRes.data);
@@ -222,8 +226,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 if (prodData) {
                     setNewProduct({
                         ...prodData,
-                        category_id: prodData.menu_category_id || '',  // FK → menu_categories
-                        price: (prodData.price || 0).toString(),
+                        category_id: prodData.menu_category_id || '',  // Mapeamos a category_id para el modal, pero viene de menu_category_id
                         product_code: prodData.product_code || '',
                         name: prodData.name || '',
                         cost_price: (prodData.cost_price || 0).toString(),
@@ -263,7 +266,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 if (insumoData) {
                     setNewProduct({
                         ...insumoData,
-                        category_id: insumoData.category_id || '',
+                        category_id: insumoData.product_category_id || '', // Mapeamos a category_id para el modal, pero viene de product_category_id
                         product_code: insumoData.product_code || '',
                         name: insumoData.name || '',
                         cost_price: (insumoData.cost_price || 0).toString(),
@@ -280,6 +283,12 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     setRecipeItems([]);
                     setAssignedModifierGroups([]);
                     setAssignedOptionGroups([]);
+                    
+                    setBranchInventory(fullBranchInventory);
+                    
+                    // Receta para Insumos
+                    const { data: recipeData } = await supabase.from('product_recipes').select('*, inventory_items(*)').eq('product_id', id);
+                    if (recipeData) setRecipeItems(recipeData);
                 }
             }
         } catch (e) {
@@ -299,6 +308,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
         });
         setRecipeItems([]);
         setBranchPrices([]);
+        setBranchInventory([]);
         setAssignedModifierGroups([]);
         setAssignedOptionGroups([]);
         setEditingId(null);
@@ -318,6 +328,15 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
             platform_price: '0',
             is_enabled: true
         })));
+
+        if (type === 'producto') {
+            setBranchInventory(branches.map(b => ({
+                branch_id: b.id,
+                quantity: '0',
+                min_stock: '0',
+                is_enabled: true
+            })));
+        }
     };
 
     const handleSave = async () => {
@@ -415,7 +434,8 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     name: (newProduct.name || '').toUpperCase(),
                     short_name: (newProduct.short_name || '').toUpperCase() || null,
                     description: newProduct.description || null,
-                    category_id: newProduct.category_id || null,  // FK → categories (section=INVENTARIO)
+                    category_id: null, // Deshabilitamos la columna antigua
+                    product_category_id: newProduct.category_id || null, // Usamos la columna de insumos
                     unit_measure: newProduct.unit_measure || '',
                     presentation_unit: newProduct.presentation_unit || '',
                     conversion_factor: parseFloat(newProduct.conversion_factor) || 1,
@@ -434,6 +454,21 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     const { data, error } = await supabase.from('products').insert(insumoData).select();
                     if (error) throw error;
                     if (data?.[0]) savedId = data[0].id;
+                }
+
+                    await supabase.from('inventory_item_branches').upsert(invData, { onConflict: 'item_id,branch_id' });
+                }
+
+                // Receta para Insumos
+                await supabase.from('product_recipes').delete().eq('product_id', savedId);
+                if (recipeItems.length > 0) {
+                    const rData = recipeItems.map(ri => ({
+                        product_id: savedId,
+                        inventory_item_id: ri.inventory_item_id,
+                        quantity: parseFloat(ri.quantity) || 0,
+                        unit_measure: ri.unit_measure || ri.inventory_items?.unit_measure || 'Unidades'
+                    }));
+                    await supabase.from('product_recipes').insert(rData);
                 }
             }
 
@@ -687,8 +722,11 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     inventoryCategories={inventoryCategories}
                     suppliers={suppliers}
                     branches={branches}
+                    branchInventory={branchInventory}
+                    setBranchInventory={setBranchInventory}
                     recipeItems={recipeItems}
                     setRecipeItems={setRecipeItems}
+                    searchModal={setSearchModal}
                     setRecipeContextMenu={setRecipeContextMenu}
                     setShowQuickCatModal={setShowQuickCatModal}
                     openPicker={openPicker}
