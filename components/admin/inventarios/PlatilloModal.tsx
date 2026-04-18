@@ -207,11 +207,20 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                         </div>
 
                                         <div className="flex items-center">
-                                            <label className="text-[11px] text-gray-400 w-[100px] shrink-0 uppercase tracking-tighter">Categoría</label>
                                             <CustomSelect 
                                                 value={newProduct.category_id || ''}
                                                 onChange={(val: string) => setNewProduct({...newProduct, category_id: val})}
-                                                options={menuCategories.map(c => ({ value: c.id, label: c.name }))}
+                                                options={(() => {
+                                                    const catMap = new Map(menuCategories.map(c => [c.id, c]));
+                                                    return menuCategories.map(c => {
+                                                        const pId = (c as any).parent_id;
+                                                        const parent = pId ? catMap.get(pId) : null;
+                                                        const label = parent 
+                                                            ? `${(parent.name || parent.nombre).toUpperCase()} > ${(c.name || c.nombre).toUpperCase()}`
+                                                            : (c.name || c.nombre || '').toUpperCase();
+                                                        return { value: c.id, label };
+                                                    }).sort((a, b) => a.label.localeCompare(b.label));
+                                                })()}
                                                 placeholder="Seleccionar..."
                                             />
                                         </div>

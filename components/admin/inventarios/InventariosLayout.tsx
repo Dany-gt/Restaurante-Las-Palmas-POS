@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useReactToPrint } from 'react-to-print';
-import { Search, Plus, Edit2, Trash2, Folder, Package, X, RefreshCw, ChefHat, FolderOpen, Layers, Save, Check, Image as ImageIcon, Printer, FileText, Sparkles, Loader2, AlertCircle, FolderPlus } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Folder, Package, X, RefreshCw, ChefHat, FolderOpen, Layers, Save, Check, Image as ImageIcon, Printer, FileText, Sparkles, Loader2, AlertCircle, FolderPlus, Settings } from 'lucide-react';
 import { ConfirmDialog } from '../ConfirmDialog';
 // ••• SIDEBARS INDEPENDIENTES POR DOMINIO •••••••••••••
 import { MenuCategorySidebar } from '../menu/MenuCategorySidebar';       // D1: menu_categories
@@ -41,14 +41,15 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
         }
     });
     
-    // ••• ESTADO DE CATEGORÍA POR DOMINIO (ID único, no Set) ••
+    // ••• ESTADO DE CATEGORÍA POR DOMINIO (Multi-Select con Sets) ••
     // D1: Menú — solo lee menu_categories
-    const [categoryMenuId, setCategoryMenuId] = useState<string | null>(null);
+    const [selectedMenuIds, setSelectedMenuIds] = useState<Set<string>>(new Set());
     // D2: Productos — solo lee product_categories
-    const [categoryProdId, setCategoryProdId] = useState<string | null>(null);
-    // Compatibilidad con ListadoPlatillos/ListadoProductos que esperan Set<string>
-    const categoriaMenuSel = useMemo(() => categoryMenuId ? new Set([categoryMenuId]) : new Set<string>(), [categoryMenuId]);
-    const categoriaProdSel = useMemo(() => categoryProdId ? new Set([categoryProdId]) : new Set<string>(), [categoryProdId]);
+    const [selectedProdIds, setSelectedProdIds] = useState<Set<string>>(new Set());
+    
+    // Alias para compatibilidad con listados (puedes pasarlos directamente)
+    const categoriaMenuSel = selectedMenuIds;
+    const categoriaProdSel = selectedProdIds;
 
     // Estados para Modales de Edición
     const [showModal, setShowModal] = useState(false);
@@ -198,6 +199,15 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
         window.addEventListener('click', handleGlobalClick);
         return () => window.removeEventListener('click', handleGlobalClick);
     }, [optionsContextMenu.visible]);
+
+    // Handle Escape key for Config Modal
+    useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setConfigModal(null);
+        };
+        if (configModal) window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, [configModal]);
     
     // Estados para Acciones Rápidas
     const [showQuickModal, setShowQuickModal] = useState<'category' | 'station' | null>(null);
@@ -284,9 +294,41 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     setAssignedModifierGroups([]);
                     setAssignedOptionGroups([]);
                     
-                    // Receta para Insumos
-                    const { data: recipeData } = await supabase.from('product_recipes').select('*, inventory_items(*)').eq('product_id', id);
-                    if (recipeData) setRecipeItems(recipeData);
+                    // Receta para Insumos (sin JOIN a inventory_items — usa products como insumos)
+                    const { data: recipeData, error: recipeError } = await supabase
+                        .from('product_recipes')
+                        .select('*')
+                        .eq('product_id', id);
+                    if (recipeError) console.warn('product_recipes error:', recipeError.message);
+                    if (recipeData && recipeData.length > 0) {
+                        // Obtener nombres de los insumos desde la tabla products
+                        const itemIds = recipeData.map(r => r.inventory_item_id).filter(Boolean);
+                        const { data: ingredientNames } = itemIds.length > 0
+                            ? await supabase.from('products').select('id, name, unit_measure').in('id', itemIds)
+                            : { data: [] };
+                        const nameMap = Object.fromEntries((ingredientNames || []).map(p => [p.id, p]));
+                        setRecipeItems(recipeData.map(r => ({
+                            ...r,
+                            inventory_items: nameMap[r.inventory_item_id] ? { name: nameMap[r.inventory_item_id].name, unit_measure: nameMap[r.inventory_item_id].unit_measure } : { name: 'DESCONOCIDO' }
+                        })));
+                    } else {
+                        setRecipeItems([]);
+                    }
+
+                    // Inventario por Sucursal para Insumos
+                    const { data: invData, error: invError } = await supabase.from('product_branch_inventory').select('*').eq('product_id', id);
+                    if (invError) console.warn('product_branch_inventory no disponible:', invError.message);
+                    const fullBranchInventory = branches.map(b => {
+                        const existing = invData?.find(i => i.branch_id === b.id);
+                        return existing ? {
+                            ...existing,
+                            quantity: (existing.quantity || 0).toString(),
+                            min_stock: (existing.min_stock || 0).toString(),
+                            is_enabled: existing.is_enabled !== undefined ? existing.is_enabled : true,
+                            is_assigned: existing.is_assigned !== undefined ? existing.is_assigned : true
+                        } : { branch_id: b.id, quantity: '0', min_stock: '0', is_enabled: true, is_assigned: true };
+                    });
+                    setBranchInventory(fullBranchInventory);
                 }
             }
         } catch (e) {
@@ -318,6 +360,13 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
         setShowModal(true);
         setActiveTab('general');
         
+        // --- AUTO-FILL CATEGORY FROM SIDEBAR SELECTION ---
+        const currentSelection = type === 'platillo' ? selectedMenuIds : selectedProdIds;
+        const defaultCategoryId = Array.from(currentSelection)[0] || '';
+        if (defaultCategoryId) {
+            setNewProduct(prev => ({ ...prev, category_id: defaultCategoryId }));
+        }
+
         // Inicializar precios por sucursal con todas las sucursales disponibles
         setBranchPrices(branches.map(b => ({
             branch_id: b.id,
@@ -456,12 +505,14 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 }
                 if (savedId) {
                     const invData = branchInventory.map(bi => ({
-                        item_id: savedId,
+                        product_id: savedId,
                         branch_id: bi.branch_id,
                         quantity: parseFloat(bi.quantity) || 0,
-                        min_stock: parseFloat(bi.min_stock) || 0
+                        min_stock: parseFloat(bi.min_stock) || 0,
+                        is_enabled: bi.is_enabled !== undefined ? bi.is_enabled : true,
+                        is_assigned: bi.is_assigned !== undefined ? bi.is_assigned : true
                     }));
-                    await supabase.from('inventory_item_branches').upsert(invData, { onConflict: 'item_id,branch_id' });
+                    await supabase.from('product_branch_inventory').upsert(invData, { onConflict: 'product_id,branch_id' });
                 }
 
                 // Receta para Insumos
@@ -568,7 +619,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
 
                 <div className="flex items-center gap-2 ml-auto">
                     <button 
-                        onClick={() => { setCategoryMenuId(null); setCategoryProdId(null); }}
+                        onClick={() => { setSelectedMenuIds(new Set()); setSelectedProdIds(new Set()); }}
                         className="px-4 h-5 bg-[#106ebe] text-white text-[9px] font-black uppercase hover:bg-[#0d5aa0] shadow-sm transition-all"
                     >
                         Mostrar Todos
@@ -583,15 +634,25 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     D2: Productos → ProductCategorySidebar (lee SOLO product_categories) */}
                 {initialTab === 'platillos' ? (
                     <MenuCategorySidebar
-                        selectedId={categoryMenuId}
-                        onSelect={setCategoryMenuId}
+                        selectedIds={selectedMenuIds}
+                        onToggle={(id, childrenIds) => {
+                            setSelectedMenuIds(prev => {
+                                // Seleccion única estricta: si ya está seleccionado, lo quitamos, si no, es el único seleccionado
+                                if (prev.has(id)) return new Set();
+                                return new Set([id]);
+                            });
+                        }}
                     />
                 ) : (
                     <ProductCategorySidebar
-                        selectedIds={categoriaProdSel}
-                        onToggle={(id) => setCategoryProdId(categoryProdId === id ? null : id)}
-                        onSelectAll={(ids) => setCategoryProdId(ids[0] || null)}
-                        onClearAll={() => setCategoryProdId(null)}
+                        selectedIds={selectedProdIds}
+                        onToggle={(id) => {
+                            setSelectedProdIds(prev => {
+                                // Seleccion única estricta: si ya está seleccionado, lo quitamos, si no, es el único seleccionado
+                                if (prev.has(id)) return new Set();
+                                return new Set([id]);
+                            });
+                        }}
                     />
                 )}
 
@@ -1011,7 +1072,12 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                 className="min-h-[160px] max-h-[250px] overflow-auto custom-scrollbar relative bg-white"
                                                 onContextMenu={(e) => {
                                                     e.preventDefault();
-                                                    setSearchModal({ visible: true, type: 'inventory', query: '' });
+                                                    setRecipeContextMenu({
+                                                        visible: true,
+                                                        x: e.clientX,
+                                                        y: e.clientY,
+                                                        itemIdx: undefined
+                                                    });
                                                 }}
                                             >
                                                 {recipeItems.length === 0 ? (
@@ -1049,7 +1115,20 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
 
                                                                 const subtotal = qty * costPerUnit * unitInternalFactor;
                                                                 return (
-                                                                    <tr key={idx} className="h-8 text-[11px] group/row hover:bg-blue-50/40 transition-colors">
+                                                                    <tr 
+                                                                        key={idx} 
+                                                                        className="h-8 text-[11px] group/row hover:bg-blue-50/40 transition-colors"
+                                                                        onContextMenu={(e) => {
+                                                                            e.preventDefault();
+                                                                            e.stopPropagation();
+                                                                            setRecipeContextMenu({
+                                                                                visible: true,
+                                                                                x: e.clientX,
+                                                                                y: e.clientY,
+                                                                                itemIdx: idx
+                                                                            });
+                                                                        }}
+                                                                    >
                                                                         <td className="px-4 font-bold text-slate-700 uppercase group-hover/row:text-[#106ebe]">{ri.inventory_items?.name}</td>
                                                                         <td className="px-2">
                                                                             <input 
@@ -1070,8 +1149,8 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                                                 <span className="font-black text-slate-700">{subtotal.toFixed(2)}</span>
                                                                            </div>
                                                                         </td>
-                                                                        <td className="px-2 text-center">
-                                                                            <button onClick={() => setRecipeItems(prev => prev.filter((_, i) => i !== idx))} className="text-gray-200 hover:text-red-500 transition-colors transform active:scale-90"><Trash2 size={12} /></button>
+                                                                        <td className="px-2 text-center w-0 p-0 overflow-hidden invisible">
+                                                                             {/* Removed trash can to force use of context menu */}
                                                                         </td>
                                                                     </tr>
                                                                 );
@@ -1248,38 +1327,67 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 document.body
             )}
 
-            {/* Config Modal for Recipe Items (EXACT 100% ORIGINAL MATCH) */}
+            {/* Config Modal for Recipe Items (Antigravity OS Standard) */}
             {configModal && createPortal(
                 <div className="fixed inset-0 z-[9000000] flex items-center justify-center p-4">
-                     <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" onClick={() => setConfigModal(null)}></div>
-                     <div className="relative z-10 animate-in zoom-in-95 duration-200">
+                     {/* Fondo clickable para cerrar (Evita pantalla negra por falta de interacción) */}
+                     <div className="absolute inset-0 bg-black/10 pointer-events-auto" onClick={() => setConfigModal(null)}></div>
+                     
+                     <div className="relative animate-in zoom-in-95 duration-200 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
                         <DraggableWindow>
-                            <div className="bg-[#f0f3f6] border border-[#106ebe] shadow-[0_20px_50px_rgba(0,0,0,0.3)] w-[420px] overflow-hidden flex flex-col ring-1 ring-white/20">
-                                {/* Header: Premium Blue */}
-                                <div className="modal-header bg-[#106ebe] h-9 px-3 flex justify-between items-center text-white shrink-0 cursor-move select-none border-b border-[#0d5aa0]">
+                            <div className="bg-[#f0f0f0] border border-[#106ebe] shadow-[0_0_40px_rgba(0,0,0,0.4)] w-[400px] overflow-hidden flex flex-col pointer-events-auto">
+                                {/* Header: Classic Windows Header */}
+                                <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 cursor-move select-none border-b border-[#0d5aa0]">
                                     <div className="flex items-center gap-2">
-                                        <Package size={14} className="text-blue-100" />
-                                        <span className="text-[11px] font-black uppercase tracking-widest">Configuración de Medida</span>
+                                        <div className="w-5 h-5 bg-white/10 rounded-sm flex items-center justify-center">
+                                            <Settings size={12} className="text-blue-100" />
+                                        </div>
+                                        <span className="text-[11px] font-black uppercase tracking-wider">Configuración</span>
                                     </div>
-                                    <button onClick={() => setConfigModal(null)} className="w-7 h-7 flex items-center justify-center hover:bg-red-500 transition-colors text-white font-black text-sm">✕</button>
+                                    <div className="flex items-center gap-0.5">
+                                        <WindowsSaveButton 
+                                            variant="minimal"
+                                            onClick={() => {
+                                                setRecipeItems([...recipeItems, { 
+                                                    inventory_item_id: configModal.item.id, 
+                                                    quantity: configModal.quantity, 
+                                                    unit_measure: configModal.unit, 
+                                                    inventory_items: configModal.item 
+                                                }]);
+                                                setConfigModal(null);
+                                                setSearchModal({ ...searchModal, visible: false, type: null, query: '' });
+                                            }}
+                                            title="Confirmar y Agregar"
+                                        />
+                                        <button 
+                                            onClick={() => setConfigModal(null)} 
+                                            className="w-8 h-8 flex items-center justify-center hover:bg-red-500 transition-colors text-white font-black text-sm"
+                                        >✕</button>
+                                    </div>
                                 </div>
 
-                                <div className="p-5 space-y-4 bg-white/80">
-                                    <div className="bg-[#f8fafc] border border-gray-200 p-3 rounded-[2px] space-y-3 shadow-sm">
-                                        <div className="flex flex-col gap-1">
-                                            <label className="text-[10px] font-black text-[#64748b] uppercase tracking-tighter">Insumo Seleccionado</label>
-                                            <div className="h-8 bg-white border border-gray-300 px-3 flex items-center">
-                                                <span className="text-[11px] font-bold text-slate-800 uppercase truncate">{configModal.item.name || configModal.item.nombre}</span>
+                                <div className="p-4 space-y-4">
+                                    <div className="bg-white border border-gray-300 p-3 space-y-3 shadow-sm rounded-sm">
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                                <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
+                                                Insumo Seleccionado
+                                            </label>
+                                            <div className="h-7 bg-[#f8fafc] border border-gray-200 px-2 flex items-center">
+                                                <span className="text-[11px] font-bold text-slate-700 uppercase truncate italic opacity-80">{configModal.item.name || configModal.item.nombre}</span>
                                             </div>
                                         </div>
                                         
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <div className="flex flex-col gap-1">
-                                                <label className="text-[10px] font-black text-[#64748b] uppercase tracking-tighter">Cantidad neta</label>
+                                        <div className="grid grid-cols-2 gap-4 pt-1">
+                                            <div className="flex flex-col gap-1.5">
+                                                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                                    <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
+                                                    Cantidad neta
+                                                </label>
                                                 <input 
                                                     autoFocus
                                                     type="text" 
-                                                    className="w-full h-8 bg-white border border-gray-300 px-3 text-[12px] font-black text-[#106ebe] outline-none text-center focus:border-[#106ebe] transition-all"
+                                                    className="w-full h-8 bg-white border border-gray-400 px-3 text-[13px] font-black text-[#106ebe] outline-none text-center focus:border-[#106ebe] focus:ring-1 focus:ring-[#106ebe]/20 transition-all shadow-inner"
                                                     value={configModal.quantity}
                                                     onChange={e => setConfigModal({ ...configModal, quantity: e.target.value.replace(/[^0-9.]/g, '') })}
                                                     onKeyDown={e => {
@@ -1296,10 +1404,13 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                     }}
                                                 />
                                             </div>
-                                            <div className="flex flex-col gap-1">
-                                                <label className="text-[10px] font-black text-[#64748b] uppercase tracking-tighter">Unidad de Receta</label>
+                                            <div className="flex flex-col gap-1.5">
+                                                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                                    <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
+                                                    Unidad de Receta
+                                                </label>
                                                 <select 
-                                                    className="w-full h-8 bg-white border border-gray-300 text-[11px] font-black text-slate-700 outline-none px-2 focus:border-[#106ebe] cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m3%205%203%203%203-3%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_8px_center] bg-no-repeat"
+                                                    className="w-full h-8 bg-white border border-gray-400 text-[11px] font-black text-slate-700 outline-none px-2 focus:border-[#106ebe] cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%23106ebe%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m3%205%203%203%203-3%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_8px_center] bg-no-repeat shadow-inner"
                                                     value={configModal.unit}
                                                     onChange={e => setConfigModal({ ...configModal, unit: e.target.value })}
                                                 >
@@ -1311,7 +1422,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                         </div>
                                     </div>
 
-                                    <div className="flex justify-center pt-2">
+                                    <div className="flex bg-[#e2e8f0] p-1 border border-gray-300 rounded-sm">
                                         <button 
                                             onClick={() => {
                                                 setRecipeItems([...recipeItems, { 
@@ -1323,15 +1434,20 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                 setConfigModal(null);
                                                 setSearchModal({ ...searchModal, visible: false, type: null, query: '' });
                                             }}
-                                            className="w-full h-10 bg-[#106ebe] text-white text-[11px] font-black uppercase shadow-lg hover:bg-[#0d5aa0] active:translate-y-[1px] transition-all border border-[#0d599c] flex items-center justify-center gap-2"
+                                            className="w-full h-8 bg-[#106ebe] text-white text-[10px] font-black uppercase flex items-center justify-center gap-2 hover:bg-[#0d5aa0] active:scale-95 transition-all shadow-md group"
                                         >
-                                            <Plus size={16} /> Agregar a la Receta
+                                            <Plus size={14} className="group-hover:rotate-90 transition-transform" />
+                                            AGREGAR
                                         </button>
                                     </div>
-                                </div>
-                                <div className="h-6 bg-[#f0f3f6] border-t border-gray-200 px-3 flex items-center justify-between">
-                                    <span className="text-[8px] font-bold text-slate-400 uppercase">Basado en: {configModal.item.unit_measure || 'unidad'}</span>
-                                    <span className="text-[8px] font-bold text-[#106ebe] uppercase tracking-tighter opacity-60">Antigravity Recipe Engine v2.0</span>
+                                    
+                                    <div className="flex justify-between items-center px-1">
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="w-1 h-1 rounded-full bg-[#106ebe]"></div>
+                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Basado en {configModal.item.unit_measure}</span>
+                                        </div>
+                                        <span className="text-[8px] font-black text-blue-300/60 uppercase italic tracking-tighter">Antigravity RecipeEngine v2.0</span>
+                                    </div>
                                 </div>
                             </div>
                         </DraggableWindow>
@@ -1404,7 +1520,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                         className="w-full flex items-center gap-3 px-3 py-1.5 text-[10px] font-bold text-slate-700 hover:bg-[#106ebe] hover:text-white transition-none group"
                     >
                         <Plus size={14} className="text-[#106ebe] group-hover:text-white" />
-                        <span className="uppercase tracking-tight">Agregar Insumo</span>
+                        <span className="uppercase tracking-tight">Agregar</span>
                     </button>
                     <button 
                         disabled={recipeContextMenu.itemIdx === undefined}
@@ -1417,7 +1533,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                         className={`w-full flex items-center gap-3 px-3 py-1.5 text-[10px] font-bold transition-none group ${recipeContextMenu.itemIdx === undefined ? 'opacity-30 cursor-not-allowed text-gray-400' : 'text-slate-700 hover:bg-[#106ebe] hover:text-white'}`}
                     >
                         <Trash2 size={13} className={recipeContextMenu.itemIdx === undefined ? 'text-gray-300' : 'text-red-500 group-hover:text-white'} />
-                        <span className="uppercase tracking-tight">Quitar Insumo</span>
+                        <span className="uppercase tracking-tight">Quitar</span>
                     </button>
                 </div>
             </>,

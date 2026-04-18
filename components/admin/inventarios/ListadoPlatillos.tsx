@@ -234,20 +234,6 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                                 <RefreshCw size={14} className="text-gray-500 group-hover:text-white" />
                                 <span className="text-[11px] font-bold uppercase tracking-tight">Refrescar</span>
                             </button>
-
-                            <button 
-                                disabled={!contextMenu.product}
-                                onClick={(e) => { 
-                                    if (!contextMenu.product) return;
-                                    e.stopPropagation(); 
-                                    onChangeCategory(contextMenu.product.id); 
-                                    setContextMenu({ ...contextMenu, visible: false }); 
-                                }}
-                                className={`w-full h-7 flex items-center gap-2.5 px-3 transition-none group ${!contextMenu.product ? 'opacity-40 cursor-not-allowed text-gray-400' : 'hover:bg-[#106ebe] hover:text-white text-slate-800'}`}
-                            >
-                                <Folder size={14} className={!contextMenu.product ? 'text-gray-400' : 'text-amber-500 group-hover:text-white'} />
-                                <span className="text-[11px] font-bold uppercase tracking-tight">Cambiar Categoría</span>
-                            </button>
                             
                             <button 
                                 disabled={!contextMenu.product}

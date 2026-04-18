@@ -7,7 +7,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, Edit2, Trash2, X, Save, Loader2, Package, RefreshCw, Folder, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Save, Loader2, Package, RefreshCw, Folder, Image as ImageIcon, Check } from 'lucide-react';
 import { useRef } from 'react';
 import { useDomainCategories } from '../../../hooks/useDomainCategories';
 import { useNotify } from '../../../hooks/useNotify';
@@ -20,8 +20,6 @@ const DOMAIN_TABLE = 'product_categories' as const;
 interface ProductCategorySidebarProps {
     selectedIds: Set<string>;
     onToggle: (id: string) => void;
-    onSelectAll: (ids: string[]) => void;
-    onClearAll: () => void;
 }
 
 interface FormState { 
@@ -34,7 +32,7 @@ interface FormState {
     imagen_url: string;
 }
 
-export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ selectedIds, onToggle, onSelectAll, onClearAll }) => {
+export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ selectedIds, onToggle }) => {
     const notify = useNotify();
     const { categories, load, loading, create, update, remove } = useDomainCategories({
         table: DOMAIN_TABLE,
@@ -132,10 +130,20 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
         setContextMenu({ x: Math.min(e.clientX, window.innerWidth - 160), y: Math.min(e.clientY, window.innerHeight - 100), id, nombre });
     };
 
-    const handleOpenForm = (id: string | null, catName: string = '') => {
+    const handleOpenForm = (id: string | null, parentId: string | null = null) => {
         if (!id) {
-            setForm({ id: null, nombre: '', parent_id: null, isSubCategory: false, branch_ids: [], sort_order: categories.length + 1, imagen_url: '' });
+            // NUEVA CATEGORÍA (O SUBCATEGORÍA SI parentId VIENE LLENO)
+            setForm({ 
+                id: null, 
+                nombre: '', 
+                parent_id: parentId, 
+                isSubCategory: !!parentId, 
+                branch_ids: branches.map(b => b.id), 
+                sort_order: categories.filter(c => (c as any).parent_id === parentId).length + 1, 
+                imagen_url: '' 
+            });
         } else {
+            // EDITAR EXISTENTE
             const c = categories.find(x => x.id === id);
             if (c) {
                 setForm({
@@ -147,8 +155,6 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                     sort_order: (c as any).sort_order || 1,
                     imagen_url: (c as any).imagen_url || ''
                 });
-            } else {
-                setForm({ id: null, nombre: catName, parent_id: null, isSubCategory: false, branch_ids: [], sort_order: 1, imagen_url: '' });
             }
         }
     };
@@ -156,61 +162,109 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
     const roots = categories.filter(c => !(c as any).parent_id);
     const getChildren = (parentId: string) => categories.filter(c => (c as any).parent_id === parentId);
 
+    // Track which parent categories are expanded
+    const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+    useEffect(() => {
+        if (categories.length > 0 && expandedIds.size === 0) {
+            const allParentIds = categories.filter(c => !(c as any).parent_id).map(c => c.id);
+            setExpandedIds(new Set(allParentIds));
+        }
+    }, [categories]);
+
+    const toggleExpand = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setExpandedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
     const renderCat = (cat: typeof categories[0], depth = 0) => {
         const isSelected = selectedIds.has(cat.id);
         const isParent = depth === 0;
-        
+        const children = getChildren(cat.id);
+        const hasChildren = children.length > 0;
+        const isExpanded = expandedIds.has(cat.id);
+        const hasChildSelected = hasChildren && children.some(c => selectedIds.has(c.id));
+
         return (
             <React.Fragment key={cat.id}>
-                <div
-                    className={`flex items-center cursor-pointer group transition-colors
-                        ${isParent
-                            ? `h-[26px] border-t border-gray-200 ${isSelected ? 'bg-[#dbeafe]' : 'hover:bg-[#cce8ff] bg-white'}`
-                            : `h-[22px] ${isSelected ? 'bg-blue-50/60' : 'hover:bg-[#e8f4ff] bg-[#fafafa]'}`
-                        }`}
-                    style={{ paddingLeft: `${isParent ? 8 : 20 + (depth - 1) * 10}px`, paddingRight: '8px' }}
-                    onClick={() => onToggle(cat.id)}
-                    onContextMenu={(e) => handleContextMenu(e, cat.id, cat.nombre)}
-                >
-                    {/* Checkbox */}
-                    <div className="mr-2 flex items-center justify-center shrink-0">
-                        <div className={`border flex items-center justify-center shadow-sm transition-all
-                            ${isParent ? 'w-3.5 h-3.5' : 'w-3 h-3'}
-                            ${isSelected ? 'bg-[#106ebe] border-[#106ebe]' : 'bg-white border-gray-400'}`}>
-                            {isSelected && <div className="w-1.5 h-1.5 bg-white rounded-full shadow-inner" />}
+                {isParent ? (
+                    <div
+                        className={`flex items-center cursor-pointer border-t border-gray-100 transition-none
+                            ${isSelected ? 'bg-transparent' : 'hover:bg-[#f0f0f0] bg-white'}`}
+                        style={{ height: 26 }}
+                        onClick={() => {
+                            onToggle(cat.id);
+                            if (!isExpanded && hasChildren) setExpandedIds(prev => new Set([...prev, cat.id]));
+                        }}
+                        onContextMenu={(e) => handleContextMenu(e, cat.id, cat.nombre)}
+                    >
+                        {/* Gutter (Icon Area) - STAYS NEUTRAL */}
+                        <div className={`w-[34px] h-full flex items-center justify-center shrink-0 border-r border-gray-300 mr-0`}>
+                            {isSelected ? (
+                                <span className="text-[#106ebe] text-[9px] mr-1">►</span>
+                            ) : hasChildSelected ? (
+                                <span className="text-[#106ebe] text-[9px] opacity-70 mr-1">►</span>
+                            ) : null}
+                            {hasChildren && (
+                                <span 
+                                    className={`text-[8px] text-gray-500`}
+                                    onClick={(e) => { e.stopPropagation(); toggleExpand(cat.id, e); }}
+                                >
+                                    {isExpanded ? '▾' : '▸'}
+                                </span>
+                            )}
+                        </div>
+                        {/* Name Area - GETS BLUE */}
+                        <div className={`flex-1 h-full flex items-center pl-2 ${isSelected ? 'bg-[#106ebe]' : ''}`}>
+                            <span className={`truncate leading-none uppercase text-[11px] font-black tracking-wide pr-1 ${
+                                isSelected ? 'text-white' : hasChildSelected ? 'text-[#106ebe]' : 'text-slate-800'
+                            }`}>
+                                {cat.nombre}
+                            </span>
                         </div>
                     </div>
-                    {/* Nombre */}
-                    {!isParent && <span className="text-gray-300 mr-1 text-[8px] shrink-0">└</span>}
-                    <span className={`flex-1 truncate leading-none uppercase
-                        ${isParent
-                            ? `text-[11px] font-black tracking-wide ${isSelected ? 'text-[#106ebe]' : 'text-slate-800'}`
-                            : `text-[10px] font-normal ${isSelected ? 'text-[#106ebe] font-semibold' : 'text-slate-500'}`
-                        }`}>
-                        {cat.nombre}
-                    </span>
-                </div>
-                {getChildren(cat.id).map(child => renderCat(child, depth + 1))}
+                ) : (
+                    <div
+                        className={`flex items-center cursor-pointer transition-none
+                            ${isSelected ? 'bg-transparent' : 'hover:bg-[#f0f0f0] bg-[#fafafa]'}`}
+                        style={{ height: 22 }}
+                        onClick={() => onToggle(cat.id)}
+                        onContextMenu={(e) => handleContextMenu(e, cat.id, cat.nombre)}
+                    >
+                        {/* Gutter (Icon Area) - STAYS NEUTRAL */}
+                        <div className={`w-[34px] h-full flex items-center justify-center shrink-0 border-r border-gray-300 mr-0`}>
+                            {isSelected && <span className="text-[#106ebe] text-[9px]">►</span>}
+                        </div>
+                        {/* Name Area - GETS BLUE */}
+                        <div className={`flex-1 h-full flex items-center pl-4 ${isSelected ? 'bg-[#106ebe]' : ''}`}>
+                            <span className={`truncate leading-none uppercase text-[10px] pr-1 ${
+                                isSelected ? 'text-white font-bold' : 'text-slate-600'
+                            }`}>
+                                {cat.nombre}
+                            </span>
+                        </div>
+                    </div>
+                )}
+                {isParent && isExpanded && children.map(child => renderCat(child, depth + 1))}
             </React.Fragment>
         );
     };
 
+
     return (
         <>
             <div
-                className="w-[190px] flex flex-col bg-white border-r border-gray-300 h-full shadow-sm shrink-0 select-none"
+                className="w-[190px] flex flex-col bg-white border-r border-gray-300 h-full shrink-0 select-none relative"
                 onClick={() => setContextMenu(null)}
             >
-                <div className="bg-[#106ebe] h-[26px] px-2 flex items-center justify-between border-b border-[#004578] shrink-0">
-                    <div className="flex items-center gap-1.5">
-                        <Package size={10} className="text-white/80" />
-                        <span className="text-[9px] font-bold text-white uppercase tracking-tight">Materia Prima</span>
-                    </div>
-                    <button
-                        onClick={() => handleOpenForm(null)}
-                        className="w-5 h-5 flex items-center justify-center hover:bg-white/20 rounded transition-colors text-white font-bold text-[14px] leading-none"
-                        title="Nueva categoría de materia prima"
-                    >+</button>
+                <div className="bg-[#f0f0f0] h-[24px] flex items-center border-b border-gray-400 shrink-0">
+                    <div className="w-[34px] h-full border-r border-gray-300" />
+                    <span className="pl-2 text-[10px] font-bold text-slate-700 uppercase tracking-tight">Categoría</span>
                 </div>
 
                 <div 
@@ -228,10 +282,6 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                         roots.map(cat => renderCat(cat))
                     )}
                 </div>
-
-                <div className="h-5 bg-[#f0f0f0] border-t border-gray-300 px-2 flex items-center shrink-0">
-                    <span className="text-[8px] font-bold text-gray-400 italic">Módulo: Materia Prima</span>
-                </div>
             </div>
 
             {contextMenu && createPortal(
@@ -239,12 +289,12 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                     <div className="fixed inset-0 z-[99999]" onClick={() => setContextMenu(null)} />
                     <div className="fixed z-[100000] bg-[#f0f0f0] border border-gray-400 shadow-lg py-0.5 w-36"
                         style={{ top: contextMenu.y, left: contextMenu.x }}>
-                        <button onClick={() => { handleOpenForm(null); setContextMenu(null); }}
-                            className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700">
-                            <Plus size={11} /> Nuevo
-                        </button>
-                        {contextMenu.id && (
+                        {contextMenu.id ? (
                             <>
+                                <button onClick={() => { handleOpenForm(null, contextMenu.id); setContextMenu(null); }}
+                                    className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700">
+                                    <Plus size={11} /> Agregar Subcategoría
+                                </button>
                                 <div className="h-px bg-gray-300 my-0.5" />
                                 <button onClick={() => { handleOpenForm(contextMenu.id); setContextMenu(null); }}
                                     className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700">
@@ -255,6 +305,11 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                                     <Trash2 size={11} /> Eliminar
                                 </button>
                             </>
+                        ) : (
+                            <button onClick={() => { handleOpenForm(null); setContextMenu(null); }}
+                                className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700 font-bold">
+                                <Plus size={11} /> Nueva Categoría Raíz
+                            </button>
                         )}
                         <div className="h-px bg-gray-300 my-0.5" />
                         <button onClick={() => { load(); setContextMenu(null); }}

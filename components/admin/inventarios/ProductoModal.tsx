@@ -67,7 +67,7 @@ const CustomSelect = ({ value, onChange, options, placeholder = "Seleccionar..."
 export const ProductoModal: React.FC<ProductoModalProps> = ({
     isOpen, onClose, editingId, newProduct, setNewProduct, handleSave, isSaving,
     inventoryCategories = [], suppliers = [], branches = [], branchInventory = [], setBranchInventory,
-    recipeItems = [], setRecipeItems, searchModal
+    recipeItems = [], setRecipeItems, searchModal, setRecipeContextMenu
 }) => {
     const [activeTab, setActiveTab] = useState<'sucursales' | 'receta'>('sucursales');
 
@@ -217,12 +217,14 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                             value={newProduct.category_id || ''}
                                             onChange={v => setNewProduct({...newProduct, category_id: v})}
                                             options={(() => {
-                                                const unique = new Map();
-                                                safeCategories.forEach(c => {
-                                                    const name = (c.nombre || c.name || '').toUpperCase();
-                                                    if (!unique.has(name)) unique.set(name, { value: c.id, label: name });
-                                                });
-                                                return Array.from(unique.values()).sort((a, b) => a.label.localeCompare(b.label));
+                                                const catMap = new Map(safeCategories.map(c => [c.id, c]));
+                                                return safeCategories.map(c => {
+                                                    const parent = c.parent_id ? catMap.get(c.parent_id) : null;
+                                                    const label = parent 
+                                                        ? `${(parent.nombre || parent.name).toUpperCase()} > ${(c.nombre || c.name).toUpperCase()}`
+                                                        : (c.nombre || c.name || '').toUpperCase();
+                                                    return { value: c.id, label };
+                                                }).sort((a, b) => a.label.localeCompare(b.label));
                                             })()}
                                         />
                                     </div>
@@ -267,8 +269,8 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                         <tr className="bg-[#f0f0f0] h-[22px]">
                                                             <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-left">Sucursal</th>
                                                             <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-28">Existencia</th>
-                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-32">Pto. Reorden</th>
-                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-20">Hab.</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-36">Punto de Reorden</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-24">Habilitado</th>
                                                             <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-32">Asignado</th>
                                                         </tr>
                                                     </thead>
@@ -330,70 +332,81 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                             </div>
                                         )}
                                         {activeTab === 'receta' && (
-                                            <div className="flex-1 border border-gray-300 overflow-y-auto custom-scrollbar flex flex-col bg-white">
-                                                <div className="bg-[#f0f0f0] h-[26px] flex items-center px-1 border-b border-gray-400 gap-1">
-                                                    <button 
-                                                        onClick={() => searchModal && searchModal({ visible: true, type: 'inventory' })}
-                                                        className="flex items-center gap-1.5 px-2 bg-white border border-gray-400 h-[20px] hover:bg-gray-100 transition-colors shadow-sm"
-                                                    >
-                                                        <Plus size={12} className="text-green-600" />
-                                                        <span className="text-[10px] font-bold text-gray-700 uppercase">Agregar Insumo</span>
-                                                    </button>
+                                            <div 
+                                                className="flex-1 border border-gray-300 overflow-y-auto custom-scrollbar flex flex-col bg-white overflow-hidden"
+                                                onContextMenu={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setRecipeContextMenu && setRecipeContextMenu({
+                                                        visible: true,
+                                                        x: e.clientX,
+                                                        y: e.clientY,
+                                                        itemIdx: undefined
+                                                    });
+                                                }}
+                                            >
+                                                <div className="flex-1 overflow-auto">
+                                                    <table className="w-full border-collapse">
+                                                        <thead className="sticky top-0 z-10 select-none bg-[#f0f0f0]">
+                                                            <tr className="h-[22px]">
+                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-left">Insumo</th>
+                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Cantidad</th>
+                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Unidad</th>
+                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-4 invisible"></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {(recipeItems || []).length > 0 ? (recipeItems || []).map((ri, idx) => (
+                                                                <tr 
+                                                                    key={ri.id || idx} 
+                                                                    className={`border-b border-gray-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'} hover:bg-[#e8f2fe] transition-colors`}
+                                                                    onContextMenu={(e) => {
+                                                                        e.preventDefault();
+                                                                        e.stopPropagation();
+                                                                        setRecipeContextMenu && setRecipeContextMenu({
+                                                                            visible: true,
+                                                                            x: e.clientX,
+                                                                            y: e.clientY,
+                                                                            itemIdx: idx
+                                                                        });
+                                                                    }}
+                                                                >
+                                                                    <td className="px-2 py-1 border-r border-gray-200 text-[11px] text-[#202020] font-[Arial] uppercase truncate">
+                                                                        {ri.inventory_items?.name || 'DESCONOCIDO'}
+                                                                    </td>
+                                                                    <td className="px-1 border-r border-gray-200">
+                                                                        <input 
+                                                                            type="text"
+                                                                            value={ri.quantity ? ri.quantity.toString().split('.').map((p: any, i: number) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : p).join('.') : '0'}
+                                                                            onChange={(e) => {
+                                                                                const raw = e.target.value.replace(/,/g, '');
+                                                                                if (/^\d*\.?\d*$/.test(raw)) {
+                                                                                    const newItems = [...(recipeItems || [])];
+                                                                                    newItems[idx].quantity = raw;
+                                                                                    setRecipeItems && setRecipeItems(newItems);
+                                                                                }
+                                                                            }}
+                                                                            className="w-full text-center px-1 text-[11px] font-bold font-[Arial] h-6 bg-transparent outline-none focus:bg-white focus:border focus:border-blue-400"
+                                                                        />
+                                                                    </td>
+                                                                    <td className="px-2 py-1 border-r border-gray-200 text-center text-[10px] text-[#202020] font-[Arial]">
+                                                                        {ri.unit_measure || ri.inventory_items?.unit_measure || 'UNI'}
+                                                                    </td>
+                                                                    <td className="px-2 py-1 text-center invisible w-0 p-0 overflow-hidden">
+                                                                        {/* Removed trash can to force use of context menu */}
+                                                                    </td>
+                                                                </tr>
+                                                            )) : (
+                                                                <tr>
+                                                                    <td colSpan={4} className="py-10 text-center text-[11px] text-gray-400 font-bold uppercase italic select-none">
+                                                                        No hay insumos agregados a esta receta.
+                                                                        <div className="text-[9px] mt-1 opacity-60 font-black tracking-widest">[ CLIC DERECHO PARA AGREGAR ]</div>
+                                                                    </td>
+                                                                </tr>
+                                                            )}
+                                                        </tbody>
+                                                    </table>
                                                 </div>
-                                                <table className="w-full border-collapse">
-                                                    <thead className="sticky top-0 z-10 select-none bg-[#f0f0f0]">
-                                                        <tr className="h-[22px]">
-                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-left">Insumo</th>
-                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Cantidad</th>
-                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Unidad</th>
-                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-10"></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {(recipeItems || []).length > 0 ? (recipeItems || []).map((ri, idx) => (
-                                                            <tr key={ri.id || idx} className={`border-b border-gray-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'} hover:bg-[#e8f2fe] transition-colors`}>
-                                                                <td className="px-2 py-1 border-r border-gray-200 text-[11px] text-[#202020] font-[Arial] uppercase truncate">
-                                                                    {ri.inventory_items?.name || 'DESCONOCIDO'}
-                                                                </td>
-                                                                <td className="px-1 border-r border-gray-200">
-                                                                    <input 
-                                                                        type="text"
-                                                                        value={ri.quantity ? ri.quantity.toString().split('.').map((p: any, i: number) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : p).join('.') : '0'}
-                                                                        onChange={(e) => {
-                                                                            const raw = e.target.value.replace(/,/g, '');
-                                                                            if (/^\d*\.?\d*$/.test(raw)) {
-                                                                                const newItems = [...(recipeItems || [])];
-                                                                                newItems[idx].quantity = raw;
-                                                                                setRecipeItems && setRecipeItems(newItems);
-                                                                            }
-                                                                        }}
-                                                                        className="w-full text-center px-1 text-[11px] font-bold font-[Arial] h-6 bg-transparent outline-none focus:bg-white focus:border focus:border-blue-400"
-                                                                    />
-                                                                </td>
-                                                                <td className="px-2 py-1 border-r border-gray-200 text-center text-[10px] text-[#202020] font-[Arial]">
-                                                                    {ri.unit_measure || ri.inventory_items?.unit_measure || 'UNI'}
-                                                                </td>
-                                                                <td className="px-2 py-1 text-center">
-                                                                    <button 
-                                                                        onClick={() => {
-                                                                            const newItems = (recipeItems || []).filter((_, i) => i !== idx);
-                                                                            setRecipeItems && setRecipeItems(newItems);
-                                                                        }}
-                                                                        className="text-red-500 hover:text-red-700 transition-colors"
-                                                                    >
-                                                                        <Trash2 size={12} />
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-                                                        )) : (
-                                                            <tr>
-                                                                <td colSpan={4} className="py-10 text-center text-[11px] text-gray-400 font-bold uppercase italic select-none">
-                                                                    No hay insumos agregados a esta receta
-                                                                </td>
-                                                            </tr>
-                                                        )}
-                                                    </tbody>
-                                                </table>
                                             </div>
                                         )}
                                     </div>

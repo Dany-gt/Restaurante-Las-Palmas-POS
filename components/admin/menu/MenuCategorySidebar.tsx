@@ -7,7 +7,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, Edit2, Trash2, X, Save, Loader2, Utensils, RefreshCw, Folder, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Save, Loader2, Utensils, RefreshCw, Folder, Image as ImageIcon, Check } from 'lucide-react';
 import { useRef } from 'react';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { useDomainCategories } from '../../../hooks/useDomainCategories';
@@ -18,8 +18,8 @@ import { DraggableWindow } from '../DraggableWindow';
 const DOMAIN_TABLE = 'menu_categories' as const;
 
 interface MenuCategorySidebarProps {
-    selectedId: string | null;
-    onSelect: (id: string | null) => void;
+    selectedIds: Set<string>;
+    onToggle: (id: string) => void;
 }
 
 interface FormState { 
@@ -32,7 +32,7 @@ interface FormState {
     imagen_url: string;
 }
 
-export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ selectedId, onSelect }) => {
+export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ selectedIds, onToggle }) => {
     const notify = useNotify();
     const { categories, load, loading, create, update, remove } = useDomainCategories({
         table: DOMAIN_TABLE,
@@ -114,8 +114,8 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
 
         try {
             await remove(id);
-            if (selectedId === id) onSelect(null);
-            notify.success('Categor├¡a eliminada');
+            // if (selectedId === id) onSelect(null); // No longer needed with Set
+            notify.success('Categoría eliminada');
         } catch (e: any) {
             if (e.message?.includes('foreign key constraint') || e.code === '23503' || e.message?.includes('viola la llave')) {
                 notify.error('IMPOSIBLE ELIMINAR: Esta categor├¡a a├║n tiene platillos asignados. Reasigne o elimine los platillos primero.');
@@ -131,9 +131,17 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
         setContextMenu({ x: Math.min(e.clientX, window.innerWidth - 160), y: Math.min(e.clientY, window.innerHeight - 100), id, nombre });
     };
 
-    const handleOpenForm = (id: string | null, catName: string = '') => {
+    const handleOpenForm = (id: string | null, parentId: string | null = null) => {
         if (!id) {
-            setForm({ id: null, nombre: '', parent_id: null, isSubCategory: false, branch_ids: [], sort_order: categories.length + 1, imagen_url: '' });
+            setForm({ 
+                id: null, 
+                nombre: '', 
+                parent_id: parentId, 
+                isSubCategory: !!parentId, 
+                branch_ids: branches.map(b => b.id), 
+                sort_order: categories.filter(c => (c as any).parent_id === parentId).length + 1, 
+                imagen_url: '' 
+            });
         } else {
             const c = categories.find(x => x.id === id);
             if (c) {
@@ -146,8 +154,6 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
                     sort_order: (c as any).sort_order || 1,
                     imagen_url: (c as any).imagen_url || ''
                 });
-            } else {
-                setForm({ id: null, nombre: catName, parent_id: null, isSubCategory: false, branch_ids: [], sort_order: 1, imagen_url: '' });
             }
         }
     };
@@ -157,14 +163,15 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
 
     const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
-    // Expandir todas las categorías cuando se carguen los datos
     useEffect(() => {
-        if (categories.length > 0) {
-            setExpanded(new Set(categories.map(c => c.id)));
+        if (categories.length > 0 && expanded.size === 0) {
+            const allParentIds = categories.filter(c => !(c as any).parent_id).map(c => c.id);
+            setExpanded(new Set(allParentIds));
         }
     }, [categories]);
 
-    const toggleExpand = (id: string) => {
+    const toggleExpand = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
         setExpanded(prev => {
             const next = new Set(prev);
             if (next.has(id)) next.delete(id); else next.add(id);
@@ -173,35 +180,74 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
     };
 
     const renderCat = (cat: typeof categories[0], depth = 0) => {
+        const isSelected = selectedIds.has(cat.id);
+        const isParent = depth === 0;
         const children = getChildren(cat.id);
         const hasChildren = children.length > 0;
         const isExpanded = expanded.has(cat.id);
-        const isSelected = selectedId === cat.id;
-        const isParent = depth === 0;
+        const hasChildSelected = hasChildren && children.some(c => selectedIds.has(c.id));
 
         return (
             <React.Fragment key={cat.id}>
-                <div
-                    className={`flex items-center h-[20px] cursor-pointer select-none transition-none ${isSelected ? 'bg-[#3399ff] text-white' : 'hover:bg-[#cce8ff]'}`}
-                    style={{ paddingLeft: `${6 + depth * 16}px` }}
-                    onContextMenu={(e) => handleContextMenu(e, cat.id, cat.nombre)}
-                    onClick={() => onSelect(isSelected ? null : cat.id)}
-                >
-                    {/* Triángulo expand/collapse */}
-                    <span
-                        className={`w-4 flex items-center justify-center shrink-0 text-[9px] ${isSelected ? 'text-white' : 'text-gray-500'}`}
-                        onClick={(e) => { e.stopPropagation(); if (hasChildren) toggleExpand(cat.id); }}
+                {isParent ? (
+                    <div
+                        className={`flex items-center cursor-pointer border-t border-gray-100 transition-none
+                            ${isSelected ? 'bg-transparent' : 'hover:bg-[#f0f0f0] bg-white'}`}
+                        style={{ height: 26 }}
+                        onClick={() => {
+                            onToggle(cat.id);
+                            if (!isExpanded && hasChildren) setExpanded(prev => new Set([...prev, cat.id]));
+                        }}
+                        onContextMenu={(e) => handleContextMenu(e, cat.id, cat.nombre)}
                     >
-                        {hasChildren ? (isExpanded ? '▼' : '▶') : ''}
-                    </span>
-
-                    {/* Nombre */}
-                    <span className={`text-[11px] uppercase truncate leading-none ${isParent ? 'font-bold' : 'font-normal'} ${isSelected ? 'text-white' : isParent ? 'text-slate-800' : 'text-slate-600'}`}>
-                        {cat.nombre}
-                    </span>
-                </div>
-
-                {hasChildren && isExpanded && children.map(child => renderCat(child, depth + 1))}
+                        {/* Gutter (Icon Area) - STAYS NEUTRAL */}
+                        <div className={`w-[34px] h-full flex items-center justify-center shrink-0 border-r border-gray-300 mr-0`}>
+                            {isSelected ? (
+                                <span className="text-[#106ebe] text-[9px] mr-1">►</span>
+                            ) : hasChildSelected ? (
+                                <span className="text-[#106ebe] text-[9px] opacity-70 mr-1">►</span>
+                            ) : null}
+                            {hasChildren && (
+                                <span 
+                                    className={`text-[8px] text-gray-500`}
+                                    onClick={(e) => { e.stopPropagation(); toggleExpand(cat.id, e); }}
+                                >
+                                    {isExpanded ? '▾' : '▸'}
+                                </span>
+                            )}
+                        </div>
+                        {/* Name Area - GETS BLUE */}
+                        <div className={`flex-1 h-full flex items-center pl-2 ${isSelected ? 'bg-[#106ebe]' : ''}`}>
+                            <span className={`truncate leading-none uppercase text-[11px] font-black tracking-wide pr-1 ${
+                                isSelected ? 'text-white' : hasChildSelected ? 'text-[#106ebe]' : 'text-slate-800'
+                            }`}>
+                                {cat.nombre}
+                            </span>
+                        </div>
+                    </div>
+                ) : (
+                    <div
+                        className={`flex items-center cursor-pointer transition-none
+                            ${isSelected ? 'bg-transparent' : 'hover:bg-[#f0f0f0] bg-[#fafafa]'}`}
+                        style={{ height: 22 }}
+                        onClick={() => onToggle(cat.id)}
+                        onContextMenu={(e) => handleContextMenu(e, cat.id, cat.nombre)}
+                    >
+                        {/* Gutter (Icon Area) - STAYS NEUTRAL */}
+                        <div className={`w-[34px] h-full flex items-center justify-center shrink-0 border-r border-gray-300 mr-0`}>
+                            {isSelected && <span className="text-[#106ebe] text-[9px]">►</span>}
+                        </div>
+                        {/* Name Area - GETS BLUE */}
+                        <div className={`flex-1 h-full flex items-center pl-4 ${isSelected ? 'bg-[#106ebe]' : ''}`}>
+                            <span className={`truncate leading-none uppercase text-[10px] pr-1 ${
+                                isSelected ? 'text-white font-bold' : 'text-slate-600'
+                            }`}>
+                                {cat.nombre}
+                            </span>
+                        </div>
+                    </div>
+                )}
+                {isParent && isExpanded && children.map(child => renderCat(child, depth + 1))}
             </React.Fragment>
         );
     };
@@ -209,12 +255,12 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
     return (
         <>
             <div
-                className="w-[200px] flex flex-col bg-white border-r border-gray-300 h-full shrink-0 select-none"
+                className="w-[200px] flex flex-col bg-white border-r border-gray-300 h-full shrink-0 select-none relative"
                 onClick={() => setContextMenu(null)}
             >
-                {/* Header gris clásico */}
-                <div className="bg-[#f0f0f0] h-[22px] px-2 flex items-center justify-center border-b border-gray-400 shrink-0">
-                    <span className="text-[10px] font-bold text-slate-700 uppercase tracking-tight">Categorías</span>
+                <div className="bg-[#f0f0f0] h-[24px] flex items-center border-b border-gray-400 shrink-0">
+                    <div className="w-[34px] h-full border-r border-gray-300" />
+                    <span className="pl-2 text-[10px] font-bold text-slate-700 uppercase tracking-tight">Categoría</span>
                 </div>
 
                 {/* Árbol */}
@@ -234,11 +280,6 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
                         roots.map(cat => renderCat(cat))
                     )}
                 </div>
-
-                {/* Footer */}
-                <div className="h-5 bg-[#f0f0f0] border-t border-gray-300 px-2 flex items-center shrink-0">
-                    <span className="text-[8px] font-bold text-gray-400 italic">Módulo: Menú de Platillos</span>
-                </div>
             </div>
 
             {contextMenu && createPortal(
@@ -246,12 +287,12 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
                     <div className="fixed inset-0 z-[99999]" onClick={() => setContextMenu(null)} />
                     <div className="fixed z-[100000] bg-[#f0f0f0] border border-gray-400 shadow-lg py-0.5 w-36"
                         style={{ top: contextMenu.y, left: contextMenu.x }}>
-                        <button onClick={() => { handleOpenForm(null); setContextMenu(null); }}
-                            className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700">
-                            <Plus size={11} /> Nuevo
-                        </button>
-                        {contextMenu.id && (
+                        {contextMenu.id ? (
                             <>
+                                <button onClick={() => { handleOpenForm(null, contextMenu.id); setContextMenu(null); }}
+                                    className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700">
+                                    <Plus size={11} /> Agregar Subcategoría
+                                </button>
                                 <div className="h-px bg-gray-300 my-0.5" />
                                 <button onClick={() => { handleOpenForm(contextMenu.id); setContextMenu(null); }}
                                     className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700">
@@ -262,6 +303,11 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
                                     <Trash2 size={11} /> Eliminar
                                 </button>
                             </>
+                        ) : (
+                            <button onClick={() => { handleOpenForm(null); setContextMenu(null); }}
+                                className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700 font-bold">
+                                <Plus size={11} /> Nueva Categoría Raíz
+                            </button>
                         )}
                         <div className="h-px bg-gray-300 my-0.5" />
                         <button onClick={() => { load(); setContextMenu(null); }}
