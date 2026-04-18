@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       host: '0.0.0.0',
     },
-    plugins: [react(), satProxyPlugin()],
+    plugins: [react(), satProxyPlugin(env)],
     build: {
       target: 'esnext', // Target modern browsers for smaller bundles
       minify: 'esbuild',

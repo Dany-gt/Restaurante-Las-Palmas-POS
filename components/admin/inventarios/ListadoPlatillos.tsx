@@ -114,7 +114,7 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                             onChange={(e) => setSearch(e.target.value)}
                             className="bg-white border border-gray-400 h-full px-2 text-[10px] w-56 outline-none focus:border-[#106ebe]"
                         />
-                        <button className="bg-[#f0f0f0] border border-gray-400 h-full px-4 text-[9px] font-bold border-l-0 hover:bg-white transition-colors active:bg-gray-200">
+                        <button className="bg-[#f0f0f0] border border-gray-400 h-full px-4 text-[9px] font-bold border-l-0 hover:bg-white transition-colors active:bg-gray-200 text-black">
                             BUSCAR
                         </button>
                     </div>

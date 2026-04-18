@@ -152,45 +152,75 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
         }
     };
 
-    // Render tree logic for subcategories (in case they use them now)
     const roots = categories.filter(c => !(c as any).parent_id);
     const getChildren = (parentId: string) => categories.filter(c => (c as any).parent_id === parentId);
 
-    const renderCat = (cat: typeof categories[0], depth = 0) => (
-        <React.Fragment key={cat.id}>
-            <div
-                className={`flex items-center h-[22px] px-3 cursor-pointer group ${selectedId === cat.id ? 'bg-blue-50 text-[#106ebe] font-black' : 'hover:bg-[#cce8ff] text-slate-800'}`}
-                style={{ paddingLeft: `${12 + depth * 12}px` }}
-                onClick={() => onSelect(cat.id)}
-                onContextMenu={(e) => handleContextMenu(e, cat.id, cat.nombre)}
-            >
-                {depth > 0 && <span className="text-gray-300 mr-1 text-[8px]">└</span>}
-                <span className="flex-1 text-[10px] uppercase truncate leading-none">{cat.nombre}</span>
-            </div>
-            {getChildren(cat.id).map(child => renderCat(child, depth + 1))}
-        </React.Fragment>
-    );
+    const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+    // Expandir todas las categorías cuando se carguen los datos
+    useEffect(() => {
+        if (categories.length > 0) {
+            setExpanded(new Set(categories.map(c => c.id)));
+        }
+    }, [categories]);
+
+    const toggleExpand = (id: string) => {
+        setExpanded(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id); else next.add(id);
+            return next;
+        });
+    };
+
+    const renderCat = (cat: typeof categories[0], depth = 0) => {
+        const children = getChildren(cat.id);
+        const hasChildren = children.length > 0;
+        const isExpanded = expanded.has(cat.id);
+        const isSelected = selectedId === cat.id;
+        const isParent = depth === 0;
+
+        return (
+            <React.Fragment key={cat.id}>
+                <div
+                    className={`flex items-center h-[20px] cursor-pointer select-none transition-none ${isSelected ? 'bg-[#3399ff] text-white' : 'hover:bg-[#cce8ff]'}`}
+                    style={{ paddingLeft: `${6 + depth * 16}px` }}
+                    onContextMenu={(e) => handleContextMenu(e, cat.id, cat.nombre)}
+                    onClick={() => onSelect(isSelected ? null : cat.id)}
+                >
+                    {/* Triángulo expand/collapse */}
+                    <span
+                        className={`w-4 flex items-center justify-center shrink-0 text-[9px] ${isSelected ? 'text-white' : 'text-gray-500'}`}
+                        onClick={(e) => { e.stopPropagation(); if (hasChildren) toggleExpand(cat.id); }}
+                    >
+                        {hasChildren ? (isExpanded ? '▼' : '▶') : ''}
+                    </span>
+
+                    {/* Nombre */}
+                    <span className={`text-[11px] uppercase truncate leading-none ${isParent ? 'font-bold' : 'font-normal'} ${isSelected ? 'text-white' : isParent ? 'text-slate-800' : 'text-slate-600'}`}>
+                        {cat.nombre}
+                    </span>
+                </div>
+
+                {hasChildren && isExpanded && children.map(child => renderCat(child, depth + 1))}
+            </React.Fragment>
+        );
+    };
 
     return (
         <>
             <div
-                className="w-[190px] flex flex-col bg-white border-r border-gray-300 h-full shadow-sm shrink-0 select-none"
+                className="w-[200px] flex flex-col bg-white border-r border-gray-300 h-full shrink-0 select-none"
                 onClick={() => setContextMenu(null)}
             >
-                <div className="bg-[#106ebe] h-[26px] px-2 flex items-center justify-between border-b border-[#004578] shrink-0">
-                    <div className="flex items-center gap-1.5">
-                        <Utensils size={10} className="text-white/80" />
-                        <span className="text-[9px] font-bold text-white uppercase tracking-tight">Categorías de Menú</span>
-                    </div>
-                    <button
-                        onClick={() => handleOpenForm(null)}
-                        className="w-5 h-5 flex items-center justify-center hover:bg-white/20 rounded transition-colors text-white font-bold text-[14px] leading-none"
-                        title="Nueva categoría de menú"
-                    >+</button>
+                {/* Header gris clásico */}
+                <div className="bg-[#f0f0f0] h-[22px] px-2 flex items-center justify-center border-b border-gray-400 shrink-0">
+                    <span className="text-[10px] font-bold text-slate-700 uppercase tracking-tight">Categorías</span>
                 </div>
 
-                <div 
-                    className="flex-1 overflow-y-auto text-[11px]"
+                {/* Árbol */}
+                <div
+                    className="flex-1 overflow-y-auto bg-white"
+                    style={{ fontSize: '11px' }}
                     onContextMenu={(e) => {
                         if (e.target === e.currentTarget) {
                             e.preventDefault();
@@ -205,6 +235,7 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
                     )}
                 </div>
 
+                {/* Footer */}
                 <div className="h-5 bg-[#f0f0f0] border-t border-gray-300 px-2 flex items-center shrink-0">
                     <span className="text-[8px] font-bold text-gray-400 italic">Módulo: Menú de Platillos</span>
                 </div>

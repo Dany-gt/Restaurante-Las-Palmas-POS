@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Folder, FolderOpen, Package, Plus, Edit2, Trash2, X, RefreshCw, Save } from 'lucide-react';
+import { Folder, FolderOpen, Package, Plus, Edit2, Trash2, X, RefreshCw, Save, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { supabase } from '../../../supabase';
 import { useNotify } from '../../../hooks/useNotify';
 import { ConfirmDialog } from '../ConfirmDialog';
+import { WindowsSaveButton } from '../../WindowsSaveButton';
 
 interface Category {
     id: string;
@@ -179,35 +180,43 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
                 const hasChildren = categories.some(c => c.parent_id === cat.id);
                 const isExpanded = expanded.has(cat.id);
                 const isSelected = seleccionadas.has(cat.id);
+                const isParent = parentId === null; // categoría raíz = negrita
 
                 return (
                     <div key={cat.id} className="flex flex-col">
                         <div
-                            className={`flex items-center h-[22px] cursor-pointer select-none transition-none ${isSelected ? 'bg-blue-50 text-[#106ebe]' : 'hover:bg-[#cce8ff] text-slate-800'}`}
-                            style={{ paddingLeft: `${depth * 14 + 4}px` }}
-                            onClick={(e) => { e.stopPropagation(); handleSelect(cat.id); }}
+                            className={`flex items-center h-[22px] cursor-pointer select-none transition-none ${isSelected ? 'bg-[#cce8ff] text-[#106ebe]' : 'hover:bg-[#e5f1fb] text-slate-800'}`}
+                            style={{ paddingLeft: `${depth * 14 + 2}px` }}
                             onContextMenu={(e) => handleContextMenu(e, cat)}
                         >
-                            {/* Flecha de Expansión (Solo si tiene hijos) */}
-                            <div 
-                                className="w-4 h-full flex items-center justify-center cursor-pointer hover:bg-black/5"
-                                onClick={(e) => { e.stopPropagation(); toggleExpand(cat.id); }}
+                            {/* Botón Expandir/Colapsar estilo Windows [+]/[-] */}
+                            <div
+                                className="w-5 h-full flex items-center justify-center shrink-0"
+                                onClick={(e) => { e.stopPropagation(); if (hasChildren) toggleExpand(cat.id); }}
                             >
                                 {hasChildren && (
-                                    <span className="text-[8px] text-gray-400">
-                                        {isExpanded ? '▼' : '▶'}
+                                    <span className="w-3.5 h-3.5 border border-gray-400 bg-white flex items-center justify-center text-[9px] font-bold text-gray-600 leading-none hover:border-[#106ebe] hover:text-[#106ebe]">
+                                        {isExpanded ? '−' : '+'}
                                     </span>
                                 )}
+                                {!hasChildren && <span className="w-3.5" />}
                             </div>
 
-                            {/* Checkbox (El Cuadrito) */}
-                            <div className="w-[18px] h-full flex items-center justify-center mr-1">
-                                <div className={`w-3.5 h-3.5 border border-gray-400 bg-white flex items-center justify-center ${isSelected ? 'border-[#106ebe]' : ''}`}>
+                            {/* Checkbox */}
+                            <div
+                                className="w-[16px] h-full flex items-center justify-center mr-1 shrink-0"
+                                onClick={(e) => { e.stopPropagation(); handleSelect(cat.id); }}
+                            >
+                                <div className={`w-3.5 h-3.5 border flex items-center justify-center ${isSelected ? 'border-[#106ebe] bg-white' : 'border-gray-400 bg-white'}`}>
                                     {isSelected && <div className="w-2 h-2 bg-[#106ebe]" />}
                                 </div>
                             </div>
 
-                            <span className={`text-[10px] uppercase truncate leading-none ${isSelected ? 'font-bold' : ''}`}>
+                            {/* Nombre: negrita si es categoría padre, normal si es subcategoría */}
+                            <span
+                                className={`text-[10.5px] uppercase truncate leading-none flex-1 ${isParent ? 'font-bold text-slate-700' : 'font-normal text-slate-600'} ${isSelected ? 'text-[#106ebe]' : ''}`}
+                                onClick={(e) => { e.stopPropagation(); handleSelect(cat.id); }}
+                            >
                                 {cat.name}
                             </span>
                         </div>
@@ -340,23 +349,55 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
                         {/* Custom Title Bar */}
                         <div className="bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 cursor-move">
                             <div className="flex items-center gap-2">
-                                <Folder size={14} className="text-white" />
+                                <Folder size={16} className="text-white/90" />
                                 <span className="text-[11px] font-bold uppercase tracking-tight">Mantenimiento de Categorías</span>
                             </div>
                             <div className="flex items-center h-full">
+                                <input 
+                                    type="file" 
+                                    id="header-cat-image"
+                                    className="hidden" 
+                                    accept="image/*" 
+                                    onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (!file) return;
+                                        try {
+                                          setLoading(true);
+                                          const fileExt = file.name.split('.').pop();
+                                          const fileName = `cat_${Math.random()}.${fileExt}`;
+                                          const filePath = `categories/${fileName}`;
+                                          const { error: uploadError } = await supabase.storage.from('menu').upload(filePath, file);
+                                          if (uploadError) throw uploadError;
+                                          const { data } = supabase.storage.from('menu').getPublicUrl(filePath);
+                                          setCategoryForm(prev => ({ ...prev, image_url: data.publicUrl }));
+                                          notify.success('Imagen subida correctamente');
+                                        } catch (error: any) {
+                                          notify.error('Error al subir imagen: ' + error.message);
+                                        } finally {
+                                          setLoading(false);
+                                        }
+                                    }}
+                                />
                                 <button 
-                                    onClick={handleSaveCategory}
-                                    className="h-full px-2.5 hover:bg-white/10 transition-colors flex items-center justify-center"
-                                    title="Guardar Datos (F2)"
+                                    onClick={() => document.getElementById('header-cat-image')?.click()}
+                                    disabled={loading}
+                                    className="h-full px-3 hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50"
+                                    title="Subir Imagen"
                                 >
-                                    <Save size={16} className="text-white" />
+                                    {loading ? <Loader2 size={18} className="animate-spin text-white/80" /> : <ImageIcon size={20} className="text-white/80" />}
                                 </button>
+                                <WindowsSaveButton 
+                                    onClick={handleSaveCategory}
+                                    loading={isSaving}
+                                    variant="minimal"
+                                    size={20}
+                                />
                                 <button 
                                     onClick={() => setShowCategoryModal(false)}
                                     className="h-full px-3 hover:bg-red-500 transition-colors flex items-center"
                                     title="Cerrar"
                                 >
-                                    <X size={16} />
+                                    <X size={18} />
                                 </button>
                             </div>
                         </div>

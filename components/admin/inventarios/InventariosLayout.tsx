@@ -529,16 +529,9 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 <div className="flex items-center gap-2 ml-auto">
                     <button 
                         onClick={() => { setCategoryMenuId(null); setCategoryProdId(null); }}
-                        className="px-4 h-5 border border-gray-300 bg-[#fdfdfd] text-[#106ebe] text-[9px] font-black uppercase hover:bg-white shadow-sm transition-all"
+                        className="px-4 h-5 bg-[#106ebe] text-white text-[9px] font-black uppercase hover:bg-[#0d5aa0] shadow-sm transition-all"
                     >
-                        Mostrar Todos los Registros
-                    </button>
-                    {/* Botón rápido de creación estilo Desktop */}
-                    <button 
-                        onClick={() => handleNew(initialTab === 'platillos' ? 'platillo' : 'producto')}
-                        className="px-3 h-5 bg-[#106ebe] text-white text-[9px] font-black uppercase hover:bg-[#0d5aa0] shadow-sm flex items-center gap-1"
-                    >
-                        + Nuevo {initialTab === 'platillos' ? 'Platillo' : 'Producto'}
+                        Mostrar Todos
                     </button>
                 </div>
             </div>
