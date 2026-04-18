@@ -21,9 +21,10 @@ const DOMAIN_TABLE = 'supply_categories' as const;
 interface SupplyCategorySidebarProps {
     selectedId: string | null;
     onSelect: (id: string | null) => void;
+    width?: number;
 }
 
-export const SupplyCategorySidebar: React.FC<SupplyCategorySidebarProps> = ({ selectedId, onSelect }) => {
+export const SupplyCategorySidebar: React.FC<SupplyCategorySidebarProps> = ({ selectedId, onSelect, width = 190 }) => {
     const notify = useNotify();
     const { categories, loading, create, update, remove } = useDomainCategories({
         table: DOMAIN_TABLE,   // ← SOLO ESTA TABLA
@@ -69,7 +70,8 @@ export const SupplyCategorySidebar: React.FC<SupplyCategorySidebarProps> = ({ se
     return (
         <>
             <div
-                className="w-[190px] flex flex-col bg-white border-r border-gray-300 h-full shadow-sm shrink-0 select-none"
+                className="flex flex-col bg-white border-r border-gray-300 h-full shadow-sm shrink-0 select-none"
+                style={{ width: `${width}px` }}
                 onClick={() => setContextMenu(null)}
             >
                 <div className="bg-[#106ebe] h-[26px] px-2 flex items-center justify-between border-b border-[#004578] shrink-0">

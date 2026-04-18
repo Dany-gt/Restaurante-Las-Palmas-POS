@@ -122,11 +122,35 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
         setSessionRows([]);
         setSearch('');
         try {
-            // Get all items with their branch stock
-            const { data: items } = await supabase
-                .from('inventory_items')
-                .select(`id, code, name, unit, cost, presentation, inventory_categories(name)`)
-                .order('name');
+            // Get all items from legacy inventory and unified products
+            const [iRes, pRes] = await Promise.all([
+                supabase.from('inventory_items').select(`id, code, name, unit, cost, presentation, inventory_categories(name)`),
+                supabase.from('products').select(`id, product_code, name, unit_measure, cost_price, presentation, product_categories(nombre)`).eq('es_platillo', false)
+            ]);
+
+            const listA = (iRes.data || []).map((i: any) => ({
+                id: i.id,
+                code: i.code || '',
+                name: i.name,
+                unit: i.unit || 'UN',
+                cost: i.cost || 0,
+                presentation: i.presentation || 'N/A',
+                category_name: i.inventory_categories?.name || 'INVENTARIO',
+                source: 'inventory' as const
+            }));
+
+            const listB = (pRes.data || []).map((p: any) => ({
+                id: p.id,
+                code: p.product_code || '',
+                name: p.name,
+                unit: p.unit_measure || 'UN',
+                cost: p.cost_price || 0,
+                presentation: p.presentation || 'N/A',
+                category_name: p.product_categories?.nombre || 'INSUMOS',
+                source: 'products' as const
+            }));
+
+            const allItems = [...listA, ...listB];
 
             const { data: branchStock } = await supabase
                 .from('inventory_item_branches')
@@ -136,19 +160,20 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
             const stockMap: Record<string, number> = {};
             (branchStock || []).forEach(b => { stockMap[b.item_id] = b.quantity; });
 
-            const mapped: LevelingRow[] = (items || []).map((item: any) => ({
+            const mapped: LevelingRow[] = allItems.map(item => ({
                 item_id: item.id,
-                code: item.code || '',
+                code: item.code,
                 name: item.name,
-                unit: item.unit || 'UN',
-                cost: item.cost || 0,
-                presentation: item.presentation || 'N/A',
-                category_name: item.inventory_categories?.name || 'SIN CATEGORÍA',
+                unit: item.unit,
+                cost: item.cost,
+                presentation: item.presentation,
+                category_name: item.category_name,
                 system_stock: stockMap[item.id] ?? 0,
                 physical_stock: '',
-                display_unit: item.unit || 'UN',
+                display_unit: item.unit,
                 normalized_physical: '',
                 difference: 0,
+                source: item.source
             }));
 
             setRows(mapped);
@@ -268,17 +293,17 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                     });
                 }
 
-                // 2. Update global stock in inventory_items (apply diff)
-                const { data: globalItem } = await supabase
-                    .from('inventory_items')
-                    .select('quantity')
-                    .eq('id', row.item_id)
-                    .single();
-
-                if (globalItem) {
-                    await supabase.from('inventory_items')
-                        .update({ quantity: (globalItem.quantity || 0) + diff })
-                        .eq('id', row.item_id);
+                // 2. Update global stock applying logic of origin
+                if (row.source === 'products') {
+                    const { data: prodItem } = await supabase.from('products').select('stock_actual').eq('id', row.item_id).single();
+                    if (prodItem) {
+                        await supabase.from('products').update({ stock_actual: (Number(prodItem.stock_actual) || 0) + diff }).eq('id', row.item_id);
+                    }
+                } else {
+                    const { data: globalItem } = await supabase.from('inventory_items').select('quantity').eq('id', row.item_id).single();
+                    if (globalItem) {
+                        await supabase.from('inventory_items').update({ quantity: (Number(globalItem.quantity) || 0) + diff }).eq('id', row.item_id);
+                    }
                 }
 
                 // 3. Get new running balance for kardex (approximate with branch stock)

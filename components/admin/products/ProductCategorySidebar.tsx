@@ -20,6 +20,7 @@ const DOMAIN_TABLE = 'product_categories' as const;
 interface ProductCategorySidebarProps {
     selectedIds: Set<string>;
     onToggle: (id: string) => void;
+    width?: number;
 }
 
 interface FormState { 
@@ -32,7 +33,7 @@ interface FormState {
     imagen_url: string;
 }
 
-export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ selectedIds, onToggle }) => {
+export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ selectedIds, onToggle, width = 190 }) => {
     const notify = useNotify();
     const { categories, load, loading, create, update, remove } = useDomainCategories({
         table: DOMAIN_TABLE,
@@ -194,7 +195,7 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
             <React.Fragment key={cat.id}>
                 {isParent ? (
                     <div
-                        className={`flex items-center cursor-pointer border-t border-gray-100 transition-none
+                        className={`flex items-center cursor-pointer transition-none
                             ${isSelected ? 'bg-transparent' : 'hover:bg-[#f0f0f0] bg-white'}`}
                         style={{ height: 26 }}
                         onClick={() => {
@@ -259,7 +260,8 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
     return (
         <>
             <div
-                className="w-[190px] flex flex-col bg-white border-r border-gray-300 h-full shrink-0 select-none relative"
+                className="flex flex-col bg-white border-r border-gray-300 h-full shrink-0 select-none relative"
+                style={{ width: `${width}px` }}
                 onClick={() => setContextMenu(null)}
             >
                 <div className="bg-[#f0f0f0] h-[24px] flex items-center border-b border-gray-400 shrink-0">
@@ -293,7 +295,7 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                             <>
                                 <button onClick={() => { handleOpenForm(null, contextMenu.id); setContextMenu(null); }}
                                     className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700">
-                                    <Plus size={11} /> Agregar Subcategoría
+                                    <Plus size={11} /> Nuevo
                                 </button>
                                 <div className="h-px bg-gray-300 my-0.5" />
                                 <button onClick={() => { handleOpenForm(contextMenu.id); setContextMenu(null); }}
@@ -308,7 +310,7 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                         ) : (
                             <button onClick={() => { handleOpenForm(null); setContextMenu(null); }}
                                 className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700 font-bold">
-                                <Plus size={11} /> Nueva Categoría Raíz
+                                <Plus size={11} /> Nuevo
                             </button>
                         )}
                         <div className="h-px bg-gray-300 my-0.5" />

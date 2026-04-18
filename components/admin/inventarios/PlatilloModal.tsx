@@ -207,18 +207,18 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                         </div>
 
                                         <div className="flex items-center">
+                                            <label className="text-[11px] text-gray-400 w-[100px] shrink-0 uppercase tracking-tighter">Categoría</label>
                                             <CustomSelect 
                                                 value={newProduct.category_id || ''}
                                                 onChange={(val: string) => setNewProduct({...newProduct, category_id: val})}
                                                 options={(() => {
-                                                    const catMap = new Map(menuCategories.map(c => [c.id, c]));
-                                                    return menuCategories.map(c => {
-                                                        const pId = (c as any).parent_id;
-                                                        const parent = pId ? catMap.get(pId) : null;
-                                                        const label = parent 
-                                                            ? `${(parent.name || parent.nombre).toUpperCase()} > ${(c.name || c.nombre).toUpperCase()}`
-                                                            : (c.name || c.nombre || '').toUpperCase();
-                                                        return { value: c.id, label };
+                                                    const catMap = new Map(menuCategories.map((c: any) => [c.id, c]));
+                                                    return menuCategories.map((c: any) => {
+                                                        const parent = c.parent_id ? (catMap.get(c.parent_id) as any) : null;
+                                                        const pName = String(parent?.name || parent?.nombre || '').toUpperCase();
+                                                        const cName = String(c.name || c.nombre || '').toUpperCase();
+                                                        const label = pName ? `${pName} > ${cName}` : cName;
+                                                        return { value: c.id, label: label || 'SIN NOMBRE' };
                                                     }).sort((a, b) => a.label.localeCompare(b.label));
                                                 })()}
                                                 placeholder="Seleccionar..."

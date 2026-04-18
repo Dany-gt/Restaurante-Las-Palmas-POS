@@ -93,7 +93,8 @@ export const InventoryProduction: React.FC = () => {
                     voided,
                     produced_item_id,
                     produced_quantity,
-                    inventory_items!inventory_production_orders_produced_item_id_fkey(name)
+                    inventory_items!inventory_production_orders_produced_item_id_fkey(name),
+                    products!inventory_production_orders_produced_item_id_fkey(name)
                 `)
                 .eq('branch_id', selectedBranch)
                 .gte('date', fromDate)
@@ -248,9 +249,9 @@ export const InventoryProduction: React.FC = () => {
                                     <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-700 text-center">{order.date}</td>
                                     <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-900 uppercase">{order.code}</td>
                                     <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-900 uppercase">
-                                        {order.inventory_items?.name ? (
+                                        {(order.inventory_items?.name || order.products?.name) ? (
                                             <div className="flex flex-col">
-                                                <span>{order.inventory_items.name}</span>
+                                                <span>{order.inventory_items?.name || order.products?.name}</span>
                                                 <span className="text-[9px] text-blue-600 font-extrabold">CANT: {order.produced_quantity}</span>
                                             </div>
                                         ) : <span className="text-gray-400 italic">No especificado</span>}
@@ -370,19 +371,24 @@ export const InventoryProduction: React.FC = () => {
                         if (isProcessing) {
                             for (const item of data.details) {
                                 // A. Global Stock Update
-                                const { data: globalItem } = await supabase
-                                    .from('inventory_items')
-                                    .select('quantity, name')
-                                    .eq('id', item.inventory_item_id)
-                                    .single();
+                                const { data: isProd } = await supabase.from('products').select('id').eq('id', item.inventory_item_id).single();
 
-                                if (globalItem) {
-                                    const { error: gUpdateErr } = await supabase
+                                if (isProd) {
+                                    const { data: pData } = await supabase.from('products').select('stock_actual').eq('id', item.inventory_item_id).single();
+                                    await supabase.from('products').update({ stock_actual: (Number(pData?.stock_actual) || 0) - (Number(item.quantity) || 0) }).eq('id', item.inventory_item_id);
+                                } else {
+                                    const { data: globalItem } = await supabase
                                         .from('inventory_items')
-                                        .update({ quantity: (globalItem.quantity || 0) - (Number(item.quantity) || 0) })
-                                        .eq('id', item.inventory_item_id);
+                                        .select('quantity, name')
+                                        .eq('id', item.inventory_item_id)
+                                        .single();
 
-                                    if (gUpdateErr) console.error(`Error updating global stock for ${globalItem.name}:`, gUpdateErr);
+                                    if (globalItem) {
+                                        await supabase
+                                            .from('inventory_items')
+                                            .update({ quantity: (Number(globalItem.quantity) || 0) - (Number(item.quantity) || 0) })
+                                            .eq('id', item.inventory_item_id);
+                                    }
                                 }
 
                                 // B. Branch Stock Update
@@ -432,9 +438,16 @@ export const InventoryProduction: React.FC = () => {
                             // B. INCREASE Produced Item Stock (if selected)
                             if (data.producedItemId && data.producedQuantity > 0) {
                                 // 1. Global Stock
-                                const { data: gProd } = await supabase.from('inventory_items').select('quantity').eq('id', data.producedItemId).single();
-                                if (gProd) {
-                                    await supabase.from('inventory_items').update({ quantity: (gProd.quantity || 0) + Number(data.producedQuantity) }).eq('id', data.producedItemId);
+                                const { data: isProdObj } = await supabase.from('products').select('id').eq('id', data.producedItemId).single();
+
+                                if (isProdObj) {
+                                    const { data: gProd } = await supabase.from('products').select('stock_actual').eq('id', data.producedItemId).single();
+                                    await supabase.from('products').update({ stock_actual: (Number(gProd?.stock_actual) || 0) + Number(data.producedQuantity) }).eq('id', data.producedItemId);
+                                } else {
+                                    const { data: gProd } = await supabase.from('inventory_items').select('quantity').eq('id', data.producedItemId).single();
+                                    if (gProd) {
+                                        await supabase.from('inventory_items').update({ quantity: (Number(gProd.quantity) || 0) + Number(data.producedQuantity) }).eq('id', data.producedItemId);
+                                    }
                                 }
 
                                 // 2. Branch Stock

@@ -119,6 +119,51 @@ export const MenuAdmin: React.FC = () => {
   const [categoryContextMenu, setCategoryContextMenu] = useState<{ visible: boolean, x: number, y: number, category: Category | null }>({ visible: false, x: 0, y: 0, category: null });
   const [confirmDeleteCategory, setConfirmDeleteCategory] = useState<Category | null>(null);
 
+  // ••• SIDEBAR RESIZING STATE •••
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    const saved = localStorage.getItem('pos_sidebar_width_menu');
+    return saved ? parseInt(saved) : 280;
+  });
+  const [isResizing, setIsResizing] = useState(false);
+
+  const startResizing = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  const stopResizing = () => {
+    setIsResizing(false);
+    localStorage.setItem('pos_sidebar_width_menu', sidebarWidth.toString());
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isResizing) return;
+    const newWidth = e.clientX;
+    if (newWidth >= 150 && newWidth <= 600) {
+      setSidebarWidth(newWidth);
+    }
+  };
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', stopResizing);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    } else {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', stopResizing);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', stopResizing);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isResizing, sidebarWidth]);
+
   // Helper para posicionar menús contextuales dentro del viewport
   const handleShowContextMenu = (e: React.MouseEvent, type: 'product' | 'category' | 'options', data: any, extra?: any) => {
     e.preventDefault();
@@ -778,7 +823,10 @@ export const MenuAdmin: React.FC = () => {
           ) : (
             <>
               {/* Sidebar: Categorías de Menú */}
-              <aside className={`${isMobile ? (showMobileCategories ? 'flex h-1/2' : 'hidden') : 'w-[280px] flex'} flex-col shrink-0`}>
+              <aside 
+                className={`${isMobile ? (showMobileCategories ? 'flex h-1/2' : 'hidden') : 'flex'} flex-col shrink-0`}
+                style={!isMobile ? { width: `${sidebarWidth}px` } : {}}
+              >
                 <div className="bg-[#106ebe] px-3 py-1.5 flex items-center justify-between rounded-t-sm">
                   <div className="flex items-center gap-2">
                     <Folder size={14} className="text-white" />
@@ -799,6 +847,15 @@ export const MenuAdmin: React.FC = () => {
                   </div>
                 </div>
               </aside>
+
+              {/* RESIZER HANDLE */}
+              {!isMobile && (
+                <div 
+                  onMouseDown={startResizing}
+                  className={`w-[3px] h-full cursor-col-resize shrink-0 transition-colors z-50 ${isResizing ? 'bg-[#106ebe]' : 'bg-gray-200 hover:bg-gray-400 opacity-50 hover:opacity-100'}`}
+                  title="Arrastrar para redimensionar"
+                />
+              )}
 
               {/* Main Table: Listado de Platillos */}
               <div className={`flex-1 flex flex-col overflow-hidden ${isMobile && showMobileCategories ? 'hidden' : 'flex'}`}>
@@ -2180,7 +2237,7 @@ export const MenuAdmin: React.FC = () => {
                   className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-[#106ebe] hover:text-white transition-none group text-slate-800"
                 >
                   <Plus size={12} />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Nueva Subcategoría</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Nuevo</span>
                 </button>
                 {categoryContextMenu.category && (
                   <>

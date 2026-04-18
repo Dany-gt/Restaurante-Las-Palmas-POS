@@ -201,6 +201,51 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
     const [showCatModal, setShowCatModal] = useState(false);
     const [newCatName, setNewCatName] = useState('');
 
+    // ••• SIDEBAR RESIZING STATE •••
+    const [sidebarWidth, setSidebarWidth] = useState(() => {
+        const saved = localStorage.getItem('pos_sidebar_width_unified');
+        return saved ? parseInt(saved) : 240;
+    });
+    const [isResizing, setIsResizing] = useState(false);
+
+    const startResizing = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setIsResizing(true);
+    };
+
+    const stopResizing = () => {
+        setIsResizing(false);
+        localStorage.setItem('pos_sidebar_width_unified', sidebarWidth.toString());
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+        if (!isResizing) return;
+        const newWidth = e.clientX;
+        if (newWidth >= 140 && newWidth <= 600) {
+            setSidebarWidth(newWidth);
+        }
+    };
+
+    useEffect(() => {
+        if (isResizing) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', stopResizing);
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        } else {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', stopResizing);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', stopResizing);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        };
+    }, [isResizing, sidebarWidth]);
+
     // ── Carga ────────────────────────────────────────────────────────────────
     const fetchCategories = useCallback(async () => {
         // D3: insumos → supply_categories | D4: utensilios → utensil_categories
@@ -782,7 +827,10 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
 
                 
                 {/* ── SIDEBAR (Árbol de Categorías de Inventario) ── */}
-                <aside className="w-[240px] shrink-0 bg-white border-r border-gray-300 flex flex-col overflow-hidden shadow-sm">
+                <aside 
+                    className="shrink-0 bg-white border-r border-gray-300 flex flex-col overflow-hidden shadow-sm"
+                    style={{ width: `${sidebarWidth}px` }}
+                >
                     <div className="bg-[#f0f0f0] border-b border-gray-300 px-3 py-1.5 flex items-center justify-between">
                         <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Navegar Categorías</span>
                         <Folder size={12} className="text-slate-400" />
@@ -829,6 +877,13 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                         <p className="text-[8px] text-slate-400 font-medium leading-tight">Este módulo opera bajo el esquema de inventario independiente (TABLA: inventory_items).</p>
                     </div>
                 </aside>
+
+                {/* RESIZER HANDLE */}
+                <div 
+                    onMouseDown={startResizing}
+                    className={`w-[4px] h-full cursor-col-resize shrink-0 transition-colors z-50 ${isResizing ? 'bg-[#106ebe]' : 'bg-gray-200 hover:bg-gray-400 opacity-50 hover:opacity-100'}`}
+                    title="Arrastrar para redimensionar"
+                />
 
                 {/* ── LISTADO / TABLA ── */}
                 <div className="flex-1 flex flex-col overflow-hidden bg-white">

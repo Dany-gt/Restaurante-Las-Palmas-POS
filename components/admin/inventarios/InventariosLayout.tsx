@@ -11,6 +11,7 @@ import { ListadoPlatillos } from './ListadoPlatillos';
 import { ListadoProductos } from './ListadoProductos';
 import { PlatilloModal } from './PlatilloModal';
 import { ProductoModal } from './ProductoModal';
+import { InventoryKardex } from '../InventoryKardex';
 import { supabase } from '../../../supabase';
 import { useNotify } from '../../../hooks/useNotify';
 import { registrarAuditoria, detectarCambios } from '../../../services/auditService';
@@ -86,6 +87,56 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
     const [isImproving, setIsImproving] = useState(false);
     const [openPicker, setOpenPicker] = useState<'category' | 'supplier' | null>(null);
     const [recipeContextMenu, setRecipeContextMenu] = useState<{ visible: boolean, x: number, y: number, itemIdx?: number }>({ visible: false, x: 0, y: 0 });
+
+    // Kardex Modal State
+    const [showKardexMode, setShowKardexMode] = useState(false);
+    const [kardexItemId, setKardexItemId] = useState<string | null>(null);
+
+    // ••• SIDEBAR RESIZING STATE •••
+    const [sidebarWidth, setSidebarWidth] = useState(() => {
+        const saved = localStorage.getItem('pos_sidebar_width');
+        return saved ? parseInt(saved) : 210;
+    });
+    const [isResizing, setIsResizing] = useState(false);
+
+    const startResizing = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setIsResizing(true);
+    };
+
+    const stopResizing = () => {
+        setIsResizing(false);
+        localStorage.setItem('pos_sidebar_width', sidebarWidth.toString());
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+        if (!isResizing) return;
+        const newWidth = e.clientX;
+        // Límites: mínimo 140px, máximo 600px
+        if (newWidth >= 140 && newWidth <= 600) {
+            setSidebarWidth(newWidth);
+        }
+    };
+
+    useEffect(() => {
+        if (isResizing) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', stopResizing);
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        } else {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', stopResizing);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', stopResizing);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        };
+    }, [isResizing, sidebarWidth]);
 
     const getCompatibleUnits = (baseUnit: string) => {
         const lowerBase = (baseUnit || '').toLowerCase();
@@ -634,6 +685,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     D2: Productos → ProductCategorySidebar (lee SOLO product_categories) */}
                 {initialTab === 'platillos' ? (
                     <MenuCategorySidebar
+                        width={sidebarWidth}
                         selectedIds={selectedMenuIds}
                         onToggle={(id, childrenIds) => {
                             setSelectedMenuIds(prev => {
@@ -645,6 +697,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     />
                 ) : (
                     <ProductCategorySidebar
+                        width={sidebarWidth}
                         selectedIds={selectedProdIds}
                         onToggle={(id) => {
                             setSelectedProdIds(prev => {
@@ -655,6 +708,13 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                         }}
                     />
                 )}
+
+                {/* RESIZER HANDLE */}
+                <div 
+                    onMouseDown={startResizing}
+                    className={`w-[4px] h-full cursor-col-resize shrink-0 transition-colors z-50 ${isResizing ? 'bg-[#106ebe]' : 'bg-gray-200 hover:bg-gray-400 opacity-50 hover:opacity-100'}`}
+                    title="Arrastrar para redimensionar"
+                />
 
                 <div className="flex-1 flex flex-col min-w-0 bg-[#e0e0e0]">
                     {initialTab === 'platillos' ? (
@@ -679,7 +739,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                             onDelete={(id) => handleDelete(id, 'producto')}
                             onRefresh={handleRefresh}
                             onChangeCategory={handleChangeCategory}
-                            onKardex={(id) => console.log('Kardex no implementado aún', id)}
+                            onKardex={(id) => { setKardexItemId(id); setShowKardexMode(true); }}
                         />
                     )}
                 </div>
@@ -1537,6 +1597,38 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     </button>
                 </div>
             </>,
+            document.body
+        )}
+
+        {/* Kardex Modal Portal */}
+        {showKardexMode && createPortal(
+            <div className="fixed inset-0 z-[2000000] flex items-center justify-center p-4 bg-black/5 pointer-events-auto">
+                <DraggableWindow>
+                    <div className="w-[95vw] h-[90vh] max-w-7xl bg-[#f0f0f0] shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden border border-[#106EBE] flex flex-col animate-in zoom-in-95 duration-200 pointer-events-auto">
+                        {/* Header (Mover Modal) - OBLIGATORIO .modal-header */}
+                        <div className="modal-header bg-[#106EBE] h-9 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
+                            <div className="flex items-center gap-2">
+                                <Package size={16} className="text-white" />
+                                <span className="text-white text-[11px] font-bold uppercase tracking-wider">Kardex de Inventario - Consulta Específica</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <button 
+                                    onClick={() => setShowKardexMode(false)} 
+                                    className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white transition-all ml-1" 
+                                    title="Cerrar"
+                                >
+                                    <X size={20} strokeWidth={2.5} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Body (Contenido) */}
+                        <div className="flex-1 overflow-hidden bg-white m-1 border border-gray-300 shadow-inner">
+                            <InventoryKardex initialProductId={kardexItemId} />
+                        </div>
+                    </div>
+                </DraggableWindow>
+            </div>,
             document.body
         )}
 

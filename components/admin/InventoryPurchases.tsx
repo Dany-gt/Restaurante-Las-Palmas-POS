@@ -50,6 +50,7 @@ interface PurchaseItem {
     product_name?: string;
     presentation?: string;
     base_unit?: string;
+    source?: 'inventory' | 'products';
 }
 
 interface Purchase {
@@ -159,6 +160,31 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                if (selectedProductForConfig) {
+                    setSelectedProductForConfig(null);
+                } else if (showProductListModal) {
+                    setShowProductListModal(false);
+                } else if (purchaseToAnnul) {
+                    setPurchaseToAnnul(null);
+                } else if (detailContextMenu) {
+                    setDetailContextMenu(null);
+                } else if (showProductDropdown !== null) {
+                    setShowProductDropdown(null);
+                } else if (showSupplierDropdown) {
+                    setShowSupplierDropdown(false);
+                } else if (showModal) {
+                    setShowModal(false);
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedProductForConfig, showProductListModal, purchaseToAnnul, detailContextMenu, showProductDropdown, showSupplierDropdown, showModal]);
+
+
     const printRef = useRef<HTMLDivElement>(null);
 
     const fetchData = async () => {
@@ -167,7 +193,7 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
             const [bRes, sRes, iRes, pRes, catRes] = await Promise.all([
                 supabase.from('branches').select('*').order('name'),
                 supabase.from('suppliers').select('*').order('name'),
-                supabase.from('inventory_items').select('*').order('name'),
+                supabase.from('inventory_items').select('*').order('nombre'),
                 supabase.from('products').select('*').order('name'),
                 supabase.from('categories').select('*').order('name')
             ]);
@@ -177,24 +203,43 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
 
             const catMap = new Map((catRes.data || []).map(c => [c.id, c.name]));
 
-            const listA = (iRes.data || []).map(i => ({
-                ...i,
-                source: 'inventory',
-                display_cat: 'Inventario'
-            }));
+            const listA = (iRes.data || []).map(i => {
+                const rawName = (i.nombre || i.name || '').trim();
+                const rawPres = (i.tamano_capacidad || i.presentation || '').trim();
+                const unit = (i.unidad_medida || i.unit || 'UN').trim();
+                
+                return {
+                    id: i.id,
+                    code: (i.codigo || i.code || '').trim(),
+                    name: rawName || '---',
+                    presentation: rawPres || unit || 'UNIDAD',
+                    cost: i.precio_compra || i.cost_price || i.cost || 0,
+                    conversion_factor: i.portions || i.conversion_factor || 1,
+                    unit: unit,
+                    source: 'inventory',
+                    display_cat: 'Inventario'
+                };
+            });
 
-            const listB = (pRes.data || []).map(p => ({
-                id: p.id,
-                code: p.product_code || '',
-                name: p.name,
-                presentation: p.portion_size || '--',
-                cost: p.cost_price || 0,
-                conversion_factor: p.portions || 1,
-                unit: p.unit_measure || 'Unidad',
-                source: 'products',
-                tipo: 'materia_prima',
-                display_cat: catMap.get(p.category_id) || 'Producto'
-            }));
+            const listB = (pRes.data || []).map(p => {
+                const rawName = (p.name || p.nombre || '').trim();
+                const conversion = parseFloat(p.conversion_factor || p.portions) || 1;
+                const formattedConv = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(conversion);
+                const presentation = `${p.presentation_unit || ''} ${formattedConv} ${p.unit_measure || ''}`.trim();
+
+                return {
+                    id: p.id,
+                    code: (p.product_code || p.codigo || p.code || '').trim(),
+                    name: rawName || '---',
+                    presentation: presentation || 'UNIDAD',
+                    cost: p.cost_price || p.precio_compra || p.cost || 0,
+                    conversion_factor: conversion,
+                    unit: p.unit_measure || p.unit || 'UN',
+                    source: 'products',
+                    tipo: 'materia_prima',
+                    display_cat: catMap.get(p.category_id) || 'Producto'
+                };
+            });
 
             setInventoryItems([...listA, ...listB]);
 
@@ -244,8 +289,13 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
             setOriginalBranchId(purchase.branch_id);
 
             // Mapeo manual usando lo que ya tenemos en memoria (inventoryItems)
+            // Ajuste: Si itemData no existe en inventoryItems (posible carga lenta), 
+            // intentamos reconstruirlo para que no muestre '--'
             const loadedItems = (items || []).map((it: any) => {
                 const itemData = inventoryItems.find(i => i.id === it.inventory_item_id);
+                
+                // Prioridad 1: Datos de inventoryItems (enriquecidos)
+                // Prioridad 2: Datos del registro it (de la base de datos)
                 return {
                     id: it.id,
                     purchase_id: it.purchase_id,
@@ -254,9 +304,10 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                     equivalence: it.equivalence || 1,
                     unit_cost: it.unit_cost,
                     total_cost: it.total_cost,
-                    product_name: itemData?.name || '--- PRODUCTO NO ENCONTRADO ---',
-                    presentation: itemData?.presentation || '--',
-                    base_unit: itemData?.unit || 'UN'
+                    product_name: itemData?.name || it.product_name || '---',
+                    presentation: itemData?.presentation || it.presentation || '--',
+                    base_unit: itemData?.unit || it.base_unit || 'UN',
+                    source: it.source || itemData?.source || 'inventory'
                 };
             });
 
@@ -371,8 +422,9 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                 // 1. Revert previous stock quantities from originalItems
                 for (const old of originalItems) {
                     const oldQty = Number(old.quantity) * Number(old.equivalence || 1);
+                    const isProduct = old.source === 'products';
 
-                    // Revert Branch Stock
+                    // Revert Branch Stock (inventory_item_branches refers to product IDs)
                     const { data: branchItem } = await supabase.from('inventory_item_branches')
                         .select('quantity')
                         .eq('item_id', old.inventory_item_id)
@@ -380,16 +432,25 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                         .single();
                     if (branchItem) {
                         await supabase.from('inventory_item_branches').update({
-                            quantity: (branchItem.quantity || 0) - oldQty
+                            quantity: (Number(branchItem.quantity) || 0) - oldQty
                         }).eq('item_id', old.inventory_item_id).eq('branch_id', originalBranchId);
                     }
 
-                    // Revert Global Stock (Crucial fix for exponential calculation bug in edits)
-                    const { data: globalItem } = await supabase.from('inventory_items').select('quantity').eq('id', old.inventory_item_id).single();
-                    if (globalItem) {
-                        await supabase.from('inventory_items').update({
-                            quantity: (globalItem.quantity || 0) - oldQty
-                        }).eq('id', old.inventory_item_id);
+                    // Revert Global Stock
+                    if (isProduct) {
+                        const { data: prodItem } = await supabase.from('products').select('stock_actual').eq('id', old.inventory_item_id).single();
+                        if (prodItem) {
+                            await supabase.from('products').update({
+                                stock_actual: (Number(prodItem.stock_actual) || 0) - oldQty
+                            }).eq('id', old.inventory_item_id);
+                        }
+                    } else {
+                        const { data: globalItem } = await supabase.from('inventory_items').select('quantity').eq('id', old.inventory_item_id).single();
+                        if (globalItem) {
+                            await supabase.from('inventory_items').update({
+                                quantity: (Number(globalItem.quantity) || 0) - oldQty
+                            }).eq('id', old.inventory_item_id);
+                        }
                     }
                 }
 
@@ -400,30 +461,41 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                     purchase_id: formData.id,
                     inventory_item_id: item.inventory_item_id,
                     quantity: item.quantity,
-                    equivalence: item.equivalence || 1, // Guardamos la equivalencia
+                    equivalence: item.equivalence || 1, 
                     unit_cost: item.unit_cost,
-                    total_cost: item.total_cost
+                    total_cost: item.total_cost,
+                    source: item.source || 'inventory'
                 })));
                 if (itemsError) throw itemsError;
 
                 for (const item of formItems) {
+                    const isProduct = item.source === 'products';
                     // MATEMÁTICA ESTRICTA: cantidad_comprada * factor_conversión
                     const addQty = Number(item.quantity) * Number(item.equivalence || 1);
                     const baseUnitCost = Number(item.unit_cost) / Number(item.equivalence || 1);
 
                     // 1. Update base unit cost (Global)
-                    const { error: costError } = await supabase.from('inventory_items').update({
-                        cost: baseUnitCost
-                    }).eq('id', item.inventory_item_id);
-                    if (costError) throw costError;
+                    if (isProduct) {
+                        await supabase.from('products').update({ cost_price: baseUnitCost }).eq('id', item.inventory_item_id);
+                    } else {
+                        await supabase.from('inventory_items').update({ cost: baseUnitCost }).eq('id', item.inventory_item_id);
+                    }
 
                     // 2. Update Global Quantity
-                    const { data: globalItem } = await supabase.from('inventory_items').select('quantity').eq('id', item.inventory_item_id).single();
-                    if (globalItem) {
-                        const { error: globalQtyError } = await supabase.from('inventory_items').update({
-                            quantity: (globalItem.quantity || 0) + addQty
-                        }).eq('id', item.inventory_item_id);
-                        if (globalQtyError) throw globalQtyError;
+                    if (isProduct) {
+                        const { data: prodItem } = await supabase.from('products').select('stock_actual').eq('id', item.inventory_item_id).single();
+                        if (prodItem) {
+                            await supabase.from('products').update({
+                                stock_actual: (Number(prodItem.stock_actual) || 0) + addQty
+                            }).eq('id', item.inventory_item_id);
+                        }
+                    } else {
+                        const { data: globalItem } = await supabase.from('inventory_items').select('quantity').eq('id', item.inventory_item_id).single();
+                        if (globalItem) {
+                            await supabase.from('inventory_items').update({
+                                quantity: (Number(globalItem.quantity) || 0) + addQty
+                            }).eq('id', item.inventory_item_id);
+                        }
                     }
 
                     // 3. Update Branch Stock
@@ -433,19 +505,17 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                         .eq('branch_id', formData.branch_id)
                         .single();
                     if (branchItem) {
-                        const { error: branchQtyError } = await supabase.from('inventory_item_branches').update({
-                            quantity: (branchItem.quantity || 0) + addQty
+                        await supabase.from('inventory_item_branches').update({
+                            quantity: (Number(branchItem.quantity) || 0) + addQty
                         }).eq('item_id', item.inventory_item_id).eq('branch_id', formData.branch_id);
-                        if (branchQtyError) throw branchQtyError;
                     } else {
-                        const { error: branchInsertError } = await supabase.from('inventory_item_branches').insert({
+                        await supabase.from('inventory_item_branches').insert({
                             item_id: item.inventory_item_id,
                             branch_id: formData.branch_id,
                             quantity: addQty,
                             is_enabled: true,
                             is_assigned: true
                         });
-                        if (branchInsertError) throw branchInsertError;
                     }
                 }
 
@@ -478,29 +548,41 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                     quantity: item.quantity,
                     equivalence: item.equivalence || 1, // Guardamos equivalencia
                     unit_cost: item.unit_cost,
-                    total_cost: item.total_cost
+                    total_cost: item.total_cost,
+                    source: item.source || 'inventory' // Guardar origen si la tabla lo soporta
                 })));
                 if (itemsError) throw itemsError;
 
                 for (const item of formItems) {
+                    const isProduct = item.source === 'products';
                     // MATEMÁTICA ESTRICTA: cantidad_comprada * factor_conversión
                     const addQty = Number(item.quantity) * Number(item.equivalence || 1);
                     const baseUnitCost = Number(item.unit_cost) / Number(item.equivalence || 1);
 
                     // 1. Update base unit cost & quantity (Global)
-                    const { data: globalItem } = await supabase.from('inventory_items').select('quantity').eq('id', item.inventory_item_id).single();
-                    await supabase.from('inventory_items').update({
-                        cost: baseUnitCost,
-                        quantity: (globalItem?.quantity || 0) + addQty
-                    }).eq('id', item.inventory_item_id);
+                    if (isProduct) {
+                        const { data: currentProd } = await supabase.from('products').select('stock_actual').eq('id', item.inventory_item_id).single();
+                        await supabase.from('products').update({
+                            cost_price: baseUnitCost,
+                            stock_actual: (Number(currentProd?.stock_actual) || 0) + addQty
+                        }).eq('id', item.inventory_item_id);
+                    } else {
+                        const { data: globalItem } = await supabase.from('inventory_items').select('quantity').eq('id', item.inventory_item_id).single();
+                        await supabase.from('inventory_items').update({
+                            cost: baseUnitCost,
+                            quantity: (Number(globalItem?.quantity) || 0) + addQty
+                        }).eq('id', item.inventory_item_id);
+                    }
 
-                    // 2. Update Branch Stock
+                    // 2. Update Branch Stock (Siempre en inventory_item_branches ya que referencia products)
                     const { data: branchItem } = await supabase.from('inventory_item_branches')
                         .select('quantity')
                         .eq('item_id', item.inventory_item_id)
                         .eq('branch_id', formData.branch_id)
                         .single();
-                    const newBranchQty = (branchItem?.quantity || 0) + addQty;
+                    
+                    const newBranchQty = (Number(branchItem?.quantity) || 0) + addQty;
+                    
                     if (branchItem) {
                         await supabase.from('inventory_item_branches').update({
                             quantity: newBranchQty
@@ -514,11 +596,8 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                             is_assigned: true
                         });
                     }
-                    // Kardex entry
-                    const device = /mobile/i.test(navigator.userAgent)
-                        ? 'Celular-' + (currentUser?.name || 'Usuario')
-                        : 'PC-' + (currentUser?.name || 'Admin');
 
+                    // Kardex entry
                     const baseUnitCostValue = Number(item.unit_cost) / Number(item.equivalence || 1);
 
                     await supabase.from('inventory_kardex').insert({
@@ -528,9 +607,7 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                         reference: (formData.doc_type || 'FACTURA') + ' #' + formData.doc_number,
                         user_id: currentUser?.id,
                         user_name: currentUser?.name || 'Admin',
-                        device: isMobile
-                            ? 'Celular-' + (currentUser?.name || 'Usuario')
-                            : 'PC-' + (currentUser?.name || 'Admin'),
+                        device: /mobile/i.test(navigator.userAgent) ? 'Celular' : 'PC',
                         quantity_in: addQty,
                         quantity_out: 0,
                         balance: newBranchQty,
@@ -807,7 +884,7 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
             {/* Maintenance Modal */}
             {showModal && createPortal(
                 <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 pointer-events-none">
-                    <div className="absolute inset-0 bg-black/10 pointer-events-auto" onClick={() => !saving && setShowModal(false)} />
+                    <div className="absolute inset-0 bg-transparent pointer-events-auto" onClick={() => !saving && setShowModal(false)} />
                     <DraggableWindow id="inventory-purchase" title={viewMode ? 'Detalle de Compra' : 'Mantenimiento de Compra'}>
                         <div className="bg-[#f0f0f0] w-full max-w-5xl shadow-[0_0_40px_rgba(0,0,0,0.4)] relative flex flex-col max-h-[95vh] overflow-hidden rounded-sm border border-[#106ebe] animate-slide-up pointer-events-auto font-['Montserrat']">
 
@@ -1003,7 +1080,8 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                                                                                         unit_cost: (i.cost || 0) * (i.conversion_factor || 1), // FIX BUG 1: Show presentation cost by default
                                                                                         presentation: i.presentation,
                                                                                         equivalence: i.conversion_factor || 1,
-                                                                                        base_unit: i.unit
+                                                                                        base_unit: i.unit,
+                                                                                        source: i.source
                                                                                     });
                                                                                     setShowProductDropdown(null);
                                                                                 }}
@@ -1017,13 +1095,13 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                                                                 )}
                                                             </td>
                                                             <td className="px-2 border-r border-gray-100 text-[10px] text-center uppercase truncate text-black font-bold">
-                                                                {item.presentation || inventoryItems.find(i => i.id === item.inventory_item_id)?.presentation || '--'}
+                                                                {item.presentation || '--'}
                                                             </td>
                                                             <td className="px-1 border-r border-gray-100">
                                                                 <input type="number" step="any" disabled={viewMode} value={item.unit_cost === 0 ? '' : item.unit_cost} onChange={e => handleUpdateItem(idx, { unit_cost: parseFloat(e.target.value) || 0 })}
                                                                     className="w-full h-full bg-transparent text-right text-[11px] font-bold text-black outline-none focus:bg-white focus:border focus:border-[#106ebe] disabled:opacity-100 tabular-nums" />
                                                             </td>
-                                                            <td className="px-2 border-r border-gray-100 text-right text-[11px] font-bold text-black tabular-nums bg-slate-50">
+                                                            <td className="px-2 border-r border-gray-100 text-right text-[11px] font-bold text-black tabular-nums">
                                                                 {item.total_cost.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                                             </td>
                                                             <td className="px-1 text-center">
@@ -1048,7 +1126,6 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                                     Total: Q{calculateTotal().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </span>
                             </div>
-
                         </div>
                     </DraggableWindow>
                 </div>,
@@ -1063,31 +1140,31 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                     onContextMenu={(e) => { e.preventDefault(); setDetailContextMenu(null); }}
                 >
                     <div
-                        className="absolute bg-[#f0f0f0] border border-gray-400 shadow-lg py-1 min-w-[300px]"
+                        className="absolute bg-white border border-gray-400 shadow-[4px_4px_10px_rgba(0,0,0,0.2)] py-1 min-w-[220px]"
                         style={{ left: detailContextMenu.x, top: detailContextMenu.y }}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <button
-                            className="w-full text-left px-6 py-2 text-[11px] hover:bg-[#106ebe] hover:text-white text-black flex items-center gap-3 whitespace-nowrap"
+                            className="w-full text-left px-4 py-2 text-[11px] font-bold text-slate-800 uppercase hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-none group"
                             onClick={() => {
                                 setDetailContextMenu(null);
                                 setProductListSearch('');
                                 setShowProductListModal(true);
                             }}
                         >
-                            <Plus size={12} /> Agregar Producto
+                            <Plus size={14} className="text-[#106ebe] group-hover:text-white" /> Agregar Producto
                         </button>
                         {detailContextMenu.itemIdx !== null && (
                             <>
-                                <div className="h-px bg-gray-300 my-1 mx-2" />
+                                <div className="h-px bg-gray-200 my-1 mx-2" />
                                 <button
-                                    className="w-full text-left px-6 py-2 text-[11px] hover:bg-red-50 text-red-600 flex items-center gap-3 whitespace-nowrap"
+                                    className="w-full text-left px-4 py-2 text-[11px] font-bold text-red-600 uppercase hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-none group"
                                     onClick={() => {
                                         if (detailContextMenu.itemIdx !== null) handleRemoveItem(detailContextMenu.itemIdx);
                                         setDetailContextMenu(null);
                                     }}
                                 >
-                                    <X size={12} /> Quitar Línea
+                                    <X size={14} className="text-red-500 group-hover:text-white" /> Quitar Línea
                                 </button>
                             </>
                         )}
@@ -1096,246 +1173,220 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                 document.body
             )}
 
-            {/* Product List Modal */}
+            {/* Product List Modal — Antigravity OS Skill */}
             {showProductListModal && createPortal(
-                <div className="fixed inset-0 z-[299999] flex items-center justify-center" onClick={() => setShowProductListModal(false)}>
-                    <div
-                        className="bg-[#f0f0f0] border border-[#106ebe] shadow-[0_0_40px_rgba(0,0,0,0.5)] flex flex-col rounded-sm animate-slide-up relative"
-                        style={{ width: 840, height: 600 }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        {/* Windows Classic Header */}
-                        <div className="modal-header bg-[#106ebe] h-8 px-3 flex items-center justify-between text-white shrink-0 cursor-move select-none border-b border-white/10">
-                            <div className="flex items-center gap-2">
-                                <Package size={14} className="opacity-80" />
-                                <span className="text-[12px] font-bold tracking-wide uppercase">Listado de Productos</span>
+                <div className="fixed inset-0 z-[299999] flex items-center justify-center bg-transparent pointer-events-auto" onClick={() => setShowProductListModal(false)}>
+                    <DraggableWindow>
+                        <div
+                            className="bg-[#f0f0f0] border border-[#106ebe] shadow-[0_0_60px_rgba(0,0,0,0.5)] flex flex-col rounded-sm animate-slide-up relative overflow-hidden pointer-events-auto"
+                            style={{ width: 840, height: 600 }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Header */}
+                            <div className="modal-header bg-[#106ebe] h-8 px-3 flex items-center justify-between text-white shrink-0 cursor-move border-b border-white/10">
+                                <div className="flex items-center gap-2">
+                                    <Package size={14} className="opacity-80" />
+                                    <span className="text-[12px] font-bold uppercase tracking-tight">Listado de Productos / Insumos</span>
+                                </div>
+                                <button onClick={() => setShowProductListModal(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 transition-all ml-1 text-white" title="Cerrar">
+                                    <X size={18} strokeWidth={2.5} />
+                                </button>
                             </div>
-                            <button onClick={() => setShowProductListModal(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 transition-all ml-1 text-white" title="Cerrar">
-                                <X size={18} strokeWidth={2.5} />
-                            </button>
-                        </div>
-                        {/* Search bar */}
-                        <div className="bg-[#e8e8e8] px-3 py-2 flex items-center gap-2 border-b border-gray-300 shrink-0">
-                            <input
-                                autoFocus
-                                type="text"
-                                placeholder="Escriba para buscar por nombre o código..."
-                                value={productListSearch}
-                                onChange={(e) => setProductListSearch(e.target.value)}
-                                className="flex-1 h-7 border border-gray-400 px-2 text-[11px] font-bold text-slate-800 outline-none focus:border-[#106ebe] bg-white"
-                            />
-                            <button className="bg-[#106ebe] text-white px-4 h-7 text-[10px] font-bold uppercase hover:bg-[#002244] transition-colors flex items-center gap-2 shadow-sm">
-                                <Search size={12} /> Buscar
-                            </button>
-                        </div>
-                        {/* Table */}
-                        <div className={`flex-1 overflow-auto custom-scrollbar bg-white ${selectedProductForConfig ? 'pointer-events-none' : ''}`}>
-                            <table className="w-full text-left border-collapse table-fixed">
-                                <thead className="bg-[#e8e8e8] sticky top-0 z-10 border-b border-gray-400 select-none">
-                                    <tr className="h-7">
-                                        <th className="px-3 text-[10px] text-slate-800 font-bold uppercase border-r border-gray-300 w-24">Código</th>
-                                        <th className="px-3 text-[10px] text-slate-800 font-bold uppercase border-r border-gray-300">Producto</th>
-                                        <th className="px-3 text-[10px] text-slate-800 font-bold uppercase border-r border-gray-300 w-28">Categoría</th>
-                                        <th className="px-3 text-[10px] text-slate-800 font-bold uppercase border-r border-gray-300 w-24 text-center">Presentación</th>
-                                        <th className="px-3 text-[10px] text-slate-800 font-bold uppercase w-24 text-right pr-3">Precio Costo</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {inventoryItems
-                                        .filter(i => {
-                                            const code = (i.code || '').toUpperCase();
-                                            // Excluir TODOS los items de inventario_items (INS-/UTE-) - solo mostrar productos del menú
-                                            if (i.source === 'inventory') return false;
-                                            
-                                            const search = productListSearch.toLowerCase();
-                                            const name = (i.name || '').toLowerCase();
-                                            return name.includes(search) || code.toLowerCase().includes(search);
-                                        })
-                                        .map((item) => {
-                                            const alreadyAdded = formItems.some(fi => fi.inventory_item_id === item.id);
-                                            return (
-                                                <tr
-                                                    key={item.id}
-                                                    className={`h-7 cursor-default border-b border-gray-100 group ${alreadyAdded ? 'opacity-50 grayscale bg-gray-50' : ''}`}
-                                                    onClick={() => {
-                                                        if (alreadyAdded) return;
-                                                        if (formItems.some(fi => fi.inventory_item_id === item.id)) {
-                                                            notify.info('Este insumo ya se encuentra en el listado.');
-                                                            return;
-                                                        }
-                                                        setSelectedProductForConfig(item);
-                                                        setConfigQty(1);
-                                                    }}
-                                                >
-                                                    <td className="px-3 text-[10px] border-r border-gray-100 font-mono truncate text-black font-bold uppercase">{item.code || '---'}</td>
-                                                    <td className="px-3 text-[10px] border-r border-gray-100 font-bold uppercase truncate text-black">{item.name}</td>
-                                                    <td className="px-3 text-[10px] border-r border-gray-100 font-bold uppercase truncate text-slate-500 italic">{item.display_cat || '---'}</td>
-                                                    <td className="px-3 text-[10px] border-r border-gray-100 text-center truncate text-black font-bold">{item.presentation || '--'}</td>
-                                                    <td className="px-3 text-[10px] text-right font-bold tabular-nums text-black">Q{(item.cost || 0).toFixed(2)}</td>
-                                                </tr>
-                                            );
-                                        })
-                                    }
-                                    {inventoryItems.filter(i => {
-                                        if (i.source === 'inventory') return false;
-                                        const search = productListSearch.toLowerCase();
-                                        return (i.name || '').toLowerCase().includes(search) || (i.code || '').toLowerCase().includes(search);
-                                    }).length === 0 && (
-                                        <tr><td colSpan={5} className="py-6 text-center text-[11px] text-black font-bold uppercase">Sin productos disponibles para compras</td></tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                        {/* Footer hint */}
-                        <div className="bg-[#f0f0f0] border-t border-gray-300 px-3 py-1 shrink-0">
-                            <span className="text-[9px] text-gray-500">*Clic sobre cualquier Producto para configurar la cantidad antes de agregar.</span>
-                        </div>
 
-                        {/* Config Sub-Modal (appears over the list) */}
-                        {selectedProductForConfig && (
-                            <div
-                                className="absolute inset-0 bg-black/30 flex items-center justify-center z-10"
-                                onClick={() => setSelectedProductForConfig(null)}
-                            >
-                                <div
-                                    className="bg-[#f0f0f0] border border-[#106ebe] shadow-[0_0_50px_rgba(0,0,0,0.6)] w-[480px] flex flex-col rounded-sm animate-slide-up"
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    {/* Sub-modal header */}
-                                    <div className="bg-[#106ebe] h-8 px-3 flex items-center justify-between text-white border-b border-white/10 shadow-sm cursor-move">
-                                        <div className="flex items-center gap-2">
-                                            <Settings size={14} className="opacity-80" />
-                                            <span className="text-[12px] font-bold uppercase tracking-wider">Configuración de Producto</span>
+                            {/* Search */}
+                            <div className="bg-[#e8e8e8] px-3 py-2 flex items-center gap-2 border-b border-gray-300 shrink-0">
+                                <input
+                                    autoFocus
+                                    type="text"
+                                    placeholder="BUSCAR POR NOMBRE O CÓDIGO..."
+                                    value={productListSearch}
+                                    onChange={(e) => setProductListSearch(e.target.value)}
+                                    className="flex-1 h-7 border border-gray-400 px-2 text-[11px] font-bold text-slate-800 outline-none focus:border-[#106ebe] bg-white uppercase"
+                                />
+                                <button className="bg-[#106ebe] text-white px-4 h-7 text-[10px] font-bold uppercase hover:bg-[#002244] flex items-center gap-2">
+                                    <Search size={12} /> Buscar
+                                </button>
+                            </div>
+
+                            {/* Grid */}
+                            <div className="flex-1 overflow-hidden flex flex-col bg-white">
+                                <div className="flex-1 overflow-auto custom-scrollbar relative">
+                                    <table className="w-full text-left border-collapse table-fixed">
+                                        <thead className="sticky top-0 z-10">
+                                            <tr className="bg-[#f0f0f0] border-b border-gray-300 h-7 shadow-sm">
+                                                <th className="px-4 py-1.5 text-[10px] text-slate-800 font-bold uppercase border-r border-gray-200 w-24 tracking-tight">Código</th>
+                                                <th className="px-4 py-1.5 text-[10px] text-slate-800 font-bold uppercase border-r border-gray-200 tracking-tight">Producto / Insumo</th>
+                                                <th className="px-4 py-1.5 text-[10px] text-slate-800 font-bold uppercase border-r border-gray-200 text-center w-28 tracking-tight">Categoría</th>
+                                                <th className="px-4 py-1.5 text-[10px] text-slate-800 font-bold uppercase border-r border-gray-200 text-center w-40 tracking-tight">Presentación</th>
+                                                <th className="px-4 py-1.5 text-[10px] text-slate-800 font-bold uppercase text-right w-24 tracking-tight">P. Costo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {inventoryItems
+                                                .filter(i => {
+                                                    const q = productListSearch.toLowerCase();
+                                                    return i.name.toLowerCase().includes(q) || i.code.toLowerCase().includes(q);
+                                                })
+                                                .map((item) => {
+                                                    const alreadyAdded = formItems.some(fi => fi.inventory_item_id === item.id);
+                                                    return (
+                                                        <tr
+                                                            key={`${item.id}-${item.source}`}
+                                                            onClick={() => {
+                                                                if (alreadyAdded) {
+                                                                    notify.info("Este insumo ya se encuentra en el listado.");
+                                                                    return;
+                                                                }
+                                                                setSelectedProductForConfig(item);
+                                                                setConfigQty(1);
+                                                            }}
+                                                            className={`h-7 transition-colors cursor-default border-b border-gray-100 group ${alreadyAdded ? 'opacity-50 grayscale bg-gray-50' : 'hover:bg-[#106ebe]/5'}`}
+                                                        >
+                                                            <td className="px-4 py-1 text-[10px] border-r border-gray-100 truncate text-slate-600 tabular-nums">{item.code || '---'}</td>
+                                                            <td className="px-4 py-1 text-[11px] border-r border-gray-100 font-bold truncate group-hover:text-[#106ebe] uppercase text-slate-800">{item.name}</td>
+                                                            <td className="px-4 py-1 text-[10px] border-r border-gray-100 text-center italic text-slate-400 uppercase">{item.display_cat}</td>
+                                                            <td className="px-4 py-1 text-[10px] border-r border-gray-100 text-center truncate font-bold uppercase text-slate-600">{item.presentation}</td>
+                                                            <td className="px-4 py-1 text-[11px] text-right font-bold tabular-nums pr-4 text-[#106ebe]">Q{(item.cost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="bg-[#f0f0f0] border-t border-gray-300 px-3 py-1 text-[9px] font-bold text-slate-500 italic shrink-0">
+                                    * Haga clic sobre el producto para configurar su ingreso.
+                                </div>
+                            </div>
+
+                            {/* Sub-Modal Config — Parity with Image */}
+                            {selectedProductForConfig && (
+                                <div className="absolute inset-0 bg-transparent flex items-center justify-center z-[300001] pointer-events-auto" onClick={() => setSelectedProductForConfig(null)}>
+                                    <div 
+                                        className="bg-[#f0f0f0] border-2 border-slate-400 shadow-[4px_4px_20px_rgba(0,0,0,0.5)] w-[600px] flex flex-col rounded-sm animate-slide-up pointer-events-auto" 
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        {/* Header Light Style */}
+                                        <div className="bg-[#f0f0f0] h-7 px-2 flex items-center justify-between border-b border-slate-300">
+                                            <span className="text-[11px] font-bold text-slate-800 uppercase tracking-tight">Configuración - Esc (Cerrar)</span>
+                                            <button onClick={() => setSelectedProductForConfig(null)} className="w-5 h-5 flex items-center justify-center hover:bg-red-500 hover:text-white text-slate-500 transition-all">
+                                                <X size={14} strokeWidth={3} />
+                                            </button>
                                         </div>
-                                        <button onClick={() => setSelectedProductForConfig(null)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 transition-all text-white" title="Cerrar">
-                                            <X size={18} strokeWidth={2.5} />
-                                        </button>
-                                    </div>
-                                    {/* Product name */}
-                                    <div className="px-4 pt-3 pb-2">
-                                        <input
-                                            type="text"
-                                            disabled
-                                            value={selectedProductForConfig.name || ''}
-                                            className="w-full h-7 border border-gray-400 bg-[#f0f0f0] px-2 text-[11px] font-bold uppercase text-black"
-                                        />
-                                    </div>
-                                    {/* Grid: Cantidad, Presentacion, Precio */}
-                                    <div className="px-5 pb-4 grid grid-cols-3 gap-4 text-black">
-                                        <div className="flex flex-col gap-1">
-                                            <label className="text-[10px] font-bold text-slate-600 uppercase">Cantidad</label>
-                                            <input
-                                                autoFocus
-                                                type="number"
-                                                step="any"
-                                                min="0.01"
-                                                value={configQty}
-                                                onChange={(e) => setConfigQty(parseFloat(e.target.value) || 0)}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') {
+
+                                        <div className="p-4 flex flex-col gap-4">
+                                            {/* Product Title Box */}
+                                            <div className="bg-[#e2e2e2] border border-slate-300 p-2 text-center shadow-inner">
+                                                <span className="text-[13px] font-black text-slate-900 uppercase tracking-wider">{selectedProductForConfig.name}</span>
+                                            </div>
+
+                                            {/* Inputs Row */}
+                                            <div className="grid grid-cols-[100px_1fr_120px] gap-2 items-end">
+                                                <div className="flex flex-col">
+                                                    <label className="text-[10px] font-bold text-slate-600 uppercase mb-1 text-center">Cantidad</label>
+                                                    <input
+                                                        type="number"
+                                                        autoFocus
+                                                        className="w-full h-8 bg-white border-2 border-slate-400 px-2 text-[14px] font-black text-[#106ebe] text-center outline-none focus:border-[#106ebe] shadow-inner"
+                                                        value={configQty || ''}
+                                                        onChange={e => setConfigQty(Number(e.target.value) || 0)}
+                                                        onKeyDown={e => {
+                                                            if (e.key === 'Enter' && configQty > 0) {
+                                                                // Trigger add logic (abstracted below)
+                                                                const btn = document.getElementById('btn-add-to-list');
+                                                                if (btn) btn.click();
+                                                            }
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <label className="text-[10px] font-bold text-slate-600 uppercase mb-1 text-center">Presentación</label>
+                                                    <div className="w-full h-8 bg-[#e8e8e8] border border-slate-300 px-3 flex items-center justify-center text-[10px] font-bold text-slate-600 uppercase">
+                                                        {selectedProductForConfig.presentation}
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <label className="text-[10px] font-bold text-slate-600 uppercase mb-1 text-center">Precio Costo</label>
+                                                    <div className="w-full h-8 bg-[#e8e8e8] border border-slate-300 px-3 flex items-center justify-center text-[11px] font-black text-slate-800 tabular-nums">
+                                                        Q{(selectedProductForConfig.cost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-center pt-2">
+                                                <button
+                                                    id="btn-add-to-list"
+                                                    onClick={async () => {
                                                         if (configQty <= 0) return;
                                                         setFormItems(prev => [...prev, {
                                                             inventory_item_id: selectedProductForConfig.id,
                                                             quantity: configQty,
                                                             equivalence: selectedProductForConfig.conversion_factor || 1,
-                                                            unit_cost: (selectedProductForConfig.cost || 0) * (selectedProductForConfig.conversion_factor || 1), // FIX BUG 1: Show presentation cost
-                                                            total_cost: configQty * (selectedProductForConfig.cost || 0) * (selectedProductForConfig.conversion_factor || 1),
+                                                            unit_cost: (selectedProductForConfig.cost || 0),
+                                                            total_cost: configQty * (selectedProductForConfig.cost || 0),
                                                             product_name: selectedProductForConfig.name,
                                                             presentation: selectedProductForConfig.presentation,
-                                                            base_unit: selectedProductForConfig.unit
+                                                            base_unit: selectedProductForConfig.unit || 'UN',
+                                                            source: selectedProductForConfig.source
                                                         }]);
                                                         setSelectedProductForConfig(null);
                                                         setShowProductListModal(false);
-                                                    }
-                                                    if (e.key === 'Escape') setSelectedProductForConfig(null);
-                                                }}
-                                                className="w-full h-7 border border-gray-400 bg-white px-2 text-[11px] font-bold text-center text-black outline-none focus:border-[#106ebe]"
-                                            />
+                                                    }}
+                                                    className="min-w-[140px] h-9 bg-[#2b7ede] hover:bg-[#1a5fb4] text-white text-[11px] font-black uppercase tracking-widest transition-all shadow-md active:translate-y-px"
+                                                >
+                                                    Agregar
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className="flex flex-col gap-1">
-                                            <label className="text-[10px] font-bold text-slate-600 uppercase">Presentación</label>
-                                            <input
-                                                type="text"
-                                                disabled
-                                                value={selectedProductForConfig.presentation || '--'}
-                                                className="w-full h-7 border border-gray-400 bg-gray-100 px-2 text-[11px] font-bold text-center text-slate-800"
-                                            />
-                                        </div>
-                                        <div className="flex flex-col gap-1">
-                                            <label className="text-[10px] font-bold text-slate-600 uppercase">Precio Costo</label>
-                                            <input
-                                                type="text"
-                                                disabled
-                                                value={`Q${(selectedProductForConfig.cost || 0).toFixed(2)}`}
-                                                className="w-full h-7 border border-gray-400 bg-[#f0f0f0] px-2 text-[11px] text-right font-bold text-black"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="px-5 pb-5 flex justify-end gap-3">
-                                        <button
-                                            className="px-6 h-8 bg-[#f0f0f0] border-t border-l border-white border-r border-b border-gray-600 active:border-t-gray-700 active:border-l-gray-700 active:bg-gray-200 shadow-sm text-black text-[11px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2"
-                                            onClick={() => {
-                                                if (configQty <= 0) return;
-                                                setFormItems(prev => [...prev, {
-                                                    inventory_item_id: selectedProductForConfig.id,
-                                                    quantity: configQty,
-                                                    equivalence: selectedProductForConfig.conversion_factor || 1,
-                                                    unit_cost: (selectedProductForConfig.cost || 0) * (selectedProductForConfig.conversion_factor || 1), // FIX BUG 1: Show presentation cost
-                                                    total_cost: configQty * (selectedProductForConfig.cost || 0) * (selectedProductForConfig.conversion_factor || 1),
-                                                    product_name: selectedProductForConfig.name,
-                                                    presentation: selectedProductForConfig.presentation,
-                                                    base_unit: selectedProductForConfig.unit
-                                                }]);
-                                                setSelectedProductForConfig(null);
-                                                setShowProductListModal(false);
-                                            }}
-                                        >
-                                            <Plus size={14} /> Agregar a Lista
-                                        </button>
-                                        <button
-                                            onClick={() => setSelectedProductForConfig(null)}
-                                            className="px-6 h-8 bg-white border border-gray-400 text-gray-600 text-[11px] font-bold uppercase hover:bg-gray-50 transition-all text-center"
-                                        >
-                                            Cancelar
-                                        </button>
                                     </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                    </DraggableWindow>
                 </div>,
                 document.body
             )}
 
-            {/* Annul Confirmation Modal */}
-
-            {
-                purchaseToAnnul && (
-                    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 pointer-events-none">
-                        <div className="absolute inset-0" onClick={() => !loading && setPurchaseToAnnul(null)} />
-                        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm relative overflow-hidden border border-slate-200 pointer-events-auto">
-                            <div className="p-8 text-center">
-                                <div className="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                                    <AlertCircle size={32} />
+            {/* Annul Confirmation Modal — Antigravity OS Skill */}
+            {purchaseToAnnul && createPortal(
+                <div className="fixed inset-0 z-[500000] flex items-center justify-center p-4 bg-transparent pointer-events-auto" onClick={() => !loading && setPurchaseToAnnul(null)}>
+                    <DraggableWindow>
+                        <div 
+                            className="bg-[#f0f0f0] border border-[#106ebe] shadow-[0_0_80px_rgba(0,0,0,0.5)] w-full max-w-sm relative overflow-hidden pointer-events-auto rounded-sm animate-slide-up"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center shrink-0">
+                                <div className="flex items-center gap-2">
+                                    <AlertCircle size={14} className="text-white opacity-80" />
+                                    <span className="text-white text-[12px] font-bold uppercase tracking-tight">Confirmar Anulación</span>
                                 </div>
-                                <h3 className="text-lg font-black text-slate-800 tracking-tight mb-3 uppercase">¿Anular Compra?</h3>
-                                <p className="text-[12px] font-bold text-slate-500 leading-relaxed">
-                                    Esta acción revertirá todo el inventario ingresado con el documento <span className="text-slate-800 font-black">{purchaseToAnnul.doc_number}</span>.
+                                <button onClick={() => setPurchaseToAnnul(null)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white transition-all ml-1">
+                                    <X size={18} strokeWidth={2.5} />
+                                </button>
+                            </div>
+                            <div className="p-8 text-center bg-white">
+                                <div className="w-16 h-16 bg-red-100 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-red-200">
+                                    <Trash2 size={28} />
+                                </div>
+                                <h3 className="text-lg font-black text-slate-900 mb-2 uppercase tracking-tight">¿Anular Documento?</h3>
+                                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">
+                                    Esta acción revertirá los saldos del inventario del doc: <br/> 
+                                    <span className="text-red-500 font-bold block mt-1">{purchaseToAnnul.doc_number}</span>
                                 </p>
                             </div>
-                            <div className="p-6 bg-slate-50 flex flex-col gap-2">
-                                <button onClick={confirmAnnulPurchase} disabled={loading} className="w-full py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-rose-200">
+                            <div className="p-4 bg-[#f0f0f0] border-t border-gray-200 flex flex-col gap-2">
+                                <button onClick={confirmAnnulPurchase} disabled={loading} className="w-full h-11 bg-red-500 hover:bg-red-600 text-white font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-red-100">
                                     {loading ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
                                     Confirmar Anulación
                                 </button>
-                                <button onClick={() => setPurchaseToAnnul(null)} disabled={loading} className="w-full py-3 bg-white text-slate-400 hover:text-slate-600 rounded-2xl font-black text-[11px] uppercase tracking-widest">
-                                    Cancelar
+                                <button onClick={() => setPurchaseToAnnul(null)} disabled={loading} className="w-full h-11 bg-white text-slate-400 hover:text-slate-600 font-bold text-[11px] uppercase border border-gray-300">
+                                    Regresar
                                 </button>
                             </div>
                         </div>
-                    </div>
-                )
-            }
+                    </DraggableWindow>
+                </div>,
+                document.body
+            )}
         </>
     );
 };

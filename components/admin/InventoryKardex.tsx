@@ -26,6 +26,7 @@ interface KardexRow {
     balance_value: number;
     notes: string | null;
     inventory_items?: { name: string; unit: string; code: string } | null;
+    products?: { name: string; unit_measure: string; product_code: string } | null;
     branches?: { name: string } | null;
 }
 
@@ -40,7 +41,7 @@ const MOVEMENT_COLORS: Record<string, string> = {
 
 const PAGE_SIZE = 50;
 
-export const InventoryKardex: React.FC<{ currentUser?: any }> = ({ currentUser }) => {
+export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: string | null }> = ({ currentUser, initialProductId }) => {
     const [rows, setRows] = useState<KardexRow[]>([]);
     const [loading, setLoading] = useState(false);
     const [branches, setBranches] = useState<{ id: string; name: string }[]>([]);
@@ -48,11 +49,15 @@ export const InventoryKardex: React.FC<{ currentUser?: any }> = ({ currentUser }
 
     // Filters
     const [filterBranch, setFilterBranch] = useState('ALL');
-    const [filterProduct, setFilterProduct] = useState('ALL');
+    const [filterProduct, setFilterProduct] = useState(initialProductId || 'ALL');
     const [filterType, setFilterType] = useState<MovementType>('ALL');
-    const getLocalDateStr = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
-    const [filterStart, setFilterStart] = useState(getLocalDateStr());
-    const [filterEnd, setFilterEnd] = useState(getLocalDateStr());
+    const getLocalDateStr = (daysAgo = 0) => {
+        const date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000);
+        if (daysAgo > 0) date.setDate(date.getDate() - daysAgo);
+        return date.toISOString().split('T')[0];
+    };
+    const [filterStart, setFilterStart] = useState(getLocalDateStr(30)); // Ver últimos 30 días por defecto
+    const [filterEnd, setFilterEnd] = useState(getLocalDateStr(0));
     const [searchProduct, setSearchProduct] = useState('');
     const [showProductDropdown, setShowProductDropdown] = useState(false);
 
@@ -62,36 +67,51 @@ export const InventoryKardex: React.FC<{ currentUser?: any }> = ({ currentUser }
     const [orderStatuses, setOrderStatuses] = useState<Record<string, string>>({});
 
     useEffect(() => {
-        Promise.all([
-            supabase.from('branches').select('id, name').order('name'),
-            supabase.from('inventory_items').select('id, name').order('name'),
-        ]).then(([bRes, iRes]) => {
+        const fetchMeta = async () => {
+            const [bRes, iRes, pRes] = await Promise.all([
+                supabase.from('branches').select('id, name').order('name'),
+                supabase.from('inventory_items').select('id, name').order('name'),
+                supabase.from('products').select('id, name').eq('es_platillo', false).order('name')
+            ]);
+            
             if (bRes.data) setBranches(bRes.data);
-            if (iRes.data) setProducts(iRes.data);
-        });
+            
+            // Combinar ambos listados para el dropdown de selección
+            const combined = [
+                ...(iRes.data || []),
+                ...(pRes.data || [])
+            ];
+            
+            // Eliminar duplicados por ID si los hay
+            const unique = Array.from(new Map(combined.map(item => [item.id, item])).values());
+            setProducts(unique);
+        };
+        fetchMeta();
     }, []);
 
     const fetchKardex = useCallback(async () => {
         setLoading(true);
         try {
+            console.log('Fetching Kardex with filters:', { filterBranch, filterProduct, filterType, filterStart, filterEnd });
+            
             let query = supabase
                 .from('inventory_kardex')
-                .select(`
-                    *,
-                    inventory_items(name, unit, code),
-                    branches(name)
-                `)
-                .order('created_at', { ascending: false })
-                .gte('created_at', filterStart + 'T00:00:00')
-                .lte('created_at', filterEnd + 'T23:59:59');
+                .select('*')
+                .order('created_at', { ascending: false });
 
+            // Solo aplicar filtros si no son ALL
             if (filterBranch !== 'ALL') query = query.eq('branch_id', filterBranch);
             if (filterProduct !== 'ALL') query = query.eq('item_id', filterProduct);
             if (filterType !== 'ALL') query = query.eq('movement_type', filterType);
+            
+            // Filtro de fecha inclusivo
+            if (filterStart) query = query.gte('created_at', filterStart + 'T00:00:00');
+            if (filterEnd) query = query.lte('created_at', filterEnd + 'T23:59:59');
 
             const { data, error } = await query.limit(1000);
             if (error) throw error;
 
+            console.log('Kardex data received:', data?.length || 0, 'rows');
             setRows(data || []);
             setPage(0);
 
@@ -111,7 +131,6 @@ export const InventoryKardex: React.FC<{ currentUser?: any }> = ({ currentUser }
                     const idList = Array.from(foundIds);
                     const mapping: Record<string, string> = {};
 
-                    // 1. Try to find these IDs directly in orders
                     const { data: directOrders } = await supabase
                         .from('orders')
                         .select('id, order_number, status')
@@ -124,7 +143,6 @@ export const InventoryKardex: React.FC<{ currentUser?: any }> = ({ currentUser }
                         });
                     }
 
-                    // 2. Try to find missing IDs in order_items (many kardex entries point to item_id)
                     const missingIds = idList.filter(id => !mapping[id]);
                     if (missingIds.length > 0) {
                         const { data: itemData } = await supabase
@@ -155,8 +173,8 @@ export const InventoryKardex: React.FC<{ currentUser?: any }> = ({ currentUser }
     useEffect(() => { fetchKardex(); }, [fetchKardex]);
 
     // Summary stats
-    const totalIn = rows.reduce((a, r) => a + r.quantity_in, 0);
-    const totalOut = rows.reduce((a, r) => a + r.quantity_out, 0);
+    const totalIn = rows.reduce((a, r) => a + (Number(r.quantity_in) || 0), 0);
+    const totalOut = rows.reduce((a, r) => a + (Number(r.quantity_out) || 0), 0);
     const lastBalance = rows[0]?.balance ?? 0;
     const lastBalanceValue = rows[0]?.balance_value ?? 0;
 
@@ -166,7 +184,6 @@ export const InventoryKardex: React.FC<{ currentUser?: any }> = ({ currentUser }
 
     // Excel Export
     const handleExportExcel = () => {
-        // Prepare data for Excel
         const exportData = rows.map(r => {
             let friendyRef = r.reference || '';
             const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
@@ -175,11 +192,14 @@ export const InventoryKardex: React.FC<{ currentUser?: any }> = ({ currentUser }
                 friendyRef = 'ORDEN #' + orderNumbers[match[0].toLowerCase()];
             }
 
+            const prod = products.find(p => p.id === r.item_id);
+            const branch = branches.find(b => b.id === r.branch_id);
+
             return {
                 'Fecha/Hora': new Date(r.created_at).toLocaleString('es-GT'),
-                'Sucursal': r.branches?.name || '',
-                'Producto': r.inventory_items?.name || '',
-                'Código': r.inventory_items?.code || '',
+                'Sucursal': branch?.name || '',
+                'Producto': prod?.name || '---',
+                'Código': (prod as any)?.code || (prod as any)?.product_code || '',
                 'Tipo Movimiento': r.movement_type,
                 'Referencia': friendyRef,
                 'Usuario': r.user_name || '',
@@ -193,32 +213,16 @@ export const InventoryKardex: React.FC<{ currentUser?: any }> = ({ currentUser }
             };
         });
 
-        // Create a new workbook and add the worksheet
         const worksheet = XLSX.utils.json_to_sheet(exportData);
-
-        // Adjust column widths automatically based on content
         const colWidths = [
-            { wpx: 130 }, // Fecha
-            { wpx: 150 }, // Sucursal
-            { wpx: 200 }, // Producto
-            { wpx: 100 }, // Código
-            { wpx: 120 }, // Tipo
-            { wpx: 120 }, // Referencia
-            { wpx: 100 }, // Usuario
-            { wpx: 120 }, // Dispositivo
-            { wpx: 70 },  // Entrada
-            { wpx: 70 },  // Salida
-            { wpx: 70 },  // Saldo
-            { wpx: 110 }, // Costo
-            { wpx: 120 }, // Saldo Q
-            { wpx: 200 }  // Notas
+            { wpx: 130 }, { wpx: 150 }, { wpx: 200 }, { wpx: 100 },
+            { wpx: 120 }, { wpx: 120 }, { wpx: 100 }, { wpx: 120 },
+            { wpx: 70 },  { wpx: 70 },  { wpx: 70 },  { wpx: 110 },
+            { wpx: 120 }, { wpx: 200 }
         ];
         worksheet['!cols'] = colWidths;
-
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Kardex');
-
-        // Generate Excel file
         XLSX.writeFile(workbook, `Kardex_${filterStart}_al_${filterEnd}.xlsx`);
     };
 
@@ -227,29 +231,33 @@ export const InventoryKardex: React.FC<{ currentUser?: any }> = ({ currentUser }
         const branchLabel = filterBranch === 'ALL' ? 'Todas' : branches.find(b => b.id === filterBranch)?.name || '';
         const productLabel = filterProduct === 'ALL' ? 'Todos' : products.find(p => p.id === filterProduct)?.name || '';
 
-        const rowsHtml = rows.map(r => `
+        const rowsHtml = rows.map(r => {
+            const prod = products.find(p => p.id === r.item_id);
+            const branch = branches.find(b => b.id === r.branch_id);
+            
+            return `
             <tr>
                 <td>${new Date(r.created_at).toLocaleString('es-GT')}</td>
-                <td>${r.branches?.name || '—'}</td>
-                <td>${r.inventory_items?.name || '—'}</td>
+                <td>${branch?.name || '—'}</td>
+                <td>${prod?.name || '—'}</td>
                 <td style="text-align:center">${r.movement_type}</td>
-                                <td>${(() => {
-                const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
-                const match = r.reference?.match(uuidPattern);
-                if (match && orderNumbers[match[0].toLowerCase()]) {
-                    return 'ORDEN #' + orderNumbers[match[0].toLowerCase()];
-                }
-                return r.reference || '—';
-            })()}</td>
+                <td>${(() => {
+                    const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+                    const match = r.reference?.match(uuidPattern);
+                    if (match && orderNumbers[match[0].toLowerCase()]) {
+                        return 'ORDEN #' + orderNumbers[match[0].toLowerCase()];
+                    }
+                    return r.reference || '—';
+                })()}</td>
                 <td>${r.user_name || '—'}</td>
                 <td>${r.device || '—'}</td>
                 <td style="text-align:right;color:green">${r.quantity_in > 0 ? '+' + r.quantity_in : ''}</td>
                 <td style="text-align:right;color:red">${r.quantity_out > 0 ? '-' + r.quantity_out : ''}</td>
                 <td style="text-align:right;font-weight:bold">${r.balance}</td>
-                <td style="text-align:right">Q${r.unit_cost.toFixed(2)}</td>
-                <td style="text-align:right">Q${r.balance_value.toFixed(2)}</td>
+                <td style="text-align:right">Q${Number(r.unit_cost).toFixed(2)}</td>
+                <td style="text-align:right">Q${Number(r.balance_value).toFixed(2)}</td>
             </tr>
-        `).join('');
+        `}).join('');
 
         const win = window.open('', '_blank', 'width=1200,height=900');
         if (!win) return;
@@ -259,10 +267,6 @@ export const InventoryKardex: React.FC<{ currentUser?: any }> = ({ currentUser }
                 <title>Kardex de Inventario</title>
                 <style>
                     @page { size: A4 landscape; margin: 8mm 10mm; }
-                    /*
-                    === EPSON 80mm (descomentar al instalar) ===
-                    @page { size: 80mm auto; margin: 2mm; }
-                    */
                     * { font-family: Arial, sans-serif; font-size: 7pt; }
                     body { color: #000; }
                     h1 { font-size: 12pt; margin: 0 0 2px; text-align: center; }
@@ -504,7 +508,11 @@ export const InventoryKardex: React.FC<{ currentUser?: any }> = ({ currentUser }
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
-                                    {paginated.map(row => (
+                                    {paginated.map(row => {
+                                        const prod = products.find(p => p.id === row.item_id);
+                                        const branch = branches.find(b => b.id === row.branch_id);
+                                        
+                                        return (
                                         <tr key={row.id} className="hover:bg-slate-50/60 transition-colors group">
                                             <td className="px-3 py-2 whitespace-nowrap">
                                                 <div className="flex flex-col">
@@ -517,15 +525,17 @@ export const InventoryKardex: React.FC<{ currentUser?: any }> = ({ currentUser }
                                                 </div>
                                             </td>
                                             <td className="px-3 py-2 whitespace-nowrap">
-                                                <span className="text-[9px] font-bold text-slate-500">{row.branches?.name || '—'}</span>
+                                                <span className="text-[9px] font-bold text-slate-500">{branch?.name || row.branches?.name || '—'}</span>
                                             </td>
                                             <td className="px-3 py-2 max-w-[180px]">
                                                 <div className="flex flex-col">
                                                     <span className="text-[10px] font-black text-slate-800 uppercase truncate">
-                                                        {row.inventory_items?.name || '—'}
+                                                        {prod?.name || row.inventory_items?.name || row.products?.name || '—'}
                                                     </span>
-                                                    {row.inventory_items?.code && (
-                                                        <span className="text-[8px] font-bold text-slate-400">{row.inventory_items.code}</span>
+                                                    {((prod as any)?.product_code || (prod as any)?.code || row.inventory_items?.code || row.products?.product_code) && (
+                                                        <span className="text-[8px] font-bold text-slate-400">
+                                                            {(prod as any)?.product_code || (prod as any)?.code || row.inventory_items?.code || row.products?.product_code}
+                                                        </span>
                                                     )}
                                                 </div>
                                             </td>
@@ -592,16 +602,16 @@ export const InventoryKardex: React.FC<{ currentUser?: any }> = ({ currentUser }
                                             </td>
                                             <td className="px-3 py-2 text-right whitespace-nowrap">
                                                 <span className="text-[9px] font-bold text-slate-500 tabular-nums">
-                                                    Q{row.unit_cost.toFixed(2)}
+                                                    Q{Number(row.unit_cost).toFixed(2)}
                                                 </span>
                                             </td>
                                             <td className="px-3 py-2 text-right whitespace-nowrap">
                                                 <span className="text-[10px] font-black text-indigo-700 tabular-nums">
-                                                    Q{row.balance_value.toFixed(2)}
+                                                    Q{Number(row.balance_value).toFixed(2)}
                                                 </span>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )})}
                                 </tbody>
                             </table>
                         )}
