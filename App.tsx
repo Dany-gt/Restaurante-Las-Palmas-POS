@@ -5,7 +5,7 @@ import { User, Table, Order } from './types';
 import { useGlobalKeyboardNavigation } from './hooks/useGlobalKeyboardNavigation';
 
 import { supabase } from './supabase';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, Trash2 } from 'lucide-react';
 import { VirtualKeyboard } from './components/VirtualKeyboard';
 import { PinModalV2 as PinModal } from './components/PinModalV2';
 import { useSecurityPolicy } from './hooks/useSecurityPolicy';
@@ -39,7 +39,7 @@ type ViewState = 'LOGIN' | 'DASHBOARD' | 'TABLES' | 'ORDER' | 'CHECKOUT' | 'HIST
 
 import { useNotify } from './hooks/useNotify';
 
-const APP_VERSION = '1.3.1'; // SPLIT ACCOUNTS FIX + TICKET CENTERED
+const APP_VERSION = '1.6.4'; // v1.6.4 - Senior Engineering & Global Backup
 
 
 console.log('%c🚀 LAS PALMAS POS SYSTEM - VERSION ' + APP_VERSION + ' LOADED', 'background: #4f46e5; color: white; padding: 10px; font-weight: bold; border-radius: 5px;');
@@ -83,6 +83,7 @@ const App: React.FC = () => {
   const [adminTab, setAdminTab] = useState<string | null>(null);
   const [isActivated, setIsActivated] = useState<boolean>(false);
   const [paymentBlocked, setPaymentBlocked] = useState<boolean>(false);
+  const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean>(true); // v1.5.5 - Added for robust status indicator
 
   const [serverOffset, setServerOffset] = useState<number>(() => {
     const cached = localStorage.getItem('kds_server_offset');
@@ -137,7 +138,29 @@ const App: React.FC = () => {
   useOfflineSync();
 
   // Initialize Master Data Sync
-  const { syncData, syncType, isSyncing } = useDataSync();
+  const { syncData, syncType, isSyncing, syncMasterData } = useDataSync();
+
+  const { isOnline, isServerConnected } = useNetworkStatus();
+
+  // Connection Banner Component
+  const ConnectionBanner = () => {
+    if (isOnline && isServerConnected) return null;
+
+    const isGhostOffline = isOnline && !isServerConnected;
+    
+    return (
+      <div className={`${isGhostOffline ? 'bg-indigo-600' : 'bg-red-600'} text-white px-4 py-2 flex items-center justify-center gap-3 animate-pulse z-[100] shadow-lg sticky top-0 left-0 right-0 transition-colors duration-500`}>
+        <AlertTriangle size={20} />
+        <span className="font-bold text-sm uppercase tracking-widest flex items-center gap-2 text-center">
+          {isGhostOffline ? (
+            <>⚠️ SESIÓN EXPIRADA: RE-INGRESA TU PIN PARA REESTABLECER CONEXIÓN</>
+          ) : (
+            <>⚠️ MODO OFFLINE: Sin conexión a internet. Las órdenes se guardarán localmente.</>
+          )}
+        </span>
+      </div>
+    );
+  };
 
   // Listen for offline count updates
   useEffect(() => {
@@ -193,10 +216,12 @@ const App: React.FC = () => {
       if (selectedTable?.id) {
         console.warn('⚠️ Inactivity detected: Auto-Unlocking Table', selectedTable.number);
         try {
-          // STRICT SENIOR FIX: Clean both columns to avoid zombie locks
-          await supabase.from('tables')
-            .update({ is_locked: false, locked_by: null })
-            .eq('id', selectedTable.id);
+          // STRICT SENIOR FIX: Only update if it's a real database UUID (not temporary 't-...')
+          if (selectedTable?.id && !selectedTable.id.toString().startsWith('t-')) {
+            await supabase.from('tables')
+              .update({ is_locked: false, locked_by: null })
+              .eq('id', selectedTable.id);
+          }
         } catch (e) {
           console.error('Auto-Unlock Error:', e);
         }
@@ -226,7 +251,7 @@ const App: React.FC = () => {
     let retryTimer: NodeJS.Timeout;
     let isMounted = true;
     let retryDelay = 3000;
-    const MAX_RETRY_DELAY = 30000;
+    const MAX_RETRY_DELAY = 10000; // v1.5.6 - Reduced from 30s to 10s for faster POS recovery
 
     const connectGlobalSync = () => {
       try {
@@ -246,6 +271,8 @@ const App: React.FC = () => {
 
             if (status === 'SUBSCRIBED') {
               console.log('✅ Global Sync Connected');
+              setIsSupabaseConnected(true); 
+              window.dispatchEvent(new CustomEvent('supabase-connection-status', { detail: true })); // v1.5.5 - Notify hook
               retryDelay = 3000; // Reset delay on success
               await channel.track({
                 user_id: currentUser.id,
@@ -256,6 +283,8 @@ const App: React.FC = () => {
 
             if (status === 'CLOSED' || status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
               console.warn(`⚠️ Global Sync Disconnected (${status}). Retrying in ${retryDelay / 1000}s...`);
+              setIsSupabaseConnected(false); 
+              window.dispatchEvent(new CustomEvent('supabase-connection-status', { detail: false })); // v1.5.5 - Notify hook
               clearTimeout(retryTimer);
               retryTimer = setTimeout(() => {
                 retryDelay = Math.min(retryDelay * 1.5, MAX_RETRY_DELAY);
@@ -276,17 +305,29 @@ const App: React.FC = () => {
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        // Only reconnect if not already subscribed to avoid spamming
-        // if (channel && channel.state !== 'joined') connectGlobalSync();
-        // For simplicity, let's just log and skip aggressive reconnect if not needed
-        console.log('👁️ Window visible');
+        console.log('👁️ Window visible: Awakening Sync...');
+        // v1.6.1 - Re-subscribe if disconnected, instead of non-existent reconnect()
+        if (!channel || channel.state !== 'joined') {
+          connectGlobalSync();
+        }
       }
     };
 
-    const handleOnline = () => {
-      console.log('🌐 Network online, reconnecting sync...');
+    const handleOnline = async () => {
+      console.log('🌐 Network online: Forcing immediate recovery...');
+      clearTimeout(retryTimer);
       retryDelay = 3000;
-      connectGlobalSync();
+      
+      // v1.5.9 - Proactive Session Recovery
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+           console.log('🔄 Offline -> Online: Attempting session refresh...');
+           await supabase.auth.refreshSession();
+        }
+      } catch (e) { console.error('Session verify failed on line reset:', e); }
+
+      connectGlobalSync(); // v1.6.1 - Removed faulty reconnect()
     };
 
     window.addEventListener('visibilitychange', handleVisibilityChange);
@@ -365,16 +406,41 @@ const App: React.FC = () => {
         }
 
         // 1. Check Supabase Auth Session Strength
-        const { data: { session }, error } = await supabase.auth.getSession();
-
-        if (error || !session) {
-          console.log('⚠️ No active Supabase session found. Proceeding with Offline Mode if cached.');
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        let activeSession = session;
+        if ((!activeSession || sessionError) && navigator.onLine) {
+          console.warn('🔄 App: No session found but online. Attempting Refresh...');
+          const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+          if (!refreshError && refreshData.session) {
+            activeSession = refreshData.session;
+            console.log('✅ App: Session restored successfully.');
+          } else {
+            console.error('❌ App: Session recovery failed:', refreshError);
+          }
         }
 
-        const cachedUser = localStorage.getItem('currentUser');
-        if (cachedUser) {
-          const user = JSON.parse(cachedUser);
+        const cachedUserStr = localStorage.getItem('currentUser');
+        if (cachedUserStr) {
+          const user = JSON.parse(cachedUserStr);
+          
+          // v1.5.7 - Forced Login if online but session is dead
+          if (!activeSession && navigator.onLine) {
+            console.error('⛔ App: Online but Session expired. Forcing PIN re-entry to restore connectivity.');
+            notify.error('Sesión caducada por inactividad. Ingresa tu PIN de nuevo para sincronizar.');
+            setCurrentUser(null); // This triggers the redirect to LOGIN
+            setLoadingSession(false);
+            return;
+          }
+
           setCurrentUser(user);
+
+          // AUTO-RECOVERY on reload
+          const cachedProds = localStorage.getItem('cached_products');
+          if (!cachedProds || cachedProds.length < 10) {
+            console.log('🔄 Cache vacío detectado post-reload. Forzando sincronización maestra...');
+            syncData();
+          }
 
           // Restore Lead User if it was an operator dashboard session
           const cachedLead = localStorage.getItem('operatorDashboardLead');
@@ -412,6 +478,13 @@ const App: React.FC = () => {
     }
     setCurrentUser(user);
     localStorage.setItem('currentUser', JSON.stringify(user));
+
+    // AUTO-RECOVERY: If cache is empty, force sync immediately
+    const cachedProds = localStorage.getItem('cached_products');
+    if (!cachedProds || cachedProds.length < 10) {
+      console.log('🔄 Cache vacío detectado post-login. Forzando sincronización maestra...');
+      syncData();
+    }
 
     if ((window as any).electronAPI && (window as any).electronAPI.sendLoginSuccess) {
       (window as any).electronAPI.sendLoginSuccess();
@@ -478,7 +551,6 @@ const App: React.FC = () => {
   };
 
   const [settings, setSettings] = useState<any>({});
-  const isOnline = useNetworkStatus();
 
   const fetchSettings = async () => {
     const { data } = await supabase.from('system_settings').select('*').single();
@@ -938,11 +1010,14 @@ const App: React.FC = () => {
 
   const navigateBack = async () => {
     // SECURITY: If we were in an UNSAVED table order, unlock the table before leaving
-    if (activeOrder && activeOrder.table_id && !activeOrder.id) {
-      await supabase.from('tables').update({
-        locked_by: null,
-        locked_at: null
-      }).eq('id', activeOrder.table_id);
+    // SECURITY: Always clear the lock when leaving the order view
+    // REFINEMENT: If no order was ever saved (activeOrder.id is null), ensure table returns to 'available'
+    if (selectedTable?.id) {
+        const isNewOrder = !activeOrder?.id;
+        await supabase.from('tables').update({
+          locked_by: null,
+          ...(isNewOrder ? { status: 'available' } : {})
+        }).eq('id', selectedTable.id);
     }
 
     if (currentView === 'OPEN_SHIFT') {
@@ -1014,6 +1089,7 @@ const App: React.FC = () => {
 
   return (
     <div className={`h-[100dvh] overflow-hidden text-white flex flex-col transition-colors pos-main-layout bg-[#2d2e3d]`} style={{ WebkitOverflowScrolling: 'touch' }}>
+      <ConnectionBanner />
       <NotificationContainer />
       <RemotePrintListener />
       {currentView === 'DRIVER_TRACKER' ? (
@@ -1063,18 +1139,65 @@ const App: React.FC = () => {
               )}
 
               <div className="flex items-center gap-4">
-                {/* Network Status Indicator */}
-                <div
-                  className={`relative w-4 h-4 rounded-full shadow-lg border-2 border-white/20 transition-all duration-500 ${isOnline ? 'bg-emerald-500 shadow-emerald-500/40' : 'bg-red-500 shadow-red-500/40 animate-pulse'}`}
-                  title={isOnline ? (offlinePendingCount > 0 ? `En Línea - Sincronizando ${offlinePendingCount} registros` : "En Línea") : "Sin Conexión"}
-                >
+                {/* ROBUST NETWORK INDICATOR (v1.5.5) */}
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`relative w-4 h-4 rounded-full shadow-lg border-2 border-white/20 transition-all duration-500 ${isOnline ? 'bg-emerald-500 shadow-emerald-500/40' : 'bg-red-500 shadow-red-500/40 animate-pulse'}`}
+                    title={isOnline ? (offlinePendingCount > 0 ? `En Línea - Sincronizando ${offlinePendingCount} registros` : "En Línea") : "Sin Conexión al Servidor"}
+                  >
+                    {isOnline && (
+                      <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-10"></div>
+                    )}
+                    
+                    {offlinePendingCount > 0 && (
+                      <div className="absolute -top-2 -right-2 bg-indigo-600 text-[9px] font-black text-white w-4 h-4 rounded-full flex items-center justify-center border border-white/20 shadow-lg animate-bounce">
+                        {offlinePendingCount}
+                      </div>
+                    )}
+                  </div>
+
                   {offlinePendingCount > 0 && (
-                    <div className="absolute -top-2 -right-2 bg-indigo-600 text-[9px] font-black text-white w-4 h-4 rounded-full flex items-center justify-center border border-white/20 shadow-lg animate-bounce">
-                      {offlinePendingCount}
-                    </div>
+                    <button 
+                      onClick={async (e) => {
+                          e.stopPropagation();
+                          
+                          if (isOnline) {
+                              notify.info('Intentando sincronizar registros locales...');
+                              // Trigger manual sync event
+                              window.dispatchEvent(new CustomEvent('manual-offline-sync'));
+                              // Also try to refresh master data which might help auth
+                              window.dispatchEvent(new CustomEvent('refresh-inventory'));
+                              return;
+                          }
+
+                          if (window.confirm('⚠️ ATENCIÓN: El sistema no logra sincronizar. Se cerrará la sesión y se limpiarán los errores locales. Esto SOLUCIONARÁ los avisos de "Sin Conexión". ¿Desea continuar?')) {
+                              try {
+                                  const { offlineDB } = await import('./services/OfflineDB');
+                                  await offlineDB.clearAll();
+                                  await supabase.auth.signOut();
+                                  
+                                  // Preserve registration
+                                  const actData = localStorage.getItem('activation_data');
+                                  const devFinger = localStorage.getItem('device_fingerprint');
+                                  localStorage.clear();
+                                  if (actData) localStorage.setItem('activation_data', actData);
+                                  if (devFinger) localStorage.setItem('device_fingerprint', devFinger);
+
+                                  window.location.reload();
+                              } catch (err) {
+                                  console.error('Reset Error:', err);
+                                  notify.error('No se pudo reiniciar la sesión.');
+                              }
+                          }
+                      }}
+                      className="p-1 px-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 rounded-lg flex items-center gap-1 transition-all border border-red-500/20 group"
+                      title={isOnline ? "Sincronizar Datos Pendientes" : "Reiniciar Sesión y Limpiar Errores"}
+                    >
+                        <Trash2 size={12} className="group-hover:scale-110 transition-transform" />
+                        <span className="text-[8px] font-black uppercase">{isOnline ? 'Enviar Ahora' : 'Reiniciar App'}</span>
+                    </button>
                   )}
                 </div>
-                {!isOnline && offlinePendingCount > 0 && <span className="text-[10px] font-black text-red-400 uppercase tracking-tighter animate-pulse">{offlinePendingCount} PEND.</span>}
 
                 {/* Clock & Date Bar Right */}
                 <div className={`hidden lg:flex flex-col items-end leading-none px-3 py-1 rounded-xl border border-white/5 shadow-inner ${currentView === 'ADMIN_PORTAL' ? 'bg-white/10' : 'bg-black/30'}`}>

@@ -15,8 +15,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     params: {
       eventsPerSecond: 10,
     },
-    timeout: 20000,
-    heartbeatIntervalMs: 10000, // Balanced value: responsive but not flooding
+    timeout: 30000, // aggressive reconnection
+    heartbeatIntervalMs: 10000, 
   },
   auth: {
     persistSession: true,

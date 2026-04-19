@@ -1,5 +1,5 @@
 const DB_NAME = 'LasPalmas_POS_MasterData';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 class MasterDataDB {
     private db: IDBDatabase | null = null;
@@ -12,7 +12,7 @@ class MasterDataDB {
 
             request.onupgradeneeded = (event: any) => {
                 const db = event.target.result;
-                const stores = ['sections', 'tables', 'products', 'categories', 'profiles', 'printers', 'system_settings', 'roles'];
+                const stores = ['sections', 'tables', 'products', 'categories', 'profiles', 'printers', 'system_settings', 'roles', 'branch_prices', 'branch_inventory'];
 
                 stores.forEach(storeName => {
                     if (!db.objectStoreNames.contains(storeName)) {

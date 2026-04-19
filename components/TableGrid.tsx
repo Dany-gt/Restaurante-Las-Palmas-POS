@@ -52,12 +52,12 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
         // 1. ONLINE FETCH
         if (navigator.onLine) {
           try {
-            let tablesQuery = supabase.from('tables').select('*, locked_by, locked_at').order('number');
+            let tablesQuery = supabase.from('tables').select('*, locked_by').order('number');
             if (branchId) tablesQuery = tablesQuery.eq('branch_id', branchId);
 
             let tablesRes = await tablesQuery;
             if (tablesRes.error) {
-              console.warn('Locked columns might be missing or branch filter failed, falling back...');
+              console.warn('Branch filter might have failed, falling back...');
               let fallbackQuery = supabase.from('tables').select('*').order('number');
               if (branchId) fallbackQuery = fallbackQuery.eq('branch_id', branchId);
               tablesRes = await fallbackQuery;
@@ -70,7 +70,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
             if (!sectionsRes.error && sectionsRes.data) fetchedSections = sectionsRes.data;
 
             let ordersQuery = supabase.from('orders')
-              .select('table_id, created_at, waiter_id, waiter:profiles!waiter_id(name)')
+              .select('table_id, created_at, waiter_id, waiter:profiles!orders_waiter_id_fkey(name)')
               .in('status', ['pending', 'preparing', 'ready', 'served'])
               .order('created_at', { ascending: true });
             if (branchId) ordersQuery = ordersQuery.eq('branch_id', branchId);
@@ -108,7 +108,8 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
 
         let availableSections = fetchedSections || [];
 
-        // Try to fetch waiter assignment safely if online
+        // Try to fetch waiter assignment safely if online (REMOVED - Tabla waiter_stations no existe)
+        /*
         if (navigator.onLine && textUser?.role === 'MESERO') {
           try {
             const { data: assignRes } = await supabase.from('waiter_stations')
@@ -121,6 +122,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
             }
           } catch (e) { }
         }
+        */
 
         const names = availableSections.map(s => s.name);
         setSections(names);
@@ -182,12 +184,11 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
 
       // 2. Waiters: STRICT CHECK
       if (user.role === 'MESERO') {
-        // Case 1: Table is Occupied but Order Data is MISSING (Hidden by RLS)
+        // Case 1: Table is Occupied but Order Data is MISSING (Hidden by RLS or Sync Error)
         if (table.status === 'occupied' && !activeOrders[table.id]) {
-          return {
-            allowed: false,
-            ownerName: 'Mesa Privada (Acceso Restringido)'
-          };
+          // AUTO-REPAIR: If we are here, nobody owns this table's order right now or it's a ghost lock.
+          // We allow access so the waiter can "re-take" or fix it.
+          return { allowed: true };
         }
 
         const activeOrder = activeOrders[table.id];
@@ -201,16 +202,12 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
         }
 
         // Case 3: SOFT LOCK Check (Lazy Creation Support)
-        // If table is NOT occupied but is LOCKED by someone else within the last 5 minutes
+        // If table is NOT occupied but is LOCKED by someone else
         if (table.locked_by && table.locked_by !== user.id && table.status !== 'occupied') {
-          const lockTime = new Date(table.locked_at || 0).getTime();
-          const fiveMinutes = 5 * 60 * 1000;
-          if (Date.now() - lockTime < fiveMinutes) {
-            return {
-              allowed: false,
-              ownerName: 'Temporalmente Abierta por otro Mesero'
-            };
-          }
+          return {
+            allowed: false,
+            ownerName: 'Temporalmente Abierta por otro Mesero'
+          };
         }
       }
     } catch (e) { console.error(e); }

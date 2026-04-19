@@ -80,6 +80,14 @@ En caso de duda y cualquier nueva vista de listado o mantenimiento de configurac
 Al implementar paneles de jerarquía de categorías para filtrar o asignar datos masivamente (como el panel lateral de categorías), DEBES emplear el siguiente patrón (Design & Function Skill):
 - **Cero Carpetas Amarillas**: Evitar usar `<Folder />` para nodos. Utilizar `<Square />` y `<CheckSquare />` lucide-icons para simular una casilla de verificación multiselección por cada categoría (padre o hijo).
 - **Control de Expansión Separado**: Mantener el botón de anidar/colapsar `<ChevronRight />` / `<ChevronDown />` independiente del checkbox de selección.
+- **Jerarquía y Multiselección (El "Skill" de Selección)**: 
+    -   **Mapeo de Categorías Incorrecto y Duplicados**: 
+        -   Existen múltiples categorías con el mismo nombre (ej. "AGUA PURA" en `categories`, `menu_categories` y `product_categories`).
+        -   Los productos están vinculados a IDs de distintas tablas.
+        -   Implementaré un "Puente por Nombre": Si seleccionas una categoría, el sistema mostrará productos vinculados a **cualquier** ID que tenga ese mismo nombre.
+        -   **Consolidación de Productos**: Si hay dos productos con el mismo nombre (uno con precio y otro sin precio), el sistema mostrará únicamente el que tiene el precio correcto.
+    -   **UI de Logo y Marcadores**: Restaurar el `PlaceholderLogo` original (que dice "Restaurante Las Palmas POS") en lugar del icono de paquete para categorías sin foto.
+    -   **UI Vacía y Caché Corrupta**: Forzar salto a **v1.3.4** para asegurar limpieza total.
 - **Jerarquía y Multiselección (El "Skill" de Selección)**: Se debe usar un `Set<string>` para guardar las `selectedCategories`. Al hacer clic en el contenedor (o el checkbox):
   - Si es padre, selecciona automáticamente a TODOS sus hijos (recursivamente).
   - Si se deselecciona un padre, deselecciona todos los hijos.

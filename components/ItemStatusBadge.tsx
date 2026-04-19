@@ -6,6 +6,7 @@ interface ItemStatusBadgeProps {
         status: string;
         created_at?: string;
         preparing_at?: string;
+        is_offline?: boolean;
     };
     serverOffset?: number;
     tick?: number;
@@ -13,6 +14,14 @@ interface ItemStatusBadgeProps {
 
 export const ItemStatusBadge: React.FC<ItemStatusBadgeProps> = ({ item, serverOffset = 0, tick = 0 }) => {
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+    if (item.is_offline) {
+        return (
+            <span className="flex items-center gap-1 bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded font-black uppercase tracking-tighter text-[10px] animate-pulse">
+                <Clock size={12} /> SINCRONIZANDO... (Local)
+            </span>
+        );
+    }
 
     const safeParseDate = (d: string | null | undefined) => {
         if (!d) return 0;

@@ -597,6 +597,37 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                         });
                     }
 
+                    // 3. Update Product Branch Inventory (Specific for POS Sales Items)
+                    if (isProduct) {
+                        const { data: pbiItem } = await supabase.from('product_branch_inventory')
+                            .select('quantity')
+                            .eq('product_id', item.inventory_item_id)
+                            .eq('branch_id', formData.branch_id)
+                            .single();
+                        
+                        const newPbiQty = (Number(pbiItem?.quantity) || 0) + addQty;
+                        
+                        if (pbiItem) {
+                            await supabase.from('product_branch_inventory').update({
+                                quantity: newPbiQty
+                            }).eq('product_id', item.inventory_item_id).eq('branch_id', formData.branch_id);
+                        } else {
+                            await supabase.from('product_branch_inventory').insert({
+                                product_id: item.inventory_item_id,
+                                branch_id: formData.branch_id,
+                                quantity: addQty,
+                                is_enabled: true,
+                                is_assigned: true
+                            });
+                        }
+                        
+                        // Sync global products.stock_quantity for legacy views
+                        const { data: globalProd } = await supabase.from('products').select('stock_quantity').eq('id', item.inventory_item_id).single();
+                        await supabase.from('products').update({
+                            stock_quantity: (Number(globalProd?.stock_quantity) || 0) + addQty
+                        }).eq('id', item.inventory_item_id);
+                    }
+
                     // Kardex entry
                     const baseUnitCostValue = Number(item.unit_cost) / Number(item.equivalence || 1);
 

@@ -118,6 +118,17 @@ class OfflineDB {
             return 0;
         }
     }
+    async clearAll(): Promise<void> {
+        const db = await this.init();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['pending_sync'], 'readwrite');
+            const store = transaction.objectStore('pending_sync');
+            const request = store.clear();
+
+            request.onsuccess = () => resolve();
+            request.onerror = (event: any) => reject(event.target.error);
+        });
+    }
 }
 
 export const offlineDB = new OfflineDB();

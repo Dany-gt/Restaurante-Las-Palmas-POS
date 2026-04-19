@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { DateUtils } from '../utils/DateUtils';
 import { Order, Table, Product, Category, OrderItem, User } from '../types';
@@ -19,6 +18,7 @@ import { useSecurityPolicy } from '../hooks/useSecurityPolicy';
 import { CustomerData } from '../types/billing';
 import { ItemStatusBadge } from './ItemStatusBadge';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { useNotify } from '../hooks/useNotify';
 import { activityLogService } from '../services/ActivityLogService';
 
 const PlaceholderLogo = () => (
@@ -38,9 +38,12 @@ const ProductCard = React.memo<{
     currency: string,
     onClick: () => void,
     newStyle?: boolean,
-    isChecking?: boolean
-}>(({ product, currency, onClick, newStyle, isChecking }) => {
-    const stock = product.stock_quantity;
+    isChecking?: boolean,
+    // v1.4.1 - Shadow Stock Unification
+    stockOverride?: number 
+}>(({ product, currency, onClick, isChecking, stockOverride }) => {
+    // Si hay stockOverride (shadow stock), lo usamos. Si no, usamos el del producto.
+    const stock = stockOverride !== undefined ? stockOverride : product.stock_quantity;
     const isLowStock = stock !== undefined && stock <= (product.min_stock_level || 0);
     const hasStock = stock !== undefined && stock !== null;
 
@@ -84,7 +87,7 @@ const ProductCard = React.memo<{
                     {product.name}
                 </span>
                 <span className="text-white font-black text-xs tabular-nums tracking-widest">
-                    {currency}{product.price.toFixed(2)}
+                    {currency}{( (product as any).finalPrice ?? product.price ).toFixed(2)}
                 </span>
             </div>
         </button>
@@ -94,6 +97,7 @@ const ProductCard = React.memo<{
     // Ignore onClick and only re-render if visual data changed.
     return prevProps.product.id === nextProps.product.id &&
         prevProps.product.stock_quantity === nextProps.product.stock_quantity &&
+        prevProps.stockOverride === nextProps.stockOverride &&
         prevProps.product.price === nextProps.product.price &&
         prevProps.product.name === nextProps.product.name &&
         prevProps.product.image_url === nextProps.product.image_url &&
@@ -113,10 +117,8 @@ interface OrderViewProps {
 }
 
 export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table, currentUser, settings, onClose, onCheckout, waiterVoiceEnabled, onToggleWaiterVoice }) => {
-    // ----------------------------------------------------------------------
-    // STATE DECLARATIONS
-    // ----------------------------------------------------------------------
-    const isOnline = useNetworkStatus();
+    const notify = useNotify();
+    const { isOnline } = useNetworkStatus();
     const [items, setItems] = useState<OrderItem[]>(initialOrder?.items || []);
     const [selectedCat, setSelectedCat] = useState<Category | null>(null);
     const [selectedSubCat, setSelectedSubCat] = useState<Category | null>(null);
@@ -145,6 +147,27 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             return cached ? JSON.parse(cached) : [];
         } catch (e) { return []; }
     });
+    const [branchInventory, setBranchInventory] = useState<any[]>(() => {
+        try {
+            const cached = localStorage.getItem('cached_branch_inventory');
+            return cached ? JSON.parse(cached) : [];
+        } catch (e) { return []; }
+    });
+
+    // v1.5.2 - Listen for inventory refresh after order submission to update stock badges
+    useEffect(() => {
+        const handleInventoryRefresh = () => {
+            try {
+                const cachedInv = localStorage.getItem('cached_branch_inventory');
+                if (cachedInv) setBranchInventory(JSON.parse(cachedInv));
+
+                const cachedProds = localStorage.getItem('cached_products');
+                if (cachedProds) setProducts(JSON.parse(cachedProds));
+            } catch (e) { console.warn('Error refreshing inventory state:', e); }
+        };
+        window.addEventListener('inventory-state-updated', handleInventoryRefresh);
+        return () => window.removeEventListener('inventory-state-updated', handleInventoryRefresh);
+    }, []);
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
     const [activeOrderId, setActiveOrderId] = useState<string | null>(initialOrder?.id || null);
@@ -177,6 +200,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const [voidReason, setVoidReason] = useState('');
     const [discountingItem, setDiscountingItem] = useState<OrderItem | null>(null);
     const [checkingProductId, setCheckingProductId] = useState<string | null>(null);
+    const [checkingProducts, setCheckingProducts] = useState<Set<string>>(new Set());
 
     // Security & Editing states
     const [pendingAction, setPendingAction] = useState<'delete' | 'cancel' | 'edit' | null>(null);
@@ -331,8 +355,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         }
 
         // Block interaction if actively checking
-        if (checkingProductId) return;
-        setCheckingProductId(product.id);
+        if (checkingProducts.has(product.id)) return;
+        setCheckingProducts(prev => new Set(prev).add(product.id));
 
         try {
             const { data: isCustomizable, error } = await supabase.rpc('check_if_customizable', { p_id: product.id });
@@ -351,7 +375,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             // Fallback: Show modal just in case
             setShowModifierModal(product);
         } finally {
-            setCheckingProductId(null);
+            setCheckingProducts(prev => {
+                const next = new Set(prev);
+                next.delete(product.id);
+                return next;
+            });
         }
     };
 
@@ -1122,10 +1150,13 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             let catsQuery = supabase.from('categories').select('*').order('order_index');
             if (myBranchId) catsQuery = catsQuery.or(`branch_id.eq.${myBranchId},branch_id.is.null`);
             const { data: cats, error: catsError } = await catsQuery;
-            ...
+            if (cats) setCategories(cats);
+
             // FETCH PRODUCTS
             let prodsQuery = supabase.from('products').select('*').eq('is_enabled', true);
-            ...
+            const { data: prods, error: prodsError } = await prodsQuery;
+            if (prods) setProducts(prods);
+
             // Fetch Branch Prices for the current branch
             if (myBranchId) {
                 const { data: bPrices } = await supabase.from('product_branch_prices').select('*').eq('branch_id', myBranchId);
@@ -1141,8 +1172,29 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         masterDataDB.getAll('categories'),
                         masterDataDB.getAll('products')
                     ]);
-                    if (masterCats?.length > 0) setCategories(masterCats);
-                    if (masterProds?.length > 0) setProducts(masterProds);
+                    
+                    if (masterCats?.length > 0) {
+                        setCategories(masterCats);
+                    } else if (navigator.onLine) {
+                        // EMERGENCY FALLBACK: If DB is empty and we are online, fetch from Supabase
+                        console.log('⚡ Emergency categories fetch triggered...');
+                        const { data } = await supabase.from('categories').select('*').order('order_index');
+                        if (data && data.length > 0) {
+                            setCategories(data);
+                            localStorage.setItem('cached_categories', JSON.stringify(data));
+                        }
+                    }
+
+                    if (masterProds?.length > 0) {
+                        setProducts(masterProds);
+                    } else if (navigator.onLine) {
+                        console.log('⚡ Emergency products fetch triggered...');
+                        const { data } = await supabase.from('products').select('*').eq('is_enabled', true);
+                        if (data && data.length > 0) {
+                            setProducts(data);
+                            localStorage.setItem('cached_products', JSON.stringify(data));
+                        }
+                    }
                 } catch (e) {
                     console.error('Failsafe master data load failed', e);
                 }
@@ -1159,7 +1211,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
                 let query = supabase
                     .from('orders')
-                    .select('*, waiter:profiles!waiter_id(name)')
+                    .select('*, waiter:profiles!orders_waiter_id_fkey(name)')
                     .neq('status', 'completed')
                     .neq('status', 'cancelled');
 
@@ -1397,18 +1449,71 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 pending.push({ id: itemToVoid.id, reason: voidReason, at: nowGuate });
                 localStorage.setItem('pending_voids', JSON.stringify(pending));
             } else {
-                // Update DB
-                const { error: voidError } = await supabase
-                    .from('order_items')
-                    .update({
-                        status: 'voided',
-                        void_reason: voidReason,
-                        voided_at: nowGuate
-                    })
-                    .eq('id', itemToVoid.id);
+                // Update DB via RPC (v1.5.5 - Automatically restores stock)
+                const { data: rpcResult, error: voidError } = await supabase.rpc('void_order_item_rpc', {
+                    p_item_id: itemToVoid.id,
+                    p_void_reason: voidReason,
+                    p_voided_at: nowGuate
+                });
 
-                if (voidError) throw voidError;
+                if (voidError || (rpcResult && rpcResult.success === false)) {
+                    throw voidError || new Error(rpcResult?.error || 'Error desconocido en el servidor');
+                }
             }
+
+            // v1.5.5 - RESTORE STOCK LOCALLY for immediate feedback (Handles both Online & Offline UI)
+            const voidQty = itemToVoid.quantity;
+            setProducts(prev => prev.map(p => {
+                if (p.id === itemToVoid.product_id) {
+                    return {
+                        ...p,
+                        stock_actual: (p.stock_actual || 0) + voidQty,
+                        stock_quantity: (p.stock_quantity || 0) + voidQty
+                    };
+                }
+                return p;
+            }));
+
+            setBranchInventory(prev => prev.map(inv => {
+                if (inv.product_id === itemToVoid.product_id && inv.branch_id === currentUser?.branch_id) {
+                    return { ...inv, quantity: (inv.quantity || 0) + voidQty };
+                }
+                return inv;
+            }));
+
+            // Sync with localStorage
+            const cachedProdsStr = localStorage.getItem('cached_products');
+            if (cachedProdsStr) {
+                try {
+                    const parsed = JSON.parse(cachedProdsStr).map((p: any) => {
+                        if (p.id === itemToVoid.product_id) {
+                            return {
+                                ...p,
+                                stock_actual: (p.stock_actual || 0) + voidQty,
+                                stock_quantity: (p.stock_quantity || 0) + voidQty
+                            };
+                        }
+                        return p;
+                    });
+                    localStorage.setItem('cached_products', JSON.stringify(parsed));
+                } catch (e) { console.error('Error updating cached products on void:', e); }
+            }
+
+            const cachedInvStr = localStorage.getItem('cached_branch_inventory');
+            if (cachedInvStr) {
+                try {
+                    const parsed = JSON.parse(cachedInvStr).map((inv: any) => {
+                        if (inv.product_id === itemToVoid.product_id && inv.branch_id === currentUser?.branch_id) {
+                            return { ...inv, quantity: (inv.quantity || 0) + voidQty };
+                        }
+                        return inv;
+                    });
+                    localStorage.setItem('cached_branch_inventory', JSON.stringify(parsed));
+                } catch (e) { console.error('Error updating cached inventory on void:', e); }
+            }
+
+            // Trigger UI refresh event
+            window.dispatchEvent(new CustomEvent('inventory-state-updated'));
 
             // Logging action
             if (currentUser) {
@@ -1590,16 +1695,18 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 await import('../services/OfflineDB').then(m => m.offlineDB.saveRecord('ORDER', orderData));
                 console.log('📦 Orden guardada en IndexedDB (Offline):', finalOrderId);
 
-                alert('🔌 Sin Conexión: La orden se guardó localmente y se enviará automáticamente al reconectar.');
+                // v1.4.6 - NO CLEARING of state allowed for resilience
+                setItems(current => current.map(item => {
+                    if (!item.is_sent) return { ...item, is_offline: true };
+                    return item;
+                }));
 
-                // Cleanup UI
-                setItems([]);
-                setTableOrders([]);
-                setActiveOrderId(null);
-                onClose?.();
+                notify.offline('🔌 Sin Conexión: El pedido se guardó localmente. NO cierres la mesa hasta que se sincronice.');
 
-                // Dispatch event to update App.tsx badge
+                // Dispatch events to update status
                 window.dispatchEvent(new CustomEvent('offline-sync-trigger'));
+                window.dispatchEvent(new CustomEvent('refresh-inventory'));
+                setProcessing(false);
                 return finalOrderId;
             } catch (e) {
                 console.error('Error saving to IndexedDB:', e);
@@ -1625,8 +1732,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 if (table?.id) {
                     await supabase.from('tables').update({
                         status: 'occupied',
-                        locked_by: null,
-                        locked_at: null
+                        locked_by: null
                     }).eq('id', table.id);
                 }
             } else {
@@ -1635,16 +1741,101 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 if (updateError) throw updateError;
             }
 
-            // Sync Items
+            // Sync Items — v1.5.1: Use SECURITY DEFINER RPC to bypass RLS for anon (PIN) users
             if (unsentItems.length > 0) {
-                const { error: itemsError } = await supabase.from('order_items').insert(orderData.items.map(i => ({
-                    order_id: finalOrderId,
-                    ...i
-                })));
-                if (itemsError) throw itemsError;
+                const itemsPayload = orderData.items.map(i => ({
+                    product_id: i.product_id,
+                    quantity: i.quantity,
+                    unit_price: i.unit_price,
+                    product_name: unsentItems.find(u => u.product_id === i.product_id)?.product_name || '',
+                    status: i.status || 'pending',
+                    notes: i.notes || null,
+                    discount_id: i.discount_id || null,
+                    discount_percentage: i.discount_percentage || null,
+                    discount_amount: i.discount_amount || null,
+                    discount_reason: i.discount_reason || null
+                }));
+
+                // Try RPC first (works for anon/PIN users, handles inventory deduction)
+                console.log('🚀 INTENTANDO RPC PARA ENVIAR ORDEN. ITEMS PAYLOAD:', JSON.stringify(itemsPayload, null, 2));
+                const { data: rpcResult, error: rpcError } = await supabase.rpc('submit_order_items', {
+                    p_order_id: finalOrderId,
+                    p_branch_id: currentUser?.branch_id,
+                    p_items: itemsPayload
+                });
+
+                if (rpcError) {
+                    console.warn('RPC submit_order_items failed, trying direct insert:', rpcError.message);
+                    // Fallback: direct insert (for users with full auth session)
+                    const { error: itemsError } = await supabase.from('order_items').insert(orderData.items.map(i => ({
+                        order_id: finalOrderId,
+                        ...i
+                    })));
+                    if (itemsError) throw itemsError;
+                } else if (rpcResult?.success === false) {
+                    // RPC ran but returned an internal error
+                    throw new Error(rpcResult.error || 'Error en RPC submit_order_items');
+                } else {
+                    // RPC success: immediately decrement local stock
+                    // v1.5.3 - Match by NAME (not ID) because menu product_id ≠ inventory product_id
+                    const products = (() => {
+                        try { return JSON.parse(localStorage.getItem('cached_products') || '[]'); } catch { return []; }
+                    })();
+
+                    setBranchInventory(prev => {
+                        const updated = prev.map(inv => {
+                            if (inv.branch_id !== currentUser?.branch_id) return inv;
+                            // Find the product name for this inventory record
+                            const invProduct = products.find((p: any) => p.id === inv.product_id);
+                            const invName = (invProduct?.name || '').trim().toUpperCase();
+                            // Find a sold item with the same name
+                            const soldItem = unsentItems.find(u =>
+                                (u.product_name || '').trim().toUpperCase() === invName
+                            );
+                            if (soldItem) {
+                                console.log(`📦 Badge update: ${invName} ${inv.quantity} → ${inv.quantity - soldItem.quantity}`);
+                                return { ...inv, quantity: inv.quantity - soldItem.quantity };
+                            }
+                            return inv;
+                        });
+                        localStorage.setItem('cached_branch_inventory', JSON.stringify(updated));
+                        return updated;
+                    });
+
+                    // v1.5.4 Update cached products directly so the UI recalculates Math.max immediately
+                    const cachedProductsStr = localStorage.getItem('cached_products');
+                    if (cachedProductsStr) {
+                        try {
+                            const cProds = JSON.parse(cachedProductsStr).map((p: any) => {
+                                const pName = (p.name || '').trim().toUpperCase();
+                                const soldItem = unsentItems.find(u => (u.product_name || '').trim().toUpperCase() === pName);
+                                if (soldItem) {
+                                    return { 
+                                        ...p, 
+                                        stock_quantity: (p.stock_quantity || 0) - soldItem.quantity,
+                                        stock_actual: (p.stock_actual || 0) - soldItem.quantity
+                                    };
+                                }
+                                return p;
+                            });
+                            localStorage.setItem('cached_products', JSON.stringify(cProds));
+                            // Force trigger order view products to re-eval max stock
+                            window.dispatchEvent(new CustomEvent('inventory-state-updated'));
+                        } catch (e) {
+                            console.error('Error updating cached products immediately:', e);
+                        }
+                    }
+
+                    // Clear local items so fetchData brings definitive DB version
+                    setItems([]);
+                    window.dispatchEvent(new CustomEvent('refresh-inventory'));
+                    console.log('✅ Items enviados + inventario descontado. Ítems procesados:', rpcResult?.processed);
+                }
             }
 
-            if (table?.id) await supabase.from('tables').update({ status: 'occupied' }).eq('id', table.id);
+            if (table?.id && !table.id.toString().startsWith('t-')) {
+                await supabase.from('tables').update({ status: 'occupied' }).eq('id', table.id);
+            }
 
             // LOG: Order Sent to Kitchen/Created
             activityLogService.logFinancial({
@@ -1677,6 +1868,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             });
 
             setActiveOrderId(finalOrderId);
+
+            // v1.5.2 - Correct success notification
+            const itemCount = unsentItems.length;
+            notify.success(`👨‍🍳 ¡Orden enviada a cocina! ${itemCount} platillo${itemCount !== 1 ? 's' : ''} comandado${itemCount !== 1 ? 's' : ''}.`);
+
             await fetchData();
 
             // ----------------------------------------------------------------------
@@ -1726,17 +1922,32 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 }
             }
 
+            // AUTO-REFRESH INVENTORY IN BACKGROUND
+            window.dispatchEvent(new CustomEvent('refresh-inventory'));
+
         } catch (e: any) {
-            console.error('Sync Error:', e);
+            console.error('Core Submission/Sync Error:', e);
+            
             // Fallback to OfflineDB if network fails during the process
             await import('../services/OfflineDB').then(m => m.offlineDB.saveRecord('ORDER', orderData));
-            alert('⚠️ Error de conexión: La orden se ha guardado localmente para sincronización posterior.');
+            
+            // v1.4.4 - Mark items as offline pending so the UI shows the new blue badge
+            setItems(current => current.map(item => {
+                if (!item.is_sent) {
+                    return { ...item, is_offline: true };
+                }
+                return item;
+            }));
 
-            setItems([]);
-            setTableOrders([]);
-            setActiveOrderId(null);
-            onClose?.();
+            if (e.message?.includes('401') || e.message?.includes('Unauthorized')) {
+                notify.error('🔒 SESIÓN EXPIRADA: Por favor, salga y vuelva a ingresar con su PIN.');
+            } else {
+                notify.offline('⚠️ ORDEN GUARDADA LOCALMENTE: Verifique conexión o permisos en Supabase.');
+            }
+            
+            // Trigger offline sync background process
             window.dispatchEvent(new CustomEvent('offline-sync-trigger'));
+            setProcessing(false); // Ensure button unlocks
         }
         setProcessing(false);
         return finalOrderId;
@@ -1780,7 +1991,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     </div>
 
                     {/* Network Status Indicator */}
-                    <div className={`w-3 h-3 rounded-full shadow-sm ring-2 ring-white/10 ${isOnline ? 'bg-emerald-500 shadow-emerald-500/50' : 'bg-red-500 shadow-red-500/50 animate-pulse'}`} title={isOnline ? "En Línea" : "Sin Conexión"} />
+                    <div className={`w-3 h-3 rounded-full shadow-sm ring-2 ring-white/10 transition-all duration-500 ${isOnline ? 'bg-emerald-500 shadow-emerald-500/50' : 'bg-red-500 shadow-red-500/50 animate-pulse'}`} title={isOnline ? "En Línea" : "Sin Conexión al Servidor"} />
 
 
                     <button
@@ -1812,56 +2023,234 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         {loading ? (
                             <div className="flex-1 flex items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-indigo-500" /></div>
                         ) : (
-                            <div className="flex-1">
-                                {console.log('DEBUG RENDER:', { selectedCat, catsLen: categories.length, rootCats: categories.filter(c => !c.parent_id).length })}
-                                {!selectedCat && (
-                                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-2 sm:gap-3">
-                                        {categories.filter(c => !c.parent_id && c.section !== 'INVENTARIO').map(cat => (
-                                            <button key={cat.id} onClick={() => setSelectedCat(cat)} className="aspect-square bg-[#3a3b4d] rounded-xl p-2 flex flex-col items-center justify-between border-2 border-transparent hover:border-white/10 active:scale-95 transition-all group">
-                                                <div className="flex-1 flex flex-col items-center justify-center w-full">
-                                                    {cat.image_url ? (
-                                                        <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover rounded-md opacity-50 group-hover:opacity-100 transition-opacity" />
-                                                    ) : (
-                                                        <PlaceholderLogo />
-                                                    )}
-                                                </div>
-                                                <span className="w-full text-center text-[9px] sm:text-[10px] font-black uppercase tracking-wide text-gray-200 leading-tight pt-1 pb-1">{cat.name}</span>
-                                            </button>
-                                        ))}
-                                        {categories.filter(c => !c.parent_id && c.section !== 'INVENTARIO').length === 0 && (
-                                            <div className="col-span-full h-32 flex flex-col items-center justify-center text-gray-500 font-bold uppercase tracking-widest border-2 border-dashed border-gray-600 rounded-xl">
-                                                <span>No hay categorías cargadas</span>
-                                                <span className="text-xs text-rose-500 mt-2">DEBUG: total_cats={categories.length}, root={categories.filter(c => !c.parent_id).length}, branch={currentUser?.branch_id}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                                <div className="flex flex-col h-full bg-[#2d2e3d]">
+                                    {!selectedCat && (
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2 sm:gap-4 p-4 overflow-y-auto no-scrollbar">
+                                            {(() => {
+                                                const seen = new Set();
+                                                return categories
+                                                    .filter(c => !c.parent_id && c.section !== 'INVENTARIO')
+                                                    .filter(c => {
+                                                        const key = c.name?.toUpperCase();
+                                                        if (seen.has(key)) return false;
+                                                        seen.add(key);
+                                                        return true;
+                                                    })
+                                                    .sort((a, b) => {
+                                                        const orderA = a.order_index ?? 999;
+                                                        const orderB = b.order_index ?? 999;
+                                                        if (orderA !== orderB) return orderA - orderB;
+                                                        return (a.name || '').localeCompare(b.name || '');
+                                                    })
+                                                    .map(cat => (
+                                                        <button key={cat.id} onClick={() => setSelectedCat(cat)} className="aspect-square bg-[#3a3b4d] rounded-2xl p-4 flex flex-col items-center justify-between border-2 border-white/5 hover:border-indigo-500/50 hover:bg-[#45465e] active:scale-95 transition-all shadow-xl group">
+                                                            <div className="flex-1 flex flex-col items-center justify-center w-full mb-3">
+                                                                {cat.image_url ? (
+                                                                    <img src={cat.image_url} alt={cat.name} className="w-full h-full object-contain rounded-xl opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
+                                                                ) : (
+                                                                    <PlaceholderLogo />
+                                                                )}
+                                                            </div>
+                                                            <span className="w-full text-center text-[10px] sm:text-xs font-black uppercase tracking-widest text-white leading-tight">{cat.name}</span>
+                                                        </button>
+                                                    ));
+                                            })()}
+                                        </div>
+                                    )}
                                 {selectedCat && !selectedSubCat && (
                                     <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-2 sm:gap-3">
-                                        {categories.filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO').map(sub => (
-                                            <button key={sub.id} onClick={() => setSelectedSubCat(sub)} className="aspect-square bg-white/10 rounded-xl p-2 flex flex-col items-center justify-between border-2 border-transparent hover:border-white/10 active:scale-95 transition-all group">
-                                                <div className="flex-1 flex flex-col items-center justify-center w-full">
-                                                    {sub.image_url ? (
-                                                        <img src={sub.image_url} alt={sub.name} className="w-full h-full object-cover rounded-md opacity-50 group-hover:opacity-100 transition-opacity" />
-                                                    ) : (
-                                                        <PlaceholderLogo />
-                                                    )}
-                                                </div>
-                                                <span className="w-full text-center text-[9px] sm:text-[10px] font-black uppercase tracking-wide text-gray-200 leading-tight pt-1 pb-1">{sub.name}</span>
-                                            </button>
-                                        ))}
-                                        {categories.filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO').length === 0 && (
-                                            products.filter(p => p.category_id === selectedCat.id && p.classification !== 'INSUMO').map(p => (
-                                                <ProductCard newStyle={true} key={p.id} product={p} currency={currency} onClick={() => handleProductClick(p)} isChecking={checkingProductId === p.id} />
-                                            ))
-                                        )}
+                                        {categories
+                                            .filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO')
+                                            .sort((a, b) => {
+                                                const orderA = a.order_index ?? 999;
+                                                const orderB = b.order_index ?? 999;
+                                                if (orderA !== orderB) return orderA - orderB;
+                                                return (a.name || '').localeCompare(b.name || '');
+                                            })
+                                            .map(sub => (
+                                                <button key={sub.id} onClick={() => setSelectedSubCat(sub)} className="aspect-square bg-white/10 rounded-xl p-2 flex flex-col items-center justify-between border-2 border-transparent hover:border-white/10 active:scale-95 transition-all group">
+                                                    <div className="flex-1 flex flex-col items-center justify-center w-full">
+                                                        {sub.image_url ? (
+                                                            <img src={sub.image_url} alt={sub.name} className="w-full h-full object-cover rounded-md opacity-50 group-hover:opacity-100 transition-opacity" />
+                                                        ) : (
+                                                            <PlaceholderLogo />
+                                                        )}
+                                                    </div>
+                                                    <span className="w-full text-center text-[9px] sm:text-[10px] font-black uppercase tracking-wide text-gray-200 leading-tight pt-1 pb-1">{sub.name}</span>
+                                                </button>
+                                            ))}
+                                        {categories.filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO').length === 0 && (() => {
+                                            // SENIOR BRIDGE FIX: Collect all IDs for categories with this NAME to handle duplicates
+                                            const relatedCatIds = categories
+                                                .filter(c => c.name?.toUpperCase() === selectedCat.name?.toUpperCase())
+                                                .map(c => c.id);
+                                            
+                                            // v1.4.1 - STRICT CATEGORY FILTERING & GLOBAL SHADOW STOCK
+                                            // Determine if we are in an "Inventory" section or "Menu" section
+                                            const isInventorySection = selectedCat.section === 'INVENTARIO' || 
+                                                                    (selectedCat as any).category_type === 'INVENTORY';
+
+                                            const filteredProds = products.filter(p => {
+                                                // If we are in the Menu, ONLY show items specifically linked to Menu Categories
+                                                // If we are in Inventory, ONLY show items specifically linked to Product/Inventory Categories
+                                                const matchesMenu = relatedCatIds.includes(p.menu_category_id);
+                                                const matchesInventory = relatedCatIds.includes(p.product_category_id) || relatedCatIds.includes(p.category_id);
+                                                
+                                                if (isInventorySection) return matchesInventory;
+                                                return matchesMenu && p.classification !== 'INSUMO';
+                                            });
+
+                                            // 1. Build a GLOBAL Map for Stock AND Images by Name
+                                            const globalDataMap = new Map<string, { stock: number, image?: string }>();
+                                            products.forEach(p => {
+                                                const nameKey = (p.name || '').trim().toUpperCase();
+                                                if (!nameKey) return;
+ 
+                                                const bInv = branchInventory.find(bi => bi.product_id === p.id && bi.branch_id === currentUser?.branch_id);
+                                                // Priority: branch_inventory > products.stock_actual > products.stock_quantity
+                                                const pStock = bInv ? bInv.quantity : (p.stock_actual ?? p.stock_quantity ?? 0);
+                                                
+                                                const existing = globalDataMap.get(nameKey);
+                                                if (!existing) {
+                                                    globalDataMap.set(nameKey, { stock: pStock, image: p.image_url });
+                                                } else {
+                                                    // v1.5.3: Use MAX stock (not sum) to avoid positive+negative cancel-out
+                                                    globalDataMap.set(nameKey, { 
+                                                        stock: Math.max(existing.stock, pStock),
+                                                        image: existing.image || p.image_url 
+                                                    });
+                                                }
+                                            });
+
+                                            // 2. Map the filtered products while resolving prices and shadows
+                                            const prodMap = new Map();
+                                            filteredProds.forEach(p => {
+                                                const bPrice = branchPrices.find(bp => bp.product_id === p.id && bp.branch_id === currentUser?.branch_id);
+                                                const finalPrice = bPrice ? bPrice.price : p.price;
+                                                const key = (p.name || '').trim().toUpperCase();
+                                                
+                                                // Initial stock for this specific record (just to be safe)
+                                                const bInv = branchInventory.find(bi => bi.product_id === p.id && bi.branch_id === currentUser?.branch_id);
+                                                const localStock = bInv ? bInv.quantity : (p.stock_actual || p.stock_quantity || 0);
+
+                                                if (!prodMap.has(key)) {
+                                                    const gData = globalDataMap.get(key);
+                                                    const shadowStock = gData?.stock ?? localStock;
+                                                    prodMap.set(key, { ...p, image_url: p.image_url || gData?.image, price: finalPrice > 0 ? finalPrice : p.price, finalPrice, consolidatedStock: shadowStock });
+                                                } else {
+                                                    const existing = prodMap.get(key);
+                                                    const gData = globalDataMap.get(key);
+                                                    existing.image_url = existing.image_url || p.image_url || gData?.image;
+                                                    if (finalPrice > 0) {
+                                                        existing.finalPrice = finalPrice;
+                                                        existing.price = finalPrice;
+                                                        existing.id = p.id;
+                                                        existing.menu_category_id = p.menu_category_id;
+                                                    }
+                                                }
+                                            });
+
+                                            return Array.from(prodMap.values())
+                                                .sort((a: any, b: any) => {
+                                                    const prioA = a.priority ?? 999;
+                                                    const prioB = b.priority ?? 999;
+                                                    if (prioA !== prioB) return prioA - prioB;
+                                                    return (a.name || '').localeCompare(b.name || '');
+                                                })
+                                                .map(product => {
+                                                return (
+                                                    <ProductCard
+                                                        key={product.id}
+                                                        product={{ ...product, price: product.finalPrice }}
+                                                        stockOverride={product.consolidatedStock}
+                                                        currency={currency}
+                                                        onClick={() => handleProductClick(product)}
+                                                        isChecking={checkingProducts.has(product.id)}
+                                                    />
+                                                );
+                                            });
+                                        })()}
                                     </div>
                                 )}
                                 {selectedSubCat && (
                                     <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-2 sm:gap-3">
-                                        {products.filter(p => p.category_id === selectedSubCat.id && p.classification !== 'INSUMO').map(p => (
-                                            <ProductCard newStyle={true} key={p.id} product={p} currency={currency} onClick={() => handleProductClick(p)} isChecking={checkingProductId === p.id} />
-                                        ))}
+                                        {(() => {
+                                            const relatedSubCatIds = categories
+                                                .filter(c => c.name?.toUpperCase() === selectedSubCat.name?.toUpperCase())
+                                                .map(c => c.id);
+
+                                            const filteredSubProds = products.filter(p => (
+                                                relatedSubCatIds.includes(p.category_id) || 
+                                                relatedSubCatIds.includes(p.product_category_id) || 
+                                                relatedSubCatIds.includes(p.menu_category_id)
+                                            ) && p.classification !== 'INSUMO');
+
+                                            // v1.4.1 - Shadow Stock for Sub-Categories
+                                            const globalDataMap = new Map<string, { stock: number, image?: string }>();
+                                            products.forEach(p => {
+                                                const nameKey = (p.name || '').trim().toUpperCase();
+                                                if (!nameKey) return;
+                                                const bInv = branchInventory.find(bi => bi.product_id === p.id && bi.branch_id === currentUser?.branch_id);
+                                                // Priority: branch_inventory > products.stock_actual > products.stock_quantity
+                                                const pStock = bInv ? bInv.quantity : (p.stock_actual ?? p.stock_quantity ?? 0);
+
+                                                const existing = globalDataMap.get(nameKey);
+                                                if (!existing) {
+                                                    globalDataMap.set(nameKey, { stock: pStock, image: p.image_url });
+                                                } else {
+                                                    // v1.5.3: Use MAX stock (not sum) to avoid positive+negative cancel-out
+                                                    globalDataMap.set(nameKey, { 
+                                                        stock: Math.max(existing.stock, pStock),
+                                                        image: existing.image || p.image_url 
+                                                    });
+                                                }
+                                            });
+
+                                            const subProdMap = new Map();
+                                            filteredSubProds.forEach(p => {
+                                                const branchPrice = branchPrices.find(bp => bp.product_id === p.id && bp.branch_id === currentUser?.branch_id);
+                                                const finalPrice = branchPrice ? branchPrice.price : p.price;
+                                                const key = (p.name || '').trim().toUpperCase();
+                                                const bInv = branchInventory.find(bi => bi.product_id === p.id && bi.branch_id === currentUser?.branch_id);
+                                                const localStock = bInv ? bInv.quantity : (p.stock_actual || p.stock_quantity || 0);
+
+                                                if (!subProdMap.has(key)) {
+                                                    const gData = globalDataMap.get(key);
+                                                    const shadowStock = gData?.stock ?? localStock;
+                                                    subProdMap.set(key, { ...p, image_url: p.image_url || gData?.image, price: finalPrice > 0 ? finalPrice : p.price, finalPrice, consolidatedStock: shadowStock });
+                                                } else {
+                                                    const existing = subProdMap.get(key);
+                                                    const gData = globalDataMap.get(key);
+                                                    existing.image_url = existing.image_url || p.image_url || gData?.image;
+                                                    if (finalPrice > 0) {
+                                                        existing.finalPrice = finalPrice;
+                                                        existing.price = finalPrice;
+                                                        existing.id = p.id;
+                                                        existing.menu_category_id = p.menu_category_id;
+                                                    }
+                                                }
+                                            });
+
+                                            return Array.from(subProdMap.values())
+                                                .sort((a: any, b: any) => {
+                                                    const prioA = a.priority ?? 999;
+                                                    const prioB = b.priority ?? 999;
+                                                    if (prioA !== prioB) return prioA - prioB;
+                                                    return (a.name || '').localeCompare(b.name || '');
+                                                })
+                                                .map(product => {
+                                                return (
+                                                    <ProductCard
+                                                        key={product.id}
+                                                        product={{ ...product, price: product.finalPrice }}
+                                                        stockOverride={product.consolidatedStock}
+                                                        currency={currency}
+                                                        onClick={() => handleProductClick(product)}
+                                                        isChecking={checkingProducts.has(product.id)}
+                                                    />
+                                                );
+                                            });
+                                        })()}
                                     </div>
                                 )}
                             </div>
