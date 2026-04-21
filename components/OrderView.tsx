@@ -2290,7 +2290,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         return;
                                     }
                                     setPendingAction('cancel');
-                                    setShowPinModal(true);
+                                    setShowVoidModal(true);
                                 }}
                                 disabled={!activeOrderId}
                                 className={`h-[50px] px-8 rounded-lg text-sm font-bold transition-all ${activeOrderId
@@ -2659,56 +2659,44 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 />
 
                 {showVoidModal && (
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-6 animate-fade-in shadow-2xl backdrop-blur-sm">
-                        <div className="w-full max-w-[420px] bg-[#1e212b] rounded-[2.5rem] p-8 border-2 border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-                            <div className="flex items-center gap-5 mb-8">
-                                <div className="p-5 bg-red-500/10 rounded-3xl text-red-500 shadow-inner">
-                                    <Trash2 size={36} />
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter leading-none mb-1">Justificar Anulación</h3>
-                                    <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em]">{pendingAction === 'cancel' ? 'TODA LA ORDEN' : itemToVoid?.product_name}</p>
-                                </div>
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-6 animate-fade-in">
+                        <div className="w-full max-w-[420px] bg-[#2b2d3d] rounded-xl border border-white/10 shadow-2xl overflow-hidden">
+                            {/* HEADER */}
+                            <div className="bg-[#1e1f2b] py-3 px-4 border-b border-white/5">
+                                <h3 className="text-sm font-bold text-white text-center">Motivo Anulación</h3>
                             </div>
 
-                            <p className="text-[10px] text-gray-500 mb-4 font-black uppercase tracking-[0.2em] px-1">{pendingAction === 'cancel' ? 'Razón de anulación de la ORDEN (Mín. 5 car.):' : 'Razón de la anulación del ITEM (Mín. 5 car.):'}</p>
+                            <div className="p-6">
+                                <textarea
+                                    autoFocus
+                                    value={voidReason}
+                                    onChange={(e) => setVoidReason(e.target.value)}
+                                    placeholder="Describa el motivo..."
+                                    className="w-full h-40 bg-[#1e1f2b] border border-white/10 rounded-lg p-4 text-white focus:border-indigo-500/50 outline-none transition-all resize-none text-sm placeholder:text-gray-500"
+                                />
 
-                            <textarea
-                                autoFocus
-                                value={voidReason}
-                                onChange={(e) => setVoidReason(e.target.value)}
-                                onKeyDown={(e) => { if (e.key === 'Enter' && voidReason.trim().length >= 5) handleVoidItem(); }}
-                                placeholder="Escribe aquí el motivo del cambio..."
-                                className="w-full h-32 bg-black/40 border-2 border-white/5 rounded-2xl p-5 text-white focus:border-red-500/30 outline-none transition-all resize-none font-bold placeholder:text-gray-600 shadow-inner"
-                            />
-
-                            <div className="mt-3 flex justify-between px-2">
-                                <span className={`text-[10px] font-black uppercase tracking-widest ${voidReason.trim().length >= 5 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                    {voidReason.trim().length} / 5 Caracteres
-                                </span>
-                            </div>
-
-                            <div className="flex gap-4 mt-10">
-                                <button
-                                    onClick={() => { setShowVoidModal(false); setItemToVoid(null); setVoidReason(''); }}
-                                    className="flex-1 py-5 bg-white/5 hover:bg-white/10 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] text-gray-500 transition-all border border-white/5"
-                                >
-                                    Cerrar
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        if (pendingAction === 'cancel') {
-                                            setShowVoidModal(false);
-                                            setShowPinModal(true);
-                                        } else {
-                                            handleVoidItem();
-                                        }
-                                    }}
-                                    disabled={voidReason.trim().length < 5 || processing}
-                                    className="flex-[1.8] py-5 bg-red-600 disabled:bg-gray-800/50 disabled:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-red-600/20 active:scale-95 transition-all"
-                                >
-                                    {processing ? <Loader2 className="animate-spin mx-auto" size={18} /> : (pendingAction === 'cancel' ? 'PROCEDER A AUTORIZAR' : 'ANULAR PRODUCTO')}
-                                </button>
+                                <div className="flex gap-4 mt-6">
+                                    <button
+                                        onClick={() => { setShowVoidModal(false); setItemToVoid(null); setVoidReason(''); }}
+                                        className="flex-1 py-3 border border-white/20 rounded-lg font-bold text-xs text-white uppercase tracking-wider hover:bg-white/5 transition-all"
+                                    >
+                                        CANCELAR
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            if (pendingAction === 'cancel') {
+                                                setShowVoidModal(false);
+                                                setShowPinModal(true);
+                                            } else {
+                                                handleVoidItem();
+                                            }
+                                        }}
+                                        disabled={voidReason.trim().length < 5 || processing}
+                                        className="flex-1 py-3 bg-[#6366f1] disabled:bg-gray-700 disabled:opacity-50 text-white rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg shadow-indigo-500/20 active:scale-95 transition-all"
+                                    >
+                                        {processing ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'ACEPTAR'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

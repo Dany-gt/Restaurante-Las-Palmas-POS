@@ -99,14 +99,9 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
 
     const isStaff = currentUser?.role === 'ADMIN' || currentUser?.role === 'MASTER' || currentUser?.role === 'SOPORTE';
 
-    // Permiso: SEGURIDAD DE PAGOS -> Bloquear eliminación de propina
-    // Solo aplica si el usuario NO es Staff (Admin/Master) y tiene el permiso de bloqueo
-    const hasTipLock = !isStaff && currentUser?.permissions?.some(p => {
-        const perm = p.toLowerCase().trim();
-        return perm.includes('bloquear eliminación de propina') ||
-            perm.includes('bloquear eliminacion de propina') ||
-            perm === 'seguridad de pagos:bloquear eliminación de propina';
-    });
+    // Permiso: SEGURIDAD -> Bloquear eliminación/modificación de propina
+    // Se aplica a CAJEROS y MESEROS. Solo Administración (Staff) queda libre.
+    const hasTipLock = !isStaff && (currentUser?.role === 'CAJERO' || currentUser?.role === 'MESERO');
 
     const currency = (settings?.currency === 'GTQ' || settings?.currency === 'Q') ? 'Q.' : (settings?.currency || 'Q.');
     const subtotal = order.subtotal || 0;
@@ -1143,6 +1138,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     onConfirm={handleTipConfirm}
                     amount={pendingTipAmount || currentTip}
                     currency={currency}
+                    isLocked={hasTipLock}
                 />
             )}
 

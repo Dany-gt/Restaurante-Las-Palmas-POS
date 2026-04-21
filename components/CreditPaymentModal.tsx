@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Search, User, CreditCard, Loader2, Receipt } from 'lucide-react';
+import { X, Search, User, CreditCard, Loader2, Save, Banknote, CreditCard as CardIcon, Wallet, ArrowLeft, Check } from 'lucide-react';
 import { supabase } from '../supabase';
-import { QIcon } from './QIcon';
 
 interface CreditPaymentModalProps {
     onClose: () => void;
@@ -22,9 +21,8 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
     const [customers, setCustomers] = useState<CustomerDebt[]>([]);
     const [selectedCustomer, setSelectedCustomer] = useState<CustomerDebt | null>(null);
     const [loading, setLoading] = useState(false);
-    const [amount, setAmount] = useState('');
+    const [amount, setAmount] = useState('0.00');
     const [paymentMethod, setPaymentMethod] = useState('EFECTIVO');
-    const [description, setDescription] = useState('');
     const [processing, setProcessing] = useState(false);
 
     // Buscar clientes con deuda
@@ -35,14 +33,13 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                 let query = supabase
                     .from('receivables_summary')
                     .select('*')
-                    .gt('saldo', 0); // Solo clientes con deuda
+                    .gt('saldo', 0); 
 
                 if (searchTerm) {
                     query = query.or(`customer_name.ilike.%${searchTerm}%,client_nit.ilike.%${searchTerm}%`);
                 }
 
                 const { data, error } = await query.limit(10);
-
                 if (error) throw error;
                 setCustomers(data || []);
             } catch (err) {
@@ -55,258 +52,236 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
         const timer = setTimeout(() => {
             searchCustomers();
         }, 300);
-
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
+    const handleKeypad = (val: string) => {
+        if (val === 'DEL') {
+            setAmount(prev => prev.length > 1 ? prev.slice(0, -1) : '0');
+        } else if (val === '.') {
+            if (!amount.includes('.')) setAmount(prev => prev + '.');
+        } else {
+            setAmount(prev => prev === '0' || prev === '0.00' ? val : prev + val);
+        }
+    };
+
     const handlePayment = async () => {
-        if (!selectedCustomer || !amount) return;
+        if (!selectedCustomer || parseFloat(amount) <= 0) return;
 
         const paymentAmount = parseFloat(amount);
-        if (paymentAmount <= 0) {
-            alert('El monto debe ser mayor a 0');
-            return;
-        }
-
         if (paymentAmount > selectedCustomer.saldo) {
             alert('El abono no puede ser mayor al saldo pendiente');
             return;
         }
 
-        const paymentId = crypto.randomUUID();
         const paymentData = {
-            id: paymentId,
+            id: crypto.randomUUID(),
             customer_id: selectedCustomer.id,
             amount: paymentAmount,
             payment_method: paymentMethod,
-            description: description || `Abono en Caja - ${paymentMethod}`,
+            description: `Abono a Crédito - ${paymentMethod}`,
             created_by: currentUserId,
             created_at: new Date().toISOString()
         };
 
-        if (!navigator.onLine) {
-            try {
-                await import('../services/OfflineDB').then(m => m.offlineDB.saveRecord('CREDIT_PAYMENT', paymentData));
-                console.log('📦 Abono guardado offline (IndexedDB):', paymentId);
-                alert('✅ Abono registrado localmente (Offline). Se aplicará al reconectar.');
-                onClose();
-                window.dispatchEvent(new CustomEvent('offline-sync-trigger'));
-                return;
-            } catch (e) {
-                console.error('Error saving credit payment offline:', e);
-            }
-        }
-
         setProcessing(true);
         try {
-            const { data, error } = await supabase.rpc('register_credit_payment', {
+            const { error } = await supabase.rpc('register_credit_payment', {
                 p_customer_id: selectedCustomer.id,
                 p_amount: paymentAmount,
                 p_payment_method: paymentMethod,
-                p_description: description || `Abono en Caja - ${paymentMethod}`,
+                p_description: paymentData.description,
                 p_created_by: currentUserId
             });
-
             if (error) throw error;
-
-            const result = typeof data === 'string' ? JSON.parse(data) : data;
-
-            if (!result.success) {
-                throw new Error(result.error);
-            }
-
-            alert(`✅ Abono registrado correctamente\nNuevo saldo: Q${result.new_balance.toFixed(2)}`);
             onClose();
-
         } catch (error: any) {
-            console.error('Error procesando pago:', error);
-            // Fallback to offline
-            await import('../services/OfflineDB').then(m => m.offlineDB.saveRecord('CREDIT_PAYMENT', paymentData));
-            alert('⚠️ Error de conexión: El abono se guardó localmente y se sincronizará luego.');
-            onClose();
-            window.dispatchEvent(new CustomEvent('offline-sync-trigger'));
+            console.error(error);
+            alert('⚠️ Error al procesar el pago.');
         } finally {
             setProcessing(false);
         }
     };
 
+    const calculateNewBalance = () => {
+        if (!selectedCustomer) return 0;
+        return Math.max(0, selectedCustomer.saldo - (parseFloat(amount) || 0));
+    };
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-fade-in">
-            <div className="w-full max-w-2xl bg-[#1a1f2e] rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                {/* Header */}
-                <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
-                            <CreditCard size={24} />
+        <div className="fixed inset-0 z-50 bg-[#282a36] flex flex-col font-sans select-none overflow-hidden">
+            
+            {/* Top Bar Personalizada */}
+            <div className="h-[60px] flex items-center justify-between px-6 bg-[#21232d] border-b border-black/20 shrink-0">
+                <div className="flex items-center gap-6">
+                    <button 
+                        onClick={onClose}
+                        className="h-10 px-4 bg-white/5 hover:bg-white/10 rounded-lg flex items-center justify-center text-gray-400 group transition-all"
+                    >
+                        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                    </button>
+                    <span className="text-sm font-black text-indigo-400 uppercase tracking-tighter">RESTAURANTE LAS PALMAS POS</span>
+                </div>
+
+                <div className="flex items-center gap-8">
+                    <div className="flex flex-col items-end">
+                        <span className="text-xs font-black text-[#f8f8f2] uppercase">DANILO PEREZ</span>
+                        <span className="text-[10px] font-bold text-[#50fa7b] uppercase tracking-widest">Abono A Créditos</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex-1 flex items-center justify-center gap-12 p-12 overflow-hidden">
+                
+                {/* COL 1: Cuentas por Cobrar (Trabajadores/Clientes) */}
+                <div className="w-[360px] flex flex-col gap-4">
+                    <div className="bg-[#383a59]/30 rounded-sm border border-white/5 overflow-hidden flex flex-col h-[480px]">
+                        <div className="p-2 border-b border-white/5 text-center bg-[#383a59]/50 shrink-0">
+                            <span className="text-[11px] font-bold text-gray-300 uppercase tracking-wider">Cuentas por Cobrar</span>
                         </div>
-                        <div>
-                            <h2 className="text-2xl font-black text-white tracking-tight uppercase">Abono a Crédito</h2>
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Registrar pago de cliente</p>
+                        <div className="p-3 bg-black/10 shrink-0">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" size={14} />
+                                <input
+                                    type="text"
+                                    placeholder=""
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full bg-black/20 border border-white/10 rounded h-9 pl-9 pr-4 text-xs font-bold text-white uppercase focus:outline-none"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-2 space-y-1 bg-black/10">
+                            {loading ? (
+                                <div className="flex justify-center py-8"><Loader2 className="animate-spin text-gray-600" size={20} /></div>
+                            ) : customers.length === 0 ? (
+                                <div className="py-8 text-center text-[10px] uppercase font-bold text-gray-700">Sin resultados</div>
+                            ) : customers.map(c => (
+                                <button
+                                    key={c.id}
+                                    onClick={() => setSelectedCustomer(c)}
+                                    className={`w-full p-3 rounded-sm border transition-all text-left ${
+                                        selectedCustomer?.id === c.id 
+                                        ? 'bg-[#383a59] border-[#6272a4] shadow-lg' 
+                                        : 'bg-[#282a36]/50 border-transparent hover:bg-[#383a59]/30'
+                                    }`}
+                                >
+                                    <div className="text-[10px] font-black text-gray-200 uppercase truncate">{c.customer_name}</div>
+                                </button>
+                            ))}
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors">
-                        <X size={24} />
+                </div>
+
+                {/* COL 2: El Ticket */}
+                <div className="w-[320px] h-[480px] bg-[#44475a] shadow-2xl relative flex flex-col">
+                    <div className="p-8 flex-1 space-y-4">
+                        <div className="flex justify-between items-center text-[11px] font-bold">
+                            <span className="text-gray-200 uppercase tracking-wider">Saldo Actual</span>
+                            <span className="text-white">Q{selectedCustomer?.saldo.toFixed(2) || '0.00'}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-[11px] font-bold">
+                            <span className="text-gray-200 uppercase tracking-wider">Efectivo</span>
+                            <span className="text-white">Q{paymentMethod === 'EFECTIVO' ? parseFloat(amount).toFixed(2) : '0.00'}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-[11px] font-bold">
+                            <span className="text-gray-200 uppercase tracking-wider">Tarjeta</span>
+                            <span className="text-white">Q{paymentMethod === 'TARJETA' ? parseFloat(amount).toFixed(2) : '0.00'}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-[11px] font-bold border-b border-white/10 pb-4">
+                            <span className="text-gray-200 uppercase tracking-wider">Otros</span>
+                            <span className="text-white">Q{paymentMethod === 'OTROS' ? parseFloat(amount).toFixed(2) : '0.00'}</span>
+                        </div>
+                        <div className="flex justify-between items-center pt-2">
+                            <span className="text-[12px] font-black text-white uppercase">Saldo Nuevo</span>
+                            <span className="text-[12px] font-black text-white uppercase tracking-tight">Q{calculateNewBalance().toFixed(2)}</span>
+                        </div>
+                    </div>
+                    {/* Zigzag bottom effect */}
+                    <div className="h-4 bg-[#44475a] shrink-0" style={{ clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 95% 75%, 90% 100%, 85% 75%, 80% 100%, 75% 75%, 70% 100%, 65% 75%, 60% 100%, 55% 75%, 50% 100%, 45% 75%, 40% 100%, 35% 75%, 30% 100%, 25% 75%, 20% 100%, 15% 75%, 10% 100%, 5% 75%, 0% 100%)' }}></div>
+                </div>
+
+                {/* COL 3: Cobro Proporcionado */}
+                <div className="flex flex-col gap-4">
+                    {/* Display */}
+                    <div className="w-[360px] bg-[#21222c] border border-white/5 p-4 text-center rounded-sm">
+                        <span className="text-2xl font-black text-white tracking-widest">Q{amount}</span>
+                    </div>
+
+                    <div className="flex gap-3">
+                        {/* Keypad Ajustado */}
+                        <div className="w-[280px] grid grid-cols-3 gap-1 bg-[#44475a]/20 p-1 rounded-sm border border-white/5">
+                            {[7, 8, 9, 4, 5, 6, 1, 2, 3].map((n) => (
+                                <button 
+                                    key={n} 
+                                    onClick={() => handleKeypad(n.toString())}
+                                    className="h-16 bg-[#282a36]/80 hover:bg-[#44475a] text-sm font-black text-white transition-all flex items-center justify-center rounded-sm"
+                                >
+                                    {n}
+                                </button>
+                            ))}
+                            <button onClick={() => handleKeypad('DEL')} className="h-16 bg-[#282a36]/80 hover:bg-[#ff5555]/20 flex items-center justify-center text-gray-500 rounded-sm">
+                                <DeleteIcon size={18} />
+                            </button>
+                            <button onClick={() => handleKeypad('0')} className="h-16 bg-[#282a36]/80 hover:bg-[#44475a] text-sm font-black text-white flex items-center justify-center rounded-sm">0</button>
+                            <button onClick={() => handleKeypad('.')} className="h-16 bg-[#282a36]/80 hover:bg-[#44475a] text-sm font-black text-white flex items-center justify-center rounded-sm">.</button>
+                        </div>
+
+                        {/* Métodos Íconos */}
+                        <div className="flex flex-col gap-1 w-[70px]">
+                            <button 
+                                onClick={() => setPaymentMethod('EFECTIVO')}
+                                className={`flex-1 flex flex-col items-center justify-center rounded-sm border transition-all gap-1 ${
+                                    paymentMethod === 'EFECTIVO' ? 'bg-[#383a59] border-blue-500/50 text-white' : 'bg-[#282a36]/80 border-white/5 text-gray-500'
+                                }`}
+                            >
+                                <Banknote size={16} />
+                                <span className="text-[8px] font-bold uppercase">Efectivo</span>
+                            </button>
+                            <button 
+                                onClick={() => setPaymentMethod('TARJETA')}
+                                className={`flex-1 flex flex-col items-center justify-center rounded-sm border transition-all gap-1 ${
+                                    paymentMethod === 'TARJETA' ? 'bg-[#383a59] border-blue-500/50 text-white' : 'bg-[#282a36]/80 border-white/5 text-gray-500'
+                                }`}
+                            >
+                                <CardIcon size={16} />
+                                <span className="text-[8px] font-bold uppercase">Tarjeta</span>
+                            </button>
+                            <button 
+                                onClick={() => setPaymentMethod('OTROS')}
+                                className={`flex-1 flex flex-col items-center justify-center rounded-sm border transition-all gap-1 ${
+                                    paymentMethod === 'OTROS' ? 'bg-[#383a59] border-blue-500/50 text-white' : 'bg-[#282a36]/80 border-white/5 text-gray-500'
+                                }`}
+                            >
+                                <Wallet size={16} />
+                                <span className="text-[8px] font-bold uppercase">Otros</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button 
+                        onClick={handlePayment}
+                        disabled={!selectedCustomer || parseFloat(amount) <= 0 || processing}
+                        className={`w-full h-12 rounded-sm font-black uppercase text-xs tracking-widest transition-all ${
+                            !selectedCustomer || parseFloat(amount) <= 0 
+                            ? 'bg-[#44475a] text-gray-600' 
+                            : 'bg-[#6272a4] hover:bg-[#7282b4] text-white shadow-lg'
+                        }`}
+                    >
+                        {processing ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'PAGAR'}
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-6">
-                    {!selectedCustomer ? (
-                        /* SEARCH MODE */
-                        <div className="space-y-6">
-                            <div className="relative">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                                <input
-                                    type="text"
-                                    placeholder="BUSCAR POR NOMBRE O NIT..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full h-14 pl-12 pr-4 bg-black/20 border border-white/10 rounded-2xl text-white font-bold placeholder:text-gray-500 focus:outline-none focus:border-blue-500/50 transition-all uppercase"
-                                    autoFocus
-                                />
-                            </div>
-
-                            {loading ? (
-                                <div className="flex justify-center py-12">
-                                    <Loader2 className="animate-spin text-blue-500" size={32} />
-                                </div>
-                            ) : customers.length === 0 ? (
-                                <div className="text-center py-12 text-gray-500">
-                                    <User size={48} className="mx-auto mb-4 opacity-50" />
-                                    <p className="font-bold">NO SE ENCONTRARON CLIENTES CON DEUDA</p>
-                                </div>
-                            ) : (
-                                <div className="grid gap-3">
-                                    {customers.map((c) => (
-                                        <button
-                                            key={c.id}
-                                            onClick={() => {
-                                                setSelectedCustomer(c);
-                                                setAmount(''); // Reset amount when selecting customer
-                                            }}
-                                            className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-blue-500/30 rounded-2xl transition-all group text-left"
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 group-hover:text-white">
-                                                    <User size={20} />
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-black text-white uppercase">{c.customer_name}</h3>
-                                                    {c.client_nit && (
-                                                        <span className="text-xs font-bold text-gray-500 bg-black/30 px-2 py-0.5 rounded">NIT: {c.client_nit}</span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Saldo Pendiente</p>
-                                                <p className="text-xl font-black text-red-400 group-hover:text-red-300">
-                                                    Q{c.saldo.toLocaleString('es-GT', { minimumFractionDigits: 2 })}
-                                                </p>
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        /* PAYMENT MODE */
-                        <div className="space-y-6 animate-slide-up">
-                            {/* Selected Customer Card */}
-                            <div className="p-5 bg-blue-500/10 border border-blue-500/20 rounded-3xl flex justify-between items-center">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
-                                        <User size={24} />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-black text-lg text-white uppercase">{selectedCustomer.customer_name}</h3>
-                                        <p className="text-xs font-bold text-blue-300">NIT: {selectedCustomer.client_nit || 'C/F'}</p>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => setSelectedCustomer(null)}
-                                    className="px-4 py-2 bg-black/20 hover:bg-black/40 rounded-xl text-xs font-black text-white uppercase tracking-widest transition-colors"
-                                >
-                                    Cambiar
-                                </button>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 bg-black/20 rounded-2xl border border-white/5">
-                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Saldo Actual</span>
-                                    <span className="text-2xl font-black text-red-400 block">
-                                        Q{selectedCustomer.saldo.toLocaleString('es-GT', { minimumFractionDigits: 2 })}
-                                    </span>
-                                </div>
-                                <div className="p-4 bg-black/20 rounded-2xl border border-white/5">
-                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Nuevo Saldo</span>
-                                    <span className={`text-2xl font-black block ${amount && parseFloat(amount) > selectedCustomer.saldo ? 'text-red-500' : 'text-emerald-400'}`}>
-                                        Q{Math.max(0, selectedCustomer.saldo - (parseFloat(amount) || 0)).toLocaleString('es-GT', { minimumFractionDigits: 2 })}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Monto a Abonar</label>
-                                    <div className="relative">
-                                        <QIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500" size={20} />
-                                        <input
-                                            type="number"
-                                            value={amount}
-                                            onChange={(e) => setAmount(e.target.value)}
-                                            className="w-full h-16 pl-12 pr-4 bg-black/30 border border-white/10 focus:border-emerald-500/50 rounded-2xl text-3xl font-black text-white placeholder:text-gray-700 outline-none transition-all"
-                                            placeholder="0.00"
-                                            autoFocus
-                                            min="0"
-                                            step="0.01"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Método de Pago</label>
-                                        <select
-                                            value={paymentMethod}
-                                            onChange={(e) => setPaymentMethod(e.target.value)}
-                                            className="w-full h-12 px-4 bg-black/30 border border-white/10 rounded-2xl text-white font-bold outline-none focus:border-blue-500/30"
-                                        >
-                                            <option value="EFECTIVO">EFECTIVO</option>
-                                            <option value="TARJETA">TARJETA</option>
-                                            <option value="TRANSFERENCIA">TRANSFERENCIA</option>
-                                            <option value="CHEQUE">CHEQUE</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Nota (Opcional)</label>
-                                        <input
-                                            type="text"
-                                            value={description}
-                                            onChange={(e) => setDescription(e.target.value)}
-                                            placeholder="REFERENCIA..."
-                                            className="w-full h-12 px-4 bg-black/30 border border-white/10 rounded-2xl text-white font-bold outline-none focus:border-blue-500/30 placeholder:text-gray-600"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={handlePayment}
-                                disabled={!amount || parseFloat(amount) <= 0 || processing}
-                                className="w-full h-16 mt-6 bg-emerald-500 hover:bg-emerald-400 disabled:bg-gray-800 disabled:text-gray-600 rounded-2xl text-white text-lg font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
-                            >
-                                {processing ? (
-                                    <Loader2 className="animate-spin" size={24} />
-                                ) : (
-                                    <>
-                                        <Receipt size={24} />
-                                        CONFIRMAR ABONO
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    )}
-                </div>
             </div>
         </div>
     );
 };
+
+const DeleteIcon = ({ size }: { size: number }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+        <line x1="18" y1="9" x2="12" y2="15"></line>
+        <line x1="12" y1="9" x2="18" y2="15"></line>
+    </svg>
+);
+

@@ -119,41 +119,35 @@ export const PinModalV2: React.FC<PinModalProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-xl p-6 animate-fade-in touch-none">
-            {/* Decorative elements */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-gray-500/10 rounded-full blur-[80px] pointer-events-none"></div>
-
-            <div className="w-full max-w-[280px] bg-[#323544]/95 backdrop-blur-2xl rounded-[2rem] p-6 border border-white/10 shadow-[0_0_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden ring-1 ring-white/5">
-                {/* Top Shine */}
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-6 touch-none">
+            <div className="w-full max-w-[300px] bg-[#1e1f2b] rounded-lg p-6 border border-white/10 shadow-2xl relative overflow-hidden">
                 <div className="flex justify-end mb-2">
-                    <button onClick={onClose} className="p-1.5 text-white/30 hover:text-white transition-colors bg-white/5 rounded-full hover:bg-white/10">
+                    <button onClick={onClose} className="p-1.5 text-white/30 hover:text-white transition-colors bg-white/5 rounded-md hover:bg-white/10">
                         <X size={14} />
                     </button>
                 </div>
 
                 <div className="flex flex-col items-center mb-6 relative z-10">
-                    <span className="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase mb-3 opacity-80">{title}</span>
-                    <h3 className="text-xs font-medium text-gray-400 text-center uppercase tracking-widest mb-4 px-4 leading-relaxed">{subtitle}</h3>
+                    <span className="text-[10px] font-black text-gray-500 tracking-[0.2em] uppercase mb-2 opacity-80">{title}</span>
+                    <h3 className="text-xs font-bold text-gray-400 text-center uppercase tracking-widest mb-6 px-4 leading-relaxed">{subtitle}</h3>
 
                     {error && (
                         <div className="absolute top-0 translate-y-16 w-full flex justify-center z-50">
-                            <span className="text-[9px] font-bold text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-1 rounded-full animate-shake backdrop-blur-md">
+                            <span className="text-[9px] font-black text-white bg-indigo-600 px-3 py-1.5 rounded-md shadow-lg">
                                 {error}
                             </span>
                         </div>
                     )}
 
-                    <div className="flex gap-3 mb-2">
+                    <div className="flex gap-4 mb-2">
                         {[...Array(4)].map((_, i) => (
                             <div
                                 key={i}
                                 className={`
-                                    w-3 h-3 rounded-full border border-gray-500/30 transition-all duration-300
+                                    w-3 h-3 border border-gray-700 transition-all duration-200
                                     ${pin.length > i
-                                        ? 'bg-gray-200 scale-110 shadow-[0_0_10px_rgba(255,255,255,0.4)] border-gray-200'
-                                        : 'bg-white/5 scale-100'
+                                        ? 'bg-indigo-500 border-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.4)]'
+                                        : 'bg-black/40'
                                     }
                                 `}
                             />
@@ -161,17 +155,17 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                     </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 relative z-10 place-items-center">
+                <div className="grid grid-cols-3 gap-2.5 relative z-10 place-items-center">
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((key) => (
                         <button
                             key={key}
                             onClick={() => handlePinInput(key.toString())}
                             disabled={loading}
                             className="
-                                group relative w-12 h-12 rounded-full text-lg font-medium text-white/90 
-                                transition-all duration-200 active:scale-90 flex items-center justify-center 
-                                bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-white/10
-                                shadow-lg shadow-black/20 disabled:opacity-50 disabled:pointer-events-none
+                                group relative w-16 h-14 rounded-md text-xl font-bold text-white/90 
+                                transition-all duration-100 active:scale-95 flex items-center justify-center 
+                                bg-white/5 hover:bg-white/10 border border-white/5
+                                shadow-lg disabled:opacity-50 disabled:pointer-events-none
                             "
                         >
                             <span className="relative z-10">{key}</span>
@@ -182,23 +176,23 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                         onClick={() => setPin('')}
                         disabled={loading}
                         className="
-                            group relative w-12 h-12 rounded-full text-[9px] font-bold text-red-400/90 
-                            transition-all duration-200 active:scale-90 flex items-center justify-center 
-                            bg-red-500/[0.05] hover:bg-red-500/[0.1] border border-red-500/10 hover:border-red-500/20
+                            group relative w-16 h-14 rounded-md text-[10px] font-black text-gray-400 
+                            transition-all duration-100 active:scale-95 flex items-center justify-center 
+                            bg-white/5 hover:bg-white/10 border border-white/5
                             disabled:opacity-50 disabled:pointer-events-none
                         "
                     >
-                        CLEAR
+                        BORRAR
                     </button>
 
                     <button
                         onClick={() => handlePinInput('0')}
                         disabled={loading}
                         className="
-                            group relative w-12 h-12 rounded-full text-lg font-medium text-white/90 
-                            transition-all duration-200 active:scale-90 flex items-center justify-center 
-                            bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-white/10
-                            shadow-lg shadow-black/20 disabled:opacity-50 disabled:pointer-events-none
+                            group relative w-16 h-14 rounded-md text-xl font-bold text-white/90 
+                            transition-all duration-100 active:scale-95 flex items-center justify-center 
+                            bg-white/5 hover:bg-white/10 border border-white/5
+                            shadow-lg disabled:opacity-50 disabled:pointer-events-none
                         "
                     >
                         0
@@ -208,13 +202,13 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                         onClick={handleSubmit}
                         disabled={loading}
                         className="
-                            group relative w-12 h-12 rounded-full text-base font-bold text-white 
-                            transition-all duration-200 active:scale-90 flex items-center justify-center 
-                            bg-[#2563EB] hover:bg-[#1d4ed8] border border-blue-400/20 
-                            shadow-[0_0_15px_-5px_rgba(37,99,235,0.5)] disabled:opacity-50 disabled:pointer-events-none
+                            group relative w-16 h-14 rounded-md text-sm font-black text-white 
+                            transition-all duration-100 active:scale-95 flex items-center justify-center 
+                            bg-indigo-600 hover:bg-indigo-500 border border-indigo-400/20 
+                            shadow-lg disabled:opacity-50 disabled:pointer-events-none
                         "
                     >
-                        {loading ? <Loader2 className="animate-spin" size={18} /> : 'OK'}
+                        {loading ? <Loader2 className="animate-spin" size={20} /> : 'OK'}
                     </button>
                 </div>
             </div>

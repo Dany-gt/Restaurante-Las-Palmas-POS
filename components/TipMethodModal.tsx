@@ -7,6 +7,7 @@ interface TipMethodModalProps {
     onConfirm: (method: 'EFECTIVO' | 'TARJETA' | 'OTROS', amount: number) => void;
     amount: number;
     currency: string;
+    isLocked?: boolean;
 }
 
 export const TipMethodModal: React.FC<TipMethodModalProps> = ({
@@ -14,7 +15,8 @@ export const TipMethodModal: React.FC<TipMethodModalProps> = ({
     onClose,
     onConfirm,
     amount: initialAmount,
-    currency
+    currency,
+    isLocked = false
 }) => {
     const [localAmount, setLocalAmount] = useState<string>(initialAmount.toFixed(2));
 
@@ -54,13 +56,13 @@ export const TipMethodModal: React.FC<TipMethodModalProps> = ({
                                     step="0.01"
                                     value={localAmount}
                                     onChange={(e) => setLocalAmount(e.target.value)}
-                                    className="bg-transparent text-5xl font-black tabular-nums tracking-tighter text-indigo-400 border-none outline-none w-48 text-center focus:ring-0"
+                                    className={`bg-transparent text-5xl font-black tabular-nums tracking-tighter border-none outline-none w-48 text-center focus:ring-0 ${isLocked ? 'text-indigo-400/80 cursor-pointer' : 'text-indigo-400'}`}
                                     autoFocus
                                 />
                             </div>
-                            <div className="mt-2 flex items-center justify-center gap-1.5 text-indigo-400/40 text-[9px] font-black uppercase tracking-widest group-hover:text-indigo-400/60 transition-colors">
-                                <Edit3 size={10} />
-                                <span>Editar Monto</span>
+                            <div className={`mt-2 flex items-center justify-center gap-1.5 text-[9px] font-black uppercase tracking-widest transition-colors ${isLocked ? 'text-amber-500/60' : 'text-indigo-400/40 group-hover:text-indigo-400/60'}`}>
+                                {isLocked ? <Edit3 size={10} /> : <Edit3 size={10} />}
+                                <span>{isLocked ? 'Editar (Requiere PIN)' : 'Editar Monto'}</span>
                             </div>
                         </div>
                     </div>
@@ -99,9 +101,9 @@ export const TipMethodModal: React.FC<TipMethodModalProps> = ({
 
                     <button
                         onClick={() => onConfirm('EFECTIVO', 0)}
-                        className="w-full py-4 mt-6 rounded-2xl border border-dashed border-white/10 text-gray-500 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/5 transition-all font-black text-[10px] uppercase tracking-[0.2em]"
+                        className={`w-full py-4 mt-6 rounded-2xl border border-dashed transition-all font-black text-[10px] uppercase tracking-[0.2em] ${isLocked ? 'border-amber-500/20 text-amber-500/60 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/5' : 'border-white/10 text-gray-500 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/5'}`}
                     >
-                        QUITAR / SIN PROPINA
+                        {isLocked ? 'QUITAR PROPINA (PIDE PIN)' : 'QUITAR / SIN PROPINA'}
                     </button>
                 </div>
 

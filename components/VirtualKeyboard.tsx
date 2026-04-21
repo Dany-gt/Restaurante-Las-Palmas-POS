@@ -178,62 +178,49 @@ export const VirtualKeyboard: React.FC = () => {
     useEffect(() => {
         const handleInputInteraction = (e: Event) => {
             const target = e.target as HTMLElement;
-            if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
-                const input = target as HTMLInputElement | HTMLTextAreaElement;
+            const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+            
+            if (!isInput) return;
 
-                // 1. Check if we should IGNORE this input
-                if (['button', 'submit', 'checkbox', 'radio', 'hidden', 'file', 'date', 'datetime-local', 'time', 'color', 'range'].includes(input.type)) return;
+            const input = target as HTMLInputElement | HTMLTextAreaElement;
 
-                // 2. Check for EXPLICT EXCLUSION
-                const isNumericType = input.type === 'number' || input.type === 'tel';
-                const hasExplicitTrigger = input.classList.contains('virtual-keyboard-trigger') || input.hasAttribute('data-virtual-keyboard');
-                const hasExplicitIgnore = input.classList.contains('no-virtual-keyboard') || input.hasAttribute('data-no-keyboard');
-
-                if (hasExplicitIgnore) return;
-
-                let shouldShow = false;
-
-                if (hasExplicitTrigger) {
-                    shouldShow = true;
-                } else if (isNumericType) {
-                    shouldShow = true; // Allow numeric types
-                } else {
-                    shouldShow = true;
-                }
-
-                if (!shouldShow) return;
-
-                setActiveElement(input);
-                setIsVisible(true);
-
-                // Auto-capitalize at start of input or after sentence-ending punctuation
-                if (!showNumpadOnly) {
-                    const shouldCap = shouldAutoCapitalize(input.value);
-                    setIsShift(shouldCap);
-                }
-
-                // Suppress native OS keyboard ONLY on mobile/tablets, NOT on Electron/Desktop
-                // This allows physical keyboard to work properly on desktop
-                const isElectron = (window as any).electron;
-                const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-
-                if (!isElectron && isTouchDevice) {
-                    input.setAttribute('inputmode', 'none');
-                }
-
-                // Determine mode
-                if (input.type === 'number' || input.type === 'tel' || input.dataset.keyboard === 'numeric') {
-                    setShowNumpadOnly(true);
-                } else {
-                    setShowNumpadOnly(false);
-                }
-
-                // Sync keyboard value immediately
-                const val = input.value;
-                currentValueRef.current = val;
-                if (keyboardMain.current) keyboardMain.current.setInput(val);
-                if (keyboardNumpad.current) keyboardNumpad.current.setInput(val);
+            // EXCLUSIONS
+            if (['button', 'submit', 'checkbox', 'radio', 'hidden', 'file'].includes(input.type)) return;
+            if (input.type === 'number' || input.type === 'tel' || input.hasAttribute('data-no-keyboard')) {
+                setIsVisible(false);
+                return;
             }
+
+            setActiveElement(input);
+            setIsVisible(true);
+
+            // Auto-capitalize at start of input or after sentence-ending punctuation
+            if (!showNumpadOnly) {
+                const shouldCap = shouldAutoCapitalize(input.value);
+                setIsShift(shouldCap);
+            }
+
+            // Suppress native OS keyboard ONLY on mobile/tablets, NOT on Electron/Desktop
+            // This allows physical keyboard to work properly on desktop
+            const isElectron = (window as any).electron;
+            const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+            if (!isElectron && isTouchDevice) {
+                input.setAttribute('inputmode', 'none');
+            }
+
+            // Determine mode
+            if (input.type === 'number' || input.type === 'tel' || input.dataset.keyboard === 'numeric') {
+                setShowNumpadOnly(true);
+            } else {
+                setShowNumpadOnly(false);
+            }
+
+            // Sync keyboard value immediately
+            const val = input.value;
+            currentValueRef.current = val;
+            if (keyboardMain.current) keyboardMain.current.setInput(val);
+            if (keyboardNumpad.current) keyboardNumpad.current.setInput(val);
         };
 
         // NEW: Listen for physical keyboard input to keep virtual keyboard state in sync
@@ -247,8 +234,8 @@ export const VirtualKeyboard: React.FC = () => {
             }
         };
 
-        document.addEventListener('focusin', handleInputInteraction);
         document.addEventListener('click', handleInputInteraction);
+        document.addEventListener('touchstart', handleInputInteraction); // Para tablets
         document.addEventListener('input', handlePhysicalInput); // Sync physical typing
 
         return () => {
@@ -349,9 +336,12 @@ export const VirtualKeyboard: React.FC = () => {
             }, 0);
 
             onChange(newVal);
-        } else {
             // Default behavior for other keys
-            onChange(keyboardNumpad.current.getInput());
+            if (button === '{enter}') {
+                handleClose();
+            } else {
+                onChange(keyboardNumpad.current.getInput());
+            }
         }
     };
 
