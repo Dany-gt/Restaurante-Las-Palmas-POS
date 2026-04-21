@@ -68,8 +68,8 @@ class OfflineDB {
         return new Promise((resolve, reject) => {
             const transaction = db.transaction(['pending_sync'], 'readonly');
             const store = transaction.objectStore('pending_sync');
-            const index = store.index('synced');
-            const request = index.getAll(0); // 0 or false for 'synced'
+            // v1.6.11 - Si está en el store, está pendiente (ya que borramos al sincronizar exitosamente)
+            const request = store.getAll(); 
 
             request.onsuccess = () => resolve(request.result || []);
             request.onerror = (event: any) => reject(event.target.error);

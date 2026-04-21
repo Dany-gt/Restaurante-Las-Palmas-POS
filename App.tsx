@@ -39,7 +39,7 @@ type ViewState = 'LOGIN' | 'DASHBOARD' | 'TABLES' | 'ORDER' | 'CHECKOUT' | 'HIST
 
 import { useNotify } from './hooks/useNotify';
 
-const APP_VERSION = '1.6.4'; // v1.6.4 - Senior Engineering & Global Backup
+const APP_VERSION = '1.6.19'; // v1.6.19 - Fix Menu Price Input Final
 
 
 console.log('%c🚀 LAS PALMAS POS SYSTEM - VERSION ' + APP_VERSION + ' LOADED', 'background: #4f46e5; color: white; padding: 10px; font-weight: bold; border-radius: 5px;');
@@ -144,22 +144,8 @@ const App: React.FC = () => {
 
   // Connection Banner Component
   const ConnectionBanner = () => {
-    if (isOnline && isServerConnected) return null;
-
-    const isGhostOffline = isOnline && !isServerConnected;
-    
-    return (
-      <div className={`${isGhostOffline ? 'bg-indigo-600' : 'bg-red-600'} text-white px-4 py-2 flex items-center justify-center gap-3 animate-pulse z-[100] shadow-lg sticky top-0 left-0 right-0 transition-colors duration-500`}>
-        <AlertTriangle size={20} />
-        <span className="font-bold text-sm uppercase tracking-widest flex items-center gap-2 text-center">
-          {isGhostOffline ? (
-            <>⚠️ SESIÓN EXPIRADA: RE-INGRESA TU PIN PARA REESTABLECER CONEXIÓN</>
-          ) : (
-            <>⚠️ MODO OFFLINE: Sin conexión a internet. Las órdenes se guardarán localmente.</>
-          )}
-        </span>
-      </div>
-    );
+    // v1.6.15 - Banner eliminado por petición del usuario para evitar ruido visual.
+    return null;
   };
 
   // Listen for offline count updates
@@ -405,43 +391,22 @@ const App: React.FC = () => {
           return; // Force Installer
         }
 
-        // 1. Check Supabase Auth Session Strength
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        // 1. Check Supabase Auth Session (Silent only, no forcing)
+        const { data: { session } } = await supabase.auth.getSession();
         
-        let activeSession = session;
-        if ((!activeSession || sessionError) && navigator.onLine) {
-          console.warn('🔄 App: No session found but online. Attempting Refresh...');
-          const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-          if (!refreshError && refreshData.session) {
-            activeSession = refreshData.session;
-            console.log('✅ App: Session restored successfully.');
-          } else {
-            console.error('❌ App: Session recovery failed:', refreshError);
-          }
-        }
-
         const cachedUserStr = localStorage.getItem('currentUser');
         if (cachedUserStr) {
           const user = JSON.parse(cachedUserStr);
           
-          // v1.5.7 - Forced Login if online but session is dead
-          if (!activeSession && navigator.onLine) {
-            console.error('⛔ App: Online but Session expired. Forcing PIN re-entry to restore connectivity.');
-            notify.error('Sesión caducada por inactividad. Ingresa tu PIN de nuevo para sincronizar.');
-            setCurrentUser(null); // This triggers the redirect to LOGIN
-            setLoadingSession(false);
-            return;
+          // v1.6.10 - No more forced logout. If session is missing, we just work in local mode.
+          if (!session && navigator.onLine) {
+            console.warn('📡 App: Local-only mode (No Supabase Session active). Connectivity restricted.');
           }
 
           setCurrentUser(user);
 
-          // AUTO-RECOVERY on reload
-          const cachedProds = localStorage.getItem('cached_products');
-          if (!cachedProds || cachedProds.length < 10) {
-            console.log('🔄 Cache vacío detectado post-reload. Forzando sincronización maestra...');
-            syncData();
-          }
-
+          // v1.6.13 - NO Forzamos sincronización al iniciar. Esperamos al botón manual.
+          
           // Restore Lead User if it was an operator dashboard session
           const cachedLead = localStorage.getItem('operatorDashboardLead');
           if (cachedLead) setOperatorDashboardLead(JSON.parse(cachedLead));
@@ -1186,7 +1151,8 @@ const App: React.FC = () => {
                                   window.location.reload();
                               } catch (err) {
                                   console.error('Reset Error:', err);
-                                  notify.error('No se pudo reiniciar la sesión.');
+                                  // v1.6.15 - Silent error only, no intrusive notifications
+                                  console.warn('🔒 SESIÓN EXPIRADA: Acceso offline habilitado.');
                               }
                           }
                       }}

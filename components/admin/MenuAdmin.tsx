@@ -99,6 +99,9 @@ export const MenuAdmin: React.FC = () => {
     const cachedUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     return cachedUser?.branch_id || 'all';
   });
+
+  // v1.6.17 - Removed auto-decimal handling as per user request to allow free typing.
+  const cleanNumeric = (val: string) => val; // Dummy bypass
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   // Context Menu State
@@ -1093,8 +1096,15 @@ export const MenuAdmin: React.FC = () => {
                           <div className="flex-1 relative">
                             <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">Q</span>
                             <input
+                              id="costPriceRaw"
+                              name="costPriceRaw"
+                              type="text"
+                              inputMode="text"
+                              autoComplete="off"
+                              autoCorrect="off"
+                              spellCheck="false"
                               value={newProduct.cost_price}
-                              onChange={e => setNewProduct({ ...newProduct, cost_price: e.target.value.replace(/[^0-9.]/g, '') })}
+                              onChange={e => setNewProduct({ ...newProduct, cost_price: e.target.value })}
                               className="w-full h-8 border border-gray-300 pl-6 pr-3 text-[12px] font-medium text-slate-700 outline-none focus:border-[#106ebe] bg-white rounded-sm"
                             />
                           </div>
@@ -1196,7 +1206,7 @@ export const MenuAdmin: React.FC = () => {
                            <input
                              type="text"
                              value={globalPrices.price}
-                             onChange={e => setGlobalPrices({ ...globalPrices, price: e.target.value.replace(/[^0-9.]/g, '') })}
+                             onChange={e => setGlobalPrices({ ...globalPrices, price: cleanNumeric(e.target.value) })}
                              className="w-full h-10 bg-white border border-gray-300 text-center text-[22px] font-medium text-slate-700 outline-none focus:border-[#106ebe]"
                              placeholder="0.00"
                            />
@@ -1300,19 +1310,31 @@ export const MenuAdmin: React.FC = () => {
                                     <td className="px-2">
                                       <div className="flex items-center gap-1.5 border border-gray-300 px-2 bg-white rounded-sm h-7">
                                         <span className="text-[10px] text-gray-400 font-bold">Q</span>
-                                        <input value={bp.price} onChange={e => { const newBp = [...branchPrices]; newBp[index].price = e.target.value.replace(/[^0-9.]/g, ''); setBranchPrices(newBp); }} className="w-full text-[11px] font-bold text-slate-700 outline-none text-right" />
+                                        <input value={bp.price} onChange={e => { 
+                                          const newBp = [...branchPrices]; 
+                                          newBp[index].price = e.target.value; 
+                                          setBranchPrices(newBp); 
+                                        }} className="w-full text-[11px] font-bold text-slate-700 outline-none text-right" />
                                       </div>
                                     </td>
                                     <td className="px-2">
                                       <div className="flex items-center gap-1.5 border border-gray-300 px-2 bg-white rounded-sm h-7">
                                         <span className="text-[10px] text-gray-400 font-bold">Q</span>
-                                        <input value={bp.delivery_price} onChange={e => { const newBp = [...branchPrices]; newBp[index].delivery_price = e.target.value.replace(/[^0-9.]/g, ''); setBranchPrices(newBp); }} className="w-full text-[11px] font-bold text-slate-700 outline-none text-right" />
+                                        <input value={bp.delivery_price} onChange={e => { 
+                                          const newBp = [...branchPrices]; 
+                                          newBp[index].delivery_price = e.target.value; 
+                                          setBranchPrices(newBp); 
+                                        }} className="w-full text-[11px] font-bold text-slate-700 outline-none text-right" />
                                       </div>
                                     </td>
                                     <td className="px-2">
                                       <div className="flex items-center gap-1.5 border border-gray-300 px-2 bg-white rounded-sm h-7">
                                         <span className="text-[10px] text-gray-400 font-bold">Q</span>
-                                        <input value={bp.platform_price} onChange={e => { const newBp = [...branchPrices]; newBp[index].platform_price = e.target.value.replace(/[^0-9.]/g, ''); setBranchPrices(newBp); }} className="w-full text-[11px] font-bold text-slate-700 outline-none text-right" />
+                                        <input value={bp.platform_price} onChange={e => { 
+                                          const newBp = [...branchPrices]; 
+                                          newBp[index].platform_price = e.target.value; 
+                                          setBranchPrices(newBp); 
+                                        }} className="w-full text-[11px] font-bold text-slate-700 outline-none text-right" />
                                       </div>
                                     </td>
                                     <td>
@@ -1424,8 +1446,10 @@ export const MenuAdmin: React.FC = () => {
                                             <input 
                                               value={item.quantity} 
                                               onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (!/^\d*\.?\d*$/.test(val)) return;
                                                 const next = [...recipeItems];
-                                                next[idx].quantity = e.target.value;
+                                                next[idx].quantity = val;
                                                 setRecipeItems(next);
                                               }}
                                               className="w-full h-6 border border-gray-300 text-center text-[11px] font-bold text-slate-700 bg-white" 

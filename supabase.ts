@@ -19,8 +19,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     heartbeatIntervalMs: 10000, 
   },
   auth: {
-    persistSession: true,
-    autoRefreshToken: true,
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false
   }
 });
 

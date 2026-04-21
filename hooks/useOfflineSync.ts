@@ -65,16 +65,7 @@ export const useOfflineSync = () => {
      * Ejecuta el envío de registros locales al servidor de forma secuencial y segura.
      */
     const syncRecords = useCallback(async () => {
-        // Guardas de entrada básica
         if (!navigator.onLine || isSyncing) return;
-
-        // VALIDA AUTENTICACIÓN: No disparamos errores 400 si la sesión no existe.
-        const canSync = await ensureSessionValid();
-        if (!canSync) {
-            // Silencioso: No alertar al usuario a menos que sea necesario.
-            updatePendingCount(); 
-            return;
-        }
 
         const pending = await offlineDB.getPendingRecords();
         if (pending.length === 0) {
@@ -83,8 +74,6 @@ export const useOfflineSync = () => {
         }
 
         setIsSyncing(true);
-        console.log(`🌐 useOfflineSync: Iniciando sincronización de ${pending.length} registros...`);
-
         try {
             for (const record of pending) {
                 try {
@@ -119,8 +108,7 @@ export const useOfflineSync = () => {
                 const { error: orderError } = await supabase.from('orders').upsert({
                     id: id,
                     ...data.order,
-                    status: data.order.status || 'pending',
-                    synced_at: new Date().toISOString()
+                    status: data.order.status || 'pending'
                 });
 
                 if (orderError) throw orderError;
@@ -170,8 +158,9 @@ export const useOfflineSync = () => {
             }
 
             return true;
-        } catch (e) {
-            console.error(`Sync Error (${type}):`, e);
+        } catch (e: any) {
+            const errMsg = e?.message || e?.error_description || JSON.stringify(e);
+            console.error(`🔴 CRITICAL SYNC ERROR (${type}):`, errMsg);
             return false;
         }
     };
@@ -180,21 +169,26 @@ export const useOfflineSync = () => {
     useEffect(() => {
         updatePendingCount();
 
+        const handleForceSync = () => {
+            console.log('🚀 Manual Sync Forced via Button');
+            syncRecords();
+        };
+
         // Disparadores masivos
         window.addEventListener('online', syncRecords);
         window.addEventListener('offline-sync-trigger', syncRecords);
-        window.addEventListener('manual-offline-sync' as any, syncRecords);
+        window.addEventListener('manual-offline-sync' as any, handleForceSync);
 
-        // Intervalo moderado: Cada 30 segundos (Equilibrio batería/consola/respuesta)
+        // Intervalo moderado: Cada 60 segundos
         const interval = setInterval(() => {
             if (navigator.onLine) syncRecords();
             else updatePendingCount();
-        }, 30000);
+        }, 60000);
 
         return () => {
             window.removeEventListener('online', syncRecords);
             window.removeEventListener('offline-sync-trigger', syncRecords);
-            window.removeEventListener('manual-offline-sync' as any, syncRecords);
+            window.removeEventListener('manual-offline-sync' as any, handleForceSync);
             clearInterval(interval);
         };
     }, [syncRecords, updatePendingCount]);

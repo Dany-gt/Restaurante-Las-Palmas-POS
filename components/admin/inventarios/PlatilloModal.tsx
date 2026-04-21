@@ -24,6 +24,7 @@ interface PlatilloModalProps {
     branchPrices: any[];
     setBranchPrices: (val: any[]) => void;
     assignedOptionGroups: any[];
+    assignedModifierGroups: any[];
     setOptionsContextMenu: (val: any) => void;
     setShowTechnicalModal: (val: boolean) => void;
 }
@@ -67,6 +68,84 @@ const CustomSelect = ({ value, onChange, options, placeholder = "SELECCIONAR..."
     );
 };
 
+const SmartPriceInput = ({ value, onChange, className = "" }: any) => {
+    const [isFocused, setIsFocused] = React.useState(false);
+    
+    // Obtener qué ceros faltan por completar (.00, 0 o nada)
+    const getSuffix = () => {
+        const valStr = String(value || "");
+        if (!valStr || !valStr.includes('.')) return ".00";
+        const parts = valStr.split('.');
+        if (parts[1].length === 0) return "00";
+        if (parts[1].length === 1) return "0";
+        return "";
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === '.') {
+            const input = e.currentTarget;
+            if (!input.value.includes('.')) {
+                e.preventDefault();
+                onChange((String(value || "0").replace(/[^0-9]/g, '')) + ".");
+            }
+        }
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Solo dejamos los números y el punto
+        let raw = e.target.value.toUpperCase().replace('Q', '').replace(/[^0-9.]/g, '');
+        
+        const parts = raw.split('.');
+        if (parts.length > 2) raw = parts[0] + '.' + parts.slice(1).join('');
+        
+        // Limitar a 2 decimales reales
+        if (parts.length === 2 && parts[1].length > 2) {
+            raw = parts[0] + '.' + parts[1].substring(0, 2);
+        }
+        
+        onChange(raw);
+    };
+
+    const displayValue = value ? `Q${value}` : (isFocused ? "Q" : "Q0");
+    const suffix = getSuffix();
+
+    const inputRef = React.useRef<HTMLInputElement>(null);
+
+    return (
+        <div 
+            className={`flex-1 flex items-center border border-gray-300 bg-white h-[28px] shadow-sm relative cursor-text ${className}`}
+            onClick={() => inputRef.current?.focus()}
+        >
+            <div className="flex-1 h-full flex items-center justify-center overflow-hidden pointer-events-none">
+                <div className="flex items-center relative">
+                    <span className="text-[11px] font-bold text-transparent select-none">{suffix}</span>
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        className="w-auto min-w-[10px] h-full text-[11px] font-bold outline-none bg-transparent text-center text-slate-900 pointer-events-auto selection:bg-[#3399ff] selection:text-white"
+                        style={{ width: `${Math.max(displayValue.length * 7.5, 20)}px` }}
+                        value={displayValue}
+                        onChange={handleChange}
+                        onKeyDown={handleKeyDown}
+                        onFocus={(e) => {
+                            setIsFocused(true);
+                            setTimeout(() => e.target.select(), 0);
+                        }}
+                        onBlur={() => {
+                            setIsFocused(false);
+                            if (value) {
+                                const num = parseFloat(value);
+                                if (!isNaN(num)) onChange(num.toFixed(2));
+                            }
+                        }}
+                    />
+                    <span className="text-[11px] font-bold text-slate-900 select-none">{suffix}</span>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 export const PlatilloModal: React.FC<PlatilloModalProps> = ({
     isOpen, onClose, editingId, newProduct, setNewProduct, handleSave, isSaving,
@@ -76,6 +155,11 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
 }) => {
     const [activeTab, setActiveTab] = useState<'sucursales' | 'opciones'>('sucursales');
     const [uploadingImage, setUploadingImage] = useState(false);
+    const [batchTool, setBatchTool] = useState({
+        price: '0.00',
+        delivery_price: '0.00',
+        platform_price: '0.00'
+    });
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,7 +195,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
             <div className="absolute inset-0 pointer-events-auto" onClick={onClose}></div>
             <div className="pointer-events-auto">
                 <DraggableWindow>
-                    <div className="bg-[#f0f3f6] border border-[#106ebe] w-[900px] overflow-hidden flex flex-col shadow-[0_30px_90px_rgba(0,0,0,0.3)] animate-in fade-in duration-200">
+                    <div className="bg-[#f0f3f6] border border-[#106ebe] w-[950px] overflow-hidden flex flex-col shadow-[0_30px_90px_rgba(0,0,0,0.3)] animate-in fade-in duration-200">
                         {/* HEADER EXTREMO CLONE */}
                         <div className="modal-header bg-[#106ebe] h-8 px-2 flex justify-between items-center text-white shrink-0 cursor-move transition-colors">
                             <div className="flex items-center gap-2">
@@ -152,12 +236,12 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                         </div>
 
                         {/* APLICANDO EL TAMAÑO DEL ALTO QUE LE GUSTÓ AL USUARIO PERO COMPACTADO */}
-                        <div className="p-3 space-y-2 bg-[#f0f3f6] overflow-y-auto max-h-[85vh] custom-scrollbar">
+                        <div className="p-4 space-y-4 bg-[#f0f3f6] overflow-y-auto max-h-[85vh] custom-scrollbar">
                             {/* SECCIÓN 1 */}
-                            <fieldset className="border border-[#ced4da] p-3 pt-2 bg-white relative">
+                            <fieldset className="border border-[#ced4da] p-4 pt-2 bg-white relative shadow-sm">
                                 <legend className="px-1.5 text-[10px] font-semibold text-[#106ebe] uppercase">Datos de Platillo</legend>
-                                <div className="flex gap-4 mt-1">
-                                    <div className="flex-1 space-y-1.5">
+                                <div className="flex gap-6 mt-1">
+                                    <div className="flex-1 space-y-3">
                                         {[
                                             { label: 'Código', key: 'product_code' },
                                             { label: 'Plato', key: 'name' },
@@ -165,49 +249,46 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                             { label: 'Descripción', key: 'description' }
                                         ].map((f) => (
                                             <div key={f.key} className="flex items-center">
-                                                <label className="text-[11px] text-gray-400 w-[100px] shrink-0 uppercase tracking-tighter">{f.label}</label>
-                                                <input 
-                                                    type="text" 
-                                                    className="flex-1 h-[26px] bg-white border border-[#e2e8f0] px-3 text-[11px] text-slate-700 outline-none focus:border-[#106ebe] uppercase"
-                                                    value={newProduct[f.key] || ''}
-                                                    onChange={e => setNewProduct({...newProduct, [f.key]: e.target.value.toUpperCase()})}
-                                                />
+                                                <label className="text-[11px] text-gray-400 w-[110px] shrink-0 uppercase tracking-tighter">{f.label}</label>
+                                                 <div className="flex-1 h-[28px] bg-white border border-[#e2e8f0] flex items-center px-3 shadow-sm focus-within:border-gray-400 transition-colors">
+                                                     <input 
+                                                         type="text" 
+                                                         className="w-full h-5 bg-transparent text-[11px] text-slate-700 outline-none uppercase"
+                                                         value={newProduct[f.key] || ''}
+                                                         onChange={e => setNewProduct({...newProduct, [f.key]: e.target.value.toUpperCase()})}
+                                                         onFocus={e => e.target.select()}
+                                                     />
+                                                 </div>
                                             </div>
                                         ))}
                                         
-                                        <div className="flex items-center">
+                                        <div className="flex items-center pb-1">
                                             {/* Precio Costo - 50% */}
-                                            <div className="w-1/2 flex items-center pr-2">
-                                                <label className="text-[11px] text-gray-400 w-[100px] shrink-0 uppercase tracking-tighter">Precio Costo</label>
-                                                <div className="flex-1 flex items-center border border-gray-400 bg-white h-[30px] px-2 shadow-sm">
-                                                    <div className="flex-1 flex items-center justify-center">
-                                                        <span className="text-[11px] font-bold text-slate-400 mr-1">Q.</span>
-                                                        <input
-                                                            type="text"
-                                                            className="w-[70px] h-full text-[11px] font-bold text-slate-800 outline-none bg-white text-center"
-                                                            value={(!newProduct.cost_price || newProduct.cost_price === '0') ? '0.00' : (isNaN(newProduct.cost_price) ? newProduct.cost_price : parseFloat(newProduct.cost_price).toFixed(2))}
-                                                            onChange={e => setNewProduct({...newProduct, cost_price: e.target.value})}
-                                                            onFocus={e => e.target.select()}
-                                                        />
-                                                    </div>
-                                                </div>
+                                            <div className="w-1/2 flex items-center pr-3">
+                                                <label className="text-[11px] text-gray-400 w-[110px] shrink-0 uppercase tracking-tighter">Precio Costo</label>
+                                                <SmartPriceInput 
+                                                    value={newProduct.cost_price}
+                                                    onChange={(val: string) => setNewProduct({...newProduct, cost_price: val})}
+                                                />
                                             </div>
 
                                             {/* Prioridad - 50% */}
-                                            <div className="w-1/2 flex items-center pl-2">
-                                                <label className="text-[11px] text-gray-400 w-[100px] shrink-0 uppercase tracking-tighter text-right pr-4">Prioridad</label>
-                                                <input
-                                                    type="text"
-                                                    className="flex-1 h-[26px] border border-gray-400 bg-white px-2 text-[11px] font-bold text-slate-800 outline-none text-center"
-                                                    value={newProduct.sort_order || '1'}
-                                                    onChange={e => setNewProduct({...newProduct, sort_order: e.target.value})}
-                                                    onFocus={e => e.target.select()}
-                                                />
+                                            <div className="w-1/2 flex items-center pl-3">
+                                                <label className="text-[11px] text-gray-400 w-[110px] shrink-0 uppercase tracking-tighter text-right pr-6">Prioridad</label>
+                                                 <div className="flex-1 h-[28px] border border-gray-400 bg-white flex items-center justify-center shadow-sm">
+                                                     <input
+                                                         type="text"
+                                                         className="w-full h-5 bg-transparent text-[11px] font-bold text-slate-800 outline-none text-center"
+                                                         value={newProduct.sort_order || '1'}
+                                                         onChange={e => setNewProduct({...newProduct, sort_order: e.target.value})}
+                                                         onFocus={e => e.target.select()}
+                                                     />
+                                                 </div>
                                             </div>
                                         </div>
 
                                         <div className="flex items-center">
-                                            <label className="text-[11px] text-gray-400 w-[100px] shrink-0 uppercase tracking-tighter">Categoría</label>
+                                            <label className="text-[11px] text-gray-400 w-[110px] shrink-0 uppercase tracking-tighter">Categoría</label>
                                             <CustomSelect 
                                                 value={newProduct.category_id || ''}
                                                 onChange={(val: string) => setNewProduct({...newProduct, category_id: val})}
@@ -271,35 +352,29 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                 <legend className="px-1.5 text-[10px] font-semibold text-[#106ebe] uppercase">Precios de Venta</legend>
                                 <div className="grid grid-cols-4 gap-4 items-end mt-1">
                                     {[ 
-                                        { label: 'Precio Venta', key: 'price', color: '#106ebe' },
+                                        { label: 'Precio Venta', key: 'price' },
                                         { label: 'Precio Domicilio', key: 'delivery_price' },
                                         { label: 'Precio Plataformas', key: 'platform_price' }
                                     ].map((f) => (
-                                        <div key={f.key} className="space-y-1">
-                                            <label className="text-[10px] text-gray-400 block text-center uppercase tracking-tighter">{f.label}</label>
-                                            <div className="flex items-center border border-gray-400 bg-white h-[34px] px-2 shadow-sm">
-                                                <div className="flex-1 flex items-center justify-center">
-                                                    <span className="text-[11px] font-bold text-slate-400 mr-1">Q.</span>
-                                                    <input 
-                                                        type="text" 
-                                                        className="w-[85px] h-full text-[13px] font-bold text-center outline-none bg-white"
-                                                        style={{ color: f.color || '#475569' }}
-                                                        value={(!newProduct[f.key] || newProduct[f.key] === '0') ? '0.00' : (isNaN(newProduct[f.key]) ? newProduct[f.key] : parseFloat(newProduct[f.key]).toFixed(2))}
-                                                        onChange={e => setNewProduct({...newProduct, [f.key]: e.target.value})}
-                                                        onFocus={e => e.target.select()}
-                                                    />
-                                                </div>
-                                            </div>
+                                        <div key={f.key} className="space-y-1 text-center">
+                                            <label className="text-[10px] text-gray-400 block uppercase tracking-tighter">{f.label}</label>
+                                            <SmartPriceInput 
+                                                value={batchTool[f.key as keyof typeof batchTool]}
+                                                onChange={(val: string) => setBatchTool({...batchTool, [f.key]: val})}
+                                            />
                                         </div>
                                     ))}
                                     <button 
                                         className="h-[28px] bg-[#106ebe] text-white text-[10px] font-bold uppercase hover:bg-[#0d5aa0] transition-colors shadow-sm"
-                                        onClick={() => setBranchPrices(branchPrices.map(bp => ({ 
-                                            ...bp, 
-                                            price: newProduct.price,
-                                            delivery_price: newProduct.delivery_price,
-                                            platform_price: newProduct.platform_price
-                                        })))}
+                                        onClick={() => {
+                                            setBranchPrices(branchPrices.map(bp => ({ 
+                                                ...bp, 
+                                                price: batchTool.price !== '0.00' && batchTool.price !== '' ? batchTool.price : bp.price,
+                                                delivery_price: batchTool.delivery_price !== '0.00' && batchTool.delivery_price !== '' ? batchTool.delivery_price : bp.delivery_price,
+                                                platform_price: batchTool.platform_price !== '0.00' && batchTool.platform_price !== '' ? batchTool.platform_price : bp.platform_price
+                                            })));
+                                            setBatchTool({ price: '0.00', delivery_price: '0.00', platform_price: '0.00' });
+                                        }}
                                     >
                                         Aplicar a Todos
                                     </button>
@@ -334,16 +409,16 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                 <div className="flex-1 overflow-auto custom-scrollbar">
                                     {activeTab === 'sucursales' ? (
                                         <div className="p-2">
-                                            <div className="border border-gray-300 rounded-sm overflow-x-auto w-full bg-white shadow-sm custom-scrollbar">
-                                                <table className="w-full border-collapse min-w-[850px]">
+                                            <div className="border border-gray-300 rounded-sm overflow-hidden w-full bg-white shadow-sm overflow-x-hidden">
+                                                <table className="w-full border-collapse">
                                                     <thead>
                                                         <tr className="h-8 text-[9.5px] text-slate-700 font-extrabold uppercase border-b border-gray-300 bg-[#f1f5f9]">
-                                                            <th className="px-3 text-left border-r border-gray-200 w-[300px]">Sucursal</th>
-                                                            <th className="px-2 text-center border-r border-gray-200 w-[115px]">Precio Venta</th>
-                                                            <th className="px-2 text-center border-r border-gray-200 w-[115px]">Precio Domicilio</th>
-                                                            <th className="px-2 text-center border-r border-gray-200 w-[115px]">Precio Plataforma</th>
-                                                            <th className="px-2 text-center border-r border-gray-200 w-[70px]">Habilitado</th>
-                                                            <th className="px-2 text-center w-[70px]">Asignado</th>
+                                                            <th className="px-3 text-left border-r border-gray-200">Sucursal</th>
+                                                            <th className="px-2 text-center border-r border-gray-200 w-[125px]">Precio Venta</th>
+                                                            <th className="px-2 text-center border-r border-gray-200 w-[125px]">Precio Domicilio</th>
+                                                            <th className="px-2 text-center border-r border-gray-200 w-[135px]">Precio Plataforma</th>
+                                                            <th className="px-2 text-center border-r border-gray-200 w-[75px]">Habilitado</th>
+                                                            <th className="px-2 text-center w-[120px]">Asignado a Sucursal</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-200">
@@ -354,22 +429,15 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                                 </td>
                                                                 {[ 'price', 'delivery_price', 'platform_price' ].map(field => (
                                                                     <td key={field} className="px-1.5 border-r border-gray-100 text-center">
-                                                                        <div className="flex items-center border border-gray-300 bg-white h-[28px] mx-0.5 shadow-sm px-2">
-                                                                            <div className="flex-1 flex items-center justify-center">
-                                                                                <span className="text-[10px] font-bold text-slate-400 mr-1.5">Q.</span>
-                                                                                <input 
-                                                                                    type="text" 
-                                                                                    className="w-full h-full text-center text-slate-800 font-bold text-[11px] outline-none bg-white font-sans mt-[0.5px]" 
-                                                                                    value={(!bp[field] || bp[field] === '0') ? '0.00' : (isNaN(bp[field]) ? bp[field] : parseFloat(bp[field]).toFixed(2))} 
-                                                                                    onChange={e => {
-                                                                                        const n = [...branchPrices];
-                                                                                        n[idx][field] = e.target.value.replace(/[^0-9.]/g, '');
-                                                                                        setBranchPrices(n);
-                                                                                    }}
-                                                                                    onFocus={e => e.target.select()}
-                                                                                />
-                                                                            </div>
-                                                                        </div>
+                                                                        <SmartPriceInput 
+                                                                            value={bp[field]}
+                                                                            className="h-[28px] mx-0.5"
+                                                                            onChange={(val: string) => {
+                                                                                const n = [...branchPrices];
+                                                                                n[idx][field] = val;
+                                                                                setBranchPrices(n);
+                                                                            }}
+                                                                        />
                                                                     </td>
                                                                 ))}
                                                                 <td className="px-1 border-r border-gray-100 text-center">

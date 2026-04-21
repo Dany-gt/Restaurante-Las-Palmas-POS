@@ -54,15 +54,9 @@ export const useDataSync = () => {
         setSyncType(type);
 
         try {
-            // v1.4.2 - Auth Recovery Check
             const { data: sessionData } = await supabase.auth.getSession();
             if (!sessionData.session) {
-                console.warn('⚠️ No active session during sync. Attempting Refresh...');
-                const { error: refreshError } = await supabase.auth.refreshSession();
-                if (refreshError) {
-                    console.error('❌ Session Refresh Failed:', refreshError);
-                    // If refresh fails, we continue in offline mode (cache will be used)
-                }
+                // v1.6.9 - Silent
             }
 
             const { masterDataDB } = await import('../services/MasterDataDB');
@@ -141,8 +135,13 @@ export const useDataSync = () => {
                 localStorage.setItem('cached_categories', JSON.stringify(finalCombined));
             }
             if (products) {
-                await masterDataDB.saveData('products', products);
-                localStorage.setItem('cached_products', JSON.stringify(products));
+                // v1.6.14 - Image fallback mapping for products
+                const mappedProducts = products.map((p: any) => ({
+                    ...p,
+                    image_url: p.image_url || p.imagen_url || null
+                }));
+                await masterDataDB.saveData('products', mappedProducts);
+                localStorage.setItem('cached_products', JSON.stringify(mappedProducts));
             }
             if (profiles) await masterDataDB.saveData('profiles', profiles);
             if (printers) await masterDataDB.saveData('printers', printers);
