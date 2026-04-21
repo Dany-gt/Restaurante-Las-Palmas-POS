@@ -1166,7 +1166,7 @@ export const MenuAdmin: React.FC = () => {
                         <select
                           value={newProduct.inventory_item_id}
                           onChange={e => setNewProduct({ ...newProduct, inventory_item_id: e.target.value })}
-                          className="flex-1 h-8 border border-[#106ebe]/30 px-2 text-[11px] text-[#106ebe] font-bold outline-none focus:border-[#106ebe] bg-blue-50/30 cursor-pointer rounded-sm"
+                          className="flex-1 h-8 border border-gray-300 px-2 text-[11px] text-slate-700 font-bold outline-none focus:border-[#106ebe] bg-white cursor-pointer rounded-sm"
                         >
                           <option value="">-- SIN VINCULACIÓN A STOCK --</option>
                           {inventoryItems.slice(0, 100).map(inv => <option key={inv.id} value={inv.id}>{inv.name} ({inv.unit_measure})</option>)}

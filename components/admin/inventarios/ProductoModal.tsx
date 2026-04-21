@@ -73,6 +73,50 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
 
     if (!isOpen || !newProduct) return null;
 
+    const totalReceta = (recipeItems || []).reduce((acc: number, ri: any) => {
+        const qty = parseFloat(ri.quantity) || 0;
+        const cost = parseFloat(ri.inventory_items?.cost_price) || 0;
+        const factor = parseFloat(ri.inventory_items?.conversion_factor) || 1;
+        const baseCost = cost / factor;
+
+        // LÓGICA DE CONVERSIÓN DE UNIDADES (Prorrateo Inteligente)
+        let unitFactor = 1;
+        const selectedUnit = (ri.unit_measure || '').toLowerCase();
+        const baseUnit = (ri.inventory_items?.unit_measure || ri.unit_measure || '').toLowerCase();
+
+        // 0. Caso especial: UNIDADES (No dividir por factor si se usa como Unidad)
+        if (selectedUnit === 'unidad') {
+            return acc + (qty * cost);
+        }
+
+        // 1. Unidades de PESO (Base Libra)
+        if (baseUnit.includes('libra') || baseUnit === 'lb') {
+            if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
+            if (selectedUnit.includes('gramo')) unitFactor = 1 / 453.592;
+        }
+        // 2. Unidades de PESO (Base Kilo)
+        else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
+            if (selectedUnit.includes('gramo')) unitFactor = 1 / 1000;
+            if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
+        }
+        // 3. Unidades de VOLUMEN (Base Mililitro / Litro)
+        else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
+            let baseInMl = 1;
+            if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+            if (baseUnit.includes('onza')) baseInMl = 29.5735;
+
+            let selectedInMl = 1;
+            if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
+            if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+            if (selectedUnit.includes('litro')) selectedInMl = 1000;
+
+            unitFactor = selectedInMl / baseInMl;
+        }
+
+        return acc + (qty * baseCost * unitFactor);
+    }, 0);
+
+
     const safeBranchInventory = branchInventory || [];
     const safeBranches = branches || [];
     const safeCategories = inventoryCategories || [];
@@ -146,7 +190,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                             type="text" 
                                             value={newProduct.name || ''}
                                             onChange={e => setNewProduct({...newProduct, name: e.target.value})}
-                                            className="h-6 border border-gray-400 px-2 text-[11px] w-full outline-none focus:bg-[#3399ff] focus:text-white" 
+                                            className="h-6 border border-gray-400 px-2 text-[11px] w-full outline-none focus:border-[#106ebe] focus:bg-white" 
                                         />
                                     </div>
                                     <div className="grid grid-cols-[165px_1fr_100px_1fr] items-center gap-2 pr-8">
@@ -333,7 +377,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                         )}
                                         {activeTab === 'receta' && (
                                             <div 
-                                                className="flex-1 border border-gray-300 overflow-y-auto custom-scrollbar flex flex-col bg-white overflow-hidden"
+                                                className="flex-1 border border-gray-300 flex flex-col bg-white overflow-hidden"
                                                 onContextMenu={(e) => {
                                                     e.preventDefault();
                                                     e.stopPropagation();
@@ -345,18 +389,101 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                     });
                                                 }}
                                             >
-                                                <div className="flex-1 overflow-auto">
+                                                <div className="flex-1 overflow-y-auto custom-scrollbar">
                                                     <table className="w-full border-collapse">
                                                         <thead className="sticky top-0 z-10 select-none bg-[#f0f0f0]">
                                                             <tr className="h-[22px]">
-                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-left">Insumo</th>
+                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-left">Producto</th>
                                                                 <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Cantidad</th>
-                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Unidad</th>
+                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Medida</th>
+                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Precio Costo</th>
                                                                 <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-4 invisible"></th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            {(recipeItems || []).length > 0 ? (recipeItems || []).map((ri, idx) => (
+                                                            {(recipeItems || []).length > 0 ? (recipeItems || []).map((ri, idx) => {
+                                                                const qty = parseFloat(ri.quantity) || 0;
+                                                                const cost = parseFloat(ri.inventory_items?.cost_price) || 0;
+                                                                const factor = parseFloat(ri.inventory_items?.conversion_factor) || 1;
+                                                                const baseCost = cost / factor;
+
+                                                                // LÓGICA DE CONVERSIÓN DE UNIDADES (Prorrateo Inteligente)
+                                                                let unitFactor = 1;
+                                                                const selectedUnit = (ri.unit_measure || '').toLowerCase();
+                                                                const baseUnit = (ri.inventory_items?.unit_measure || ri.unit_measure || '').toLowerCase();
+
+                                                                // 0. Caso especial: UNIDADES (No dividir por factor para unidad entera)
+                                                                if (selectedUnit === 'unidad') {
+                                                                    const lineCost = qty * cost;
+                                                                    return (
+                                                                        <tr 
+                                                                            key={ri.id || idx} 
+                                                                            className={`border-b border-gray-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'} hover:bg-[#e8f2fe] transition-colors`}
+                                                                            onContextMenu={(e) => {
+                                                                                e.preventDefault();
+                                                                                e.stopPropagation();
+                                                                                setRecipeContextMenu && setRecipeContextMenu({
+                                                                                    visible: true,
+                                                                                    x: e.clientX,
+                                                                                    y: e.clientY,
+                                                                                    itemIdx: idx
+                                                                                });
+                                                                            }}
+                                                                        >
+                                                                            <td className="px-2 py-1 border-r border-gray-200 text-[11px] text-[#202020] font-[Arial] uppercase truncate">
+                                                                                {ri.inventory_items?.name || 'DESCONOCIDO'}
+                                                                            </td>
+                                                                            <td className="px-1 border-r border-gray-200">
+                                                                                <input 
+                                                                                    type="text"
+                                                                                    value={ri.quantity ? ri.quantity.toString().split('.').map((p: any, i: number) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : p).join('.') : '0'}
+                                                                                    onChange={(e) => {
+                                                                                        const raw = e.target.value.replace(/,/g, '');
+                                                                                        if (/^\d*\.?\d*$/.test(raw)) {
+                                                                                            const newItems = [...(recipeItems || [])];
+                                                                                            newItems[idx].quantity = raw;
+                                                                                            setRecipeItems && setRecipeItems(newItems);
+                                                                                        }
+                                                                                    }}
+                                                                                    className="w-full text-center px-1 text-[11px] font-bold font-[Arial] h-6 bg-transparent outline-none focus:bg-white focus:border focus:border-blue-400"
+                                                                                />
+                                                                            </td>
+                                                                            <td className="px-2 py-1 border-r border-gray-200 text-center text-[10px] text-[#202020] font-[Arial] uppercase">
+                                                                                {ri.unit_measure || ri.inventory_items?.unit_measure || 'UNI'}
+                                                                            </td>
+                                                                            <td className="px-2 py-1 border-r border-gray-200 text-right text-[11px] text-[#106ebe] font-black font-[Arial] tabular-nums">
+                                                                                {lineCost.toFixed(2)}
+                                                                            </td>
+                                                                        </tr>
+                                                                    );
+                                                                }
+
+                                                                // 1. Unidades de PESO (Base Libra)
+                                                                if (baseUnit.includes('libra') || baseUnit === 'lb') {
+                                                                    if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
+                                                                    if (selectedUnit.includes('gramo')) unitFactor = 1 / 453.592;
+                                                                }
+                                                                // 2. Unidades de PESO (Base Kilo)
+                                                                else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
+                                                                    if (selectedUnit.includes('gramo')) unitFactor = 1 / 1000;
+                                                                    if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
+                                                                }
+                                                                // 3. Unidades de VOLUMEN (Base Mililitro / Litro)
+                                                                else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
+                                                                    let baseInMl = 1;
+                                                                    if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                                                                    if (baseUnit.includes('onza')) baseInMl = 29.5735;
+
+                                                                    let selectedInMl = 1;
+                                                                    if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
+                                                                    if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+                                                                    if (selectedUnit.includes('litro')) selectedInMl = 1000;
+
+                                                                    unitFactor = selectedInMl / baseInMl;
+                                                                }
+
+                                                                const lineCost = qty * baseCost * unitFactor;
+                                                                return (
                                                                 <tr 
                                                                     key={ri.id || idx} 
                                                                     className={`border-b border-gray-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'} hover:bg-[#e8f2fe] transition-colors`}
@@ -389,16 +516,20 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                                             className="w-full text-center px-1 text-[11px] font-bold font-[Arial] h-6 bg-transparent outline-none focus:bg-white focus:border focus:border-blue-400"
                                                                         />
                                                                     </td>
-                                                                    <td className="px-2 py-1 border-r border-gray-200 text-center text-[10px] text-[#202020] font-[Arial]">
+                                                                    <td className="px-2 py-1 border-r border-gray-200 text-center text-[10px] text-[#202020] font-[Arial] uppercase">
                                                                         {ri.unit_measure || ri.inventory_items?.unit_measure || 'UNI'}
+                                                                    </td>
+                                                                    <td className="px-2 py-1 border-r border-gray-200 text-right text-[11px] text-[#106ebe] font-black font-[Arial] tabular-nums">
+                                                                        {lineCost.toFixed(2)}
                                                                     </td>
                                                                     <td className="px-2 py-1 text-center invisible w-0 p-0 overflow-hidden">
                                                                         {/* Removed trash can to force use of context menu */}
                                                                     </td>
                                                                 </tr>
-                                                            )) : (
+                                                            );
+                                                            }) : (
                                                                 <tr>
-                                                                    <td colSpan={4} className="py-10 text-center text-[11px] text-gray-400 font-bold uppercase italic select-none">
+                                                                    <td colSpan={5} className="py-10 text-center text-[11px] text-gray-400 font-bold uppercase italic select-none">
                                                                         No hay insumos agregados a esta receta.
                                                                         <div className="text-[9px] mt-1 opacity-60 font-black tracking-widest">[ CLIC DERECHO PARA AGREGAR ]</div>
                                                                     </td>
@@ -406,6 +537,13 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                             )}
                                                         </tbody>
                                                     </table>
+                                                </div>
+                                                {/* Total fijo al fondo */}
+                                                <div className="bg-[#f5f5f5] border-t-2 border-gray-400 h-[26px] flex items-center justify-end px-2 select-none shadow-[0_-1px_3px_rgba(0,0,0,0.1)]">
+                                                    <span className="text-[10px] font-black uppercase text-gray-600 mr-4">Total Receta Estimado:</span>
+                                                    <span className="text-[12px] font-black text-[#106ebe] min-w-[120px] text-right">
+                                                        Q {totalReceta.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </span>
                                                 </div>
                                             </div>
                                         )}

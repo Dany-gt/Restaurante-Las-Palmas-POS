@@ -140,16 +140,21 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
 
     const getCompatibleUnits = (baseUnit: string) => {
         const lowerBase = (baseUnit || '').toLowerCase();
-        // PESO -> Solo Gramos u Onzas (según instrucción de usuario)
+        
+        // GRUPO PESO (Masa)
         if (['libra', 'lb', 'kilo', 'kg', 'gramo', 'gr', 'onza', 'onz'].includes(lowerBase)) {
             return ['Onza', 'Gramo'];
         }
-        // VOLUMEN -> Solo ML u Onza Liq
-        if (['litro', 'lt', 'ml', 'mililitro', 'onza (liq)', 'onza liq'].includes(lowerBase)) {
-            return ['Mililitro', 'Onza (Liq)'];
+        
+        // GRUPO VOLUMEN (Líquidos)
+        if (['litro', 'lt', 'ml', 'mililitro', 'onza (liq)', 'onza liq', 'frasco', 'botella', 'galon'].includes(lowerBase)) {
+            return ['Mililitro', 'Onza'];
         }
-        // DEFAULT / UNIDAD
-        return ['unidad'];
+        
+        // TODO LO DEMÁS (Unidades, Cajas, etc.) -> Mostrar la unidad base y 'Unidad'
+        const units = [baseUnit || 'Unidad'];
+        if (!units.some(u => u.toLowerCase() === 'unidad')) units.push('Unidad');
+        return [...new Set(units.map(u => u.charAt(0).toUpperCase() + u.slice(1).toLowerCase()))];
     };
 
     const handleImproveText = async (field: 'prep_procedure' | 'observations') => {
@@ -341,27 +346,30 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     });
                     // Insumos no tienen precios por sucursal ni receta ni modificadores
                     setBranchPrices([]);
-                    setRecipeItems([]);
                     setAssignedModifierGroups([]);
                     setAssignedOptionGroups([]);
                     
-                    // Receta para Insumos (sin JOIN a inventory_items — usa products como insumos)
+                    // Receta para Insumos (Carga en dos pasos para evitar error 400)
                     const { data: recipeData, error: recipeError } = await supabase
                         .from('product_recipes')
                         .select('*')
                         .eq('product_id', id);
-                    if (recipeError) console.warn('product_recipes error:', recipeError.message);
-                    if (recipeData && recipeData.length > 0) {
-                        // Obtener nombres de los insumos desde la tabla products
+                    
+                    if (recipeError) {
+                        console.warn('Error al cargar receta:', recipeError.message);
+                    } else if (recipeData && recipeData.length > 0) {
+                        // Traer detalles de los ingredientes de forma manual
                         const itemIds = recipeData.map(r => r.inventory_item_id).filter(Boolean);
-                        const { data: ingredientNames } = itemIds.length > 0
-                            ? await supabase.from('products').select('id, name, unit_measure').in('id', itemIds)
-                            : { data: [] };
-                        const nameMap = Object.fromEntries((ingredientNames || []).map(p => [p.id, p]));
-                        setRecipeItems(recipeData.map(r => ({
+                        const { data: itemsDetail } = await supabase
+                            .from('products')
+                            .select('*')
+                            .in('id', itemIds);
+                            
+                        const fullRecipe = recipeData.map(r => ({
                             ...r,
-                            inventory_items: nameMap[r.inventory_item_id] ? { name: nameMap[r.inventory_item_id].name, unit_measure: nameMap[r.inventory_item_id].unit_measure } : { name: 'DESCONOCIDO' }
-                        })));
+                            inventory_items: itemsDetail?.find(detail => detail.id === r.inventory_item_id)
+                        }));
+                        setRecipeItems(fullRecipe);
                     } else {
                         setRecipeItems([]);
                     }
@@ -546,6 +554,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     image_url: newProduct.image_url || null,
                 };
 
+                savedId = editingId;
                 if (editingId) {
                     const { error } = await supabase.from('products').update(insumoData).eq('id', editingId);
                     if (error) throw error;
@@ -567,7 +576,9 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 }
 
                 // Receta para Insumos
-                await supabase.from('product_recipes').delete().eq('product_id', savedId);
+                const { error: delError } = await supabase.from('product_recipes').delete().eq('product_id', savedId);
+                if (delError) console.warn('Aviso: No se pudo limpiar receta previa:', delError.message);
+
                 if (recipeItems.length > 0) {
                     const rData = recipeItems.map(ri => ({
                         product_id: savedId,
@@ -575,7 +586,8 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                         quantity: parseFloat(ri.quantity) || 0,
                         unit_measure: ri.unit_measure || ri.inventory_items?.unit_measure || 'Unidades'
                     }));
-                    await supabase.from('product_recipes').insert(rData);
+                    const { error: insError } = await supabase.from('product_recipes').insert(rData);
+                    if (insError) throw new Error('Error al guardar componentes de la receta: ' + insError.message);
                 }
             }
 
@@ -939,45 +951,14 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                     const catName = (i.categoria || i.product_categories?.nombre || '').toUpperCase();
                                                     
                                                     // Búsqueda por nombre o código
-                                                    const matchesQuery = itemName.includes(q) || itemCode.includes(q);
-                                                    if (!matchesQuery) return false;
-                                                    // SEGREGACIÓN ESTRICTA PARA RECETAS (Solo Materia Prima / Insumos)
-                                                    if (searchModal.type === 'inventory') {
-                                                        // 1. Excluir por prefijo de código (Estándar: UTE=Utensilios, EQP=Equipo, INR=Insumos No Prod/Packaging)
-                                                        const isExcludePrefix = itemCode.startsWith('UTE') || 
-                                                                                itemCode.startsWith('EQP') || 
-                                                                                itemCode.startsWith('SUM') || 
-                                                                                itemCode.startsWith('MAQ') ||
-                                                                                itemCode.startsWith('INR');
-                                                        
-                                                        // 2. Excluir por nombre de categoría
-                                                        const isExcludeCategory = catName.includes('UTENSILIO') || 
-                                                                                  catName.includes('EQUIPO') || 
-                                                                                  catName.includes('MAQUINARIA') || 
-                                                                                  catName.includes('HERRAMIENTA') || 
-                                                                                  catName.includes('SUMINISTRO') ||
-                                                                                  catName.includes('LIMPIEZA') ||
-                                                                                  catName.includes('MANTENIMIENTO') ||
-                                                                                  catName.includes('INSUMO');
-
-                                                        // 3. Excluir específicamente si el nombre contiene palabras de herramientas o empaque
-                                                        const isToolOrSupply = itemName.includes('SARTEN') || 
-                                                                               itemName.includes('CUCHILLO') || 
-                                                                               itemName.includes('LICUADORA') ||
-                                                                               itemName.includes('PLATOS LLANOS') ||
-                                                                               itemName.includes('VASOS DE AGUA') ||
-                                                                               itemName.includes('BOLSA');
-
-                                                        return !isExcludePrefix && !isExcludeCategory && !isToolOrSupply;
-                                                    }
-                                                    
-                                                    return true;
+                                                    return itemName.includes(q) || itemCode.includes(q);
                                                 })
                                                 .map(item => (
                                                     <tr key={item.id} className="h-8 hover:bg-blue-50 border-b border-gray-100 cursor-pointer group transition-all active:bg-[#106ebe]/10" 
                                                         onDoubleClick={() => {
                                                             if (searchModal.type === 'inventory') {
-                                                                setConfigModal({ item, quantity: '1', unit: item.unit_measure || item.presentacion || 'unidad' });
+                                                                const units = getCompatibleUnits(item.unit_measure);
+                                                                setConfigModal({ item, quantity: '1', unit: units[0] || 'Unidad' });
                                                             } else if (searchModal.type === 'options') {
                                                                 if (!assignedOptionGroups.some(g => g.group_id === item.id)) setAssignedOptionGroups([...assignedOptionGroups, { group_id: item.id }]);
                                                                 setSearchModal({ ...searchModal, visible: false, type: null, query: '' });
