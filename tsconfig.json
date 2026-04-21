@@ -24,6 +24,21 @@
       ]
     },
     "allowImportingTsExtensions": true,
-    "noEmit": true
-  }
+    "noEmit": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+    "strictNullChecks": false
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "backups",
+    "**/backups/*",
+    "SQL",
+    "android",
+    "electron",
+    "scratch"
+  ]
 }
