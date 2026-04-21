@@ -220,6 +220,8 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                 {value: 'Bolsa', label: 'Bolsa'},
                                                 {value: 'Lata', label: 'Lata'},
                                                 {value: 'Galón', label: 'Galón'},
+                                                {value: 'Garrafón', label: 'Garrafón'},
+                                                {value: 'Paquete', label: 'Paquete'},
                                                 {value: 'Unidad', label: 'Unidad'}
                                             ]}
                                         />
