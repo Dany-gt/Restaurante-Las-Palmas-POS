@@ -1,63 +1,24 @@
-# Black-list ROBUSTA para Vercel
-# Objetivo: Bajar de 251MB a < 10MB bloqueando las carpetas pesadas recursivamente
-
-# 1. CARPETAS GIGANTES (Recursivo)
-**/node_modules/**
-**/dist/**
-**/release/**
-**/android/**
-**/ios/**
-**/electron/**
-**/driver_app/**
-**/.vercel/**
-**/.git/**
-**/.next/**
-**/Las Palmas - Google Play package/**
-**/manuales de Uso/**
-**/notas para el sistema/**
-**/este es un proyecto que sirve para almacenar datos cache por mas tiempo offonline/**
-**/este repositorio sirve para la consulta de NIT en sat/**
-**/esto es para extraer datos de portal sat/**
-**/test_extract/**
-**/SQL/**
-**/reports/**
-**/scripts/**
-**/design_demo/**
-**/modern_icons/**
-
-# 2. ARCHIVOS INDIVIDUALES PESADOS
-*.zip
-*.rar
-*.7z
-*.exe
-*.dmg
-*.msi
-*.sql
-*.csv
-*.ps1
-*.pyc
+# Ignorar archivos de Python (Solo para Electron/Local)
+*.py
+requirements.txt
+pyproject.toml
+venv/
+.venv/
 __pycache__/
 
-# 3. EXCEPCIONES PARA EL BUILD (White-list quirúrgica)
-!package.json
-!package-lock.json
-!requirements.txt
-!api/requirements.txt
-!vercel.json
-!vite.config.ts
-!tsconfig.json
-!tailwind.config.js
-!postcss.config.*
-!index.html
-!App.tsx
-!index.tsx
-!.env*
-!api/**
-!public/**
-!src/**
-!components/**
-!hooks/**
-!utils/**
-!lib/**
-!services/**
-!types/**
+# Ignorar carpetas de desarrollo local y otros entornos
+electron/
+android/
+SQL/
+backups/
+scratch/
+design_demo/
+api/
+
+# Ignorar archivos de sistema y logs
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.agents/
