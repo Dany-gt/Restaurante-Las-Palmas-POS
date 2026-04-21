@@ -13,6 +13,8 @@ import {
     ImagePlus, Tag, Info, Star, CheckCircle2
 } from 'lucide-react';
 import { registrarAuditoria, detectarCambios } from '../../services/auditService';
+import { useNotify } from '../../hooks/useNotify';
+import { ConfirmDialog } from './ConfirmDialog';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 type ItemTipo = 'insumo' | 'utensilio';
@@ -145,6 +147,7 @@ function emptyForm(tipo: ItemTipo): Omit<InventoryItem,'id'|'org_id'|'created_at
 // ─── Componente Principal ─────────────────────────────────────────────────────
 interface Props { initialTab?: ItemTipo; }
 export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) => {
+    const notify = useNotify();
     const [activeTab, setActiveTab] = useState<ItemTipo>(initialTab);
     const [items, setItems] = useState<InventoryItem[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
@@ -198,8 +201,12 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
     // Context menu
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [ctxMenu, setCtxMenu] = useState<{x:number;y:number;item?:InventoryItem}|null>(null);
+    const [catCtxMenu, setCatCtxMenu] = useState<{x:number;y:number;id:string;nombre:string}|null>(null);
     const [showCatModal, setShowCatModal] = useState(false);
+    const [editingCat, setEditingCat] = useState<Category | null>(null);
     const [newCatName, setNewCatName] = useState('');
+    const [showDelConfirm, setShowDelConfirm] = useState(false);
+    const [catToDelete, setCatToDelete] = useState<{id:string;nombre:string} | null>(null);
 
     // ••• SIDEBAR RESIZING STATE •••
     const [sidebarWidth, setSidebarWidth] = useState(() => {
@@ -530,18 +537,76 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
     const handleSaveCategory = async () => {
         if (!newCatName.trim()) return;
         setSaving(true);
-        // D3: insumos → supply_categories | D4: utensilios → utensil_categories
-        // NOTA: ambas tablas usan columna 'name' (no 'nombre')
         const table = activeTab === 'insumo' ? 'supply_categories' : 'utensil_categories';
-        const { error } = await supabase.from(table).insert({
-            name: newCatName.trim().toUpperCase(),  // columna real: 'name'
-        });
-        if (!error) {
+        
+        try {
+            if (editingCat) {
+                // UPDATE
+                const { error } = await supabase.from(table).update({
+                    name: newCatName.trim().toUpperCase()
+                }).eq('id', editingCat.id);
+                if (error) throw error;
+            } else {
+                // INSERT
+                const { error } = await supabase.from(table).insert({
+                    name: newCatName.trim().toUpperCase()
+                });
+                if (error) throw error;
+            }
+
             await fetchCategories();
             setShowCatModal(false);
             setNewCatName('');
+            setEditingCat(null);
+            notify.success(`Categoría ${editingCat ? 'actualizada' : 'creada'} correctamente`);
+        } catch (e: any) {
+            notify.error("Error al guardar categoría: " + e.message);
+        } finally {
+            setSaving(false);
         }
-        setSaving(false);
+    };
+
+    const handleDeleteCategory = async (id: string, nombre: string) => {
+        setCatCtxMenu(null);
+        // Verificar si hay items vinculados
+        const { count, error: countErr } = await supabase
+            .from('inventory_items')
+            .select('*', { count: 'exact', head: true })
+            .eq('categoria_id', id);
+
+        if (countErr) {
+            notify.error("Error al verificar integridad: " + countErr.message);
+            return;
+        }
+
+        if (count && count > 0) {
+            notify.alert(`No se puede eliminar "${nombre}" porque tiene ${count} ítems asociados.`);
+            return;
+        }
+
+        setCatToDelete({ id, nombre });
+        setShowDelConfirm(true);
+    };
+
+    const confirmDeleteCategory = async () => {
+        if (!catToDelete) return;
+        const { id, nombre } = catToDelete;
+        setShowDelConfirm(false);
+        
+        try {
+            const table = activeTab === 'insumo' ? 'supply_categories' : 'utensil_categories';
+            const { error } = await supabase.from(table).delete().eq('id', id);
+
+            if (error) throw error;
+            
+            notify.success(`Categoría "${nombre}" eliminada correctamente`);
+            await fetchCategories();
+            if (filterCat === id) setFilterCat('');
+        } catch (e: any) {
+            notify.error("Error al eliminar categoría: " + e.message);
+        } finally {
+            setCatToDelete(null);
+        }
     };
 
     const handleDelete = async (id:string) => {
@@ -831,35 +896,52 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                     className="shrink-0 bg-white border-r border-gray-300 flex flex-col overflow-hidden shadow-sm"
                     style={{ width: `${sidebarWidth}px` }}
                 >
-                    <div className="bg-[#f0f0f0] border-b border-gray-300 px-3 py-1.5 flex items-center justify-between">
-                        <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Navegar Categorías</span>
-                        <Folder size={12} className="text-slate-400" />
+                    <div className="bg-[#f0f0f0] h-[24px] flex items-center border-b border-gray-400 shrink-0">
+                        <div className="w-[34px] h-full border-r border-gray-300" />
+                        <span className="pl-2 text-[10px] font-bold text-slate-700 uppercase tracking-tight">Categorías de Inventario</span>
                     </div>
                     
                     <div className="flex-1 overflow-y-auto py-2">
-                        {/* Botón Ver Todo */}
+                        {/* Botón Ver Todo Estilo Premium */}
                         <button 
                             onClick={() => setFilterCat('')}
-                            className={`w-full flex items-center gap-2 px-4 py-2 text-left border-b border-gray-50 transition-colors ${filterCat === '' ? 'bg-blue-50 text-[#106ebe]' : 'hover:bg-gray-50 text-slate-600'}`}
+                            className={`w-full flex items-center transition-none text-left h-[26px] border-b border-gray-300 select-none
+                                ${filterCat === '' ? 'bg-transparent' : 'bg-white hover:bg-[#f0f0f0]'}`}
                         >
-                            <LayoutGrid size={13} className={filterCat === '' ? 'text-[#106ebe]' : 'text-slate-400'} />
-                            <span className="text-[11px] font-bold uppercase tracking-tight">MOSTRAR TODO</span>
+                            <div className="w-[34px] h-full flex items-center justify-center shrink-0 border-r border-gray-300">
+                                {filterCat === '' && <span className="text-[#106ebe] text-[9px]">►</span>}
+                            </div>
+                            <div className={`flex-1 h-full flex items-center pl-2 ${filterCat === '' ? 'bg-[#106ebe]' : ''}`}>
+                                <span className={`text-[11px] font-black uppercase tracking-tight ${filterCat === '' ? 'text-white' : 'text-slate-600'}`}>MOSTRAR TODO</span>
+                            </div>
                         </button>
                         
-                        {/* Lista de Categorías de Inventarios */}
-                        <div className="py-2 px-1">
-                            {tabCats.map(cat => (
-                                <button
-                                    key={cat.id}
-                                    onClick={() => setFilterCat(cat.id)}
-                                    className={`w-full flex items-center gap-2 px-3 py-1.5 text-left rounded-sm transition-all mb-0.5 ${filterCat === cat.id ? 'bg-blue-50 text-[#106ebe] ps-4 border-l-2 border-[#106ebe]' : 'hover:bg-gray-50 text-slate-600 ps-3'}`}
-                                >
-                                    <Folder size={12} className={filterCat === cat.id ? 'text-[#106ebe]' : 'text-slate-400'} />
-                                    <span className={`text-[11px] font-bold uppercase truncate ${filterCat === cat.id ? 'font-black' : ''}`}>
-                                        {cat.nombre}
-                                    </span>
-                                </button>
-                            ))}
+                        <div className="py-0.5">
+                            {tabCats.map(cat => {
+                                const isSelected = filterCat === cat.id;
+                                return (
+                                    <button
+                                        key={cat.id}
+                                        onClick={() => setFilterCat(cat.id)}
+                                        onContextMenu={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setCatCtxMenu({ x: e.clientX, y: e.clientY, id: cat.id, nombre: cat.nombre });
+                                        }}
+                                        className={`w-full flex items-center transition-none text-left h-[26px] select-none outline-none
+                                            ${isSelected ? 'bg-transparent' : 'bg-white hover:bg-[#f0f0f0]'}`}
+                                    >
+                                        <div className="w-[34px] h-full flex items-center justify-center shrink-0 border-r border-gray-300">
+                                            {isSelected && <span className="text-[#106ebe] text-[9px]">►</span>}
+                                        </div>
+                                        <div className={`flex-1 h-full flex items-center pl-2 ${isSelected ? 'bg-[#106ebe]' : ''}`}>
+                                            <span className={`text-[11px] font-black uppercase truncate pr-1 ${isSelected ? 'text-white' : 'text-slate-800'}`}>
+                                                {cat.nombre}
+                                            </span>
+                                        </div>
+                                    </button>
+                                );
+                            })}
                             {tabCats.length === 0 && !loading && (
                                 <div className="px-4 py-4 text-center">
                                     <Info size={16} className="mx-auto mb-2 text-slate-300" />
@@ -1593,7 +1675,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                         className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] hover:bg-[#0d5aa0] text-white text-[11px] font-bold border border-[#0d5aa0] disabled:opacity-50 shadow-sm"
                                     >
                                         {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
-                                        {saving ? 'Guardando...' : 'Crear Categoría'}
+                                        {saving ? 'Guardando...' : (editingCat ? 'Actualizar Categoría' : 'Crear Categoría')}
                                     </button>
                                 </div>
                             </div>
@@ -1602,6 +1684,46 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                 </div>,
                 document.body
             )}
+
+            {/* ══ MENÚ CONTEXTUAL CATEGORÍAS ══ */}
+            {catCtxMenu && createPortal(
+                <div className="fixed inset-0 z-[250000] pointer-events-auto" onContextMenu={(e) => e.preventDefault()}>
+                    <div className="absolute inset-0 bg-transparent" onClick={() => setCatCtxMenu(null)} />
+                    <div className="fixed z-[250001] bg-[#f0f0f0] border border-gray-400 shadow-[0_10px_25px_rgba(0,0,0,0.2)] py-0.5 w-36 select-none animate-in fade-in zoom-in-95 duration-100"
+                        style={{ top: catCtxMenu.y, left: catCtxMenu.x }}>
+                        <button onClick={() => { 
+                            setEditingCat(categories.find(c => c.id === catCtxMenu.id) || null);
+                            setNewCatName(catCtxMenu.nombre);
+                            setShowCatModal(true);
+                            setCatCtxMenu(null);
+                        }} className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700">
+                            <Pencil size={11} /> Editar
+                        </button>
+                        <div className="h-px bg-gray-300 my-0.5" />
+                        <button onClick={() => { fetchCategories(); setCatCtxMenu(null); }}
+                            className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700">
+                            <RefreshCw size={11} /> Refrescar
+                        </button>
+                        <button onClick={() => handleDeleteCategory(catCtxMenu.id, catCtxMenu.nombre)}
+                            className="w-full h-6 flex items-center gap-2 px-3 hover:bg-red-500 hover:text-white text-[11px] text-red-600">
+                            <Trash2 size={11} /> Eliminar
+                        </button>
+                    </div>
+                </div>, document.body
+            )}
+
+            {/* Diálogo de Confirmación de Borrado de Categoría */}
+            <ConfirmDialog 
+                isOpen={showDelConfirm}
+                title="Eliminar Categoría"
+                message={`¿Estás seguro de eliminar la categoría "${catToDelete?.nombre}"?`}
+                description="Esta acción eliminará la categoría permanentemente. Solo es posible si no hay ítems asociados."
+                type="danger"
+                confirmText="Eliminar permanentemente"
+                cancelText="Cancelar"
+                onConfirm={confirmDeleteCategory}
+                onCancel={() => { setShowDelConfirm(false); setCatToDelete(null); }}
+            />
 
             {/* ══ MODAL AJUSTE RÁPIDO ══ */}
             {showQuick && quickItem && typeof document !== 'undefined' && createPortal(

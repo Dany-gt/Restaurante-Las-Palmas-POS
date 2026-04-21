@@ -4,6 +4,8 @@ import { createPortal } from 'react-dom';
 import { DraggableWindow } from './AdminPortal';
 import { supabase } from '../../supabase';
 import * as XLSX from 'xlsx';
+import { useNotify } from '../../hooks/useNotify';
+import { ConfirmDialog } from './ConfirmDialog';
 
 interface InventoryCategory {
     id: string;
@@ -20,6 +22,7 @@ interface InventoryItem {
     unit: string;
     code: string;
     conversion_factor: number;
+    product_category_id?: string; // New field from DB
 }
 
 interface BranchStock {
@@ -34,6 +37,7 @@ interface InventoryStockProps {
 }
 
 export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
+    const notify = useNotify();
     const [categories, setCategories] = useState<InventoryCategory[]>([]);
     const [products, setProducts] = useState<InventoryItem[]>([]);
     const [branches, setBranches] = useState<any[]>([]);
@@ -65,6 +69,15 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
     const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
     const [categorySearchQuery, setCategorySearchQuery] = useState('');
 
+    // Category Maintenance
+    const [catCtxMenu, setCatCtxMenu] = useState<{ x: number, y: number, id: string, name: string } | null>(null);
+    const [showCatModal, setShowCatModal] = useState(false);
+    const [editingCat, setEditingCat] = useState<InventoryCategory | null>(null);
+    const [newCatName, setNewCatName] = useState('');
+    const [savingCat, setSavingCat] = useState(false);
+    const [showDelConfirm, setShowDelConfirm] = useState(false);
+    const [catToDelete, setCatToDelete] = useState<{id:string;name:string}|null>(null);
+
     useEffect(() => {
         fetchData();
     }, [selectedBranch, selectedDate, mode]);
@@ -72,25 +85,42 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
     const fetchData = async () => {
         setLoading(true);
         const [catRes, prodRes, branchRes, stockRes] = await Promise.all([
-            // Use 'categories' and 'products' instead of inventory specific tables
-            supabase.from('categories').select('*').order('name'),
-            supabase.from('products').select('id, name, category_id, cost_price, portion_size, unit_measure, product_code, portions').order('name'),
+            // Use 'product_categories' and 'products' instead of legacy tables
+            supabase.from('product_categories').select('*').order('nombre'),
+            supabase.from('products')
+                .select('id, name, product_category_id, cost_price, unit_measure, product_code, conversion_factor, presentation_unit, stock_actual')
+                .eq('es_platillo', false)
+                .order('name'),
             supabase.from('branches').select('id, name').order('name'),
-            supabase.from('inventory_item_branches').select('item_id, branch_id, quantity, min_stock')
+            supabase.from('product_branch_inventory')
+                .select('product_id, branch_id, quantity, min_stock')
         ]);
 
-        const mappedProducts = (prodRes.data || []).map(p => ({
-            id: p.id,
-            name: p.name,
-            category_id: p.category_id,
-            cost: p.cost_price || 0,
-            presentation: p.portion_size || 'UNIDAD',
-            unit: p.unit_measure || 'UN',
-            code: p.product_code || '',
-            conversion_factor: p.portions || 1
+        const mappedCategories = (catRes.data || []).map((c: any) => ({
+            id: c.id,
+            name: c.nombre,
+            parent_id: c.parent_id
         }));
 
-        setCategories(catRes.data || []);
+        const mappedProducts = (prodRes.data || []).map(p => {
+            const conversion = parseFloat(p.conversion_factor) || 1;
+            const formattedConv = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(conversion);
+            const presentacion = `${p.presentation_unit || ''} ${formattedConv} ${p.unit_measure || ''}`.trim();
+
+            return {
+                id: p.id,
+                name: p.name,
+                category_id: p.product_category_id || '',
+                cost: parseFloat(p.cost_price || 0),
+                presentation: presentacion || 'UNIDAD',
+                unit: p.unit_measure || 'UN',
+                code: p.product_code || '',
+                conversion_factor: conversion,
+                stock_actual: parseFloat(p.stock_actual || 0)
+            };
+        });
+
+        setCategories(mappedCategories);
         setProducts(mappedProducts);
         setBranches(branchRes.data || []);
 
@@ -124,7 +154,13 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                 setBranchStocks([]);
             }
         } else {
-            setBranchStocks(stockRes.data || []);
+            const rawStocks = (stockRes.data || []).map((s: any) => ({
+                item_id: s.product_id,
+                branch_id: s.branch_id,
+                quantity: s.quantity,
+                min_stock: s.min_stock
+            }));
+            setBranchStocks(rawStocks);
         }
 
         if (catRes.data) {
@@ -201,6 +237,69 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
         setPrintSelectedCategories(next);
     };
 
+    const handleSaveCategory = async () => {
+        if (!newCatName.trim() || !editingCat) return;
+        setSavingCat(true);
+        try {
+            const { error } = await supabase
+                .from('product_categories')
+                .update({ nombre: newCatName.trim().toUpperCase() })
+                .eq('id', editingCat.id);
+            
+            if (error) throw error;
+            
+            await fetchData();
+            setShowCatModal(false);
+            setEditingCat(null);
+            setNewCatName('');
+            notify.success("Categoría actualizada correctamente");
+        } catch (e: any) {
+            notify.error("Error al editar categoría: " + e.message);
+        } finally {
+            setSavingCat(false);
+        }
+    };
+
+    const handleDeleteCategory = async (id: string, name: string) => {
+        setCatCtxMenu(null);
+        // Verificar si hay productos vinculados
+        const { count, error: countErr } = await supabase
+            .from('products')
+            .select('*', { count: 'exact', head: true })
+            .eq('product_category_id', id);
+
+        if (countErr) {
+            notify.error("Error al verificar integridad: " + countErr.message);
+            return;
+        }
+
+        if (count && count > 0) {
+            notify.alert(`No se puede eliminar "${name}" porque tiene ${count} productos asociados.`);
+            return;
+        }
+
+        setCatToDelete({ id, name });
+        setShowDelConfirm(true);
+    };
+
+    const confirmDeleteCategory = async () => {
+        if (!catToDelete) return;
+        const { id, name } = catToDelete;
+        setShowDelConfirm(false);
+
+        try {
+            const { error } = await supabase.from('product_categories').delete().eq('id', id);
+            if (error) throw error;
+            
+            notify.success(`Categoría "${name}" eliminada correctamente`);
+            await fetchData();
+        } catch (e: any) {
+            notify.error("Error al eliminar categoría: " + e.message);
+        } finally {
+            setCatToDelete(null);
+        }
+    };
+
     const handleContextMenu = (e: React.MouseEvent, row: any) => {
         e.preventDefault();
         const container = e.currentTarget.closest('.inventory-stock-root');
@@ -234,42 +333,50 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
         return children.map(cat => {
             const hasChildren = categories.some(c => c.parent_id === cat.id);
             const isExpanded = expandedCategories.has(cat.id);
-            // Only highlight if we are filtering by a specific subset, not the whole catalog
             const isSelected = printSelectedCategories.size < categories.length && printSelectedCategories.has(cat.id);
+            const isParent = depth === 0;
 
             return (
-                <div key={cat.id} className="flex flex-col select-none">
-                    <div className="flex items-center group/cat">
-                        <div
-                            onClick={() => togglePrintCategory(cat.id)}
-                            className={`flex-1 flex items-center gap-1.5 px-3 py-1 text-left truncate cursor-pointer transition-colors ${isSelected ? 'bg-blue-50/50' : 'text-slate-800 hover:bg-slate-100'}`}
-                        >
-                            <div style={{ paddingLeft: `${depth * 12}px` }} className="flex items-center gap-1.5 flex-1 min-w-0">
-                                {hasChildren ? (
-                                    <button 
-                                        onClick={(e) => { e.stopPropagation(); toggleCategory(cat.id); }} 
-                                        className="w-4 h-4 flex items-center justify-center hover:bg-slate-200 rounded-sm"
-                                    >
-                                        {isExpanded ? <ChevronDown size={14} className="text-slate-500" /> : <ChevronRight size={14} className="text-slate-500" />}
-                                    </button>
-                                ) : (
-                                    <div className="w-4" />
-                                )}
-                                <div className="flex items-center justify-center">
-                                    {isSelected ? <CheckSquare size={14} className="text-[#106ebe]" /> : <Square size={14} className="text-slate-400" />}
-                                </div>
-                                <span className={`text-[11px] uppercase truncate ${hasChildren ? 'font-bold' : ''} ${isSelected ? 'text-[#106ebe] font-bold' : 'text-slate-700'}`}>
-                                    {cat.name}
+                <React.Fragment key={cat.id}>
+                    <div
+                        className={`flex items-center cursor-pointer transition-none select-none
+                            ${isSelected ? 'bg-transparent' : 'hover:bg-[#f0f0f0] bg-white'}`}
+                        style={{ height: isParent ? 26 : 22 }}
+                        onClick={() => togglePrintCategory(cat.id)}
+                        onContextMenu={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setCatCtxMenu({ x: e.clientX, y: e.clientY, id: cat.id, name: cat.name });
+                        }}
+                    >
+                        {/* Gutter (Icon Area) */}
+                        <div className="w-[34px] h-full flex items-center justify-center shrink-0 border-r border-gray-300">
+                            {isSelected && <span className="text-[#106ebe] text-[9px] mr-0.5">►</span>}
+                            {hasChildren && (
+                                <span 
+                                    className="text-[8px] text-gray-500 hover:text-[#106ebe]"
+                                    onClick={(e) => { e.stopPropagation(); toggleCategory(cat.id); }}
+                                >
+                                    {isExpanded ? '▾' : '▸'}
                                 </span>
-                            </div>
+                            )}
+                        </div>
+
+                        {/* Name Area */}
+                        <div className={`flex-1 h-full flex items-center pl-2 ${isSelected ? 'bg-[#106ebe]' : ''}`}>
+                             <span className={`truncate leading-none uppercase pr-1 ${
+                                isParent ? 'text-[11px] font-black tracking-wide' : 'text-[10px]'
+                            } ${isSelected ? 'text-white' : 'text-slate-800'}`}>
+                                {cat.name}
+                            </span>
                         </div>
                     </div>
                     {hasChildren && isExpanded && (
-                        <div className="">
+                        <div className="bg-[#fafafa]">
                             {renderCategoryTree(cat.id, depth + 1)}
                         </div>
                     )}
-                </div>
+                </React.Fragment>
             );
         });
     };
@@ -306,7 +413,9 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
 
     const tableRows = filteredProducts.map(product => {
         const branchStock = branchStocks.find(bs => bs.item_id === product.id && bs.branch_id === selectedBranch);
-        const totalStock = branchStock ? branchStock.quantity : 0;
+        
+        // SINCRO: Prioridad absoluta al stock de la base de productos para paridad con botón "Productos"
+        const totalStock = product.stock_actual; 
         const minStock = branchStock ? branchStock.min_stock : 0;
         const factor = product.conversion_factor || 1;
         return {
@@ -429,9 +538,10 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
             <div className="flex flex-1 overflow-hidden">
                 {/* Left Sidebar */}
                 <div className="w-[280px] shrink-0 flex flex-col bg-white border-r border-slate-200 overflow-hidden">
-                    {/* Categorías Header - Legacy Style */}
-                    <div className="bg-[#f0f0f0] px-3 py-1.5 flex items-center justify-between shrink-0 border-b border-gray-300">
-                        <span className="text-slate-700 text-[11px] font-bold tracking-wide">Categorías</span>
+                    {/* Categorías Header - Premium Style */}
+                    <div className="bg-[#f0f0f0] h-[24px] flex items-center border-b border-gray-400 shrink-0">
+                        <div className="w-[34px] h-full border-r border-gray-300" />
+                        <span className="pl-2 text-[10px] font-bold text-slate-700 uppercase tracking-tight">Categoría</span>
                     </div>
 
                     {/* Category Search Input */}
@@ -452,13 +562,24 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                     <div className="flex-1 overflow-y-auto py-1 custom-scrollbar">
                         <button
                             onClick={() => setPrintSelectedCategories(new Set(categories.map(c => c.id)))}
-                            className={`w-full flex items-center gap-2 px-3 py-2 transition-all text-left border-b border-gray-200 ${printSelectedCategories.size === categories.length && categories.length > 0
-                                ? 'bg-slate-100 text-[#106ebe]'
-                                : 'bg-white text-slate-800 hover:bg-slate-50'
+                            className={`w-full flex items-center transition-none text-left h-[28px] border-b border-gray-300 select-none
+                                ${printSelectedCategories.size === categories.length && categories.length > 0
+                                ? 'bg-transparent'
+                                : 'bg-white hover:bg-[#f0f0f0]'
                                 }`}
                         >
-                            <LayoutList size={14} className={printSelectedCategories.size === categories.length ? 'text-[#106ebe]' : 'text-slate-400'} />
-                            <span className={`text-[11px] font-bold uppercase tracking-tight ${printSelectedCategories.size === categories.length ? 'text-[#106ebe]' : 'text-slate-600'}`}>CATÁLOGO COMPLETO</span>
+                            <div className="w-[34px] h-full flex items-center justify-center shrink-0 border-r border-gray-300">
+                                {printSelectedCategories.size === categories.length && (
+                                    <span className="text-[#106ebe] text-[9px]">►</span>
+                                )}
+                            </div>
+                            <div className={`flex-1 h-full flex items-center pl-2 ${printSelectedCategories.size === categories.length ? 'bg-[#106ebe]' : ''}`}>
+                                <span className={`text-[11px] font-black uppercase tracking-tight ${
+                                    printSelectedCategories.size === categories.length ? 'text-white' : 'text-slate-600'
+                                }`}>
+                                    CATÁLOGO COMPLETO
+                                </span>
+                            </div>
                         </button>
                         <div className="py-1">
                             {renderCategoryTree(null)}
@@ -594,7 +715,7 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                                             {row.totalStock.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </td>
                                         <td className="px-3 text-right border-r border-gray-200 text-[11px] font-bold text-slate-800 tabular-nums">
-                                            Q{(row.cost * (row.conversion_factor || 1)).toFixed(2)}
+                                            Q{row.cost.toFixed(2)}
                                         </td>
                                         <td className="px-3 text-right text-[11px] font-bold text-slate-900 tabular-nums">
                                             Q{row.costoTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -659,6 +780,87 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                 </div>,
                 document.body
             )}
+
+            {/* Cat Maintenance Modal */}
+            {showCatModal && editingCat && createPortal(
+                <div className="fixed inset-0 z-[200000] flex items-center justify-center p-4 bg-black/10 pointer-events-auto">
+                    <DraggableWindow id="cat-maintenance">
+                        <div className="w-[320px] bg-[#f0f0f0] border border-[#106ebe] shadow-2xl flex flex-col pointer-events-auto">
+                            <div className="bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 cursor-move modal-header">
+                                <div className="flex items-center gap-2">
+                                    <Folder size={14} />
+                                    <span className="text-[11px] font-bold uppercase">Editar Categoría</span>
+                                </div>
+                                <button onClick={() => setShowCatModal(false)} className="hover:bg-red-500 h-full px-2">
+                                    <X size={16} />
+                                </button>
+                            </div>
+                            <div className="p-4 flex flex-col gap-4">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] font-bold text-gray-500 uppercase">Nombre de Categoría</label>
+                                    <input 
+                                        type="text"
+                                        value={newCatName}
+                                        onChange={e => setNewCatName(e.target.value.toUpperCase())}
+                                        className="w-full h-7 border border-gray-300 px-2 text-[11px] font-bold outline-none focus:border-[#106ebe]"
+                                        autoFocus
+                                    />
+                                </div>
+                                <div className="flex justify-end gap-2">
+                                    <button onClick={() => setShowCatModal(false)} className="px-4 py-1 text-[11px] font-bold bg-white border border-gray-400 hover:bg-gray-100 uppercase">Cancelar</button>
+                                    <button 
+                                        onClick={handleSaveCategory}
+                                        disabled={savingCat || !newCatName.trim()}
+                                        className="px-5 py-1 bg-[#106ebe] text-white text-[11px] font-bold hover:bg-[#0d5aa0] disabled:opacity-50 uppercase flex items-center gap-2"
+                                    >
+                                        {savingCat && <Loader2 size={12} className="animate-spin" />}
+                                        {savingCat ? 'Guardando...' : 'Guardar Cambios'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </DraggableWindow>
+                </div>,
+                document.body
+            )}
+
+            {/* Category Context Menu */}
+            {catCtxMenu && createPortal(
+                <div className="fixed inset-0 z-[250000] pointer-events-auto" onContextMenu={(e) => e.preventDefault()}>
+                    <div className="absolute inset-0 bg-transparent" onClick={() => setCatCtxMenu(null)} />
+                    <div className="fixed z-[250001] bg-[#f0f0f0] border border-gray-400 shadow-[0_10px_25px_rgba(0,0,0,0.2)] py-0.5 w-36 select-none animate-in fade-in zoom-in-95 duration-100"
+                        style={{ top: catCtxMenu.y, left: catCtxMenu.x }}>
+                        <button onClick={() => { 
+                            setEditingCat(categories.find(c => c.id === catCtxMenu.id) || null);
+                            setNewCatName(catCtxMenu.name);
+                            setShowCatModal(true);
+                            setCatCtxMenu(null);
+                        }} className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700">
+                            <Pencil size={11} /> Editar
+                        </button>
+                        <div className="h-px bg-gray-300 my-0.5" />
+                        <button onClick={() => { fetchData(); setCatCtxMenu(null); }}
+                            className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700">
+                            <RefreshCw size={11} /> Refrescar
+                        </button>
+                        <button onClick={() => handleDeleteCategory(catCtxMenu.id, catCtxMenu.name)}
+                            className="w-full h-6 flex items-center gap-2 px-3 hover:bg-red-500 hover:text-white text-[11px] text-red-600">
+                            <Trash2 size={11} /> Eliminar
+                        </button>
+                    </div>
+                </div>, document.body
+            )}
+
+            {/* Confirm Category Delete Dialog */}
+            <ConfirmDialog 
+                isOpen={showDelConfirm}
+                title="Eliminar Categoría"
+                message={`¿Estás seguro de eliminar la categoría "${catToDelete?.name}"?`}
+                description="Esta acción eliminará la categoría permanentemente del catálogo."
+                type="danger"
+                onConfirm={confirmDeleteCategory}
+                onCancel={() => { setShowDelConfirm(false); setCatToDelete(null); }}
+            />
         </div>
     );
 };
