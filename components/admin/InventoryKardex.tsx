@@ -70,16 +70,16 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
         const fetchMeta = async () => {
             const [bRes, iRes, pRes] = await Promise.all([
                 supabase.from('branches').select('id, name').order('name'),
-                supabase.from('inventory_items').select('id, name').order('name'),
-                supabase.from('products').select('id, name').eq('es_platillo', false).order('name')
+                supabase.from('inventory_items').select('id, name, nombre').order('nombre'),
+                supabase.from('products').select('id, name, nombre').eq('es_platillo', false).order('name')
             ]);
             
             if (bRes.data) setBranches(bRes.data);
             
-            // Combinar ambos listados para el dropdown de selección
+            // Combinar ambos listados para el dropdown de selección, normalizando el nombre
             const combined = [
-                ...(iRes.data || []),
-                ...(pRes.data || [])
+                ...(iRes.data || []).map(i => ({ ...i, display_name: i.nombre || i.name || '---' })),
+                ...(pRes.data || []).map(p => ({ ...p, display_name: p.name || p.nombre || '---' }))
             ];
             
             // Eliminar duplicados por ID si los hay
@@ -130,7 +130,9 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                 if (foundIds.size > 0) {
                     const idList = Array.from(foundIds);
                     const mapping: Record<string, string> = {};
+                    const statuses: Record<string, string> = {};
 
+                    // 1. Buscar en TABLA ORDERS
                     const { data: directOrders } = await supabase
                         .from('orders')
                         .select('id, order_number, status')
@@ -138,30 +140,34 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
 
                     if (directOrders) {
                         directOrders.forEach(o => {
-                            mapping[o.id.toLowerCase()] = o.order_number?.toString() || '--';
-                            setOrderStatuses(prev => ({ ...prev, [o.id.toLowerCase()]: o.status?.toUpperCase() || '' }));
+                            const idLow = o.id.toLowerCase();
+                            mapping[idLow] = o.order_number?.toString() || '--';
+                            statuses[idLow] = o.status?.toUpperCase() || '';
                         });
                     }
 
+                    // 2. Buscar en TABLA ORDER_ITEMS (para los IDs que faltan)
                     const missingIds = idList.filter(id => !mapping[id]);
                     if (missingIds.length > 0) {
                         const { data: itemData } = await supabase
                             .from('order_items')
-                            .select('id, order_id, orders(order_number, status)')
+                            .select('id, order_id, orders!inner(order_number, status)')
                             .in('id', missingIds);
 
                         if (itemData) {
                             itemData.forEach((it: any) => {
+                                const idLow = it.id.toLowerCase();
                                 const num = it.orders?.order_number?.toString();
                                 if (num) {
-                                    mapping[it.id.toLowerCase()] = num;
-                                    setOrderStatuses(prev => ({ ...prev, [it.id.toLowerCase()]: it.orders?.status?.toUpperCase() || '' }));
+                                    mapping[idLow] = num;
+                                    statuses[idLow] = it.orders?.status?.toUpperCase() || '';
                                 }
                             });
                         }
                     }
 
                     setOrderNumbers(prev => ({ ...prev, ...mapping }));
+                    setOrderStatuses(prev => ({ ...prev, ...statuses }));
                 }
             }
         } catch (err: any) {
@@ -319,7 +325,7 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
 
     const selectedProductName = filterProduct === 'ALL'
         ? ''
-        : products.find(p => p.id === filterProduct)?.name || '';
+        : products.find(p => p.id === filterProduct)?.display_name || '';
 
     return (
         <div className="flex-1 h-full bg-slate-50 font-['Montserrat'] flex flex-col overflow-hidden">
@@ -367,13 +373,13 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                                     TODOS LOS PRODUCTOS
                                 </button>
                                 {products
-                                    .filter(p => p.name.toLowerCase().includes(searchProduct.toLowerCase()))
+                                    .filter(p => (p.display_name || '').toLowerCase().includes((searchProduct || '').toLowerCase()))
                                     .slice(0, 30)
                                     .map(p => (
                                         <button key={p.id}
                                             onClick={() => { setFilterProduct(p.id); setSearchProduct(''); setShowProductDropdown(false); }}
                                             className="w-full text-left px-4 py-2 text-[10px] font-bold uppercase text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 border-b border-slate-50 last:border-0">
-                                            {p.name}
+                                            {p.display_name}
                                         </button>
                                     ))}
                             </div>
@@ -557,9 +563,14 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                                                         const status = match ? orderStatuses[match[0].toLowerCase()] : '';
                                                         const isCancelled = status === 'CANCELLED' || status === 'ANULADO';
 
-                                                        return isCancelled
-                                                            ? (row.movement_type.includes('(') ? row.movement_type.split('(')[0] : row.movement_type) + ' (ANULADA)'
-                                                            : row.movement_type;
+                                                        let label = row.movement_type;
+                                                        if (isCancelled) {
+                                                            label = (label.includes('(') ? label.split('(')[0] : label) + ' (ANULADA)';
+                                                        } else if (match && orderNumbers[match[0].toLowerCase()]) {
+                                                            // Si es una venta comandada, mostramos el número de orden también en el tipo
+                                                            label = `VENTA (#${orderNumbers[match[0].toLowerCase()]})`;
+                                                        }
+                                                        return label;
                                                     })()}
                                                 </span>
                                             </td>
