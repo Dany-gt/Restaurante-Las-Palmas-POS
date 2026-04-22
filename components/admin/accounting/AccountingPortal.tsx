@@ -133,20 +133,29 @@ export const AccountingPortal: React.FC = () => {
                     });
                 }, 500);
 
-                const response = await window.fetch('/api/sat-sync', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        username: settings.sat_username, password: settings.sat_password,
-                        dateStart: chunk.start, dateEnd: chunk.end, tipo: sat.tipo,
-                        supabaseUrl, supabaseKey
-                    })
-                });
+                let data;
+                const syncParams = {
+                    username: settings.sat_username, password: settings.sat_password,
+                    dateStart: chunk.start, dateEnd: chunk.end, tipo: sat.tipo,
+                    supabaseUrl, supabaseKey
+                };
+
+                if ((window as any).electronAPI?.satSync) {
+                    console.log(`AccountingPortal: Sincronizando bloque local ${chunk.start}...`);
+                    data = await (window as any).electronAPI.satSync(syncParams);
+                } else {
+                    console.log(`AccountingPortal: Sincronizando bloque remoto ${chunk.start}...`);
+                    const response = await window.fetch('/api/sat-sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(syncParams)
+                    });
+                    data = await response.json();
+                }
 
                 clearInterval(progressInterval);
 
-                const data = await response.json();
-                if (!response.ok || !data.success) {
+                if (!data.success) {
                     console.warn(`Chunk ${i + 1} failed: ${data.error}`);
                     continue;
                 }

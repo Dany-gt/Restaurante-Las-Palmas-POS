@@ -67,7 +67,13 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
+      "server/**/*",
+      "api/**/*",
       "package.json"
+    ],
+    "asarUnpack": [
+      "server/**/*",
+      "api/**/*"
     ],
     "directories": {
       "buildResources": "assets",

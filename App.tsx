@@ -1203,7 +1203,7 @@ const App: React.FC = () => {
                     title="Minimizar"
                     onClick={() => {
                       const win = window as any;
-                      if (win.electron) win.electron.minimize();
+                      if (win.electronAPI?.minimizeWindow) win.electronAPI.minimizeWindow();
                       else window.blur();
                     }}
                     className="w-12 h-12 flex items-center justify-center text-white/70 hover:bg-white/10 transition-colors"
@@ -1216,7 +1216,7 @@ const App: React.FC = () => {
                     title="Maximizar / Restaurar"
                     onClick={() => {
                       const win = window as any;
-                      if (win.electron) win.electron.maximize();
+                      if (win.electronAPI?.maximizeWindow) win.electronAPI.maximizeWindow();
                       else {
                         if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => { });
                         else document.exitFullscreen().catch(() => { });

@@ -120,18 +120,27 @@ export const TabAuditoriaSAT: React.FC<{ accentColor: string }> = ({ accentColor
             const dStart = dayjs(`${y}-${m}-01`).format('YYYY-MM-DD');
             const dEnd = dayjs(`${y}-${m}-01`).endOf('month').format('YYYY-MM-DD');
 
-            const res = await fetch('/api/sat-sync', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: settings.sat_username, password: settings.sat_password,
-                    dateStart: dStart, dateEnd: dEnd, tipo: 'recibida',
-                    onlyRetenciones: true,
-                    supabaseUrl: (import.meta as any).env.VITE_SUPABASE_URL,
-                    supabaseKey: (import.meta as any).env.VITE_SUPABASE_ANON_KEY
-                })
-            });
-            const data = await res.json();
+            let data;
+            const syncParams = {
+                username: settings.sat_username, password: settings.sat_password,
+                dateStart: dStart, dateEnd: dEnd, tipo: 'recibida',
+                onlyRetenciones: true,
+                supabaseUrl: (import.meta as any).env.VITE_SUPABASE_URL,
+                supabaseKey: (import.meta as any).env.VITE_SUPABASE_ANON_KEY
+            };
+
+            if ((window as any).electronAPI?.satSync) {
+                console.log('TabAuditoriaSAT: Usando sincronización local (Electron)...');
+                data = await (window as any).electronAPI.satSync(syncParams);
+            } else {
+                console.log('TabAuditoriaSAT: Usando sincronización remota (Vercel)...');
+                const res = await fetch('/api/sat-sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(syncParams)
+                });
+                data = await res.json();
+            }
             if (data.success) {
                 showNotify('success', 'Sincronización Completada', `Se procesaron ${data.total} documentos. Si no ves los registros esperados, comprueba el periodo anterior.`);
                 fetchData();

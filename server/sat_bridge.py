@@ -41,6 +41,19 @@ except ImportError as e:
     sys.exit(1)
 
 
+def auto_categorize(name):
+    if not name: return 'Otros'
+    s = name.lower().replace('á', 'a').replace('é', 'e').replace('í', 'i').replace('ó', 'o').replace('ú', 'u')
+    if any(k in s for k in ['gas', 'electric', 'energuate', 'eegsa', 'tropig', 'z-gas', 'empresa elec', 'solar', 'energi']): return 'Gas y energía'
+    if any(k in s for k in ['platic', 'desechable', 'limpieza', 'detergent', 'jabon', 'bolsa', 'quimic', 'higienico', 'servilleta']): return 'Limpieza y desechables'
+    if any(k in s for k in ['bebid', 'pepsi', 'coca', 'cerveza', 'brava', 'gallito', 'agua pura', 'hielo', 'licor', 'ron ', 'aguas', 'vodka']): return 'Materia prima bebidas'
+    if any(k in s for k in ['ceviche', 'marisco', 'camaron', 'pescado', 'concha', 'ostra', 'marina']): return 'Materia prima cevichería'
+    if any(k in s for k in ['ferreter', 'pintur', 'vidrio', 'mader', 'taller', 'mantenim', 'herramient', 'reparacion']): return 'Mantenimiento'
+    if any(k in s for k in ['contad', 'auditor', 'abogad', 'notari', 'asesor', 'seguridad', 'consultor', 'oficin']): return 'Servicios profesionales'
+    if any(k in s for k in ['pollo', 'carne', 'carnicer', 'embutid', 'huevo', 'pan ', 'tortilla', 'verdur', 'frut', 'abarrot', 'unisuper', 'la torre', 'supermerca']): return 'Materia prima cocina'
+    return 'Otros'
+
+
 def main():
     # Leer parámetros de stdin
     sys.stdout = _real_stdout
@@ -55,9 +68,11 @@ def main():
     password = params.get('password', '')
     date_start_str = params.get('dateStart', '')
     date_end_str = params.get('dateEnd', '')
+    supa_url = params.get('supabaseUrl')
+    supa_key = params.get('supabaseKey')
 
     if not username or not password or not date_start_str or not date_end_str:
-        print(json.dumps({'success': False, 'error': 'Faltan parámetros: username, password, dateStart, dateEnd'}))
+        print(json.dumps({'success': False, 'error': 'Faltan parámetros críticos'}))
         return
 
     # Parsear fechas
@@ -65,14 +80,14 @@ def main():
         date_start = datetime.date.fromisoformat(date_start_str)
         date_end = datetime.date.fromisoformat(date_end_str)
     except ValueError as e:
-        print(json.dumps({'success': False, 'error': f'Formato de fecha inválido (use YYYY-MM-DD): {str(e)}'}))
+        print(json.dumps({'success': False, 'error': f'Formato de fecha inválido: {str(e)}'}))
         return
 
     # Suprimir stdout de nuevo para la librería
     sys.stdout = open(os.devnull, 'w')
 
     try:
-        sys.stderr.write("DEBUG: Conectando con credenciales...\n")
+        sys.stderr.write("DEBUG: Conectando con SAT...\n")
         credentials = SatCredentials(username, password)
         sat = SATDownloader()
         sat.setCredentials(credentials)
@@ -80,161 +95,118 @@ def main():
         tipo = params.get('tipo', 'recibida')
         recibidas = (tipo == 'recibida')
 
-        # PASO 1: Obtener la lista de facturas (Headers) - Método rápido y muy confiable
+        # PASO 1: Obtener la lista de facturas (Headers)
         only_retenciones = params.get('onlyRetenciones', False)
         invoices_raw = []
         
         if not only_retenciones:
-            sys.stderr.write(f"DEBUG: Obteniendo headers de SAT ({date_start} a {date_end}, recibidas={recibidas})...\n")
+            sys.stderr.write(f"DEBUG: Descargando facturas ({date_start} a {date_end})\n")
             invoices_raw = sat.get_invoices(date_start, date_end, received=recibidas)
-            sys.stderr.write(f"DEBUG: Headers obtenidos: {len(invoices_raw)}\n")
-        else:
-            sys.stderr.write(f"DEBUG: Modo exclusivo RETENCIONES activo. Saltando headers FEL.\n")
-
+        
         from concurrent.futures import ThreadPoolExecutor
 
         def process_invoice(inv_raw):
             try:
-                # PASO 2: Para compras (recibidas), pedir el modelo detallado (XML) 
-                # para obtener los productos (items). Para emitidas, omitirlo por rapidez.
-                items = []
-                if recibidas:
-                    inv_model = sat.get_model(inv_raw)
-                    # Serializar líneas de productos si existen
-                    if hasattr(inv_model, 'lines'):
-                        for line in inv_model.lines:
-                            items.append({
-                                'cantidad': line.quantity,
-                                'descripcion': line.description,
-                                'precio_unitario': line.unit_price,
-                                'total': line.total,
-                                'descuento': line.discount,
-                                'numero_linea': line.line_number,
-                                'bien_o_servicio': line.good_or_service
-                            })
-
-                # Datos básicos del resumen (usando los keys del objeto inv_raw)
                 total = float(inv_raw.get('granTotal', 0) or 0)
-                fecha_raw = str(inv_raw.get('fechaEmision', '') or '').strip()
+                fecha_raw = str(inv_raw.get('fechaEmision', '') or '').split('T')[0]
                 
-                # Formatear fecha (YYYY-MM-DD)
                 fecha = fecha_raw
                 if '/' in fecha_raw:
                     parts = fecha_raw.split('/')
-                    if len(parts) == 3:
-                        if len(parts[2]) == 4: fecha = f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
-                        elif len(parts[0]) == 4: fecha = f"{parts[0]}-{parts[1].zfill(2)}-{parts[2].zfill(2)}"
-                elif 'T' in fecha_raw:
-                    fecha = fecha_raw.split('T')[0]
+                    if len(parts) == 3: fecha = f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
+
+                nombre = (inv_raw.get('nombreEmisor') if recibidas else inv_raw.get('nombreReceptor')) or "N/A"
+                nit = (inv_raw.get('nitEmisor') if recibidas else inv_raw.get('nitReceptor')) or "C/F"
 
                 return {
-                    'nit_emisor': inv_raw.get('nitEmisor') if recibidas else inv_raw.get('nitReceptor'),
-                    'nombre_emisor': inv_raw.get('nombreEmisor') if recibidas else inv_raw.get('nombreReceptor'),
-                    'nombre_comercial': inv_raw.get('nombreComercialEmisor') if recibidas else inv_raw.get('nombreReceptor'),
-                    'fecha': fecha,
-                    'total': total,
-                    'iva': float(inv_raw.get('totalIva', 0) or 0),
-                    'neto': total - float(inv_raw.get('totalIva', 0) or 0),
-                    'serie': inv_raw.get('serie'),
-                    'numero': inv_raw.get('numeroDocumento'),
-                    'uuid': inv_raw.get('numeroUuid'),
-                    'estado': 'ANULADO' if inv_raw.get('anulado') == 'I' else 'V',
-                    'tipo_dte': inv_raw.get('tipo'),
-                    'items': items
+                    'nit': nit, 'nombre': nombre, 'fecha': fecha,
+                    'total': total, 'iva': float(inv_raw.get('totalIva', 0) or 0),
+                    'serie': inv_raw.get('serie'), 'numero': inv_raw.get('numeroDocumento'),
+                    'uuid': inv_raw.get('numeroUuid'), 'tipo_dte': inv_raw.get('tipo', 'FACT'),
+                    'estado': 'A' if inv_raw.get('anulado') == 'I' else 'V',
+                    'raw': inv_raw
                 }
-            except Exception:
-                # Si falla una individual (ej. no hay XML), intentamos guardar al menos el resumen
-                try:
-                    total = float(inv_raw.get('granTotal', 0) or 0)
-                    return {
-                        'uuid': inv_raw.get('numeroUuid'),
-                        'serie': inv_raw.get('serie'),
-                        'numero': inv_raw.get('numeroDocumento'),
-                        'total': total,
-                        'nit_emisor': inv_raw.get('nitEmisor') if recibidas else inv_raw.get('nitReceptor'),
-                        'nombre_emisor': inv_raw.get('nombreEmisor') if recibidas else inv_raw.get('nombreReceptor'),
-                        'estado': 'ANULADO' if inv_raw.get('anulado') == 'I' else 'V',
-                        'tipo_dte': inv_raw.get('tipo'),
-                        'items': [] # Sin detalle por error de descarga
-                    }
-                except:
-                    return None
+            except: return None
 
-        # PASO 2: Procesar en paralelo (Turbo MODE)
-        results = []
-        action = params.get('action', 'sync')
-
-        if action == 'retenciones_pdf':
-            num = params.get('numero')
-            tipo_ret = params.get('tipoRetencion', 'IVA')
-            
-            pdf_bin = sat.get_retencion_pdf(num, date_start, date_end, tipo_ret)
-            if not pdf_bin:
-                sys.stdout = _real_stdout
-                print(json.dumps({'success': False, 'error': 'No se pudo descargar el PDF de la retención'}))
-                return
-            
-            import base64
-            sys.stdout = _real_stdout
-            print(json.dumps({
-                'success': True,
-                'pdf_base64': base64.b64encode(pdf_bin).decode('utf-8'),
-                'filename': f"retencion_{num}.pdf"
-            }))
-            return
-
-        if action == 'retenciones_sync':
-             # Sincronizar solo retenciones
-             retenciones = sat.get_constancias_retencion(date_start, date_end)
-             sys.stdout = _real_stdout
-             print(json.dumps({'success': True, 'count': len(retenciones), 'invoices': retenciones}))
-             return
-
+        # Procesar Cabeceras
+        invoices = []
         if invoices_raw:
-            with ThreadPoolExecutor(max_workers=20) as executor:
-                # Filtrar Nones
-                results = [r for r in executor.map(process_invoice, invoices_raw) if r is not None]
+            for inv in invoices_raw:
+                res = process_invoice(inv)
+                if res: invoices.append(res)
 
         # Incluir retenciones si es Recibida
         if recibidas:
             try:
+                sys.stderr.write("DEBUG: Buscando retenciones...\n")
                 retenciones = sat.get_constancias_retencion(date_start, date_end)
                 for ret in retenciones:
-                    results.append({
-                        'nit_emisor': ret['nit_emisor'],
-                        'nombre_emisor': ret['nombre_emisor'],
-                        'fecha': ret['fecha'],
-                        'total': ret['total'],
-                        'iva': 0,
-                        'serie': ret['serie'],
-                        'numero': ret['numero'],
-                        'uuid': ret['uuid'],
-                        'tipo_dte': 'CRE',
-                        'estado': 'V',
-                        'isr_retenido': ret['isr_retenido'],
-                        'iva_retenido': ret['iva_retenido']
+                    invoices.append({
+                        'nit': ret['nit_emisor'], 'nombre': ret['nombre_emisor'],
+                        'fecha': ret['fecha'], 'total': ret['total'], 'iva': 0,
+                        'serie': ret['serie'], 'numero': ret['numero'], 'uuid': ret['uuid'],
+                        'tipo_dte': 'CRE', 'estado': 'V',
+                        'isr_retenido': ret['isr_retenido'], 'iva_retenido': ret['iva_retenido']
                     })
             except: pass
 
-        # Cerrar sesión SAT
-        try:
-            sat.logout()
-        except:
-            pass
+        # 2. Categorización
+        for inv in invoices:
+            inv['category'] = auto_categorize(inv['nombre']) if recibidas else 'Venta Facturada'
 
-        # Restaurar stdout y escribir resultado
+        # 3. Sincronización con Supabase (Directa desde Python Local)
+        imported = 0
+        if supa_url and supa_key and invoices:
+            table = 'sales_invoices' if tipo == 'emitida' else 'purchase_invoices'
+            headers = { 'apikey': supa_key, 'Authorization': f'Bearer {supa_key}', 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' }
+            
+            records = []
+            for inv in invoices:
+                inv_num = f"{inv['serie']}-{inv['numero']}".strip("-") if (inv['serie'] or inv['numero']) else inv['uuid'][:15]
+                rec = {
+                    'org_id': 'default', 'invoice_date': inv['fecha'], 'invoice_number': inv_num,
+                    'description': f"Turbo Sync SAT: {inv['nombre']}", 'total_amount': inv['total'], 
+                    'iva_amount': inv['iva'], 'net_amount': inv['total'] - inv['iva'], 
+                    'category': inv['category'], 'fel_uuid': inv['uuid'], 
+                    'status': 'annulled' if inv['estado'] == 'A' else 'paid',
+                    'tipo_dte': inv['tipo_dte'], 'isr_retenido': inv.get('isr_retenido', 0), 
+                    'iva_retenido': inv.get('iva_retenido', 0)
+                }
+                if tipo == 'emitida':
+                    rec['customer_nit'] = inv['nit']; rec['customer_name'] = inv['nombre']
+                else:
+                    rec['supplier_nit'] = inv['nit']; rec['supplier_name'] = inv['nombre']
+                    rec['payment_status'] = 'paid'
+                records.append(rec)
+
+            if records:
+                import requests
+                sys.stderr.write(f"DEBUG: Sincronizando {len(records)} registros con Supabase...\n")
+                batch_size = 100
+                for k in range(0, len(records), batch_size):
+                    batch = records[k:k+batch_size]
+                    try:
+                        res_supa = requests.post(f"{supa_url}/rest/v1/{table}?on_conflict=fel_uuid", headers=headers, json=batch, timeout=60)
+                        if res_supa.ok: imported += len(batch)
+                    except: pass
+
+        # Cerrar sesión SAT
+        try: sat.logout()
+        except: pass
+
+        # Restaurar stdout y escribir resultado final esperado por React
         sys.stdout = _real_stdout
         print(json.dumps({
             'success': True,
-            'count': len(results),
-            'invoices': results
+            'total': len(invoices),
+            'imported': imported
         }, ensure_ascii=False))
 
     except Exception as e:
         sys.stdout = _real_stdout
         import traceback
-        error_msg = f"{str(e)}\n{traceback.format_exc()}"
-        sys.stderr.write(f"DEBUG EXCEPTION: {error_msg}\n")
+        error_msg_full = f"{str(e)}\n{traceback.format_exc()}"
+        sys.stderr.write(f"DEBUG EXCEPTION: {error_msg_full}\n")
         
         error_msg = str(e)
         if 'credentials' in error_msg.lower() or 'not valid' in error_msg.lower():
