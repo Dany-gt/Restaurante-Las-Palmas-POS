@@ -112,74 +112,64 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
     useEffect(() => {
         const q = search.toLowerCase();
         setFilteredRows(
-            rows.filter(r => r.name.toLowerCase().includes(q) || r.code?.toLowerCase().includes(q))
+            rows.filter(r => 
+                (r.name || '').toLowerCase().includes(q) || 
+                (r.code || '').toLowerCase().includes(q)
+            )
         );
     }, [search, rows]);
-
-    const fetchStock = async () => {
+    const fetchStock = async () => {
         setLoading(true);
         setRows([]);
         setSessionRows([]);
         setSearch('');
         try {
-            // Get all items from legacy inventory and unified products
-            const [iRes, pRes] = await Promise.all([
-                supabase.from('inventory_items').select(`id, code, name, unit, cost, presentation, inventory_categories(name)`),
-                supabase.from('products').select(`id, product_code, name, unit_measure, cost_price, presentation, product_categories(nombre)`).eq('es_platillo', false)
-            ]);
+            // ENFOQUE ÚNICO: Solo tabla 'products' (Insumos)
+            const { data: pData, error: pError } = await supabase
+                .from('products')
+                .select(`id, product_code, name, unit_measure, cost_price, es_platillo, presentation_unit, stock_actual, product_category_id, product_categories(nombre)`)
+                .eq('es_platillo', false);
 
-            const listA = (iRes.data || []).map((i: any) => ({
-                id: i.id,
-                code: i.code || '',
-                name: i.name,
-                unit: i.unit || 'UN',
-                cost: i.cost || 0,
-                presentation: i.presentation || 'N/A',
-                category_name: i.inventory_categories?.name || 'INVENTARIO',
-                source: 'inventory' as const
-            }));
+            if (pError) console.error('Error al cargar productos:', pError);
 
-            const listB = (pRes.data || []).map((p: any) => ({
-                id: p.id,
+            const mappedProducts = (pData || []).map((p: any) => ({
+                item_id: p.id,
                 code: p.product_code || '',
                 name: p.name,
                 unit: p.unit_measure || 'UN',
                 cost: p.cost_price || 0,
-                presentation: p.presentation || 'N/A',
-                category_name: p.product_categories?.nombre || 'INSUMOS',
-                source: 'products' as const
+                presentation: p.presentation_unit || 'N/A',
+                category_name: p.product_categories?.nombre || 'SIN CATEGORÍA',
+                global_stock: p.stock_actual || 0,
+                source: 'products' as const,
+                system_stock: 0, // Se llenará con la sucursal abajo
+                physical_stock: '',
+                display_unit: p.unit_measure || 'UN',
+                normalized_physical: '',
+                difference: 0
             }));
 
-            const allItems = [...listA, ...listB];
-
-            const { data: branchStock } = await supabase
+            const { data: branchStock, error: bError } = await supabase
                 .from('inventory_item_branches')
                 .select('item_id, quantity')
                 .eq('branch_id', selectedBranch);
 
+            if (bError) console.error('Error branchStock:', bError);
+
             const stockMap: Record<string, number> = {};
             (branchStock || []).forEach(b => { stockMap[b.item_id] = b.quantity; });
 
-            const mapped: LevelingRow[] = allItems.map(item => ({
-                item_id: item.id,
-                code: item.code,
-                name: item.name,
-                unit: item.unit,
-                cost: item.cost,
-                presentation: item.presentation,
-                category_name: item.category_name,
-                system_stock: stockMap[item.id] ?? 0,
-                physical_stock: '',
-                display_unit: item.unit,
-                normalized_physical: '',
-                difference: 0,
-                source: item.source
-            }));
+            // Inyectamos el stock de la sucursal y filtramos vacíos
+            const finalMapped = mappedProducts.map(p => ({
+                ...p,
+                system_stock: stockMap[p.item_id] ?? 0
+            })).sort((a, b) => a.name.localeCompare(b.name));
 
-            setRows(mapped);
-            setFilteredRows(mapped);
-        } catch (err) {
-            console.error(err);
+            setRows(finalMapped);
+            setFilteredRows(finalMapped);
+        } catch (err: any) {
+            console.error('Error fetchStock:', err);
+            alert('Error al cargar inventario: ' + err.message);
         }
         setLoading(false);
     };
@@ -789,7 +779,10 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-1 text-center">
-                                                        <span className="font-bold text-[11px] text-slate-500 tabular-nums">{row.system_stock}</span>
+                                                        <div className="flex flex-col items-center">
+                                                            <span className="font-black text-[11px] text-[#106ebe] tabular-nums">{row.system_stock}</span>
+                                                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Global: {(row as any).global_stock || 0}</span>
+                                                        </div>
                                                     </td>
                                                     <td className="px-4 py-1 text-center">
                                                         <input
