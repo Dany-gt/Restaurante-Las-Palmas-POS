@@ -13,14 +13,15 @@ export const PrinterSelector: React.FC<PrinterSelectorProps> = ({ onClose }) => 
 
     useEffect(() => {
         const fetchPrinters = async () => {
-            if (!(window as any).electron) {
+            const electron = (window as any).electronAPI || (window as any).electron;
+            if (!electron) {
                 setError('No se detectó el entorno de escritorio.');
                 setLoading(false);
                 return;
             }
 
             try {
-                const list = await (window as any).electron.getPrinters();
+                const list = await electron.getPrinters();
                 setPrinters(list);
             } catch (err) {
                 console.error(err);

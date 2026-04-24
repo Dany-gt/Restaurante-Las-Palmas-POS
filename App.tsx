@@ -416,6 +416,8 @@ const App: React.FC = () => {
             const savedStation = localStorage.getItem('current_kds_station');
             if (savedStation) setCurrentView('KITCHEN');
             else setCurrentView('KDS_STATION_SELECT');
+          } else if (user.role?.toUpperCase() === 'PRODUCCION') {
+             setCurrentView('PRODUCCION');
           } else if (user.role?.toUpperCase() === 'ADMIN') {
             // Admin goes directly to portal, skipping tiles dashboard
             setCurrentView('ADMIN_PORTAL');

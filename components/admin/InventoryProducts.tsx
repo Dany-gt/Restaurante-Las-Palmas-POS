@@ -202,7 +202,7 @@ export const InventoryProducts: React.FC = () => {
         setLoading(true);
         const [catRes, prodRes, branchRes, supRes, stockRes] = await Promise.all([
             supabase.from('categories').select('*').eq('section', 'INVENTARIO').order('name'),
-            supabase.from('products').select('*').eq('classification', 'INSUMO').order('name'),
+            supabase.from('products').select('*').eq('es_platillo', false).order('name'),
             supabase.from('branches').select('*').order('name'),
             supabase.from('suppliers').select('*').order('name'),
             supabase.from('inventory_item_branches').select('*')
@@ -210,7 +210,7 @@ export const InventoryProducts: React.FC = () => {
 
         const categoriesData = (catRes.data || []).map(c => ({ ...c, name: c.name }));
 
-        const productsData = (prodRes.data || []).filter(p => p.category_id).map(p => {
+        const productsData = (prodRes.data || []).map(p => {
             const itemStocks = stockRes.data?.filter(s => s.item_id === p.id) || [];
 
             // Valor estilizado para la tabla (Ej: "CAJA (24 UN)")
@@ -226,7 +226,7 @@ export const InventoryProducts: React.FC = () => {
                 ...p,
                 name: p.name,
                 code: p.product_code || '',
-                category_id: p.category_id,
+                category_id: p.product_category_id || p.category_id,
                 quantity: totalQuantity,
                 branchStocks: itemStocks,
                 presentation_display: displayPresentation.toUpperCase(),
@@ -589,7 +589,7 @@ export const InventoryProducts: React.FC = () => {
     const searchResults = products.filter(p =>
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (p.code && p.code.toLowerCase().includes(searchQuery.toLowerCase()))
-    ).slice(0, 50);
+    ).slice(0, 200);
 
     const toggleCategorySelection = (id: string) => {
         const next = new Set(selectedCategories);
@@ -894,7 +894,7 @@ export const InventoryProducts: React.FC = () => {
                                                                         <>
                                                                             <div className="fixed inset-0 z-40" onClick={() => setShowPresentationDropdown(false)} />
                                                                             <div className="absolute z-50 top-full mt-1 inset-x-0 bg-white border border-gray-400 shadow-xl p-0.5 max-h-40 overflow-y-auto custom-scrollbar">
-                                                                                {['Caja', 'Bolsa', 'Bote', 'Frasco', 'Saco', 'Galón', 'Tonel', 'Bidón', 'Porción'].map(p => (
+                                                                                {['Caja', 'Bolsa', 'Bote', 'Frasco', 'Saco', 'Galón', 'Tonel', 'Bidón', 'Sobre', 'Litro', 'Garrafón', 'Paquete', 'Porción'].map(p => (
                                                                                     <button
                                                                                         key={p}
                                                                                         type="button"

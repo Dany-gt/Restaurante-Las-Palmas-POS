@@ -169,7 +169,16 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                     <td className="px-4 text-[10px] border-r border-gray-100 text-right tabular-nums">Q. {item.precio_costo?.toFixed(2) || '0.00'}</td>
                                     <td className="px-4 border-gray-100">
                                         <div className="flex justify-center">
-                                            <input type="checkbox" checked={item.habilitado} readOnly className="w-3.5 h-3.5 outline-none" />
+                                            <input 
+                                                type="checkbox" 
+                                                checked={item.habilitado} 
+                                                onChange={async (e) => {
+                                                    e.stopPropagation();
+                                                    const { error } = await supabase.from('products').update({ is_enabled: e.target.checked }).eq('id', item.id);
+                                                    if (!error) onRefresh();
+                                                }}
+                                                className="w-3.5 h-3.5 outline-none cursor-pointer" 
+                                            />
                                         </div>
                                     </td>
                                 </tr>

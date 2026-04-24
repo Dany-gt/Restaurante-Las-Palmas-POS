@@ -183,8 +183,6 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [selectedProductForConfig, showProductListModal, purchaseToAnnul, detailContextMenu, showProductDropdown, showSupplierDropdown, showModal]);
-
-
     const printRef = useRef<HTMLDivElement>(null);
 
     const fetchData = async () => {
@@ -193,7 +191,7 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
             const [bRes, sRes, iRes, pRes, catRes] = await Promise.all([
                 supabase.from('branches').select('*').order('name'),
                 supabase.from('suppliers').select('*').order('name'),
-                supabase.from('inventory_items').select('*').order('nombre'),
+                supabase.from('inventory_items').select('*').order('name'),
                 supabase.from('products').select('*').order('name'),
                 supabase.from('categories').select('*').order('name')
             ]);

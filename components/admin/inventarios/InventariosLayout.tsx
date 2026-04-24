@@ -461,6 +461,12 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 // =====================================================
                 // MÓDULO MENÚ DE PLATILLOS — tabla: products
                 // =====================================================
+                // Sincronizar el precio maestro (global) asumiendo por defecto el de la primera sucursal
+                // para evitar que ListadoPlatillos muestre Q0.00
+                const masterPrice = branchPrices.length > 0 
+                    ? parseFloat(branchPrices[0].price) || 0 
+                    : parseFloat(newProduct.price) || 0;
+
                 const dishData = {
                     product_code: (newProduct.product_code || '').toUpperCase(),
                     name: (newProduct.name || '').toUpperCase(),
@@ -468,7 +474,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     description: newProduct.description || null,
                     category_id: null, // Evitamos el FK error usando null en la columna vieja
                     menu_category_id: newProduct.category_id || null, // Guardamos en la columna de menú
-                    price: parseFloat(newProduct.price) || 0,
+                    price: masterPrice,
                     cost_price: parseFloat(newProduct.cost_price) || 0,
                     kitchen_station_id: newProduct.kitchen_station_id || null,
                     image_url: newProduct.image_url || null,
@@ -552,17 +558,40 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     is_enabled: newProduct.is_enabled !== undefined ? newProduct.is_enabled : true,
                     es_platillo: false,  // MARCA: es insumo/producto
                     image_url: newProduct.image_url || null,
+                    // FICHA TÉCNICA
+                    prep_procedure: newProduct.prep_procedure || null,
+                    portions: parseInt(newProduct.portions) || 1,
+                    prep_time: parseInt(newProduct.prep_time) || 0,
+                    classification: newProduct.classification || null,
+                    recipe_no: newProduct.recipe_no || null,
+                    portion_size: newProduct.portion_size || null,
+                    serving_temp: newProduct.serving_temp || null,
+                    prepared_by: newProduct.prepared_by || null,
+                    observations: newProduct.observations || null,
                 };
 
-                savedId = editingId;
-                if (editingId) {
-                    const { error } = await supabase.from('products').update(insumoData).eq('id', editingId);
-                    if (error) throw error;
-                } else {
-                    const { data, error } = await supabase.from('products').insert(insumoData).select();
-                    if (error) throw error;
-                    if (data?.[0]) savedId = data[0].id;
-                }
+                let savedId = editingId;
+                const saveData = async (data: any) => {
+                    if (editingId) {
+                        const res = await supabase.from('products').update(data).eq('id', editingId);
+                        if (res.error && res.error.code === '42703') {
+                            const { prep_procedure, portions, prep_time, classification, recipe_no, portion_size, serving_temp, prepared_by, observations, ...basicData } = data;
+                            return await supabase.from('products').update(basicData).eq('id', editingId);
+                        }
+                        return res;
+                    } else {
+                        const res = await supabase.from('products').insert(data).select();
+                        if (res.error && res.error.code === '42703') {
+                            const { prep_procedure, portions, prep_time, classification, recipe_no, portion_size, serving_temp, prepared_by, observations, ...basicData } = data;
+                            return await supabase.from('products').insert(basicData).select();
+                        }
+                        return res;
+                    }
+                };
+
+                const res = await saveData(insumoData);
+                if (res.error) throw res.error;
+                if (res.data?.[0]) savedId = res.data[0].id;
                 if (savedId) {
                     const invData = branchInventory.map(bi => ({
                         product_id: savedId,
@@ -706,6 +735,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                 return new Set([id]);
                             });
                         }}
+                        onRefresh={fetchData}
                     />
                 ) : (
                     <ProductCategorySidebar
@@ -718,6 +748,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                 return new Set([id]);
                             });
                         }}
+                        onRefresh={fetchData}
                     />
                 )}
 

@@ -276,7 +276,13 @@ Generado: ${new Date().toLocaleString('es-GT')}
             `.trim();
 
             // Send email via Electron backend
-            const response = await (window as any).electron.sendEmail({
+            const electron = (window as any).electronAPI || (window as any).electron;
+            if (!electron) {
+                alert('La funcionalidad de correo no está disponible en este dispositivo/navegador.');
+                return;
+            }
+
+            const response = await electron.sendEmail({
                 to: settings.cashier_emails,
                 subject: emailSubject,
                 body: emailBody,

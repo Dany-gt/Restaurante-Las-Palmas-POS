@@ -21,6 +21,7 @@ interface MenuCategorySidebarProps {
     selectedIds: Set<string>;
     onToggle: (id: string) => void;
     width?: number;
+    onRefresh?: () => void; // Para avisar al padre de cambios
 }
 
 interface FormState { 
@@ -33,7 +34,7 @@ interface FormState {
     imagen_url: string;
 }
 
-export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ selectedIds, onToggle, width = 200 }) => {
+export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ selectedIds, onToggle, width = 200, onRefresh }) => {
     const notify = useNotify();
     const { categories, load, loading, create, update, remove } = useDomainCategories({
         table: DOMAIN_TABLE,
@@ -96,6 +97,7 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
                 notify.success('Categoría creada');
             }
             setForm(null);
+            onRefresh?.(); // Refrescar estado global del padre
         } catch (e: any) {
             notify.error(e.message);
         } finally {
@@ -113,10 +115,17 @@ export const MenuCategorySidebar: React.FC<MenuCategorySidebarProps> = ({ select
         const { id, name } = confirmDelete;
         setConfirmDelete(null);
 
+        // Validación preventiva: ¿Tiene subcategorías?
+        const childCount = getChildren(id).length;
+        if (childCount > 0) {
+            notify.error(`No se puede eliminar "${name}" porque contiene ${childCount} subcategorías.`);
+            return;
+        }
+
         try {
             await remove(id);
-            // if (selectedId === id) onSelect(null); // No longer needed with Set
             notify.success('Categoría eliminada');
+            onRefresh?.(); // Sincronizar con el padre
         } catch (e: any) {
             if (e.message?.includes('foreign key constraint') || e.code === '23503' || e.message?.includes('viola la llave')) {
                 notify.error('IMPOSIBLE ELIMINAR: Esta categor├¡a a├║n tiene platillos asignados. Reasigne o elimine los platillos primero.');

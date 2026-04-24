@@ -216,8 +216,9 @@ export const shiftService = {
                     let tipOther = 0;
 
                     if (tip > 0) {
-                        // Use the explicitly recorded tip_method if available, otherwise fallback to payment method logic
-                        const tipMethod = (o.tip_method || (method === 'EFECTIVO' ? 'EFECTIVO' : (method === 'TARJETA' ? 'TARJETA' : 'OTROS'))).toUpperCase();
+                        // v1.6.6: Solo registrar propina por método si está explícitamente definido.
+                        // Si no está definido (null), se considera OTROS para evitar descuadres en EFECTIVO.
+                        const tipMethod = (o.tip_method || 'OTROS').toUpperCase();
 
                         const tipMethodKey = tipMethod === 'EFECTIVO' ? 'EFECTIVO' : (tipMethod === 'TARJETA' ? 'TARJETA' : 'OTROS');
                         tipsByMethodMap[tipMethodKey] += tip;
@@ -305,10 +306,9 @@ export const shiftService = {
                         .order('name');
 
                     if (!terminals || terminals.length === 0) {
-                        // Fallback to default terminals if none configured
+                        // v1.6.6: Reportar como No Asignado en lugar de dividir arbitrariamente 50/50
                         return [
-                            { name: 'NEONET', total: salesByMethodMap['TARJETA'] * 0.5 },
-                            { name: 'CREDOMATIC', total: salesByMethodMap['TARJETA'] * 0.5 }
+                            { name: 'SIN TERMINAL ASIGNADA', total: salesByMethodMap['TARJETA'] }
                         ];
                     }
 
@@ -379,7 +379,8 @@ export const shiftService = {
 
         // --- AUTOMATED PROFESSIONAL REPORT BUNDLE ---
         try {
-            if (user && (window as any).electron) {
+            const electron = (window as any).electronAPI || (window as any).electron;
+            if (user && electron) {
                 const { reportData } = await this.getShiftData(user);
                 if (reportData) {
                     reportData.type = 'Z';
@@ -392,7 +393,7 @@ export const shiftService = {
 
                     const generatePdf = async (html: string, name: string) => {
                         const fullHtml = reportTemplates.wrap(html, css);
-                        const result = await (window as any).electron.generatePdf(fullHtml, name);
+                        const result = await electron.generatePdf(fullHtml, name);
                         return { filename: `${name}.pdf`, content: result.data };
                     };
 
@@ -436,7 +437,7 @@ export const shiftService = {
 
                     const { data: settings } = await supabase.from('system_settings').select('*').single();
                     if (settings?.smtp_user) {
-                        await (window as any).electron.sendEmail({
+                        await electron.sendEmail({
                             to: settings.report_email || settings.smtp_user,
                             subject: `Cierre de Caja - ${reportData.cashierName} - ${new Date().toLocaleDateString()}`,
                             body: `Se adjuntan los 5 reportes operativos del cierre de turno.\nCajero: ${reportData.cashierName}\nFecha: ${new Date().toLocaleString()}`,

@@ -21,6 +21,7 @@ interface ProductCategorySidebarProps {
     selectedIds: Set<string>;
     onToggle: (id: string) => void;
     width?: number;
+    onRefresh?: () => void;
 }
 
 interface FormState { 
@@ -33,10 +34,11 @@ interface FormState {
     imagen_url: string;
 }
 
-export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ selectedIds, onToggle, width = 190 }) => {
+export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ selectedIds, onToggle, width = 190, onRefresh }) => {
     const notify = useNotify();
     const { categories, load, loading, create, update, remove } = useDomainCategories({
         table: DOMAIN_TABLE,
+        extraFilters: { activo: true },
         orderBy: 'nombre',
     });
 
@@ -94,6 +96,7 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                 notify.success('Categoría creada');
             }
             setForm(null);
+            onRefresh?.();
         } catch (e: any) {
             notify.error(e.message);
         } finally {
@@ -103,25 +106,23 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
 
     const handleDelete = async (id: string, nombre: string) => {
         setContextMenu(null);
-        notify.info('Eliminando categoría: ' + nombre);
+        
+        // Validación: ¿Tiene subcategorías?
+        const childCount = getChildren(id).length;
+        if (childCount > 0) {
+            notify.error(`No se puede eliminar "${nombre}" porque contiene ${childCount} subcategorías.`);
+            return;
+        }
+
+        if (!confirm(`¿Estás seguro de eliminar "${nombre}"? Esta acción podría ocultar productos vinculados si el servidor bloquea el borrado permanente.`)) return;
 
         try {
-            const { error } = await supabase.from(DOMAIN_TABLE).delete().eq('id', id);
-            
-            if (error) {
-                if (error.code === '23503') {
-                    notify.error('No se puede eliminar: Tiene productos vinculados.');
-                } else {
-                    notify.error('Error al eliminar: ' + error.message);
-                }
-                return;
-            }
-
+            await remove(id);
             notify.success(`Categoría "${nombre}" eliminada`);
             if (selectedIds.has(id)) onToggle(id);
-            load(); 
+            onRefresh?.();
         } catch (e: any) {
-            notify.error('Error inesperado al eliminar');
+            notify.error('Error al eliminar: ' + (e.message || 'Error desconocido'));
         }
     };
 

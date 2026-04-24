@@ -534,7 +534,7 @@ class ActivityLogService {
 
     private getDeviceInfo(): string {
         if (typeof window === 'undefined') return 'server';
-        const isElectron = !!(window as any).electron;
+        const isElectron = !!((window as any).electronAPI || (window as any).electron);
         const isMobile = /Mobi|Android/i.test(navigator.userAgent);
         const isTablet = /iPad|Tablet/i.test(navigator.userAgent);
         if (isElectron) return 'electron-desktop';

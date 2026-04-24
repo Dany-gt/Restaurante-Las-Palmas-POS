@@ -579,10 +579,10 @@ export const KitchenView: React.FC = () => {
   // Catch offline orders beamed locally via Electron WebSockets / HTTP
   // ----------------------------------------------------------------------
   useEffect(() => {
-    const isElectron = (window as any).electron;
-    if (isElectron && isElectron.onLocalKdsOrder) {
+    const electron = (window as any).electronAPI || (window as any).electron;
+    if (electron && electron.onLocalKdsOrder) {
       console.log('🛡️ Listening for Local KDS Bridge orders...');
-      isElectron.onLocalKdsOrder((data: any) => {
+      electron.onLocalKdsOrder((data: any) => {
         console.log("📲 ORDEN LOCAL RECIBIDA VIA KDS BRIDGE:", data);
 
         const orderTimestamp = data.createdAt || new Date().toISOString();
@@ -601,9 +601,11 @@ export const KitchenView: React.FC = () => {
             product_name: i.product_name || 'Desconocido',
             quantity: i.quantity || 1,
             notes: i.notes,
-            status: 'pending',
+            status: 'pending' as const,
             kitchen_station_id: null, // Resolves via general fallback
-            category_name: 'LOCAL' // Skip category filter for local emergency orders
+            category_name: 'LOCAL', // Skip category filter for local emergency orders
+            preparing_at: undefined,
+            ready_at: undefined
           }))
         };
 
@@ -626,7 +628,7 @@ export const KitchenView: React.FC = () => {
       });
 
       return () => {
-        isElectron.offLocalKdsOrder();
+        electron.offLocalKdsOrder();
       };
     }
   }, []);

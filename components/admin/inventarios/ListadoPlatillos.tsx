@@ -155,7 +155,7 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                                 >
                                     <td className="px-4 text-[10px] font-bold border-r border-gray-100">{(item as any).product_code || '---'}</td>
                                     <td className="px-4 text-[10px] font-bold uppercase truncate">{(item as any).name}</td>
-                                    <td className="px-4 text-[10px] border-x border-gray-100 uppercase italic text-gray-500" style={{ color: selectedId === item.id ? 'white' : '' }}>
+                                    <td className="px-4 text-[10px] border-x border-gray-100 uppercase text-slate-700 font-medium" style={{ color: selectedId === item.id ? 'white' : '' }}>
                                         {item.categoria || (item as any).menu_categories?.nombre}
                                     </td>
                                     <td className="px-4 text-[10px] border-r border-gray-100 uppercase">{item.cocina || (item as any).kitchen_stations?.name}</td>

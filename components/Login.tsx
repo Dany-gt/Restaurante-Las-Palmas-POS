@@ -418,8 +418,9 @@ SOBRANTE/FALTANTE GLOBAL: Q${totalSobranteFaltante.toFixed(2)}
 Generado: ${new Date().toLocaleString('es-GT')}
       `.trim();
 
-      if ((window as any).electron && (window as any).electron.sendEmail) {
-        const response = await (window as any).electron.sendEmail({
+      const electron = (window as any).electronAPI || (window as any).electron;
+      if (electron && electron.sendEmail) {
+        const response = await electron.sendEmail({
           to: settings.cashier_emails,
           subject: emailSubject,
           body: emailBody,

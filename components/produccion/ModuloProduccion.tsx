@@ -21,6 +21,15 @@ interface Product {
     categoria: string;
     precio_costo?: number;
     precio_venta?: number;
+    classification?: string;
+    recipe_no?: string;
+    portions?: number;
+    portion_size?: string;
+    serving_temp?: string;
+    prep_time?: number;
+    prepared_by?: string;
+    prep_procedure?: string;
+    observations?: string;
 }
 
 interface Chef {
@@ -42,6 +51,26 @@ interface Receta {
     porciones?: number;
     tiempo_preparacion?: number;
     receta_ingredientes: Ingrediente[];
+    ficha?: {
+        classification?: string;
+        recipe_no?: string;
+        portion_size?: string;
+        serving_temp?: string;
+        prepared_by?: string;
+        observations?: string;
+    };
+}
+
+interface ActiveProduction {
+    instanceId: string;
+    product: Product;
+    chef: Chef;
+    startTime: Date;
+    endTime?: Date;
+    timerSec: number;
+    isCompleted: boolean;
+    logs: { time: string; msg: string }[];
+    receta?: Receta | null;
 }
 
 interface ModuloProduccionProps {
@@ -52,28 +81,52 @@ interface ModuloProduccionProps {
 type ScreenState = 'LIST' | 'PIN' | 'ACTIVE';
 
 export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, onExit }) => {
-    const [view, setView] = useState<ScreenState>('LIST');
+    const [view, setView] = useState<ScreenState>(() => (localStorage.getItem('pos_prod_view') as ScreenState) || 'LIST');
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('es-GT'));
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Screen 2 States
+    // Multi-Production States
+    const [activeProductions, setActiveProductions] = useState<ActiveProduction[]>(() => {
+        const saved = localStorage.getItem('pos_active_productions');
+        if (saved) {
+            try {
+                return JSON.parse(saved).map((p: any) => ({
+                    ...p,
+                    startTime: new Date(p.startTime),
+                    endTime: p.endTime ? new Date(p.endTime) : undefined
+                }));
+            } catch (e) { return []; }
+        }
+        return [];
+    });
+    const [currentIdx, setCurrentIdx] = useState<number>(() => {
+        const saved = localStorage.getItem('pos_prod_current_idx');
+        return saved ? parseInt(saved) : -1;
+    });
+
+    // Persistence
+    useEffect(() => {
+        localStorage.setItem('pos_active_productions', JSON.stringify(activeProductions));
+    }, [activeProductions]);
+
+    useEffect(() => {
+        localStorage.setItem('pos_prod_view', view);
+    }, [view]);
+
+    useEffect(() => {
+        localStorage.setItem('pos_prod_current_idx', currentIdx.toString());
+    }, [currentIdx]);
+
+    // Screen 2 States (Starting new)
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [pin, setPin] = useState('');
     const [pinError, setPinError] = useState(false);
 
-    // Screen 3 States
-    const [currentChef, setCurrentChef] = useState<Chef | null>(null);
-    const [timerSec, setTimerSec] = useState(0);
-    const [timerActive, setTimerActive] = useState(false);
-    const [timerCompleted, setTimerCompleted] = useState(false);
-    const [startTime, setStartTime] = useState<Date | null>(null);
-    const [endTime, setEndTime] = useState<Date | null>(null);
-    const [sessionLog, setSessionLog] = useState<{ time: string, msg: string }[]>([]);
-
-    // Receta States
-    const [receta, setReceta] = useState<Receta | null>(null);
+    // States derived from currentIdx for the ACTIVE screen
+    const currentProd = currentIdx >= 0 ? activeProductions[currentIdx] : null;
+    const receta = currentProd?.receta || null;
     const [loadingReceta, setLoadingReceta] = useState(false);
     const [recetaNotFound, setRecetaNotFound] = useState(false);
 
@@ -85,28 +138,31 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
         return () => clearInterval(timer);
     }, []);
 
-    // Timer logic
+    // Background Timers for all active productions (Resilient to clock drifts/F5)
     useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (timerActive) {
-            interval = setInterval(() => {
-                setTimerSec(s => s + 1);
-            }, 1000);
-        }
+        const interval = setInterval(() => {
+            const now = new Date();
+            setActiveProductions(prev => prev.map(p => {
+                if (p.isCompleted) return p;
+                const elapsedSinceStart = Math.floor((now.getTime() - p.startTime.getTime()) / 1000);
+                // Usamos el mayor entre el actual y el calculado para evitar saltos raros si el reloj cambia
+                return { ...p, timerSec: Math.max(p.timerSec, elapsedSinceStart) };
+            }));
+        }, 1000);
         return () => clearInterval(interval);
-    }, [timerActive]);
+    }, []);
 
     // Fetch products on mount
     useEffect(() => {
         fetchProducts();
     }, []);
 
-    // Fetch receta when entering ACTIVE view
+    // Fetch receta when a NEW production is selected and doesn't have one
     useEffect(() => {
-        if (view === 'ACTIVE' && selectedProduct) {
-            fetchReceta(selectedProduct.id);
+        if (view === 'ACTIVE' && currentProd && !currentProd.receta && !loadingReceta && currentProd.product?.id) {
+            fetchReceta(currentProd.product.id);
         }
-    }, [view, selectedProduct]);
+    }, [view, currentProd]);
 
     const fetchProducts = async () => {
         setLoading(true);
@@ -116,46 +172,71 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
 
             let allAvailable: any[] = [];
 
+            // 1. Intentar desde Cache (si existe y es válido)
             if (cachedProductsStr && cachedCategoriesStr) {
-                const pcats = JSON.parse(cachedCategoriesStr);
-                const prodCat = pcats.find((c: any) =>
-                    c.name?.toUpperCase() === 'PRODUCCION' || c.nombre?.toUpperCase() === 'PRODUCCION'
-                );
+                try {
+                    const pcats = JSON.parse(cachedCategoriesStr);
+                    const prodCats = pcats.filter((c: any) => {
+                        const n = (c.nombre || c.name || '').toUpperCase();
+                        // Normalizar para ignorar acentos básicos si es posible, o buscar ambos
+                        return n === 'PRODUCCION' || n === 'PRODUCCIÓN' || n.includes('PROD');
+                    });
 
-                if (prodCat) {
-                    const prods = JSON.parse(cachedProductsStr);
-                    const filtered = prods.filter((p: any) =>
-                        p.is_enabled && p.category_id === prodCat.id
-                    );
-                    allAvailable = filtered.map((p: any) => ({
-                        id: p.id,
-                        nombre: p.name || p.nombre,
-                        descripcion: p.description || p.descripcion || '',
-                        categoria: 'PRODUCCION',
-                        precio_venta: p.price || p.precio_venta
-                    }));
-                }
+                    if (prodCats.length > 0) {
+                        const catIds = prodCats.map((c: any) => c.id);
+                        const prods = JSON.parse(cachedProductsStr);
+                        const filtered = prods.filter((p: any) =>
+                            p.is_enabled && (
+                                catIds.includes(p.category_id) || 
+                                catIds.includes(p.menu_category_id) || 
+                                catIds.includes(p.product_category_id)
+                            )
+                        );
+                        allAvailable = filtered.map((p: any) => ({
+                            id: p.id,
+                            nombre: p.name || p.nombre,
+                            descripcion: p.description || p.descripcion || '',
+                            categoria: 'PRODUCCION',
+                            precio_venta: p.price || p.precio_venta
+                        }));
+                    }
+                } catch (e) { console.warn('Cache parse error', e); }
             }
 
+            // 2. Si no hay nada en cache, buscar en la DB (Tablas nuevas y viejas)
             if (allAvailable.length === 0) {
-                const { data: cats } = await supabase
-                    .from('categories')
-                    .select('id, name')
-                    .ilike('name', 'PRODUCCION')
-                    .limit(5);
+                // Buscar en las 3 posibles tablas de categorías
+                const [menuRes, prodRes, oldRes] = await Promise.all([
+                    supabase.from('menu_categories').select('id, nombre').ilike('nombre', 'PRODUCCION').limit(5),
+                    supabase.from('product_categories').select('id, nombre').ilike('nombre', 'PRODUCCION').limit(5),
+                    supabase.from('categories').select('id, name').ilike('name', 'PRODUCCION').limit(5)
+                ]);
 
-                if (cats && cats.length > 0) {
-                    const catIds = cats.map((c: any) => c.id);
+                // También intentar con tilde
+                const [menuResAcc, prodResAcc] = await Promise.all([
+                    supabase.from('menu_categories').select('id, nombre').ilike('nombre', 'PRODUCCIÓN').limit(5),
+                    supabase.from('product_categories').select('id, nombre').ilike('nombre', 'PRODUCCIÓN').limit(5)
+                ]);
+
+                const catIds = [
+                    ...(menuRes.data || []).map(c => c.id),
+                    ...(prodRes.data || []).map(c => c.id),
+                    ...(oldRes.data || []).map(c => c.id),
+                    ...(menuResAcc.data || []).map(c => c.id),
+                    ...(prodResAcc.data || []).map(c => c.id)
+                ];
+
+                if (catIds.length > 0) {
                     const { data: prods } = await supabase
                         .from('products')
-                        .select('id, name, description, category_id, price, is_enabled')
-                        .in('category_id', catIds)
+                        .select('id, name, description, category_id, menu_category_id, product_category_id, price, is_enabled')
+                        .or(`category_id.in.(${catIds.join(',')}),menu_category_id.in.(${catIds.join(',')}),product_category_id.in.(${catIds.join(',')})`)
                         .eq('is_enabled', true);
 
                     if (prods && prods.length > 0) {
                         allAvailable = prods.map((p: any) => ({
                             id: p.id,
-                            nombre: p.name,
+                            nombre: p.name || p.nombre || 'Sin nombre',
                             descripcion: p.description || '',
                             categoria: 'PRODUCCION',
                             precio_venta: p.price
@@ -163,6 +244,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                     }
                 }
 
+                // 3. Fallback: clasificaciones
                 if (allAvailable.length === 0) {
                     const { data: prodsClass } = await supabase
                         .from('products')
@@ -191,47 +273,104 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
         }
     };
 
+    const addLog = (msg: string) => {
+        const time = new Date().toLocaleTimeString('es-GT');
+        setActiveProductions(prev => prev.map((p, idx) => 
+            idx === currentIdx ? { ...p, logs: [{ time, msg }, ...p.logs] } : p
+        ));
+    };
+
     const fetchReceta = async (platilloId: string) => {
         setLoadingReceta(true);
-        setReceta(null);
         setRecetaNotFound(false);
         try {
-            const { data, error: recetaError } = await supabase
-                .from('recetas')
-                .select(`
-                    id,
-                    instrucciones,
-                    porciones,
-                    tiempo_preparacion,
-                    receta_ingredientes (
-                        cantidad,
-                        unidad,
-                        ingrediente_nombre,
-                        costo_unitario
-                    )
-                `)
-                .eq('platillo_id', platilloId)
+            let prodData: any = null;
+            let prodError: any = null;
+
+            const initialRes = await supabase
+                .from('products')
+                .select('prep_procedure, portions, prep_time, classification, recipe_no, portion_size, serving_temp, prepared_by, observations')
+                .eq('id', platilloId)
                 .maybeSingle();
 
-            if (recetaError) {
-                console.warn('[Produccion] Error buscando receta:', recetaError.message);
-                setRecetaNotFound(true);
-            } else if (!data) {
+            prodData = initialRes.data;
+            prodError = initialRes.error;
+
+            // Si falla por columnas inexistentes (Error 42703), reintentar solo con lo básico
+            if (prodError && prodError.code === '42703') {
+                console.warn('Columnas de Ficha Técnica no encontradas en la tabla products. Usando fallback básico.');
+                const basicRes = await supabase
+                    .from('products')
+                    .select('id, name')
+                    .eq('id', platilloId)
+                    .maybeSingle();
+                
+                prodData = basicRes.data;
+                prodError = basicRes.error;
+            }
+
+            if (prodError) throw prodError;
+
+            // 2. Obtener ingredientes manualmente
+            const { data: rawIngredients, error: ingError } = await supabase
+                .from('product_recipes')
+                .select('quantity, unit_measure, inventory_item_id')
+                .eq('product_id', platilloId);
+
+            if (ingError) throw ingError;
+
+            let finalIngredients: any[] = [];
+            if (rawIngredients && rawIngredients.length > 0) {
+                const itemIds = rawIngredients.map(r => r.inventory_item_id).filter(Boolean);
+                const { data: itemsDetail } = await supabase
+                    .from('products')
+                    .select('id, name')
+                    .in('id', itemIds);
+
+                finalIngredients = rawIngredients.map(r => {
+                    const detail = itemsDetail?.find(d => d.id === r.inventory_item_id);
+                    return {
+                        cantidad: r.quantity,
+                        unidad: r.unit_measure,
+                        ingrediente_nombre: detail?.name || 'Insumo desconocido',
+                        costo_unitario: 0
+                    };
+                });
+            }
+
+            // 3. Mapear al formato del componente
+            const hasInfo = prodData?.prep_procedure || (finalIngredients.length > 0);
+            
+            if (!hasInfo) {
+                console.warn(`[Produccion] No se encontró información de receta para el ID: ${platilloId}`);
                 setRecetaNotFound(true);
             } else {
-                setReceta(data as Receta);
+                const loadedReceta = {
+                    id: platilloId,
+                    instrucciones: prodData?.prep_procedure || '',
+                    porciones: prodData?.portions || 1,
+                    tiempo_preparacion: prodData?.prep_time || 0,
+                    receta_ingredientes: finalIngredients,
+                    ficha: {
+                        classification: prodData?.classification,
+                        recipe_no: prodData?.recipe_no,
+                        portion_size: prodData?.portion_size,
+                        serving_temp: prodData?.serving_temp,
+                        prepared_by: prodData?.prepared_by,
+                        observations: prodData?.observations
+                    }
+                };
+                setActiveProductions(prev => prev.map((p, idx) => 
+                    idx === currentIdx ? { ...p, receta: loadedReceta } : p
+                ));
             }
-        } catch (e) {
-            console.warn('[Produccion] Receta no disponible:', e);
-            setRecetaNotFound(true);
+        } catch (e: any) {
+            console.error('[Produccion] Error cargando receta:', e);
+            setError(`Error al cargar receta del producto: ${e.message || 'Error desconocido'}`);
+            setRecetaNotFound(false); // No marcamos como "no encontrado" si hubo un error real de red/query
         } finally {
             setLoadingReceta(false);
         }
-    };
-
-    const addLog = (msg: string) => {
-        const time = new Date().toLocaleTimeString('es-GT');
-        setSessionLog(prev => [{ time, msg }, ...prev]);
     };
 
     const handlePinInput = (num: string) => {
@@ -249,22 +388,33 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
         setLoading(true);
         setPinError(false);
         try {
-            const { data, error } = await supabase
+            const { data: chefData, error } = await supabase
                 .from('profiles')
                 .select('id, name, pin, role, branch_id')
                 .eq('pin', pin)
                 .ilike('role', 'COCINA')
                 .maybeSingle();
 
-            if (error || !data) {
+            if (error || !chefData) {
                 setPinError(true);
                 setPin('');
                 return;
             }
 
-            setCurrentChef({ id: data.id, nombre: data.name, branch_id: data.branch_id });
+            const newProd: ActiveProduction = {
+                instanceId: Math.random().toString(36).substr(2, 9),
+                product: selectedProduct!,
+                chef: { id: chefData.id, nombre: chefData.name, branch_id: chefData.branch_id },
+                startTime: new Date(),
+                timerSec: 0,
+                isCompleted: false,
+                logs: [{ time: new Date().toLocaleTimeString('es-GT'), msg: `Sesión iniciada por ${chefData.name}` }]
+            };
+            setActiveProductions(prev => [newProd, ...prev]);
+            setCurrentIdx(0);
             setView('ACTIVE');
-            addLog(`Sesión iniciada por ${data.name}`);
+            setSelectedProduct(null);
+            setPin('');
         } catch (e) {
             setPinError(true);
             setPin('');
@@ -273,54 +423,42 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
         }
     };
 
-    const iniciarProduccion = () => {
-        if (timerActive || timerCompleted) return;
-        const now = new Date();
-        setStartTime(now);
-        setTimerActive(true);
-        addLog('Producción iniciada');
-    };
-
-    const guardarRegistro = async (end: Date, duracion: number) => {
-        if (!selectedProduct || !currentChef || !startTime) return;
+    const guardarRegistro = async (pIdx: number) => {
+        const p = activeProductions[pIdx];
+        if (!p) return;
         try {
-            // Usar el branch_id del cocinero autenticado, no el del admin
-            const branchToSave = currentChef.branch_id || sucursalId;
-            const { error: insertError } = await supabase
-                .from('rendimiento_cocina')
-                .insert({
-                    platillo_id: selectedProduct.id,
-                    platillo_nombre: selectedProduct.nombre,
-                    categoria: 'PRODUCCION',
-                    usuario_id: currentChef.id,
-                    usuario_nombre: currentChef.nombre,
-                    tiempo_inicio: startTime.toISOString(),
-                    tiempo_fin: end.toISOString(),
-                    duracion_segundos: duracion,
-                    sucursal_id: branchToSave,
-                    fecha: new Date().toISOString()
-                });
+            const { error: insertError } = await supabase.from('rendimiento_cocina').insert({
+                platillo_id: p.product.id,
+                platillo_nombre: p.product.nombre,
+                categoria: 'PRODUCCION',
+                usuario_id: p.chef.id,
+                usuario_nombre: p.chef.nombre,
+                tiempo_inicio: p.startTime.toISOString(),
+                tiempo_fin: p.endTime?.toISOString() || new Date().toISOString(),
+                duracion_segundos: p.timerSec,
+                sucursal_id: p.chef.branch_id || sucursalId,
+                fecha: new Date().toISOString()
+            });
 
             if (!insertError) {
                 addLog('✓ Registro guardado en rendimiento de cocina');
-            } else {
-                addLog('✗ Error al guardar: ' + insertError.message);
-                console.error('[Produccion] Error guardando rendimiento:', insertError);
             }
         } catch (e: any) {
-            addLog('✗ Error inesperado al guardar');
-            console.error('[Produccion] Error inesperado:', e);
+            console.error('[Produccion] Error guardando rendimiento:', e);
         }
     };
 
     const finalizarProduccion = async () => {
-        if (!timerActive || timerCompleted) return;
+        if (!currentProd || currentProd.isCompleted) return;
         const end = new Date();
-        setTimerActive(false);
-        setTimerCompleted(true);
-        setEndTime(end);
-        addLog('Producción completada');
-        await guardarRegistro(end, timerSec);
+        const logs = [{ time: end.toLocaleTimeString('es-GT'), msg: 'Producción completada' }, ...currentProd.logs];
+        
+        setActiveProductions(prev => prev.map((p, idx) => 
+            idx === currentIdx ? { ...p, isCompleted: true, endTime: end, logs } : p
+        ));
+        
+        // Guardar en DB
+        await guardarRegistro(currentIdx);
     };
 
     const formatSeconds = (totalSeconds: number) => {
@@ -332,15 +470,57 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
 
     // ─── PANTALLA 1: Lista de producciones ───────────────────────────────────
     const renderList = () => (
-        <div className="flex-1 flex flex-col p-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-center justify-between mb-8">
-                <div>
-                    <h2 className="text-[10px] font-black text-[#106EBE] uppercase tracking-[0.4em] mb-1">Restaurante Las Palmas POS</h2>
-                    <h1 className="text-2xl font-black text-white uppercase tracking-tighter">PRODUCCIONES DISPONIBLES — CATEGORÍA PRODUCCION</h1>
-                </div>
-            </div>
+        <div className="flex-1 flex flex-col p-6 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto custom-scrollbar">
+            <div className="max-w-7xl mx-auto w-full pt-4">
+                {/* Cabecera simplificada sin repetir 'Producción' */}
 
-            {loading && !products.length ? (
+                {/* --- SECCIÓN: PRODUCCIONES ACTIVAS --- */}
+                {activeProductions.some(p => !p.isCompleted) && (
+                    <div className="mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
+                        <div className="flex items-center gap-3 mb-6">
+                            <Clock size={16} className="text-emerald-500" />
+                            <h2 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em]">Producciones en Curso</h2>
+                        </div>
+                        <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-5">
+                            {activeProductions.map((p, idx) => !p.isCompleted && (
+                                <div 
+                                    key={p.instanceId}
+                                    onClick={() => {
+                                        setCurrentIdx(idx);
+                                        setView('ACTIVE');
+                                    }}
+                                    className="bg-[#0d1117] rounded-2xl border-2 border-emerald-500/20 hover:border-emerald-500 p-5 cursor-pointer transition-all hover:scale-[1.02] shadow-xl group relative overflow-hidden"
+                                >
+                                    <div className="absolute top-0 left-0 h-full w-1 bg-emerald-500"></div>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex flex-col">
+                                            <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest mb-1">{p.chef.nombre}</span>
+                                            <h3 className="text-white font-black text-lg leading-tight">{p.product.nombre}</h3>
+                                        </div>
+                                        <div className="text-2xl font-black tabular-nums text-white bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
+                                            {formatSeconds(p.timerSec)}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between text-[10px] font-bold text-[#7a8499] uppercase">
+                                        <span>Iniciado: {p.startTime.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}</span>
+                                        <span className="text-emerald-500 animate-pulse flex items-center gap-1">
+                                            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                                            En curso
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* --- SECCIÓN: NUEVA PRODUCCIÓN --- */}
+                <div className="flex items-center gap-3 mb-6">
+                    <Play size={16} className="text-[#106EBE]" />
+                    <h2 className="text-[10px] font-black text-[#106EBE] uppercase tracking-[0.4em]">Nueva Producción</h2>
+                </div>
+
+                {loading && !products.length ? (
                 <div className="flex-1 flex items-center justify-center">
                     <Loader2 className="w-12 h-12 text-[#106EBE] animate-spin" />
                 </div>
@@ -350,24 +530,22 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                     <p className="font-bold uppercase tracking-widest">No hay platillos de producción configurados</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-[14px]">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-5">
                     {products.map(product => (
                         <div
                             key={product.id}
-                            className="bg-[#141922] rounded-[12px] border border-[#106EBE33] border-t-[3px] border-t-[#106EBE] p-5 flex flex-col hover:-translate-y-1 hover:border-[#106EBE] transition-all group relative overflow-hidden"
+                            className="bg-[#141922] rounded-xl border border-[#106EBE33] border-t-[3px] border-t-[#106EBE] p-6 flex flex-col hover:-translate-y-1 hover:border-[#106EBE] transition-all group relative overflow-hidden"
                         >
-                            <span className="absolute top-2 right-3 text-[8px] font-black bg-[#106EBE] text-white px-2 py-0.5 rounded-full">PRODUCCION</span>
-                            <h3 className="text-white font-bold text-lg mb-1 leading-tight">{product.nombre}</h3>
-                            <p className="text-[#7a8499] text-xs mb-6 flex-1 line-clamp-2">{product.descripcion}</p>
+                            <h3 className="text-white font-bold text-xl mb-1 leading-tight">{product.nombre}</h3>
+                            <p className="text-[#7a8499] text-sm mb-6 flex-1 line-clamp-2">{product.descripcion}</p>
 
-                            <div className="flex items-center justify-between mt-auto">
-                                <span className="text-[10px] font-bold text-[#7a8499] uppercase">Rendimiento: 1x1</span>
+                            <div className="flex items-center justify-end mt-auto">
                                 <button
                                     onClick={() => {
                                         setSelectedProduct(product);
                                         setView('PIN');
                                     }}
-                                    className="bg-[#106EBE] text-white font-black text-[11px] uppercase p-3 rounded-lg hover:bg-blue-600 transition-all active:scale-95 flex items-center gap-2"
+                                    className="bg-[#106EBE] text-white font-black text-xs uppercase px-6 py-3 rounded-lg hover:bg-blue-600 transition-all active:scale-95 flex items-center gap-2"
                                 >
                                     <Play size={14} fill="white" />
                                     INICIAR
@@ -377,6 +555,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                     ))}
                 </div>
             )}
+            </div>
         </div>
     );
 
@@ -410,7 +589,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                         <button
                             key={n}
                             onClick={() => handlePinInput(n.toString())}
-                            className="h-14 bg-[#141922] hover:bg-[#106EBE33] border border-[#106EBE33] rounded-[10px] text-xl font-black text-white transition-all active:scale-90"
+                            className="h-12 bg-[#141922] hover:bg-[#106EBE33] border border-[#106EBE33] rounded-[10px] text-xl font-black text-white transition-all active:scale-90"
                         >
                             {n}
                         </button>
@@ -418,20 +597,20 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                     <div />
                     <button
                         onClick={() => handlePinInput('0')}
-                        className="h-14 bg-[#141922] hover:bg-[#106EBE33] border border-[#106EBE33] rounded-[10px] text-xl font-black text-white transition-all active:scale-90"
+                        className="h-12 bg-[#141922] hover:bg-[#106EBE33] border border-[#106EBE33] rounded-[10px] text-xl font-black text-white transition-all active:scale-90"
                     >
                         0
                     </button>
                     <button
                         onClick={handlePinDelete}
-                        className="h-14 bg-[#141922] hover:bg-red-500/20 border border-red-500/20 rounded-[10px] text-[#e24b4a] flex items-center justify-center transition-all active:scale-90"
+                        className="h-12 bg-[#141922] hover:bg-red-500/20 border border-red-500/20 rounded-[10px] text-[#e24b4a] flex items-center justify-center transition-all active:scale-90"
                     >
                         <X size={24} />
                     </button>
                     <button
                         onClick={validatePin}
                         disabled={loading || pin.length < 4}
-                        className="col-span-3 h-14 bg-[#106EBE] hover:bg-blue-600 disabled:opacity-50 text-white font-black uppercase tracking-widest rounded-[10px] transition-all active:scale-95 shadow-lg shadow-blue-950/20"
+                        className="col-span-3 h-12 bg-[#106EBE] hover:bg-blue-600 disabled:opacity-50 text-white font-black uppercase tracking-widest rounded-[10px] transition-all active:scale-95 shadow-lg shadow-blue-950/20"
                     >
                         {loading ? <Loader2 className="animate-spin mx-auto" /> : 'ENTRAR'}
                     </button>
@@ -451,221 +630,202 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
         </div>
     );
 
-    // ─── PANTALLA 3: Producción Activa ────────────────────────────────────────
-    const renderActive = () => (
-        <div className="flex-1 flex flex-col p-6 gap-5 overflow-y-auto animate-in fade-in duration-700 custom-scrollbar">
+    const renderActive = () => {
+        if (!currentProd) return null;
 
-            {/* Header con nombre del platillo y chef */}
-            <div className="bg-[#0d1117] rounded-2xl p-4 flex items-center justify-between border border-[#106EBE1a]">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[#106EBE] rounded-full flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-950/40">
-                        {currentChef?.nombre.charAt(0)}
-                    </div>
-                    <div>
-                        <h3 className="text-white font-bold text-[17px] leading-tight">{selectedProduct?.nombre}</h3>
-                        <p className="text-[#7a8499] text-[10px] font-bold uppercase tracking-widest">{currentChef?.nombre}</p>
-                    </div>
-                </div>
-
-                <div className={`px-4 py-1.5 rounded-full border font-black text-[10px] uppercase tracking-widest ${
-                    timerCompleted ? 'bg-[#4caf501a] border-[#4caf50] text-[#4caf50]' :
-                    timerActive ? 'bg-[#106EBE1a] border-[#106EBE] text-[#106EBE] animate-pulse' :
-                    'bg-[#7a84991a] border-[#7a8499] text-[#7a8499]'
-                }`}>
-                    {timerCompleted ? '✓ Completada' : timerActive ? 'En producción' : 'En espera'}
-                </div>
-            </div>
-
-            {/* CRONÓMETRO — bloque único centrado */}
-            <div className="bg-[#141922] rounded-3xl p-8 border border-[#106EBE33] flex flex-col items-center shadow-2xl relative overflow-hidden">
-                <div className={`absolute top-0 left-0 w-full h-1 transition-colors duration-500 ${timerCompleted ? 'bg-[#4caf50]' : timerActive ? 'bg-[#106EBE]' : 'bg-[#7a8499]'}`} />
-
-                <span className="text-[#7a8499] font-bold text-[10px] uppercase tracking-[0.3em] mb-4">
-                    TIEMPO DE PRODUCCIÓN
-                </span>
-
-                <div className={`text-[52px] font-black tabular-nums transition-colors duration-500 mb-8 ${
-                    timerCompleted ? 'text-[#4caf50]' :
-                    timerActive ? 'text-[#106EBE]' :
-                    'text-white opacity-40'
-                }`}>
-                    {formatSeconds(timerSec)}
-                </div>
-
-                <div className="flex gap-4 w-full max-w-md">
-                    {!timerActive && !timerCompleted && (
-                        <button
-                            onClick={iniciarProduccion}
-                            className="flex-1 h-14 bg-[#106EBE] hover:bg-blue-600 rounded-xl text-white font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg shadow-blue-950/20"
-                        >
-                            <Play size={20} fill="white" />
-                            INICIAR PRODUCCIÓN
-                        </button>
-                    )}
-                    {timerActive && !timerCompleted && (
-                        <button
-                            onClick={finalizarProduccion}
-                            className="flex-1 h-14 bg-[#4caf501a] hover:bg-[#4caf5033] border border-[#4caf50] rounded-xl text-[#4caf50] font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all active:scale-95"
-                        >
-                            <CheckCircle2 size={20} />
-                            FINALIZAR PRODUCCIÓN
-                        </button>
-                    )}
-                    {timerCompleted && (
-                        <div className="flex-1 h-14 bg-[#4caf501a] border border-[#4caf50] rounded-xl text-[#4caf50] font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 opacity-60 cursor-not-allowed">
-                            <CheckCircle2 size={20} />
-                            PRODUCCIÓN COMPLETADA
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* RECETA DEL PLATILLO */}
-            <div className="bg-[#0d1117] rounded-[12px] border border-[#106EBE22] overflow-hidden">
-                {/* Header receta */}
-                <div className="flex items-center gap-3 px-5 py-3 border-b border-[#106EBE22]">
-                    <ClipboardList size={16} className="text-[#106EBE]" />
-                    <span className="text-[10px] font-black text-[#106EBE] uppercase tracking-[0.3em]">
-                        RECETA DE PREPARACIÓN
-                    </span>
-                </div>
-
-                {loadingReceta ? (
-                    <div className="flex items-center justify-center py-10 gap-3 text-[#7a8499]">
-                        <Loader2 size={18} className="animate-spin" />
-                        <span className="text-xs font-bold">Cargando receta...</span>
-                    </div>
-                ) : recetaNotFound || !receta ? (
-                    <div className="flex items-center justify-center py-8 text-[#7a8499] gap-2">
-                        <BookOpen size={18} className="opacity-40" />
-                        <span className="text-xs font-bold uppercase tracking-widest">Sin receta registrada para este platillo</span>
-                    </div>
-                ) : (
-                    <div className="p-5 flex flex-col gap-4">
-                        {/* Meta-info: porciones + tiempo */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-[#141922] rounded-lg p-3">
-                                <span className="block text-[8px] font-bold text-[#7a8499] uppercase mb-1">Porciones</span>
-                                <span className="text-white font-black text-lg">{receta.porciones ?? '—'}</span>
+        return (
+            <div className="flex-1 flex flex-col px-6 py-6 gap-6 overflow-y-auto animate-in fade-in duration-700 custom-scrollbar bg-black/20">
+                
+                {/* LAYOUT DE DIVISIÓN ESTRICTA (DENSIDAD ALTA) */}
+                <div className="flex flex-col lg:flex-row gap-6 items-start max-w-[1600px] mx-auto w-full">
+                    
+                    {/* COLUMNA IZQUIERDA (OPERACIÓN) - MÁS COMPACTA */}
+                    <div className="w-full lg:w-[320px] shrink-0 flex flex-col gap-4">
+                        
+                        {/* 1. SECCIÓN: RELOJ DE PRODUCCIÓN (REDUCIDO) */}
+                        <div className="bg-[#0cf19208] rounded-[24px] p-6 border border-[#0cf19222] flex flex-col items-center relative overflow-hidden shadow-xl backdrop-blur-md">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-[#0cf1921a]">
+                                {!currentProd?.isCompleted && (
+                                    <div className="h-full bg-[#0cf192] animate-progress shadow-[0_0_15px_#0cf192]" style={{ width: `${(currentProd?.timerSec % 60) * 1.66}%` }}></div>
+                                )}
                             </div>
-                            <div className="bg-[#141922] rounded-lg p-3">
-                                <span className="block text-[8px] font-bold text-[#7a8499] uppercase mb-1">Tiempo estimado</span>
-                                <span className="text-white font-black text-lg">
-                                    {receta.tiempo_preparacion ? `${receta.tiempo_preparacion} min` : '—'}
-                                </span>
+                            
+                            <span className="text-[9px] font-black text-[#7a8499] uppercase tracking-[0.4em] mb-4 opacity-70">Tiempo</span>
+                            <div className={`text-6xl font-black tabular-nums transition-colors tracking-tighter ${currentProd?.isCompleted ? 'text-[#0cf192]' : 'text-white'}`}>
+                                {formatSeconds(currentProd?.timerSec || 0)}
                             </div>
-                        </div>
 
-                        {/* Tabla de ingredientes */}
-                        {receta.receta_ingredientes && receta.receta_ingredientes.length > 0 && (
-                            <div>
-                                <h4 className="text-[9px] font-black text-[#106EBE] uppercase tracking-[0.3em] mb-2">INGREDIENTES</h4>
-                                <div className="rounded-lg overflow-hidden border border-[#106EBE22]">
-                                    <div className="grid grid-cols-[1fr_80px_60px] bg-[#106EBE15] px-4 py-2 border-b border-[#106EBE22]">
-                                        <span className="text-[9px] font-black text-[#106EBE] uppercase">Ingrediente</span>
-                                        <span className="text-[9px] font-black text-[#106EBE] uppercase text-center">Cant.</span>
-                                        <span className="text-[9px] font-black text-[#106EBE] uppercase text-center">Unidad</span>
+                            <div className="mt-6 w-full">
+                                {currentProd?.isCompleted ? (
+                                    <div className="w-full h-10 bg-[#0cf1921a] border border-[#0cf19244] rounded-xl flex items-center justify-center gap-3 text-[#0cf192]">
+                                        <CheckCircle2 size={18} />
+                                        <span className="font-black text-[10px] uppercase tracking-widest">Listo</span>
                                     </div>
-                                    {receta.receta_ingredientes.map((ing, idx) => (
-                                        <div
-                                            key={idx}
-                                            className={`grid grid-cols-[1fr_80px_60px] px-4 py-2.5 border-b border-[#106EBE11] last:border-0 ${idx % 2 === 0 ? 'bg-[#141922]' : 'bg-[#0d1117]'}`}
-                                        >
-                                            <span className="text-xs font-bold text-white">{ing.ingrediente_nombre}</span>
-                                            <span className="text-xs font-bold text-[#7a8499] text-center">{ing.cantidad}</span>
-                                            <span className="text-xs font-bold text-[#7a8499] text-center">{ing.unidad}</span>
+                                ) : (
+                                    <button
+                                        onClick={finalizarProduccion}
+                                        className="w-full h-10 bg-emerald-600/10 hover:bg-emerald-600 border border-emerald-600/30 hover:border-emerald-400 text-emerald-400 hover:text-white rounded-xl transition-all active:scale-95 flex items-center justify-center gap-3 group shadow-lg"
+                                    >
+                                        <CheckCircle2 size={18} className="group-hover:scale-110 transition-transform" />
+                                        <span className="font-black text-[10px] uppercase tracking-widest">Finalizar</span>
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* 2. SECCIÓN: LISTA DE INSUMOS (REDUCIDA) */}
+                        <div className="bg-[#0d1117] rounded-[24px] border border-[#106EBE22] overflow-hidden shadow-xl flex flex-col">
+                            <div className="bg-[#106EBE0a] p-4 border-b border-[#106EBE22] flex items-center gap-3">
+                                <ClipboardList size={18} className="text-[#106EBE]" />
+                                <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Insumos</span>
+                            </div>
+                            
+                            <div className="p-4">
+                                {receta?.receta_ingredientes?.length > 0 ? (
+                                    <div className="bg-[#141922]/30 rounded-xl border border-white/5 overflow-hidden">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="bg-black/40 text-[#7a8499] text-[9px] uppercase font-black">
+                                                    <th className="p-3 pl-5">Art.</th>
+                                                    <th className="p-3 text-right">Cant.</th>
+                                                    <th className="p-3 pr-5">Med.</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="text-[11px] font-bold">
+                                                {receta.receta_ingredientes.map((ing, i) => (
+                                                    <tr key={i} className="border-t border-white/5 text-slate-400 hover:bg-[#106EBE08] transition-all">
+                                                        <td className="p-3 pl-5 font-black uppercase text-white truncate max-w-[120px]">{ing.ingrediente_nombre}</td>
+                                                        <td className="p-3 text-right text-[#0cf192] font-black">{ing.cantidad}</td>
+                                                        <td className="p-3 pr-5 text-slate-600 uppercase text-[9px]">{ing.unidad}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <div className="p-8 flex flex-col items-center justify-center text-[#7a8499] gap-4 opacity-40">
+                                        <BookOpen size={30} />
+                                        <p className="text-[9px] font-black uppercase tracking-widest text-center">Sin insumos</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {/* COLUMNA DERECHA (TÉCNICA) - MÁS COMPACTA */}
+                    <div className="flex-1 flex flex-col gap-6 w-full">
+                        
+                        <div className="bg-[#141922] rounded-[32px] border border-[#106EBE33] overflow-hidden shadow-2xl relative flex flex-col">
+                            {/* Ribbon Técnica Reducida */}
+                            <div className="absolute top-6 -right-16 bg-[#106EBE] text-white text-[8px] font-black py-1.5 w-48 text-center rotate-45 uppercase tracking-[0.4em] z-20">
+                                Técnico
+                            </div>
+
+                            <div className="p-8 md:p-10">
+                                
+                                {/* 1. HEADER INTEGRADO COMPACTO */}
+                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pb-8 border-b border-white/5">
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-14 h-14 rounded-2xl bg-[#106EBE1a] flex items-center justify-center text-[#106EBE] font-black text-2xl border border-[#106EBE33]">
+                                            {currentProd?.product?.nombre?.charAt(0) || 'P'}
+                                        </div>
+                                        <div>
+                                            <span className="text-[9px] font-black text-[#106EBE] uppercase tracking-[0.4em] block mb-2">Ficha Técnica</span>
+                                            <h2 className="text-2xl font-black text-white uppercase tracking-tighter leading-tight max-w-xl">{currentProd?.product?.nombre || 'Cargando producto...'}</h2>
+                                            <div className="flex items-center gap-4 mt-3">
+                                                <span className="text-[10px] font-black text-slate-400 uppercase">Chef: {currentProd?.chef?.nombre || 'S/A'}</span>
+                                                <div className="w-1 h-1 rounded-full bg-white/20"></div>
+                                                <span className="text-[10px] font-black text-slate-500 uppercase">Inicio: {currentProd?.startTime?.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', hour12: true }) || '--:--'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="bg-black/20 px-5 py-3 rounded-2xl border border-white/5 flex flex-col items-end">
+                                        <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Estandarizado</span>
+                                        <span className="text-xl font-black text-white">{receta?.tiempo_preparacion || '--'} <span className="text-[10px] text-[#0cf192]">MIN</span></span>
+                                    </div>
+                                </div>
+
+                                {/* 2. ESPECIFICACIONES GRID COMPACTO */}
+                                <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-10">
+                                    {[
+                                        { lab: 'Clasificación', val: receta?.ficha?.classification },
+                                        { lab: 'No. Receta', val: receta?.ficha?.recipe_no },
+                                        { lab: 'Porciones', val: receta?.porciones },
+                                        { lab: 'Tamaño', val: receta?.ficha?.portion_size },
+                                        { lab: 'Temperatura', val: receta?.ficha?.serving_temp }
+                                    ].map((spec, i) => (
+                                        <div key={i} className="bg-black/30 p-4 rounded-2xl border border-white/5">
+                                            <span className="text-[8px] font-bold text-[#7a8499] uppercase block mb-1 tracking-widest">{spec.lab}</span>
+                                            <span className="text-[10px] font-black uppercase text-white truncate block">{spec.val || '---'}</span>
                                         </div>
                                     ))}
                                 </div>
-                            </div>
-                        )}
 
-                        {/* Instrucciones */}
-                        {receta.instrucciones && (
-                            <div>
-                                <h4 className="text-[9px] font-black text-[#106EBE] uppercase tracking-[0.3em] mb-2">INSTRUCCIONES</h4>
-                                <div className="flex flex-col gap-2">
-                                    {receta.instrucciones.split('\n').filter(s => s.trim()).map((paso, idx) => (
-                                        <div
-                                            key={idx}
-                                            className="flex gap-3 bg-[#141922] rounded-lg px-4 py-2.5 border-l-[3px] border-[#106EBE]"
-                                        >
-                                            <span className="text-[#106EBE] font-black text-xs shrink-0">{idx + 1}.</span>
-                                            <span className="text-xs text-[#e8eaf0] leading-relaxed">{paso.replace(/^\d+\.\s*/, '').trim()}</span>
+                                {/* 3. PROCEDIMIENTO (ESPACIO OPTIMIZADO) */}
+                                <div className="mb-10">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-6 h-6 bg-[#106EBE] rounded-lg flex items-center justify-center text-xs font-black text-white">1</div>
+                                        <span className="text-[10px] font-black text-white uppercase tracking-widest">Procedimiento</span>
+                                    </div>
+                                    <div className="bg-black/30 p-8 rounded-[32px] border border-white/5 text-[15px] font-medium leading-relaxed text-slate-300 whitespace-pre-line shadow-inner border-l-4 border-l-[#106EBE] min-h-[300px]">
+                                        {receta?.instrucciones || "Pendiente de cargar instrucciones oficiales."}
+                                    </div>
+                                </div>
+
+                                {/* 4. OBSERVACIONES Y VALIDACIÓN COMPACTO */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-white/5">
+                                    <div className="bg-amber-500/5 p-5 rounded-2xl border border-amber-500/10 text-[12px] font-bold italic text-amber-200/50 min-h-[100px]">
+                                        <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest block mb-2">Notas del Chef:</span>
+                                        {receta?.ficha?.observations ? `"${receta.ficha.observations}"` : "Sin notas."}
+                                    </div>
+                                    <div className="bg-white/5 p-5 rounded-2xl border border-white/5 flex flex-col justify-between">
+                                        <div>
+                                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-1">Responsable:</span>
+                                            <span className="text-[12px] font-black text-white uppercase">{receta?.ficha?.prepared_by || 'POR DEFINIR'}</span>
                                         </div>
-                                    ))}
+                                        <div className="mt-4 flex items-center justify-between text-[9px] font-black opacity-30">
+                                            <span className="uppercase tracking-widest">Registro ID:</span>
+                                            <span className="font-mono">{currentProd?.id?.slice(0,12) || '---'}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        )}
-                    </div>
-                )}
-            </div>
+                        </div>
 
-            {/* Panel Info + Bitácora */}
-            <div className="grid grid-cols-[1fr,1.2fr] gap-5">
-                <div className="bg-[#141922] rounded-3xl p-5 border border-[#106EBE1a]">
-                    <h4 className="text-[10px] font-black text-[#106EBE] uppercase tracking-[0.3em] mb-4">Información</h4>
-                    <div className="grid grid-cols-2 gap-y-4 gap-x-2">
-                        <div>
-                            <span className="block text-[8px] font-bold text-[#7a8499] uppercase mb-1">Platillo</span>
-                            <span className="text-xs font-bold text-white leading-tight">{selectedProduct?.nombre}</span>
+                        {/* BITÁCORA REDUCIDA */}
+                        <div className="bg-[#0d1117]/60 rounded-3xl p-5 border border-white/5">
+                            <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.4em] block mb-4">Registro Auditoría</span>
+                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1.5 max-h-[80px] overflow-y-auto custom-scrollbar">
+                                {currentProd?.logs?.map((log, i) => (
+                                    <div key={i} className="flex gap-3 items-center text-[10px] py-0.5 opacity-60">
+                                        <span className="text-[#106EBE] font-black">[{log.time}]</span>
+                                        <span className="text-slate-500 truncate">{log.msg}</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                        <div>
-                            <span className="block text-[8px] font-bold text-[#7a8499] uppercase mb-1">Cocinero</span>
-                            <span className="text-xs font-bold text-white leading-tight">{currentChef?.nombre}</span>
-                        </div>
-                        <div>
-                            <span className="block text-[8px] font-bold text-[#7a8499] uppercase mb-1">Hora Inicio</span>
-                            <span className="text-xs font-bold text-white tabular-nums">{startTime ? startTime.toLocaleTimeString('es-GT') : '—'}</span>
-                        </div>
-                        <div>
-                            <span className="block text-[8px] font-bold text-[#7a8499] uppercase mb-1">Hora Finalización</span>
-                            <span className="text-xs font-bold text-white tabular-nums">{endTime ? endTime.toLocaleTimeString('es-GT') : '—'}</span>
-                        </div>
+
+                        <button onClick={() => setView('LIST')} className="mt-2 self-center text-[#7a8499] hover:text-white font-black text-[10px] uppercase tracking-[0.2em] transition-all py-2 px-6 rounded-lg hover:bg-white/5">
+                            ← Volver
+                        </button>
                     </div>
                 </div>
 
-                <div className="bg-[#0d1117] rounded-3xl p-5 border border-[#106EBE1a] flex flex-col">
-                    <h4 className="text-[10px] font-black text-[#106EBE] uppercase tracking-[0.3em] mb-4">Bitácora de Sesión</h4>
-                    <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                        <div className="flex flex-col gap-2">
-                            {sessionLog.map((log, i) => (
-                                <div key={i} className="flex gap-3 text-[10px]">
-                                    <span className="text-[#106EBE] font-bold tabular-nums">[{log.time}]</span>
-                                    <span className="text-[#7a8499] font-medium leading-tight">{log.msg}</span>
-                                </div>
-                            ))}
-                            <div className="text-[10px] text-[#7a8499] opacity-30 flex gap-3">
-                                <span>[{currentTime}]</span>
-                                <span>Esperando acciones...</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
-
-            <button
-                onClick={() => {
-                    setTimerActive(false);
-                    setView('LIST');
-                }}
-                className="text-center text-[#7a8499] font-bold text-xs uppercase hover:text-white transition-colors py-2"
-            >
-                ← Salir a lista de producciones
-            </button>
-        </div>
-    );
+        );
+    };
 
     // ─── SHELL ───────────────────────────────────────────────────────────────
     return (
         <div className="fixed inset-0 z-[999] bg-[#1a1f2e] text-[#e8eaf0] flex flex-col font-sans select-none overflow-hidden">
             {/* Header */}
-            <header className="bg-[#0d1117] h-16 border-b border-[#106EBE33] flex items-center justify-between px-6 shrink-0">
+            <header className="bg-[#0d1117] h-14 border-b border-[#106EBE33] flex items-center justify-between px-6 shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#106EBE] rounded-full flex items-center justify-center p-2 shadow-inner">
-                        <Layers className="text-white" size={20} />
+                    <div className="w-9 h-9 bg-[#106EBE] rounded-full flex items-center justify-center p-2 shadow-inner">
+                        <Layers className="text-white" size={18} />
                     </div>
-                    <span className="text-xs font-black tracking-[0.3em] text-[#106EBE] uppercase">Módulo de Producción</span>
+                    <span className="text-[11px] font-black tracking-[0.3em] text-[#106EBE] uppercase">Módulo de Producción</span>
                 </div>
 
                 <div className="flex items-center gap-6">

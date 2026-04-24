@@ -7,6 +7,7 @@ import {
 import { supabase } from '../../supabase';
 import { DraggableWindow } from './AdminPortal';
 import { useNotify } from '../../hooks/useNotify';
+import { CategorySidebar } from './shared/CategorySidebar';
 
 export const DishesModifiersAssign: React.FC = () => {
     const notify = useNotify();
@@ -15,10 +16,19 @@ export const DishesModifiersAssign: React.FC = () => {
     const [products, setProducts] = useState<any[]>([]);
     const [modifierGroups, setModifierGroups] = useState<any[]>([]);
 
+    const [selectedBranch, setSelectedBranch] = useState<string>(() => {
+        const cachedUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        return cachedUser?.branch_id || 'all';
+    });
+    const [branches, setBranches] = useState<any[]>([]);
+
     // UI State
-    const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
-    const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
-    const [searchCategory, setSearchCategory] = useState('');
+    const [sidebarWidth, setSidebarWidth] = useState(() => {
+        const saved = localStorage.getItem('pos_sidebar_width_modifiers');
+        return saved ? parseInt(saved) : 280;
+    });
+    const [isResizing, setIsResizing] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [searchProduct, setSearchProduct] = useState('');
 
     // Assignment State
@@ -39,7 +49,13 @@ export const DishesModifiersAssign: React.FC = () => {
 
     useEffect(() => {
         fetchData();
+        fetchBranches();
     }, []);
+
+    const fetchBranches = async () => {
+        const { data } = await supabase.from('branches').select('*').order('name');
+        if (data) setBranches(data);
+    };
 
     useEffect(() => {
         const handleClick = () => setContextMenu(prev => ({ ...prev, visible: false }));
@@ -47,19 +63,55 @@ export const DishesModifiersAssign: React.FC = () => {
         return () => window.removeEventListener('click', handleClick);
     }, []);
 
+    const startResizing = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setIsResizing(true);
+    };
+
+    const stopResizing = () => {
+        setIsResizing(false);
+        localStorage.setItem('pos_sidebar_width_modifiers', sidebarWidth.toString());
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+        if (!isResizing) return;
+        const newWidth = e.clientX;
+        if (newWidth >= 150 && newWidth <= 600) {
+            setSidebarWidth(newWidth);
+        }
+    };
+
+    useEffect(() => {
+        if (isResizing) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', stopResizing);
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        } else {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', stopResizing);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', stopResizing);
+        };
+    }, [isResizing, sidebarWidth]);
+
     const fetchData = async () => {
         setLoading(true);
         const [catRes, prodRes, groupRes] = await Promise.all([
-            supabase.from('categories').select('*').order('name'),
-            supabase.from('products').select('*, categories(name)').order('name'),
+            // VENTA categories are now read from 'menu_categories'
+            supabase.from('menu_categories').select('*').order('nombre'),
+            // Only fetch food items (es_platillo = true) and branch out to their menu_category parent relation
+            supabase.from('products').select('*, menu_categories!menu_category_id(nombre, parent_id)').eq('es_platillo', true).order('name'),
             supabase.from('modifier_groups').select('*').order('name')
         ]);
 
         if (catRes.data) {
-            setCategories(catRes.data);
-            // Default to first top-level category
-            const firstCat = catRes.data.filter(c => !c.parent_id)[0];
-            if (firstCat) setSelectedCategories(new Set([firstCat.id]));
+            // Map 'nombre' to 'name' for backwards compatibility with the CategorySidebar component
+            setCategories(catRes.data.map(c => ({...c, name: c.nombre})));
         }
         if (prodRes.data) setProducts(prodRes.data);
         if (groupRes.data) setModifierGroups(groupRes.data);
@@ -76,105 +128,36 @@ export const DishesModifiersAssign: React.FC = () => {
         });
     };
 
-    const toggleCategory = (id: string) => {
-        const next = new Set(expandedCategories);
-        if (next.has(id)) next.delete(id);
-        else next.add(id);
-        setExpandedCategories(next);
-    };
 
-    const toggleCategorySelection = (id: string) => {
-        const next = new Set(selectedCategories);
-        const isCurrentlyChecked = next.has(id);
-
-        const setAllChildren = (parentId: string, check: boolean) => {
-            const children = categories.filter(c => c.parent_id === parentId);
-            children.forEach(c => {
-                if (check) next.add(c.id);
-                else next.delete(c.id);
-                setAllChildren(c.id, check);
-            });
-        };
-
-        if (isCurrentlyChecked) {
-            next.delete(id);
-            setAllChildren(id, false);
-            let parentId = categories.find(c => c.id === id)?.parent_id;
-            while (parentId) {
-                next.delete(parentId);
-                parentId = categories.find(c => c.id === parentId)?.parent_id;
-            }
-        } else {
-            next.add(id);
-            setAllChildren(id, true);
-        }
-        setSelectedCategories(next);
-    };
-
-    const renderCategoryTree = (parentId: string | null = null, depth = 0) => {
-        return categories
-            .filter(c => c.parent_id === parentId)
-            .filter(c => c.name.toLowerCase().includes(searchCategory.toLowerCase()))
-            .map(cat => {
-                const hasChildren = categories.some(c => c.parent_id === cat.id);
-                const isExpanded = expandedCategories.has(cat.id);
-                const isSelected = selectedCategories.has(cat.id);
-
-                return (
-                    <div key={cat.id} className="flex flex-col select-none">
-                        <div className="flex items-center group/cat">
-                            <div
-                                onClick={() => toggleCategorySelection(cat.id)}
-                                className={`flex-1 flex items-center gap-1.5 px-3 py-1 text-left truncate cursor-pointer transition-colors ${isSelected ? 'bg-blue-50/50' : 'text-slate-800 hover:bg-slate-100'}`}
-                            >
-                                <div style={{ paddingLeft: `${depth * 12}px` }} className="flex items-center gap-1.5 flex-1 min-w-0">
-                                    {hasChildren ? (
-                                        <button 
-                                            onClick={(e) => { e.stopPropagation(); toggleCategory(cat.id); }} 
-                                            className="w-4 h-4 flex items-center justify-center hover:bg-slate-200 rounded-sm"
-                                        >
-                                            {isExpanded ? <ChevronDown size={14} className="text-slate-500" /> : <ChevronRight size={14} className="text-slate-500" />}
-                                        </button>
-                                    ) : (
-                                        <div className="w-4" />
-                                    )}
-                                    <div className="flex items-center justify-center">
-                                        {isSelected ? <CheckSquare size={14} className="text-[#106ebe]" /> : <Square size={14} className="text-slate-400" />}
-                                    </div>
-                                    <span className={`text-[11px] uppercase truncate ${hasChildren ? 'font-bold' : ''} ${isSelected ? 'text-[#106ebe] font-bold' : 'text-slate-700'}`}>
-                                        {cat.name}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        {hasChildren && isExpanded && (
-                            <div className="mt-0.5">
-                                {renderCategoryTree(cat.id, depth + 1)}
-                            </div>
-                        )}
-                    </div>
-                );
-            });
+    const isCategoryChildOf = (catId: string, parentId: string): boolean => {
+        const cat = categories.find(c => String(c.id) === String(catId));
+        if (!cat) return false;
+        if (String(cat.parent_id) === String(parentId)) return true;
+        if (cat.parent_id) return isCategoryChildOf(cat.parent_id, parentId);
+        return false;
     };
 
     const filteredProducts = products.filter(p => {
         const matchesSearch = p.name.toLowerCase().includes(searchProduct.toLowerCase()) ||
             (p.product_code && p.product_code.toLowerCase().includes(searchProduct.toLowerCase()));
         
-        // Match if product's category is in selected categories, or if its parent category is in selected categories (though toggleCategorySelection covers expanding parents)
-        const matchesCategory = selectedCategories.size > 0 
-            ? selectedCategories.has(p.category_id) || categories.find(c => c.id === p.category_id)?.parent_id && selectedCategories.has(categories.find(c => c.id === p.category_id)!.parent_id as string)
-            : true;
+        // Use menu_category_id since recent DB separation
+        const catId = String(p.menu_category_id || '');
+        const selId = String(selectedCategory || '');
+
+        const matchesCategory = !selectedCategory || 
+            catId === selId || 
+            isCategoryChildOf(catId, selId);
         
-        return matchesSearch && matchesCategory;
+        const matchesBranch = selectedBranch === 'all' || !p.branch_id || p.branch_id === selectedBranch;
+        
+        return matchesSearch && matchesCategory && matchesBranch;
     });
 
     const handleAddProduct = (prod: any) => {
-        if (selectedProducts.find(p => p.id === prod.id)) {
-            notify.info("Este platillo ya se encuentra en el listado.");
-            return;
+        if (!selectedProducts.find(p => p.id === prod.id)) {
+            setSelectedProducts([...selectedProducts, prod]);
         }
-        setSelectedProducts([...selectedProducts, prod]);
     };
 
     const handleRemoveProduct = (id: string) => {
@@ -182,12 +165,9 @@ export const DishesModifiersAssign: React.FC = () => {
     };
 
     const handleAddGroup = (group: any) => {
-        if (selectedGroups.find(g => g.id === group.id)) {
-            notify.info("Este grupo ya se encuentra en el listado.");
-            setShowPicker(false);
-            return;
+        if (!selectedGroups.find(g => g.id === group.id)) {
+            setSelectedGroups([...selectedGroups, { ...group, min_selection: 0, max_selection: 1 }]);
         }
-        setSelectedGroups([...selectedGroups, { ...group, min_selection: 0, max_selection: 1 }]);
         setShowPicker(false);
     };
 
@@ -228,7 +208,7 @@ export const DishesModifiersAssign: React.FC = () => {
                 if (error) throw error;
             }
 
-            notify.success('Asignación masiva completada con éxito');
+            notify.success('Asignación masiva de modificadores completada');
             setSelectedProducts([]);
             setSelectedGroups([]);
         } catch (error: any) {
@@ -244,81 +224,100 @@ export const DishesModifiersAssign: React.FC = () => {
 
     return (
         <div className="flex flex-col h-full bg-[#f0f0f0] font-['Montserrat'] overflow-hidden p-1 gap-1">
+            {/* 1. Filter Bar (Sucursal on Left, Show All on Right) */}
+            <div className="bg-[#f0f0f0] border border-[#ccc] px-2 py-1 flex items-center justify-between shrink-0 shadow-sm z-20">
+                <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Sucursal</span>
+                    <select
+                        value={selectedBranch}
+                        onChange={e => setSelectedBranch(e.target.value)}
+                        className="bg-white border border-gray-400 rounded-sm px-2 py-0.5 text-[10px] font-bold text-slate-700 outline-none focus:border-[#106ebe] min-w-[280px]"
+                    >
+                        <option value="all">TODAS LAS SUCURSALES</option>
+                        {branches.map(b => (
+                            <option key={b.id} value={b.id}>{b.name.toUpperCase()}</option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setSelectedCategory(null)}
+                        className="bg-[#106ebe] hover:bg-[#002244] text-white px-5 py-1.5 border border-[#001a33] text-[10px] font-black uppercase tracking-widest shadow-sm active:translate-y-[1px] transition-all"
+                    >
+                        Mostrar Todos
+                    </button>
+                </div>
+            </div>
+
             {/* Main Panels */}
-            <div className="flex-1 flex gap-1 overflow-hidden">
+            <div className="flex-1 flex gap-1 overflow-hidden relative">
 
                 {/* 1. Categorías Left sidebar */}
-                <aside className="w-[280px] flex flex-col shrink-0 bg-white border border-gray-300 shadow-sm overflow-hidden rounded-sm">
-                    <div className="bg-[#f0f0f0] px-3 py-1.5 flex items-center gap-2 border-b border-gray-300">
-                        <span className="text-slate-800 text-[11px] font-bold uppercase tracking-widest">Categorías de Menú</span>
-                    </div>
-                    <div className="p-1 border-b border-gray-300 bg-[#f8f8f8]">
-                        <div className="flex items-center bg-white border border-gray-300">
-                            <div className="px-2 text-slate-400 border-r border-gray-300 bg-gray-50 text-[10px] h-[22px] flex items-center">
-                                Categoría
-                            </div>
-                            <input
-                                type="text"
-                                value={searchCategory}
-                                onChange={e => setSearchCategory(e.target.value)}
-                                placeholder="..."
-                                className="w-full px-2 py-0.5 text-[10px] font-bold text-slate-700 outline-none uppercase h-[22px]"
-                            />
-                        </div>
-                    </div>
-                    <div className="flex-1 overflow-auto p-1 custom-scrollbar">
-                        {renderCategoryTree()}
-                    </div>
-                </aside>
+                <CategorySidebar 
+                    categories={categories}
+                    selectedId={selectedCategory}
+                    onSelect={setSelectedCategory}
+                    width={sidebarWidth}
+                    onResizeStart={startResizing}
+                    isResizing={isResizing}
+                    showSearch={false}
+                />
+
+                {/* RESIZER HANDLE */}
+                <div 
+                    onMouseDown={startResizing}
+                    className={`w-[3px] h-full cursor-col-resize shrink-0 transition-colors z-50 ${isResizing ? 'bg-[#106ebe]' : 'bg-gray-200 hover:bg-gray-400 opacity-50 hover:opacity-100'}`}
+                    title="Arrastrar para redimensionar"
+                />
 
                 {/* 2. Listado de Platillos Middle Panel */}
-                <section className="flex-1 flex flex-col bg-white border border-gray-300 shadow-sm overflow-hidden rounded-sm">
-                    <div className="bg-[#f0f0f0] px-3 py-1.5 flex items-center justify-between border-b border-gray-300">
+                <section className="flex-1 flex flex-col overflow-hidden">
+                    {/* Header Panel */}
+                    <div className="bg-[#106ebe] px-3 py-1.5 flex items-center justify-between rounded-t-sm">
                         <div className="flex items-center gap-2">
-                            <Layers size={14} className="text-[#106ebe]" />
-                            <span className="text-slate-800 text-[11px] font-bold uppercase tracking-widest">Listado de Platillos</span>
+                            <Layers size={14} className="text-white" />
+                            <span className="text-white text-[10px] font-bold font-black tracking-tight uppercase">Listado de Platillos</span>
                         </div>
-                        <button
-                            onClick={() => setSelectedCategories(new Set())}
-                            className="bg-white text-[#106ebe] px-3 py-0.5 text-[9px] font-black uppercase rounded-sm border border-gray-300 hover:bg-gray-100 transition-colors"
-                        >
-                            Mostrar Todos
-                        </button>
                     </div>
-                    <div className="p-2 border-b border-gray-200 flex gap-1">
-                        <div className="relative group flex-1">
-                            <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" size={12} />
-                            <input
-                                type="text"
-                                value={searchProduct}
-                                onChange={e => setSearchProduct(e.target.value)}
-                                placeholder="INTRODUZCA EL TEXTO A BUSCAR..."
-                                className="w-full pl-7 pr-2 py-1 text-[10px] border border-gray-300 outline-none focus:border-[#106ebe] uppercase font-bold text-slate-700"
-                            />
+
+                    <div className="flex-1 bg-white border border-gray-300 shadow-sm flex flex-col overflow-hidden rounded-b-sm">
+                        <div className="bg-[#f8f9fa] border-b border-gray-200 px-3 py-1.5 flex items-center justify-end gap-2 shrink-0">
+                            <div className="relative flex items-center bg-white border border-gray-300 rounded-sm overflow-hidden shadow-inner">
+                                <input
+                                    type="text"
+                                    value={searchProduct}
+                                    onChange={e => setSearchProduct(e.target.value)}
+                                    placeholder="BUSCAR PRODUCTO..."
+                                    className="px-2 h-[22px] text-[10px] font-bold text-slate-700 outline-none w-64 uppercase bg-transparent"
+                                />
+                                <button className="bg-[#f0f0f0] border-l border-gray-300 px-3 h-[22px] text-[10px] font-black uppercase text-slate-600 hover:bg-[#e1e1e1]">
+                                    BUSCAR
+                                </button>
+                            </div>
                         </div>
-                        <button className="bg-[#106ebe] text-white px-4 text-[10px] font-bold uppercase hover:bg-[#002244] transition-colors rounded-sm">Buscar</button>
-                    </div>
-                    <div className="flex-1 overflow-auto custom-scrollbar">
-                        <table className="w-full border-collapse">
-                            <thead className="sticky top-0 bg-[#e8e8e8] z-10 shadow-sm">
-                                <tr className="h-7 border-b border-gray-300 text-[10px] font-bold uppercase text-slate-700">
-                                    <th className="px-4 text-left border-r border-gray-200">Platillo</th>
-                                    <th className="px-4 text-right w-32 border-r border-gray-200">Precio Venta</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredProducts.map(prod => (
-                                    <tr
-                                        key={prod.id}
-                                        className="h-7 border-b border-gray-50 hover:bg-blue-50/50 cursor-pointer text-[10px] font-bold text-[#106ebe] uppercase"
-                                        onClick={() => handleAddProduct(prod)}
-                                    >
-                                        <td className="px-4 border-r border-gray-100">{prod.name}</td>
-                                        <td className="px-4 text-right border-r border-gray-100">Q{Number(prod.price || 0).toFixed(2)}</td>
+                        <div className="flex-1 overflow-auto custom-scrollbar">
+                            <table className="w-full border-collapse">
+                                <thead className="sticky top-0 bg-[#e8e8e8] z-20 shadow-sm select-none">
+                                    <tr className="h-8 border-b border-gray-400 text-[10px] font-bold uppercase text-black">
+                                        <th className="px-4 text-left border-r border-gray-300">Platillo</th>
+                                        <th className="px-4 text-right w-32 border-r border-gray-300">Precio Venta</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {filteredProducts.map(prod => (
+                                        <tr
+                                            key={prod.id}
+                                            className="h-7 border-b border-gray-50 hover:bg-[#f2f7fb] cursor-pointer text-[10px] font-bold text-slate-900 uppercase"
+                                            onClick={() => handleAddProduct(prod)}
+                                        >
+                                            <td className="px-4 border-r border-gray-100">{prod.name}</td>
+                                            <td className="px-4 text-right border-r border-gray-100 tabular-nums">Q{Number(prod.price || 0).toFixed(2)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
 

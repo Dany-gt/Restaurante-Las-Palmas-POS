@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, RotateCcw, Loader2, Baseline, ArrowUpDown, Filter, Plus, Edit3, Trash2, Save, X } from 'lucide-react';
 import { supabase } from '../../supabase';
 import { DraggableWindow } from './AdminPortal';
@@ -61,14 +62,16 @@ export const DishesModifiersList: React.FC = () => {
         setLoading(false);
     };
 
-    const handleContextMenu = (e: React.MouseEvent, item: any) => {
+    const handleContextMenu = (e: React.MouseEvent, item: any | null) => {
         e.preventDefault();
+        e.stopPropagation();
         setContextMenu({
             visible: true,
-            x: e.pageX,
-            y: e.pageY,
+            x: e.clientX,
+            y: e.clientY,
             item
         });
+        if (item) setSelectedId(item.id);
     };
 
     const closeContextMenu = () => {
@@ -197,7 +200,7 @@ export const DishesModifiersList: React.FC = () => {
             </div>
 
             {/* Table Area */}
-            <div className="flex-1 overflow-auto custom-scrollbar">
+            <div className="flex-1 overflow-auto custom-scrollbar" onContextMenu={(e) => handleContextMenu(e, null)}>
                 {loading ? (
                     <div className="h-full flex flex-col items-center justify-center text-slate-400 gap-4">
                         <Loader2 size={32} className="animate-spin text-[#106ebe]" />
@@ -264,9 +267,15 @@ export const DishesModifiersList: React.FC = () => {
                 </div>
             </div>
             {/* Context Menu */}
-            {contextMenu.visible && (
+            {contextMenu.visible && createPortal(
+                <>
                 <div
-                    className="fixed z-[100] w-44 bg-white border border-gray-300 shadow-xl overflow-hidden py-1 select-none"
+                    className="fixed inset-0 z-[99999]"
+                    onClick={closeContextMenu}
+                    onContextMenu={(e) => { e.preventDefault(); closeContextMenu(); }}
+                />
+                <div
+                    className="fixed z-[100000] w-44 bg-white border border-gray-300 shadow-xl overflow-hidden py-1 select-none font-['Montserrat']"
                     style={{ top: contextMenu.y, left: contextMenu.x }}
                 >
                     <button
@@ -276,21 +285,25 @@ export const DishesModifiersList: React.FC = () => {
                         <Plus size={14} className="text-green-600 group-hover:text-inherit" />
                         Nuevo
                     </button>
-                    <button
-                        onClick={() => handleEdit(contextMenu.item)}
-                        className="w-full h-8 px-4 flex items-center gap-3 hover:bg-[#106ebe] hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
-                    >
-                        <Edit3 size={14} className="text-blue-600 group-hover:text-inherit" />
-                        Editar
-                    </button>
-                    <button
-                        onClick={() => handleDelete(contextMenu.item)}
-                        className="w-full h-8 px-4 flex items-center gap-3 hover:bg-red-600 hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
-                    >
-                        <Trash2 size={14} className="text-red-500 group-hover:text-inherit" />
-                        Eliminar
-                    </button>
-                    <div className="h-px bg-gray-200 my-1" />
+                    {contextMenu.item && (
+                        <>
+                        <button
+                            onClick={() => handleEdit(contextMenu.item)}
+                            className="w-full h-8 px-4 flex items-center gap-3 hover:bg-[#106ebe] hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
+                        >
+                            <Edit3 size={14} className="text-blue-600 group-hover:text-inherit" />
+                            Editar
+                        </button>
+                        <button
+                            onClick={() => handleDelete(contextMenu.item)}
+                            className="w-full h-8 px-4 flex items-center gap-3 hover:bg-red-600 hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
+                        >
+                            <Trash2 size={14} className="text-red-500 group-hover:text-inherit" />
+                            Eliminar
+                        </button>
+                        </>
+                    )}
+                    <div className="h-px bg-gray-200 my-1 font-normal" />
                     <button
                         onClick={fetchData}
                         className="w-full h-8 px-4 flex items-center gap-3 hover:bg-[#106ebe] hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
@@ -299,6 +312,8 @@ export const DishesModifiersList: React.FC = () => {
                         Refrescar
                     </button>
                 </div>
+                </>,
+                document.body
             )}
 
             {/* Maintenance Modal */}

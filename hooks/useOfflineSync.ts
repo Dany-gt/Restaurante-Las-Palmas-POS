@@ -75,6 +75,13 @@ export const useOfflineSync = () => {
 
         setIsSyncing(true);
         try {
+            // v1.6.5: Validar sesión antes de procesar para evitar errores 403 silenciosos
+            const sessionValid = await ensureSessionValid();
+            if (!sessionValid) {
+                console.warn('📡 useOfflineSync: Sincronización cancelada - Sesión inválida/expirada.');
+                return;
+            }
+
             for (const record of pending) {
                 try {
                     const success = await processRecord(record);

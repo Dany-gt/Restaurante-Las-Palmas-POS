@@ -32,12 +32,21 @@ export function useDomainCategories({
     const [categories, setCategories] = useState<DomainCategory[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const extraFiltersString = JSON.stringify(extraFilters);
+
     const load = useCallback(async () => {
         setLoading(true);
+        console.log(`[useDomainCategories] Loading ${table}...`);
         let q = supabase.from(table).select('*').order(orderBy);
-        Object.entries(extraFilters).forEach(([k, v]) => { q = q.eq(k, v); });
+        
+        // Aplicar filtros extra si existen
+        const filters = JSON.parse(extraFiltersString);
+        Object.entries(filters).forEach(([k, v]) => { q = q.eq(k, v); });
+        
         const { data, error } = await q;
-        if (!error && data) {
+        if (error) {
+            console.error(`[useDomainCategories] Error loading ${table}:`, error);
+        } else if (data) {
             // Normalizar: mapear nameField → nombre para uso uniforme en UI
             const normalized = (data as any[]).map(row => ({
                 ...row,
@@ -46,7 +55,7 @@ export function useDomainCategories({
             setCategories(normalized);
         }
         setLoading(false);
-    }, [table, orderBy, nameField]);     // nameField como dependencia
+    }, [table, orderBy, extraFiltersString, nameField]);
 
     useEffect(() => { load(); }, [load]);
 
@@ -78,9 +87,28 @@ export function useDomainCategories({
         await load();
     }, [table, load, nameField]);
 
-    const remove = useCallback(async (id: string) => {
-        const { error } = await supabase.from(table).delete().eq('id', id);
-        if (error) throw error;
+    const remove = useCallback(async (id: string, forceHardDelete = false) => {
+        console.log(`[useDomainCategories] Attempting to remove ${id} from ${table}...`);
+        
+        if (forceHardDelete) {
+            const { error } = await supabase.from(table).delete().eq('id', id);
+            if (error) throw error;
+        } else {
+            // Estrategia: Intentar delete, si falla por FK o RLS, intentar soft-delete si la columna existe
+            const { error, count } = await supabase.from(table).delete({ count: 'exact' }).eq('id', id);
+            
+            // Si no se borró nada (count 0) o hubo error de integridad, intentamos soft-delete
+            if (error || count === 0) {
+                console.warn(`[useDomainCategories] Hard delete failed or affected 0 rows (Error: ${error?.message}, Code: ${error?.code}). Trying soft-delete...`);
+                // Intentar soft-delete como fallback robusto
+                const { error: softError } = await supabase.from(table).update({ activo: false }).eq('id', id);
+                if (softError) {
+                    console.error(`[useDomainCategories] Soft delete also failed:`, softError);
+                    throw error || softError;
+                }
+            }
+        }
+        
         await load();
     }, [table, load]);
 

@@ -111,23 +111,23 @@ export const useDataSync = () => {
             if (categories) {
                 // Combined categories from all 3 tables to bridge legacy, maintenance and menu systems
                 const finalCombined = [
-                    ...(categories || []).map(c => ({ 
-                        ...c, 
-                        order_index: c.order_index ?? 999 
+                    ...(menuCats || []).map(c => ({
+                        ...c,
+                        name: c.nombre || c.name,
+                        image_url: c.imagen_url || c.image_url,
+                        section: c.section || 'MENU',
+                        order_index: c.sort_order ?? c.order_index ?? 999
                     })),
                     ...(prodCats || []).map(c => ({ 
                         ...c, 
                         name: c.nombre || c.name, 
                         image_url: c.imagen_url || c.image_url,
                         section: c.section || 'INVENTARIO',
-                        order_index: c.sort_order ?? 999
+                        order_index: c.sort_order ?? c.order_index ?? 999
                     })),
-                    ...(menuCats || []).map(c => ({
-                        ...c,
-                        name: c.nombre || c.name,
-                        image_url: c.imagen_url || c.image_url,
-                        section: c.section || 'MENU',
-                        order_index: c.sort_order ?? 999
+                    ...(categories || []).map(c => ({ 
+                        ...c, 
+                        order_index: c.order_index ?? c.sort_order ?? 999 
                     }))
                 ];
 

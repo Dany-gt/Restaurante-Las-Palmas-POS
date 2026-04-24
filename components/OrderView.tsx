@@ -540,7 +540,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         // HYBRID PRINTING LOGIC:
         // If Electron (Cashier/Server) -> Print Directly
         // If Tablet/Mobile -> Request Print via DB
-        if ((window as any).electron) {
+        const isElectron = !!((window as any).electronAPI || (window as any).electron);
+        if (isElectron) {
             await printService.printPreAccountTicket(ticketData);
         } else {
             // Request Remote Print
@@ -2030,17 +2031,25 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 const seen = new Set();
                                                 return categories
                                                     .filter(c => !c.parent_id && c.section !== 'INVENTARIO')
+                                                    .sort((a, b) => {
+                                                        // 1. Prioridad por Sección (MENU > otros)
+                                                        const scoreA = a.section === 'MENU' ? 0 : 1;
+                                                        const scoreB = b.section === 'MENU' ? 0 : 1;
+                                                        if (scoreA !== scoreB) return scoreA - scoreB;
+
+                                                        // 2. Prioridad por Índice de Orden Manual
+                                                        const orderA = a.order_index ?? a.sort_order ?? a.priority ?? 999;
+                                                        const orderB = b.order_index ?? b.sort_order ?? b.priority ?? 999;
+                                                        if (orderA !== orderB) return Number(orderA) - Number(orderB);
+
+                                                        // 3. Alfabético
+                                                        return (a.name || '').localeCompare(b.name || '');
+                                                    })
                                                     .filter(c => {
-                                                        const key = c.name?.toUpperCase();
-                                                        if (seen.has(key)) return false;
+                                                        const key = (c.name || '').trim().toUpperCase();
+                                                        if (!key || seen.has(key)) return false;
                                                         seen.add(key);
                                                         return true;
-                                                    })
-                                                    .sort((a, b) => {
-                                                        const orderA = a.order_index ?? 999;
-                                                        const orderB = b.order_index ?? 999;
-                                                        if (orderA !== orderB) return orderA - orderB;
-                                                        return (a.name || '').localeCompare(b.name || '');
                                                     })
                                                     .map(cat => (
                                                         <button key={cat.id} onClick={() => setSelectedCat(cat)} className="aspect-square bg-[#3a3b4d] rounded-2xl p-4 flex flex-col items-center justify-between border-2 border-white/5 hover:border-indigo-500/50 hover:bg-[#45465e] active:scale-95 transition-all shadow-xl group">
@@ -2062,9 +2071,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         {categories
                                             .filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO')
                                             .sort((a, b) => {
-                                                const orderA = a.order_index ?? 999;
-                                                const orderB = b.order_index ?? 999;
-                                                if (orderA !== orderB) return orderA - orderB;
+                                                const orderA = a.order_index ?? a.sort_order ?? a.priority ?? 999;
+                                                const orderB = b.order_index ?? b.sort_order ?? b.priority ?? 999;
+                                                if (orderA !== orderB) return Number(orderA) - Number(orderB);
                                                 return (a.name || '').localeCompare(b.name || '');
                                             })
                                             .map(sub => (

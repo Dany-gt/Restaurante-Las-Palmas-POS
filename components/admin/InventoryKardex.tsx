@@ -70,7 +70,7 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
         const fetchMeta = async () => {
             const [bRes, iRes, pRes] = await Promise.all([
                 supabase.from('branches').select('id, name').order('name'),
-                supabase.from('inventory_items').select('id, name, nombre').order('nombre'),
+                supabase.from('inventory_items').select('id, name, nombre').order('name'),
                 supabase.from('products').select('id, name, nombre').eq('es_platillo', false).order('name')
             ]);
             
@@ -204,7 +204,7 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
             return {
                 'Fecha/Hora': new Date(r.created_at).toLocaleString('es-GT'),
                 'Sucursal': branch?.name || '',
-                'Producto': prod?.name || '---',
+                'Producto': prod?.display_name || prod?.name || '---',
                 'Código': (prod as any)?.code || (prod as any)?.product_code || '',
                 'Tipo Movimiento': r.movement_type,
                 'Referencia': friendyRef,
@@ -245,7 +245,7 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
             <tr>
                 <td>${new Date(r.created_at).toLocaleString('es-GT')}</td>
                 <td>${branch?.name || '—'}</td>
-                <td>${prod?.name || '—'}</td>
+                <td>${prod?.display_name || prod?.name || '—'}</td>
                 <td style="text-align:center">${r.movement_type}</td>
                 <td>${(() => {
                     const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
@@ -536,7 +536,7 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                                             <td className="px-3 py-2 max-w-[180px]">
                                                 <div className="flex flex-col">
                                                     <span className="text-[10px] font-black text-slate-800 uppercase truncate">
-                                                        {prod?.name || row.inventory_items?.name || row.products?.name || '—'}
+                                                        {prod?.display_name || prod?.name || row.inventory_items?.nombre || row.inventory_items?.name || row.products?.name || '—'}
                                                     </span>
                                                     {((prod as any)?.product_code || (prod as any)?.code || row.inventory_items?.code || row.products?.product_code) && (
                                                         <span className="text-[8px] font-bold text-slate-400">

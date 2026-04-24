@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Save, Plus, Trash2 } from 'lucide-react';
+import { X, Save, Plus, Trash2, ChefHat, FileText, Printer, Sparkles, Loader2, BookOpen, Layers, AlertCircle } from 'lucide-react';
 import { DraggableWindow } from '../shared/DraggableWindow';
 import { WindowsSaveButton } from '../../WindowsSaveButton';
 
@@ -70,6 +70,8 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
     recipeItems = [], setRecipeItems, searchModal, setRecipeContextMenu
 }) => {
     const [activeTab, setActiveTab] = useState<'sucursales' | 'receta'>('sucursales');
+    const [showFichaModal, setShowFichaModal] = useState(false);
+    const [isImproving, setIsImproving] = useState(false);
 
     if (!isOpen || !newProduct) return null;
 
@@ -141,6 +143,34 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
         setBranchInventory(safeBranchInventory.map(bi => 
             bi.branch_id === branchId ? { ...bi, [key]: value } : bi
         ));
+    };
+
+    const handleImproveText = async (field: 'prep_procedure' | 'observations') => {
+        const textToImprove = newProduct[field];
+        if (!textToImprove) return;
+        setIsImproving(true);
+        try {
+            const systemPrompt = 'Eres un experto en redacción técnica culinaria. ' +
+                'Revisa el siguiente texto para corregir errores ortográficos, gramaticales y de puntuación, mejorando la fluidez sin alterar el contenido original. ' +
+                'Devuelve ÚNICAMENTE el texto corregido.';
+            const response = await fetch('/api/ai/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'gemini-2.0-flash',
+                    prompt: systemPrompt + '\n\nTEXTO A MEJORAR:\n' + textToImprove,
+                    temperature: 0.3
+                })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.text) setNewProduct({ ...newProduct, [field]: data.text.trim() });
+            }
+        } catch (error) {
+            console.error('Error improving text:', error);
+        } finally {
+            setIsImproving(false);
+        }
     };
 
     return createPortal(
@@ -215,11 +245,16 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                             options={[
                                                 {value: 'Frasco', label: 'Frasco'},
                                                 {value: 'Botella', label: 'Botella'},
+                                                {value: 'Bote', label: 'Bote'},
                                                 {value: 'Caja', label: 'Caja'},
                                                 {value: 'Saco', label: 'Saco'},
                                                 {value: 'Bolsa', label: 'Bolsa'},
+                                                {value: 'Sobre', label: 'Sobre'},
                                                 {value: 'Lata', label: 'Lata'},
                                                 {value: 'Galón', label: 'Galón'},
+                                                {value: 'Litro', label: 'Litro'},
+                                                {value: 'Tonel', label: 'Tonel'},
+                                                {value: 'Bidón', label: 'Bidón'},
                                                 {value: 'Garrafón', label: 'Garrafón'},
                                                 {value: 'Paquete', label: 'Paquete'},
                                                 {value: 'Unidad', label: 'Unidad'}
@@ -307,7 +342,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                     </div>
                                     
                                     {/* Tab Content Area */}
-                                    <div className="bg-white border border-gray-300 border-t-0 p-2 h-[180px] flex flex-col z-10 relative">
+                                    <div className="bg-white border border-gray-300 border-t-0 p-2 h-[320px] flex flex-col z-10 relative">
                                         {activeTab === 'sucursales' && (
                                             <div className="flex-1 border border-gray-300 overflow-y-auto custom-scrollbar flex flex-col">
                                                 <table className="w-full border-collapse">
@@ -394,6 +429,22 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                                                     <table className="w-full border-collapse">
                                                         <thead className="sticky top-0 z-10 select-none bg-[#f0f0f0]">
+                                                            <tr className="h-[22px]">
+                                                                <th className="px-2 border-r border-b border-gray-400 bg-white" colSpan={5}>
+                                                                    <div className="flex items-center justify-between py-1">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <BookOpen size={13} className="text-[#106ebe]" />
+                                                                            <span className="text-[10px] font-bold text-slate-700 uppercase">Insumos de Receta</span>
+                                                                        </div>
+                                                                        <button 
+                                                                            onClick={() => setShowFichaModal(true)}
+                                                                            className="bg-white border border-gray-400 text-slate-700 px-3 h-5 text-[9px] font-bold uppercase tracking-tight flex items-center gap-2 rounded-sm shadow-sm hover:bg-gray-50"
+                                                                        >
+                                                                            <FileText size={12} className="text-[#106ebe]" /> Ficha Técnica Pro
+                                                                        </button>
+                                                                    </div>
+                                                                </th>
+                                                            </tr>
                                                             <tr className="h-[22px]">
                                                                 <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-left">Producto</th>
                                                                 <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Cantidad</th>
@@ -553,6 +604,161 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                 </div>
                             </div>
                         </div>
+
+                        {/* Ficha Técnica Modal Tal como en Platillos */}
+                        {showFichaModal && createPortal(
+                            <div className="fixed inset-0 z-[3000000] flex items-center justify-center p-4 bg-black/5">
+                                <DraggableWindow>
+                                    <div className="bg-white border border-[#106ebe] shadow-[0_0_40px_rgba(0,0,0,0.5)] w-[900px] h-[85vh] flex flex-col overflow-hidden rounded-sm animate-in zoom-in-95 duration-200">
+                                        {/* Header Style Dish Modal */}
+                                        <div className="bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 modal-header cursor-move shadow-md">
+                                            <div className="flex items-center gap-2">
+                                                <ChefHat size={14} className="text-white" />
+                                                <span className="text-[11px] font-bold uppercase tracking-tight">Ficha Técnica: {newProduct.name || 'NUEVA'}</span>
+                                            </div>
+                                            <div className="flex items-center h-full">
+                                                <button
+                                                    onClick={() => window.print()}
+                                                    className="h-full px-4 flex items-center gap-2 hover:bg-white/10 text-white border-r border-white/10 text-[9px] font-bold uppercase"
+                                                >
+                                                    <Printer size={14} /> IMPRIMIR
+                                                </button>
+                                                <button onClick={() => setShowFichaModal(false)} className="h-8 w-8 flex items-center justify-center hover:bg-red-500 text-white transition-colors">
+                                                    <X size={18} />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Main Content: Dish Style */}
+                                        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-white">
+                                            <div className="max-w-4xl mx-auto flex flex-col gap-8">
+                                                
+                                                {/* Specifications */}
+                                                <div className="grid grid-cols-12 gap-6">
+                                                    <div className="col-span-12 grid grid-cols-3 gap-4">
+                                                        <div className="flex flex-col gap-1">
+                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Clasificación</label>
+                                                            <input
+                                                                type="text"
+                                                                value={newProduct.classification || ''}
+                                                                onChange={(e) => setNewProduct({ ...newProduct, classification: e.target.value.toUpperCase() })}
+                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
+                                                                placeholder="EJ. PRODUCTO TERMINADO"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col gap-1">
+                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">No. de Receta</label>
+                                                            <input
+                                                                type="text"
+                                                                value={newProduct.recipe_no || ''}
+                                                                onChange={(e) => setNewProduct({ ...newProduct, recipe_no: e.target.value.toUpperCase() })}
+                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
+                                                                placeholder="R-001"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col gap-1">
+                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Porciones</label>
+                                                            <input
+                                                                type="text"
+                                                                value={newProduct.portions || '1'}
+                                                                onChange={(e) => setNewProduct({ ...newProduct, portions: e.target.value })}
+                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all text-center"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col gap-1">
+                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tamaño Porción</label>
+                                                            <input
+                                                                type="text"
+                                                                value={newProduct.portion_size || ''}
+                                                                onChange={(e) => setNewProduct({ ...newProduct, portion_size: e.target.value.toUpperCase() })}
+                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col gap-1">
+                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Temp. Servicio</label>
+                                                            <input
+                                                                type="text"
+                                                                value={newProduct.serving_temp || ''}
+                                                                onChange={(e) => setNewProduct({ ...newProduct, serving_temp: e.target.value.toUpperCase() })}
+                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col gap-1">
+                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tiempo Elab.</label>
+                                                            <input
+                                                                type="text"
+                                                                value={newProduct.prep_time || ''}
+                                                                onChange={(e) => setNewProduct({ ...newProduct, prep_time: e.target.value })}
+                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
+                                                                placeholder="15 MIN"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col gap-1 col-span-3">
+                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-left">Elaborado Por</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={newProduct.prepared_by || ''}
+                                                                onChange={e => setNewProduct({...newProduct, prepared_by: e.target.value.toUpperCase()})}
+                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase" 
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Procedure */}
+                                                <div className="flex flex-col gap-4">
+                                                    <div className="flex justify-between items-center border-b-2 border-[#106ebe]/10 pb-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <Layers size={16} className="text-[#106ebe]" />
+                                                            <h4 className="text-[12px] font-black text-slate-700 uppercase tracking-wider">Procedimientos de Preparación</h4>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => handleImproveText('prep_procedure')}
+                                                            disabled={isImproving}
+                                                            className="flex items-center gap-2 px-4 py-1.5 bg-[#f0f9ff] text-[#106ebe] border border-blue-200 rounded-full text-[10px] font-black uppercase hover:bg-[#106ebe] hover:text-white transition-all disabled:opacity-50 shadow-sm"
+                                                        >
+                                                            {isImproving ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />} IA
+                                                        </button>
+                                                    </div>
+                                                    <textarea
+                                                        value={newProduct.prep_procedure || ''}
+                                                        onChange={(e) => setNewProduct({ ...newProduct, prep_procedure: e.target.value.toUpperCase() })}
+                                                        className="w-full h-[200px] p-6 text-[12px] leading-relaxed font-bold text-slate-700 bg-slate-50 border border-slate-200 outline-none focus:border-[#106ebe] focus:shadow-xl transition-all rounded-xl uppercase custom-scrollbar"
+                                                        placeholder="DESCRIPCIÓN DE PASOS..."
+                                                    />
+                                                </div>
+
+                                                {/* Observations */}
+                                                <div className="flex flex-col gap-3">
+                                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                                        <AlertCircle size={12} /> Observaciones y Notas Técnicas
+                                                    </label>
+                                                    <textarea
+                                                        value={newProduct.observations || ''}
+                                                        onChange={(e) => setNewProduct({ ...newProduct, observations: e.target.value.toUpperCase() })}
+                                                        className="w-full h-[80px] p-4 text-[11px] font-bold text-slate-600 bg-amber-50/30 border border-amber-100 outline-none focus:border-amber-400 rounded-lg uppercase custom-scrollbar"
+                                                        placeholder="NOTAS ADICIONALES..."
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Footer */}
+                                        <div className="h-16 bg-slate-50 border-t border-slate-200 px-8 flex justify-end items-center shrink-0">
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    onClick={() => setShowFichaModal(false)}
+                                                    className="px-12 py-3 bg-[#106ebe] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#002244] transition-all shadow-lg active:scale-95 flex items-center gap-3"
+                                                >
+                                                    <Save size={16} /> Guardar Ficha
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </DraggableWindow>
+                            </div>,
+                            document.body
+                        )}
                     </div>
                 </DraggableWindow>
             </div>

@@ -17,6 +17,7 @@ import { WindowsSaveButton } from '../WindowsSaveButton';
 import { WindowsConfirmModal } from '../WindowsConfirmModal';
 import { registrarAuditoria, detectarCambios } from '../../services/auditService';
 import { activityLogService } from '../../services/ActivityLogService';
+import { CategorySidebar } from './shared/CategorySidebar';
 
 export const MenuAdmin: React.FC = () => {
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -276,70 +277,25 @@ export const MenuAdmin: React.FC = () => {
     });
   };
 
-  const toggleCategory = (id: string) => {
-    const next = new Set(expandedCategories);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    setExpandedCategories(next);
-  };
 
-  const renderCategoryTree = (parentId: string | null = null, depth = 0) => {
-    return categories
-      .filter(c => c.parent_id === parentId)
-      .filter(c => {
-        const matchesSearch = c.name.toLowerCase().includes(searchCategory.toLowerCase());
-        const matchesBranch = selectedBranch === 'all' || !c.branch_id || c.branch_id === selectedBranch;
-        return matchesSearch && matchesBranch;
-      })
-      .map(cat => {
-        const hasChildren = categories.some(c => c.parent_id === cat.id);
-        const isExpanded = expandedCategories.has(cat.id);
-        const isSelected = selectedCategory === cat.id;
-
-        return (
-          <div key={cat.id} className="flex flex-col">
-            <div className="flex items-center">
-              <button
-                onClick={() => {
-                  setSelectedCategory(isSelected ? null : cat.id);
-                  if (hasChildren) toggleCategory(cat.id);
-                }}
-                onContextMenu={(e) => handleShowContextMenu(e, 'category', cat)}
-                className={`flex-1 flex items-center gap-1.5 px-2 py-1 rounded-sm text-left transition-none ${isSelected ? 'bg-[#106ebe] text-white' : 'text-slate-700 hover:bg-[#e1e5eb]'}`}
-              >
-                <div style={{ paddingLeft: `${depth * 0.75}rem` }} className="flex items-center gap-1.5 flex-1">
-                  {hasChildren ? (
-                    <div className="w-3 h-3 flex items-center justify-center border border-gray-400 bg-white mr-0.5">
-                      {isExpanded ? <span className="text-[10px] font-bold text-gray-600 leading-none mt-[-1px]">-</span> : <span className="text-[10px] font-bold text-gray-600 leading-none mt-[-1px]">+</span>}
-                    </div>
-                  ) : (
-                    <div className="w-4"></div>
-                  )}
-                  {hasChildren ? (isExpanded ? <FolderOpen size={14} className={isSelected ? 'text-white' : 'text-amber-500'} /> : <Folder size={14} className={isSelected ? 'text-white' : 'text-amber-500'} />) : <Package size={13} className={isSelected ? 'text-white' : 'text-slate-400'} />}
-                  <span className={`text-[10px] font-bold uppercase tracking-tight truncate ${isSelected ? 'text-white' : 'text-slate-800'}`}>
-                    {cat.name}
-                  </span>
-                </div>
-              </button>
-            </div>
-            {hasChildren && isExpanded && (
-              <div className="mt-0.5">
-                {renderCategoryTree(cat.id, depth + 1)}
-              </div>
-            )}
-          </div>
-        );
-      });
+  const isCategoryChildOf = (catId: string, parentId: string): boolean => {
+    const cat = categories.find(c => String(c.id) === String(catId));
+    if (!cat) return false;
+    if (String(cat.parent_id) === String(parentId)) return true;
+    if (cat.parent_id) return isCategoryChildOf(cat.parent_id, parentId);
+    return false;
   };
 
   const filteredProducts = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchProduct.toLowerCase()) ||
       (p.product_code && p.product_code.toLowerCase().includes(searchProduct.toLowerCase()));
 
-    // Si hay una categoría seleccionada, buscar si el producto pertenece a ella o a alguna subcategoría de la misma
-    const matchesCategory = selectedCategory
-      ? p.category_id === selectedCategory || categories.find(c => c.id === p.category_id)?.parent_id === selectedCategory
-      : true;
+    const catId = String(p.category_id || '');
+    const selId = String(selectedCategory || '');
+
+    const matchesCategory = !selectedCategory || 
+      catId === selId || 
+      isCategoryChildOf(catId, selId);
 
     const matchesBranch = selectedBranch === 'all' || !p.branch_id || p.branch_id === selectedBranch;
 
@@ -825,31 +781,16 @@ export const MenuAdmin: React.FC = () => {
             </div>
           ) : (
             <>
-              {/* Sidebar: Categorías de Menú */}
-              <aside 
-                className={`${isMobile ? (showMobileCategories ? 'flex h-1/2' : 'hidden') : 'flex'} flex-col shrink-0`}
-                style={!isMobile ? { width: `${sidebarWidth}px` } : {}}
-              >
-                <div className="bg-[#106ebe] px-3 py-1.5 flex items-center justify-between rounded-t-sm">
-                  <div className="flex items-center gap-2">
-                    <Folder size={14} className="text-white" />
-                    <span className="text-white text-[10px] font-bold font-black tracking-tight uppercase">Categorías de Menú</span>
-                  </div>
-                </div>
-                <div className="flex-1 bg-white border border-gray-300 shadow-sm flex flex-col overflow-hidden">
-                  <div className="bg-[#f8f9fa] border-b border-gray-200 px-3 py-1">
-                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Categoría</span>
-                  </div>
-                  <div
-                    className="flex-1 overflow-y-auto p-2 custom-scrollbar"
-                    onContextMenu={(e) => {
-                      handleShowContextMenu(e, 'category', null);
-                    }}
-                  >
-                    {renderCategoryTree()}
-                  </div>
-                </div>
-              </aside>
+              <CategorySidebar 
+                categories={categories}
+                selectedId={selectedCategory}
+                onSelect={(id) => setSelectedCategory(id)}
+                width={sidebarWidth}
+                onResizeStart={startResizing}
+                isResizing={isResizing}
+                onContextMenuCategory={(e, cat) => handleShowContextMenu(e, 'category', cat)}
+                showSearch={false}
+              />
 
               {/* RESIZER HANDLE */}
               {!isMobile && (

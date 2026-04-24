@@ -41,9 +41,10 @@ class PrintService {
   // ─── CONNECTION HELPERS ───────────────────────────────────────────
 
   async checkConnection(ip: string, port: number = 9100): Promise<boolean> {
-    if (!this.isElectron()) return false;
+    const electron = (window as any).electronAPI || (window as any).electron;
+    if (!electron) return false;
     try {
-      return await (window as any).electron.checkConnection(ip, port);
+      return await electron.checkConnection(ip, port);
     } catch (e) {
       console.error('Check connection failed:', e);
       return false;
@@ -247,7 +248,7 @@ class PrintService {
   }
 
   private isElectron(): boolean {
-    return !!(window && (window as any).electron);
+    return !!(window && ((window as any).electronAPI || (window as any).electron));
   }
 
   // ─── EXECUTE PRINT ────────────────────────────────────────────────
@@ -287,32 +288,33 @@ class PrintService {
     }
 
     // SYSTEM printer (Windows driver)
-    if ((window as any).electron) {
+    const electron = (window as any).electronAPI || (window as any).electron;
+    if (electron && electron.printHtml) {
       const sys = await this.getSystemPrinter();
       if (sys) {
         console.log('Printing to SYSTEM printer:', sys.name, 'Size:', sys.paperWidth, 'Silent:', silent);
-        const r = await (window as any).electron.printHtml(html, sys.name, silent);
+        const r = await electron.printHtml(html, sys.name, silent);
         if (r.success) { console.log('✅ Printed via SYSTEM:', sys.name); return; }
         console.warn('SYSTEM printer failed:', r.error);
       }
     }
 
     // NETWORK printer (TCP)
-    if ((window as any).electron?.printToNetwork) {
+    if (electron && electron.printToNetwork) {
       const net = await this.getNetworkPrinter();
       if (net) {
         console.log('Printing to NETWORK:', net.address);
-        const r = await (window as any).electron.printToNetwork(net.address, net.port, html);
+        const r = await electron.printToNetwork(net.address, net.port, html);
         if (r.success) { console.log('✅ Printed via NETWORK:', net.address); return; }
         console.warn('NETWORK print failed:', r.error);
       }
     }
 
     // Saved local printer fallback
-    if ((window as any).electron) {
+    if (electron && electron.printHtml) {
       const saved = localStorage.getItem('pos_printer_name');
       const pName = saved && saved !== 'null' ? saved : undefined;
-      const r = await (window as any).electron.printHtml(html, pName, silent);
+      const r = await electron.printHtml(html, pName, silent);
       if (r.success) return;
     }
 
@@ -321,9 +323,10 @@ class PrintService {
   }
 
   async printToSpecificIP(ip: string, html: string): Promise<boolean> {
-    if (!this.isElectron()) return false;
+    const electron = (window as any).electronAPI || (window as any).electron;
+    if (!electron || !electron.printToNetwork) return false;
     try {
-      const r = await (window as any).electron.printToNetwork(ip, 9100, html);
+      const r = await electron.printToNetwork(ip, 9100, html);
       return r.success;
     } catch { return false; }
   }
@@ -377,8 +380,8 @@ class PrintService {
       if (targetInfo.type === 'NETWORK') {
         return await this.printToSpecificIP(targetInfo.target, html);
       } else if (targetInfo.type === 'SYSTEM') {
-        if (this.isElectron()) {
-          const r = await (window as any).electron.printHtml(html, targetInfo.target, true); // Kitchen is always silent
+        if (electron && electron.printHtml) {
+          const r = await electron.printHtml(html, targetInfo.target, true); // Kitchen is always silent
           return r.success;
         }
       }
@@ -884,7 +887,8 @@ class PrintService {
       }
 
       // 2. Local ESC/POS (Electron)
-      if (this.isElectron() && (window as any).electron.openCashDrawer) {
+      const electron = (window as any).electronAPI || (window as any).electron;
+      if (this.isElectron() && electron && electron.openCashDrawer) {
         // Try to find a printer explicitly configured for cash drawer
         const { data: drawerPrinter } = await supabase
           .from('printers')
@@ -902,7 +906,8 @@ class PrintService {
           type = drawerPrinter.connection_type;
         }
 
-        const r = await (window as any).electron.openCashDrawer({ target, type });
+        const electron = (window as any).electronAPI || (window as any).electron;
+        const r = await electron.openCashDrawer({ target, type });
         if (r.success) {
           console.log('✅ Cash drawer pulse sent successfully.');
           return;
