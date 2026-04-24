@@ -24,3 +24,12 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# Build and Release
+release/
+build/
+out/
+.next/
+.capacitor/
+android/app/build/
+ios/App/App/build/
