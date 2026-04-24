@@ -170,16 +170,15 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
             const cachedProductsStr = localStorage.getItem('cached_products');
             const cachedCategoriesStr = localStorage.getItem('cached_categories');
 
-            let allAvailable: any[] = [];
+            let allAvailable: Product[] = [];
 
-            // 1. Intentar desde Cache (si existe y es válido)
+            // 1. Intentar desde Cache (Super Rápido)
             if (cachedProductsStr && cachedCategoriesStr) {
                 try {
                     const pcats = JSON.parse(cachedCategoriesStr);
                     const prodCats = pcats.filter((c: any) => {
                         const n = (c.nombre || c.name || '').toUpperCase();
-                        // Normalizar para ignorar acentos básicos si es posible, o buscar ambos
-                        return n === 'PRODUCCION' || n === 'PRODUCCIÓN' || n.includes('PROD');
+                        return n.includes('PRODUC');
                     });
 
                     if (prodCats.length > 0) {
@@ -194,49 +193,41 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                         );
                         allAvailable = filtered.map((p: any) => ({
                             id: p.id,
-                            nombre: p.name || p.nombre,
-                            descripcion: p.description || p.descripcion || '',
+                            nombre: p.name || p.nombre || 'Sin nombre',
+                            descripcion: p.description || '',
                             categoria: 'PRODUCCION',
-                            precio_venta: p.price || p.precio_venta
+                            precio_venta: p.price
                         }));
                     }
                 } catch (e) { console.warn('Cache parse error', e); }
             }
 
-            // 2. Si no hay nada en cache, buscar en la DB (Tablas nuevas y viejas)
+            // 2. Si no hay cache o está vacío, consultar DB de forma consolidada
             if (allAvailable.length === 0) {
-                // Buscar en las 3 posibles tablas de categorías
+                const searchStrings = ['PRODUCCION', 'PRODUCCIÓN'];
                 const [menuRes, prodRes, oldRes] = await Promise.all([
-                    supabase.from('menu_categories').select('id, nombre').ilike('nombre', 'PRODUCCION').limit(5),
-                    supabase.from('product_categories').select('id, nombre').ilike('nombre', 'PRODUCCION').limit(5),
-                    supabase.from('categories').select('id, name').ilike('name', 'PRODUCCION').limit(5)
-                ]);
-
-                // También intentar con tilde
-                const [menuResAcc, prodResAcc] = await Promise.all([
-                    supabase.from('menu_categories').select('id, nombre').ilike('nombre', 'PRODUCCIÓN').limit(5),
-                    supabase.from('product_categories').select('id, nombre').ilike('nombre', 'PRODUCCIÓN').limit(5)
+                    supabase.from('menu_categories').select('id').in('nombre', searchStrings),
+                    supabase.from('product_categories').select('id').in('nombre', searchStrings),
+                    supabase.from('categories').select('id').in('name', searchStrings)
                 ]);
 
                 const catIds = [
                     ...(menuRes.data || []).map(c => c.id),
                     ...(prodRes.data || []).map(c => c.id),
-                    ...(oldRes.data || []).map(c => c.id),
-                    ...(menuResAcc.data || []).map(c => c.id),
-                    ...(prodResAcc.data || []).map(c => c.id)
+                    ...(oldRes.data || []).map(c => c.id)
                 ];
 
                 if (catIds.length > 0) {
                     const { data: prods } = await supabase
                         .from('products')
-                        .select('id, name, description, category_id, menu_category_id, product_category_id, price, is_enabled')
+                        .select('id, name, description, price, is_enabled')
                         .or(`category_id.in.(${catIds.join(',')}),menu_category_id.in.(${catIds.join(',')}),product_category_id.in.(${catIds.join(',')})`)
                         .eq('is_enabled', true);
 
-                    if (prods && prods.length > 0) {
+                    if (prods) {
                         allAvailable = prods.map((p: any) => ({
                             id: p.id,
-                            nombre: p.name || p.nombre || 'Sin nombre',
+                            nombre: p.name,
                             descripcion: p.description || '',
                             categoria: 'PRODUCCION',
                             precio_venta: p.price
@@ -244,7 +235,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                     }
                 }
 
-                // 3. Fallback: clasificaciones
+                // Fallback por clasificación
                 if (allAvailable.length === 0) {
                     const { data: prodsClass } = await supabase
                         .from('products')
@@ -252,7 +243,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                         .ilike('classification', 'PRODUCCION')
                         .eq('is_enabled', true);
 
-                    if (prodsClass && prodsClass.length > 0) {
+                    if (prodsClass) {
                         allAvailable = prodsClass.map((p: any) => ({
                             id: p.id,
                             nombre: p.name,
@@ -266,8 +257,8 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
 
             setProducts(allAvailable);
         } catch (e: any) {
-            console.error('Error fetching production products:', e);
-            setError('Error al cargar producciones disponibles');
+            console.error('[Produccion] Fallo en fetchProducts:', e);
+            setError('Error al cargar la lista de producción');
         } finally {
             setLoading(false);
         }
@@ -285,47 +276,36 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
         setRecetaNotFound(false);
         try {
             let prodData: any = null;
-            let prodError: any = null;
-
-            const initialRes = await supabase
+            
+            // 1. Intentar carga completa
+            const { data, error } = await supabase
                 .from('products')
-                .select('prep_procedure, portions, prep_time, classification, recipe_no, portion_size, serving_temp, prepared_by, observations')
+                .select('prep_procedure, portions, prep_time, classification, recipe_no, portion_size, serving_temp, prepared_by, observations, name')
                 .eq('id', platilloId)
                 .maybeSingle();
 
-            prodData = initialRes.data;
-            prodError = initialRes.error;
-
-            // Si falla por columnas inexistentes (Error 42703), reintentar solo con lo básico
-            if (prodError && prodError.code === '42703') {
-                console.warn('Columnas de Ficha Técnica no encontradas en la tabla products. Usando fallback básico.');
-                const basicRes = await supabase
-                    .from('products')
-                    .select('id, name')
-                    .eq('id', platilloId)
-                    .maybeSingle();
-                
-                prodData = basicRes.data;
-                prodError = basicRes.error;
+            if (error) {
+                if (error.code === '42703') {
+                    console.warn('[Produccion] Columnas extendidas no encontradas, modo básico.');
+                    const { data: basic } = await supabase.from('products').select('id, name').eq('id', platilloId).maybeSingle();
+                    prodData = basic;
+                } else {
+                    throw error;
+                }
+            } else {
+                prodData = data;
             }
 
-            if (prodError) throw prodError;
-
-            // 2. Obtener ingredientes manualmente
-            const { data: rawIngredients, error: ingError } = await supabase
+            // 2. Ingredientes
+            const { data: rawIngredients } = await supabase
                 .from('product_recipes')
                 .select('quantity, unit_measure, inventory_item_id')
                 .eq('product_id', platilloId);
 
-            if (ingError) throw ingError;
-
             let finalIngredients: any[] = [];
             if (rawIngredients && rawIngredients.length > 0) {
                 const itemIds = rawIngredients.map(r => r.inventory_item_id).filter(Boolean);
-                const { data: itemsDetail } = await supabase
-                    .from('products')
-                    .select('id, name')
-                    .in('id', itemIds);
+                const { data: itemsDetail } = await supabase.from('products').select('id, name').in('id', itemIds);
 
                 finalIngredients = rawIngredients.map(r => {
                     const detail = itemsDetail?.find(d => d.id === r.inventory_item_id);
@@ -338,36 +318,34 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                 });
             }
 
-            // 3. Mapear al formato del componente
-            const hasInfo = prodData?.prep_procedure || (finalIngredients.length > 0);
-            
-            if (!hasInfo) {
-                console.warn(`[Produccion] No se encontró información de receta para el ID: ${platilloId}`);
+            if (!prodData && finalIngredients.length === 0) {
                 setRecetaNotFound(true);
-            } else {
-                const loadedReceta = {
-                    id: platilloId,
-                    instrucciones: prodData?.prep_procedure || '',
-                    porciones: prodData?.portions || 1,
-                    tiempo_preparacion: prodData?.prep_time || 0,
-                    receta_ingredientes: finalIngredients,
-                    ficha: {
-                        classification: prodData?.classification,
-                        recipe_no: prodData?.recipe_no,
-                        portion_size: prodData?.portion_size,
-                        serving_temp: prodData?.serving_temp,
-                        prepared_by: prodData?.prepared_by,
-                        observations: prodData?.observations
-                    }
-                };
-                setActiveProductions(prev => prev.map((p, idx) => 
-                    idx === currentIdx ? { ...p, receta: loadedReceta } : p
-                ));
+                return;
             }
+
+            const loadedReceta: Receta = {
+                id: platilloId,
+                instrucciones: prodData?.prep_procedure || '',
+                porciones: prodData?.portions || 1,
+                tiempo_preparacion: prodData?.prep_time || 0,
+                receta_ingredientes: finalIngredients,
+                ficha: {
+                    classification: prodData?.classification,
+                    recipe_no: prodData?.recipe_no,
+                    portion_size: prodData?.portion_size,
+                    serving_temp: prodData?.serving_temp,
+                    prepared_by: prodData?.prepared_by,
+                    observations: prodData?.observations
+                }
+            };
+
+            setActiveProductions(prev => prev.map((p, idx) => 
+                idx === currentIdx ? { ...p, receta: loadedReceta } : p
+            ));
+
         } catch (e: any) {
-            console.error('[Produccion] Error cargando receta:', e);
-            setError(`Error al cargar receta del producto: ${e.message || 'Error desconocido'}`);
-            setRecetaNotFound(false); // No marcamos como "no encontrado" si hubo un error real de red/query
+            console.error('[Produccion] Error blindado en fetchReceta:', e);
+            setRecetaNotFound(true);
         } finally {
             setLoadingReceta(false);
         }
@@ -634,184 +612,173 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
         if (!currentProd) return null;
 
         return (
-            <div className="flex-1 flex flex-col px-6 py-6 gap-6 overflow-y-auto animate-in fade-in duration-700 custom-scrollbar bg-black/20">
+            <div className="flex-1 flex flex-col px-12 py-6 gap-6 overflow-y-auto animate-in fade-in duration-500 custom-scrollbar bg-[#0a0c10]">
                 
-                {/* LAYOUT DE DIVISIÓN ESTRICTA (DENSIDAD ALTA) */}
-                <div className="flex flex-col lg:flex-row gap-6 items-start max-w-[1600px] mx-auto w-full">
+                {/* INTERFAZ ULTRA-EXPANDIDA (MAX-W 1800PX - ALINEADA A LA IZQUIERDA CON GRAN DISTANCIA) */}
+                <div className="flex flex-col lg:flex-row gap-24 items-start max-w-[1800px] w-full">
                     
-                    {/* COLUMNA IZQUIERDA (OPERACIÓN) - MÁS COMPACTA */}
-                    <div className="w-full lg:w-[320px] shrink-0 flex flex-col gap-4">
+                    {/* COLUMNA DE CONTROL ULTRA-ANCHA (650PX PARA EVITAR DOBLE LÍNEA) */}
+                    <div className="w-full lg:w-[650px] shrink-0 flex flex-col gap-8">
                         
-                        {/* 1. SECCIÓN: RELOJ DE PRODUCCIÓN (REDUCIDO) */}
-                        <div className="bg-[#0cf19208] rounded-[24px] p-6 border border-[#0cf19222] flex flex-col items-center relative overflow-hidden shadow-xl backdrop-blur-md">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-[#0cf1921a]">
-                                {!currentProd?.isCompleted && (
-                                    <div className="h-full bg-[#0cf192] animate-progress shadow-[0_0_15px_#0cf192]" style={{ width: `${(currentProd?.timerSec % 60) * 1.66}%` }}></div>
-                                )}
-                            </div>
-                            
-                            <span className="text-[9px] font-black text-[#7a8499] uppercase tracking-[0.4em] mb-4 opacity-70">Tiempo</span>
-                            <div className={`text-6xl font-black tabular-nums transition-colors tracking-tighter ${currentProd?.isCompleted ? 'text-[#0cf192]' : 'text-white'}`}>
+                        {/* CRONÓMETRO MINI-PANEL */}
+                        <div className="bg-[#141922] rounded-2xl p-5 border border-white/5 flex flex-col items-center">
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2 opacity-60">Tiempo de Producción</span>
+                            <div className={`text-4xl font-black tabular-nums tracking-tighter ${currentProd?.isCompleted ? 'text-[#0cf192]' : 'text-white'}`}>
                                 {formatSeconds(currentProd?.timerSec || 0)}
                             </div>
 
-                            <div className="mt-6 w-full">
+                            <div className="mt-4 w-full">
                                 {currentProd?.isCompleted ? (
-                                    <div className="w-full h-10 bg-[#0cf1921a] border border-[#0cf19244] rounded-xl flex items-center justify-center gap-3 text-[#0cf192]">
-                                        <CheckCircle2 size={18} />
-                                        <span className="font-black text-[10px] uppercase tracking-widest">Listo</span>
+                                    <div className="w-full h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center gap-2 text-[#0cf192] font-black text-[10px] uppercase tracking-widest">
+                                        <CheckCircle2 size={16} />
+                                        <span>Procesado</span>
                                     </div>
                                 ) : (
                                     <button
                                         onClick={finalizarProduccion}
-                                        className="w-full h-10 bg-emerald-600/10 hover:bg-emerald-600 border border-emerald-600/30 hover:border-emerald-400 text-emerald-400 hover:text-white rounded-xl transition-all active:scale-95 flex items-center justify-center gap-3 group shadow-lg"
+                                        className="w-full h-10 bg-[#0cf1921a] hover:bg-[#0cf192] border border-[#0cf19222] hover:border-transparent text-[#0cf192] hover:text-black rounded-xl transition-all font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2"
                                     >
-                                        <CheckCircle2 size={18} className="group-hover:scale-110 transition-transform" />
-                                        <span className="font-black text-[10px] uppercase tracking-widest">Finalizar</span>
+                                        <CheckCircle2 size={16} />
+                                        <span>Finalizar Tiempo</span>
                                     </button>
                                 )}
                             </div>
                         </div>
 
-                        {/* 2. SECCIÓN: LISTA DE INSUMOS (REDUCIDA) */}
-                        <div className="bg-[#0d1117] rounded-[24px] border border-[#106EBE22] overflow-hidden shadow-xl flex flex-col">
-                            <div className="bg-[#106EBE0a] p-4 border-b border-[#106EBE22] flex items-center gap-3">
-                                <ClipboardList size={18} className="text-[#106EBE]" />
-                                <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Insumos</span>
+                        {/* TABLA DE INSUMOS (SIN SALTOS DE LÍNEA) */}
+                        <div className="bg-[#141922] rounded-3xl border border-white/5 overflow-hidden flex flex-col shadow-2xl">
+                            <div className="bg-white/5 p-6 border-b border-white/5 flex items-center gap-4">
+                                <ClipboardList size={22} className="text-[#106EBE]" />
+                                <span className="text-[12px] font-black text-white uppercase tracking-[0.3em]">Lista General de Insumos</span>
                             </div>
                             
                             <div className="p-4">
                                 {receta?.receta_ingredientes?.length > 0 ? (
-                                    <div className="bg-[#141922]/30 rounded-xl border border-white/5 overflow-hidden">
-                                        <table className="w-full text-left border-collapse">
-                                            <thead>
-                                                <tr className="bg-black/40 text-[#7a8499] text-[9px] uppercase font-black">
-                                                    <th className="p-3 pl-5">Art.</th>
-                                                    <th className="p-3 text-right">Cant.</th>
-                                                    <th className="p-3 pr-5">Med.</th>
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="text-slate-500 text-[10px] uppercase font-black border-b border-white/5">
+                                                <th className="p-4 pl-6">Artículo / Especificación Técnica</th>
+                                                <th className="p-4 text-right">Cantidad</th>
+                                                <th className="p-4 pr-6 text-right">U.M.</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="text-[13px] font-bold text-white/90">
+                                            {receta.receta_ingredientes.map((ing, i) => (
+                                                <tr key={i} className="border-t border-white/5 hover:bg-white/[0.03] transition-colors group">
+                                                    <td className="p-4 pl-6 font-black uppercase whitespace-nowrap leading-relaxed">{ing.ingrediente_nombre}</td>
+                                                    <td className="p-4 text-right text-[#0cf192] font-black tabular-nums text-lg">{ing.cantidad}</td>
+                                                    <td className="p-4 pr-6 text-right text-slate-600 uppercase text-[10px] font-black">{ing.unidad}</td>
                                                 </tr>
-                                            </thead>
-                                            <tbody className="text-[11px] font-bold">
-                                                {receta.receta_ingredientes.map((ing, i) => (
-                                                    <tr key={i} className="border-t border-white/5 text-slate-400 hover:bg-[#106EBE08] transition-all">
-                                                        <td className="p-3 pl-5 font-black uppercase text-white truncate max-w-[120px]">{ing.ingrediente_nombre}</td>
-                                                        <td className="p-3 text-right text-[#0cf192] font-black">{ing.cantidad}</td>
-                                                        <td className="p-3 pr-5 text-slate-600 uppercase text-[9px]">{ing.unidad}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 ) : (
-                                    <div className="p-8 flex flex-col items-center justify-center text-[#7a8499] gap-4 opacity-40">
-                                        <BookOpen size={30} />
-                                        <p className="text-[9px] font-black uppercase tracking-widest text-center">Sin insumos</p>
+                                    <div className="p-12 text-center text-slate-700 text-[11px] uppercase font-black tracking-[0.4em] opacity-40">
+                                        No se registran insumos
                                     </div>
                                 )}
                             </div>
                         </div>
 
+                        {/* BOTÓN DE SALIDA (SIEMPRE VISIBLE EN LA COLUMNA DE CONTROL) */}
+                        <button 
+                            onClick={() => setView('LIST')} 
+                            className="mt-4 self-center text-slate-600 hover:text-white font-black text-[12px] uppercase tracking-[0.4em] transition-all py-3 px-8 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 w-full text-center"
+                        >
+                            ← SALIR DEL MÓDULO
+                        </button>
+
                     </div>
 
-                    {/* COLUMNA DERECHA (TÉCNICA) - MÁS COMPACTA */}
+                    {/* COLUMNA DE FICHA (ESPACIOSA) */}
                     <div className="flex-1 flex flex-col gap-6 w-full">
                         
-                        <div className="bg-[#141922] rounded-[32px] border border-[#106EBE33] overflow-hidden shadow-2xl relative flex flex-col">
-                            {/* Ribbon Técnica Reducida */}
-                            <div className="absolute top-6 -right-16 bg-[#106EBE] text-white text-[8px] font-black py-1.5 w-48 text-center rotate-45 uppercase tracking-[0.4em] z-20">
-                                Técnico
-                            </div>
-
-                            <div className="p-8 md:p-10">
+                        {/* CONTENEDOR PRINCIPAL DE FICHA (PLANO) */}
+                        <div className="bg-[#141922] rounded-3xl border border-white/5 overflow-hidden flex flex-col">
+                            
+                            <div className="p-8">
                                 
-                                {/* 1. HEADER INTEGRADO COMPACTO */}
-                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pb-8 border-b border-white/5">
-                                    <div className="flex items-center gap-5">
-                                        <div className="w-14 h-14 rounded-2xl bg-[#106EBE1a] flex items-center justify-center text-[#106EBE] font-black text-2xl border border-[#106EBE33]">
+                                {/* ENCABEZADO FORMAL */}
+                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pb-6 border-b border-white/5">
+                                    <div className="flex items-center gap-6">
+                                        <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-white font-black text-2xl border border-white/10 shrink-0">
                                             {currentProd?.product?.nombre?.charAt(0) || 'P'}
                                         </div>
                                         <div>
-                                            <span className="text-[9px] font-black text-[#106EBE] uppercase tracking-[0.4em] block mb-2">Ficha Técnica</span>
-                                            <h2 className="text-2xl font-black text-white uppercase tracking-tighter leading-tight max-w-xl">{currentProd?.product?.nombre || 'Cargando producto...'}</h2>
-                                            <div className="flex items-center gap-4 mt-3">
-                                                <span className="text-[10px] font-black text-slate-400 uppercase">Chef: {currentProd?.chef?.nombre || 'S/A'}</span>
-                                                <div className="w-1 h-1 rounded-full bg-white/20"></div>
-                                                <span className="text-[10px] font-black text-slate-500 uppercase">Inicio: {currentProd?.startTime?.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', hour12: true }) || '--:--'}</span>
+                                            <span className="text-[10px] font-black text-[#106EBE] uppercase tracking-[0.3em] block mb-1">Ficha Técnica Operativa</span>
+                                            <h2 className="text-2xl font-black text-white uppercase tracking-tight leading-tight mb-2">{currentProd?.product?.nombre || '---'}</h2>
+                                            <div className="flex items-center gap-4 text-slate-400 font-bold text-[11px]">
+                                                <span className="uppercase">Chef: {currentProd?.chef?.nombre}</span>
+                                                <div className="w-1 h-1 bg-white/10 rounded-full"></div>
+                                                <span className="uppercase">Referencia: {receta?.ficha?.recipe_no || '00'}</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="bg-black/20 px-5 py-3 rounded-2xl border border-white/5 flex flex-col items-end">
-                                        <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Estandarizado</span>
-                                        <span className="text-xl font-black text-white">{receta?.tiempo_preparacion || '--'} <span className="text-[10px] text-[#0cf192]">MIN</span></span>
+                                    <div className="bg-black/20 p-4 rounded-2xl border border-white/5 text-right min-w-[140px]">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tiempo Estándar</span>
+                                        <span className="text-xl font-black text-white">{receta?.tiempo_preparacion || '0'} <span className="text-sm font-bold text-slate-500">MIN</span></span>
                                     </div>
                                 </div>
 
-                                {/* 2. ESPECIFICACIONES GRID COMPACTO */}
-                                <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-10">
+                                {/* GRILLA DETONALIZADA (CENTRADOS) */}
+                                <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-8">
                                     {[
-                                        { lab: 'Clasificación', val: receta?.ficha?.classification },
-                                        { lab: 'No. Receta', val: receta?.ficha?.recipe_no },
-                                        { lab: 'Porciones', val: receta?.porciones },
-                                        { lab: 'Tamaño', val: receta?.ficha?.portion_size },
-                                        { lab: 'Temperatura', val: receta?.ficha?.serving_temp }
+                                        { label: 'Clasificación', val: receta?.ficha?.classification },
+                                        { label: 'No. Receta', val: receta?.ficha?.recipe_no },
+                                        { label: 'Porciones', val: receta?.porciones },
+                                        { label: 'Tamaño', val: receta?.ficha?.portion_size },
+                                        { label: 'Temperatura', val: receta?.ficha?.serving_temp }
                                     ].map((spec, i) => (
-                                        <div key={i} className="bg-black/30 p-4 rounded-2xl border border-white/5">
-                                            <span className="text-[8px] font-bold text-[#7a8499] uppercase block mb-1 tracking-widest">{spec.lab}</span>
-                                            <span className="text-[10px] font-black uppercase text-white truncate block">{spec.val || '---'}</span>
+                                        <div key={i} className="bg-black/20 p-4 rounded-xl border border-white/5 flex flex-col items-center text-center">
+                                            <span className="text-[9px] font-bold text-slate-500 uppercase block mb-1 tracking-widest w-full">{spec.label}</span>
+                                            <span className="text-[11px] font-bold uppercase text-white truncate block w-full">{spec.val || '---'}</span>
                                         </div>
                                     ))}
                                 </div>
 
-                                {/* 3. PROCEDIMIENTO (ESPACIO OPTIMIZADO) */}
-                                <div className="mb-10">
+                                {/* ÁREA DE PROCEDIMIENTO (LIMPIA) */}
+                                <div className="mb-8">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-6 h-6 bg-[#106EBE] rounded-lg flex items-center justify-center text-xs font-black text-white">1</div>
-                                        <span className="text-[10px] font-black text-white uppercase tracking-widest">Procedimiento</span>
+                                        <span className="text-[11px] font-black text-white uppercase tracking-widest border-b-2 border-[#106EBE] pb-1">Procedimiento de Elaboración</span>
                                     </div>
-                                    <div className="bg-black/30 p-8 rounded-[32px] border border-white/5 text-[15px] font-medium leading-relaxed text-slate-300 whitespace-pre-line shadow-inner border-l-4 border-l-[#106EBE] min-h-[300px]">
-                                        {receta?.instrucciones || "Pendiente de cargar instrucciones oficiales."}
+                                    <div className="bg-black/20 p-6 rounded-2xl border border-white/5 text-[14px] font-normal leading-relaxed text-slate-300 whitespace-pre-line min-h-[200px] max-h-[350px] overflow-y-auto custom-scrollbar">
+                                        {receta?.instrucciones || "No se han cargado instrucciones técnicas."}
                                     </div>
                                 </div>
 
-                                {/* 4. OBSERVACIONES Y VALIDACIÓN COMPACTO */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-white/5">
-                                    <div className="bg-amber-500/5 p-5 rounded-2xl border border-amber-500/10 text-[12px] font-bold italic text-amber-200/50 min-h-[100px]">
-                                        <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest block mb-2">Notas del Chef:</span>
-                                        {receta?.ficha?.observations ? `"${receta.ficha.observations}"` : "Sin notas."}
+                                {/* PIE DE FICHA SÓLIDO */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 mt-4 border-t border-white/5">
+                                    <div className="bg-white/5 p-4 rounded-xl text-[11px] text-slate-400 font-medium">
+                                        <span className="text-[9px] font-bold text-[#106EBE] uppercase block mb-1">Observaciones:</span>
+                                        {receta?.ficha?.observations || "Sin notas técnicas adicionales."}
                                     </div>
-                                    <div className="bg-white/5 p-5 rounded-2xl border border-white/5 flex flex-col justify-between">
+                                    <div className="bg-black/20 p-4 rounded-xl flex items-center justify-between">
                                         <div>
-                                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-1">Responsable:</span>
-                                            <span className="text-[12px] font-black text-white uppercase">{receta?.ficha?.prepared_by || 'POR DEFINIR'}</span>
+                                            <span className="text-[9px] font-bold text-slate-500 uppercase block mb-1">Autorizado por:</span>
+                                            <span className="text-[11px] font-black text-white uppercase">{receta?.ficha?.prepared_by || currentProd?.chef?.nombre}</span>
                                         </div>
-                                        <div className="mt-4 flex items-center justify-between text-[9px] font-black opacity-30">
-                                            <span className="uppercase tracking-widest">Registro ID:</span>
-                                            <span className="font-mono">{currentProd?.id?.slice(0,12) || '---'}</span>
-                                        </div>
+                                        <div className="text-[10px] font-mono text-slate-600">ID: {currentProd?.instanceId?.slice(0,8) || '---'}</div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
 
-                        {/* BITÁCORA REDUCIDA */}
-                        <div className="bg-[#0d1117]/60 rounded-3xl p-5 border border-white/5">
-                            <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.4em] block mb-4">Registro Auditoría</span>
-                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1.5 max-h-[80px] overflow-y-auto custom-scrollbar">
+                        {/* BITÁCORA DE EVENTOS (PLANA) */}
+                        <div className="bg-[#141922] rounded-2xl p-4 border border-white/5">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-4">Registro de Jornada</span>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2 max-h-[60px] overflow-y-auto custom-scrollbar">
                                 {currentProd?.logs?.map((log, i) => (
-                                    <div key={i} className="flex gap-3 items-center text-[10px] py-0.5 opacity-60">
-                                        <span className="text-[#106EBE] font-black">[{log.time}]</span>
-                                        <span className="text-slate-500 truncate">{log.msg}</span>
+                                    <div key={i} className="flex items-center gap-3 text-[10px] font-bold text-slate-400">
+                                        <span className="text-slate-600 font-mono">[{log.time}]</span>
+                                        <span className="truncate">{log.msg}</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        <button onClick={() => setView('LIST')} className="mt-2 self-center text-[#7a8499] hover:text-white font-black text-[10px] uppercase tracking-[0.2em] transition-all py-2 px-6 rounded-lg hover:bg-white/5">
-                            ← Volver
-                        </button>
                     </div>
                 </div>
-
             </div>
         );
     };

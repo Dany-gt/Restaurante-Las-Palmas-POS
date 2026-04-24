@@ -138,7 +138,7 @@ const App: React.FC = () => {
   useOfflineSync();
 
   // Initialize Master Data Sync
-  const { syncData, syncType, isSyncing, syncMasterData } = useDataSync();
+  const { syncData, syncType, isSyncing } = useDataSync();
 
   const { isOnline, isServerConnected } = useNetworkStatus();
 
@@ -446,11 +446,11 @@ const App: React.FC = () => {
     setCurrentUser(user);
     localStorage.setItem('currentUser', JSON.stringify(user));
 
-    // AUTO-RECOVERY: If cache is empty, force sync immediately
+    // AUTO-RECOVERY: If cache is empty, sync silently in background (no toast)
     const cachedProds = localStorage.getItem('cached_products');
     if (!cachedProds || cachedProds.length < 10) {
-      console.log('🔄 Cache vacío detectado post-login. Forzando sincronización maestra...');
-      syncData();
+      console.log('🔄 Caché vacío detectado post-login. Sincronizando silenciosamente...');
+      syncData('inventory'); // 'inventory' type = silent, no toast notification
     }
 
     if ((window as any).electronAPI && (window as any).electronAPI.sendLoginSuccess) {

@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Plus, Search, Trash2, Edit2, RefreshCw } from 'lucide-react';
+import { 
+    Plus, Search, X, Package, Trash2, Edit2, ChevronRight, 
+    ArrowRight, Save, ClipboardList, AlertCircle, RefreshCw,
+    CheckCircle2, Settings
+} from 'lucide-react';
 import { DraggableWindow } from './DraggableWindow';
 import { WindowsSaveButton } from '../WindowsSaveButton';
 import { supabase } from '../../supabase';
+
+const idxIsNumber = (idx: any) => typeof idx === 'number' && idx !== null;
 
 interface ProductionOrderModalProps {
     isOpen: boolean;
@@ -36,7 +42,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
         details: initialData?.details || []
     });
 
-    const [contextMenu, setContextMenu] = useState<{ x: number, y: number, itemIndex: number | null } | null>(null);
+    const [tableContextMenu, setTableContextMenu] = useState<{ x: number, y: number, itemIndex: number | null } | null>(null);
     const [inventoryItems, setInventoryItems] = useState<any[]>([]);
     const [showProductSearchModal, setShowProductSearchModal] = useState(false);
     const [searchingForProduced, setSearchingForProduced] = useState(false);
@@ -44,14 +50,69 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
     const [configQty, setConfigQty] = useState<string>('1');
+    const [loading, setLoading] = useState(false);
 
     const containerRef = React.useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (isOpen) {
+        if (isOpen || showProductSearchModal) {
             fetchInventoryItems();
         }
-    }, [isOpen]);
+    }, [isOpen, showProductSearchModal]);
+
+    // Load existing order items when editing
+    useEffect(() => {
+        if (isOpen && initialData?.id) {
+            loadOrderItems(initialData.id);
+        } else if (isOpen && !initialData) {
+            // Reset details for new order
+            setFormData(prev => ({ ...prev, details: [] }));
+        }
+    }, [isOpen, initialData?.id]);
+
+    const loadOrderItems = async (orderId: string) => {
+        try {
+            const { data: items } = await supabase
+                .from('inventory_production_items')
+                .select('*')
+                .eq('order_id', orderId);
+
+            if (!items || items.length === 0) return;
+
+            // Resolve product names
+            const itemIds = items.map((i: any) => i.inventory_item_id).filter(Boolean);
+            const { data: prods } = await supabase
+                .from('products')
+                .select('id, name, unit_measure, presentation_unit, conversion_factor, cost_price')
+                .in('id', itemIds);
+
+            const prodMap: Record<string, any> = {};
+            (prods || []).forEach((p: any) => { prodMap[p.id] = p; });
+
+            const details = items.map((item: any) => {
+                const prod = prodMap[item.inventory_item_id] || {};
+                const unitShort = (prod.unit_measure || '').toLowerCase().includes('onza') ? 'OZ' :
+                                  (prod.unit_measure || '').toLowerCase().includes('libra') ? 'LB' :
+                                  (prod.unit_measure || '').toLowerCase().includes('kilo') ? 'KG' : 
+                                  (prod.unit_measure || '').toUpperCase();
+                const factorStr = prod.conversion_factor ? ` ${prod.conversion_factor}` : '';
+                const presentation = item.presentation || `${prod.presentation_unit || 'UNIDAD'}${factorStr} ${unitShort}`.trim();
+
+                return {
+                    quantity: item.quantity,
+                    product_name: prod.name || 'Insumo',
+                    presentation: presentation.toUpperCase(),
+                    unit_cost: item.unit_cost,
+                    total_cost: item.total_cost,
+                    inventory_item_id: item.inventory_item_id
+                };
+            });
+
+            setFormData(prev => ({ ...prev, details }));
+        } catch (e) {
+            console.error('[ProductionOrderModal] Error loading items:', e);
+        }
+    };
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -70,57 +131,51 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
     }, [isOpen, showProductSearchModal, selectedProduct, onClose]);
 
     const fetchInventoryItems = async () => {
+        setLoading(true);
         try {
-            // First attempt to get the Producción category
-            const { data: categories, error: catError } = await supabase
-                .from('inventory_categories')
-                .select('id, name, parent_id');
+            // Usamos directamente el ID de la categoría PRODUCCION que ya localizamos
+            const productionCategoryId = '4fd547d1-2667-4d7f-b6cf-947be65cdaf8';
 
-            if (catError) throw catError;
+            const { data, error } = await supabase
+                .from('products')
+                .select('id, product_code, name, unit_measure, cost_price, presentation_unit, conversion_factor')
+                .eq('product_category_id', productionCategoryId)
+                .order('name');
 
-            const mainProdCat = categories?.find(c =>
-                c.name.toUpperCase().includes('PRODUCC')
-            );
+            if (error) throw error;
 
-            let prodCategoryIds: string[] = [];
+            if (data) {
+                const mapped = data
+                    .filter(p => p.name && p.name.trim() !== '')
+                    .map(p => {
+                        const unitShort = (p.unit_measure || '').toLowerCase().includes('onza') ? 'OZ' : 
+                                          (p.unit_measure || '').toLowerCase().includes('libra') ? 'LB' : 
+                                          (p.unit_measure || '').toLowerCase().includes('kilo') ? 'KG' : 
+                                          (p.unit_measure || '').toLowerCase().includes('gramo') ? 'GR' : 
+                                          (p.unit_measure || '').toUpperCase();
+                        
+                        const factorStr = p.conversion_factor ? ` ${p.conversion_factor}` : '';
+                        const desc = `${p.presentation_unit || 'UNIDAD'}${factorStr} ${unitShort}`.trim();
 
-            if (mainProdCat) {
-                // Recursive search for all subcategories
-                prodCategoryIds = [mainProdCat.id];
-                let added = true;
-                while (added) {
-                    added = false;
-                    const children = categories!.filter(c => c.parent_id && prodCategoryIds.includes(c.parent_id));
-                    children.forEach(c => {
-                        if (!prodCategoryIds.includes(c.id)) {
-                            prodCategoryIds.push(c.id);
-                            added = true;
-                        }
+                        return {
+                            id: p.id,
+                            code: p.product_code || '',
+                            name: p.name,
+                            unit: p.unit_measure || 'UN',
+                            cost: p.cost_price || 0,
+                            presentation: desc.toUpperCase()
+                        };
                     });
-                }
+                setInventoryItems(mapped);
             }
-
-            // Fetch products
-            let query = supabase.from('inventory_items').select('*').order('name');
-
-            if (prodCategoryIds.length > 0) {
-                query = query.in('category_id', prodCategoryIds);
-            }
-
-            const { data, error: itemsError } = await query;
-            if (itemsError) throw itemsError;
-
-            if (data) setInventoryItems(data);
         } catch (error) {
-            console.error('Error fetching inventory items:', error);
-            const { data } = await supabase.from('inventory_items').select('*').order('name');
-            if (data) setInventoryItems(data);
+            console.error('Error in fetchInventoryItems:', error);
         }
+        setLoading(false);
     };
 
     const fetchAllInventory = async () => {
-        const { data } = await supabase.from('inventory_items').select('*').order('name');
-        if (data) setInventoryItems(data);
+        await fetchInventoryItems();
         setSearchContextMenu(null);
     };
 
@@ -160,9 +215,10 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
 
     const handleContextMenu = (e: React.MouseEvent, index: number | null) => {
         e.preventDefault();
+        e.stopPropagation();
         if (!containerRef.current) return;
         const rect = containerRef.current.getBoundingClientRect();
-        setContextMenu({
+        setTableContextMenu({
             x: e.clientX - rect.left,
             y: e.clientY - rect.top,
             itemIndex: index
@@ -201,11 +257,12 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                     <div className="p-4 bg-[#f0f0f0] flex flex-col gap-4 border-b border-gray-300 overflow-y-auto max-h-[85vh]">
 
                         {/* Section: Datos Compra */}
-                        <fieldset className="border border-gray-400 p-4 pt-2 bg-white relative rounded-sm shadow-sm">
-                            <legend className="px-2 text-[11px] font-bold text-slate-950 ml-2">Datos Compra</legend>
+                        {/* Section: Datos Generales y Producto Resultante */}
+                        <fieldset className="border border-gray-400 p-4 pt-2 bg-white relative rounded-sm shadow-sm shrink-0">
+                            <legend className="px-2 text-[11px] font-bold text-slate-950 ml-2 uppercase tracking-tighter">Información de la Orden de Producción</legend>
 
-                            <div className="grid grid-cols-2 gap-x-8 gap-y-2">
-                                {/* Row 1 */}
+                            <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+                                {/* Row 1: Fecha y Código */}
                                 <div className="flex items-center gap-2">
                                     <label className="text-[10px] font-bold text-slate-900 w-20">Fecha</label>
                                     <div className="flex-1 flex border border-gray-400 h-7 overflow-hidden">
@@ -228,7 +285,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                                     />
                                 </div>
 
-                                {/* Row 2 */}
+                                {/* Row 2: Sucursal y Estado */}
                                 <div className="flex items-center gap-2">
                                     <label className="text-[10px] font-bold text-slate-900 w-20">Sucursal</label>
                                     <div className="flex-1 flex border border-gray-400 h-7">
@@ -256,70 +313,22 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                                     </select>
                                 </div>
 
-                                {/* Row 3 - Footers markers */}
+                                {/* Row 3: Usuarios */}
                                 <div className="col-span-2 grid grid-cols-3 gap-4 mt-2">
                                     <div className="flex flex-col gap-0.5">
-                                        <label className="text-[9px] font-bold text-slate-900 uppercase ml-1">Creado Por</label>
+                                        <label className="text-[9px] font-bold text-slate-500 uppercase ml-1">Creado Por</label>
                                         <input type="text" value={formData.createdBy} readOnly className="border border-gray-400 bg-[#f9f9f9] px-2 h-6 text-[9px] font-bold text-black" />
                                     </div>
                                     <div className="flex flex-col gap-0.5">
-                                        <label className="text-[9px] font-bold text-slate-900 uppercase ml-1">Ejecutado Por</label>
+                                        <label className="text-[9px] font-bold text-slate-500 uppercase ml-1">Ejecutado Por</label>
                                         <input type="text" value={formData.executedBy} readOnly className="border border-gray-400 bg-[#f9f9f9] px-2 h-6 text-[9px] font-bold text-black" />
                                     </div>
                                     <div className="flex flex-col gap-0.5">
-                                        <label className="text-[9px] font-bold text-slate-900 uppercase ml-1">Anulado Por</label>
+                                        <label className="text-[9px] font-bold text-slate-500 uppercase ml-1">Anulado Por</label>
                                         <input type="text" value={formData.voidedBy} readOnly className="border border-gray-400 bg-[#f9f9f9] px-2 h-6 text-[9px] font-bold text-red-600" />
                                     </div>
                                 </div>
                             </div>
-                        </fieldset>
-
-                        {/* Section: Producto Final (Resultado de la Producción) */}
-                        <fieldset className="border border-[#106ebe] p-4 pt-2 bg-blue-50/20 relative rounded-sm shadow-sm">
-                            <legend className="px-2 text-[11px] font-extrabold text-[#106ebe] ml-2 uppercase">Producto Resultante (Lo que se Cocina/Produce)</legend>
-                            <div className="flex items-center gap-4">
-                                <div className="flex-1 flex flex-col gap-1">
-                                    <label className="text-[9px] font-bold text-slate-500 uppercase ml-1">Producto / Ítem a Cargar Stock</label>
-                                    <div className="flex h-8 border border-gray-400 bg-white overflow-hidden shadow-sm">
-                                        <input
-                                            type="text"
-                                            readOnly
-                                            value={formData.producedItemName}
-                                            placeholder="HAGA CLIC EN LA LUPA PARA SELECCIONAR EL PRODUCTO FINAL..."
-                                            className="flex-1 px-3 text-[11px] font-extrabold text-[#106ebe] outline-none placeholder:text-gray-300"
-                                        />
-                                        <button
-                                            onClick={() => {
-                                                setSearchingForProduced(true);
-                                                setShowProductSearchModal(true);
-                                                setSearchTerm('');
-                                            }}
-                                            className="px-4 bg-[#106ebe] text-white hover:bg-[#106ebe] transition-colors flex items-center justify-center gap-2"
-                                        >
-                                            <Search size={14} />
-                                            <span className="text-[10px] font-bold">BUSCAR</span>
-                                        </button>
-                                        {formData.producedItemId && (
-                                            <button
-                                                onClick={() => setFormData({ ...formData, producedItemId: '', producedItemName: '', producedQuantity: 0 })}
-                                                className="px-2 bg-red-100 text-red-600 border-l border-gray-300 hover:bg-red-200 transition-colors"
-                                            >
-                                                <X size={14} />
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="w-40 flex flex-col gap-1">
-                                    <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 text-center">Cantidad Producida</label>
-                                    <input
-                                        type="number"
-                                        value={formData.producedQuantity}
-                                        onChange={(e) => setFormData({ ...formData, producedQuantity: parseFloat(e.target.value) || 0 })}
-                                        className="h-8 border border-gray-400 px-3 text-[16px] font-black text-slate-900 outline-none text-center bg-white shadow-sm focus:border-[#106ebe]"
-                                    />
-                                </div>
-                            </div>
-                            <p className="text-[8px] font-bold text-gray-400 mt-2 uppercase italic ml-1">* Al procesar esta orden, se SUMARÁ esta cantidad al inventario de este producto.</p>
                         </fieldset>
 
                         {/* Section: Detalle de Producción */}
@@ -327,10 +336,27 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                             ref={containerRef}
                             className="border border-gray-400 flex flex-col bg-white rounded-sm overflow-hidden flex-1 min-h-[350px] shadow-sm relative"
                             onContextMenu={(e) => handleContextMenu(e, null)}
-                            onClick={() => setContextMenu(null)}
+                            onClick={() => setTableContextMenu(null)}
                         >
-                            <div className="bg-[#f0f0f0] border-b border-gray-400 px-3 py-1 flex items-center justify-between shrink-0">
-                                <span className="text-[10px] font-bold text-[#106ebe] uppercase tracking-tight">Detalle de Producción</span>
+                            <div className="bg-[#f0f0f0] border-b border-gray-400 px-3 py-1.5 flex items-center justify-between shrink-0">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-bold text-[#106ebe] uppercase tracking-tight">Detalle de Producción</span>
+                                    {formData.producedItemId && (
+                                        <div className="flex items-center gap-2 ml-4">
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">PRODUCIENDO:</span>
+                                            <span className="bg-[#106ebe] text-white px-3 py-0.5 text-[10px] font-black rounded-sm shadow-sm animate-in fade-in slide-in-from-left-2 duration-300">
+                                                {formData.producedQuantity} {formData.producedItemName}
+                                            </span>
+                                            <button 
+                                                onClick={() => setFormData({...formData, producedItemId: '', producedItemName: '', producedQuantity: 0})}
+                                                className="w-4 h-4 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition-colors"
+                                            >
+                                                <X size={10} strokeWidth={4} />
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                {!formData.producedItemId && <span className="text-[8px] font-black text-amber-600 uppercase animate-pulse">* Establecer producto final vía clic derecho</span>}
                             </div>
 
                             {/* Detail Table */}
@@ -346,98 +372,55 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y-0">
-                                        {formData.details.length === 0 ? (
+                                        {formData.details.map((item: any, idx: number) => (
                                             <tr
-                                                className="h-7 text-[#106ebe] group hover:bg-blue-50 cursor-context-menu"
-                                                onContextMenu={(e) => handleContextMenu(e, null)}
+                                                key={idx}
+                                                className="h-7 bg-white hover:bg-blue-50 cursor-context-menu transition-colors"
+                                                onContextMenu={(e) => handleContextMenu(e, idx)}
                                             >
-                                                <td className="px-3 text-[10px] font-bold text-slate-900">--</td>
-                                                <td className="px-3 text-[10px] font-bold text-slate-900">--</td>
-                                                <td className="px-3 text-[10px] font-bold text-slate-900">--</td>
-                                                <td className="px-3 text-[10px] font-bold text-slate-900 text-right">--</td>
-                                                <td className="px-3 text-[10px] font-bold text-slate-900 text-right">--</td>
-                                            </tr>
-                                        ) : (
-                                            formData.details.map((item: any, idx: number) => (
-                                                <tr
-                                                    key={idx}
-                                                    className="h-7 bg-white hover:bg-blue-50 cursor-context-menu transition-colors"
-                                                    onContextMenu={(e) => handleContextMenu(e, idx)}
-                                                >
-                                                    <td className="px-3 text-[10px] font-bold text-slate-700">{item.quantity}</td>
-                                                    <td className="px-3 text-[10px] font-bold text-slate-900 uppercase">{item.product_name}</td>
-                                                    <td className="px-3 text-[10px] font-bold text-slate-600">{item.presentation}</td>
-                                                    <td className="px-3 text-[10px] font-bold text-slate-700 text-right">{item.unit_cost}</td>
-                                                    <td className="px-3 text-[10px] font-bold text-slate-900 text-right font-mono">{item.total_cost}</td>
-                                                </tr>
-                                            ))
-                                        )}
-                                        {/* Classic ERP empty rows - CLEAN NO LINES */}
-                                        {[...Array(12)].map((_, i) => (
-                                            <tr key={`pad-${i}`} className="h-7 opacity-40 hover:bg-slate-50/50" onContextMenu={(e) => handleContextMenu(e, null)}>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
+                                                <td className="px-3 text-[10px] font-bold text-slate-700">{item.quantity}</td>
+                                                <td className="px-3 text-[10px] font-bold text-slate-900 uppercase">{item.product_name}</td>
+                                                <td className="px-3 text-[10px] font-bold text-slate-600">{item.presentation}</td>
+                                                <td className="px-3 text-[10px] font-bold text-slate-700 text-right">{item.unit_cost}</td>
+                                                <td className="px-3 text-[10px] font-bold text-slate-900 text-right font-mono">{item.total_cost}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
 
                                 {/* Table Context Menu */}
-                                {contextMenu && (
+                                {tableContextMenu && (
                                     <div
-                                        className="absolute z-[9999] bg-white border border-gray-400 shadow-[4px_4px_15px_rgba(0,0,0,0.15)] py-0.5 min-w-[150px] animate-in fade-in zoom-in duration-75 select-none"
-                                        style={{ left: contextMenu.x, top: contextMenu.y }}
+                                        className="absolute z-[9999] bg-white border border-gray-400 shadow-[4px_4px_30px_rgba(0,0,0,0.3)] py-0.5 min-w-[140px] animate-in fade-in zoom-in duration-75 select-none"
+                                        style={{ left: tableContextMenu.x, top: tableContextMenu.y }}
                                         onClick={(e) => e.stopPropagation()}
                                     >
                                         <button
                                             onClick={() => {
+                                                setSearchingForProduced(false);
                                                 setShowProductSearchModal(true);
                                                 setSearchTerm('');
-                                                setContextMenu(null);
+                                                setTableContextMenu(null);
                                             }}
-                                            className="w-full px-3 py-1.5 text-[11px] font-bold text-slate-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-2 transition-colors uppercase border-b border-gray-200 last:border-0 text-left group"
+                                            className="w-full px-4 py-2 text-[12px] font-black text-slate-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors uppercase text-left group"
                                         >
-                                            <Plus size={14} className="text-emerald-600 group-hover:text-white" />
-                                            Agregar Producto
+                                            <Plus size={18} className="text-emerald-600 group-hover:text-white" />
+                                            AGREGAR
                                         </button>
-                                        {contextMenu.itemIndex !== null && (
-                                            <>
-                                                <button
-                                                    onClick={() => {
-                                                        if (contextMenu.itemIndex !== null) {
-                                                            const item = formData.details[contextMenu.itemIndex];
-                                                            const invItem = inventoryItems.find(i => i.id === item.inventory_item_id);
-                                                            if (invItem) {
-                                                                setSelectedProduct(invItem);
-                                                                setConfigQty(item.quantity.toString());
-                                                                const newDetails = [...formData.details];
-                                                                newDetails.splice(contextMenu.itemIndex, 1);
-                                                                setFormData({ ...formData, details: newDetails });
-                                                            }
-                                                        }
-                                                        setContextMenu(null);
-                                                    }}
-                                                    className="w-full px-3 py-1.5 text-[11px] font-bold text-slate-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-2 transition-colors uppercase border-b border-gray-200 last:border-0 text-left group"
-                                                >
-                                                    <Edit2 size={14} className="text-amber-600 group-hover:text-white" />
-                                                    Modificar Línea
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        if (contextMenu.itemIndex !== null) {
-                                                            handleRemoveItem(contextMenu.itemIndex);
-                                                        }
-                                                        setContextMenu(null);
-                                                    }}
-                                                    className="w-full px-3 py-1.5 text-[11px] font-bold text-slate-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-2 transition-colors uppercase border-b border-gray-200 last:border-0 text-left group"
-                                                >
-                                                    <Trash2 size={14} className="text-rose-600 group-hover:text-white" />
-                                                    Quitar
-                                                </button>
-                                            </>
+
+                                        {tableContextMenu.itemIndex !== null && (
+                                            <button
+                                                onClick={() => {
+                                                    if (tableContextMenu.itemIndex !== null) {
+                                                        handleRemoveItem(tableContextMenu.itemIndex);
+                                                    }
+                                                    setTableContextMenu(null);
+                                                }}
+                                                className="w-full px-4 py-2 text-[12px] font-black text-slate-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors uppercase text-left group border-t border-gray-100"
+                                            >
+                                                <Trash2 size={18} className="text-rose-600 group-hover:text-white" />
+                                                QUITAR
+                                            </button>
                                         )}
                                     </div>
                                 )}
@@ -455,262 +438,215 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                         </div>
                     </div>
                 </div>
+            </DraggableWindow>
+        </div>,
+        document.body
+    );
 
+            const searchModalPortal = showProductSearchModal && createPortal(
+                <div className="fixed inset-0 z-[110000] flex items-center justify-center pointer-events-none">
+                    <DraggableWindow id="production-product-search" title="Buscador de Insumos / Productos - (Categoría: Producción)">
+                        <div
+                            className="w-[840px] h-[550px] shadow-[0_30px_90px_-15px_rgba(0,0,0,0.6)] rounded-sm overflow-hidden pointer-events-auto border-2 border-[#106ebe] bg-[#f0f0f0] flex flex-col relative"
+                            onContextMenu={(e) => e.preventDefault()}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (searchContextMenu) setSearchContextMenu(null);
+                            }}
+                        >
+                            {/* Modal Header Interno */}
+                            <div className="bg-[#106ebe] px-3 py-1.5 flex items-center justify-between text-white shrink-0 select-none text-left">
+                                <span className="text-[11px] font-black tracking-widest uppercase flex items-center gap-2">
+                                    <Search size={14} strokeWidth={3} /> PANEL DE SELECCIÓN DE INSUMOS
+                                </span>
+                                <button onClick={() => setShowProductSearchModal(false)} className="w-6 h-6 flex items-center justify-center bg-red-600 hover:bg-red-700 transition-colors shadow-inner">
+                                    <X size={16} strokeWidth={3} />
+                                </button>
+                            </div>
 
+                            {/* Search Controls */}
+                            <div className="p-4 bg-[#f0f0f0] border-b border-gray-300 flex gap-1 shrink-0">
+                                <input
+                                    autoFocus
+                                    type="text"
+                                    placeholder="INTRODUZCA EL TEXTO A BUSCAR..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="flex-1 h-9 border border-gray-400 px-4 text-[12px] outline-none focus:border-[#106ebe] bg-white font-black uppercase text-black shadow-inner"
+                                />
+                                <button className="bg-[#106ebe] text-white px-12 h-9 text-[11px] font-black uppercase hover:bg-[#002244] shadow-md transition-all active:scale-[0.98]">
+                                    Buscar
+                                </button>
+                            </div>
 
-                {/* PRODUCT SEARCH MODAL PORTAL */}
-                {showProductSearchModal && createPortal(
-                    <div className="fixed inset-0 z-[110000] flex items-center justify-center bg-black/40 backdrop-blur-[1px] pointer-events-none">
-                        <DraggableWindow id="production-product-search" title="Buscador de Insumos para Producción">
-                            <div
-                                className="w-[840px] h-[580px] shadow-[0_30px_90px_-15px_rgba(0,0,0,0.6)] rounded-sm overflow-hidden pointer-events-auto border-2 border-[#106ebe] bg-white flex flex-col h-full relative"
-                                onContextMenu={(e) => e.preventDefault()}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (searchContextMenu) setSearchContextMenu(null);
-                                }}
-                            >
-                                {/* Modal Header */}
-                                <div className="modal-header bg-[#106ebe] px-3 py-1.5 flex items-center justify-between text-white shrink-0 cursor-move select-none">
-                                    <span className="text-[11px] font-bold tracking-wider uppercase flex items-center gap-2">
-                                        <Search size={14} /> Buscador de Insumos / Productos - (Categoría: Producción)
-                                    </span>
-                                    <button onClick={() => setShowProductSearchModal(false)} className="w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
-                                        <X size={16} strokeWidth={2.5} />
-                                    </button>
-                                </div>
-
-                                {/* Search Controls */}
-                                <div className="p-5 bg-slate-50 border-b border-gray-300 flex gap-0 shadow-sm shrink-0">
-                                    <div className="relative flex-1 group">
-                                        <input
-                                            autoFocus
-                                            type="text"
-                                            placeholder="INTRODUZCA EL TEXTO A BUSCAR (CÓDIGO O NOMBRE)..."
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="w-full h-10 border-2 border-slate-300 px-4 text-[13px] outline-none focus:border-[#106ebe] focus:bg-white bg-white font-black uppercase text-black placeholder:text-gray-400 transition-all rounded-l-sm shadow-inner"
-                                        />
-                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-20 group-focus-within:opacity-100 transition-opacity">
-                                            <Search size={16} className="text-[#106ebe]" />
-                                        </div>
-                                    </div>
-                                    <button className="bg-[#106ebe] text-white px-10 h-10 text-[12px] font-black uppercase hover:bg-[#106ebe] shadow-md transition-all active:scale-[0.98] rounded-r-sm border-l border-white/10 flex items-center gap-2">
-                                        <span>Buscar</span>
-                                    </button>
-                                </div>
-
-                                {/* Table Area */}
-                                <div
-                                    className={`flex-1 overflow-auto bg-white relative ${selectedProduct ? 'pointer-events-none opacity-20 grayscale' : ''}`}
-                                    onContextMenu={(e) => {
-                                        e.preventDefault();
-                                        if (searchContextMenu) setSearchContextMenu(null);
-                                    }}
-                                >
-                                    <table className="w-full text-left border-collapse table-fixed">
-                                        <thead className="bg-[#e8ebf0] sticky top-0 z-10 border-b-2 border-slate-300 select-none">
-                                            <tr className="h-10 text-slate-800">
-                                                <th className="px-4 text-[10px] font-black border-r border-slate-200 w-32 uppercase tracking-wide">Código</th>
-                                                <th className="px-4 text-[10px] font-black border-r border-slate-200 uppercase tracking-wide">Producto / Insumo</th>
-                                                <th className="px-4 text-[10px] font-black border-r border-slate-200 w-36 text-center uppercase tracking-wide">Presentación</th>
-                                                <th className="px-4 text-[10px] font-black w-36 text-right uppercase tracking-wide">Costo Unitario</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody onContextMenu={(e) => e.stopPropagation()}>
-                                            {inventoryItems
-                                                .filter(i =>
-                                                    i.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                                    (i.code && i.code.toLowerCase().includes(searchTerm.toLowerCase()))
-                                                )
-                                                .map((item) => (
-                                                    <tr
-                                                        key={item.id}
-                                                        onDoubleClick={() => {
-                                                            setSelectedProduct(item);
-                                                            setConfigQty('1');
-                                                        }}
-                                                        onContextMenu={(e) => {
-                                                            e.preventDefault();
-                                                            e.stopPropagation();
-                                                            setSearchContextMenu({
-                                                                x: e.clientX,
-                                                                y: e.clientY,
-                                                                product: item
-                                                            });
-                                                        }}
-                                                        className="h-10 cursor-pointer border-b border-gray-100 hover:bg-slate-100 transition-colors group relative"
-                                                    >
-                                                        <td className="px-4 text-[11px] border-r border-gray-100 font-bold text-slate-900 truncate uppercase tabular-nums">{item.code || '--'}</td>
-                                                        <td className="px-4 text-[12px] border-r border-gray-100 font-black uppercase truncate text-black group-hover:text-[#106ebe]">{item.name}</td>
-                                                        <td className="px-4 text-[11px] border-r border-gray-100 text-center truncate text-slate-800 uppercase font-bold">{item.presentation || 'UNIDAD'}</td>
-                                                        <td className="px-4 text-[11px] text-right font-black text-black tabular-nums">Q{item.cost?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                                                    </tr>
-                                                ))
-                                            }
-                                            {inventoryItems.length === 0 && (
+                            {/* Table Area */}
+                            <div className="flex-1 overflow-auto bg-white relative">
+                                <table className="w-full text-center border-collapse table-fixed">
+                                    <thead className="bg-[#e8ebf0] sticky top-0 z-10 border-b-2 border-slate-300 select-none shadow-sm">
+                                        <tr className="h-9 text-slate-800">
+                                            <th className="px-4 text-[10px] font-black border-r border-slate-200 w-32 uppercase tracking-tighter">Código</th>
+                                            <th className="px-4 text-[10px] font-black border-r border-slate-200 uppercase tracking-tighter text-left">Producto / Insumo</th>
+                                            <th className="px-4 text-[10px] font-black border-r border-slate-200 w-36 uppercase tracking-tighter">Presentación</th>
+                                            <th className="px-4 text-[10px] font-black w-36 uppercase tracking-tighter">Costo Unitario</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {inventoryItems
+                                            .filter(i =>
+                                                i.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                (i.code && i.code.toLowerCase().includes(searchTerm.toLowerCase()))
+                                            )
+                                            .map((item) => (
                                                 <tr
-                                                    className="cursor-pointer"
+                                                    key={item.id}
+                                                    onDoubleClick={() => {
+                                                        setSelectedProduct(item);
+                                                        setConfigQty('1');
+                                                    }}
                                                     onContextMenu={(e) => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
                                                         setSearchContextMenu({
                                                             x: e.clientX,
                                                             y: e.clientY,
-                                                            product: null
+                                                            product: item
                                                         });
                                                     }}
+                                                    className="h-9 cursor-pointer border-b border-gray-100 hover:bg-blue-50 transition-colors group"
                                                 >
-                                                    <td colSpan={4} className="p-20 text-center">
-                                                        <div className="flex flex-col items-center gap-4">
-                                                            <Search size={40} className="text-gray-300" />
-                                                            <div>
-                                                                <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">No se encontraron productos en esta categoría</p>
-                                                                <p className="text-[9px] font-bold text-gray-400 uppercase mt-1 italic">Sugerencia: Haz clic derecho aquí para ver todo el inventario</p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
+                                                    <td className="px-4 text-[10px] border-r border-gray-100 font-bold text-slate-400 truncate uppercase tabular-nums">{item.code || '--'}</td>
+                                                    <td className="px-4 text-[11px] border-r border-gray-100 font-black uppercase truncate text-left text-slate-800 group-hover:text-[#106ebe]">{item.name}</td>
+                                                    <td className="px-4 text-[10px] border-r border-gray-100 truncate text-slate-600 uppercase font-black">{item.presentation || 'UNIDAD'}</td>
+                                                    <td className="px-4 text-[11px] font-black text-[#106ebe] tabular-nums">Q{item.cost?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                                                 </tr>
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                            ))
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
 
-                                {/* Footer Information */}
-                                <div className="bg-[#e8ebf0] border-t border-slate-300 px-5 py-2 flex justify-between items-center shrink-0 shadow-inner">
-                                    <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
-                                        <Plus size={10} className="text-emerald-600" /> * Doble clic o clic derecho para agregar
+                            {/* Footer */}
+                            <div className="bg-[#e8ebf0] border-t border-slate-400 px-5 py-2 flex justify-between items-center shrink-0">
+                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">* Doble clic para agregar</span>
+                                <span className="text-[11px] font-black text-[#106ebe] uppercase bg-white border border-slate-300 px-4 py-1.5 shadow-sm rounded-sm tabular-nums">
+                                    {inventoryItems.length} Encontrados
+                                </span>
+                            </div>
+                        </div>
+                    </DraggableWindow>
+                </div>,
+                document.body
+            );
+
+            {/* CONFIGURATION MODAL - PORTAL INDEPENDIENTE (INFO REAL) */}
+            const configModalPortal = selectedProduct && createPortal(
+                <div className="fixed inset-0 z-[120000] flex items-center justify-center pointer-events-none animate-in fade-in duration-100">
+                    <DraggableWindow id="production-config-win-v4">
+                        <div className="bg-white border-2 border-[#106ebe] shadow-[0_20px_60px_rgba(0,0,0,0.6)] w-[580px] relative rounded-sm overflow-hidden pointer-events-auto flex flex-col">
+                            {/* Skill Header */}
+                            <div className="modal-header bg-[#106ebe] px-4 py-2 flex items-center justify-between cursor-move select-none border-b border-[#002244]">
+                                <div className="flex items-center gap-2">
+                                    <Settings size={16} className="text-white/80" />
+                                    <span className="text-white text-[12px] font-black uppercase tracking-widest font-sans">
+                                        Configuración de Insumo
                                     </span>
-                                    <span className="text-[11px] font-black text-slate-950 uppercase bg-white border border-slate-300 px-3 py-1 shadow-sm rounded-sm tabular-nums">
-                                        {inventoryItems.length} Registros Disponibles
+                                </div>
+                                <button onClick={() => setSelectedProduct(null)} className="text-white/60 hover:text-white transition-colors">
+                                    <X size={18} />
+                                </button>
+                            </div>
+
+                            {/* Body */}
+                            <div className="p-4 bg-white space-y-4">
+                                {/* Product Name Box */}
+                                <div className="bg-slate-100 border border-slate-300 py-3 px-5 text-center shadow-inner rounded-sm">
+                                    <span className="text-[17px] font-black text-slate-800 uppercase tracking-tight font-sans block truncate">
+                                        {selectedProduct.name}
                                     </span>
                                 </div>
 
-                                {/* Main Footer Buttons */}
-                                <div className="bg-slate-50 border-t border-gray-300 p-4 flex justify-end shrink-0">
-                                    <button
-                                        onClick={() => setShowProductSearchModal(false)}
-                                        className="bg-white border-2 border-slate-500 text-slate-900 px-12 h-10 text-[11px] font-black uppercase hover:bg-slate-100 transition-all active:scale-[0.98] rounded-sm shadow-sm"
-                                    >
-                                        Cerrar / Cancelar
-                                    </button>
-                                </div>
-
-                                {/* CONFIGURATION SUB-MODAL */}
-                                {selectedProduct && (
-                                    <div className="absolute inset-0 z-[120000] flex items-center justify-center bg-black/40 animate-in fade-in duration-150 pointer-events-auto">
-                                        <div className="bg-[#f2f2f2] border-2 border-[#106ebe] shadow-[0_30px_100px_-10px_rgba(0,0,0,0.6)] w-[650px] relative rounded-sm overflow-hidden animate-in zoom-in-95 duration-200">
-                                            <div className="bg-[#106ebe] px-3 py-1.5 flex items-center justify-between text-white shadow-sm shrink-0 select-none">
-                                                <span className="text-[11px] font-bold uppercase tracking-wider">Configuración de Insumo - Esc (Cerrar)</span>
-                                                <button onClick={() => setSelectedProduct(null)} className="w-5 h-5 flex items-center justify-center hover:bg-red-600 transition-colors">
-                                                    <X size={14} strokeWidth={2.5} />
-                                                </button>
-                                            </div>
-
-                                            <div className="p-8 space-y-8">
-                                                <div className="bg-white border border-gray-300 p-4 shadow-inner rounded-sm text-center">
-                                                    <h3 className="text-[20px] font-black text-[#106ebe] uppercase tracking-wide leading-tight">{selectedProduct.name}</h3>
-                                                </div>
-
-                                                <div className="grid grid-cols-3 gap-6">
-                                                    <div className="space-y-2 flex flex-col items-center">
-                                                        <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest text-center">Cantidad</label>
-                                                        <input
-                                                            autoFocus
-                                                            type="number"
-                                                            value={configQty}
-                                                            onChange={(e) => setConfigQty(e.target.value)}
-                                                            className="w-full h-12 border-2 border-slate-400 bg-white px-3 text-[22px] font-black text-slate-900 outline-none tabular-nums text-center focus:border-[#106ebe] shadow-sm"
-                                                            onKeyDown={(e) => {
-                                                                if (e.key === 'Enter') handleAddItem(selectedProduct, parseFloat(configQty) || 0);
-                                                            }}
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-2 flex flex-col items-center">
-                                                        <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest text-center">Presentación</label>
-                                                        <div className="w-full h-12 border-2 border-slate-200 bg-white flex items-center justify-center text-[13px] font-black text-slate-900 uppercase tracking-tight shadow-sm">
-                                                            {selectedProduct.presentation || 'UNIDAD'}
-                                                        </div>
-                                                    </div>
-                                                    <div className="space-y-2 flex flex-col items-center">
-                                                        <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest text-center">Precio Costo</label>
-                                                        <div className="w-full h-12 border-2 border-slate-200 bg-white flex items-center justify-center text-[13px] font-black text-[#106ebe] tabular-nums shadow-sm underline decoration-blue-200">
-                                                            Q{selectedProduct.cost?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex flex-col items-center pt-2 gap-4">
-                                                    <button
-                                                        onClick={() => handleAddItem(selectedProduct, parseFloat(configQty) || 0)}
-                                                        className="w-full h-12 bg-[#106ebe] text-white text-[14px] font-black uppercase shadow-xl hover:bg-[#106ebe] active:scale-[0.98] transition-all flex items-center justify-center gap-2 rounded-sm border-b-4 border-black"
-                                                    >
-                                                        Agregar al Detalle de Producción
-                                                    </button>
-                                                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">* Presione Enter para confirmar y añadir a la orden</p>
-                                                </div>
-                                            </div>
+                                {/* Info Fields Row */}
+                                <div className="grid grid-cols-7 gap-3">
+                                    {/* Cantidad */}
+                                    <div className="col-span-2 space-y-1 text-center">
+                                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest font-sans">Cantidad</label>
+                                        <input
+                                            autoFocus
+                                            type="number"
+                                            value={configQty}
+                                            onChange={(e) => setConfigQty(e.target.value)}
+                                            onFocus={(e) => e.target.select()}
+                                            className="w-full h-10 border-2 border-slate-400 bg-white px-3 text-[15px] font-black text-[#106ebe] outline-none text-center tabular-nums focus:border-[#106ebe] shadow-sm rounded-sm"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') handleAddItem(selectedProduct, parseFloat(configQty) || 0);
+                                            }}
+                                        />
+                                    </div>
+                                    {/* Presentación */}
+                                    <div className="col-span-3 space-y-1 text-center">
+                                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest font-sans">Presentación</label>
+                                        <div className="w-full h-10 border-2 border-slate-200 bg-slate-50 flex items-center justify-center text-[13px] font-black text-slate-800 whitespace-nowrap overflow-hidden px-4 shadow-sm rounded-sm uppercase tracking-tighter leading-tight text-center">
+                                            {selectedProduct.presentation || 'UNIDAD'}
                                         </div>
                                     </div>
-                                )}
+                                    {/* Precio Costo */}
+                                    <div className="col-span-2 space-y-1 text-center">
+                                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest font-sans">Precio Costo</label>
+                                        <div className="w-full h-10 border-2 border-slate-200 bg-slate-50 flex items-center justify-center text-[14px] font-black text-slate-900 tabular-nums shadow-sm rounded-sm">
+                                            Q{selectedProduct.cost?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Footer Button Container */}
+                                <div className="flex justify-center pt-1">
+                                    <button
+                                        onClick={() => handleAddItem(selectedProduct, parseFloat(configQty) || 0)}
+                                        className="px-16 py-3 bg-[#106ebe] text-white text-[15px] font-black uppercase tracking-[0.2em] flex items-center justify-center rounded-sm shadow-md"
+                                    >
+                                        Agregar
+                                    </button>
+                                </div>
                             </div>
-                        </DraggableWindow>
-                    </div>,
-                    document.body
-                )}
-            </DraggableWindow>
-        </div>,
-        document.body
-    );
+                        </div>
+                    </DraggableWindow>
+                </div>,
+                document.body
+            );
 
-    {/* SEARCH PRODUCT CONTEXT MENU (Highest Priority - Bottom of DOM) */ }
-    {
-        searchContextMenu && createPortal(
-            <div
-                className="fixed z-[9999999] bg-white border border-gray-400 shadow-[4px_4px_40px_rgba(0,0,0,0.6)] py-0.5 min-w-[240px] animate-in fade-in zoom-in duration-75 select-none pointer-events-auto"
-                style={{
-                    left: searchContextMenu.x,
-                    top: searchContextMenu.y,
-                }}
-                onContextMenu={(e) => e.preventDefault()}
-                onClick={(e) => e.stopPropagation()}
-            >
-                <div className="px-4 py-1.5 bg-slate-100 border-b border-gray-200 text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2">
-                    <Search size={12} className="text-slate-400" /> Opciones de Búsqueda
-                </div>
-
-                {searchContextMenu.product ? (
-                    <button
-                        onClick={() => {
-                            setSelectedProduct(searchContextMenu.product);
-                            setSearchContextMenu(null);
-                        }}
-                        className="w-full px-4 py-2 text-[12px] font-black text-slate-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors uppercase text-left group"
-                    >
-                        <Plus size={18} className="text-emerald-600 group-hover:text-white" />
-                        Agregar al Detalle
-                    </button>
-                ) : (
-                    <button
-                        onClick={fetchAllInventory}
-                        className="w-full px-4 py-2 text-[12px] font-black text-slate-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors uppercase text-left group"
-                    >
-                        <RefreshCw size={18} className="text-blue-500 group-hover:text-white" />
-                        Ver Todo el Inventario
-                    </button>
-                )}
-
-                <button
-                    onClick={() => setSearchContextMenu(null)}
-                    className="w-full px-4 py-2 text-[12px] font-black text-slate-800 hover:bg-slate-100 flex items-center gap-3 transition-colors uppercase text-left border-t border-gray-100"
+            {/* CONTEXT MENU PORTAL */}
+            const contextMenuPortal = searchContextMenu && createPortal(
+                <div
+                    className="fixed z-[999999] bg-white border border-gray-400 shadow-2xl py-0.5 min-w-[240px] animate-in fade-in zoom-in duration-75 pointer-events-auto"
+                    style={{ left: searchContextMenu.x, top: searchContextMenu.y }}
                 >
-                    <X size={18} className="text-gray-400" />
-                    Cancelar
-                </button>
-            </div>,
-            document.body
-        )
-    }
+                    {searchContextMenu.product && (
+                        <button
+                            onClick={() => { setSelectedProduct(searchContextMenu.product); setSearchContextMenu(null); }}
+                            className="w-full px-4 py-2 text-[12px] font-black text-slate-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors uppercase text-left group"
+                        >
+                            <Plus size={18} className="text-emerald-600 group-hover:text-white" /> Agregar al Detalle
+                        </button>
+                    )}
+                    <button
+                        onClick={() => { fetchAllInventory(); setSearchContextMenu(null); }}
+                        className="w-full px-4 py-2 text-[12px] font-black text-slate-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors uppercase text-left group"
+                    >
+                        <RefreshCw size={18} className="text-blue-500 group-hover:text-white" /> Ver Todo el Inventario
+                    </button>
+                    <button onClick={() => setSearchContextMenu(null)} className="w-full px-4 py-2 text-[12px] font-black text-slate-800 hover:bg-slate-100 flex items-center gap-3 transition-colors uppercase text-left border-t border-gray-100">
+                        <X size={18} className="text-gray-400" /> Cancelar
+                    </button>
+                </div>,
+                document.body
+            );
 
-    return portal;
+    return (
+        <>
+            {portal}
+            {searchModalPortal}
+            {configModalPortal}
+            {contextMenuPortal}
+        </>
+    );
 };

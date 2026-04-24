@@ -109,14 +109,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, initialTab, cu
     const [showPreviewModal, setShowPreviewModal] = useState(false);
     const [showActivityLog, setShowActivityLog] = useState(false);
 
-    // Logging: Administrative Access
+    // Logging: Administrative Access — only ONCE per session, not on every re-render
+    const hasLoggedAccess = React.useRef(false);
     useEffect(() => {
-        if (currentUser) {
+        if (currentUser && !hasLoggedAccess.current) {
+            hasLoggedAccess.current = true;
             activityLogService.log({
                 user: currentUser,
                 module: 'ADMIN',
-                action: 'Ingreso a Panel Administrativo',
+                action: 'ACCESO_ADMIN',
                 details: {
+                    description: 'Ingreso a Panel Administrativo',
                     userAgent: navigator.userAgent,
                     timestamp: new Date().toISOString()
                 }
@@ -398,6 +401,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, initialTab, cu
         if (item.id === 'DSH_PREVIEW') {
             setShowPreviewModal(true);
             return;
+        }
+
+        // Log specific module access
+        if (currentUser) {
+            activityLogService.log({
+                user: currentUser,
+                module: 'ADMIN',
+                action: 'MODULO_ABIERTO',
+                details: {
+                    modulo_id: item.id,
+                    modulo_nombre: item.label,
+                    seccion: item.section || 'General'
+                }
+            });
         }
 
         if (!openTabs.some(t => t.id === item.id)) {

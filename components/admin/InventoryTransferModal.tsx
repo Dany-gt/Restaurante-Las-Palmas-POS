@@ -134,8 +134,31 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
     }, []);
 
     const fetchInventoryItems = async () => {
-        const { data } = await supabase.from('inventory_items').select('*').order('name');
-        if (data) setInventoryItems(data);
+        setLoading(true);
+        try {
+            const { data } = await supabase
+                .from('products')
+                .select(`id, product_code, name, unit_measure, cost_price, es_platillo, presentation_unit`)
+                .eq('es_platillo', false)
+                .order('name');
+
+            if (data) {
+                const cleanedData = data
+                    .filter(p => p.name && p.name.trim() !== '')
+                    .map(p => ({
+                        id: p.id,
+                        code: p.product_code || '',
+                        name: p.name,
+                        unit: p.unit_measure || 'UN',
+                        cost: p.cost_price || 0,
+                        presentation: p.presentation_unit || ''
+                    }));
+                setInventoryItems(cleanedData);
+            }
+        } catch (err) {
+            console.error('Error fetching products for transfer:', err);
+        }
+        setLoading(false);
     };
 
     const handleAddItem = () => {
@@ -494,8 +517,8 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                             >
                                                 <td className="px-3 text-[10px] border-r border-gray-100 font-mono text-gray-400 truncate">{item.code || '--'}</td>
                                                 <td className="px-3 text-[11px] border-r border-gray-100 font-bold uppercase truncate text-gray-800">{item.name}</td>
-                                                <td className="px-3 text-[10px] border-r border-gray-100 text-center truncate text-gray-500 uppercase">{item.presentation || 'Galón'}</td>
-                                                <td className="px-3 text-[10px] truncate text-gray-400 uppercase">Sin Proveedor</td>
+                                                <td className="px-3 text-[10px] border-r border-gray-100 text-center truncate text-gray-500 uppercase">{item.presentation || 'N/A'}</td>
+                                                <td className="px-3 text-[10px] truncate text-gray-400 uppercase">---</td>
                                             </tr>
                                         );
                                     })}
