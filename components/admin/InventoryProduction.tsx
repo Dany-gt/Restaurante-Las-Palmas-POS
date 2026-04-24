@@ -72,37 +72,71 @@ export const InventoryProduction: React.FC = () => {
         const { data: branchData } = await supabase.from('branches').select('id, name').order('name');
         if (branchData) {
             setBranches(branchData);
-            if (branchData.length > 0) setSelectedBranch(branchData[0].id);
+            if (branchData.length > 0) {
+                setSelectedBranch(branchData[0].id);
+            }
         }
     };
 
+    // Auto-fetch orders when branch loads
+    useEffect(() => {
+        if (selectedBranch) fetchOrders();
+    }, [selectedBranch]);
+
     const fetchOrders = async () => {
-        if (!selectedBranch) return;
         setLoading(true);
         try {
-            const { data, error } = await supabase
+            // Fetch orders for selected branch OR orders without branch assigned
+            let query = supabase
                 .from('inventory_production_orders')
-                .select(`
-                    id, 
-                    code, 
-                    date, 
-                    status, 
-                    created_by, 
-                    total_cost, 
-                    processed,
-                    voided,
-                    produced_item_id,
-                    produced_quantity,
-                    inventory_items!inventory_production_orders_produced_item_id_fkey(name),
-                    products!inventory_production_orders_produced_item_id_fkey(name)
-                `)
-                .eq('branch_id', selectedBranch)
+                .select('id, code, date, status, created_by, total_cost, processed, voided, produced_item_id, produced_quantity, branch_id')
                 .gte('date', fromDate)
                 .lte('date', toDate)
                 .order('created_at', { ascending: false });
 
+            // If branch is selected, show that branch + null branch orders
+            if (selectedBranch) {
+                query = query.or(`branch_id.eq.${selectedBranch},branch_id.is.null`);
+            }
+
+            const { data, error } = await query;
             if (error) throw error;
-            setOrders(data || []);
+
+            const rawOrders = data || [];
+
+            // Secondary lookup: get product names for produced items
+            const producedIds = rawOrders
+                .map((o: any) => o.produced_item_id)
+                .filter(Boolean);
+
+            let productNameMap: Record<string, string> = {};
+            if (producedIds.length > 0) {
+                const { data: prods } = await supabase
+                    .from('products')
+                    .select('id, name')
+                    .in('id', producedIds);
+                if (prods) {
+                    prods.forEach((p: any) => { productNameMap[p.id] = p.name; });
+                }
+                // Also try inventory_items
+                const { data: invItems } = await supabase
+                    .from('inventory_items')
+                    .select('id, name')
+                    .in('id', producedIds);
+                if (invItems) {
+                    invItems.forEach((p: any) => {
+                        if (!productNameMap[p.id]) productNameMap[p.id] = p.name;
+                    });
+                }
+            }
+
+            // Merge names into orders
+            const enrichedOrders = rawOrders.map((o: any) => ({
+                ...o,
+                produced_item_name: o.produced_item_id ? (productNameMap[o.produced_item_id] || null) : null
+            }));
+
+            setOrders(enrichedOrders);
         } catch (err: any) {
             console.error('Fetch Orders error:', err);
         } finally {
@@ -249,12 +283,16 @@ export const InventoryProduction: React.FC = () => {
                                     <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-700 text-center">{order.date}</td>
                                     <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-900 uppercase">{order.code}</td>
                                     <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-900 uppercase">
-                                        {(order.inventory_items?.name || order.products?.name) ? (
-                                            <div className="flex flex-col">
-                                                <span>{order.inventory_items?.name || order.products?.name}</span>
-                                                <span className="text-[9px] text-blue-600 font-extrabold">CANT: {order.produced_quantity}</span>
+                                        {order.produced_item_name ? (
+                                            <div className="flex flex-col leading-tight">
+                                                <span>{order.produced_item_name}</span>
+                                                {order.produced_quantity > 0 && (
+                                                    <span className="text-[9px] text-blue-600 font-extrabold">CANT: {order.produced_quantity}</span>
+                                                )}
                                             </div>
-                                        ) : <span className="text-gray-400 italic">No especificado</span>}
+                                        ) : (
+                                            <span className="text-gray-400 italic text-[9px]">No especificado</span>
+                                        )}
                                     </td>
                                     <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-700 uppercase">{order.created_by}</td>
                                     <td className="px-3 border-r border-gray-200 text-[11px] font-bold text-[#106ebe] text-center tabular-nums">Q{(order.total_cost || 0).toFixed(2)}</td>
@@ -331,6 +369,13 @@ export const InventoryProduction: React.FC = () => {
                 onClose={() => setIsModalOpen(false)}
                 onSave={async (data) => {
                     setLoading(true);
+                    // Helper: convierte string vacío a null para campos UUID
+                    const toUUID = (val: any) => {
+                        if (!val) return null;
+                        const s = String(val).trim();
+                        return s === '' ? null : s;
+                    };
+
                     try {
                         const isProcessing = data.status === 'Guardar y Procesar';
 
@@ -339,13 +384,13 @@ export const InventoryProduction: React.FC = () => {
                             .from('inventory_production_orders')
                             .insert([{
                                 code: data.code || `PROD-${Date.now()}`,
-                                branch_id: data.branchId,
+                                branch_id: toUUID(data.branchId),
                                 date: data.date,
                                 status: data.status,
-                                created_by: data.createdBy,
+                                created_by: data.createdBy || '',
                                 total_cost: data.details.reduce((sum: number, item: any) => sum + (item.total_cost || 0), 0),
-                                produced_item_id: data.producedItemId || null,
-                                produced_quantity: data.producedQuantity || 0,
+                                produced_item_id: toUUID(data.producedItemId),
+                                produced_quantity: Number(data.producedQuantity) || 0,
                                 processed: isProcessing
                             }])
                             .select()
@@ -354,18 +399,23 @@ export const InventoryProduction: React.FC = () => {
                         if (orderError) throw orderError;
 
                         // 2. Insert Production items
-                        const { error: itemsError } = await supabase
-                            .from('inventory_production_items')
-                            .insert(data.details.map((item: any) => ({
+                        const cleanDetails = data.details
+                            .filter((item: any) => item.inventory_item_id && String(item.inventory_item_id).trim() !== '')
+                            .map((item: any) => ({
                                 order_id: order.id,
-                                inventory_item_id: item.inventory_item_id,
-                                quantity: item.quantity,
-                                unit_cost: item.unit_cost,
-                                total_cost: item.total_cost,
-                                presentation: item.presentation
-                            })));
+                                inventory_item_id: String(item.inventory_item_id).trim(),
+                                quantity: Number(item.quantity) || 0,
+                                unit_cost: Number(item.unit_cost) || 0,
+                                total_cost: Number(item.total_cost) || 0,
+                                presentation: item.presentation || ''
+                            }));
 
-                        if (itemsError) throw itemsError;
+                        if (cleanDetails.length > 0) {
+                            const { error: itemsError } = await supabase
+                                .from('inventory_production_items')
+                                .insert(cleanDetails);
+                            if (itemsError) throw itemsError;
+                        }
 
                         // 3. Deduction Loop (only if processing)
                         if (isProcessing) {
