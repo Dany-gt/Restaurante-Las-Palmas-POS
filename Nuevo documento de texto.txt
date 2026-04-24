@@ -1,0 +1,25 @@
+﻿1. Iniciar el Servidor
+Como est�s en tu computadora local, debes "encender" la aplicaci�n.
+
+Abre una terminal o PowerShell en la carpeta donde tienes el proyecto (o usa la terminal integrada de tu editor de c�digo).
+Escribe el siguiente comando y dale a Enter:
+npm run dev
+npm run electron:build
+npm run electron
+vercel --prod --force
+vercel --prod
+2. Abrir en el Navegador
+Una vez que el comando termine de cargar, ver�s un mensaje que dice algo como:   ?  Local:   http://localhost:5173/
+
+Tus Tokens de Activación son:
+Sucursal Matriz: C314F56B
+Sucursal No. 2: 15D28FB8
+Correo de Administrador: El que configuraste (probablemente cevicheriayrestlaspalmas@gmail.com).
+
+
+
+
+Valor Factura   Q.6552.00
+valor retención Q. 292.50
+Anticipo        Q.1500.00
+Total a pagar   Q.4759.50

@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.restaurante_las_palmas_pos.twa",
+      "sha256_cert_fingerprints": [
+        "93:18:E7:9C:B5:6D:C5:56:13:0C:87:E3:88:AF:14:30:39:62:0B:24:51:CF:19:04:2A:41:AF:15:03:BF:60:0A"
+      ]
+    }
+  }
+]

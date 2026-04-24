@@ -1,0 +1,512 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --bg-dark: #0f1115;
+    --panel-dark: #16191f;
+    --accent: #475569;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --indigo-600: #4f46e5;
+}
+
+html,
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    overscroll-behavior: none;
+    touch-action: manipulation;
+
+    background-color: var(--bg-dark);
+    color: #e2e8f0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Global Typography Rules */
+body,
+input,
+button,
+select,
+textarea,
+.font-sans {
+    font-family: 'Inter', sans-serif !important;
+}
+
+.font-outfit {
+    font-family: 'Outfit', sans-serif !important;
+}
+
+h1,
+.text-xl,
+.text-2xl,
+.text-3xl {
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+}
+
+h2,
+h3,
+h4,
+.text-lg,
+.text-md {
+    font-weight: 700 !important;
+}
+
+/* Enforce black text only in admin areas */
+.admin-theme h1,
+.admin-theme .text-xl,
+.admin-theme .text-2xl,
+.admin-theme .text-3xl,
+.admin-theme h2,
+.admin-theme h3,
+.admin-theme h4,
+.admin-theme .text-lg,
+.admin-theme .text-md {
+    color: #000000 !important;
+}
+
+label,
+.form-label {
+    font-weight: 600 !important;
+    font-size: 13px !important;
+}
+
+button,
+.btn {
+    font-weight: 700 !important;
+}
+
+/* Modern Scrollbar */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+    background: rgba(22, 25, 31, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Admin Card (white) for admin panels */
+.admin-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.active-glow-green {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+.active-glow-red {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Rediseño Adaptativo para Smartphones (iPhone, Android Modernos) */
+@media screen and (max-width: 640px) {
+    :root {
+        --safe-bottom: env(safe-area-inset-bottom, 24px);
+    }
+
+    html,
+    body {
+        height: 100dvh;
+        overflow: hidden;
+    }
+
+    /* Ocultar elementos desktop en móvil */
+    .hide-on-mobile {
+        display: none !important;
+    }
+
+    /* Forzar layouts de una columna en dashboards */
+    .mobile-grid-1 {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Ajustes para el Bottom Tab Bar */
+    .mobile-bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: calc(70px + var(--safe-bottom));
+        background: white;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-around;
+        align-items: flex-start;
+        padding-top: 12px;
+        padding-bottom: var(--safe-bottom);
+        z-index: 10000;
+        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 25%;
+        height: 100%;
+        gap: 3px;
+        color: #64748b;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        background: none;
+        border: none;
+        outline: none !important;
+    }
+
+    .mobile-nav-item.active {
+        color: #4f46e5;
+        transform: translateY(-2px);
+    }
+
+    .mobile-nav-item span {
+        font-size: 9px;
+        font-weight: 800;
+        font-family: inherit;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Stacked Cards para Reportes */
+    .stacked-card-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+        padding-bottom: 120px !important;
+    }
+
+    /* Ajuste de contenedores para evitar scroll horizontal innecesario */
+    .main-content-mobile {
+        height: calc(100dvh - 70px - var(--safe-bottom));
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        background: #fcfdfe;
+        padding-bottom: 80px !important;
+        /* Espacio para el bottom nav */
+    }
+
+    /* Tabs Internas con Scroll Lateral */
+    .admin-tabs-scroll {
+        display: flex !important;
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        white-space: nowrap !important;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+        gap: 0 !important;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .admin-tabs-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+    .admin-tabs-scroll button {
+        flex-shrink: 0 !important;
+        border-radius: 12px 12px 0 0 !important;
+    }
+
+    /* Grilla de Formulario Responsiva */
+    .grid-responsive-form {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+        width: 100% !important;
+    }
+
+    .grid-responsive-form label {
+        width: 100% !important;
+        text-align: left !important;
+    }
+
+    .grid-responsive-form input,
+    .grid-responsive-form select,
+    .grid-responsive-form textarea {
+        width: 100% !important;
+        min-width: unset !important;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Custom Keyboard Styles for POS */
+.pos-button {
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pos-button:active {
+    transform: scale(0.95);
+}
+
+/* Admin Table Styles */
+.admin-table-container {
+    border-radius: 1.5rem;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th {
+    text-align: left;
+    padding: 1.25rem 1.5rem;
+    background: #f8fafc;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #475569;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-table td {
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid #f1f5f9;
+    font-size: 0.85rem;
+    color: #1e293b !important;
+    font-weight: 500;
+}
+
+.admin-table tr:hover {
+    background: #f8fafc;
+}
+
+.form-input {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: 0.85rem 1.25rem;
+    color: #1e293b;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.85rem;
+}
+
+/* Fix select options on light theme */
+select.form-input option {
+    background-color: #ffffff;
+    color: #1e293b;
+    padding: 10px;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #475569;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(71, 85, 105, 0.1);
+}
+
+/* Force dark text on ALL form inputs inside admin panels */
+.text-slate-800 input,
+.text-slate-800 select,
+.text-slate-800 textarea,
+.bg-white input,
+.bg-white select,
+.bg-white textarea,
+.admin-card input,
+.admin-card select,
+.admin-card textarea {
+    color: #1e293b !important;
+}
+
+.text-slate-800 select option,
+.bg-white select option,
+.admin-card select option {
+    background-color: #ffffff;
+    color: #1e293b;
+}
+
+/* Solo para la resolución de la tableta en horizontal */
+/* Solo para la resolución de la tableta en horizontal (1340x800) */
+@media screen and (max-width: 1340px) and (max-height: 800px) {
+
+    /* 0. Layout Global: Cero Scroll Vertical */
+    .pos-main-layout {
+        height: 100dvh !important;
+        overflow: hidden !important;
+    }
+
+    /* 1. Login Modal (Roles): 2 Columnas, Altura Controlada - OPTIMIZADO PARA LENOVO M9 (LANDSCAPE) */
+    .login-card {
+        width: 96% !important;
+        max-width: 920px !important;
+        height: auto !important;
+        max-height: 96dvh !important;
+        padding: 0px !important;
+        display: flex !important;
+    }
+
+    /* FONT SCALING FOR TABLET ACCESSIBILITY */
+    .login-card label,
+    .login-card span:not(.text-4xl) {
+        font-size: 11px !important;
+    }
+
+    .login-card h2,
+    .login-card h3,
+    .login-card h4 {
+        font-size: 1.15rem !important;
+    }
+
+    .login-card input {
+        font-size: 14px !important;
+        padding-top: 0.95rem !important;
+        padding-bottom: 0.95rem !important;
+    }
+
+    .login-card button {
+        font-size: 11px !important;
+        padding-top: 0.85rem !important;
+        padding-bottom: 0.85rem !important;
+    }
+
+    /* Solo apilar si el ancho es muy reducido */
+    @media screen and (max-width: 800px) {
+        .login-card {
+            flex-direction: column !important;
+        }
+    }
+
+    .roles-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+        flex: 1;
+        padding: 1rem !important;
+        overflow-y: auto;
+    }
+
+    /* 2. Customization Modal (ModifierModal) Compact View */
+    .customization-modal {
+        max-width: 1000px !important;
+        max-height: 85dvh !important;
+        font-size: 0.9rem !important;
+        padding: 0.5rem !important;
+        /* Reduced padding */
+    }
+
+    .customization-modal h3 {
+        font-size: 1.1rem !important;
+    }
+
+    /* Compact Ingredient Buttons */
+    .customization-modal .grid {
+        gap: 12px !important;
+    }
+
+    .customization-modal button {
+        padding: 0.5rem !important;
+    }
+
+    .customization-modal svg {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    /* Compact Textarea */
+    .customization-modal textarea {
+        height: 80px !important;
+    }
+
+    /* Internal Scroll for Ingredients (Assumed class or generic div) */
+    .customization-modal .overflow-y-auto {
+        max-height: 60dvh !important;
+        /* Ensure it doesn't push bounds */
+    }
+
+    /* Sticky Bottom Button */
+    .customization-modal .border-t {
+        position: sticky !important;
+        bottom: 0 !important;
+        background: #16191f;
+        /* Match modal bg */
+        z-index: 10;
+        padding-top: 1rem !important;
+        margin-top: 0 !important;
+    }
+
+    /* Compact Summary Spacing */
+    .customization-modal .space-y-6>*+* {
+        margin-top: 0.75rem !important;
+    }
+
+    /* 3. Barra de Áreas: Desplazamiento horizontal */
+    .areas-container {
+        display: flex !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        gap: 10px;
+        padding-bottom: 8px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .area-button {
+        flex: 0 0 auto !important;
+        min-width: 120px;
+    }
+
+    /* 4. Grid de Mesas: Ajuste compacto */
+    .mesas-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+        gap: 12px !important;
+        padding: 10px !important;
+    }
+
+    .mesa-card {
+        aspect-ratio: 1 / 1 !important;
+        height: auto !important;
+        font-size: 0.85rem !important;
+    }
+}

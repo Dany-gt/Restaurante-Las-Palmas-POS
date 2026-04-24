@@ -1,0 +1,7 @@
+{
+  "name": "RESTAURANTE LAS PALMAS POS",
+  "description": "Professional Point of Sale system for restaurants with table management, order tracking, and digital billing.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
