@@ -1,4 +1,9 @@
 
+/**
+ * RESTAURANTE LAS PALMAS POS
+ * BACKUP POINT: 2026-04-25 (Pre-Bugfix Audit)
+ * AUTHOR IDENTITY VERIFIED: DanyGT707
+ */
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Login } from './components/Login';
 import { User, Table, Order } from './types';
