@@ -292,7 +292,7 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
         const fecha = new Date().toLocaleDateString('es-GT');
         let html = `<html><head><title>Lista de Compras</title><style>body{font-family:Arial,sans-serif;font-size:12px;margin:20px}h1,h2,h3{margin:4px 0}table{width:100%;border-collapse:collapse;margin:8px 0}td,th{border:1px solid #ccc;padding:4px 8px;text-align:left}th{background:#f0f0f0;font-weight:bold}.prov{margin:16px 0 4px;font-weight:bold;background:#106EBE;color:white;padding:4px 8px}hr{border:1px solid #333}</style></head><body>`;
         html += `<h1>LISTA DE COMPRAS — ${fecha}</h1><h3>Cevichería y Restaurante Las Palmas S.A.</h3><hr/>`;
-        for (const [prov, provItems] of Object.entries(purchaseByProvider)) {
+        for (const [prov, provItems] of Object.entries(purchaseByProvider) as [string, SupplyItem[]][]) {
             html += `<div class="prov">PROVEEDOR: ${prov}</div><table><tr><th>Producto</th><th>Unidad</th><th>Stock actual</th><th>A pedir</th><th>Precio U.</th><th>Subtotal est.</th></tr>`;
             for (const item of provItems) {
                 const aPedir = Math.max(0, item.stock_maximo - item.stock_actual);
@@ -308,7 +308,7 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
 
     const sendWhatsApp = () => {
         let msg = `*LISTA DE COMPRAS - Las Palmas*\n${new Date().toLocaleDateString('es-GT')}\n\n`;
-        for (const [prov, provItems] of Object.entries(purchaseByProvider)) {
+        for (const [prov, provItems] of Object.entries(purchaseByProvider) as [string, SupplyItem[]][]) {
             msg += `*PROVEEDOR: ${prov}*\n`;
             for (const item of provItems) {
                 const aPedir = Math.max(0, item.stock_maximo - item.stock_actual);
@@ -837,7 +837,7 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                     <div className="flex flex-col items-center justify-center h-32 text-slate-400"><Check size={28} className="text-emerald-500 mb-2"/><p className="text-[11px] font-bold">¡Todo el stock está en niveles correctos!</p></div>
                                 ) : (
                                     <div className="space-y-3">
-                                        {Object.entries(purchaseByProvider).map(([prov, provItems]) => (
+                                        {(Object.entries(purchaseByProvider) as [string, SupplyItem[]][]).map(([prov, provItems]) => (
                                             <div key={prov} className="border border-gray-300 bg-white">
                                                 <div className="bg-[#106EBE] px-3 py-1.5"><p className="text-[11px] font-black text-white uppercase">PROVEEDOR: {prov}</p></div>
                                                 <table className="w-full border-collapse">

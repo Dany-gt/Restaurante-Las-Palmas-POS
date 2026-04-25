@@ -481,7 +481,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         } else {
             // Aggregate mode: Create a virtual order for the ticket
             orderToPrint = {
-                order_number: 'TODO',
+                order_number: 'MULTIPLE',
                 customer_name: 'Todas las Cuentas',
                 order_type: initialOrder.order_type || 'DINE_IN',
                 created_at: DateUtils.nowISO()

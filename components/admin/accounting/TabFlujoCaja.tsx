@@ -12,6 +12,7 @@ import * as XLSX from 'xlsx';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowsSaveButton } from '../../WindowsSaveButton';
 import { registrarAuditoria } from '../../../services/auditService';
+import { activityLogService } from '../../../services/ActivityLogService';
 
 const fmtQ = (n: any) => {
     const val = parseFloat(n) || 0;
@@ -568,7 +569,7 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                     tipo: form.flow_type,
                     monto: form.flow_type === 'entry' ? form.entry_amount : form.exit_amount
                 }
-            }, { amount: form.flow_type === 'entry' ? form.entry_amount : form.exit_amount, type: form.flow_type === 'entry' ? 'INGRESO' : 'GASTO' });
+            }, { amount: form.flow_type === 'entry' ? form.entry_amount : form.exit_amount, type: form.flow_type === 'entry' ? 'INGRESO' : 'EGRESO' });
         }
 
         setShowForm(false); setForm(EMPTY); fetchData();
@@ -592,7 +593,7 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                     monto: item.flow_type === 'entry' ? item.entry_amount : item.exit_amount,
                     motivo: 'Eliminación manual desde panel'
                 }
-            }, { amount: item.flow_type === 'entry' ? item.entry_amount : item.exit_amount, type: item.flow_type === 'entry' ? 'INGRESO' : 'GASTO' });
+            }, { amount: item.flow_type === 'entry' ? item.entry_amount : item.exit_amount, type: item.flow_type === 'entry' ? 'INGRESO' : 'EGRESO' });
         }
         await supabase.from('cash_flow').delete().eq('id', id); 
         fetchData(); 

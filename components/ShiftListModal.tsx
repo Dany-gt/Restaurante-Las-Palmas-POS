@@ -155,7 +155,7 @@ export const ShiftListModal: React.FC<ShiftListModalProps> = ({ isOpen, onClose 
                 difference: (shift.counted_amount || 0) - expectedCash,
                 stats: {
                     ordersAttended: orders?.filter((o: any) => o.status === 'completed').length || 0,
-                    deletedPlates: 0, // TODO: Calculate from order_items if tracked
+                    deletedPlates: 0,
                     cancelledOrders: orders?.filter((o: any) => o.status === 'cancelled').length || 0,
                     commensals: orders?.reduce((acc: number, o: any) => acc + (o.pax_count || 0), 0) || 0,
                     openOrders: orders?.filter((o: any) => o.status !== 'completed' && o.status !== 'cancelled').length || 0,
@@ -166,15 +166,15 @@ export const ShiftListModal: React.FC<ShiftListModalProps> = ({ isOpen, onClose 
                 cashDetail: {
                     initial: shift.start_amount || 0,
                     sales: cashSales,
-                    abonos: 0, // TODO: Add credit payments if tracked
+                    abonos: 0,
                     tips: cashTips,
                     expenses: totalExpenses,
                     total: expectedCash,
                 },
                 denominations: shift.cash_detail || {},
                 notes: shift.closing_notes || '',
-                abonosByMethod: [], // TODO: Add if credit payments are tracked
-                posCardDetail: [], // TODO: Add POS terminal breakdown if needed
+                abonosByMethod: [],
+                posCardDetail: [],
             };
 
             return reportData;

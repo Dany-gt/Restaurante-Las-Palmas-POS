@@ -327,7 +327,7 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
             }
 
             if (currentUser) {
-                activityLogService.logFinancial({
+                activityLogService.log({
                     user: currentUser,
                     module: 'CONTABILIDAD',
                     action: 'ASIENTO_CONTABLE_CREADO' as any,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Search, ChevronRight, ChevronDown, Folder, Printer, FileDown, RefreshCw, Loader2, X, CheckSquare, Square, Plus, Building2, Calendar, LayoutList, History, Check } from 'lucide-react';
+import { Package, Search, ChevronRight, ChevronDown, Folder, Printer, FileDown, RefreshCw, Loader2, X, CheckSquare, Square, Plus, Building2, Calendar, LayoutList, History, Check, Pencil, Trash2 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { DraggableWindow } from './AdminPortal';
 import { supabase } from '../../supabase';
@@ -141,7 +141,7 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                 // Map date stocks to the format used by the component
                 // Since RPC only returns item_id and quantity, we keep existing min_stock from current stock if available
                 const mappedDateStocks = dateStocks.map((ds: any) => {
-                    const currentStock = stockRes.data?.find(s => s.item_id === ds.item_id && s.branch_id === currentBranchId);
+                    const currentStock = stockRes.data?.find(s => s.product_id === ds.item_id && s.branch_id === currentBranchId);
                     return {
                         item_id: ds.item_id,
                         branch_id: currentBranchId,

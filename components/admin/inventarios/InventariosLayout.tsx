@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useReactToPrint } from 'react-to-print';
-import { Search, Plus, Edit2, Trash2, Folder, Package, X, RefreshCw, ChefHat, FolderOpen, Layers, Save, Check, Image as ImageIcon, Printer, FileText, Sparkles, Loader2, AlertCircle, FolderPlus, Settings } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Folder, Package, X, RefreshCw, ChefHat, FolderOpen, Save, Check, Image as ImageIcon, Printer, FileText, Sparkles, Loader2, AlertCircle, FolderPlus, Settings } from 'lucide-react';
 import { ConfirmDialog } from '../ConfirmDialog';
 // ••• SIDEBARS INDEPENDIENTES POR DOMINIO •••••••••••••
 import { MenuCategorySidebar } from '../menu/MenuCategorySidebar';       // D1: menu_categories
@@ -76,7 +76,9 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
     const [assignedModifierGroups, setAssignedModifierGroups] = useState<any[]>([]);
     const [assignedOptionGroups, setAssignedOptionGroups] = useState<any[]>([]);
     const [inventoryItems, setInventoryItems] = useState<any[]>([]);
+    const [allProducts, setAllProducts] = useState<any[]>([]);
     const [suppliers, setSuppliers] = useState<any[]>([]);
+    const [costingConfig, setCostingConfig] = useState<any>(null);
     
     // UX States for Subsidiary Modals
     const [optionsContextMenu, setOptionsContextMenu] = useState<{ visible: boolean, x: number, y: number, type: 'options' | 'modifiers' | null, targetGroupId?: string }>({ visible: false, x: 0, y: 0, type: null });
@@ -213,7 +215,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 supabase.from('kitchen_stations').select('*').order('name'),
                 supabase.from('option_groups').select('*').order('name'),
                 supabase.from('modifier_groups').select('*').order('name'),
-                supabase.from('products').select('*, product_categories!product_category_id(nombre)').eq('es_platillo', false).order('name'),
+                supabase.from('products').select('*').order('name'),
                 supabase.from('suppliers').select('*').order('name'),
                 supabase.from('menu_categories').select('*').order('nombre')
             ]);
@@ -231,16 +233,27 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
             if (optRes.data) setOptionGroups(optRes.data);
             if (modRes.data) setModifierGroups(modRes.data);
             if (invRes.data) {
-                const mapped = invRes.data.map((i: any) => ({
-                    ...i,
-                    nombre: i.name,
-                    codigo: i.product_code,
-                    presentacion: i.unit_measure,
-                    categoria: i.product_categories?.nombre || 'SIN CATEGORÍA'
-                }));
+                const cats = invCatRes.data || [];
+                // FILTRO INDISPENSABLE: Restaurado por requerimiento del usuario para segregación de listas.
+                const mapped = invRes.data.filter((i: any) => !i.es_platillo).map((i: any) => {
+                    const cat = cats.find(c => c.id === i.product_category_id);
+                    return {
+                        ...i,
+                        nombre: i.name,
+                        codigo: i.product_code,
+                        presentacion: i.unit_measure,
+                        categoria: cat?.nombre || 'SIN CATEGORÍA'
+                    };
+                });
                 setInventoryItems(mapped);
+                setAllProducts(invRes.data); // Mantenemos TODOS los productos para mapeo de nombres de receta y buscador
+                (window as any)._allCatalogItems = invRes.data;
             }
             if (supRes.data) setSuppliers(supRes.data);
+            
+            // Cargar Config de Costeo
+            const { data: cData } = await supabase.from('menu_costing_config').select('*').eq('org_id', 'default').single();
+            if (cData) setCostingConfig(cData);
         } catch (e) {
             console.error('Error fetching data:', e);
         }
@@ -273,9 +286,10 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
     const [refreshKey, setRefreshKey] = useState(0); // Para forzar el refresco de los listados
 
     // Handlers para acciones desde los listados
-    const handleRefresh = () => {
+    const handleRefresh = async () => {
         setRefreshKey(prev => prev + 1);
-        console.log('Refrescando listados...');
+        await fetchData();
+        console.log('Refrescando listados y catálogo local...');
     };
 
     const handleEdit = async (id: string, type: 'platillo' | 'producto') => {
@@ -317,8 +331,33 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     setBranchPrices(fullBranchPrices);
 
                     // Receta
-                    const { data: recipeData } = await supabase.from('product_recipes').select('*, inventory_items(*)').eq('product_id', id);
-                    if (recipeData) setRecipeItems(recipeData);
+                    const { data: recipeData } = await supabase.from('product_recipes').select('*').eq('product_id', id);
+                    if (recipeData && recipeData.length > 0) {
+                        // Traer detalles de los ingredientes de forma manual para asegurar visibilidad total
+                        const itemIds = recipeData.map(r => r.inventory_item_id).filter(Boolean);
+                        const { data: itemsDetail } = await supabase
+                            .from('products')
+                            .select('id, name, cost_price, unit_measure, conversion_factor')
+                            .in('id', itemIds);
+                            
+                        const fullRecipe = recipeData.map(r => {
+                            // Priorizamos el fetch fresco (itemsDetail) sobre el buffer local para reflejar cambios inmediatos de precio
+                            const detail = itemsDetail?.find(d => d.id === r.inventory_item_id) || allProducts.find(p => p.id === r.inventory_item_id);
+                            
+                            return {
+                                ...r,
+                                inventory_items: detail ? {
+                                    name: detail.name || detail.nombre,
+                                    cost_price: detail.cost_price || 0,
+                                    conversion_factor: detail.conversion_factor || 1,
+                                    unit_measure: detail.unit_measure || 'Unidad'
+                                } : { name: '[INSUMO BORRADO]', cost_price: 0, conversion_factor: 1, unit_measure: 'Unidad' }
+                            };
+                        });
+                        setRecipeItems(fullRecipe);
+                    } else {
+                        setRecipeItems([]);
+                    }
 
                     // Modificadores y Opciones
                     const { data: modData } = await supabase.from('product_modifier_groups').select('*').eq('product_id', id);
@@ -515,13 +554,17 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     }
 
                     // Receta Técnica
+                    const { data: existingRecipes } = await supabase.from('product_recipes').select('inventory_item_id, waste_percentage').eq('product_id', savedId);
+                    const wasteMap = new Map(existingRecipes?.map(r => [r.inventory_item_id, r.waste_percentage]) || []);
+
                     await supabase.from('product_recipes').delete().eq('product_id', savedId);
                     if (recipeItems.length > 0) {
                         const rData = recipeItems.map(ri => ({
                             product_id: savedId,
                             inventory_item_id: ri.inventory_item_id,
                             quantity: parseFloat(ri.quantity) || 0,
-                            unit_measure: ri.unit_measure || 'Unidades'
+                            unit_measure: ri.unit_measure || 'Unidades',
+                            waste_percentage: wasteMap.get(ri.inventory_item_id) || 0
                         }));
                         await supabase.from('product_recipes').insert(rData);
                     }
@@ -604,25 +647,30 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     await supabase.from('product_branch_inventory').upsert(invData, { onConflict: 'product_id,branch_id' });
                 }
 
-                // Receta para Insumos
-                const { error: delError } = await supabase.from('product_recipes').delete().eq('product_id', savedId);
-                if (delError) console.warn('Aviso: No se pudo limpiar receta previa:', delError.message);
+                    // Receta para Insumos
+                    const { data: existingRecipes } = await supabase.from('product_recipes').select('inventory_item_id, waste_percentage').eq('product_id', savedId);
+                    const wasteMap = new Map(existingRecipes?.map(r => [r.inventory_item_id, r.waste_percentage]) || []);
 
-                if (recipeItems.length > 0) {
-                    const rData = recipeItems.map(ri => ({
-                        product_id: savedId,
-                        inventory_item_id: ri.inventory_item_id,
-                        quantity: parseFloat(ri.quantity) || 0,
-                        unit_measure: ri.unit_measure || ri.inventory_items?.unit_measure || 'Unidades'
-                    }));
-                    const { error: insError } = await supabase.from('product_recipes').insert(rData);
-                    if (insError) throw new Error('Error al guardar componentes de la receta: ' + insError.message);
-                }
+                    const { error: delError } = await supabase.from('product_recipes').delete().eq('product_id', savedId);
+                    if (delError) console.warn('Aviso: No se pudo limpiar receta previa:', delError.message);
+
+                    if (recipeItems.length > 0) {
+                        const rData = recipeItems.map(ri => ({
+                            product_id: savedId,
+                            inventory_item_id: ri.inventory_item_id,
+                            quantity: parseFloat(ri.quantity) || 0,
+                            unit_measure: ri.unit_measure || ri.inventory_items?.unit_measure || 'Unidades',
+                            waste_percentage: wasteMap.get(ri.inventory_item_id) || 0
+                        }));
+                        const { error: insError } = await supabase.from('product_recipes').insert(rData);
+                        if (insError) throw new Error('Error al guardar componentes de la receta: ' + insError.message);
+                    }
             }
 
             notify.success('Registro guardado correctamente');
             handleRefresh();
             setShowModal(false);
+            setShowTechnicalModal(false);
             resetForm();
         } catch (e: any) {
             notify.error('Error al guardar: ' + e.message);
@@ -979,7 +1027,6 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                     const q = searchModal.query.toUpperCase();
                                                     const itemName = (i.name || i.nombre || '').toUpperCase();
                                                     const itemCode = (i.product_code || i.codigo || '').toUpperCase();
-                                                    const catName = (i.categoria || i.product_categories?.nombre || '').toUpperCase();
                                                     
                                                     // Búsqueda por nombre o código
                                                     return itemName.includes(q) || itemCode.includes(q);
@@ -1164,15 +1211,24 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                                 <th className="px-4 text-left text-[9px] font-black text-slate-500 uppercase tracking-widest">Insumo / Ingrediente</th>
                                                                 <th className="w-24 text-center text-[9px] font-black text-slate-500 uppercase tracking-widest">Cantidad</th>
                                                                 <th className="w-24 text-center text-[9px] font-black text-slate-500 uppercase tracking-widest">Unidad</th>
-                                                                <th className="w-28 text-right text-[9px] font-black text-slate-500 uppercase tracking-widest px-4">Subtotal</th>
+                                                                <th className="w-28 text-right text-[9px] font-black text-slate-500 uppercase tracking-widest px-4">Subtotal Factura</th>
                                                                 <th className="w-10"></th>
                                                             </tr>
                                                         </thead>
                                                         <tbody className="divide-y divide-gray-100">
                                                             {recipeItems.map((ri, idx) => {
-                                                                const baseCost = (parseFloat(ri.inventory_items?.cost_price) || 0);
-                                                                const conversionFactor = (parseFloat(ri.inventory_items?.conversion_factor) || 1);
-                                                                const costPerUnit = baseCost / conversionFactor;
+                                                                // Cruzamos con el catálogo vivo para asegurar que si el usuario cambió el precio en otra pestaña, se refleje aquí al instante
+                                                                const itemFromCatalog = allProducts.find(p => p.id === ri.inventory_item_id);
+                                                                const productData = itemFromCatalog || (Array.isArray(ri.inventory_items) ? ri.inventory_items[0] : ri.inventory_items);
+                                                                
+                                                                const isNormalContributor = costingConfig?.is_normal_contributor !== false;
+                                                                const IVA_FACTOR = 1.12;
+
+                                                                const rawCost = (parseFloat(productData?.cost_price) || 0);
+                                                                const conversionFactor = (parseFloat(productData?.conversion_factor) || 1);
+                                                                
+                                                                const unitCostForCalc = rawCost; // Alinhado com a solicitação do usuário (Precio Factura)
+                                                                const costPerUnit = unitCostForCalc / conversionFactor;
                                                                 
                                                                 const qty = parseFloat(ri.quantity) || 0;
                                                                 let unitInternalFactor = 1;
@@ -1241,33 +1297,41 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                 </div>
                                                 <div className="flex items-center gap-6">
                                                     <div className="flex flex-col items-end">
-                                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest opacity-60">Costo Total Receta</span>
+                                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest opacity-60">Costo Total (Factura)</span>
                                                         <div className="flex items-baseline gap-1">
                                                             <span className="text-[12px] font-black text-[#106ebe]">Q</span>
                                                             <span className="text-[24px] font-black text-[#106ebe] drop-shadow-sm tabular-nums">
-                                                                {recipeItems.reduce((acc, ri) => {
-                                                                    const baseCost = (parseFloat(ri.inventory_items?.cost_price) || 0);
-                                                                    const conversionFactor = (parseFloat(ri.inventory_items?.conversion_factor) || 1);
-                                                                    const costPerUnit = baseCost / conversionFactor;
+                                                                {(() => {
+                                                                    const isNormalContributor = costingConfig?.is_normal_contributor !== false;
+                                                                    const IVA_FACTOR = 1.12;
+                                                                    
+                                                                    return recipeItems.reduce((acc, ri) => {
+                                                                        const rawCost = (parseFloat(ri.inventory_items?.cost_price) || 0);
+                                                                        const conversionFactor = (parseFloat(ri.inventory_items?.conversion_factor) || 1);
+                                                                        
+                                                                        const unitCostForCalc = rawCost; // Alinhado com a solicitação do usuário (Precio Factura)
+                                                                        const costPerUnit = unitCostForCalc / conversionFactor;
 
-                                                                    const qty = parseFloat(ri.quantity) || 0;
-                                                                    let unitInternalFactor = 1;
-                                                                    const lowerUnit = (ri.unit_measure || '').toLowerCase();
-                                                                    const baseUnit = (ri.inventory_items?.unit_measure || '').toLowerCase();
+                                                                        const qty = parseFloat(ri.quantity) || 0;
+                                                                        let unitInternalFactor = 1;
+                                                                        const lowerUnit = (ri.unit_measure || '').toLowerCase();
+                                                                        const baseUnit = (ri.inventory_items?.unit_measure || '').toLowerCase();
 
-                                                                    if (lowerUnit === 'gramo' && (baseUnit === 'libra' || baseUnit === 'lb')) unitInternalFactor = 1 / 453.592;
-                                                                    if (lowerUnit === 'onza' && (baseUnit === 'libra' || baseUnit === 'lb')) unitInternalFactor = 1 / 16;
-                                                                    if (lowerUnit === 'mililitro' && (baseUnit === 'litro' || baseUnit === 'lt')) unitInternalFactor = 1 / 1000;
-                                                                    if (lowerUnit === 'onza (liq)' && (baseUnit === 'litro' || baseUnit === 'lt')) unitInternalFactor = 1 / 33.814;
+                                                                        if (lowerUnit === 'gramo' && (baseUnit === 'libra' || baseUnit === 'lb')) unitInternalFactor = 1 / 453.592;
+                                                                        if (lowerUnit === 'onza' && (baseUnit === 'libra' || baseUnit === 'lb')) unitInternalFactor = 1 / 16;
+                                                                        if (lowerUnit === 'mililitro' && (baseUnit === 'litro' || baseUnit === 'lt')) unitInternalFactor = 1 / 1000;
+                                                                        if (lowerUnit === 'onza (liq)' && (baseUnit === 'litro' || baseUnit === 'lt')) unitInternalFactor = 1 / 33.814;
 
-                                                                    return acc + (qty * costPerUnit * unitInternalFactor);
-                                                                }, 0).toFixed(2)}
+                                                                        return acc + (qty * costPerUnit * unitInternalFactor);
+                                                                    }, 0).toFixed(2);
+                                                                })()}
                                                             </span>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
                                     </div>
 
                                     {/* PRINT VERSION (Professional / Non-editable) */}

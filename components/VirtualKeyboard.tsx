@@ -336,12 +336,10 @@ export const VirtualKeyboard: React.FC = () => {
             }, 0);
 
             onChange(newVal);
-            // Default behavior for other keys
-            if (button === '{enter}') {
-                handleClose();
-            } else {
-                onChange(keyboardNumpad.current.getInput());
-            }
+        } else if (button === '{enter}') {
+            handleClose();
+        } else {
+            onChange(keyboardNumpad.current.getInput());
         }
     };
 

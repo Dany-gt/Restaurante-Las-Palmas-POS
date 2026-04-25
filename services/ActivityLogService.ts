@@ -15,7 +15,9 @@ export type AuditModule =
     | 'MENU'
     | 'USUARIOS'
     | 'VENTAS'
-    | 'SEGURIDAD';
+    | 'SEGURIDAD'
+    | 'CONTABILIDAD'
+    | 'PRODUCCION';
 
 // ═══════════════════════════════════════════════════════════
 // EVENTOS TIPADOS POR MÓDULO

@@ -8,12 +8,14 @@ import {
 import { useNotify } from '../../hooks/useNotify';
 import { Product } from '../../types';
 import { registrarAuditoria, detectarCambios } from '../../services/auditService';
+import { activityLogService } from '../../services/ActivityLogService';
 
 export const MenuCosting: React.FC = () => {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
     const [originalConfig, setOriginalConfig] = useState<any>(null);
 
     const [products, setProducts] = useState<Product[]>([]);
+    const [inventoryItems, setInventoryItems] = useState<any[]>([]);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [recipeItems, setRecipeItems] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -141,16 +143,16 @@ export const MenuCosting: React.FC = () => {
         const { error } = await supabase
             .from('menu_costing_config')
             .upsert(payload, { onConflict: 'org_id' });
-            
+
         if (!error && currentUser && originalConfig) {
             // Log Gastos Fijos Modificados / CONFIG_MOD_CAMBIADA consolidado
             const cambios = detectarCambios(originalConfig, payload);
             if (cambios.campos_modificados.length > 0) {
-                
+
                 const oldTotalLabor = originalConfig.monthly_base_salary + originalConfig.mod_igss + originalConfig.mod_intecap + originalConfig.mod_irtra + originalConfig.mod_bonificacion + originalConfig.mod_aguinaldo + originalConfig.mod_bono14 + originalConfig.mod_vacaciones + originalConfig.mod_indemnizacion;
                 const oldMins = (originalConfig.number_of_cooks || 4) * originalConfig.operating_days * 8 * 60;
                 const oldCpM = oldMins ? oldTotalLabor / oldMins : 0;
-                
+
                 const currentMonthlyLaborTotalReal = monthlyBaseSalary + modIgss + modIntecap + modIrtra + modBonificacion + modAguinaldo + modBono14 + modVacaciones + modIndemnizacion;
                 const currentTotalCookMinutesPerMonth = numberOfCooks * operatingDays * 8 * 60;
                 const currentCostPerMinute = currentTotalCookMinutesPerMonth > 0 ? currentMonthlyLaborTotalReal / currentTotalCookMinutesPerMonth : 0;
@@ -159,7 +161,7 @@ export const MenuCosting: React.FC = () => {
                 const hasFixedCostChange = originalConfig.monthly_fixed_costs !== monthlyFixedCosts;
 
                 if (hasFixedCostChange) {
-                     await registrarAuditoria({
+                    await registrarAuditoria({
                         modulo: 'ESTRATEGIA',
                         sub_modulo: 'FICHA_TECNICA',
                         accion: 'GASTOS_FIJOS_MODIFICADOS',
@@ -168,19 +170,19 @@ export const MenuCosting: React.FC = () => {
                         entidad_nombre: 'menu_costing_config',
                         ...detectarCambios({ monthly_fixed_costs: originalConfig.monthly_fixed_costs }, { monthly_fixed_costs: monthlyFixedCosts }),
                         impacto_financiero: {
-                             diferencia_precio: monthlyFixedCosts - originalConfig.monthly_fixed_costs,
-                             impacto_mensual_estimado: `Prorrateo cambia de Q${originalConfig.total_monthly_portions ? (originalConfig.monthly_fixed_costs/originalConfig.total_monthly_portions).toFixed(2) : 0} a Q${totalMonthlyPortions ? (monthlyFixedCosts/totalMonthlyPortions).toFixed(2) : 0} por platillo`
+                            diferencia_precio: monthlyFixedCosts - originalConfig.monthly_fixed_costs,
+                            impacto_mensual_estimado: `Prorrateo cambia de Q${originalConfig.total_monthly_portions ? (originalConfig.monthly_fixed_costs / originalConfig.total_monthly_portions).toFixed(2) : 0} a Q${totalMonthlyPortions ? (monthlyFixedCosts / totalMonthlyPortions).toFixed(2) : 0} por platillo`
                         },
                         es_reversible: true,
                         datos_para_revertir: {
-                             tabla: 'menu_costing_config',
-                             valores: originalConfig
+                            tabla: 'menu_costing_config',
+                            valores: originalConfig
                         }
-                     });
+                    });
                 }
-                
+
                 if (hasLaborChange || cambios.campos_modificados.filter(c => c !== 'monthly_fixed_costs').length > 0) {
-                      await registrarAuditoria({
+                    await registrarAuditoria({
                         modulo: 'ESTRATEGIA',
                         sub_modulo: 'FICHA_TECNICA',
                         accion: 'CONFIG_MOD_CAMBIADA',
@@ -189,14 +191,14 @@ export const MenuCosting: React.FC = () => {
                         entidad_nombre: 'menu_costing_config',
                         ...cambios,
                         impacto_financiero: {
-                             impacto_mensual_estimado: hasLaborChange ? `Costo por minuto de MOD cambió de Q${oldCpM.toFixed(2)} a Q${currentCostPerMinute.toFixed(2)}` : 'Sin impacto financiero directo'
+                            impacto_mensual_estimado: hasLaborChange ? `Costo por minuto de MOD cambió de Q${oldCpM.toFixed(2)} a Q${currentCostPerMinute.toFixed(2)}` : 'Sin impacto financiero directo'
                         },
                         es_reversible: true,
                         datos_para_revertir: {
-                             tabla: 'menu_costing_config',
-                             valores: originalConfig
+                            tabla: 'menu_costing_config',
+                            valores: originalConfig
                         }
-                     });
+                    });
                 }
             }
 
@@ -212,26 +214,71 @@ export const MenuCosting: React.FC = () => {
     };
 
     const fetchProducts = async () => {
-        const { data, error } = await supabase.from('products').select('*, categories(name)').order('name');
-        if (!error) setProducts(data || []);
+        // Fetch platillos for the list
+        const { data: plats, error: pErr } = await supabase.from('products').select('*, categories(name), menu_categories(nombre)').eq('es_platillo', true).order('name');
+        if (!pErr) setProducts(plats || []);
+
+        // Fetch ALL products for mapping (including sub-recipes/misclassified)
+        const { data: invItems, error: iErr } = await supabase.from('products').select('id, name, cost_price, unit_measure, conversion_factor');
+        if (!iErr) setInventoryItems(invItems || []);
     };
 
     const fetchRecipe = async (prodId: string) => {
         setLoading(true);
-        const { data, error } = await supabase
+        console.log('[MenuCosting] Fetching recipe for:', prodId);
+
+        // Step 1: Ensure we have inventory items for mapping
+        let currentInvItems = inventoryItems;
+        if (currentInvItems.length === 0) {
+            const { data: invItems } = await supabase.from('products').select('id, name, cost_price, unit_measure, conversion_factor');
+            if (invItems) {
+                setInventoryItems(invItems);
+                currentInvItems = invItems;
+            }
+        }
+
+        // Step 2: Fetch the recipe rows
+        const { data: recipeRows, error } = await supabase
             .from('product_recipes')
-            .select('*, inventory_items(*)')
+            .select('*')
             .eq('product_id', prodId);
-        if (!error && data) {
-            setRecipeItems(data);
+
+        if (error) {
+            console.error('[MenuCosting] Error fetching recipes:', error);
+            notify.error('Error al cargar receta: ' + error.message);
+            setLoading(false);
+            return;
+        }
+
+        if (recipeRows) {
+            // Step 3: Manually join with our inventory items
+            const mappedData = recipeRows.map(row => {
+                const itemDetail = currentInvItems.find(item => item.id === row.inventory_item_id);
+                return {
+                    ...row,
+                    inventory_items: itemDetail ? {
+                        id: itemDetail.id,
+                        name: itemDetail.name,
+                        cost: itemDetail.cost_price, // Gross cost for invoice alignment
+                        unit_measure: itemDetail.unit_measure,
+                        conversion_factor: itemDetail.conversion_factor
+                    } : null
+                };
+            });
+
+            console.log('[MenuCosting] Mapped recipe items:', mappedData.length);
+            setRecipeItems(mappedData);
+
             // Restore saved waste percentages from DB
             const wasteMap: Record<string, number> = {};
-            data.forEach((item: any) => {
+            mappedData.forEach((item: any) => {
                 if (item.waste_percentage != null) {
                     wasteMap[item.inventory_item_id] = item.waste_percentage;
                 }
             });
             setWastePercentage(wasteMap);
+        } else {
+            setRecipeItems([]);
         }
         setLoading(false);
     };
@@ -266,12 +313,12 @@ export const MenuCosting: React.FC = () => {
         // --- AUDIT LOGGING PREP ---
         const mermas_modificadas: any[] = [];
         const oldPrepTime = parseInt(selectedProduct.prep_time || '20');
-        
+
         let oldFoodCost = 0;
         recipeItems.forEach((item: any) => {
             const oldMerma = item.waste_percentage || 0;
             const newMerma = wastePercentage[item.inventory_item_id] || 0;
-            
+
             if (oldMerma !== newMerma) {
                 mermas_modificadas.push({
                     ingrediente: item.inventory_items?.name || item.inventory_item_id,
@@ -281,14 +328,42 @@ export const MenuCosting: React.FC = () => {
             }
 
             const rawCost = item.inventory_items?.cost || 0;
+            const conversionFactor = item.inventory_items?.conversion_factor || 1;
             const unitCostForCalc = isNormalContributor ? rawCost / IVA_FACTOR : rawCost;
-            const baseCost = unitCostForCalc * (item.quantity || 0);
-            oldFoodCost += (baseCost * (1 / (1 - oldMerma / 100)));
+            const costPerBaseUnit = unitCostForCalc / conversionFactor;
+
+            const qty = item.quantity || 0;
+            let unitFactor = 1;
+            const selectedUnit = (item.unit_measure || '').toLowerCase();
+            const baseUnit = (item.inventory_items?.unit_measure || '').toLowerCase();
+
+            // LÓGICA DE CONVERSIÓN DE UNIDADES (Prorrateo Inteligente)
+            if (selectedUnit !== 'unidad') {
+                if (baseUnit.includes('libra') || baseUnit === 'lb') {
+                    if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
+                    if (selectedUnit.includes('gramo')) unitFactor = 1 / 453.592;
+                } else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
+                    if (selectedUnit.includes('gramo')) unitFactor = 1 / 1000;
+                    if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
+                } else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
+                    let baseInMl = 1;
+                    if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                    if (baseUnit.includes('onza')) baseInMl = 29.5735;
+                    let selectedInMl = 1;
+                    if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
+                    if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+                    if (selectedUnit.includes('litro')) selectedInMl = 1000;
+                    unitFactor = selectedInMl / baseInMl;
+                }
+            }
+
+            const baseCostLine = costPerBaseUnit * qty * unitFactor;
+            oldFoodCost += (baseCostLine * (1 / (1 - oldMerma / 100)));
         });
 
         const oldLaborCost = costPerMinute * oldPrepTime;
         const oldTotalCost = oldFoodCost + oldLaborCost + variableCostsPerPlate + fixedCostPerPlate;
-        
+
         let activeFoodCostTargetPct = fcTargetFood;
         const cat = (selectedProduct as any)?.categories?.name?.toLowerCase() || '';
         const prodName = selectedProduct.name.toLowerCase();
@@ -300,7 +375,7 @@ export const MenuCosting: React.FC = () => {
         const oldPriceBase = targetDivisor > 0 ? oldTotalCost / targetDivisor : 0;
         const oldPricePostNeonet = oldPriceBase / (1 - cardCommission / 100);
         const oldSuggestedPriceWithIva = oldPricePostNeonet * IVA_FACTOR;
-        
+
         // --- END AUDIT LOGGING PREP ---
 
         await Promise.all(updates);
@@ -338,7 +413,7 @@ export const MenuCosting: React.FC = () => {
         notify.info('Calculando rentabilidad de todo el menú... esto puede tomar unos segundos.');
 
         // 1. Fetch all recipes & inventory items at once
-        const { data: allRecipes } = await supabase.from('product_recipes').select('*, inventory_items(*)');
+        const { data: allRecipes } = await supabase.from('product_recipes').select('*, inventory_items:products!inventory_item_id(id, name, cost:cost_price, unit_measure, conversion_factor)');
 
         // Group recipes by product_id
         const recipesByProduct: Record<string, any[]> = {};
@@ -351,7 +426,7 @@ export const MenuCosting: React.FC = () => {
 
         // Calculate Cost & Margins for ALL products
         const report = products.map(prod => {
-            const cat = (prod as any).categories?.name?.toLowerCase() || '';
+            const cat = ((prod as any).menu_categories?.nombre || (prod as any).categories?.name || '').toLowerCase();
             const prodName = prod.name.toLowerCase();
 
             // Determine active FC target for this product
@@ -365,8 +440,44 @@ export const MenuCosting: React.FC = () => {
             const foodCost = pRecipes.reduce((acc, item) => {
                 const merma = item.waste_percentage || 0;
                 const rawCost = item.inventory_items?.cost || 0;
+                const conversionFactor = item.inventory_items?.conversion_factor || 1;
+
                 const unitCostForCalc = isNormalContributor ? rawCost / IVA_FACTOR : rawCost;
-                const baseCost = unitCostForCalc * (item.quantity || 0);
+                const costPerBaseUnit = unitCostForCalc / conversionFactor;
+
+                const qty = item.quantity || 0;
+                let unitFactor = 1;
+                const selectedUnit = (item.unit_measure || '').toLowerCase();
+                const baseUnit = (item.inventory_items?.unit_measure || '').toLowerCase();
+
+                // LÓGICA DE CONVERSIÓN DE UNIDADES (Prorrateo Inteligente)
+                if (selectedUnit !== 'unidad') {
+                    // PESO (lb)
+                    if (baseUnit.includes('libra') || baseUnit === 'lb') {
+                        if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
+                        if (selectedUnit.includes('gramo')) unitFactor = 1 / 453.592;
+                    }
+                    // PESO (kg)
+                    else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
+                        if (selectedUnit.includes('gramo')) unitFactor = 1 / 1000;
+                        if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
+                    }
+                    // VOLUMEN (lt/ml/oz)
+                    else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
+                        let baseInMl = 1;
+                        if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                        if (baseUnit.includes('onza')) baseInMl = 29.5735;
+
+                        let selectedInMl = 1;
+                        if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
+                        if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+                        if (selectedUnit.includes('litro')) selectedInMl = 1000;
+
+                        unitFactor = selectedInMl / baseInMl;
+                    }
+                }
+
+                const baseCost = costPerBaseUnit * qty * unitFactor;
                 return acc + (baseCost * (1 / (1 - merma / 100)));
             }, 0);
 
@@ -393,7 +504,7 @@ export const MenuCosting: React.FC = () => {
             return {
                 id: prod.id,
                 name: prod.name,
-                category: (prod as any).categories?.name || 'SIN CATEGORÍA',
+                category: (prod as any).menu_categories?.nombre || (prod as any).categories?.name || 'SIN CATEGORÍA',
                 activeFc,
                 foodCost,
                 laborCost,
@@ -420,16 +531,56 @@ export const MenuCosting: React.FC = () => {
     // --- CALCULATIONS (THE ENGINE) ---
 
     // 1. Recipe Cost with Merma + IVA Regime (Module 5)
-    const foodCostTotal = recipeItems.reduce((acc, item) => {
+    const { foodCostTotal, grossFoodCostTotal } = recipeItems.reduce((acc, item) => {
+        const productData = Array.isArray(item.inventory_items) ? item.inventory_items[0] : item.inventory_items;
+
         const merma = wastePercentage[item.inventory_item_id] || 0;
-        const rawCost = item.inventory_items?.cost || 0;
-        // Contribuyente Normal: price without IVA (divide by 1.12 = recover as credit)
-        // Pequeño Contribuyente: price with IVA already embedded (use as-is)
+        const rawCost = productData?.cost || 0;
+        const conversionFactor = productData?.conversion_factor || 1;
+
+        // Costo Neto (para ROI)
         const unitCostForCalc = isNormalContributor ? rawCost / IVA_FACTOR : rawCost;
-        const baseCost = unitCostForCalc * (item.quantity || 0);
+        const costPerBaseUnit = unitCostForCalc / conversionFactor;
+
+        // Costo Bruto (para comparación con Factura)
+        const grossCostPerBaseUnit = rawCost / conversionFactor;
+
+        const qty = item.quantity || 0;
+        let unitFactor = 1;
+        const selectedUnit = (item.unit_measure || '').toLowerCase();
+        const baseUnit = (productData?.unit_measure || '').toLowerCase();
+
+        // LÓGICA DE CONVERSIÓN DE UNIDADES (Prorrateo Inteligente)
+        if (selectedUnit !== 'unidad') {
+            if (baseUnit.includes('libra') || baseUnit === 'lb') {
+                if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
+                if (selectedUnit.includes('gramo')) unitFactor = 1 / 453.592;
+            } else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
+                if (selectedUnit.includes('gramo')) unitFactor = 1 / 1000;
+                if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
+            } else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
+                let baseInMl = 1;
+                if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                if (baseUnit.includes('onza')) baseInMl = 29.5735;
+                let selectedInMl = 1;
+                if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
+                if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+                if (selectedUnit.includes('litro')) selectedInMl = 1000;
+                unitFactor = selectedInMl / baseInMl;
+            }
+        }
+
+        const baseCost = costPerBaseUnit * qty * unitFactor;
         const costWithMerma = baseCost * (1 / (1 - merma / 100));
-        return acc + costWithMerma;
-    }, 0);
+
+        const baseGross = grossCostPerBaseUnit * qty * unitFactor;
+        const grossWithMerma = baseGross * (1 / (1 - merma / 100));
+
+        return {
+            foodCostTotal: acc.foodCostTotal + costWithMerma,
+            grossFoodCostTotal: acc.grossFoodCostTotal + grossWithMerma
+        };
+    }, { foodCostTotal: 0, grossFoodCostTotal: 0 });
 
     // 2. Labor Cost Real (Step 4 - 8 Concepts — all user-editable)
     const monthlyLaborTotalReal = monthlyBaseSalary + modIgss + modIntecap + modIrtra + modBonificacion + modAguinaldo + modBono14 + modVacaciones + modIndemnizacion;
@@ -452,7 +603,7 @@ export const MenuCosting: React.FC = () => {
     // --- DETERMINE ACTIVE FOOD COST TARGET ---
     let activeFoodCostTargetPct = fcTargetFood;
     if (selectedProduct) {
-        const cat = (selectedProduct as any)?.categories?.name?.toLowerCase() || '';
+        const cat = ((selectedProduct as any)?.menu_categories?.nombre || (selectedProduct as any)?.categories?.name || '').toLowerCase();
         const prodName = selectedProduct.name.toLowerCase();
 
         if (cat.includes('cerveza') || cat.includes('agua') || cat.includes('gaseosa') || prodName.includes('botella')) {
@@ -505,7 +656,7 @@ export const MenuCosting: React.FC = () => {
         <div className="w-full h-full bg-[#f8f9fa] flex flex-col overflow-hidden text-[#106ebe]">
             {/* Professional Compact Header */}
             <header className="bg-white border-b border-[#106ebe]/10 px-4 py-2 flex items-center justify-between shadow-sm z-20">
-                <div className="flex items-center gap-4 divide-x divide-gray-100 italic font-serif">
+                <div className="flex items-center gap-4 divide-x divide-gray-100 font-sans">
                     <div className="relative min-w-[260px]">
                         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={13} />
                         <select
@@ -527,7 +678,7 @@ export const MenuCosting: React.FC = () => {
                     <div className="pl-4 flex flex-col">
                         <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Categoría</span>
                         <span className="text-[10px] font-black uppercase text-[#106ebe] leading-none">
-                            {(selectedProduct as any)?.categories?.name || '---'}
+                            {(selectedProduct as any)?.menu_categories?.nombre || (selectedProduct as any)?.categories?.name || '---'}
                         </span>
                     </div>
 
@@ -582,9 +733,9 @@ export const MenuCosting: React.FC = () => {
                 </div>
             </header>
 
-            <main className="flex-1 overflow-hidden flex gap-4 p-4">
+            <main className="flex-1 overflow-y-auto flex gap-6 p-4 custom-scrollbar pb-32">
                 {/* Left: Recipe & Details */}
-                <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-1 custom-scrollbar">
+                <div className="flex-1 flex flex-col gap-6">
 
                     {/* Compact Recipe Table */}
                     <section className="bg-white border border-[#106ebe]/10 rounded-lg overflow-hidden shadow-sm">
@@ -592,8 +743,8 @@ export const MenuCosting: React.FC = () => {
                             <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#106ebe] flex items-center gap-2">
                                 <Plus size={12} className="text-gray-400" /> Detalle de Receta (Insumos)
                             </h3>
-                            <span className="text-[8px] font-bold text-gray-400 italic font-serif uppercase">
-                                Total Insumos ({isNormalContributor ? 'Sin IVA — Crédito Fiscal' : 'Con IVA incluido'}): Q {foodCostTotal.toFixed(2)}
+                            <span className="text-[9px] font-black text-gray-400 uppercase">
+                                Total Insumos Factura (con IVA): Q {grossFoodCostTotal.toFixed(2)}
                             </span>
                         </div>
 
@@ -601,26 +752,70 @@ export const MenuCosting: React.FC = () => {
                             <thead className="bg-gray-50/50">
                                 <tr className="text-[8px] font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
                                     <th className="px-4 py-2">Insumo</th>
-                                    <th className="px-4 py-2 text-center">Cant.</th>
-                                    <th className="px-4 py-2">Unidad</th>
-                                    <th className="px-4 py-2 text-right">Costo Unit.</th>
+                                    <th className="px-4 py-2 text-center">Cantidad</th>
+                                    <th className="px-4 py-2">Unidad de Medida</th>
+                                    <th className="px-4 py-2 text-right">Precio Unitario (Factura)</th>
                                     <th className="px-4 py-2 text-center">Merma %</th>
-                                    <th className="px-4 py-2 text-right">Subtotal Real</th>
+                                    <th className="px-4 py-2 text-right">Subtotal Factura</th>
                                     <th className="px-4 py-2 w-10"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {recipeItems.map((item, idx) => {
+                                    const productData = Array.isArray(item.inventory_items) ? item.inventory_items[0] : item.inventory_items;
                                     const merma = wastePercentage[item.inventory_item_id] || 0;
-                                    const costBase = (item.inventory_items?.cost || 0) * (item.quantity || 0);
-                                    const costReal = costBase * (1 / (1 - merma / 100));
+                                    const rawCost = productData?.cost || 0;
+                                    const conversionFactor = productData?.conversion_factor || 1;
+
+                                    // Cálculo para margen neto (ROI)
+                                    const unitCostForCalc = isNormalContributor ? rawCost / IVA_FACTOR : rawCost;
+                                    const costPerBaseUnit = unitCostForCalc / conversionFactor;
+
+                                    // Cálculo para validación de factura (Bruto)
+                                    const costGrossPerBaseUnit = rawCost / conversionFactor;
+
+                                    const qty = item.quantity || 0;
+                                    let unitFactor = 1;
+                                    const selectedUnit = (item.unit_measure || '').toLowerCase();
+                                    const baseUnit = (productData?.unit_measure || '').toLowerCase();
+
+                                    // LÓGICA DE CONVERSIÓN DE UNIDADES (Prorrateo Inteligente)
+                                    if (selectedUnit !== 'unidad') {
+                                        if (baseUnit.includes('libra') || baseUnit === 'lb') {
+                                            if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
+                                            if (selectedUnit.includes('gramo')) unitFactor = 1 / 453.592;
+                                        } else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
+                                            if (selectedUnit.includes('gramo')) unitFactor = 1 / 1000;
+                                            if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
+                                        } else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
+                                            let baseInMl = 1;
+                                            if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                                            if (baseUnit.includes('onza')) baseInMl = 29.5735;
+                                            let selectedInMl = 1;
+                                            if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
+                                            if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+                                            if (selectedUnit.includes('litro')) selectedInMl = 1000;
+                                            unitFactor = selectedInMl / baseInMl;
+                                        }
+                                    }
+
+                                    const baseCost = costPerBaseUnit * qty * unitFactor;
+                                    const costRealManual = baseCost * (1 / (1 - merma / 100)); // NETO
+
+                                    const baseCostGross = costGrossPerBaseUnit * qty * unitFactor;
+                                    const grossSubtotal = baseCostGross * (1 / (1 - merma / 100)); // BRUTO (Para factura)
 
                                     return (
                                         <tr key={idx} className="text-[10px] font-bold text-gray-600 hover:bg-gray-50/30 transition-colors">
-                                            <td className="px-4 py-1.5">{item.inventory_items?.name}</td>
+                                            <td className="px-4 py-1.5">{productData?.name || 'Insumo sin nombre'}</td>
                                             <td className="px-4 py-1.5 text-center font-black text-gray-800">{item.quantity}</td>
                                             <td className="px-4 py-1.5 uppercase text-gray-400">{item.unit_measure}</td>
-                                            <td className="px-4 py-1.5 text-right font-serif italic text-gray-400">Q {item.inventory_items?.cost?.toFixed(2)}</td>
+                                            <td className="px-4 py-1.5 text-right text-gray-500">
+                                                <div className="flex flex-col">
+                                                    <span>Q {costGrossPerBaseUnit.toFixed(2)}</span>
+                                                    <span className="text-[7px] opacity-60">P. Factura</span>
+                                                </div>
+                                            </td>
                                             <td className="px-4 py-1.5 text-center">
                                                 <input
                                                     type="number"
@@ -629,46 +824,51 @@ export const MenuCosting: React.FC = () => {
                                                     className="w-12 bg-gray-50 border border-gray-100 rounded text-center text-[10px]"
                                                 />
                                             </td>
-                                            <td className="px-4 py-1.5 text-right font-black text-[#106ebe]">Q {costReal.toFixed(2)}</td>
-                                            <td className="px-4 py-1.5 text-right text-gray-300 hover:text-rose-500 cursor-pointer transition-colors"><Trash2 size={12} /></td>
+                                            <td className="px-4 py-1.5 text-right font-black text-[#106ebe]">
+                                                <div className="flex flex-col">
+                                                    <span>Q {grossSubtotal.toFixed(2)}</span>
+                                                    <span className="text-[7px] text-gray-400 font-normal">Factura (Neto: Q {costRealManual.toFixed(2)})</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-1.5 text-right text-gray-300 hover:text-rose-500 cursor-pointer transition-colors" onClick={() => setRecipeItems(prev => prev.filter((_, i) => i !== idx))}><Trash2 size={12} /></td>
                                         </tr>
                                     );
                                 })}
                                 {recipeItems.length === 0 && (
                                     <tr>
-                                        <td colSpan={6} className="py-12 text-center text-gray-300 italic text-[10px] font-serif uppercase tracking-widest">No hay insumos configurados</td>
+                                        <td colSpan={6} className="py-12 text-center text-gray-300 text-[10px] uppercase tracking-widest">No hay insumos configurados</td>
                                     </tr>
                                 )}
                             </tbody>
                         </table>
                     </section>
 
-                    <div className="grid grid-cols-2 gap-4 h-fit">
+                    <div className="grid grid-cols-[0.8fr_1.2fr] gap-4 h-fit">
                         {/* MOD Detailed - 8 Concepts GT (fully editable) */}
                         <div className="bg-white border border-[#106ebe]/10 rounded-lg p-3 shadow-sm">
                             <h4 className="text-[9px] font-black uppercase tracking-widest text-orange-600 mb-3 flex items-center gap-2">
-                                <Clock size={12} /> MOD: Desglose Salarial Real (GT)
+                                <Clock size={12} /> Mano de Obra Directa: Desglose Salarial Real
                             </h4>
 
                             {/* Row 1: Cooks + Base + Prep Time */}
                             <div className="grid grid-cols-3 gap-x-2 gap-y-2 mb-2">
                                 <div>
-                                    <label className="text-[8px] font-bold text-gray-400 uppercase block mb-0.5">Nº Cocineros</label>
-                                    <input type="number" value={numberOfCooks} onChange={e => setNumberOfCooks(Number(e.target.value))} className="w-full bg-gray-50 border border-gray-100 rounded px-2 py-1 text-[10px] font-black text-orange-600" />
+                                    <label className="text-[8px] font-bold text-gray-400 uppercase block mb-0.5">Número de Cocineros</label>
+                                    <input type="number" value={numberOfCooks === 0 ? "" : numberOfCooks} placeholder="0" onChange={e => setNumberOfCooks(e.target.value === '' ? 0 : Number(e.target.value))} className="w-full bg-gray-50 border border-gray-100 rounded px-2 py-1 text-[10px] font-black text-orange-600" />
                                 </div>
                                 <div>
-                                    <label className="text-[8px] font-bold text-gray-400 uppercase block mb-0.5">Salario Base Total (Q)</label>
-                                    <input type="number" value={monthlyBaseSalary} onChange={e => setMonthlyBaseSalary(Number(e.target.value))} className="w-full bg-gray-50 border border-gray-100 rounded px-2 py-1 text-[10px] font-bold" />
+                                    <label className="text-[8px] font-bold text-gray-400 uppercase block mb-0.5">Salario Base Total (Mensual)</label>
+                                    <input type="number" value={monthlyBaseSalary === 0 ? "" : monthlyBaseSalary} placeholder="0" onChange={e => setMonthlyBaseSalary(e.target.value === '' ? 0 : Number(e.target.value))} className="w-full bg-gray-50 border border-gray-100 rounded px-2 py-1 text-[10px] font-bold" />
                                 </div>
                                 <div>
-                                    <label className="text-[8px] font-bold text-gray-400 uppercase block mb-0.5">Min. Prep.</label>
-                                    <input type="number" value={prepTime} onChange={e => setPrepTime(Number(e.target.value))} className="w-full bg-gray-50 border border-gray-100 rounded px-2 py-1 text-[10px] font-bold" />
+                                    <label className="text-[8px] font-bold text-gray-400 uppercase block mb-0.5">Minutos de Preparación</label>
+                                    <input type="number" value={prepTime === 0 ? "" : prepTime} placeholder="0" onChange={e => setPrepTime(e.target.value === '' ? 0 : Number(e.target.value))} className="w-full bg-gray-50 border border-gray-100 rounded px-2 py-1 text-[10px] font-bold" />
                                 </div>
                             </div>
 
                             {/* 8 Benefit Concepts */}
                             <div className="bg-orange-50/60 border border-orange-100 rounded-md p-2 space-y-1.5">
-                                <span className="text-[7px] font-black text-orange-500 uppercase tracking-widest block mb-1">8 Prestaciones de Ley (Q) — Editables</span>
+                                <span className="text-[7px] font-black text-orange-500 uppercase tracking-widest block mb-1">8 Prestaciones de Ley (Mensuales) — Editables</span>
 
                                 {([
                                     { label: 'IGSS Patronal (10.67%)', val: modIgss, set: setModIgss },
@@ -684,8 +884,9 @@ export const MenuCosting: React.FC = () => {
                                         <span className="text-[7.5px] font-bold text-gray-500 uppercase flex-1 leading-tight">{label}</span>
                                         <input
                                             type="number"
-                                            value={val}
-                                            onChange={e => set(Number(e.target.value))}
+                                            value={val === 0 ? "" : val}
+                                            placeholder="0"
+                                            onChange={e => set(e.target.value === '' ? 0 : Number(e.target.value))}
                                             className="w-20 bg-white border border-orange-200 rounded px-1.5 py-0.5 text-[9px] font-black text-orange-700 text-right"
                                         />
                                     </div>
@@ -700,8 +901,8 @@ export const MenuCosting: React.FC = () => {
                             {/* Cost per minute breakdown */}
                             <div className="mt-2 bg-[#106ebe]/5 rounded p-2 space-y-1">
                                 <div className="flex justify-between text-[7.5px] font-bold text-gray-500 uppercase">
-                                    <span>Min/mes ({numberOfCooks} cocineros × {operatingDays}d × 8h)</span>
-                                    <span>{(numberOfCooks * operatingDays * 8 * 60).toLocaleString()} min</span>
+                                    <span>Minutos por mes ({numberOfCooks} cocineros × {operatingDays} días × 8 horas)</span>
+                                    <span>{(numberOfCooks * operatingDays * 8 * 60).toLocaleString()} minutos</span>
                                 </div>
                                 <div className="flex justify-between text-[7.5px] font-bold text-gray-500 uppercase">
                                     <span>Costo por minuto</span>
@@ -710,7 +911,7 @@ export const MenuCosting: React.FC = () => {
                             </div>
 
                             <div className="pt-2 border-t border-gray-100 mt-2 flex justify-between items-center px-1">
-                                <span className="text-[8px] font-black text-gray-400 uppercase">Costo MOD x Platillo ({prepTime} min)</span>
+                                <span className="text-[8px] font-black text-gray-400 uppercase">Costo Mano de Obra Directa por Platillo ({prepTime} minutos)</span>
                                 <span className="text-[13px] font-black text-[#106ebe]">Q {laborCostPerPlate.toFixed(2)}</span>
                             </div>
                         </div>
@@ -719,94 +920,77 @@ export const MenuCosting: React.FC = () => {
                         <div className="bg-white border border-[#106ebe]/10 rounded-lg p-3 shadow-sm flex flex-col gap-4">
                             <div>
                                 <h4 className="text-[9px] font-black uppercase tracking-widest text-[#3c7cbc] mb-3 flex items-center gap-2">
-                                    <Calculator size={12} /> Gastos Fijos & Variables
+                                    <Calculator size={12} /> Gastos Fijos y Gastos Variables
                                 </h4>
                                 <div className="grid grid-cols-2 gap-3 mb-2">
                                     <div>
-                                        <label className="text-[8px] font-bold text-gray-400 uppercase block mb-1">G. Fijos Mes (Q)</label>
-                                        <input type="number" value={monthlyFixedCosts} onChange={e => setMonthlyFixedCosts(Number(e.target.value))} className="w-full bg-gray-50 border border-gray-100 rounded px-2 py-1 text-[10px] font-bold" />
+                                        <label className="text-[8px] font-bold text-gray-400 uppercase block mb-1">Gastos Fijos Mensuales</label>
+                                        <input type="number" value={monthlyFixedCosts === 0 ? "" : monthlyFixedCosts} placeholder="0" onChange={e => setMonthlyFixedCosts(e.target.value === '' ? 0 : Number(e.target.value))} className="w-full bg-gray-50 border border-gray-100 rounded px-2 py-1 text-[10px] font-bold" />
                                     </div>
                                     <div>
-                                        <label className="text-[8px] font-bold text-gray-400 uppercase block mb-1">Ventas Mes (Und)</label>
-                                        <input type="number" value={totalMonthlyPortions} onChange={e => setTotalMonthlyPortions(Number(e.target.value))} className="w-full bg-gray-50 border border-gray-100 rounded px-2 py-1 text-[10px] font-bold" />
+                                        <label className="text-[8px] font-bold text-gray-400 uppercase block mb-1">Ventas Mensuales (Unidades)</label>
+                                        <input type="number" value={totalMonthlyPortions === 0 ? "" : totalMonthlyPortions} placeholder="0" onChange={e => setTotalMonthlyPortions(e.target.value === '' ? 0 : Number(e.target.value))} className="w-full bg-gray-50 border border-gray-100 rounded px-2 py-1 text-[10px] font-bold" />
                                     </div>
                                     <div>
-                                        <label className="text-[8px] font-bold text-gray-400 uppercase block mb-1">G. Variables / Plato (Q)</label>
-                                        <input type="number" value={variableCostsPerPlate} onChange={e => setVariableCostsPerPlate(Number(e.target.value))} className="w-full bg-gray-50 border border-blue-100 rounded px-2 py-1 text-[10px] font-bold text-blue-700" step="0.01" />
+                                        <label className="text-[8px] font-bold text-gray-400 uppercase block mb-1">Gastos Variables por Plato</label>
+                                        <input type="number" value={variableCostsPerPlate === 0 ? "" : variableCostsPerPlate} placeholder="0" onChange={e => setVariableCostsPerPlate(e.target.value === '' ? 0 : Number(e.target.value))} className="w-full bg-gray-50 border border-blue-100 rounded px-2 py-1 text-[10px] font-bold text-blue-700" step="0.01" />
                                     </div>
                                     <div className="flex flex-col justify-end pb-0.5">
-                                        <span className="text-[7px] font-black text-gray-400 uppercase block mb-1">Prorrateo G. Fijos</span>
+                                        <span className="text-[7px] font-black text-gray-400 uppercase block mb-1">Prorrateo de Gastos Fijos</span>
                                         <span className="text-[11px] font-black text-[#106ebe]">Q {fixedCostPerPlate.toFixed(2)} <span className="text-[7px] font-bold text-gray-400">/ unidad</span></span>
-                                    </div>
-                                </div>
-
-                                {/* Cadena de Costo — Desglose Visual Completo */}
-                                <div className="bg-[#106ebe]/[0.03] border border-[#106ebe]/10 rounded-md p-2 mt-1">
-                                    <span className="text-[7px] font-black text-gray-400 uppercase tracking-widest block mb-1.5">Desglose Costo Total Platillo</span>
-                                    <div className="space-y-0.5">
-                                        {([
-                                            { label: 'Materia Prima (con merma)', val: foodCostTotal, color: 'text-gray-600' },
-                                            { label: `MOD (${prepTime} min × Q${costPerMinute.toFixed(4)})`, val: laborCostPerPlate, color: 'text-orange-600' },
-                                            { label: 'G. Fijos prorrateados', val: fixedCostPerPlate, color: 'text-blue-600' },
-                                            { label: 'G. Variables por plato', val: variableCostsPerPlate, color: 'text-blue-500' },
-                                        ] as { label: string; val: number; color: string }[]).map(({ label, val, color }) => (
-                                            <div key={label} className="flex justify-between items-center text-[7.5px]">
-                                                <span className="font-bold text-gray-400 uppercase">{label}</span>
-                                                <span className={`font-black ${color}`}>Q {val.toFixed(2)}</span>
-                                            </div>
-                                        ))}
-                                        <div className="border-t border-[#106ebe]/10 pt-1 mt-1 flex justify-between items-center">
-                                            <span className="text-[7.5px] font-black text-[#106ebe] uppercase">COSTO TOTAL REAL</span>
-                                            <span className="text-[11px] font-black text-[#106ebe]">Q {totalCost.toFixed(2)}</span>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div>
                                 <h4 className="text-[9px] font-black uppercase tracking-widest text-[#3c7cbc] mb-3 flex items-center gap-2">
-                                    <Percent size={12} /> Food Cost Targets x Categoría
+                                    <Percent size={12} /> Metas de Costo de Alimentos por Categoría
                                 </h4>
                                 <div className="grid grid-cols-2 gap-x-3 gap-y-2 mb-2">
                                     <div>
                                         <label className="text-[8px] font-bold text-gray-400 uppercase block mb-1">Cocinados / Comida</label>
                                         <div className="relative">
-                                            <input type="number" value={fcTargetFood} onChange={e => setFcTargetFood(Number(e.target.value))} className="w-full bg-gray-50 border border-[#3c7cbc]/30 rounded px-2 py-1 text-[10px] font-black text-[#3c7cbc]" />
+                                            <input type="number" value={fcTargetFood === 0 ? "" : fcTargetFood} placeholder="0" onChange={e => setFcTargetFood(e.target.value === '' ? 0 : Number(e.target.value))} className="w-full bg-gray-50 border border-[#3c7cbc]/30 rounded px-2 py-1 text-[10px] font-black text-[#3c7cbc]" />
                                             <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] font-bold text-gray-400">%</span>
                                         </div>
                                     </div>
                                     <div>
                                         <label className="text-[8px] font-bold text-gray-400 uppercase block mb-1">Bebidas Preparadas</label>
                                         <div className="relative">
-                                            <input type="number" value={fcTargetPrepDrinks} onChange={e => setFcTargetPrepDrinks(Number(e.target.value))} className="w-full bg-gray-50 border border-[#3c7cbc]/30 rounded px-2 py-1 text-[10px] font-black text-[#3c7cbc]" />
+                                            <input type="number" value={fcTargetPrepDrinks === 0 ? "" : fcTargetPrepDrinks} placeholder="0" onChange={e => setFcTargetPrepDrinks(e.target.value === '' ? 0 : Number(e.target.value))} className="w-full bg-gray-50 border border-[#3c7cbc]/30 rounded px-2 py-1 text-[10px] font-black text-[#3c7cbc]" />
                                             <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] font-bold text-gray-400">%</span>
                                         </div>
                                     </div>
                                     <div>
                                         <label className="text-[8px] font-bold text-gray-400 uppercase block mb-1">Bebidas Embotelladas</label>
                                         <div className="relative">
-                                            <input type="number" value={fcTargetBottled} onChange={e => setFcTargetBottled(Number(e.target.value))} className="w-full bg-gray-50 border border-[#3c7cbc]/30 rounded px-2 py-1 text-[10px] font-black text-[#3c7cbc]" />
+                                            <input type="number" value={fcTargetBottled === 0 ? "" : fcTargetBottled} placeholder="0" onChange={e => setFcTargetBottled(e.target.value === '' ? 0 : Number(e.target.value))} className="w-full bg-gray-50 border border-[#3c7cbc]/30 rounded px-2 py-1 text-[10px] font-black text-[#3c7cbc]" />
                                             <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] font-bold text-gray-400">%</span>
                                         </div>
                                     </div>
                                     <div>
                                         <label className="text-[8px] font-bold text-gray-400 uppercase block mb-1">Licores / Tragos</label>
                                         <div className="relative">
-                                            <input type="number" value={fcTargetLiquor} onChange={e => setFcTargetLiquor(Number(e.target.value))} className="w-full bg-gray-50 border border-[#3c7cbc]/30 rounded px-2 py-1 text-[10px] font-black text-[#3c7cbc]" />
+                                            <input type="number" value={fcTargetLiquor === 0 ? "" : fcTargetLiquor} placeholder="0" onChange={e => setFcTargetLiquor(e.target.value === '' ? 0 : Number(e.target.value))} className="w-full bg-gray-50 border border-[#3c7cbc]/30 rounded px-2 py-1 text-[10px] font-black text-[#3c7cbc]" />
                                             <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] font-bold text-gray-400">%</span>
                                         </div>
                                     </div>
                                     <div className="col-span-2 pt-1">
-                                        <label className="text-[8px] font-bold text-gray-400 uppercase block mb-1">Retención Card %</label>
-                                        <input type="number" value={cardCommission} onChange={e => setCardCommission(Number(e.target.value))} className="w-full bg-gray-50 border border-gray-100 rounded px-2 py-1 text-[10px] font-bold" />
+                                        <label className="text-[8px] font-bold text-gray-400 uppercase block mb-1">Retención de Tarjeta %</label>
+                                        <input type="number" value={cardCommission === 0 ? "" : cardCommission} placeholder="0" onChange={e => setCardCommission(e.target.value === '' ? 0 : Number(e.target.value))} className="w-full bg-gray-50 border border-gray-100 rounded px-2 py-1 text-[10px] font-bold" />
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="bg-[#106ebe] text-white p-3 rounded-md shadow-inner text-center border-l-4 border-amber-400">
-                                <span className="text-[8px] font-black uppercase tracking-[0.2em] opacity-60 block mb-1">Precio Sugerido de Venta (IVA Inc.)</span>
-                                <span className="text-[18px] font-black text-amber-400">Q {suggestedPriceWithIva.toFixed(2)}</span>
-                                <p className="text-[7px] font-bold opacity-40 uppercase mt-1">Método Divisor {activeFoodCostTargetPct}% + IVA</p>
+                            <div className="bg-[#106ebe] text-white p-5 rounded-lg flex flex-col items-center gap-2 shadow-lg border border-white/10 shadow-[#106ebe]/20">
+                                <span className="text-[11px] font-black uppercase tracking-[0.2em] opacity-80">Precio Sugerido de Venta</span>
+                                <div className="flex flex-col items-center leading-none">
+                                    <span className="text-[32px] font-black text-amber-400">Q {suggestedPriceWithIva.toFixed(2)}</span>
+                                    <span className="text-[14px] font-black text-amber-200/80 mt-1 uppercase">Sin IVA: Q {pricePostNeonet.toFixed(2)}</span>
+                                </div>
+                                <span className="text-[9px] font-black opacity-60 uppercase tracking-widest mt-2 px-3 py-1 bg-black/10 rounded-full">
+                                    Método Divisor {activeFoodCostTargetPct}% + IVA
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -819,12 +1003,12 @@ export const MenuCosting: React.FC = () => {
                             </h4>
                             <div className="flex gap-2">
                                 <div>
-                                    <label className="text-[7px] font-bold text-gray-400 uppercase block mb-0.5">Precio Prom. Venta (Q)</label>
-                                    <input type="number" value={avgSalePrice} onChange={e => setAvgSalePrice(Number(e.target.value))} className="w-20 bg-gray-50 border border-gray-100 rounded px-2 py-0.5 text-[9px] font-bold" />
+                                    <label className="text-[7px] font-bold text-gray-400 uppercase block mb-0.5">Precio Promedio de Venta</label>
+                                    <input type="number" value={avgSalePrice === 0 ? "" : avgSalePrice} placeholder="0" onChange={e => setAvgSalePrice(e.target.value === '' ? 0 : Number(e.target.value))} className="w-20 bg-gray-50 border border-gray-100 rounded px-2 py-0.5 text-[9px] font-bold" />
                                 </div>
                                 <div>
                                     <label className="text-[7px] font-bold text-gray-400 uppercase block mb-0.5">Días Operativos</label>
-                                    <input type="number" value={operatingDays} onChange={e => setOperatingDays(Number(e.target.value))} className="w-16 bg-gray-50 border border-gray-100 rounded px-2 py-0.5 text-[9px] font-bold" />
+                                    <input type="number" value={operatingDays === 0 ? "" : operatingDays} placeholder="0" onChange={e => setOperatingDays(e.target.value === '' ? 0 : Number(e.target.value))} className="w-16 bg-gray-50 border border-gray-100 rounded px-2 py-0.5 text-[9px] font-bold" />
                                 </div>
                             </div>
                         </div>
@@ -850,12 +1034,12 @@ export const MenuCosting: React.FC = () => {
                         {/* KPI Cards Grid */}
                         <div className="grid grid-cols-4 gap-2">
                             <div className="bg-gray-50 border border-gray-100 rounded-md p-2 text-center">
-                                <span className="text-[7px] font-black text-gray-400 uppercase block mb-1">PE Quetzales</span>
+                                <span className="text-[7px] font-black text-gray-400 uppercase block mb-1">Punto de Equilibrio Quetzales</span>
                                 <span className="text-[13px] font-black text-[#106ebe]">Q {peQuetzales.toLocaleString('es-GT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                                 <span className="text-[6.5px] font-bold text-gray-300 uppercase block mt-0.5">Ventas mínimas</span>
                             </div>
                             <div className="bg-gray-50 border border-gray-100 rounded-md p-2 text-center">
-                                <span className="text-[7px] font-black text-gray-400 uppercase block mb-1">PE Unidades</span>
+                                <span className="text-[7px] font-black text-gray-400 uppercase block mb-1">Punto de Equilibrio Unidades</span>
                                 <span className="text-[13px] font-black text-[#106ebe]">{Math.ceil(peUnidades).toLocaleString()}</span>
                                 <span className="text-[6.5px] font-bold text-gray-300 uppercase block mt-0.5">Para cubrir gastos</span>
                             </div>
@@ -883,78 +1067,80 @@ export const MenuCosting: React.FC = () => {
                 </div>
 
                 {/* Right: Executive Report - Narrow & High Density */}
-                <div className="w-[280px] shrink-0 flex flex-col gap-4">
-                    <div className="bg-white border border-[#106ebe]/20 rounded-xl p-5 shadow-lg shadow-[#106ebe]/5 relative overflow-hidden">
+                <div className="w-[360px] shrink-0 flex flex-col gap-6 h-fit pb-10">
+                    <div className="bg-white border border-[#106ebe]/20 rounded-xl p-7 shadow-lg shadow-[#106ebe]/5 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-24 h-24 bg-gray-50 -mr-12 -mt-12 rounded-full z-0" />
 
-                        <div className="relative z-10 italic font-serif">
-                            <h3 className="text-xs font-black text-[#106ebe] mb-3 flex items-center justify-between">
+                        <div className="relative z-10 font-sans space-y-5">
+                            <h3 className="text-[14px] font-black text-[#106ebe] mb-4 flex items-center justify-between uppercase tracking-widest">
                                 Resumen Ejecutivo
-                                <span className={`px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-widest ${netMarginPercentage > 15 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                                <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest ${netMarginPercentage > 15 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                                     {netMarginPercentage > 15 ? 'Rentable' : 'Alerta'}
                                 </span>
                             </h3>
 
                             {/* ── BLOQUE 1: COSTO REAL DE FABRICACIÓN ── */}
-                            <div className="bg-gray-50 border border-gray-100 rounded-lg p-3 mb-3">
-                                <span className="text-[7px] font-black text-gray-400 uppercase tracking-widest block mb-2">📦 Costo Real de Fabricación</span>
-                                <div className="space-y-1">
-                                    <div className="flex justify-between text-[8.5px]">
-                                        <span className="font-bold text-gray-500 uppercase">Receta (Materia Prima)</span>
-                                        <span className={`font-black ${foodCostTotal > 0 ? 'text-gray-700' : 'text-gray-300 italic'}`}>
-                                            {foodCostTotal > 0 ? `Q ${foodCostTotal.toFixed(2)}` : 'Sin receta'}
-                                        </span>
+                            <div className="bg-gray-50/50 border border-gray-100 rounded-xl p-5 mb-4">
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">📦 Costo Real de Fabricación</span>
+                                <div className="space-y-4">
+                                    <div className="flex justify-between text-[11px]">
+                                        <span className="font-bold text-gray-500 uppercase">Receta (Materias Primas)</span>
+                                        <div className="flex flex-col items-end">
+                                            {foodCostTotal > 0 && (
+                                                <span className="text-[9px] text-gray-500 font-bold">Costo Neto: Q {foodCostTotal.toFixed(2)}</span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="flex justify-between text-[8.5px]">
-                                        <span className="font-bold text-orange-500 uppercase">MOD ({prepTime} min)</span>
+                                    <div className="flex justify-between text-[11px]">
+                                        <span className="font-bold text-orange-500 uppercase">Mano de Obra Directa ({prepTime} minutos)</span>
                                         <span className="font-black text-orange-600">Q {laborCostPerPlate.toFixed(2)}</span>
                                     </div>
-                                    <div className="flex justify-between text-[8.5px]">
-                                        <span className="font-bold text-blue-500 uppercase">G. Fijos</span>
+                                    <div className="flex justify-between text-[11px]">
+                                        <span className="font-bold text-blue-500 uppercase">Gastos Fijos</span>
                                         <span className="font-black text-blue-600">Q {fixedCostPerPlate.toFixed(2)}</span>
                                     </div>
-                                    <div className="flex justify-between text-[8.5px]">
-                                        <span className="font-bold text-blue-400 uppercase">G. Variables</span>
+                                    <div className="flex justify-between text-[11px]">
+                                        <span className="font-bold text-blue-400 uppercase">Gastos Variables</span>
                                         <span className="font-black text-blue-500">Q {variableCostsPerPlate.toFixed(2)}</span>
                                     </div>
-                                    <div className="border-t border-gray-200 mt-1.5 pt-1.5 flex justify-between items-center">
-                                        <span className="text-[8px] font-black text-[#106ebe] uppercase">Costo Total</span>
-                                        <span className="text-[14px] font-black text-[#106ebe]">Q {totalCost.toFixed(2)}</span>
+                                    <div className="border-t border-gray-300 mt-4 pt-4 flex justify-between items-center">
+                                        <span className="text-[12px] font-black text-[#106ebe] uppercase">Costo Total</span>
+                                        <span className="text-[24px] font-black text-[#106ebe]">Q {totalCost.toFixed(2)}</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* ── BLOQUE 2: ANÁLISIS DEL PRECIO ACTUAL ── */}
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-end border-b border-gray-50 pb-2">
-                                    <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Utilidad Neta Actual</span>
-                                    <span className={`text-[16px] font-black ${realNetMargin >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>Q {realNetMargin.toFixed(2)}</span>
+                            <div className="space-y-4 border-b border-gray-50 pb-5">
+                                <div className="flex justify-between items-end border-b border-gray-50 pb-3">
+                                    <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">Utilidad Neta Actual</span>
+                                    <span className={`text-[20px] font-black ${realNetMargin >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>Q {realNetMargin.toFixed(2)}</span>
                                 </div>
 
-                                <div className="space-y-1.5 border-b border-gray-50 pb-3">
-                                    <div className="flex justify-between text-[8.5px] font-bold text-gray-500">
-                                        <span className="uppercase">Precio actual (c/IVA)</span>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between text-[11px] font-bold text-gray-500">
+                                        <span className="uppercase">Precio actual (con IVA)</span>
                                         <span className="text-indigo-600 font-black">Q {currentPriceWithIva.toFixed(2)}</span>
                                     </div>
-                                    <div className="flex justify-between text-[8.5px] font-bold">
+                                    <div className="flex justify-between text-[11px] font-bold">
                                         <span className="uppercase text-gray-500">(-) IVA 12%</span>
-                                        <span className={`font-serif italic ${isNormalContributor ? 'text-emerald-600' : 'text-rose-500'}`}>
+                                        <span className={`font-sans ${isNormalContributor ? 'text-emerald-600' : 'text-rose-500'}`}>
                                             {isNormalContributor ? '✓ Crédito' : '✗ Costo'} Q {(currentPriceWithIva - currentPriceNoIva).toFixed(2)}
                                         </span>
                                     </div>
-                                    <div className="flex justify-between text-[8.5px] font-bold text-gray-500">
-                                        <span className="uppercase">(-) Comis. POS</span>
-                                        <span className="text-[#106ebe] font-serif italic">Q {neonetCommissionVal.toFixed(2)}</span>
+                                    <div className="flex justify-between text-[11px] font-bold text-gray-500">
+                                        <span className="uppercase">(-) Comisiones de Punto de Venta</span>
+                                        <span className="text-[#106ebe] font-sans">Q {neonetCommissionVal.toFixed(2)}</span>
                                     </div>
-                                    <div className="flex justify-between text-[8.5px] font-bold text-gray-500">
+                                    <div className="flex justify-between text-[11px] font-bold text-gray-500">
                                         <span className="uppercase">(-) Costo Total</span>
-                                        <span className="text-[#106ebe] font-serif italic">Q {totalCost.toFixed(2)}</span>
+                                        <span className="text-[#106ebe] font-sans">Q {totalCost.toFixed(2)}</span>
                                     </div>
                                 </div>
 
-                                <div className="bg-[#106ebe] text-white p-3 rounded-lg flex flex-col items-center gap-1 shadow-inner italic font-serif border border-white/10">
-                                    <span className="text-[8px] font-black uppercase tracking-widest opacity-60">Margen Neto Real Actual</span>
-                                    <span className={`text-2xl font-black ${realNetMargin >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                <div className="bg-[#106ebe] text-white p-5 rounded-lg flex flex-col items-center gap-2 shadow-lg border border-white/10 shadow-[#106ebe]/20 mt-4">
+                                    <span className="text-[12px] font-black uppercase tracking-[0.2em] opacity-80">Margen Neto Real Actual</span>
+                                    <span className={`text-[44px] font-black leading-none ${realNetMargin >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                                         {netMarginPercentage.toFixed(1)}%
                                     </span>
                                 </div>
@@ -977,9 +1163,9 @@ export const MenuCosting: React.FC = () => {
                     </div>
 
                     {/* Compact BCG Matrix Area */}
-                    <div className="bg-white border border-[#106ebe]/10 rounded-xl p-4 shadow-sm flex-1 flex flex-col overflow-hidden italic font-serif">
-                        <h4 className="text-[8px] font-black uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
-                            Posicionamiento Estratégico Matrix
+                    <div className="bg-white border border-[#106ebe]/10 rounded-xl p-6 shadow-sm flex flex-col">
+                        <h4 className="text-[10px] font-black uppercase tracking-[widest] text-[#106ebe] mb-4 flex items-center gap-2">
+                            Matriz de Posicionamiento Estratégico
                         </h4>
                         <div className="flex-1 relative bg-gray-50/50 rounded-lg border border-gray-100 overflow-hidden flex items-center justify-center p-6 text-center">
                             <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
@@ -1024,7 +1210,7 @@ export const MenuCosting: React.FC = () => {
                                     );
                                 })()
                             ) : (
-                                <span className="text-[8px] font-black text-gray-300 uppercase italic">Esperando Selección...</span>
+                                <span className="text-[8px] font-black text-gray-300 uppercase">Esperando Selección...</span>
                             )}
                         </div>
                     </div>
@@ -1054,11 +1240,11 @@ export const MenuCosting: React.FC = () => {
                         <div className="hidden print:block p-8 border-b-4 border-[#106ebe] mb-4">
                             <h1 className="text-3xl font-black uppercase text-[#106ebe] mb-2">Restaurante Las Palmas</h1>
                             <p className="text-sm font-bold text-gray-500 uppercase">Resumen de Rentabilidad y Precios Sugeridos — {new Date().toLocaleDateString('es-GT', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                            <p className="text-xs text-gray-400 font-serif italic mt-2">G.Fijos: Q{monthlyFixedCosts.toLocaleString()} | G.Var Plato: Q{variableCostsPerPlate} | Régimen: {isNormalContributor ? 'Normal (Crédito)' : 'Pequeño Contribuyente'}</p>
+                            <p className="text-xs text-gray-500 font-bold uppercase mt-2">G.Fijos: Q{monthlyFixedCosts.toLocaleString()} | G.Var Plato: Q{variableCostsPerPlate} | Régimen: {isNormalContributor ? 'Normal (Crédito)' : 'Pequeño Contribuyente'}</p>
                         </div>
 
                         {/* Modal Data Content */}
-                        <div className="p-0 flex-1 overflow-y-auto print:overflow-visible">
+                        <div className="flex-1 space-y-6 overflow-y-auto print:overflow-visible">
                             <table className="w-full text-left border-collapse">
                                 <thead className="bg-[#f8f9fa] sticky top-0 print:static shadow-sm z-10 print:shadow-none">
                                     <tr className="text-[10px] font-black text-gray-500 uppercase tracking-widest">

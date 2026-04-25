@@ -217,12 +217,12 @@ export const MenuAdmin: React.FC = () => {
     setLoading(true);
     const [catRes, prodRes, kitchenRes, branchRes, modGroupRes, optGroupRes, invRes, supRes, stockRes] = await Promise.all([
       supabase.from('categories').select('*').eq('section', 'VENTA').order('name'),
-      supabase.from('products').select('*, categories(name), kitchen_stations(name)').order('name'),
+      supabase.from('products').select('*, categories(name), kitchen_stations(name)').eq('es_platillo', true).order('name'),
       supabase.from('kitchen_stations').select('*').order('name'),
       supabase.from('branches').select('*').order('name'),
       supabase.from('modifier_groups').select('*').order('name'),
       supabase.from('option_groups').select('*').order('name'),
-      supabase.from('inventory_items').select('*').order('name'),
+      supabase.from('products').select('*').eq('es_platillo', false).order('name'),
       supabase.from('suppliers').select('*').order('name'),
       supabase.from('inventory_item_branches').select('*')
     ]);
@@ -350,24 +350,33 @@ export const MenuAdmin: React.FC = () => {
 
       console.log('[RECIPE_EFFECT] Modal de receta abierto. Verificando insumos para:', editingId);
 
-      // Solo cargar si no se ha cargado o si está vacío (prevención de llamadas duplicadas si ya se cargó en un onDoubleClick)
-      if (recipeItems.length === 0) {
-        try {
+      // Siempre cargar al abrir un producto para evitar datos estancados de la sesión anterior
+      try {
           const { data, error } = await supabase
             .from('product_recipes')
-            .select('*, inventory_items(*)')
+            .select('*')
             .eq('product_id', editingId);
 
           if (error) {
             console.error('[RECIPE_EFFECT_ERROR]:', error);
           } else {
             console.log('[RECIPE_EFFECT_SUCCESS] Datos cargados dinámicamente:', data);
-            setRecipeItems(data || []);
+            const mappedRecipes = (data || []).map(ri => {
+              const ing = inventoryItems.find((p: any) => p.id === ri.inventory_item_id) || products.find((p: any) => p.id === ri.inventory_item_id);
+              return {
+                ...ri,
+                inventory_items: ing ? {
+                  name: ing.name,
+                  average_cost: ing.cost_price || 0,
+                  cost_price: ing.cost_price || 0
+                } : { name: '[INSUMO BORRADO]', cost_price: 0, average_cost: 0 }
+              };
+            });
+            setRecipeItems(mappedRecipes);
           }
         } catch (err) {
           console.error('[RECIPE_EFFECT_CRITICAL]:', err);
         }
-      }
     };
 
     if (showRecipeModal && editingId) {
@@ -656,6 +665,10 @@ export const MenuAdmin: React.FC = () => {
       observations: '',
       inventory_item_id: ''
     });
+    setRecipeItems([]);
+    setBranchPrices([]);
+    setAssignedModifierGroups([]);
+    setAssignedOptionGroups([]);
     // Proactive check: if branches state is empty, use empty but notify or try to get them
     const actualBranches = branches.length > 0 ? branches : [];
     setBranchPrices(actualBranches.map(b => ({
@@ -909,8 +922,21 @@ export const MenuAdmin: React.FC = () => {
 
                                 // Carga de Receta
                                 try {
-                                  const { data: recipeData } = await supabase.from('product_recipes').select('*, inventory_items(*)').eq('product_id', prod.id);
-                                  setRecipeItems(recipeData || []);
+                                  const { data: recipeData, error: recipeFetchError } = await supabase.from('product_recipes').select('*').eq('product_id', prod.id);
+                                  if (!recipeFetchError) {
+                                    const mappedRecipes = (recipeData || []).map(ri => {
+                                      const ing = inventoryItems.find((p: any) => p.id === ri.inventory_item_id) || products.find((p: any) => p.id === ri.inventory_item_id);
+                                      return {
+                                        ...ri,
+                                        inventory_items: ing ? {
+                                          name: ing.name,
+                                          average_cost: ing.cost_price || 0,
+                                          cost_price: ing.cost_price || 0
+                                        } : { name: '[INSUMO BORRADO]', cost_price: 0, average_cost: 0 }
+                                      };
+                                    });
+                                    setRecipeItems(mappedRecipes);
+                                  }
                                 } catch (err) {
                                   console.error('[RECIPE_DCLICK_FETCH]', err);
                                 }
@@ -1685,10 +1711,10 @@ export const MenuAdmin: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {inventoryItems
+                      {[...inventoryItems, ...products]
                         .filter(i =>
-                          i.name.toLowerCase().includes(searchModal.query.toLowerCase()) ||
-                          i.code?.toLowerCase().includes(searchModal.query.toLowerCase())
+                          (i.name || '').toLowerCase().includes(searchModal.query.toLowerCase()) ||
+                          (i.product_code || '').toLowerCase().includes(searchModal.query.toLowerCase())
                         )
                         .map(item => (
                           <tr
@@ -1890,8 +1916,13 @@ export const MenuAdmin: React.FC = () => {
                       onClick={() => {
                         const newItem = {
                           inventory_item_id: configModal.item.id,
-                          quantity: configModal.quantity || '0',
-                          unit_measure: configModal.unit
+                          quantity: parseFloat(configModal.quantity || '0'),
+                          unit_measure: configModal.unit,
+                          inventory_items: {
+                            name: configModal.item.name,
+                            average_cost: parseFloat(configModal.item.cost_price || '0'),
+                            cost_price: parseFloat(configModal.item.cost_price || '0')
+                          }
                         };
                         setRecipeItems(prev => [...prev, newItem]);
                         notify.success(`Agregado: ${configModal.item.name}`);
@@ -1998,11 +2029,22 @@ export const MenuAdmin: React.FC = () => {
                           try {
                             const { data: recipeData, error: recipeFetchError } = await supabase
                               .from('product_recipes')
-                              .select('*, inventory_items(*)')
+                              .select('*')
                               .eq('product_id', prod.id);
 
                             if (!recipeFetchError) {
-                              setRecipeItems(recipeData || []);
+                              const mappedRecipes = (recipeData || []).map(ri => {
+                                const ing = inventoryItems.find((p: any) => p.id === ri.inventory_item_id) || products.find((p: any) => p.id === ri.inventory_item_id);
+                                return {
+                                  ...ri,
+                                  inventory_items: ing ? {
+                                    name: ing.name,
+                                    average_cost: ing.cost_price || 0,
+                                    cost_price: ing.cost_price || 0
+                                  } : { name: '[INSUMO BORRADO]', cost_price: 0, average_cost: 0 }
+                                };
+                              });
+                              setRecipeItems(mappedRecipes);
                             }
                           } catch (err: any) {
                             console.error('[CRITICAL_FETCH_FAULT]:', err);
