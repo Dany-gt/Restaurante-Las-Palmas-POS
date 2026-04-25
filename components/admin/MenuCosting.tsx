@@ -619,7 +619,7 @@ export const MenuCosting: React.FC = () => {
 
     // 6. Pricing - DIVISOR METHOD (Step 12)
     const targetDivisor = activeFoodCostTargetPct / 100;
-    const priceBase = targetDivisor > 0 ? totalCost / targetDivisor : 0;
+    const priceBase = targetDivisor > 0 ? primeCost / targetDivisor : 0;
 
     // 7. Neonet Adjustment (Step 13)
     const pricePostNeonet = priceBase / (1 - cardCommission / 100);
