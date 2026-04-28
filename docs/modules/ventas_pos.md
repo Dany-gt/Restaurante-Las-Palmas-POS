@@ -1,56 +1,48 @@
-# Módulo: Ventas / POS (Point of Sale)
+# Módulo: Ventas POS
 
-Este módulo es el corazón operativo del restaurante, permitiendo la toma de pedidos, gestión de mesas, servicio a domicilio y el control de caja.
+## Descripción general
+El módulo de Ventas (Punto de Venta) es el centro transaccional del restaurante. Su propósito es capturar las órdenes de los clientes de manera eficiente, coordinar la preparación con cocina (KDS) y gestionar el proceso de pago. Soporta múltiples modalidades de servicio (Mesa, Delivery, Para Llevar) y garantiza la integridad del flujo de dinero mediante arqueos de caja y turnos.
 
-## Categorías y Flujos de Trabajo
+## Categorías
+1. **Terminal de Ventas**: Interfaz táctil para la toma de pedidos rápida.
+2. **Control de Mesas**: Mapa visual del restaurante para el seguimiento del consumo en salón.
+3. **Delivery y Motoristas**: Gestión de pedidos a domicilio, asignación de pilotos y rastreo de estados de entrega.
+4. **Cajas y Turnos**: Apertura, movimientos de efectivo y cierres (arqueos) de caja por usuario.
+5. **Facturación**: Integración con el motor de emisión de facturas (DTE).
 
-### 1. Terminal de Ventas (POS)
-Interfaz optimizada para la toma rápida de pedidos:
-- **Salón / Mesas**: Gestión visual de mesas por zonas (Secciones). Permite abrir cuentas, agregar items y dividir cuentas.
-- **Servicio a Domicilio (Delivery)**: Gestión de clientes, múltiples direcciones y asignación de motoristas.
-- **Venta Rápida (Mostrador)**: Flujo simplificado para pedidos de "Para llevar" o consumo inmediato.
+## Interacción con Base de Datos
 
-### 2. Gestión de Órdenes
-- **Ciclo de Vida**: Pendiente -> Preparando -> Listo -> Servido -> Pagado.
-- **Preparación (KDS/Impresión)**: Envío automático de comandas a las estaciones correspondientes (Cocina, Bar, etc.).
-- **Correlativos**: Generación de números de orden transaccionales correlativos sin saltos.
+### Tablas Relevantes (Supabase/PostgreSQL)
 
-### 3. Control de Caja y Turnos
-- **Apertura de Turno**: Registro del fondo inicial.
-- **Arqueo y Cierre**: Conciliación de ventas por método de pago (Efectivo, Tarjeta).
-- **Gastos de Caja**: Registro de salidas de efectivo justificadas durante el turno.
-- **Reporte Z**: Resumen final detallado del movimiento diario.
+| Tabla | Función |
+| :--- | :--- |
+| `orders` | Cabecera de la transacción. Campos: `status`, `total`, `table_id`, `waiter_id`, `delivery_id`. |
+| `order_items` | Detalle del pedido. Líneas con `product_id`, `quantity` y `unit_price`. |
+| `restaurant_tables` | Registro de mesas físicas y sus estados (Libre, Ocupada, Reservada). |
+| `shifts` | Control de turnos (apertura y cierre de caja). |
+| `delivery_drivers` | Listado de pilotos con estado de disponibilidad. |
 
-### 4. Servicio a Domicilio y Motoristas
-- Catálogo de motoristas con estado (Activo/Inactivo).
-- Trazabilidad de tiempos de entrega.
-- Registro de direcciones detalladas con referencias y coordenadas.
+### Relaciones Clave
+- `orders.id` → `order_items.order_id` (Relación 1:N)
+- `orders.branch_id` → `branches.id`
+- `order_items.product_id` → `products.id`
 
-## Esquema SQL (Tablas Principales)
+### Consultas Principales
+**Cálculo de Total de Venta por Turno:**
+```sql
+SELECT sum(total) 
+FROM orders 
+WHERE shift_id = 'ID_TURNO_ACTUAL' 
+AND status = 'completed';
+```
 
-### `orders`
-Cabecera de la transacción de venta.
-- `order_number`: Correlativo único de orden.
-- `status`: Estado actual.
-- `total`, `tax_amount`, `tip_amount`.
-- `payment_method`: Efectivo, Tarjeta, Crédito.
-- `driver_id`: UUID del motorista asignado.
-
-### `order_items`
-Detalle de productos en cada orden.
-- `product_id`, `quantity`, `unit_price`.
-- `status`: Estado de preparación ('pending', 'ready', etc.).
-
-### `shifts`
-Control de turnos de caja.
-- `opening_amount`, `closing_amount`, `counted_amount`.
-- `cash_detail`: desglose de billetes y monedas.
-
-### `cash_registers`
-Definición física de las cajas del local.
-
-### `delivery_drivers`
-Registro de personal de reparto.
+**Consulta de Mesas Ocupadas:**
+```sql
+SELECT t.number, t.status, o.total, o.created_at
+FROM restaurant_tables t
+LEFT JOIN orders o ON t.id = o.table_id AND o.status = 'open'
+WHERE t.status = 'occupied';
+```
 
 ---
-*Documentación generada automáticamente como backup del sistema.*
+*Documentación Técnica - Restaurante Las Palmas*

@@ -9,38 +9,56 @@ El menú se estructura de la siguiente forma:
 - **Sub-Categorías**: Permite una jerarquía más profunda para menús extensos.
 - **Orden de Visualización**: Control total sobre el índice de aparición en el POS.
 
-## Funcionamiento del Producto
+## Descripción general
+El módulo de Menú de Platillos gestiona la oferta comercial del restaurante. Su propósito es definir los productos finales que están disponibles para la venta en el POS, integrando la configuración estética (imágenes/categorías) con la lógica operativa (estaciones de cocina) y técnica (recetas para descarga automática de inventario).
 
-### Configuración de Producto
-Cada platillo contiene:
-- **Datos Básicos**: Nombre, descripción, precio y categoría.
-- **Disponibilidad**: Interruptor maestro para activar/desactivar productos agotados.
-- **Estación de Cocina**: Define a qué pantalla (KDS) o impresora se envía el ticket de preparación (ej. Cocina, Barra, Horno).
+## Categorías
+1. **Listado de Platillos**: Catálogo maestro de productos finales (ej. Hamburguesa, Soda, Combo Familiar).
+2. **Opciones y Modificadores**: Personalización de platillos (ej. Término de carne, extras de queso, cambios de guarnición).
+3. **Categorías de Menú**: Organización visual para el POS (ej. Desayunos, Almuerzos, Bebidas).
+4. **Recetas Técnicas**: Listado de insumos vinculados para descuento de stock automático al realizar una venta.
+5. **Precios por Sucursal**: Flexibilidad tarifaria según la ubicación o canal de venta (Delivery vs. Mesa).
 
-### Opciones y Modificadores
-El sistema soporta personalización avanzada:
-- **Grupos de Opciones**: Selección de guarniciones, términos de carne, tipos de salsa.
-  - Soporta selección única o múltiple.
-  - Permite establecer límites mínimos y máximos de selección.
-- **Modificadores**: Adicionales con costo extra o notas especiales.
+## Interacción con Base de Datos
 
-### Recetas / Ficha Técnica (Integración con Inventarios)
-Los platillos pueden vincularse a insumos del inventario para:
-- Descontar existencias automáticamente al vender.
-- Calcular el costo real de producción por plato.
-- Visualizar margen de ganancia en tiempo real.
+### Tablas Relevantes (Supabase/PostgreSQL)
 
-## Esquema SQL (Tablas Principales)
+| Tabla | Función |
+| :--- | :--- |
+| `products` | Maestros con `es_platillo = true`. Contiene `price` (global), `kitchen_station_id`. |
+| `menu_categories` | Categorización exclusiva para la venta en POS. |
+| `product_recipes` | Relaciona un platillo con sus ingredientes de la tabla `products`. |
+| `product_branch_prices` | Precios diferenciados por sucursal y plataforma (Uber, PedidosYa). |
+| `option_groups` | Grupos de opciones obligatorias (ej. "Tipo de Pan"). |
+| `modifier_groups` | Grupos de agregados opcionales con costo extra (ej. "Extra Tocino"). |
 
-### `categories`
-Jerarquía del menú.
-- `id`, `name`, `parent_id`, `order_index`.
+### Relaciones Clave
+- `products.menu_category_id` → `menu_categories.id`
+- `product_recipes.product_id` → `products.id` (ID del Platillo)
+- `product_recipes.inventory_item_id` → `products.id` (ID del Insumo)
 
-### `products`
-Catálogo de platillos.
-- `category_id`: Relación con categoría.
-- `kitchen_station_id`: Relación con la estación de preparación.
-- `price`, `is_available`.
+### Consultas Principales
+**Carga de Menú para el POS:**
+```sql
+SELECT p.id, p.name, p.price, p.image_url, c.nombre as cat_name
+FROM products p
+JOIN menu_categories c ON p.menu_category_id = c.id
+WHERE p.es_platillo = true AND p.is_enabled = true;
+```
+
+**Consulta de Receta de un Platillo:**
+```sql
+SELECT 
+    p_insumo.name as ingrediente, 
+    r.quantity, 
+    r.unit_measure
+FROM product_recipes r
+JOIN products p_insumo ON r.inventory_item_id = p_insumo.id
+WHERE r.product_id = 'ID_DEL_PLATILLO';
+```
+
+---
+*Documentación Técnica - Restaurante Las Palmas*
 
 ### `option_groups` y `options`
 Personalización del producto.

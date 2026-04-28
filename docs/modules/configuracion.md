@@ -1,50 +1,43 @@
-# Módulo: Configuración del Sistema
+# Módulo: Configuración Global
 
-Este módulo permite ajustar el comportamiento global de la aplicación, gestionar usuarios, permisos y periféricos.
+## Descripción general
+Este módulo centraliza los parámetros maestros del sistema. Su propósito es definir el comportamiento global de la aplicación, desde la identidad del restaurante y sucursales hasta los protocolos de seguridad, acceso de usuarios y configuración de hardware (impresoras y terminales).
 
-## Categorías de Ajustes
+## Categorías
+1. **Perfil del Restaurante**: Datos fiscales, logotipos y configuración de moneda.
+2. **Sucursales**: Multisitio: nombres, direcciones y terminales asignadas.
+3. **Usuarios y Seguridad**: Gestión de roles, perfiles de acceso y políticas RLS.
+4. **Hardware y Periféricos**: Configuración de impresoras de tickets (térmicas) y envío de correos (SMTP).
+5. **Estaciones de Preparación**: Definición de destinos para comandas (ej. Cocina 1, Barra Fría).
 
-### 1. Datos del Establecimiento
-- **Identidad**: Nombre comercial, NIT, dirección legal y de facturación.
-- **Fiscal**: Configuración de porcentajes de impuestos (IVA), leyendas de certificador (SAT/Infile) y frases de factura.
+## Interacción con Base de Datos
 
-### 2. Estaciones de Impresión y KDS
-- **Periféricos**: Configuración de impresoras térmicas y pantallas de cocina.
-- **Ruteo**: Define qué productos se imprimen o visualizan en cada estación.
-- **PrintNode**: Integración para impresión remota desde la nube.
+### Tablas Relevantes (Supabase/PostgreSQL)
 
-### 3. Gestión de Accesos (RBAC)
-- **Roles**: ADMIN, CAJERO, MESERO, COCINA.
-- **Perfiles**: Registro de usuarios con nombre completo y PIN de acceso rápido de 4 dígitos.
-- **Permisos**: Control granular sobre acciones sensibles (Void, Descuentos, Reportes).
+| Tabla | Función |
+| :--- | :--- |
+| `system_settings` | Parámetros globales únicos del sistema. |
+| `branches` | Registro de ubicaciones físicas del restaurante. |
+| `profiles` | Extensión de `auth.users` para roles y datos de empleados. |
+| `kitchen_stations` | Definición de estaciones para ruteo de impresión. |
+| `printers` | Configuración de dispositivos de red para impresión directa. |
 
-### 4. Parámetros Operativos
-- Propinas sugeridas (%).
-- Monedas (Símbolo).
-- Configuración de alertas sonoras para KDS.
-- Control de bloqueos de mesa.
+### Relaciones Clave
+- `profiles.id` → `auth.users.id` (Relación 1:1)
+- `branches.org_id` → `organizations.id`
 
-## Esquema SQL (Tablas Principales)
+### Consultas Principales
+**Carga de Configuración Maestra:**
+```sql
+SELECT * FROM system_settings WHERE org_id = 'default' LIMIT 1;
+```
 
-### `system_settings`
-Tabla única de configuración global.
-- `restaurant_name`, `nit`, `address`.
-- `enable_billing`: Switch maestro de facturación electrónica.
-- `tax_percentage`, `suggested_tip`.
-- `printnode_api_key`.
-
-### `kitchen_stations`
-Gestión de dispositivos de salida.
-- `device_type`: 'PRINTER' | 'KDS'.
-- `num_copies`.
-
-### `roles` y `profiles`
-Seguridad y usuarios.
-- `permissions`: Campo JSONB con los privilegios asignados.
-- `pin`: PIN de seguridad para autenticación en el POS.
-
-### `printers`
-Modelos y rutas de impresoras configuradas.
+**Verificación de Privilegios por Perfil:**
+```sql
+SELECT role, permissions 
+FROM profiles 
+WHERE id = 'USER_ID_AUTENTICADO';
+```
 
 ---
-*Documentación generada automáticamente como backup del sistema.*
+*Documentación Técnica - Restaurante Las Palmas*

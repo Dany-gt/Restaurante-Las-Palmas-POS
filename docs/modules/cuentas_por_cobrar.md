@@ -1,39 +1,42 @@
 # Módulo: Cuentas por Cobrar
 
-Este módulo permite la gestión de créditos otorgados a clientes corporativos u hoteles, facilitando el control de saldos pendientes y la aplicación de abonos.
+## Descripción general
+El módulo de Cuentas por Cobrar gestiona las líneas de crédito otorgadas a clientes corporativos u hoteles. Su propósito es permitir el cierre de ventas "AL CRÉDITO" en el POS, manteniendo un seguimiento riguroso de los saldos pendientes, límites de crédito autorizados y la aplicación de abonos o pagos posteriores para la liberación de saldo.
 
-## Categorías y Funcionalidad
+## Categorías
+1. **Cartera de Clientes**: Registro de entidades con crédito autorizado.
+2. **Transacciones de Crédito**: Cargos automáticos generados desde el POS.
+3. **Gestión de Abonos**: Registro manual de pagos de clientes para reducir su deuda.
+4. **Estados de Cuenta**: Reportes históricos de compras y pagos por cliente.
 
-### 1. Gestión de Clientes con Crédito
-- **Límite de Crédito**: Monto máximo autorizado para compras al crédito por cliente.
-- **Descuentos Autorizados**: Porcentaje de descuento automático aplicado a clientes frecuentes.
-- **Saldo Actual**: Monitoreo en tiempo real del monto adeudado.
+## Interacción con Base de Datos
 
-### 2. Transacciones de Crédito
-- **Cargos (Charges)**: Generados automáticamente cuando una orden se cierra con el método de pago "AL CRÉDITO".
-- **Abonos (Payments)**: Registros manuales de pagos realizados por el cliente para reducir su deuda.
-- **Vistas Detalladas**: Historial completo de movimientos por cliente, incluyendo número de orden y descripción.
+### Tablas Relevantes (Supabase/PostgreSQL)
 
-### 3. Automatización
-- El sistema detecta cuando una orden es marcada como "AL CRÉDITO" y actualiza automáticamente el saldo del cliente asociado, registrando el cargo en la cuenta correspondiente.
+| Tabla | Función |
+| :--- | :--- |
+| `customers` | Almacena los límites de crédito (`credit_limit`) y el saldo actual (`current_balance`). |
+| `credit_transactions` | Registro histórico de cada movimiento (CARGO o ABONO). |
+| `receivables_summary` | Vista consolidada para visualizar saldos vencidos y por vencer. |
 
-## Esquema SQL (Tablas y Vistas)
+### Relaciones Clave
+- `credit_transactions.customer_id` → `customers.id`
+- `credit_transactions.order_id` → `orders.id` (Solo para cargos provenientes de ventas)
 
-### `receivables_summary` (Vista)
-Une datos de clientes y transacciones para mostrar un resumen ejecutivo.
-- `customer_name`, `limite_credito`, `saldo`.
+### Consultas Principales
+**Generación Automática de Cargo (Trigger en `orders`):**
+```sql
+INSERT INTO credit_transactions (customer_id, order_id, amount, type, description)
+VALUES ('ID_CLIENTE', 'ID_ORDEN', 450.00, 'CHARGE', 'Compra según Orden #1234');
+```
 
-### `credit_transactions`
-Historial de movimientos financieros.
-- `type`: 'CHARGE' (cargo) | 'PAYMENT' (abono).
-- `amount`: Monto de la transacción.
-- `order_id`: Referencia a la venta original (opcional).
-
-### `customers` (Campos de Crédito)
-Extensiones a la tabla de clientes.
-- `credit_limit`.
-- `current_balance`.
-- `authorized_discount`.
+**Validación de Disponibilidad de Crédito:**
+```sql
+SELECT 
+    (credit_limit - current_balance) as disponible
+FROM customers
+WHERE id = 'ID_CLIENTE';
+```
 
 ---
-*Documentación generada automáticamente como backup del sistema.*
+*Documentación Técnica - Restaurante Las Palmas*

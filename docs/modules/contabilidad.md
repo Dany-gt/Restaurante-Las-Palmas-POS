@@ -1,54 +1,48 @@
-# Módulo: Contabilidad / SAT
+# Módulo: Contabilidad & SAT
 
-Este módulo centraliza la operación financiera y el cumplimiento fiscal del restaurante, integrando directamente los datos del POS con los requerimientos de la SAT (Guatemala).
+## Descripción general
+Este módulo gestiona la salud financiera y el cumplimiento fiscal del restaurante. Su objetivo principal es automatizar la conciliación de documentos tributarios electrónicos (DTE) mediante la sincronización directa con el portal de la SAT, administrar los egresos operativos y consolidar la información para libros contables y declaraciones de impuestos.
 
-## Categorías y Funcionalidad
+## Categorías
+1. **Sincronización SAT**: Mapeo automático de Facturas de Ventas (Emitidas) y Gastos/Compras (Recibidas).
+2. **Clasificación Contable**: Asignación de categorías de gasto (ej. Alquileres, Servicios, Mercadería) a cada factura recibida.
+3. **Control de Egresos**: Registro de gastos menores (caja chica) y compras a proveedores.
+4. **Planilla de Empleados**: Gestión de nómina, bonificaciones y deducciones de ley.
+5. **Impuestos (IVA/ISR)**: Generación de reportes para declaración mensual.
 
-### 1. Auditoría SAT (DTE)
-Sincronización robusta con la Agencia Virtual de la SAT para descargar y auditar Documentos Tributarios Electrónicos (DTE).
-- **Recibidas (Compras)**: Análisis automático de facturas de proveedores, clasificación por rubro (Gasto, Activo, Costo) y detección de crédito fiscal.
-- **Emitidas (Ventas)**: Verificación de facturas emitidas por el restaurante para asegurar que todo esté certificado y vigente.
-- **Clasificación Automática**: El sistema utiliza lógica predefinida para asignar cuentas contables a proveedores recurrentes.
+## Interacción con Base de Datos
 
-### 2. Gestión deIVA e ISR
-- **IVA (Impuesto al Valor Agregado)**: Conciliación de Débito vs. Crédito fiscal. Generación de datos para la declaración mensual.
-- **ISR (Impuesto Sobre la Renta)**: Cálculo proyectado sobre ingresos y retenciones aplicadas.
+### Tablas Relevantes (Supabase/PostgreSQL)
 
-### 3. Libros Contables Formales
-Generación de asientos contables bajo el sistema de partida doble:
-- **Diario**: Registros automáticos de ventas diarias, compras y pagos de planilla.
-- **Mayor**: Acumulados por cuenta contable para balances.
+| Tabla | Función |
+| :--- | :--- |
+| `purchase_invoices` | Histórico de facturas de proveedores (Compras). |
+| `sales_invoices` | Histórico de facturas enviadas a clientes (Ventas). |
+| `historico_auditoria_sat` | Tabla de auditoría detallada de todos los DTE descargados. |
+| `journal_entries` | Asientos contables para doble partida (Debe/Haber). |
+| `payroll_records` | Registros de salarios devengados y deducciones. |
 
-### 4. Planilla e IGSS
-- Gestión de empleados y salarios base.
-- Cálculo de bonificaciones, horas extras y retenciones de ley (IGSS, ISR asalariados).
-- Historial de pagos quincenales.
+### Relaciones Clave
+- `historico_auditoria_sat.fel_uuid` es la llave única para evitar duplicados.
+- `purchase_invoices.supplier_nit` → `suppliers.nit`
 
-### 5. Flujo de Caja y Conciliación
-- Control de entradas (ventas, depósitos) y salidas (gastos, pagos).
-- **Conciliación Bancaria**: Comparación entre registros del sistema y estados de cuenta bancarios (BI, BAC, etc.).
+### Consultas Principales
+**Sincronización con Resolución de Conflictos (PostgreSQL UPSERT):**
+```sql
+INSERT INTO purchase_invoices (fel_uuid, invoice_date, supplier_name, total_amount, description)
+VALUES ('UUID-FACTURA', '2026-04-28', 'Proveedor S.A.', 1500.00, 'Compra de Insumos')
+ON CONFLICT (fel_uuid) DO NOTHING;
+```
 
-## Esquema SQL (Tablas Principales)
-
-### `historico_auditoria_sat`
-Tabla maestra de facturación electrónica.
-- `uuid_dte`: Identificador único de la SAT.
-- `monto_total`, `iva_credito_fiscal`.
-- `clasificacion_compra`: 'GASTO', 'COSTO', 'ACTIVO_FIJO'.
-
-### `payroll_employees` y `payroll_quincena_records`
-Gestión de recursos humanos y pagos quincenales.
-
-### `tax_declarations`
-Registro de cumplimiento tributario.
-- `tax_type`: 'IVA', 'ISR', 'IGSS'.
-- `status`: 'pending' | 'paid'.
-
-### `journal_entries` y `journal_lines`
-Sistema central de contabilidad formal (Partidas).
-
-### `cash_flow`
-Registro diario de movimientos de liquidez.
+**Resumen Mensual de IVA por Pagar:**
+```sql
+SELECT 
+    sum(iva_amount) FILTER (WHERE tipo = 'venta') as iva_debito,
+    sum(iva_amount) FILTER (WHERE tipo = 'compra') as iva_credito,
+    (sum(iva_amount) FILTER (WHERE tipo = 'venta') - sum(iva_amount) FILTER (WHERE tipo = 'compra')) as neto_iva
+FROM historico_auditoria_sat
+WHERE status = 'paid' AND fecha_emision >= '2026-04-01';
+```
 
 ---
-*Documentación generada automáticamente como backup del sistema.*
+*Documentación Técnica - Restaurante Las Palmas*
