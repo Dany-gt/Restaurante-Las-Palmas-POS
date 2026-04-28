@@ -16,6 +16,7 @@ Cada módulo del sistema se ha documentado de forma individual para proporcionar
 | 🛒 [**Ventas POS**](file:///c:/Users/CyR%20Las%20Palmas/Documents/Restaurante%20Las%20Palmas%20POS/docs/modules/ventas_pos.md) | Operación transaccional del restaurante, mesas, delivery y arqueos. |
 | 💳 [**Cuentas por Cobrar**](file:///c:/Users/CyR%20Las%20Palmas/Documents/Restaurante%20Las%20Palmas%20POS/docs/modules/cuentas_por_cobrar.md) | Gestión de créditos comerciales y saldos de clientes corporativos. |
 | ⚙️ [**Configuración Global**](file:///c:/Users/CyR%20Las%20Palmas/Documents/Restaurante%20Las%20Palmas%20POS/docs/modules/configuracion.md) | Parámetros del sistema, seguridad (RLS), roles y periféricos. |
+| 📔 [**Diccionario de Datos**](file:///c:/Users/CyR%20Las%20Palmas/Documents/Restaurante%20Las%20Palmas%20POS/docs/database_dictionary.md) | **[NUEVO]** Referencia maestra de tablas, columnas y lógica SQL. |
 
 ---
 
