@@ -12,21 +12,32 @@
     --danger: #ef4444;
     --warning: #f59e0b;
     --indigo-600: #4f46e5;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
 }
 
 html,
-body {
+body,
+#root {
     font-family: 'Inter', sans-serif;
-    margin: 0;
-    padding: 0;
-    padding-bottom: env(safe-area-inset-bottom);
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    overflow: hidden;
     overscroll-behavior: none;
     touch-action: manipulation;
-
     background-color: var(--bg-dark);
     color: #e2e8f0;
     user-select: none;
     -webkit-user-select: none;
+    padding-top: var(--safe-top) !important;
+    padding-left: var(--safe-left) !important;
+    padding-right: var(--safe-right) !important;
 }
 
 /* Global Typography Rules */

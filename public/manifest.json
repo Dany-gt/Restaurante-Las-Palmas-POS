@@ -4,6 +4,12 @@
     "id": "/",
     "start_url": "/",
     "display": "fullscreen",
+    "display_override": [
+        "fullscreen",
+        "standalone",
+        "minimal-ui"
+    ],
+    "prefer_related_applications": false,
     "background_color": "#0F172A",
     "theme_color": "#0F172A",
     "orientation": "any",
