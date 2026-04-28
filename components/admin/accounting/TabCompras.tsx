@@ -689,7 +689,18 @@ export const TabCompras: React.FC<{
                                         </td>
                                         <td className="px-3 py-2">
                                             <div className="flex items-center gap-2">
-                                                <button onClick={() => { setSelectedInv(inv); setShowDetail(true); }} 
+                                                <button onClick={() => {
+                                                    // Parsear items localmente: soporta array, metadata.items, o JSON string
+                                                    let parsedItems = inv.items;
+                                                    if (!parsedItems || parsedItems.length === 0) {
+                                                        const raw = inv.metadata?.items ?? inv.detalles;
+                                                        if (typeof raw === 'string') { try { parsedItems = JSON.parse(raw); } catch { parsedItems = []; } }
+                                                        else if (Array.isArray(raw)) { parsedItems = raw; }
+                                                    }
+                                                    if (typeof parsedItems === 'string') { try { parsedItems = JSON.parse(parsedItems); } catch { parsedItems = []; } }
+                                                    setSelectedInv({ ...inv, items: parsedItems || [] });
+                                                    setShowDetail(true);
+                                                }} 
                                                     className="flex items-center gap-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-[9px] font-black uppercase rounded shadow-sm transition-all active:scale-95">
                                                     <Package size={10} />
                                                 </button>
@@ -1191,9 +1202,10 @@ export const TabCompras: React.FC<{
                                             {(!selectedInv.items || selectedInv.items.length === 0) && (
                                                 <tr>
                                                     <td colSpan={3} className="px-8 py-20 text-center">
-                                                        <div className="flex flex-col items-center gap-3 opacity-30">
-                                                                <RefreshCw size={32} className="animate-spin text-black" />
-                                                                <span className="italic text-[11px] font-bold text-black">Consultando repositorio central SAT...</span>
+                                                        <div className="flex flex-col items-center gap-3 opacity-40">
+                                                            <Package size={32} className="text-slate-400" />
+                                                            <span className="text-[11px] font-bold text-slate-500">Sin detalle de productos disponible</span>
+                                                            <span className="text-[9px] text-slate-400">Esta factura no contiene líneas de detalle almacenadas localmente.</span>
                                                         </div>
                                                     </td>
                                                 </tr>

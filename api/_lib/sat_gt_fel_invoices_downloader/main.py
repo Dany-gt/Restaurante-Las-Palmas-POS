@@ -3,8 +3,7 @@ import os.path
 import base64
 import codecs
 import logging
-import requests
-import concurrent.futures
+from curl_cffi import requests # Reemplazo de requests para evasión Anti-Bot
 from bs4 import BeautifulSoup, CData
 from urllib.parse import urlencode
 from datetime import datetime
@@ -21,7 +20,7 @@ from .models import (
     IssuingModel,
     TypeFEL,
 )
-from .actions import SATDoLogin, SATDoLogout, SATGetMenu, SATGetStablisments, SATGetRetentionsUrl
+from .actions import SATDoLogin, SATDoLogout, SATGetMenu, SATGetStablisments
 from contextlib import contextmanager
 
 """
@@ -32,101 +31,120 @@ TIMEOUT = 20
 
 
 class SatFelDownloader:
-    def __init__(self, credentials, url_get_fel, request_session=requests.Session()):
+    def __init__(self, credentials, url_get_fel, request_session=None):
         self._credentials = credentials
-        self._session = request_session
         self._view_state = None
         self._url_get_fel = url_get_fel
+        
+        # 1. Inicializar sesión con impersonación de Chrome 124 (Windows)
+        # Esto evade el TLS fingerprinting de Cloudflare
+        self._session = request_session or requests.Session(impersonate="chrome124")
+        
+        # 2. Configurar cabeceras de navegación humana avanzada
+        self._session.headers.update({
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
+            "Accept-Encoding": "gzip, deflate, br, zstd",
+            "Sec-Ch-Ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+            "Sec-Ch-Ua-Mobile": "?0",
+            "Sec-Ch-Ua-Platform": '"Windows"',
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1",
+            "Upgrade-Insecure-Requests": "1",
+            "Referer": "https://farm3.sat.gob.gt/menu/login.jsf"
+        })
 
     def _login(self):
-        login_dict = {
-            "login": self._credentials.username,
-            "password": self._credentials.password,
-            "operacion": "ACEPTAR",
-        }
-        r = self._session.post(
-            "https://farm3.sat.gob.gt/menu/init.do", data=login_dict, timeout=TIMEOUT
-        )
-        r.raise_for_status()
-        bs = BeautifulSoup(r.text, features="html.parser")
-        logging.info("Did login")
-        view_state = bs.find("input", {"name": "javax.faces.ViewState"})
-        if view_state and "value" in view_state:
-            self._view_state = view_state["value"]
-            logging.info("Did get view state")
-            return True
+        # 1. GET Inicial para obtener JSESSIONID y el ViewState de partida
+        login_url = "https://farm3.sat.gob.gt/menu/login.jsf"
+        try:
+            r_init = self._session.get(login_url, timeout=TIMEOUT)
+            r_init.raise_for_status()
+            
+            bs_init = BeautifulSoup(r_init.text, features="html.parser")
+            view_state_input = bs_init.find("input", {"name": "javax.faces.ViewState"})
+            initial_view_state = view_state_input["value"] if view_state_input else ""
+            
+            logging.info(f"Conexión inicial establecida. Cookies: {self._session.cookies.get_dict()}")
+
+            # 2. POST con credenciales y ViewState inicial
+            login_dict = {
+                "formContent": "formContent",
+                "formContent:username": self._credentials.username,
+                "formContent:password": self._credentials.password,
+                "formContent:cmdbtnIngresar": "", 
+                "javax.faces.ViewState": initial_view_state,
+            }
+            
+            # El portal a veces redirige, curl_cffi lo maneja automáticamente
+            r = self._session.post(login_url, data=login_dict, timeout=TIMEOUT)
+            
+            if r.status_code == 500:
+                 logging.error(f"Error 500 en Login. Posible ViewState inválido. Cookies actuales: {self._session.cookies.get_dict()}")
+                 return False
+
+            r.raise_for_status()
+            
+            # 3. Extraer el ViewState final para las siguientes consultas
+            bs = BeautifulSoup(r.text, features="html.parser")
+            view_state = bs.find("input", {"name": "javax.faces.ViewState"})
+            
+            if view_state and "value" in view_state.attrs:
+                self._view_state = view_state["value"]
+                logging.info("Login exitoso y ViewState capturado.")
+                return True
+                
+        except Exception as e:
+            logging.error(f"Error en el proceso de login: {str(e)}")
+            return False
+            
         return False
 
     def _get_invoices_headers(self, filter: SATFELFilters):
-        logging.info("CALL URL GET FEL (MULTIPAGE PARALLEL)")
-        r_fel = self._session.get(self._url_get_fel, timeout=TIMEOUT)
+        logging.info("CALL URL GET FEL (ESTABLISHING SESSION)")
+        
+        # Debemos visitar la URL de redirección para que se activen las cookies ACCESS_TOKEN / felTokc
+        # Esta URL es la que el menú generó dinámicamente
+        r_fel = self._session.get(self._url_get_fel, timeout=TIMEOUT, allow_redirects=True)
         
         operation_param = filter.tipo
         cookie = self._session.cookies.get("ACCESS_TOKEN") or self._session.cookies.get("felTokc")
         if not cookie:
-            cookie_names = [c.name for c in self._session.cookies]
+            # En curl_cffi la sesión puede devolver un dict o un CookieJar diferente
+            try:
+                cookie_names = list(self._session.cookies.keys())
+            except:
+                cookie_names = [str(c) for c in self._session.cookies]
             raise Exception("Neither ACCESS_TOKEN nor felTokc found in cookies! Cookies found: " + str(cookie_names))
         
-        page_size = 50
-        
-        def fetch_page(p_num):
-            dict_query = {
-                "usuario": self._credentials.username,
-                "tipoOperacion": operation_param.value,
-                "nitIdReceptor": "",
-                "estadoDte": filter.estadoDte.value,
-                "fechaEmisionIni": filter.fechaInicio.strftime("%d-%m-%Y"),
-                "fechaEmisionFinal": filter.fechaFin.strftime("%d-%m-%Y"),
-                "pPagina": str(p_num),
-                "pRegistrosPorPagina": str(page_size)
-            }
-            url = "https://felcons.c.sat.gob.gt/dte-agencia-virtual/api/consulta-dte?" + urlencode(dict_query)
-            header = {"authtoken": "token " + cookie}
-            r = self._session.get(url, headers=header, timeout=TIMEOUT)
-            r.raise_for_status()
-            return r.json().get("detalle", {}).get("data", [])
-
-        # 1. Petición inicial para la página 1 y obtener el total de registros
-        dict_query_init = {
+        dict_query = {
             "usuario": self._credentials.username,
             "tipoOperacion": operation_param.value,
             "nitIdReceptor": "",
             "estadoDte": filter.estadoDte.value,
             "fechaEmisionIni": filter.fechaInicio.strftime("%d-%m-%Y"),
             "fechaEmisionFinal": filter.fechaFin.strftime("%d-%m-%Y"),
-            "pPagina": "1",
-            "pRegistrosPorPagina": str(page_size)
         }
-        url_init = "https://felcons.c.sat.gob.gt/dte-agencia-virtual/api/consulta-dte?" + urlencode(dict_query_init)
-        header_init = {"authtoken": "token " + cookie}
-        r_init = self._session.get(url_init, headers=header_init, timeout=TIMEOUT)
-        r_init.raise_for_status()
+        logging.info("Querying invoices")
+        logging.debug(dict_query)
+        url = (
+            "https://felcons.c.sat.gob.gt/dte-agencia-virtual/api/consulta-dte?"
+            + urlencode(dict_query)
+        )
+        header = {"authtoken": "token " + cookie}
+        r = self._session.get(url, headers=header, timeout=TIMEOUT)
+        r.raise_for_status()
         
-        json_res = r_init.json()
-        total_registros = json_res.get("detalle", {}).get("totalRegistros", 0)
-        all_invoices = json_res.get("detalle", {}).get("data", [])
-        
-        if total_registros <= page_size:
-            return all_invoices
+        json_res = r.json()
+        detalle = json_res.get("detalle") or {}
+        return detalle.get("data", [])
 
-        # 2. Calcular cuantas páginas faltan
-        import math
-        total_pages = math.ceil(total_registros / page_size)
-        logging.info(f"Total registros: {total_registros}, paginas: {total_pages}. Iniciando Multi-fetch...")
-        
-        # 3. Descargar el resto de páginas en paralelo (Páginas 2 hasta total_pages)
-        pages_to_fetch = range(2, total_pages + 1)
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            future_to_page = {executor.submit(fetch_page, p): p for p in pages_to_fetch}
-            for future in concurrent.futures.as_completed(future_to_page):
-                try:
-                    data = future.result()
-                    all_invoices.extend(data)
-                except Exception as e:
-                    logging.error(f"Error descargando página: {str(e)}")
-                    
-        logging.info(f"Total so far (all pages): {len(all_invoices)}")
-        return all_invoices
+    def get_invoices(self, filter: SATFELFilters):
+        """Método público para compatibilidad con sat_bridge.py"""
+        return self._get_invoices_headers(filter)
 
     def _process_contingency_pdf(self, invoice, filetype, received):
         url = "https://felav02.c.sat.gob.gt/verificador-rest/rest/publico/descargapdf"
@@ -150,7 +168,7 @@ class SatFelDownloader:
     def _get_response(self, invoice, filetype, received=True):
         url = None
         is_contingency = False
-        print(invoice)
+        # print(invoice)
         if filetype.lower() == "xml":
             url = (
                 "https://felcons.c.sat.gob.gt/dte-agencia-virtual/api/consulta-dte/xml?"
@@ -177,7 +195,7 @@ class SatFelDownloader:
         if r.status_code == 500:
             logging.warn("Did get 500 error trying pdf contingency")
             return self._process_contingency_pdf(invoice, "pdf-contingency", received)
-        print(r)
+        # print(r)
         return r, is_contingency
 
     def get_pdf_content(self, invoice, received=True):
@@ -272,7 +290,7 @@ class SatFelDownloader:
         commercial_name = issuer["NombreComercial"]
         issuer_name = issuer["NombreEmisor"]
         receptor_email = receptor.find("CorreoReceptor")
-        emissor_address = issuer.find("Direccion").Text
+        emissor_address = issuer.find("Direccion").text
         zip_code = issuer.find("CodigoPostal").text
         city = issuer.find("Municipio").text
         state = issuer.find("Departamento").text
@@ -347,6 +365,27 @@ class SatFelDownloader:
         )
         return invoice
 
+    def get_invoices(self, type_invoice, start_date, end_date):
+        """Metodo de alto nivel que trae el listado Y el XML de cada factura"""
+        headers = self._get_invoices_headers(type_invoice, start_date, end_date)
+        invoices = headers.get("data", [])
+        
+        print(f"[PY] Extrayendo XMLs para {len(invoices)} facturas...", file=sys.stderr)
+        
+        for inv in invoices:
+            try:
+                # La función get_xml requiere el objeto completo de la factura del listado
+                xml_content_bytes = self.get_xml(inv)
+                # Convertimos bytes a string con manejo de errores para caracteres extraños
+                if isinstance(xml_content_bytes, bytes):
+                    inv['xml_content'] = xml_content_bytes.decode('utf-8', errors='replace')
+                else:
+                    inv['xml_content'] = xml_content_bytes
+            except Exception as e:
+                print(f"[PY] Error bajando XML para UUID {inv.get('uuid')}: {e}", file=sys.stderr)
+        
+        return invoices
+
     def get_xml_content(self, invoice, received=True):
         return self._get_response(
             invoice=invoice, filetype="xml", received=received
@@ -383,9 +422,14 @@ Main entrance of the SAT Downloader.
 
 
 class SATDownloader:
-    def __init__(self, request_session=requests.Session()):
+    def __init__(self, request_session=None):
         self.credentials = None
-        self.session = request_session
+        self.session = request_session or requests.Session(impersonate="chrome124")
+        self.session.headers.update({
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "es-ES,es;q=0.9",
+        })
         self.url_get_fel = None
         self.its_initialized = False
         self.view_state = None
@@ -401,13 +445,30 @@ class SATDownloader:
             raise ValueError(
                 "You didn't provided credentials. Please use setCredentials method"
             )
-        did_login, view_state, login_html = SATDoLogin(self.credentials, self.session).execute()
+        
+        # 1. Login robusto con JSF
+        action_login = SATDoLogin(self.credentials, self.session)
+        did_login, view_state = action_login.execute()
+        
+        # Necesitamos el HTML del login para extraer la redirección del menú
+        # Lo obtenemos del atributo privado si lo añadimos o simplemente lo capturamos
+        login_html = action_login._last_html if hasattr(action_login, "_last_html") else None
+        
         if not did_login or not view_state:
             raise ValueError("The credentials you provided are not valid")
+            
         logging.info("Did authenticate")
-        self.login_html = login_html # Guardar para poder navegar a otros menús
+        
+        # 2. Navegación de menú para obtener el token dinámico (ACCESS_TOKEN)
         menu = SATGetMenu(self.session, view_state)
-        (did_get_menu, url) = menu.execute(login_html=login_html)
+        try:
+            (did_get_menu, url) = menu.execute(login_html=login_html)
+        except Exception as e:
+            # Si falla aquí, revisamos si Cloudflare nos bloqueó con un JS Challenge
+            if login_html and ("challenge-platform" in login_html or "Cloudflare" in login_html):
+                 raise Exception("Cloudflare detectó la sesión como bot (JS Challenge). Por favor, espere unos minutos o intente cambiar el User-Agent.")
+            raise e
+        
         logging.info("Did get menu URL")
         self.url_get_fel = url
         if not did_get_menu:
@@ -489,7 +550,7 @@ class SATDownloader:
         downloader = SatFelDownloader(
             self.credentials, url_get_fel=self.url_get_fel, request_session=self.session
         )
-        return downloader.get_xml_content(invoice)
+        downloader.get_xml_content(invoice)
 
     def get_xml(self, invoice, save_in_dir=None):
         if not self.its_initialized:
@@ -499,255 +560,112 @@ class SATDownloader:
         )
         downloader.get_xml(invoice, save_in_dir)
 
-    def get_constancias_retencion(self, date_start, date_end):
-        """
-        Scrape Constancias de Retención from Agencia Virtual
-        """
-        if not self.its_initialized:
-            self.initialize()
-            
-        # 1. Obtener la URL del módulo de retenciones
-        # Necesitamos el HTML de login que guardamos en initialize
-        # Como no lo guardamos en self, vamos a intentar obtenerlo de la sesion o re-inicializar si fuera necesario
-        # En este caso, SATDoLogin devuelve el html, lo vamos a guardar en self.login_html
+if __name__ == "__main__":
+    import sys
+    import json
+    import logging
+    from bs4 import BeautifulSoup
+
+    # Configuración de logs mínima para no ensuciar el JSON
+    logging.basicConfig(level=logging.ERROR)
+
+    try:
+        args = sys.argv[1:]
+        if len(args) < 5:
+            print(json.dumps({"error": "Faltan argumentos (nit, user, pass, start, end, type)"}))
+            sys.exit(1)
+
+        nit_arg, user_arg, pass_arg, start_date, end_date, tipo = args[0], args[1], args[2], args[3], args[4], args[5]
         
-        menu_ret = SATGetRetentionsUrl(self.session, self.view_state)
-        # Reutilizamos el login_html si lo guardamos, o lo buscamos de nuevo
-        _, url_ret = menu_ret.execute(login_html=self.login_html)
+        sat = SatGTPortal(nit_arg, user_arg, pass_arg)
+        is_received = (tipo.lower() in ["recibida", "recibidas", "compras"])
         
-        # 2. Entrar a la página de retenciones para obtener el ViewState de esa página
-        r_page = self.session.get(url_ret, timeout=20)
-        bs_page = BeautifulSoup(r_page.text, "html.parser")
+        invoices_raw = sat.get_invoices(start_date, end_date, is_received)
         
-        def get_vs(soup):
-            vs = soup.find("input", {"name": "javax.faces.ViewState"})
-            return vs["value"] if vs else ""
-
-        # Identificación Dinámica de IDs (Agencia Virtual varía)
-        def find_el_by_pattern(soup, patterns):
-            for pattern in patterns:
-                el = soup.find(["input", "select", "button"], {"id": re.compile(pattern)})
-                if el: return el
-            return None
-
-        # Patrones comunes en SAT
-        el_del = find_el_by_pattern(bs_page, [".*fechaEmisionDel_input", ".*fechaInicio_input", ".*txtFechaDel_input", ".*fechaDel_input"])
-        el_al  = find_el_by_pattern(bs_page, [".*fechaEmisionAl_input", ".*fechaFin_input", ".*txtFechaAl_input", ".*fechaAl_input"])
-        el_tipo = find_el_by_pattern(bs_page, [".*tipoRetencion_input", ".*comboTipo_input", ".*tipoConstancia_input"])
-        # Buscar el botón "Buscar" por nombre, ID o clase
-        el_btn = find_el_by_pattern(bs_page, [".*btnBuscar", ".*j_idt.*buscar", ".*j_idt.*Buscar"])
-        if not el_btn:
-            btn_els = bs_page.find_all(["button", "input"], string=re.compile("Buscar", re.I))
-            if not btn_els: btn_els = bs_page.find_all(["button", "input", "a"], {"id": re.compile(".*buscar.*", re.I)})
-            if btn_els: el_btn = btn_els[0]
-
-        if not el_del or not el_btn:
-            logging.error(f"[RETENSION-SYNC] Faltan elementos críticos. DEL={el_del}, BTN={el_btn}")
-            return []
-
-        id_del = el_del["id"]
-        id_al = el_al["id"] if el_al else id_del
-        id_tipo = el_tipo["id"] if el_tipo else None
-        id_btn = el_btn["id"]
-
-        # IMPORTANTE: Encontrar el form que contiene estos elementos
-        form = el_del.find_parent("form") or bs_page.find("form", {"id": re.compile(".*")})
-        form_id = form["id"] if form else "formBusqueda"
-
-        logging.info(f"[RETENSION-SYNC] Config: FORM={form_id}, DEL={id_del}, BTN={id_btn}")
-
-        results = []
-        tipos = ["IVA", "ISR"]
-        
-        for tipo in tipos:
-            vs = get_vs(bs_page)
-            
-            # GREEDY: Colectar todos los campos del formulario
-            post_data = {}
-            for tag in form.find_all(["input", "select"]):
-                name = tag.get("name")
-                if not name: continue
-                if tag.get("type") in ["submit", "button"] and name != id_btn: continue
-                post_data[name] = tag.get("value", "")
-
-            post_data.update({
-                f"{form_id}": form_id,
-                "javax.faces.ViewState": vs,
-                "javax.faces.partial.ajax": "true",
-                "javax.faces.source": id_btn,
-                "javax.faces.partial.execute": "@all",
-                "javax.faces.partial.render": "@all",
-                id_btn: id_btn,
-                id_del: date_start.strftime("%d/%m/%Y"),
-                id_al: date_end.strftime("%d/%m/%Y"),
-            })
-            if id_tipo: post_data[id_tipo] = tipo
-
-            headers = {"Faces-Request": "partial/ajax"}
-            r_res = self.session.post(url_ret, data=post_data, headers=headers, timeout=20)
-            
-            # PARSEO ULTRA-RESILIENTE (v5)
-            bs_xml = BeautifulSoup(r_res.text, "xml")
-            updates = bs_xml.find_all("update")
-            if not updates:
-                 logging.warning(f"[RETENSION-SYNC] Respuesta sin updates. Status: {r_res.status_code}")
-                 continue
-
-            for upd in updates:
-                h = upd.text
-                if not h: continue
-                # Capturar errores explícitos del portal (ej. Sesión expirada o No hay registros)
-                if "ui-messages" in h:
-                    bs_msg = BeautifulSoup(h, "html.parser")
-                    for m_tag in bs_msg.find_all(class_=re.compile("ui-messages-.*-detail")):
-                        logging.warning(f"[SAT-PORTAL-MSG] {m_tag.get_text().strip()}")
+        final_invoices = []
+        for inv in invoices_raw:
+            try:
+                # Descargar el XML para extraer el detalle real
+                xml_str = sat.get_xml_content(inv)
+                if not xml_str: xml_str = ""
                 
-                bs_h = BeautifulSoup(h, "html.parser")
-                rows = bs_h.select("tr") 
-                for r in rows:
-                    cols = r.find_all("td")
-                    if len(cols) < 5: continue 
-                    
-                    txt = r.get_text().lower()
-                    # Buscar indicadores de que esta fila es una constancia
-                    if "retenedor" in txt or "constancia" in txt or "q" in txt:
-                        c = [td.get_text().strip() for td in cols]
-                        try:
-                            # Heurística: NIT suele ser el 2do elemento, Constancia el 5to, Fecha el 6to, Monto el 8vo
-                            # Pero vamos a validar el formato de fecha
-                            fecha = None
-                            for idx, val in enumerate(c):
-                                if re.match(r"\d{2}/\d{2}/\d{4}", val):
-                                    fecha = val
-                                    fecha_idx = idx
-                                    break
-                            
-                            if not fecha: continue
-                            
-                            # Si encontramos fecha, asumimos posiciones relativas tipicas:
-                            # Constancia suele estar justo antes de la fecha
-                            const = c[fecha_idx - 1]
-                            # NIT suele estar al inicio (index 1)
-                            nit = c[1]
-                            nom = c[2]
-                            # El monto suele ser el último o penúltimo con una 'Q'
-                            monto_s = c[-1].replace("Q", "").replace(",", "").strip()
-                            if not monto_s: monto_s = c[-2].replace("Q", "").replace(",", "").strip()
-                            
-                            monto = float(monto_s)
-                            results.append({
-                                "nit_emisor": nit, "nombre_emisor": nom, "numero": const, 
-                                "fecha": datetime.strptime(fecha, "%d/%m/%Y").strftime("%Y-%m-%d"),
-                                "total": monto, "isr_retenido": monto if tipo == "ISR" else 0,
-                                "iva_retenido": monto if tipo == "IVA" else 0,
-                                "serie": "RET", "tipo_dte": "CRE", "uuid": f"RET-{const}", "estado": "V"
-                            })
-                        except: continue
+                # PARSEO ROBUSTO CON BEAUTIFULSOUP
+                soup = BeautifulSoup(xml_str, "xml")
                 
-        # Eliminar duplicados por UUID
-        seen = set()
-        final_results = []
-        for r in results:
-            if r["uuid"] not in seen:
-                final_results.append(r)
-                seen.add(r["uuid"])
+                # REGLA ESTRICTA: EL UUID ES EL TEXTO DEL NODO NumeroAutorizacion
+                num_auth_node = soup.find(lambda tag: tag.name.split(':')[-1] == 'NumeroAutorizacion')
+                
+                if num_auth_node:
+                    uuid_val = num_auth_node.text.strip()
+                    serie_val = num_auth_node.get('Serie', '')
+                    num_val = num_auth_node.get('Numero', '')
+                else:
+                    # Si no hay nodo, buscarlo en el objeto original o marcar error
+                    uuid_val = inv.get('uuid') or inv.get('guid') or "FALTA-UUID"
+                    serie_val = ""
+                    num_val = ""
 
-        return final_results
+                # 2. Emisor (NIT y Nombre)
+                emisor_node = soup.find(lambda tag: tag.name.split(':')[-1] == 'Emisor')
+                nit_emisor = emisor_node.get('NITEmisor', '') if emisor_node else ""
+                nombre_emisor = emisor_node.get('NombreEmisor', '') if emisor_node else ""
 
-    def get_retencion_pdf(self, constancia_number, date_start, date_end, tipo="IVA"):
-        """
-        Download a specific retention PDF by its number.
-        Requires navigating back to the search results first to identify the row.
-        """
-        if not self.its_initialized:
-            self.initialize()
-            
-        menu_ret = SATGetRetentionsUrl(self.session, self.view_state)
-        _, url_ret = menu_ret.execute(login_html=self.login_html)
-        
-        r_page = self.session.get(url_ret, timeout=20)
-        bs_page = BeautifulSoup(r_page.text, "html.parser")
-        
-        def get_vs(soup):
-            vs = soup.find("input", {"name": "javax.faces.ViewState"})
-            return vs["value"] if vs else ""
-        
-        # Identificación Dinámica de IDs
-        def find_id_by_pattern(soup, patterns):
-            for pattern in patterns:
-                el = soup.find(["input", "select", "button"], {"id": re.compile(pattern)})
-                if el: return el["id"]
-            return None
+                # 3. Datos Generales (Fecha)
+                gen_node = soup.find(lambda tag: tag.name.split(':')[-1] == 'DatosGenerales')
+                fecha_emision = gen_node.get('FechaHoraEmision', '') if gen_node else ""
 
-        id_del = find_id_by_pattern(bs_page, [".*fechaEmisionDel_input", ".*fechaInicio_input", ".*txtFechaDel_input"])
-        id_al  = find_id_by_pattern(bs_page, [".*fechaEmisionAl_input", ".*fechaFin_input", ".*txtFechaAl_input"])
-        id_tipo = find_id_by_pattern(bs_page, [".*tipoRetencion_input", ".*comboTipo_input"])
-        id_btn = find_id_by_pattern(bs_page, [".*btnBuscar", ".*j_idt.*"])
-        if not id_btn:
-            btn_el = bs_page.find(["button", "input"], string=re.compile("Buscar", re.I))
-            if btn_el and btn_el.has_attr("id"): id_btn = btn_el["id"]
+                # 4. Totales
+                total_node = soup.find(lambda tag: tag.name.split(':')[-1] == 'GranTotal')
+                monto_total = total_node.text.strip() if total_node else 0
 
-        vs = get_vs(bs_page)
-        form = bs_page.find("form", {"id": re.compile(".*")})
-        if not form or not id_del or not id_al or not id_btn: return None
-        form_id = form["id"]
-        
-        # 1. Realizar busqueda para que el ViewState de la sesión sepa de qué tabla hablamos
-        post_data = {
-            f"{form_id}": form_id,
-            "javax.faces.ViewState": vs,
-            "javax.faces.partial.ajax": "true",
-            "javax.faces.source": id_btn,
-            "javax.faces.partial.execute": "@all",
-            "javax.faces.partial.render": f"{form_id}:tablaResultados",
-            id_btn: id_btn,
-            id_del: date_start.strftime("%d/%m/%Y"),
-            id_al: date_end.strftime("%d/%m/%Y")
-        }
-        if id_tipo:
-            post_data[id_tipo] = tipo
-        
-        headers = {"Faces-Request": "partial/ajax"}
-        r_search = self.session.post(url_ret, data=post_data, headers=headers, timeout=20)
-        
-        # 2. Identificar el ID del botón de descarga de la fila correcta
-        bs_res = BeautifulSoup(r_search.text, "xml")
-        update_tag = bs_res.find("update")
-        if not update_tag: return None
-        
-        bs_table = BeautifulSoup(update_tag.text, "html.parser")
-        rows = bs_table.select("tr.ui-widget-content")
-        
-        target_source = None
-        for i, row in enumerate(rows):
-            cols = row.find_all("td")
-            if len(cols) < 8: continue
-            if cols[4].text.strip() == constancia_number:
-                # Encontrar el botón dentro de esta fila
-                # Normalmente es un commandLink con un ID que incluye el índice de la fila
-                btn = row.find("a", {"id": re.compile(r".*btnPdf")}) or row.find("button", {"id": re.compile(r".*btnPdf")})
-                if btn:
-                    target_source = btn["id"]
-                    break
-        
-        if not target_source:
-             return None
-             
-        # Obtenemos el ViewState actualizado de la respuesta AJAX
-        vs_match = re.search(r'<update id="javax.faces.ViewState"><!\[CDATA\[(.*?)]]>', r_search.text)
-        new_vs = vs_match.group(1) if vs_match else vs
-        
-        # 3. Triger del download (POST con ajax=false o manejando el stream)
-        # En PrimeFaces, las descargas suelen ser POSTs normales (no AJAX parcial) que devuelven un file stream
-        download_data = {
-            f"{form_id}": form_id,
-            "javax.faces.ViewState": new_vs,
-            target_source: target_source
-        }
-        
-        # Eliminamos el header AJAX para que el servidor entienda que queremos el archivo real
-        res = self.session.post(url_ret, data=download_data, timeout=30, stream=True)
-        if res.status_code == 200 and 'application/pdf' in res.headers.get('Content-Type', ''):
-            return res.content
-            
-        return None
+                # 5. Items (Detalle Obligatorio)
+                items = []
+                item_nodes = soup.find_all(lambda tag: tag.name.split(':')[-1] == 'Item')
+                for node in item_nodes:
+                    try:
+                        cant = node.find(lambda tag: tag.name.split(':')[-1] == 'Cantidad')
+                        desc = node.find(lambda tag: tag.name.split(':')[-1] == 'Descripcion')
+                        p_uni = node.find(lambda tag: tag.name.split(':')[-1] == 'PrecioUnitario')
+                        tot = node.find(lambda tag: tag.name.split(':')[-1] == 'Total')
+                        
+                        items.append({
+                            "cantidad": cant.text.strip() if cant else "1",
+                            "descripcion": desc.text.strip() if desc else "S/D",
+                            "precio_unitario": p_uni.text.strip() if p_uni else "0",
+                            "total": tot.text.strip() if tot else "0"
+                        })
+                    except: pass
+
+                final_invoices.append({
+                    "uuid": uuid_val,
+                    "xml_content": xml_str,
+                    "serie": serie_val,
+                    "numero": num_val,
+                    "nit_emisor": nit_emisor,
+                    "nombre_emisor": nombre_emisor,
+                    "fecha_emision": fecha_emision,
+                    "total": monto_total,
+                    "items": items,
+                    "tipo": tipo
+                })
+            except Exception as e:
+                # Log de error silencioso en la lista
+                final_invoices.append({
+                    "uuid": inv.get('uuid', 'ERROR-ID'),
+                    "error_xml": str(e),
+                    "items": []
+                })
+
+        # DEBUG PYTHON OUT: Escribir el primer UUID en stderr para verlo en el CMD
+        if final_invoices:
+            import sys
+            sys.stderr.write(f"\nDEBUG PYTHON OUT: UUID Encontrado -> {final_invoices[0].get('uuid')}\n")
+
+        print(json.dumps({"invoices": final_invoices}))
+
+    except Exception as e:
+        import sys
+        import json
+        sys.stderr.write(f"\nFATAL PYTHON ERROR: {str(e)}\n")
+        print(json.dumps({"error": str(e)}))
+        sys.exit(1)

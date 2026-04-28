@@ -351,116 +351,164 @@ export function parseAuditDTE(raw: any): AuditResult {
   };
 }
 
+// Intentar cargar DOMParser de xmldom si estamos en Node.js de forma compatible con Vite
+let GlobalDOMParser: any = typeof DOMParser !== 'undefined' ? DOMParser : null;
+
+async function ensureParser() {
+  if (GlobalDOMParser) return true;
+  try {
+    // En entornos Node.js (Vite Plugin), intentamos cargar xmldom
+    if (typeof window === 'undefined') {
+      const g = global as any;
+      if (!g.xmldom_parser) {
+        const { DOMParser } = await import('xmldom');
+        g.xmldom_parser = DOMParser;
+      }
+      GlobalDOMParser = g.xmldom_parser;
+    }
+  } catch (e) {
+    console.error("[SAT-PARSER] Error crítico: No se pudo cargar xmldom.", e);
+  }
+  return !!GlobalDOMParser;
+}
+
+/**
+ * Extractor auxiliar por regex para casos donde el parser de DOM falla
+ */
+function extractValue(xml: string, tag: string): string {
+  const reg = new RegExp(`<[^>]*${tag}[^>]*>([^<]*)<\/[^>]*${tag}[^>]*>`, 'i');
+  const match = xml.match(reg);
+  return match ? match[1].trim() : '';
+}
+
+function extractAttr(xml: string, attr: string): string {
+  const reg = new RegExp(`${attr}="([^"]*)"`, 'i');
+  const match = xml.match(reg);
+  return match ? match[1].trim() : '';
+}
+
 /**
  * Procesa un string XML de DTE SAT y devuelve el resultado de la auditoría.
  * @param xmlText El contenido del archivo XML
  */
-export function parseAuditXML(xmlText: string): AuditResult {
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+export async function parseAuditXML(xmlText: string): Promise<AuditResult> {
+  await ensureParser();
   
-  const getTag = (tag: string) => xmlDoc.getElementsByTagNameNS('*', tag)[0];
-  const getTags = (tag: string) => Array.from(xmlDoc.getElementsByTagNameNS('*', tag));
+  try {
+    if (!GlobalDOMParser) throw new Error("No parser");
 
-  const emisor = getTag('Emisor');
-  const receptor = getTag('Receptor');
-  const dte = getTag('DatosEmision');
-  const totales = getTag('Totales');
-  const items_nodes = getTags('Item');
+    const parser = new GlobalDOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+    
+    const getTag = (tag: string) => xmlDoc.getElementsByTagNameNS('*', tag)[0];
+    const getTags = (tag: string) => Array.from(xmlDoc.getElementsByTagNameNS('*', tag));
 
-  const uuid = xmlDoc.getElementsByTagNameNS('*', 'NumeroAutorizacion')[0]?.textContent || '';
-  const nitEmisor = emisor?.getAttribute('NIT') || '';
-  const nombreEmisor = emisor?.getAttribute('NombreEmisor') || '';
-  const direccionEmisor = emisor?.getElementsByTagNameNS('*', 'Direccion')[0]?.textContent || '';
-  
-  const nitReceptor = receptor?.getAttribute('IDReceptor') || '';
-  const nombreReceptor = receptor?.getAttribute('NombreReceptor') || '';
+    const emisor = getTag('Emisor');
+    const receptor = getTag('Receptor');
+    const dte = getTag('DatosEmision');
+    const totales = getTag('Totales');
+    const items_nodes = getTags('Item');
 
-  const fecha = dte?.getAttribute('FechaHoraEmision')?.split('T')[0] || '';
-  const total = parseFloat(totales?.getElementsByTagNameNS('*', 'GranTotal')[0]?.textContent || '0');
-  const tipo = dte?.getAttribute('Tipo')?.toUpperCase() || 'FACT';
-  
-  const moneda = totales?.getElementsByTagNameNS('*', 'GranTotal')[0]?.getAttribute('CodigoMoneda') || 'GTQ';
-  const totalDescuentos = parseFloat(totales?.getElementsByTagNameNS('*', 'TotalDescuento')[0]?.textContent || '0');
+    const uuid = xmlDoc.getElementsByTagNameNS('*', 'NumeroAutorizacion')[0]?.textContent || '';
+    const nitEmisor = emisor?.getAttribute('NITEmisor') || emisor?.getAttribute('NIT') || '';
+    const nombreEmisor = emisor?.getAttribute('NombreEmisor') || '';
+    const direccionEmisor = emisor?.getElementsByTagNameNS('*', 'Direccion')[0]?.textContent || '';
+    
+    const nitReceptor = receptor?.getAttribute('IDReceptor') || '';
+    const nombreReceptor = receptor?.getAttribute('NombreReceptor') || '';
 
-  // Retenciones (Específico para FESP o CRE)
-  const isr_retenido = parseFloat(totales?.getElementsByTagNameNS('*', 'RetencionISR')[0]?.textContent || '0');
-  const iva_retenido = parseFloat(totales?.getElementsByTagNameNS('*', 'RetencionIVA')[0]?.textContent || '0');
+    const fecha = dte?.getAttribute('FechaHoraEmision')?.split('T')[0] || '';
+    const total = parseFloat(totales?.getElementsByTagNameNS('*', 'GranTotal')[0]?.textContent || '0');
+    const tipo = dte?.getAttribute('Tipo')?.toUpperCase() || 'FACT';
+    
+    const moneda = totales?.getElementsByTagNameNS('*', 'GranTotal')[0]?.getAttribute('CodigoMoneda') || 'GTQ';
+    const totalDescuentos = parseFloat(totales?.getElementsByTagNameNS('*', 'TotalDescuento')[0]?.textContent || '0');
 
-  // Impuestos Adicionales (Bebidas, IDP por tags)
-  let bebalXML = 0;
-  let bebnXML = 0;
-  let idpXML = 0;
+    // Impuestos Adicionales
+    let bebalXML = 0, bebnXML = 0, idpXML = 0;
+    getTags('Impuesto').forEach(imp => {
+        const nombre = imp.getElementsByTagNameNS('*', 'NombreCorto')[0]?.textContent || '';
+        const monto = parseFloat(imp.getElementsByTagNameNS('*', 'Monto')[0]?.textContent || '0');
+        if (nombre.toUpperCase().includes('ALCOHOLI')) bebalXML += monto;
+        if (nombre.toUpperCase().includes('NO ALCOHOLI')) bebnXML += monto;
+        if (nombre.toUpperCase() === 'IDP' || nombre.toUpperCase().includes('PETROLEO')) idpXML += monto;
+    });
 
-  getTags('Impuesto').forEach(imp => {
-      const nombre = imp.getElementsByTagNameNS('*', 'NombreCorto')[0]?.textContent || '';
-      const monto = parseFloat(imp.getElementsByTagNameNS('*', 'Monto')[0]?.textContent || '0');
-      if (nombre.toUpperCase().includes('ALCOHOLI')) bebalXML += monto;
-      if (nombre.toUpperCase().includes('NO ALCOHOLI')) bebnXML += monto;
-      if (nombre.toUpperCase() === 'IDP' || nombre.toUpperCase().includes('PETROLEO')) idpXML += monto;
-  });
+    const rawItems: AuditItem[] = items_nodes.map(node => ({
+      numero_linea: parseInt(node.getAttribute('NumeroLinea') || '0'),
+      cantidad: parseFloat(node.getElementsByTagNameNS('*', 'Cantidad')[0]?.textContent || '0'),
+      descripcion: node.getElementsByTagNameNS('*', 'Descripcion')[0]?.textContent?.trim() || '',
+      precio_unitario: parseFloat(node.getElementsByTagNameNS('*', 'PrecioUnitario')[0]?.textContent || '0'),
+      precio_total: parseFloat(node.getElementsByTagNameNS('*', 'Total')[0]?.textContent || '0'),
+      unidad: node.getElementsByTagNameNS('*', 'UnidadMedida')[0]?.textContent || 'UND',
+      // Campos requeridos por AuditItem (con defaults)
+      clasificacion_contable: 'GASTO_OPERACION' as any,
+      subcategoria_contable: '',
+      es_activo_fijo: false,
+      vida_util_años: null,
+      tasa_depreciacion: null,
+      es_combustible: false,
+      tipo_combustible: null
+    }));
 
-  // Referencia para NC/NA
-  const complementosLine = getTags('Complemento');
-  let uuidRef = null;
-  complementosLine.forEach(comp => {
-      const ref = comp.getElementsByTagNameNS('*', 'ReferenciaPersonalizada')[0]?.textContent;
-      if (ref) uuidRef = ref;
-  });
+    console.log(`[SAT-PARSER] Items extraídos del XML: ${rawItems.length}`);
+    rawItems.forEach(it => console.log(`  → ${it.descripcion} | cant: ${it.cantidad} | total: ${it.precio_total}`));
 
-  const rawItems = items_nodes.map(node => ({
-    numero_linea: parseInt(node.getAttribute('NumeroLinea') || '0'),
-    cantidad: parseFloat(node.getElementsByTagNameNS('*', 'Cantidad')[0]?.textContent || '0'),
-    descripcion: node.getElementsByTagNameNS('*', 'Descripcion')[0]?.textContent || '',
-    precio_unitario: parseFloat(node.getElementsByTagNameNS('*', 'PrecioUnitario')[0]?.textContent || '0'),
-    total: parseFloat(node.getElementsByTagNameNS('*', 'Total')[0]?.textContent || '0'),
-    unidad: node.getElementsByTagNameNS('*', 'UnidadMedida')[0]?.textContent || 'UND'
-  }));
+    // --- Retenciones
+    const isr_retenido = parseFloat(totales?.getElementsByTagNameNS('*', 'RetencionISR')[0]?.textContent || '0');
+    const iva_retenido = parseFloat(totales?.getElementsByTagNameNS('*', 'RetencionIVA')[0]?.textContent || '0');
 
-  // Revisión especial para Documento de Anulación (que no tiene Totales ni Items estándar, sino un DatosAnulacion)
-  const anulacionNode = xmlDoc.getElementsByTagNameNS('*', 'GTAnulacionDocumento')[0];
-  const datosAnulacion = anulacionNode?.getElementsByTagNameNS('*', 'DatosGenerales')[0];
-  
-  if (anulacionNode && datosAnulacion) {
-      return parseAuditDTE({
-          uuid: datosAnulacion.getAttribute('NumeroDocumentoAAnular') || uuid,
-          serie: '', numero: '',
-          nit_emisor: datosAnulacion.getAttribute('NITEmisor') || nitEmisor,
-          nombre_emisor: nombreEmisor || 'Emisor Desconocido',
-          nit_receptor: datosAnulacion.getAttribute('IDReceptor') || nitReceptor,
-          nombre_receptor: nombreReceptor || 'Receptor Desconocido',
-          fecha: datosAnulacion.getAttribute('FechaHoraAnulacion') || fecha,
-          total: 0, tipo_dte: tipo, moneda, descuentos: 0,
-          estado: 'ANULADO',
-          fecha_anulacion: datosAnulacion.getAttribute('FechaHoraAnulacion') || '',
-          motivo_anulacion: datosAnulacion.getAttribute('MotivoAnulacion') || 'Anulación reportada por XML',
-          isr_retenido: 0, iva_retenido: 0, items: []
-      });
+    // --- Serie y Numero son ATRIBUTOS de NumeroAutorizacion, NO nodos hijos
+    const numAuthNode = xmlDoc.getElementsByTagNameNS('*', 'NumeroAutorizacion')[0];
+    const serie = numAuthNode?.getAttribute('Serie') || '';
+    const numero = numAuthNode?.getAttribute('Numero') || '';
+
+    // Construir el resultado base usando parseAuditDTE para clasificación
+    const base = parseAuditDTE({
+      uuid,
+      serie,
+      numero,
+      nit_emisor: nitEmisor,
+      nombre_emisor: nombreEmisor,
+      direccion_emisor: direccionEmisor,
+      nit_receptor: nitReceptor,
+      nombre_receptor: nombreReceptor,
+      fecha,
+      total,
+      tipo_dte: tipo,
+      moneda,
+      descuentos: totalDescuentos,
+      isr_retenido,
+      iva_retenido,
+      impuesto_bebidas_alcoh: bebalXML,
+      impuesto_bebidas_no_alcoh: bebnXML,
+      idp_monto: idpXML,
+      items: rawItems
+    });
+
+    // CRÍTICO: Sobreescribir items con los que extrajimos directamente del XML
+    // (parseAuditDTE puede reclasificarlos y modificarlos, pero mantenemos la lista original)
+    return { ...base, items: rawItems.length > 0 ? rawItems : base.items };
+
+  } catch (err) {
+    console.warn("[SAT-PARSER] Falló el parser oficial, usando extracción por texto de respaldo.");
+    // Fallback por regex para campos vitales
+    const uuid = extractValue(xmlText, 'NumeroAutorizacion');
+    const nitEmisor = extractAttr(xmlText, 'NITEmisor') || extractAttr(xmlText, 'NIT');
+    const total = parseFloat(extractValue(xmlText, 'GranTotal') || '0');
+    
+    return parseAuditDTE({
+      uuid: uuid || `ERR-${Date.now()}`,
+      nit_emisor: nitEmisor || 'C/F',
+      nombre_emisor: extractAttr(xmlText, 'NombreEmisor') || 'N/A',
+      nit_receptor: extractAttr(xmlText, 'IDReceptor') || 'C/F',
+      nombre_receptor: extractAttr(xmlText, 'NombreReceptor') || 'N/A',
+      fecha: extractAttr(xmlText, 'FechaHoraEmision').split('T')[0] || new Date().toISOString().split('T')[0],
+      total: total,
+      tipo_dte: 'FACT',
+      moneda: 'GTQ',
+      items: []
+    });
   }
-
-  const raw = {
-    uuid,
-    serie: xmlDoc.getElementsByTagNameNS('*', 'Serie')[0]?.textContent || '',
-    numero: xmlDoc.getElementsByTagNameNS('*', 'Numero')[0]?.textContent || '',
-    nit_emisor: nitEmisor,
-    nombre_emisor: nombreEmisor,
-    direccion_emisor: direccionEmisor,
-    nit_receptor: nitReceptor,
-    nombre_receptor: nombreReceptor,
-    fecha,
-    total,
-    tipo_dte: tipo,
-    moneda,
-    descuentos: totalDescuentos,
-    uuid_referencia: uuidRef,
-    isr_retenido,
-    iva_retenido,
-    impuesto_bebidas_alcoh: bebalXML,
-    impuesto_bebidas_no_alcoh: bebnXML,
-    idp_monto: idpXML,
-    items: rawItems
-  };
-
-  return parseAuditDTE(raw);
 }
 

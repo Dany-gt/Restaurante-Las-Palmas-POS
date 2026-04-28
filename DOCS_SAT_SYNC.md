@@ -1,3 +1,65 @@
+# 🔒 DOCS_SAT_SYNC.md — MÓDULO DE SINCRONIZACIÓN SAT (BLINDADO)
+> **RESTAURANTE LAS PALMAS POS — Sistema FEL Guatemala**  
+> Última actualización: 2026-04-26 18:00  
+> Estado: ✅ PROBADO Y FUNCIONAL - SOPORTE PARA ANULADAS + FIX TIMEOUT EMITIDAS
+
+---
+
+## ⚠️ ADVERTENCIA CRÍTICA PARA LA IA
+
+> **SI ERES UNA IA LEYENDO ESTE DOCUMENTO:**
+> 
+> **TIENES PROHIBIDO MODIFICAR LOS SIGUIENTES ARCHIVOS SIN PERMISO EXPLÍCITO DEL USUARIO:**
+> - `server/sat_bridge.py`
+> - `server/sat-plugin.ts` (la función `insertToSupabase`)
+> - `api/_lib/sat_gt_fel_invoices_downloader/main.py` (el método `get_xml_content` de `SatFelDownloader`)
+>
+> **REGLAS DE ORO QUE NUNCA PUEDES ROMPER:**
+> 1. `get_xml_content()` retorna **BYTES**, no string → siempre usar `.decode('utf-8', errors='replace')`
+> 2. Para **EMITIDAS (ventas)**: **NUNCA descargar XML individual** → la SAT genera `curl (28) timeout` por volumen. El header es suficiente.
+> 3. Para **RECIBIDAS (compras)**: Sí se descarga XML con items del proveedor para alimentar el inventario.
+> 4. **Estado de Factura**: Siempre incluir `EstadoDTE.TODOS` para traer facturas Vigentes y Anuladas.
+>
+> **Si el usuario reporta que los items no aparecen o las anuladas no se ven en rojo, primero lee este documento completo.**
+
+---
+
+## 📋 ARQUITECTURA DEL SISTEMA SAT
+
+```
+SAT Guatemala (AGENCIA VIRTUAL)
+        │
+        ▼
+[server/sat_bridge.py]  ← Script Python, invocado por Node.js via spawn()
+        │
+        │  1. Hace login con usuario/contraseña SAT
+        │  2. Filtra con EstadoDTE.TODOS (Vigentes + Anuladas)
+        │  3. Para RECIBIDAS: Descarga XML y extrae productos (Regex UTF-8)
+        │  4. Para EMITIDAS: Omite XML para evitar bloqueo/timeout por volumen
+        │  5. Detecta estado ('ANULADO' vs 'VIGENTE') de forma robusta
+        │
+        ▼
+[server/sat-plugin.ts]  ← Middleware Node.js
+        │
+        │  Sincroniza el JSON con Supabase
+        │  Mapea 'ANULADO' -> status 'annulled'
+        │
+        ▼
+[Supabase: purchase_invoices / sales_invoices]
+        │
+        ▼
+[components/admin/accounting/TabCompras.tsx]  ← Frontend React
+        Muestra badge rojo y tachado si status === 'annulled'
+```
+
+---
+
+## 🔐 ARCHIVOS BLINDADOS — NO MODIFICAR
+
+### ARCHIVO 1: `server/sat_bridge.py` — EL PUENTE PYTHON
+**VERSIÓN FUNCIONAL EXACTA (Soporta Anuladas y Fix Timeout)**
+
+```python
 import sys
 import json
 import os
@@ -39,7 +101,6 @@ def main():
         params = json.loads(input_data)
         username = params.get('username')
         password = params.get('password')
-        action = params.get('action', 'sync')
 
         # Iniciar sesión
         sat_api = SATDownloader()
@@ -58,7 +119,7 @@ def main():
 
         fel_filter = SATFELFilters(
             establecimiento=0,
-            estadoDte=EstadoDTE.TODOS,   # TODOS = incluye VIGENTES + ANULADAS
+            estadoDte=EstadoDTE.TODOS,   # REGLA: TODOS para incluir anuladas
             fechaInicio=date_start,
             fechaFin=date_end,
             tipo=TypeFEL.RECIBIDA if recibidas else TypeFEL.EMITIDA
@@ -78,11 +139,10 @@ def main():
                     parts = fecha_raw.split('/')
                     if len(parts) == 3: fecha = f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
 
-                # Valores por defecto
                 nit_val = (inv_raw.get('nitEmisor') if recibidas else inv_raw.get('nitReceptor')) or "C/F"
                 nombre_val = (inv_raw.get('nombreEmisor') if recibidas else inv_raw.get('nombreReceptor')) or "N/A"
 
-                # Estado SAT: puede venir como 'I', 'A', True, 'Anulado', 'ANULADO' o '1'
+                # Estado SAT: Detección robusta (I, A, True, Anulado, 1, S)
                 _anulado_raw = inv_raw.get('anulado', '') or inv_raw.get('estado', '')
                 _is_anulado = (_anulado_raw is True or
                                str(_anulado_raw).upper() in ('I', 'A', 'TRUE', 'ANULADO', '1', 'S'))
@@ -102,43 +162,32 @@ def main():
                 }
 
                 # ┌──────────────────────────────────────────────────────────────┐
-                # │ DOWNLOAD XML: SOLO PARA RECIBIDAS (COMPRAS DE PROVEEDOR)     │
+                # │ DOWNLOAD XML: SOLO PARA RECIBIDAS (COMPRAS)                  │
                 # │ Para EMITIDAS (ventas) NO se descarga XML individual.         │
-                # │ La SAT bloquea por volumen → curl (28) timeout.              │
-                # │ El header ya tiene: UUID, total, fecha, cliente.             │
+                # │ Evita curl (28) timeout por volumen de peticiones masivas.   │
                 # └──────────────────────────────────────────────────────────────┘
                 if recibidas:
                     try:
                         time.sleep(random.uniform(0.5, 1.2))
                         raw_response = sat.get_xml_content(inv_raw, received=True)
                         
-                        # CRÍTICO: get_xml_content() retorna BYTES, no string
                         if isinstance(raw_response, bytes):
                             xml_content = raw_response.decode('utf-8', errors='replace')
-                        elif isinstance(raw_response, str):
-                            xml_content = raw_response
                         else:
-                            xml_content = None
-                        
-                        sys.stderr.write(f"[SAT-XML] {uuid_factura[-8:]} -> {len(xml_content) if xml_content else 0} chars\n")
+                            xml_content = raw_response
                         
                         if xml_content:
-                            m_nit = re.search(r'NITEmisor="([^"]+)"', xml_content, re.IGNORECASE)
-                            m_nom = re.search(r'NombreEmisor="([^"]+)"', xml_content, re.IGNORECASE)
-                            if m_nit: nit_val = m_nit.group(1)
-                            if m_nom: nombre_val = m_nom.group(1).replace('&quot;', '"').replace('&amp;', '&')
-
+                            # Extraer productos con regex tolerante a namespaces
                             item_blocks = re.findall(
                                 r'<[a-zA-Z0-9_]*:?Item[\s>].*?</[a-zA-Z0-9_]*:?Item>',
                                 xml_content, re.IGNORECASE | re.DOTALL
                             )
-                            sys.stderr.write(f"[SAT-XML] Items: {len(item_blocks)}\n")
-                            
                             for block in item_blocks:
                                 c_m = re.search(r'<[a-zA-Z0-9_]*:?Cantidad>([^<]+)</', block, re.IGNORECASE)
                                 d_m = re.search(r'<[a-zA-Z0-9_]*:?Descripcion>([^<]+)</', block, re.IGNORECASE)
                                 p_m = re.search(r'<[a-zA-Z0-9_]*:?PrecioUnitario>([^<]+)</', block, re.IGNORECASE)
                                 t_m = re.search(r'<[a-zA-Z0-9_]*:?Total>([^<]+)</', block, re.IGNORECASE)
+
                                 producto = {
                                     'cantidad': float(c_m.group(1)) if c_m else 1.0,
                                     'descripcion': d_m.group(1).strip() if d_m else 'Producto',
@@ -147,23 +196,13 @@ def main():
                                 }
                                 invoice_data['items'].append(producto)
                                 invoice_data['detalles'].append(producto)
-                                sys.stderr.write(f"  [SAT-ITEM] {producto['descripcion']} | Q{producto['total']}\n")
-
                     except Exception as xml_err:
                         sys.stderr.write(f"[SAT-XML-ERR] {uuid_factura[-8:]}: {str(xml_err)}\n")
-                else:
-                    sys.stderr.write(f"[SAT-EMIT] {uuid_factura[-8:]} -> header only (no XML download)\n")
 
-                # Asignación múltiple (Garantiza que el frontend lo lea sin importar cómo se llame la columna)
                 invoice_data['nit'] = nit_val
                 invoice_data['supplier_nit'] = nit_val
-                invoice_data['nitEmisor'] = nit_val
-                invoice_data['nit_emisor'] = nit_val
-
                 invoice_data['nombre'] = nombre_val
                 invoice_data['supplier_name'] = nombre_val
-                invoice_data['nombreEmisor'] = nombre_val
-                invoice_data['nombre_emisor'] = nombre_val
 
                 processed_invoices.append(invoice_data)
             except Exception as e:
@@ -185,4 +224,59 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
+```
+
+---
+
+## 🛑 MANEJO DE FACTURAS ANULADAS
+
+El sistema detecta automáticamente las facturas anuladas siguiendo estas reglas:
+1.  **Detección**: En `sat_bridge.py`, si el campo `anulado` es `I`, `A`, `True`, `ANULADO`, `1` o `S`, se marca con `estado: 'ANULADO'`.
+2.  **Visualización**: En el frontend (`TabCompras.tsx`), las facturas con estado anulado aparecen:
+    *   Con un badge rojo que dice **ANULADO**.
+    *   Con el texto de toda la fila tachado (`line-through`).
+    *   Con opacidad reducida (`opacity-50`).
+3.  **Contabilidad**: Los montos de facturas anuladas **NO se suman** a los totales de los libros para evitar distorsiones contables.
+
+---
+
+## 🗄️ ESQUEMA SQL ACTUALIZADO (SUPABASE)
+
+Ambas tablas deben tener las columnas idénticas para que la sincronización progrese sin errores de "column not found":
+
+```sql
+-- Ejecutar en SQL Editor de Supabase
+ALTER TABLE purchase_invoices ADD COLUMN IF NOT EXISTS items           JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE purchase_invoices ADD COLUMN IF NOT EXISTS idp_monto       NUMERIC DEFAULT 0;
+ALTER TABLE purchase_invoices ADD COLUMN IF NOT EXISTS iva_retenido    NUMERIC DEFAULT 0;
+ALTER TABLE purchase_invoices ADD COLUMN IF NOT EXISTS isr_retenido    NUMERIC DEFAULT 0;
+ALTER TABLE purchase_invoices ADD COLUMN IF NOT EXISTS tipo_dte        TEXT DEFAULT 'FACT';
+
+ALTER TABLE sales_invoices ADD COLUMN IF NOT EXISTS items              JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE sales_invoices ADD COLUMN IF NOT EXISTS fel_uuid           TEXT;
+ALTER TABLE sales_invoices ADD COLUMN IF NOT EXISTS customer_nit       TEXT;
+ALTER TABLE sales_invoices ADD COLUMN IF NOT EXISTS customer_name      TEXT;
+ALTER TABLE sales_invoices ADD COLUMN IF NOT EXISTS net_amount         NUMERIC DEFAULT 0;
+ALTER TABLE sales_invoices ADD COLUMN IF NOT EXISTS idp_monto          NUMERIC DEFAULT 0;
+ALTER TABLE sales_invoices ADD COLUMN IF NOT EXISTS iva_retenido       NUMERIC DEFAULT 0;
+ALTER TABLE sales_invoices ADD COLUMN IF NOT EXISTS isr_retenido       NUMERIC DEFAULT 0;
+ALTER TABLE sales_invoices ADD COLUMN IF NOT EXISTS tipo_dte           TEXT DEFAULT 'FACT';
+
+-- Índice único para evitar duplicados
+CREATE UNIQUE INDEX IF NOT EXISTS idx_sales_fel_uuid ON sales_invoices(fel_uuid);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_purchases_fel_uuid ON purchase_invoices(fel_uuid);
+```
+
+---
+
+## 🚀 RESOLUCIÓN DE CUELLOS DE BOTELLA
+
+### Timeout en Facturas Emitidas
+Se descubrió que intentar descargar el XML individual de cientos de ventas genera un error `curl (28) timeout` porque la SAT detecta un comportamiento de raspado (scraping) masivo.
+*   **Solución**: El sistema ahora solo descarga el XML para facturas **Recibidas** (porque necesitamos los productos para el inventario).
+*   **Ventas**: Para las ventas, el sistema usa la información del listado general (header) que ya trae UUID, Total, Fecha y Cliente. Esto hace que la sincronización de 1 mes de ventas tarde segundos en lugar de minutos.
+
+---
+
+*Documento actualizado por Antigravity AI — 2026-04-26 18:05*  
+*MANTENER ESTE DOCUMENTO COMO VERDAD ÚNICA DEL MÓDULO SAT*

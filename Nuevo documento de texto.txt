@@ -16,10 +16,3 @@ Sucursal Matriz: C314F56B
 Sucursal No. 2: 15D28FB8
 Correo de Administrador: El que configuraste (probablemente cevicheriayrestlaspalmas@gmail.com).
 
-
-
-
-Valor Factura   Q.6552.00
-valor retención Q. 292.50
-Anticipo        Q.1500.00
-Total a pagar   Q.4759.50

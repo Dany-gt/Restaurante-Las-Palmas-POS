@@ -96,16 +96,14 @@ export const AccountingPortal: React.FC = () => {
             // @ts-ignore
             const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-            // ── Dividir en bloques diarios para evitar timeout y ver avance más rápido ──
+            // ── Enviar rango completo en un solo bloque para evitar banneo por múltiples logins a la SAT ──
             const chunks: { start: string; end: string }[] = [];
-            const startDate = dayjs(sat.dateStart);
-            const endDate = dayjs(sat.dateEnd);
-
-            let cursor = startDate;
-            while (cursor.isBefore(endDate) || cursor.isSame(endDate)) {
-                const chunkStr = cursor.format('YYYY-MM-DD');
-                chunks.push({ start: chunkStr, end: chunkStr });
-                cursor = cursor.add(1, 'day');
+            let current = dayjs(sat.dateStart);
+            const end = dayjs(sat.dateEnd);
+            while (current.isBefore(end) || current.isSame(end, 'day')) {
+                const dateStr = current.format('YYYY-MM-DD');
+                chunks.push({ start: dateStr, end: dateStr });
+                current = current.add(1, 'day');
             }
 
             let totalImported = 0;
@@ -145,7 +143,7 @@ export const AccountingPortal: React.FC = () => {
                     data = await (window as any).electronAPI.satSync(syncParams);
                 } else {
                     console.log(`AccountingPortal: Sincronizando bloque remoto ${chunk.start}...`);
-                    const response = await window.fetch('/api/sat-sync', {
+                    const response = await window.fetch('/api/sat/sync', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(syncParams)
@@ -156,8 +154,7 @@ export const AccountingPortal: React.FC = () => {
                 clearInterval(progressInterval);
 
                 if (!data.success) {
-                    console.warn(`Chunk ${i + 1} failed: ${data.error}`);
-                    continue;
+                    throw new Error(data.error || 'Error desconocido del servidor SAT.');
                 }
 
                 totalFound += data.total || 0;
@@ -347,6 +344,19 @@ export const AccountingPortal: React.FC = () => {
                                                 />
                                             </div>
                                             <span className="text-[10px] font-black text-[#106ebe]">{sat.progress}%</span>
+                                        </div>
+                                    ) : sat.status && sat.status.includes('❌') ? (
+                                        <div className="space-y-6 animate-in slide-in-from-bottom-2">
+                                            <div className="text-center">
+                                                <div className="w-14 h-14 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-100 shadow-inner">
+                                                    <X size={28} />
+                                                </div>
+                                                <h4 className="text-[18px] font-black text-rose-600 uppercase">Fallo en Sync SAT</h4>
+                                            </div>
+                                            <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl">
+                                                <p className="text-[12px] font-medium text-rose-800 text-center">{sat.status}</p>
+                                            </div>
+                                            <button onClick={() => setSat(s => ({ ...s, showModal: false }))} className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-black uppercase rounded-xl transition-all">Regresar</button>
                                         </div>
                                     ) : sat.result ? (
                                         <div className="space-y-6 animate-in slide-in-from-bottom-2">

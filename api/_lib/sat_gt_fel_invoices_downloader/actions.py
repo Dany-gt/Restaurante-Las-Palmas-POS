@@ -1,7 +1,7 @@
 import re
 import datetime
 import logging
-import requests
+from curl_cffi import requests
 from bs4 import BeautifulSoup, CData
 from urllib.parse import urlencode
 
@@ -17,8 +17,17 @@ class SATDoLogin:
     def execute(self):
         login_url = "https://farm3.sat.gob.gt/menu/login.jsf"
         
-        # 1. Obtener la página de login para extraer el ViewState inicial
-        r_get = self._session.get(login_url, timeout=TIMEOUT)
+        # 1. Configurar headers de identidad humana completa para este POST
+        headers = {
+            "Origin": "https://farm3.sat.gob.gt",
+            "Referer": login_url,
+            "Sec-Ch-Ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+            "Sec-Ch-Ua-Mobile": "?0",
+            "Sec-Ch-Ua-Platform": '"Windows"',
+        }
+        
+        # 2. Obtener la página de login para extraer el ViewState inicial
+        r_get = self._session.get(login_url, timeout=TIMEOUT, headers=headers)
         r_get.raise_for_status()
         
         bs_get = BeautifulSoup(r_get.text, features="html.parser")
@@ -34,24 +43,18 @@ class SATDoLogin:
             "javax.faces.ViewState": initial_view_state,
         }
         r = self._session.post(
-            login_url, data=login_dict, timeout=TIMEOUT
+            login_url, data=login_dict, timeout=TIMEOUT, headers=headers
         )
         r.raise_for_status()
-        logging.info("Did make loging")
+        self._last_html = r.text # Guardamos para diagnóstico interno
         
-        # Guardar para poder inspeccionarlo (DESACTIVADO PARA VERCEL)
-        # with open(r"C:\Users\CyR Las Palmas\Documents\Restaurante Las Palmas POS\server\login_response.html", "w", encoding="utf-8") as f:
-        #     f.write(r.text)
-            
         bs = BeautifulSoup(r.text, features="html.parser")
         view_state = bs.find("input", {"name": "javax.faces.ViewState"})
         if view_state and "value" in view_state.attrs.keys():
             self._view_state = view_state["value"]
-            logging.info(self._view_state)
-            logging.info("Did get view state")
-            return (True, self._view_state, r.text)
-        logging.warning("Didn't get view state")
-        return (True, self._view_state, r.text)
+            return (True, self._view_state)
+            
+        return (False, None)
 
 
 class SATDoLogout:
@@ -92,12 +95,11 @@ class SATGetMenu:
         import re
         from bs4 import BeautifulSoup
         
-        # Usamos el HTML pasado por parámetro en lugar de leer de disco
-        html = login_html
-        if not html:
-             raise Exception("No se proporcionó el HTML de login para procesar el menú")
+        # Si no nos pasan el html, no podemos avanzar
+        if not login_html:
+             raise Exception("No se proporcionó el HTML de inicio de sesión para procesar el menú")
 
-        parser = BeautifulSoup(html, features="html.parser")
+        parser = BeautifulSoup(login_html, features="html.parser")
         dtelink = None
         for a_tag in parser.find_all("a"):
             if "Consultar DTE" in str(a_tag):
@@ -136,13 +138,27 @@ class SATGetMenu:
         post_data.update(params)
         
         # Enviar clic AJAX
-        headers = {"Faces-Request": "partial/ajax"}
+        headers = {
+            "Faces-Request": "partial/ajax",
+            "Referer": "https://farm3.sat.gob.gt/menu/portada.jsf",
+            "Origin": "https://farm3.sat.gob.gt"
+        }
         r = self._session.post(
             "https://farm3.sat.gob.gt/menu/portada.jsf",
             data=post_data,
             headers=headers,
             timeout=TIMEOUT
         )
+        
+        # Diagnóstico: ¿Qué nos respondió el menú?
+        logging.info(f"Respuesta Menú SAT (Status: {r.status_code}): {r.text[:300]}")
+        if "challenge-platform" in r.text or "Cloudflare" in r.text:
+             logging.error("Cloudflare bloqueó el acceso al menú (JS Challenge).")
+             # Intentamos guardar para análisis
+             self._last_menu_html = r.text
+        
+        with open(r"C:\Users\CyR Las Palmas\Documents\Restaurante Las Palmas POS\server\ajax_post.xml", "w", encoding="utf-8") as f:
+            f.write(r.text)
         
         logging.getLogger().info("Respuesta de AJAX a portada.jsf: " + r.text[:200])
         
@@ -158,78 +174,6 @@ class SATGetMenu:
             
         self._url_get_fel = target_url
         return (True, self._url_get_fel)
-
-
-class SATGetRetentionsUrl:
-    def __init__(self, request_session, view_state):
-        self._session = request_session
-        self._view_state = view_state
-
-    def execute(self, login_html=None):
-        import re
-        from bs4 import BeautifulSoup
-        
-        html = login_html
-        if not html:
-             raise Exception("No se proporcionó el HTML de login para procesar el menú")
-
-        parser = BeautifulSoup(html, features="html.parser")
-        link = None
-        # Buscar el menú de Retenciones Recibidas
-        for a_tag in parser.find_all("a"):
-            if "Retención Recibidas" in a_tag.get_text() or "Constancias de Retención" in a_tag.get_text():
-                link = a_tag
-                break
-                
-        if not link or 'onclick' not in link.attrs:
-            # Fallback a URL estática si falla el scrape (es común que no cambie)
-            return (True, "https://farm3.sat.gob.gt/retenciones-web/consulta/consultaConstanciasRecibidas.jsf")
-            
-        onclick = link["onclick"]
-        
-        # Extraer parametros del PrimeFaces.ab(...)
-        pa_match = re.search(r'pa:\[(.*?)\]', onclick)
-        params = {}
-        if pa_match:
-            pa_str = pa_match.group(1)
-            items = re.findall(r'\{name:"([^"]+)",value:"([^"]+)"\}', pa_str)
-            for name, value in items:
-                params[name] = value.replace('\\/', '/').replace('\\-', '-')
-                
-        source_m = re.search(r's:"([^"]+)"', onclick)
-        form_m = re.search(r'f:"([^"]+)"', onclick)
-        source = source_m.group(1) if source_m else None
-        formId = form_m.group(1) if form_m else "frmMenu"
-        
-        if not source: return (True, "https://farm3.sat.gob.gt/retenciones-web/consulta/consultaConstanciasRecibidas.jsf")
-
-        post_data = {
-            "javax.faces.partial.ajax": "true",
-            "javax.faces.source": source,
-            "javax.faces.partial.execute": "@all",
-            formId: formId,
-            "javax.faces.ViewState": self._view_state,
-        }
-        post_data.update(params)
-        
-        headers = {"Faces-Request": "partial/ajax"}
-        r = self._session.post(
-            "https://farm3.sat.gob.gt/menu/portada.jsf",
-            data=post_data,
-            headers=headers,
-            timeout=TIMEOUT
-        )
-        
-        target_url = None
-        if "location.replace" in r.text:
-            m = re.search(r"location\.replace\('([^']+)'\)", r.text)
-            if m:
-                target_url = m.group(1).replace("&amp;", "&")
-                
-        if not target_url:
-            target_url = "https://farm3.sat.gob.gt/retenciones-web/consulta/consultaConstanciasRecibidas.jsf"
-            
-        return (True, target_url)
 
 
 class SATGetStablisments:
