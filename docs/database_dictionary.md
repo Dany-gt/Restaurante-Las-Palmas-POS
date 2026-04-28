@@ -82,4 +82,18 @@ El sistema utiliza **PostgreSQL** alojado en **Supabase**. La arquitectura está
 - **`deduct_inventory_on_sale`**: Disminuye el stock de la sucursal basado en la receta configurada del platillo vendido.
 
 ---
-*Este Diccionario de Datos es dinámico y refleja la versión v2.0 del sistema al 28 de abril de 2026.*
+
+## 🚀 Recuperación de Desastres y Migración
+
+Para recrear esta base de datos en un entorno nuevo de Supabase, se ha consolidado un script maestro:
+
+**Archivo Maestro**: [`FULL_SYSTEM_RECOVERY_SCHEMA.sql`](file:///c:/Users/CyR%20Las%20Palmas/Documents/Restaurante%20Las%20Palmas%20POS/SQL/FULL_SYSTEM_RECOVERY_SCHEMA.sql)
+
+Este script garantiza:
+1. Creación de tablas en el orden correcto (resolución de Foreign Keys).
+2. Inicialización de extensiones necesarias.
+3. Creación de vistas y lógica de negocio.
+4. Definición base de políticas de seguridad.
+
+---
+*Este Diccionario de Datos es dinámico y refleja la versión v2.5 del sistema al 28 de abril de 2026.*
