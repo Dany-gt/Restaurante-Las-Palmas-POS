@@ -12,37 +12,61 @@ El módulo de Ventas (Punto de Venta) es el centro transaccional del restaurante
 
 ## Interacción con Base de Datos
 
-### Tablas Relevantes (Supabase/PostgreSQL)
+### Estructura de Tablas (DDL)
 
-| Tabla | Función |
-| :--- | :--- |
-| `orders` | Cabecera de la transacción. Campos: `status`, `total`, `table_id`, `waiter_id`, `delivery_id`. |
-| `order_items` | Detalle del pedido. Líneas con `product_id`, `quantity` y `unit_price`. |
-| `restaurant_tables` | Registro de mesas físicas y sus estados (Libre, Ocupada, Reservada). |
-| `shifts` | Control de turnos (apertura y cierre de caja). |
-| `delivery_drivers` | Listado de pilotos con estado de disponibilidad. |
+#### 1. `orders` (Transacciones)
+Cabecera de cada pedido realizado.
+- `id`: `UUID` (PK).
+- `status`: `ENUM` ('pending', 'preparing', 'ready', 'completed', 'cancelled').
+- `total`: `NUMERIC(14,2)`.
+- `payment_method`: `TEXT` ('cash', 'card', 'credit').
+- `table_id`: `TEXT` (FK) - Relacionado a `restaurant_tables`.
+- `waiter_id`: `UUID` (FK) - Relacionado a `profiles`.
+- `is_paid`: `BOOLEAN` - Estado de liquidación.
 
-### Relaciones Clave
-- `orders.id` → `order_items.order_id` (Relación 1:N)
-- `orders.branch_id` → `branches.id`
-- `order_items.product_id` → `products.id`
+#### 2. `order_items` (Detalle Comanda)
+- `order_id`: `UUID` (FK).
+- `product_id`: `UUID` (FK).
+- `quantity`: `INTEGER`.
+- `unit_price`: `NUMERIC(14,2)`.
+- `notes`: `TEXT` - Instrucciones especiales para cocina.
 
-### Consultas Principales
-**Cálculo de Total de Venta por Turno:**
+#### 3. `shifts` (Control de Caja)
+- `starting_balance`: `NUMERIC`.
+- `cash_sales`: `NUMERIC`.
+- `card_sales`: `NUMERIC`.
+- `total_expected`: `NUMERIC` - Suma calculada por el sistema.
+
+### Relaciones Lógicas
+```mermaid
+erDiagram
+    RESTAURANT_TABLES ||--o{ ORDERS : "tiene"
+    PROFILES ||--o{ ORDERS : "atiende"
+    ORDERS ||--o{ ORDER_ITEMS : "contiene"
+    ORDER_ITEMS }|--|| PRODUCTS : "vende"
+    ORDERS }|--|| SHIFTS : "pertenece a"
+    ORDERS ||--o{ DELIVERY_DRIVERS : "asignada a"
+```
+
+### Consultas de Operación
+**Estado de Ventas del Día (Agrupado por Método de Pago):**
 ```sql
-SELECT sum(total) 
+SELECT 
+    payment_method, 
+    count(*), 
+    sum(total) 
 FROM orders 
-WHERE shift_id = 'ID_TURNO_ACTUAL' 
-AND status = 'completed';
+WHERE created_at::date = current_date 
+AND status = 'completed'
+GROUP BY payment_method;
 ```
 
-**Consulta de Mesas Ocupadas:**
+**Monitor de Cocina (KDS) - Órdenes Pendientes:**
 ```sql
-SELECT t.number, t.status, o.total, o.created_at
-FROM restaurant_tables t
-LEFT JOIN orders o ON t.id = o.table_id AND o.status = 'open'
-WHERE t.status = 'occupied';
+SELECT o.id, o.created_at, i.quantity, p.name 
+FROM orders o
+JOIN order_items i ON o.id = i.order_id
+JOIN products p ON i.product_id = p.id
+WHERE o.status = 'preparing'
+ORDER BY o.created_at ASC;
 ```
-
----
-*Documentación Técnica - Restaurante Las Palmas*

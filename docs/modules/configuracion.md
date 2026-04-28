@@ -12,32 +12,42 @@ Este módulo centraliza los parámetros maestros del sistema. Su propósito es d
 
 ## Interacción con Base de Datos
 
-### Tablas Relevantes (Supabase/PostgreSQL)
+### Estructura de Tablas (DDL)
 
-| Tabla | Función |
-| :--- | :--- |
-| `system_settings` | Parámetros globales únicos del sistema. |
-| `branches` | Registro de ubicaciones físicas del restaurante. |
-| `profiles` | Extensión de `auth.users` para roles y datos de empleados. |
-| `kitchen_stations` | Definición de estaciones para ruteo de impresión. |
-| `printers` | Configuración de dispositivos de red para impresión directa. |
+#### 1. `system_settings` (Configuración Maestra)
+Tabla de fila única (`id=1`) que controla el comportamiento global.
+- `restaurant_name`: `TEXT`.
+- `tax_percentage`: `DECIMAL(5,2)` - % IVA (ej. 12.00).
+- `enable_billing`: `BOOLEAN` - Activa integración FEL.
+- `ws_key` / `signer_token`: Credenciales encriptadas para acceso a API SAT.
+- `require_pin_for_register`: `BOOLEAN` - Fuerza seguridad en POS.
 
-### Relaciones Clave
-- `profiles.id` → `auth.users.id` (Relación 1:1)
-- `branches.org_id` → `organizations.id`
+#### 2. `profiles` (Usuarios)
+- `id`: `UUID` (PK) - Corresponde al `id` de `auth.users`.
+- `role`: `TEXT` ('ADMIN', 'CAJERO', 'MESERO', 'COCINA').
+- `pin`: `TEXT(4)` - Código de acceso rápido al POS.
+- `branch_id`: `UUID` (FK) - Sucursal predeterminada.
 
-### Consultas Principales
-**Carga de Configuración Maestra:**
-```sql
-SELECT * FROM system_settings WHERE org_id = 'default' LIMIT 1;
+#### 3. `kitchen_stations` (Ruteo)
+- `device_type`: `TEXT` ('KDS' o 'PRINTER').
+- `is_enabled`: `BOOLEAN`.
+
+### Relaciones Lógicas
+```mermaid
+erDiagram
+    ORGANIZATIONS ||--o{ BRANCHES : "posee"
+    BRANCHES ||--o{ PROFILES : "asigna personal"
+    BRANCHES ||--o{ KITCHEN_STATIONS : "tiene"
+    PROFILES }|--|| ROLES : "posee permisos de"
 ```
 
-**Verificación de Privilegios por Perfil:**
+### Seguridad (Row Level Security - RLS)
+El sistema utiliza RLS para asegurar que los usuarios solo accedan a datos de su organización:
 ```sql
-SELECT role, permissions 
-FROM profiles 
-WHERE id = 'USER_ID_AUTENTICADO';
-```
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
----
-*Documentación Técnica - Restaurante Las Palmas*
+CREATE POLICY "Users can only see their own organization"
+ON profiles
+FOR ALL
+USING (org_id = auth.jwt() ->> 'org_id');
+```

@@ -34,40 +34,48 @@ El módulo se divide en dos grandes dominios de datos:
 
 ## Interacción con Base de Datos
 
-El sistema utiliza un esquema unificado dentro de la tabla `products`, diferenciando los elementos de inventario mediante la bandera `es_platillo = false`.
+### Estructura de Tablas (DDL)
 
-### Tablas Relevantes (Supabase/PostgreSQL)
+#### 1. `products` (Maestro de Inventario)
+Es la tabla principal. Se identifica un ítem de inventario cuando `es_platillo = false`.
+- `id`: `UUID` (PK) - Identificador único.
+- `product_code`: `TEXT` (Unique) - Código SKU o barras.
+- `name`: `TEXT` - Nombre descriptivo.
+- `unit_measure`: `TEXT` - Unidad base (lb, kg, lt, unidad).
+- `conversion_factor`: `NUMERIC` - Factor para recetas.
+- `cost_price`: `NUMERIC(14,2)` - Costo de adquisición.
+- `product_category_id`: `UUID` (FK) - Relación con `product_categories`.
+- `supplier_id`: `UUID` (FK) - Proveedor preferente.
 
-| Tabla | Función |
-| :--- | :--- |
-| `products` | Almacena los ítems maestros (insumos/utensilios). Campos clave: `unit_measure`, `conversion_factor`, `cost_price`. |
-| `product_categories` | Clasificación lógica exclusiva para inventarios. |
-| `product_branch_inventory` | Multisitio: Controla la cantidad (stock) y el stock mínimo por cada sucursal (`branch_id`). |
-| `inventory_movements` | Registro de cada transacción de inventario para fines de Kardex. |
-| `physical_counts` | Cabecera de auditorías físicas. |
-| `physical_count_items` | Detalle del conteo por ítem durante la auditoría. |
+#### 2. `product_branch_inventory` (Saldos por Sucursal)
+- `product_id`: `UUID` (FK) - Vinculado a `products`.
+- `branch_id`: `UUID` (FK) - Vinculado a sucursal.
+- `quantity`: `NUMERIC` - Stock físico actual.
+- `min_stock`: `NUMERIC` - Punto de reorden.
+- **PK Compuesta**: `(product_id, branch_id)`.
 
-### Relaciones Clave
-- `products.product_category_id` → `product_categories.id` (Relación 1:N)
-- `product_branch_inventory.product_id` → `products.id` (Relación M:N entre productos y sucursales)
+#### 3. `inventory_movements` (Kardex)
+- `type`: `ENUM` ('ENTRY', 'EXIT', 'ADJUSTMENT').
+- `quantity`: `NUMERIC` - Cantidad afectada.
+- `reason`: `TEXT` - Justificación técnica.
 
-### Consultas Principales
-**Obtención de Existencias por Sucursal:**
-```sql
-SELECT 
-    p.name, 
-    p.unit_measure, 
-    i.quantity, 
-    i.min_stock
-FROM products p
-JOIN product_branch_inventory i ON p.id = i.product_id
-WHERE i.branch_id = 'BRANCH_ID' AND p.es_platillo = false;
+### Relaciones Lógicas
+```mermaid
+erDiagram
+    PRODUCTS ||--o{ PRODUCT_BRANCH_INVENTORY : "tiene existencias en"
+    PRODUCTS }|--|| PRODUCT_CATEGORIES : "pertenece a"
+    PRODUCTS ||--o{ INVENTORY_MOVEMENTS : "genera"
+    PRODUCT_BRANCH_INVENTORY }|--|| BRANCHES : "ubicado en"
 ```
 
-**Registro de Movimiento en Kardex:**
+### Consultas de Operación
+**Cálculo de Valor de Inventario:**
 ```sql
-INSERT INTO inventory_movements (product_id, branch_id, type, quantity, reason)
-VALUES ('ID_PROD', 'ID_BRANCH', 'ENTRY', 10, 'Compra a proveedor');
+SELECT 
+    sum(i.quantity * p.cost_price) as valor_total
+FROM product_branch_inventory i
+JOIN products p ON i.product_id = p.id
+WHERE p.es_platillo = false;
 ```
 
 ---

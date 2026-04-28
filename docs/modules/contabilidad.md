@@ -12,37 +12,53 @@ Este módulo gestiona la salud financiera y el cumplimiento fiscal del restauran
 
 ## Interacción con Base de Datos
 
-### Tablas Relevantes (Supabase/PostgreSQL)
+### Estructura de Tablas (DDL)
 
-| Tabla | Función |
-| :--- | :--- |
-| `purchase_invoices` | Histórico de facturas de proveedores (Compras). |
-| `sales_invoices` | Histórico de facturas enviadas a clientes (Ventas). |
-| `historico_auditoria_sat` | Tabla de auditoría detallada de todos los DTE descargados. |
-| `journal_entries` | Asientos contables para doble partida (Debe/Haber). |
-| `payroll_records` | Registros de salarios devengados y deducciones. |
+#### 1. `historico_auditoria_sat` (Maestro Fiscal)
+Repositorio central de documentos tributarios.
+- `id`: `UUID` (PK).
+- `fel_uuid`: `TEXT` (Unique) - UUID de la SAT.
+- `tipo`: `TEXT` ('emitida' | 'recibida').
+- `monto_total`: `NUMERIC(14,2)`.
+- `iva_monto`: `NUMERIC(14,2)`.
+- `items`: `JSONB` - Detalle de productos extraídos del XML.
+- `cuenta_contable`: `TEXT` - Mapeo al catálogo de cuentas.
 
-### Relaciones Clave
-- `historico_auditoria_sat.fel_uuid` es la llave única para evitar duplicados.
-- `purchase_invoices.supplier_nit` → `suppliers.nit`
+#### 2. `purchase_invoices` (Cuentas por Pagar)
+- `supplier_name`: `TEXT`.
+- `invoice_number`: `TEXT`.
+- `status`: `TEXT` ('pendiente' | 'pagada' | 'anulada').
 
-### Consultas Principales
-**Sincronización con Resolución de Conflictos (PostgreSQL UPSERT):**
-```sql
-INSERT INTO purchase_invoices (fel_uuid, invoice_date, supplier_name, total_amount, description)
-VALUES ('UUID-FACTURA', '2026-04-28', 'Proveedor S.A.', 1500.00, 'Compra de Insumos')
-ON CONFLICT (fel_uuid) DO NOTHING;
+#### 3. `payroll_quincena_records` (Planilla)
+- `employee_id`: `UUID` (FK).
+- `period_label`: `TEXT` (Ej. '2026-04').
+- `quincena`: `INTEGER` (1 o 2).
+- `total_neto`: `NUMERIC(14,2)`.
+
+### Relaciones Lógicas
+```mermaid
+erDiagram
+    SUPPLIERS ||--o{ PURCHASE_INVOICES : "factura"
+    PURCHASE_INVOICES ||--o{ HISTORICO_AUDITORIA_SAT : "se concilia con"
+    EMPLOYEES ||--o{ PAYROLL_QUINCENA_RECORDS : "devenga"
+    HISTORICO_AUDITORIA_SAT }|--|| CHART_OF_ACCOUNTS : "afecta cuenta"
 ```
 
-**Resumen Mensual de IVA por Pagar:**
+### Consultas de Operación
+**Detección de Crédito Fiscal Pendiente:**
 ```sql
 SELECT 
-    sum(iva_amount) FILTER (WHERE tipo = 'venta') as iva_debito,
-    sum(iva_amount) FILTER (WHERE tipo = 'compra') as iva_credito,
-    (sum(iva_amount) FILTER (WHERE tipo = 'venta') - sum(iva_amount) FILTER (WHERE tipo = 'compra')) as neto_iva
-FROM historico_auditoria_sat
-WHERE status = 'paid' AND fecha_emision >= '2026-04-01';
+    sum(iva_amount) as total_iva_credito
+FROM purchase_invoices
+WHERE status = 'pendiente';
 ```
 
----
-*Documentación Técnica - Restaurante Las Palmas*
+**Resumen de Gastos por Clasificación Contable:**
+```sql
+SELECT 
+    clasificacion_compra, 
+    sum(monto_total) as subtotal
+FROM historico_auditoria_sat
+WHERE tipo = 'recibida'
+GROUP BY clasificacion_compra;
+```

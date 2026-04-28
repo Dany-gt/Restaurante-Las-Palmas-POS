@@ -11,32 +11,56 @@ El módulo de Cuentas por Cobrar gestiona las líneas de crédito otorgadas a cl
 
 ## Interacción con Base de Datos
 
-### Tablas Relevantes (Supabase/PostgreSQL)
+### Estructura de Tablas (DDL)
 
-| Tabla | Función |
-| :--- | :--- |
-| `customers` | Almacena los límites de crédito (`credit_limit`) y el saldo actual (`current_balance`). |
-| `credit_transactions` | Registro histórico de cada movimiento (CARGO o ABONO). |
-| `receivables_summary` | Vista consolidada para visualizar saldos vencidos y por vencer. |
+#### 1. `customers` (Maestro Crédito)
+- `id`: `UUID` (PK).
+- `name`: `TEXT`.
+- `nit`: `TEXT` (Unique).
+- `credit_limit`: `NUMERIC(14,2)` - Techo máximo de deuda permitido.
+- `current_balance`: `NUMERIC(14,2)` - Deuda acumulada actual.
+- `authorized_discount`: `NUMERIC` - % de descuento por fidelidad.
 
-### Relaciones Clave
-- `credit_transactions.customer_id` → `customers.id`
-- `credit_transactions.order_id` → `orders.id` (Solo para cargos provenientes de ventas)
+#### 2. `credit_transactions` (Libro Mayor de Crédito)
+- `id`: `UUID` (PK).
+- `customer_id`: `UUID` (FK) - Relacionado a `customers`.
+- `order_id`: `UUID` (FK) - Relacionado a `orders` (opcional).
+- `type`: `TEXT` ('CHARGE' | 'PAYMENT').
+- `amount`: `NUMERIC(14,2)`.
+- `created_by`: `UUID` (FK) - Relacionado a `profiles`.
 
-### Consultas Principales
-**Generación Automática de Cargo (Trigger en `orders`):**
-```sql
-INSERT INTO credit_transactions (customer_id, order_id, amount, type, description)
-VALUES ('ID_CLIENTE', 'ID_ORDEN', 450.00, 'CHARGE', 'Compra según Orden #1234');
+#### 3. `receivables_summary` (Vista de Control)
+- `customer_name`: `TEXT`.
+- `saldo`: `NUMERIC`.
+- `total_cargos`: `INTEGER`.
+- `ultimo_pago`: `TIMESTAMP`.
+
+### Relaciones Lógicas
+```mermaid
+erDiagram
+    CUSTOMERS ||--o{ CREDIT_TRANSACTIONS : "posee historial"
+    CREDIT_TRANSACTIONS }|--o| ORDERS : "referencia venta"
+    CREDIT_TRANSACTIONS }|--|| PROFILES : "registrado por"
 ```
 
-**Validación de Disponibilidad de Crédito:**
-```sql
-SELECT 
-    (credit_limit - current_balance) as disponible
-FROM customers
-WHERE id = 'ID_CLIENTE';
-```
+### Lógica de Automatización (Triggers)
+El sistema utiliza un **Trigger SQL** (`register_credit_sale`) que detecta cambios en la tabla `orders`:
+1. **Condición**: Cuando `payment_method = 'AL CRÉDITO'` y `customer_id` no es nulo.
+2. **Acción**: Inserta automáticamente un registro `CHARGE` en `credit_transactions` y suma el monto al `current_balance` del cliente.
 
----
-*Documentación Técnica - Restaurante Las Palmas*
+**Ejemplo de Trigger (Procedimiento):**
+```sql
+CREATE OR REPLACE FUNCTION handle_credit_sale()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (NEW.payment_method = 'AL CRÉDITO') THEN
+        INSERT INTO credit_transactions (customer_id, order_id, amount, type)
+        VALUES (NEW.customer_id, NEW.id, NEW.total, 'CHARGE');
+        
+        UPDATE customers SET current_balance = current_balance + NEW.total
+        WHERE id = NEW.customer_id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+```
