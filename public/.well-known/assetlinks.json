@@ -19,7 +19,8 @@
       "namespace": "android_app",
       "package_name": "app.vercel.restaurante_las_palmas_pos.twa",
       "sha256_cert_fingerprints": [
-        "93:18:E7:9C:B5:6D:C5:56:13:0C:87:E3:88:AF:14:30:39:62:0B:24:51:CF:19:04:2A:41:AF:15:03:BF:60:0A"
+        "93:18:E7:9C:B5:6D:C5:56:13:0C:87:E3:88:AF:14:30:39:62:0B:24:51:CF:19:04:2A:41:AF:15:03:BF:60:0A",
+        "0C:2D:29:C9:04:0A:0D:6A:EB:69:05:74:51:D9:A7:25:1E:3C:2E:77:EB:88:85:2C:83:DB:17:7C:10:C6:56:86"
       ]
     }
   }
