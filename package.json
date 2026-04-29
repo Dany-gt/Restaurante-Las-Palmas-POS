@@ -56,7 +56,7 @@
   },
   "build": {
     "appId": "com.restaurante-las-palmas.pos",
-    "productName": "Restaurante Las Palmas POS",
+    "productName": "restaurante las palmas pos",
     "win": {
       "target": "nsis",
       "icon": "build/icon.png"

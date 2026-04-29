@@ -4,7 +4,7 @@ import {
     Wallet, BarChart3, CalendarDays, AlertCircle, X,
     Cloud, Minus, Maximize2, RefreshCw, CloudDownload, ShieldCheck
 } from 'lucide-react';
-import { supabase } from '../../../supabase';
+import { supabase, SUPABASE_URL, SUPABASE_KEY } from '../../../supabase';
 import dayjs from 'dayjs';
 import { createPortal } from 'react-dom';
 import { DraggableWindow } from '../DraggableWindow';
@@ -91,10 +91,8 @@ export const AccountingPortal: React.FC = () => {
                 return;
             }
 
-            // @ts-ignore
-            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-            // @ts-ignore
-            const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+            const supabaseUrl = SUPABASE_URL;
+            const supabaseKey = SUPABASE_KEY;
 
             // ── Enviar rango completo en un solo bloque para evitar banneo por múltiples logins a la SAT ──
             const chunks: { start: string; end: string }[] = [];

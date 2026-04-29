@@ -90,7 +90,7 @@ export const useDataSync = () => {
                 safeFetch(supabase.from('categories').select('*').order('order_index'), 'categories'),
                 safeFetch(supabase.from('product_categories').select('*').order('nombre'), 'product_categories'),
                 safeFetch(supabase.from('menu_categories').select('*').order('nombre'), 'menu_categories'),
-                safeFetch(supabase.from('products').select('*').eq('is_available', true), 'products'),
+                safeFetch(supabase.from('products').select('*').eq('is_available', true).eq('es_platillo', true), 'products'),
                 safeFetch(supabase.from('profiles').select('*'), 'profiles'),
                 safeFetch(supabase.from('kitchen_stations').select('*'), 'printers'),
                 safeFetch(supabase.from('system_settings').select('*').limit(1).maybeSingle(), 'settings'),

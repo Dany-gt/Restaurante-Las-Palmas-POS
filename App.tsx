@@ -234,6 +234,23 @@ const App: React.FC = () => {
     };
   }, [selectedTable]);
 
+  // Transparencia dinámica para Electron
+  useEffect(() => {
+    const isElectron = !!(window as any).electronAPI;
+    if (isElectron) {
+      const root = document.getElementById('root');
+      if (currentView === 'LOGIN') {
+        document.documentElement.style.backgroundColor = 'transparent';
+        document.body.style.backgroundColor = 'transparent';
+        if (root) root.style.backgroundColor = 'transparent';
+      } else {
+        document.documentElement.style.backgroundColor = '';
+        document.body.style.backgroundColor = '';
+        if (root) root.style.backgroundColor = '';
+      }
+    }
+  }, [currentView]);
+
   // REALTIME PRESENCE & LOCK SYNC (ROBUST CONNECTIVITY)
   useEffect(() => {
     if (!currentUser) return;
@@ -1060,7 +1077,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`h-[100dvh] overflow-hidden text-white flex flex-col transition-colors pos-main-layout bg-[#2d2e3d]`} style={{ WebkitOverflowScrolling: 'touch' }}>
+    <div className={`h-[100dvh] overflow-hidden text-white flex flex-col transition-colors pos-main-layout ${currentView === 'LOGIN' && !!(window as any).electronAPI ? 'bg-transparent' : 'bg-[#2d2e3d]'}`} style={{ WebkitOverflowScrolling: 'touch' }}>
       <ConnectionBanner />
       <NotificationContainer />
       <RemotePrintListener />
