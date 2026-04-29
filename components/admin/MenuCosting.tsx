@@ -347,12 +347,15 @@ export const MenuCosting: React.FC = () => {
                     if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
                 } else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
                     let baseInMl = 1;
-                    if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
-                    if (baseUnit.includes('onza')) baseInMl = 29.5735;
+                    if (baseUnit.includes('mililitro') || baseUnit === 'ml') baseInMl = 1;
+                    else if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                    else if (baseUnit.includes('onza')) baseInMl = 29.5735;
+
                     let selectedInMl = 1;
                     if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
-                    if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
-                    if (selectedUnit.includes('litro')) selectedInMl = 1000;
+                    else if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+                    else if (selectedUnit.includes('litro')) selectedInMl = 1000;
+                    
                     unitFactor = selectedInMl / baseInMl;
                 }
             }
@@ -465,13 +468,14 @@ export const MenuCosting: React.FC = () => {
                     // VOLUMEN (lt/ml/oz)
                     else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
                         let baseInMl = 1;
-                        if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
-                        if (baseUnit.includes('onza')) baseInMl = 29.5735;
+                        if (baseUnit.includes('mililitro') || baseUnit === 'ml') baseInMl = 1;
+                        else if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                        else if (baseUnit.includes('onza')) baseInMl = 29.5735;
 
                         let selectedInMl = 1;
                         if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
-                        if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
-                        if (selectedUnit.includes('litro')) selectedInMl = 1000;
+                        else if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+                        else if (selectedUnit.includes('litro')) selectedInMl = 1000;
 
                         unitFactor = selectedInMl / baseInMl;
                     }
@@ -560,12 +564,14 @@ export const MenuCosting: React.FC = () => {
                 if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
             } else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
                 let baseInMl = 1;
-                if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
-                if (baseUnit.includes('onza')) baseInMl = 29.5735;
+                if (baseUnit.includes('mililitro') || baseUnit === 'ml') baseInMl = 1;
+                else if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                else if (baseUnit.includes('onza')) baseInMl = 29.5735;
+
                 let selectedInMl = 1;
                 if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
-                if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
-                if (selectedUnit.includes('litro')) selectedInMl = 1000;
+                else if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+                else if (selectedUnit.includes('litro')) selectedInMl = 1000;
                 unitFactor = selectedInMl / baseInMl;
             }
         }
@@ -789,12 +795,15 @@ export const MenuCosting: React.FC = () => {
                                             if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
                                         } else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
                                             let baseInMl = 1;
-                                            if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
-                                            if (baseUnit.includes('onza')) baseInMl = 29.5735;
+                                            if (baseUnit.includes('mililitro') || baseUnit === 'ml') baseInMl = 1;
+                                            else if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                                            else if (baseUnit.includes('onza')) baseInMl = 29.5735;
+
                                             let selectedInMl = 1;
                                             if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
-                                            if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
-                                            if (selectedUnit.includes('litro')) selectedInMl = 1000;
+                                            else if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+                                            else if (selectedUnit.includes('litro')) selectedInMl = 1000;
+                                            
                                             unitFactor = selectedInMl / baseInMl;
                                         }
                                     }
