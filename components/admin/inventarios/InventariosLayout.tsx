@@ -360,8 +360,8 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     }
 
                     // Modificadores y Opciones
-                    const { data: modData } = await supabase.from('product_modifier_groups').select('*').eq('product_id', id);
-                    const { data: optData } = await supabase.from('product_option_groups').select('*').eq('product_id', id);
+                    const { data: modData } = await supabase.from('product_modifier_groups').select('*, modifier_groups(name)').eq('product_id', id);
+                    const { data: optData } = await supabase.from('product_option_groups').select('*, option_groups(name)').eq('product_id', id);
                     if (modData) setAssignedModifierGroups(modData);
                     if (optData) setAssignedOptionGroups(optData);
                 }
@@ -990,7 +990,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                     <div className="flex items-center gap-2 relative z-10 font-[Arial]">
                                         <Search size={14} className="text-blue-100" />
                                         <span className="text-[10px] font-black uppercase tracking-tight">
-                                            {searchModal.type === 'inventory' ? 'Explorador de Insumos' : searchModal.type === 'options' ? 'Listado de Opciones' : 'Listado de Grupos de Modificadores'}
+                                            {searchModal.type === 'inventory' ? 'EXPLORADOR DE INSUMOS' : searchModal.type === 'options' ? 'LISTADO DE OPCIONES' : 'LISTADO DE MODIFICADORES'}
                                         </span>
                                     </div>
                                     <button onClick={() => setSearchModal({ visible: false, type: null, query: '' })} className="hover:bg-red-500 w-8 h-8 flex items-center justify-center transition-colors font-bold text-[16px] relative z-10">✕</button>

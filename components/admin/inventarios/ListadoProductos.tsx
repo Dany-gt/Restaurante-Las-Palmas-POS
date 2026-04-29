@@ -132,7 +132,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                     <thead className="sticky top-0 z-10">
                         <tr className="bg-[#f5f5f5] border-b border-gray-300 h-7 select-none">
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-32">Código</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-56">Categoría</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-[280px]">Categoría</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 min-w-[500px]">Producto / Insumo</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-200 w-32">Existencia</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-72">Presentación</th>
@@ -153,7 +153,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                     onDoubleClick={() => onEdit(item.id, 'producto')}
                                     onContextMenu={(e) => handleContextMenu(e, item)}
                                     className={`
-                                        h-6 border-b border-gray-100 cursor-pointer transition-colors
+                                        h-6 cursor-pointer transition-colors
                                         ${selectedId === item.id ? 'bg-[#106ebe] text-white font-bold' : 'hover:bg-blue-50 text-slate-800'}
                                     `}
                                 >

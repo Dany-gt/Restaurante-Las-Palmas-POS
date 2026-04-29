@@ -129,7 +129,7 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                         <tr className="bg-[#f5f5f5] border-b border-gray-300 h-7 select-none">
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-28">Código</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 min-w-[350px]">Platillo</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-44">Categoría</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-[280px]">Categoría</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-32">Cocina</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-24">Prioridad</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-right border-r border-gray-300 w-28">Precio Costo</th>
@@ -148,8 +148,8 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                                     key={item.id} 
                                     onClick={(e) => { e.stopPropagation(); setSelectedId(item.id); }}
                                     onContextMenu={(e) => handleContextMenu(e, item)}
-                                    className={`
-                                        h-6 border-b border-gray-100 cursor-pointer transition-colors
+                                     className={`
+                                         h-6 cursor-pointer transition-colors
                                         ${selectedId === item.id ? 'bg-[#106ebe] text-white' : 'hover:bg-blue-50 text-slate-800'}
                                     `}
                                 >

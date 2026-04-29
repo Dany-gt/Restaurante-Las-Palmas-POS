@@ -406,7 +406,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                     </button>
                                 </div>
 
-                                <div className="flex-1 overflow-auto custom-scrollbar">
+                                <div className="flex-1 flex flex-col overflow-hidden bg-white">
                                     {activeTab === 'sucursales' ? (
                                         <div className="p-2">
                                             <div className="border border-gray-300 rounded-sm overflow-hidden w-full bg-white shadow-sm overflow-x-hidden">
@@ -453,14 +453,14 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="flex h-full divide-x divide-[#e2e8f0]">
+                                        <div className="flex-1 flex bg-white border-t border-[#ced4da] overflow-hidden">
                                             {[ 
                                                 { title: 'Opciones Asignadas', data: assignedOptionGroups, type: 'options' },
                                                 { title: 'Modificadores Asignadas', data: assignedModifierGroups, type: 'modifiers' }
                                             ].map((panel, idx) => (
                                                 <div 
                                                     key={idx} 
-                                                    className="flex-1 flex flex-col bg-white"
+                                                    className={`flex-1 flex flex-col bg-white relative ${idx === 0 ? 'border-r-2 border-[#ced4da]' : ''}`}
                                                     onContextMenu={(e) => {
                                                         e.preventDefault();
                                                         setOptionsContextMenu({
@@ -472,37 +472,59 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                         });
                                                     }}
                                                 >
-                                                    <div className="h-[40px] bg-[#f5faff] border-b border-[#ced4da] flex items-center px-8">
-                                                        <span className="text-[11px] font-bold text-[#106ebe] uppercase tracking-tighter">{panel.title}</span>
-                                                    </div>
-                                                    
-                                                    {panel.data.length > 0 ? (
-                                                        <div className="flex-1 overflow-y-auto p-2 space-y-2">
-                                                            {panel.data.map((item: any) => (
-                                                                <div key={item.id} className="p-3 border border-gray-200 bg-gray-50 flex justify-between items-center group">
-                                                                    <span className="text-[11px] font-bold uppercase text-gray-700">{item.name || item.option_groups?.name || item.modifier_groups?.name || 'GRUPO'}</span>
-                                                                    <button 
-                                                                        className="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            if (panel.type === 'options') {
-                                                                                setOptionsContextMenu({ visible: true, type: 'options', x: e.clientX, y: e.clientY, targetGroupId: item.id });
-                                                                            } else {
-                                                                                setOptionsContextMenu({ visible: true, type: 'modifiers', x: e.clientX, y: e.clientY, targetGroupId: item.id });
-                                                                            }
-                                                                        }}
-                                                                    >
-                                                                        <X size={14} />
-                                                                    </button>
+                                                    {/* Línea vertical de columna NOMBRE/PRIORIDAD que llega hasta el fondo */}
+                                                    <div className="absolute top-0 bottom-0 right-[100px] w-px bg-[#ced4da] z-0 pointer-events-none"></div>
+                                                    <div className="flex-1 flex flex-col min-h-0">
+                                                        <table className="w-full border-collapse sticky top-0 z-10">
+                                                            <thead>
+                                                                <tr className="h-8 bg-[#f1f5f9] border-b border-[#ced4da] text-[10px] font-black text-slate-800 uppercase tracking-widest relative z-10">
+                                                                    <th className="text-left px-4 w-full">NOMBRE</th>
+                                                                    <th className="text-center px-2 w-[100px]">PRIORIDAD</th>
+                                                                </tr>
+                                                            </thead>
+                                                        </table>
+                                                        
+                                                        <div className="flex-1 overflow-y-auto custom-scrollbar">
+                                                            {panel.data.length > 0 ? (
+                                                                <table className="w-full border-collapse">
+                                                                    <tbody className="">
+                                                                        {panel.data.map((item: any) => (
+                                                                            <tr key={item.id} className="h-8 hover:bg-blue-50/50 group">
+                                                                                <td className="px-4 text-[10.5px] font-bold text-slate-700 uppercase relative z-10">
+                                                                                    {item.name || item.option_groups?.name || item.modifier_groups?.name || '---'}
+                                                                                </td>
+                                                                                <td className="px-2 w-[100px] text-center text-[10.5px] font-medium text-slate-500 relative z-10">
+                                                                                    {item.sort_order || item.priority || '1'}
+                                                                                </td>
+                                                                                <td className="w-8 text-center">
+                                                                                    <button 
+                                                                                        className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                                        onClick={(e) => {
+                                                                                            e.stopPropagation();
+                                                                                            setOptionsContextMenu({ 
+                                                                                                visible: true, 
+                                                                                                type: panel.type, 
+                                                                                                x: e.clientX, 
+                                                                                                y: e.clientY, 
+                                                                                                targetGroupId: item.id 
+                                                                                            });
+                                                                                        }}
+                                                                                    >
+                                                                                        <X size={12} />
+                                                                                    </button>
+                                                                                </td>
+                                                                            </tr>
+                                                                        ))}
+                                                                    </tbody>
+                                                                </table>
+                                                            ) : (
+                                                                <div className="flex-1 flex flex-col items-center justify-center p-10 select-none opacity-20 pointer-events-none h-full">
+                                                                    <Layers size={40} strokeWidth={1} className="text-gray-300 mb-2" />
+                                                                    <p className="text-[9px] font-black tracking-[0.2em] text-gray-400 text-center">CLIC DERECHO PARA AGREGAR</p>
                                                                 </div>
-                                                            ))}
+                                                            )}
                                                         </div>
-                                                    ) : (
-                                                        <div className="flex-1 flex flex-col items-center justify-center p-10 select-none opacity-20 relative pointer-events-none">
-                                                            <Layers size={50} strokeWidth={1} className="text-gray-300 mb-4" />
-                                                            <p className="text-[11px] font-black tracking-[0.3em] text-gray-400">HAZ CLIC DERECHO PARA AGREGAR</p>
-                                                        </div>
-                                                    )}
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
