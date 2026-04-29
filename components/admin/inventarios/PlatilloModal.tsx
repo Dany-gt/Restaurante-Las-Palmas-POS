@@ -478,7 +478,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                         <table className="w-full border-collapse sticky top-0 z-10">
                                                             <thead>
                                                                 <tr className="h-8 bg-[#f1f5f9] border-b border-[#ced4da] text-[10px] font-black text-slate-800 uppercase tracking-widest relative z-10">
-                                                                    <th className="text-left px-4 w-full">NOMBRE</th>
+                                                                    <th className="text-center px-4 w-full">NOMBRE</th>
                                                                     <th className="text-center px-2 w-[100px]">PRIORIDAD</th>
                                                                 </tr>
                                                             </thead>

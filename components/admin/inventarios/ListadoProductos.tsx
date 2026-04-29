@@ -131,12 +131,12 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                 <table className="w-full border-collapse border-spacing-0 min-w-max">
                     <thead className="sticky top-0 z-10">
                         <tr className="bg-[#f5f5f5] border-b border-gray-300 h-7 select-none">
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-32">Código</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-[280px]">Categoría</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 min-w-[500px]">Producto / Insumo</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-32">Código</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-[280px]">Categoría</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 min-w-[500px]">Producto / Insumo</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-200 w-32">Existencia</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-72">Presentación</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-right border-r border-gray-300 w-40">Precio Costo</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-40">Precio Costo</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-center w-32">Habilitado</th>
                         </tr>
                     </thead>

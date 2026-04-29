@@ -348,7 +348,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                 <table className="w-full border-collapse">
                                                     <thead className="sticky top-0 z-10 select-none">
                                                         <tr className="bg-[#f0f0f0] h-[22px]">
-                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-left">Sucursal</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center">Sucursal</th>
                                                             <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-28">Existencia</th>
                                                             <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-36">Punto de Reorden</th>
                                                             <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-24">Habilitado</th>
@@ -446,7 +446,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                                 </th>
                                                             </tr>
                                                             <tr className="h-[22px]">
-                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-left">Producto</th>
+                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center">Producto</th>
                                                                 <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Cantidad</th>
                                                                 <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Medida</th>
                                                                 <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Precio Costo</th>

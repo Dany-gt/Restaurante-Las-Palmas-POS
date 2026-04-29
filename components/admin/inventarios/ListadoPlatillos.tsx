@@ -127,13 +127,13 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                 <table className="w-full border-collapse border-spacing-0 min-w-max">
                     <thead className="sticky top-0 z-10">
                         <tr className="bg-[#f5f5f5] border-b border-gray-300 h-7 select-none">
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-28">Código</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 min-w-[350px]">Platillo</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-[280px]">Categoría</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-left border-r border-gray-300 w-32">Cocina</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-28">Código</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 min-w-[350px]">Platillo</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-[280px]">Categoría</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-32">Cocina</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-24">Prioridad</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-right border-r border-gray-300 w-28">Precio Costo</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-right border-r border-gray-300 w-28">Precio Venta</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-28">Precio Costo</th>
+                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-28">Precio Venta</th>
                             <th className="px-4 text-[10px] font-bold text-slate-700 text-center w-24">Habilitado</th>
                         </tr>
                     </thead>
