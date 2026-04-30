@@ -5,7 +5,7 @@ import { registrarAuditoria } from '../services/auditService';
 interface PinModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSuccess: (user: any) => void;
+    onSuccess: (user: any, pin: string) => void;
     title?: string;
     subtitle?: string;
     requiredRole?: string;
@@ -63,7 +63,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
             const result = await validateFn(pin, requiredRole);
 
             if (result.valid && result.user) {
-                onSuccess(result.user);
+                onSuccess(result.user, pin);
                 onClose();
             } else {
                 setError('PIN incorrecto o usuario no autorizado');

@@ -1434,7 +1434,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         setShowVoidModal(true);
     };
 
-    const handleVoidItem = async () => {
+    const handleVoidItem = async (adminPin?: string) => {
         if (!itemToVoid || voidReason.trim().length < 5) return;
 
         setProcessing(true);
@@ -1450,15 +1450,16 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 pending.push({ id: itemToVoid.id, reason: voidReason, at: nowGuate });
                 localStorage.setItem('pending_voids', JSON.stringify(pending));
             } else {
-                // Update DB via RPC (v1.5.5 - Automatically restores stock)
-                const { data: rpcResult, error: voidError } = await supabase.rpc('void_order_item_rpc', {
+                // Update DB via RPC (v1.6.0 - Server-side PIN validation to bypass RLS)
+                const { data: rpcResult, error: voidError } = await supabase.rpc('void_item_with_pin', {
                     p_item_id: itemToVoid.id,
+                    p_admin_pin: adminPin || '', // Pasamos el PIN para validación absoluta
                     p_void_reason: voidReason,
                     p_voided_at: nowGuate
                 });
 
                 if (voidError || (rpcResult && rpcResult.success === false)) {
-                    throw voidError || new Error(rpcResult?.error || 'Error desconocido en el servidor');
+                    throw voidError || new Error(rpcResult?.error || 'Error desconocido en el servidor (PIN inválido?)');
                 }
             }
 
@@ -2570,21 +2571,27 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     requiredRole="ADMIN"
                     title="Autorización Requerida"
                     subtitle={pendingAction === 'cancel' ? "Anular Orden Completa" : "Eliminar Item"}
-                    onSuccess={async (authorizedUser: any) => {
+                    onSuccess={async (authorizedUser: any, pin: string) => {
                         // El PIN de administrador es absoluto y permite cualquier acción de anulación
                         if (pendingAction === 'delete' && itemToVoid) {
-                            // Ejecutar la anulación real del item en DB
-                            handleVoidItem();
+                            // Ejecutar la anulación real del item en DB pasando el PIN para el RPC
+                            handleVoidItem(pin);
                         } else if (pendingAction === 'cancel' && activeOrderId) {
                             setProcessing(true);
                             try {
                                 const nowGuate = DateUtils.toGuatemalaISO(new Date(Date.now() + serverOffset));
-                                await supabase.from('orders').update({
-                                    status: 'cancelled',
-                                    cancelled_at: nowGuate,
-                                    cancelled_by: authorizedUser?.id || currentUser?.id,
-                                    cancellation_reason: voidReason || 'Sin motivo especificado'
-                                }).eq('id', activeOrderId);
+                                
+                                // v1.6.0 - Use RPC to cancel order with PIN validation (bypasses RLS)
+                                const { data: rpcResult, error: rpcError } = await supabase.rpc('cancel_order_with_pin', {
+                                    p_order_id: activeOrderId,
+                                    p_admin_pin: pin,
+                                    p_reason: voidReason || 'Sin motivo especificado',
+                                    p_cancelled_at: nowGuate
+                                });
+
+                                if (rpcError || (rpcResult && rpcResult.success === false)) {
+                                    throw rpcError || new Error(rpcResult?.error || 'Error al anular orden');
+                                }
 
                                 // LOG: Order Cancelled
                                 const cancelledOrder = tableOrders.find(o => o.id === activeOrderId);
@@ -2616,7 +2623,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
                                 if (table?.id) await supabase.from('tables').update({ status: 'available' }).eq('id', table.id);
                                 onClose?.();
-                            } catch (error) { console.error(error); }
+                            } catch (error: any) { 
+                                console.error(error); 
+                                alert(`🚫 Error: ${error.message}`);
+                            }
                             setProcessing(false);
                         }
                         setShowPinModal(false);
