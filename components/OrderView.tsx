@@ -70,12 +70,12 @@ const ProductCard = React.memo<{
                 </div>
             )}
 
-            <div className="w-full aspect-square flex items-center justify-center rounded-lg overflow-hidden shrink-0">
+            <div className="w-full aspect-square flex items-center justify-center rounded-lg overflow-hidden shrink-0 p-2">
                 {product.image_url ? (
                     <img
                         src={product.image_url}
                         alt={product.name}
-                        className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
+                        className="w-full h-full object-contain transition-transform group-hover:scale-105 duration-300"
                     />
                 ) : (
                     <PlaceholderLogo />

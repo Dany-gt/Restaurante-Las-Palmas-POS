@@ -151,6 +151,8 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
             const formData = new FormData();
             formData.append('image_file', file);
             formData.append('size', 'auto');
+            formData.append('crop', 'true');
+            formData.append('margin', '20%');
 
             const response = await fetch('https://api.remove.bg/v1.0/removebg', {
                 method: 'POST',
