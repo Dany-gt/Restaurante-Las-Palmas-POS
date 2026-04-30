@@ -317,9 +317,9 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                     </div>
                                     
                                     <div className="w-[140px] flex flex-col items-center">
-                                        <div className="w-full aspect-square border border-[#e2e8f0] bg-[#f8fafc] flex items-center justify-center text-gray-300 relative shadow-inner overflow-hidden group">
+                                        <div className="w-full aspect-square border border-[#e2e8f0] bg-[#f8fafc] flex items-center justify-center text-gray-300 relative shadow-inner overflow-hidden group p-4">
                                             {newProduct.image_url ? (
-                                                <img src={newProduct.image_url} className="w-full h-full object-cover" alt="Plato" />
+                                                <img src={newProduct.image_url} className="w-full h-full object-contain" alt="Plato" />
                                             ) : (
                                                 <PlaceholderLogo />
                                             )}
