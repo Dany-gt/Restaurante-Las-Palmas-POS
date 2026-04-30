@@ -29,6 +29,18 @@ interface PlatilloModalProps {
     setShowTechnicalModal: (val: boolean) => void;
 }
 
+const PlaceholderLogo = () => (
+    <div className="flex flex-col items-center justify-center h-full w-full bg-[#3a3b4d]">
+        <span className="text-[10px] font-bold tracking-[0.2em] text-gray-400 mb-0.5">RESTAURANTE</span>
+        <span className="text-sm font-black tracking-tighter text-orange-500 uppercase leading-none">LAS PALMAS</span>
+        <div className="flex items-center gap-1.5 mt-1">
+            <div className="h-[1px] w-4 bg-white/20"></div>
+            <span className="text-[10px] font-black text-white/40 tracking-widest">POS</span>
+            <div className="h-[1px] w-4 bg-white/20"></div>
+        </div>
+    </div>
+);
+
 const CustomSelect = ({ value, onChange, options, placeholder = "SELECCIONAR..." }: any) => {
     const [isOpen, setIsOpen] = useState(false);
     return (
@@ -321,7 +333,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                             {newProduct.image_url ? (
                                                 <img src={newProduct.image_url} className="w-full h-full object-cover" alt="Plato" />
                                             ) : (
-                                                <ImageIcon size={40} strokeWidth={0.5} className="opacity-20" />
+                                                <PlaceholderLogo />
                                             )}
                                             {uploadingImage && (
                                                 <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
