@@ -4,11 +4,6 @@ import { X, Save, Image as ImageIcon, FileText, Layers, Trash2, ChevronDown, Loa
 import { DraggableWindow } from '../shared/DraggableWindow';
 import { WindowsSaveButton } from '../../WindowsSaveButton';
 import { supabase } from '../../../supabase';
-import { pipeline, env } from '@xenova/transformers';
-
-// Configurar transformers para que sea eficiente en el navegador
-env.allowLocalModels = false;
-env.useBrowserCache = true;
 
 interface PlatilloModalProps {
     isOpen: boolean;
@@ -151,24 +146,27 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
         if (!file) return;
 
         setUploadingImage(true);
-        let imageUrl = '';
         try {
-            imageUrl = URL.createObjectURL(file);
-            
-            // 1. Obtener el segmentador (Cargará el modelo la primera vez)
-            const segmenter = await pipeline('image-segmentation', 'Xenova/rmbg-1.4');
-            
-            // 2. Procesar la imagen
-            const output = await segmenter(imageUrl);
-            
-            // 3. Convertir el canvas resultante a Blob
-            const blob = await new Promise<Blob>((resolve, reject) => {
-                output.canvas.toBlob((b: Blob | null) => {
-                    if (b) resolve(b);
-                    else reject(new Error('Error al generar el recorte'));
-                }, 'image/png');
+            // Procesamiento profesional con la API de remove.bg
+            const formData = new FormData();
+            formData.append('image_file', file);
+            formData.append('size', 'auto');
+
+            const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+                method: 'POST',
+                headers: {
+                    'X-Api-Key': (import.meta.env.VITE_REMOVE_BG_API_KEY as string) || ''
+                },
+                body: formData
             });
 
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.errors?.[0]?.title || 'Error en remove.bg');
+            }
+
+            const blob = await response.blob();
+            
             const processedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".png", { type: "image/png" });
 
             const fileName = `platillo-${Math.random()}-${Date.now()}.png`;
@@ -181,10 +179,9 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
             setNewProduct({ ...newProduct, image_url: publicUrl });
         } catch (error: any) {
             console.error('Error al subir imagen:', error);
-            alert('Error al procesar imagen inteligente: ' + error.message);
+            alert('Error al procesar imagen: ' + error.message);
         } finally {
             setUploadingImage(false);
-            if (imageUrl) URL.revokeObjectURL(imageUrl);
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
