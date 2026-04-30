@@ -1422,11 +1422,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             return;
         }
 
-        // Si el item YA está en base de datos, solo ADMIN o CAJERO pueden anularlo
-        const canVoid = currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO';
-        if (!canVoid) {
-            alert('🚫 Solo Administradores o Cajeros pueden anular productos ya enviados a cocina.');
-            return;
+        // Si el item YA está en base de datos, solo ADMIN o CAJERO pueden anularlo directamente.
+        // Los meseros pueden iniciar el flujo pero requerirán PIN de administrador.
+        const canVoidDirectly = currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO';
+        if (!canVoidDirectly) {
+            setPendingAction('delete'); // Usaremos 'delete' como señal para requerir PIN de anulación de item
         }
 
         setItemToVoid(item);
@@ -2294,10 +2294,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         {(currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Anular Orden') || currentUser?.permissions?.includes('Cajero:Anular Orden')) && (
                             <button
                                 onClick={() => {
-                                    if (!isOrderCreator()) {
-                                        alert('🚫 No puedes anular productos de una orden que no creaste.');
-                                        return;
-                                    }
+                                    // Eliminamos el bloqueo de isOrderCreator() para permitir que el ADMIN anule cualquier orden
                                     setPendingAction('cancel');
                                     setShowVoidModal(true);
                                 }}
@@ -2570,12 +2567,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     isOpen={showPinModal}
                     onClose={() => setShowPinModal(false)}
                     validateFn={validatePin}
-                    requiredRole="CAJERO"
+                    requiredRole="ADMIN"
                     title="Autorización Requerida"
                     subtitle={pendingAction === 'cancel' ? "Anular Orden Completa" : "Eliminar Item"}
                     onSuccess={async (authorizedUser: any) => {
-                        if (pendingAction === 'delete' && itemToDeleteId) {
-                            setItems(prev => prev.filter(i => i.id !== itemToDeleteId));
+                        // El PIN de administrador es absoluto y permite cualquier acción de anulación
+                        if (pendingAction === 'delete' && itemToVoid) {
+                            // Ejecutar la anulación real del item en DB
+                            handleVoidItem();
                         } else if (pendingAction === 'cancel' && activeOrderId) {
                             setProcessing(true);
                             try {
@@ -2590,7 +2589,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 // LOG: Order Cancelled
                                 const cancelledOrder = tableOrders.find(o => o.id === activeOrderId);
                                 activityLogService.logFinancial({
-                                    user: currentUser!,
+                                    user: authorizedUser || currentUser!, // Atribuir al que puso el PIN
                                     module: 'VENTAS',
                                     action: 'ORDEN_ANULADA',
                                     severity: 'CRITICAL',
@@ -2693,7 +2692,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </button>
                                     <button
                                         onClick={() => {
-                                            if (pendingAction === 'cancel') {
+                                            // El PIN de administrador es absoluto. Si no somos admin, siempre pedimos PIN para anular.
+                                            const isPrivileged = currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO';
+                                            
+                                            if (pendingAction === 'cancel' || pendingAction === 'delete' || !isPrivileged) {
                                                 setShowVoidModal(false);
                                                 setShowPinModal(true);
                                             } else {
