@@ -2052,7 +2052,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                         return true;
                                                     })
                                                     .map(cat => (
-                                                        <button key={cat.id} onClick={() => setSelectedCat(cat)} className="aspect-square bg-[#3a3b4d] rounded-2xl p-4 flex flex-col items-center justify-between border-2 border-white/5 hover:border-indigo-500/50 hover:bg-[#45465e] active:scale-95 transition-all shadow-xl group">
+                                                        <button key={cat.id} onClick={() => setSelectedCat(cat)} className="aspect-square bg-[#3a3b4d] rounded-2xl p-2 flex flex-col items-center justify-between border-2 border-white/5 hover:border-indigo-500/50 hover:bg-[#45465e] active:scale-95 transition-all shadow-xl group">
                                                             <div className="flex-1 flex flex-col items-center justify-center w-full mb-3">
                                                                 {cat.image_url ? (
                                                                     <img src={cat.image_url} alt={cat.name} className="w-full h-full object-contain rounded-xl opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
@@ -2060,7 +2060,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                                     <PlaceholderLogo />
                                                                 )}
                                                             </div>
-                                                            <span className="w-full text-center text-[10px] sm:text-xs font-black uppercase tracking-widest text-white leading-tight">{cat.name}</span>
+                                                            <span className="w-full text-center text-[9px] sm:text-[10px] font-black uppercase tracking-wide text-gray-200 leading-tight pt-1 pb-1">{cat.name}</span>
                                                         </button>
                                                     ));
                                             })()}
