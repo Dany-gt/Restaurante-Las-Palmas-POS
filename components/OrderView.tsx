@@ -51,7 +51,7 @@ const ProductCard = React.memo<{
         <button
             onClick={onClick}
             disabled={isChecking}
-            className={`w-full rounded-xl p-3 flex flex-col items-center gap-2 border transition-all group active:scale-95 text-center overflow-hidden relative bg-[#3a3b4d] ${isChecking ? 'opacity-50 border-white/10 scale-[0.98]' : 'border-white/5'
+            className={`w-full rounded-xl p-2 flex flex-col items-center gap-1 border transition-all group active:scale-95 text-center overflow-hidden relative bg-[#3a3b4d] ${isChecking ? 'opacity-50 border-white/10 scale-[0.98]' : 'border-white/5'
                 }`}
         >
             {/* Checking/Loading Overlay */}
@@ -70,12 +70,12 @@ const ProductCard = React.memo<{
                 </div>
             )}
 
-            <div className="w-full aspect-square flex items-center justify-center rounded-lg overflow-hidden shrink-0">
+            <div className="w-full aspect-square flex items-center justify-center rounded-lg overflow-hidden shrink-0 p-1">
                 {product.image_url ? (
                     <img
                         src={product.image_url}
                         alt={product.name}
-                        className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
+                        className="w-full h-full object-contain transition-transform group-hover:scale-105 duration-300"
                     />
                 ) : (
                     <PlaceholderLogo />
@@ -2043,7 +2043,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         ) : (
                                 <div className="bg-[#2d2e3d]">
                                     {!selectedCat && (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-3 sm:gap-4 p-4 no-scrollbar content-start">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 gap-3 sm:gap-4 p-4 no-scrollbar content-start">
                                             {(() => {
                                                 const seen = new Set();
                                                 return categories
@@ -2084,7 +2084,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         </div>
                                     )}
                                 {selectedCat && !selectedSubCat && (
-                                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-2 sm:gap-3 content-start">
+                                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 gap-2 sm:gap-3 content-start">
                                         {categories
                                             .filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO')
                                             .sort((a, b) => {
@@ -2199,7 +2199,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </div>
                                 )}
                                 {selectedSubCat && (
-                                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-2 sm:gap-3 content-start">
+                                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 gap-2 sm:gap-3 content-start">
                                         {(() => {
                                             const relatedSubCatIds = categories
                                                 .filter(c => c.name?.toUpperCase() === selectedSubCat.name?.toUpperCase())
