@@ -433,10 +433,30 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                                     </td>
                                                                 ))}
                                                                 <td className="px-1 border-r border-gray-100 text-center">
-                                                                    <input type="checkbox" readOnly checked={bp.is_enabled} className="w-3.5 h-3.5 accent-[#106ebe] cursor-pointer" />
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        checked={bp.is_enabled} 
+                                                                        onChange={(e) => {
+                                                                            const n = [...branchPrices];
+                                                                            n[idx].is_enabled = e.target.checked;
+                                                                            setBranchPrices(n);
+                                                                        }}
+                                                                        className="w-3.5 h-3.5 accent-[#106ebe] cursor-pointer" 
+                                                                    />
                                                                 </td>
                                                                 <td className="px-1 text-center">
-                                                                    <input type="checkbox" readOnly checked={true} className="w-3.5 h-3.5 accent-[#106ebe] cursor-pointer" />
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        checked={bp.is_assigned !== undefined ? bp.is_assigned : true} 
+                                                                        onChange={(e) => {
+                                                                            const n = [...branchPrices];
+                                                                            n[idx].is_assigned = e.target.checked;
+                                                                            // Si se desasigna, también deshabilitamos por lógica
+                                                                            if (!e.target.checked) n[idx].is_enabled = false;
+                                                                            setBranchPrices(n);
+                                                                        }}
+                                                                        className="w-3.5 h-3.5 accent-[#106ebe] cursor-pointer" 
+                                                                    />
                                                                 </td>
                                                             </tr>
                                                         ))}

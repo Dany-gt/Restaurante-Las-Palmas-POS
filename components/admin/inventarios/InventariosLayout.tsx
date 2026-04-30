@@ -325,8 +325,9 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                             ...existing,
                             price: (existing.price || 0).toString(),
                             delivery_price: (existing.delivery_price || 0).toString(),
-                            platform_price: (existing.platform_price || 0).toString()
-                        } : { branch_id: b.id, price: '0', delivery_price: '0', platform_price: '0', is_enabled: true };
+                            platform_price: (existing.platform_price || 0).toString(),
+                            is_assigned: true
+                        } : { branch_id: b.id, price: '0', delivery_price: '0', platform_price: '0', is_enabled: true, is_assigned: false };
                     });
                     setBranchPrices(fullBranchPrices);
 
@@ -471,7 +472,8 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
             price: '0',
             delivery_price: '0',
             platform_price: '0',
-            is_enabled: true
+            is_enabled: true,
+            is_assigned: true
         })));
 
         if (type === 'producto') {
@@ -542,15 +544,28 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 if (savedId) {
                     // Precios por Sucursal
                     if (branchPrices.length > 0) {
-                        const bpData = branchPrices.map(bp => ({
-                            product_id: savedId,
-                            branch_id: bp.branch_id,
-                            price: parseFloat(bp.price) || 0,
-                            delivery_price: parseFloat(bp.delivery_price) || 0,
-                            platform_price: parseFloat(bp.platform_price) || 0,
-                            is_enabled: bp.is_enabled
-                        }));
-                        await supabase.from('product_branch_prices').upsert(bpData, { onConflict: 'product_id,branch_id' });
+                        const assignedPrices = branchPrices.filter(bp => bp.is_assigned !== false);
+                        const unassignedPrices = branchPrices.filter(bp => bp.is_assigned === false);
+
+                        if (assignedPrices.length > 0) {
+                            const bpData = assignedPrices.map(bp => ({
+                                product_id: savedId,
+                                branch_id: bp.branch_id,
+                                price: parseFloat(bp.price) || 0,
+                                delivery_price: parseFloat(bp.delivery_price) || 0,
+                                platform_price: parseFloat(bp.platform_price) || 0,
+                                is_enabled: bp.is_enabled
+                            }));
+                            await supabase.from('product_branch_prices').upsert(bpData, { onConflict: 'product_id,branch_id' });
+                        }
+
+                        if (unassignedPrices.length > 0) {
+                            const branchIdsToDelete = unassignedPrices.map(bp => bp.branch_id);
+                            await supabase.from('product_branch_prices')
+                                .delete()
+                                .eq('product_id', savedId)
+                                .in('branch_id', branchIdsToDelete);
+                        }
                     }
 
                     // Receta Técnica
