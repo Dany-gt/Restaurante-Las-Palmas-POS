@@ -340,20 +340,14 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                     <Loader2 className="animate-spin text-[#106ebe]" size={24} />
                                                 </div>
                                             )}
-                                            <button 
-                                                onClick={() => fileInputRef.current?.click()}
-                                                disabled={uploadingImage}
-                                                className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold uppercase transition-opacity"
-                                            >
-                                                Subir
-                                            </button>
                                         </div>
                                         <button 
-                                            onClick={() => newProduct.image_url ? setNewProduct({...newProduct, image_url: ''}) : fileInputRef.current?.click()}
+                                            onClick={() => { if (newProduct.image_url) setNewProduct({...newProduct, image_url: ''}); }}
                                             disabled={uploadingImage}
-                                            className={`mt-2 text-[9px] font-bold uppercase tracking-tighter ${newProduct.image_url ? 'text-gray-400 hover:text-red-500' : 'text-gray-400 hover:text-[#106ebe]'}`}
+                                            className="mt-3 w-full h-[28px] bg-[#106ebe] text-white text-[10px] font-bold uppercase hover:bg-[#0d5aa0] transition-colors shadow-sm flex items-center justify-center gap-2"
                                         >
-                                            {newProduct.image_url ? 'Quitar Imagen' : 'Subir Imagen'}
+                                            <Trash2 size={12} />
+                                            Quitar Imagen
                                         </button>
                                     </div>
                                 </div>
