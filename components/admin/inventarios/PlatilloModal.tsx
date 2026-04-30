@@ -203,11 +203,11 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
     if (!isOpen) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[2000000] flex items-center justify-center p-2 bg-black/10 pointer-events-none font-sans overflow-hidden">
+        <div className="fixed inset-0 z-[2000000] flex items-center justify-center p-2 bg-transparent pointer-events-none font-sans overflow-hidden">
             <div className="absolute inset-0 pointer-events-auto" onClick={onClose}></div>
             <div className="pointer-events-auto">
                 <DraggableWindow>
-                    <div className="bg-[#f0f3f6] border border-[#106ebe] w-[950px] overflow-hidden flex flex-col shadow-[0_30px_90px_rgba(0,0,0,0.3)] animate-in fade-in duration-200">
+                    <div className="bg-white border border-[#106ebe] w-[950px] overflow-hidden flex flex-col shadow-[0_30px_90px_rgba(0,0,0,0.3)] animate-in fade-in duration-200">
                         {/* HEADER EXTREMO CLONE */}
                         <div className="modal-header bg-[#106ebe] h-8 px-2 flex justify-between items-center text-white shrink-0 cursor-move transition-colors">
                             <div className="flex items-center gap-2">
@@ -248,7 +248,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                         </div>
 
                         {/* APLICANDO EL TAMAÑO DEL ALTO QUE LE GUSTÓ AL USUARIO PERO COMPACTADO */}
-                        <div className="p-4 space-y-4 bg-[#f0f3f6] overflow-y-auto max-h-[85vh] custom-scrollbar">
+                        <div className="p-4 space-y-4 bg-white overflow-y-auto max-h-[85vh] custom-scrollbar">
                             {/* SECCIÓN 1 */}
                             <fieldset className="border border-[#ced4da] p-4 pt-2 bg-white relative shadow-sm">
                                 <legend className="px-1.5 text-[10px] font-semibold text-[#106ebe] uppercase">Datos de Platillo</legend>
