@@ -64,6 +64,52 @@ const CustomSelect = ({ value, onChange, options, placeholder = "Seleccionar..."
     );
 };
 
+const SmartPriceInput = ({ value, onChange, className = "" }: any) => {
+    const [isFocused, setIsFocused] = React.useState(false);
+    
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let raw = e.target.value.toUpperCase().replace('Q', '').replace(/[^0-9.]/g, '');
+        const parts = raw.split('.');
+        if (parts.length > 2) raw = parts[0] + '.' + parts.slice(1).join('');
+        if (parts.length === 2 && parts[1].length > 2) {
+            raw = parts[0] + '.' + parts[1].substring(0, 2);
+        }
+        onChange(raw);
+    };
+
+    const displayValue = isFocused 
+        ? (value ? `Q${value}` : "Q")
+        : (value ? `Q${parseFloat(value).toFixed(2)}` : "Q0.00");
+
+    const inputRef = React.useRef<HTMLInputElement>(null);
+
+    return (
+        <div 
+            className={`flex-1 flex items-center border border-gray-400 bg-white h-6 shadow-sm relative cursor-text px-2 ${className}`}
+            onClick={() => inputRef.current?.focus()}
+        >
+            <input
+                ref={inputRef}
+                type="text"
+                className="w-full h-5 text-[11px] font-bold outline-none bg-transparent text-center text-slate-900 selection:bg-[#3399ff] selection:text-white"
+                value={displayValue}
+                onChange={handleChange}
+                onFocus={(e) => {
+                    setIsFocused(true);
+                    setTimeout(() => e.target.select(), 0);
+                }}
+                onBlur={() => {
+                    setIsFocused(false);
+                    if (value) {
+                        const num = parseFloat(value);
+                        if (!isNaN(num)) onChange(num.toFixed(2));
+                    }
+                }}
+            />
+        </div>
+    );
+};
+
 export const ProductoModal: React.FC<ProductoModalProps> = ({
     isOpen, onClose, editingId, newProduct, setNewProduct, handleSave, isSaving,
     inventoryCategories = [], suppliers = [], branches = [], branchInventory = [], setBranchInventory,
@@ -211,7 +257,8 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                             type="text" 
                                             value={newProduct.product_code || ''}
                                             onChange={e => setNewProduct({...newProduct, product_code: e.target.value})}
-                                            className="h-6 border border-gray-400 px-2 text-[11px] w-full outline-none focus:border-blue-500" 
+                                            onFocus={(e) => setTimeout(() => e.target.select(), 0)}
+                                            className="h-6 border border-gray-400 px-2 text-[11px] w-full outline-none focus:border-blue-500 selection:bg-[#3399ff] selection:text-white" 
                                         />
                                     </div>
                                     <div className="grid grid-cols-[165px_1fr] items-center gap-2 pr-8">
@@ -220,7 +267,8 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                             type="text" 
                                             value={newProduct.name || ''}
                                             onChange={e => setNewProduct({...newProduct, name: e.target.value})}
-                                            className="h-6 border border-gray-400 px-2 text-[11px] w-full outline-none focus:border-[#106ebe] focus:bg-white" 
+                                            onFocus={(e) => setTimeout(() => e.target.select(), 0)}
+                                            className="h-6 border border-gray-400 px-2 text-[11px] w-full outline-none focus:border-[#106ebe] focus:bg-white selection:bg-[#3399ff] selection:text-white" 
                                         />
                                     </div>
                                     <div className="grid grid-cols-[165px_1fr_100px_1fr] items-center gap-2 pr-8">
@@ -274,23 +322,14 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                     setNewProduct({...newProduct, conversion_factor: raw});
                                                 }
                                             }}
-                                            className="h-6 border border-gray-400 px-2 text-[11px] text-center outline-none focus:border-blue-500 font-bold" 
+                                            onFocus={(e) => setTimeout(() => e.target.select(), 0)}
+                                            className="h-6 border border-gray-400 px-2 text-[11px] text-center outline-none focus:border-blue-500 font-bold selection:bg-[#3399ff] selection:text-white" 
                                         />
                                         <label className="text-[11px] text-[#202020] font-[Arial] pl-2">Precio Costo</label>
-                                        <div className="relative">
-                                            <span className="absolute left-2 top-1.5 text-[11px] text-gray-500">Q</span>
-                                            <input 
-                                                type="text" 
-                                                value={newProduct.cost_price ? newProduct.cost_price.toString().split('.').map((p: string, i: number) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : p).join('.') : ''}
-                                                onChange={e => {
-                                                    const raw = e.target.value.replace(/,/g, '');
-                                                    if (/^\d*\.?\d*$/.test(raw)) {
-                                                        setNewProduct({...newProduct, cost_price: raw});
-                                                    }
-                                                }}
-                                                className="h-6 w-full border border-gray-400 pl-6 pr-2 text-[11px] text-center outline-none focus:border-blue-500 font-bold" 
-                                            />
-                                        </div>
+                                        <SmartPriceInput 
+                                            value={newProduct.cost_price}
+                                            onChange={(v: string) => setNewProduct({...newProduct, cost_price: v})}
+                                        />
                                     </div>
                                     <div className="grid grid-cols-[165px_1fr] items-center gap-2 pr-8">
                                         <label className="text-[11px] text-[#202020] font-[Arial]">Categoría</label>

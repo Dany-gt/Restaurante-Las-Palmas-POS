@@ -83,77 +83,45 @@ const CustomSelect = ({ value, onChange, options, placeholder = "SELECCIONAR..."
 const SmartPriceInput = ({ value, onChange, className = "" }: any) => {
     const [isFocused, setIsFocused] = React.useState(false);
     
-    // Obtener qué ceros faltan por completar (.00, 0 o nada)
-    const getSuffix = () => {
-        const valStr = String(value || "");
-        if (!valStr || !valStr.includes('.')) return ".00";
-        const parts = valStr.split('.');
-        if (parts[1].length === 0) return "00";
-        if (parts[1].length === 1) return "0";
-        return "";
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === '.') {
-            const input = e.currentTarget;
-            if (!input.value.includes('.')) {
-                e.preventDefault();
-                onChange((String(value || "0").replace(/[^0-9]/g, '')) + ".");
-            }
-        }
-    };
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // Solo dejamos los números y el punto
         let raw = e.target.value.toUpperCase().replace('Q', '').replace(/[^0-9.]/g, '');
-        
         const parts = raw.split('.');
         if (parts.length > 2) raw = parts[0] + '.' + parts.slice(1).join('');
-        
-        // Limitar a 2 decimales reales
         if (parts.length === 2 && parts[1].length > 2) {
             raw = parts[0] + '.' + parts[1].substring(0, 2);
         }
-        
         onChange(raw);
     };
 
-    const displayValue = value ? `Q${value}` : (isFocused ? "Q" : "Q0");
-    const suffix = getSuffix();
+    const displayValue = isFocused 
+        ? (value ? `Q${value}` : "Q")
+        : (value ? `Q${parseFloat(value).toFixed(2)}` : "Q0.00");
 
     const inputRef = React.useRef<HTMLInputElement>(null);
 
     return (
         <div 
-            className={`flex-1 flex items-center border border-gray-300 bg-white h-[28px] shadow-sm relative cursor-text ${className}`}
+            className={`flex-1 flex items-center border border-gray-300 bg-white h-[28px] shadow-sm relative cursor-text px-2 ${className}`}
             onClick={() => inputRef.current?.focus()}
         >
-            <div className="flex-1 h-full flex items-center justify-center overflow-hidden pointer-events-none">
-                <div className="flex items-center relative">
-                    <span className="text-[11px] font-bold text-transparent select-none">{suffix}</span>
-                    <input
-                        ref={inputRef}
-                        type="text"
-                        className="w-auto min-w-[10px] h-full text-[11px] font-bold outline-none bg-transparent text-center text-slate-900 pointer-events-auto selection:bg-[#3399ff] selection:text-white"
-                        style={{ width: `${Math.max(displayValue.length * 7.5, 20)}px` }}
-                        value={displayValue}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyDown}
-                        onFocus={(e) => {
-                            setIsFocused(true);
-                            setTimeout(() => e.target.select(), 0);
-                        }}
-                        onBlur={() => {
-                            setIsFocused(false);
-                            if (value) {
-                                const num = parseFloat(value);
-                                if (!isNaN(num)) onChange(num.toFixed(2));
-                            }
-                        }}
-                    />
-                    <span className="text-[11px] font-bold text-slate-900 select-none">{suffix}</span>
-                </div>
-            </div>
+            <input
+                ref={inputRef}
+                type="text"
+                className="w-full h-5 text-[11px] font-bold outline-none bg-transparent text-center text-slate-900 selection:bg-[#3399ff] selection:text-white"
+                value={displayValue}
+                onChange={handleChange}
+                onFocus={(e) => {
+                    setIsFocused(true);
+                    setTimeout(() => e.target.select(), 0);
+                }}
+                onBlur={() => {
+                    setIsFocused(false);
+                    if (value) {
+                        const num = parseFloat(value);
+                        if (!isNaN(num)) onChange(num.toFixed(2));
+                    }
+                }}
+            />
         </div>
     );
 };
@@ -167,6 +135,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
 }) => {
     const [activeTab, setActiveTab] = useState<'sucursales' | 'opciones'>('sucursales');
     const [uploadingImage, setUploadingImage] = useState(false);
+    const [removeBG, setRemoveBG] = useState(true);
     const [batchTool, setBatchTool] = useState({
         price: '0.00',
         delivery_price: '0.00',
@@ -180,8 +149,11 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
 
         setUploadingImage(true);
         try {
-            const blob = await removeBackground(file);
-            const processedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".png", { type: "image/png" });
+            let processedFile = file;
+            if (removeBG) {
+                const blob = await removeBackground(file);
+                processedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".png", { type: "image/png" });
+            }
 
             const fileName = `platillo-${Math.random()}-${Date.now()}.png`;
             const filePath = `products/${fileName}`;
@@ -232,6 +204,16 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                 >
                                     {uploadingImage ? <Loader2 size={18} className="animate-spin text-white/80" /> : <ImageIcon size={20} className="text-white/80" />}
                                 </button>
+                                <div className="flex items-center gap-2 px-3 border-l border-white/20 h-full">
+                                    <input 
+                                        type="checkbox" 
+                                        id="removeBG"
+                                        checked={removeBG}
+                                        onChange={(e) => setRemoveBG(e.target.checked)}
+                                        className="w-3.5 h-3.5 accent-white cursor-pointer"
+                                    />
+                                    <label htmlFor="removeBG" className="text-[10px] font-bold text-white/80 cursor-pointer select-none whitespace-nowrap">REMOVER FONDO</label>
+                                </div>
                                 <WindowsSaveButton 
                                     onClick={handleSave}
                                     loading={isSaving}
