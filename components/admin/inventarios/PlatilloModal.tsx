@@ -4,7 +4,11 @@ import { X, Save, Image as ImageIcon, FileText, Layers, Trash2, ChevronDown, Loa
 import { DraggableWindow } from '../shared/DraggableWindow';
 import { WindowsSaveButton } from '../../WindowsSaveButton';
 import { supabase } from '../../../supabase';
-import { removeBackground } from '@imgly/background-removal';
+import { pipeline, env } from '@xenova/transformers';
+
+// Configurar transformers para que sea eficiente en el navegador
+env.allowLocalModels = false;
+env.useBrowserCache = true;
 
 interface PlatilloModalProps {
     isOpen: boolean;
@@ -135,7 +139,6 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
 }) => {
     const [activeTab, setActiveTab] = useState<'sucursales' | 'opciones'>('sucursales');
     const [uploadingImage, setUploadingImage] = useState(false);
-    const [removeBG, setRemoveBG] = useState(true);
     const [batchTool, setBatchTool] = useState({
         price: '0.00',
         delivery_price: '0.00',
@@ -148,12 +151,25 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
         if (!file) return;
 
         setUploadingImage(true);
+        let imageUrl = '';
         try {
-            let processedFile = file;
-            if (removeBG) {
-                const blob = await removeBackground(file);
-                processedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".png", { type: "image/png" });
-            }
+            imageUrl = URL.createObjectURL(file);
+            
+            // 1. Obtener el segmentador (Cargará el modelo la primera vez)
+            const segmenter = await pipeline('image-segmentation', 'Xenova/rmbg-1.4');
+            
+            // 2. Procesar la imagen
+            const output = await segmenter(imageUrl);
+            
+            // 3. Convertir el canvas resultante a Blob
+            const blob = await new Promise<Blob>((resolve, reject) => {
+                output.canvas.toBlob((b: Blob | null) => {
+                    if (b) resolve(b);
+                    else reject(new Error('Error al generar el recorte'));
+                }, 'image/png');
+            });
+
+            const processedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".png", { type: "image/png" });
 
             const fileName = `platillo-${Math.random()}-${Date.now()}.png`;
             const filePath = `products/${fileName}`;
@@ -165,9 +181,10 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
             setNewProduct({ ...newProduct, image_url: publicUrl });
         } catch (error: any) {
             console.error('Error al subir imagen:', error);
-            alert('Error al subir la imagen y remover fondo: ' + error.message);
+            alert('Error al procesar imagen inteligente: ' + error.message);
         } finally {
             setUploadingImage(false);
+            if (imageUrl) URL.revokeObjectURL(imageUrl);
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
@@ -200,20 +217,10 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                     onClick={() => fileInputRef.current?.click()}
                                     disabled={uploadingImage}
                                     className="h-full px-3 flex items-center justify-center hover:bg-white/10 transition-colors disabled:opacity-50"
-                                    title="Subir Imagen"
+                                    title="Subir Imagen Inteligente"
                                 >
                                     {uploadingImage ? <Loader2 size={18} className="animate-spin text-white/80" /> : <ImageIcon size={20} className="text-white/80" />}
                                 </button>
-                                <div className="flex items-center gap-2 px-3 border-l border-white/20 h-full">
-                                    <input 
-                                        type="checkbox" 
-                                        id="removeBG"
-                                        checked={removeBG}
-                                        onChange={(e) => setRemoveBG(e.target.checked)}
-                                        className="w-3.5 h-3.5 accent-white cursor-pointer"
-                                    />
-                                    <label htmlFor="removeBG" className="text-[10px] font-bold text-white/80 cursor-pointer select-none whitespace-nowrap">REMOVER FONDO</label>
-                                </div>
                                 <WindowsSaveButton 
                                     onClick={handleSave}
                                     loading={isSaving}
