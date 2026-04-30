@@ -154,17 +154,39 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
             formData.append('crop', 'true');
             formData.append('margin', '20%');
 
-            const response = await fetch('https://api.remove.bg/v1.0/removebg', {
-                method: 'POST',
-                headers: {
-                    'X-Api-Key': (import.meta as any).env?.VITE_REMOVE_BG_API_KEY || ''
-                },
-                body: formData
-            });
+            const keysString = (import.meta as any).env?.VITE_REMOVE_BG_API_KEYS || (import.meta as any).env?.VITE_REMOVE_BG_API_KEY || '';
+            const apiKeys = keysString.split(',').map((k: string) => k.trim()).filter((k: string) => k !== '');
+            
+            let response: Response | null = null;
+            let lastError = '';
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.errors?.[0]?.title || 'Error en remove.bg');
+            for (const key of apiKeys) {
+                try {
+                    const currentResponse = await fetch('https://api.remove.bg/v1.0/removebg', {
+                        method: 'POST',
+                        headers: { 'X-Api-Key': key },
+                        body: formData
+                    });
+
+                    if (currentResponse.ok) {
+                        response = currentResponse;
+                        break; 
+                    } else {
+                        const errorData = await currentResponse.json();
+                        lastError = errorData.errors?.[0]?.title || 'Error en remove.bg';
+                        
+                        if (currentResponse.status !== 402 && currentResponse.status !== 429) {
+                            throw new Error(lastError);
+                        }
+                    }
+                } catch (err: any) {
+                    if (!apiKeys.includes(key)) throw err; 
+                    console.warn(`Llave fallida, probando siguiente...`);
+                }
+            }
+
+            if (!response || !response.ok) {
+                throw new Error(lastError || 'No hay créditos disponibles en ninguna de las llaves.');
             }
 
             const blob = await response.blob();
