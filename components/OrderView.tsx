@@ -194,6 +194,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const [showTransferModal, setShowTransferModal] = useState(false);
     const [showTransferWaiterModal, setShowTransferWaiterModal] = useState(false);
     const [showAccountsModal, setShowAccountsModal] = useState(false);
+    const [showTakeoutClientModal, setShowTakeoutClientModal] = useState(false);
+    const [takeoutData, setTakeoutData] = useState({ name: '', phone: '' });
     const [showDeliveryPaymentModal, setShowDeliveryPaymentModal] = useState(false);
     const [showVoidModal, setShowVoidModal] = useState(false);
     const [itemToVoid, setItemToVoid] = useState<OrderItem | null>(null);
@@ -1643,7 +1645,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         setProcessing(false);
     };
 
-    const handleOrderSubmission = async (paymentMethod?: string): Promise<string | undefined> => {
+    const handleOrderSubmission = async (paymentMethod?: string, customerInfo?: { name: string, phone: string }): Promise<string | undefined> => {
         const unsentItems = items.filter(i => !i.is_sent);
         if (processing || items.length === 0 || (activeOrderId && unsentItems.length === 0)) return;
 
@@ -1652,6 +1654,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
         const nowWithOffset = new Date(Date.now() + serverOffset);
 
+        // Update initialOrder if customerInfo provided
+        if (customerInfo) {
+            initialOrder.customer_name = customerInfo.name;
+            initialOrder.customer_phone = customerInfo.phone;
+        }
+
         // Prepare Data Bundle for Offline Storage/Sync
         const orderData = {
             id: finalOrderId,
@@ -1659,8 +1667,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 table_id: table?.id,
                 status: 'pending',
                 order_type: initialOrder.order_type || 'DINE_IN',
-                customer_phone: initialOrder.customer_phone,
-                customer_name: initialOrder.customer_name,
+                customer_phone: customerInfo?.phone || initialOrder.customer_phone,
+                customer_name: customerInfo?.name || initialOrder.customer_name,
                 delivery_address: initialOrder.delivery_address,
                 customer_id: initialOrder.customer_id,
                 platform_id: initialOrder.platform_id,
@@ -1969,9 +1977,17 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 <div className="flex items-center gap-3 text-xs md:text-sm lg:text-xs font-bold uppercase tracking-wider text-gray-300">
                     <span>Orden: #{tableOrders.find(o => o.id === activeOrderId)?.order_number || initialOrder.order_number || '...'}</span>
                     <span className="text-gray-600">|</span>
-                    <span className="text-indigo-400">{table?.section || 'SALA'}</span>
-                    <span className="text-gray-600">|</span>
-                    <span>Mesa: <span className="text-white text-base lg:text-sm">{table?.number || (initialOrder.order_type === 'DELIVERY' ? 'DOM' : 'LLE')}</span></span>
+                    <span className="text-indigo-400">
+                        {initialOrder.order_type === 'TAKEOUT' ? 'PARA LLEVAR' : 
+                         initialOrder.order_type === 'DELIVERY' ? 'DOMICILIO' : 
+                         (table?.section || 'SALA')}
+                    </span>
+                    {table?.number && (
+                        <>
+                            <span className="text-gray-600">|</span>
+                            <span>Mesa: {table.number}</span>
+                        </>
+                    )}
                     {activeOrderId && tableOrders.length > 1 && (
                         <>
                             <span className="text-gray-600">|</span>
@@ -2463,15 +2479,17 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         if (processing || checkoutItems.length === 0 || (activeOrderId && unsentItems.length === 0) || (!activeOrderId && tableOrders.length > 0)) return;
 
                                         // CHECK FOR DELIVERY ORDER TYPE
-                                        // Use initialOrder.order_type as fallback for new orders
                                         const currentOrderType = tableOrders.find(o => o.id === activeOrderId)?.order_type || initialOrder.order_type;
 
-                                        // Just check if it is DELIVERY.
-                                        // We can show it even if activeOrderId exists (maybe they want to change payment method?)
-                                        // But definitely for new orders.
                                         if (currentOrderType === 'DELIVERY') {
                                             console.log('Is Delivery Order, showing Modal');
                                             setShowDeliveryPaymentModal(true);
+                                            return;
+                                        }
+
+                                        // v1.6.5 - For TAKEOUT, ask for client data before submission if missing
+                                        if (currentOrderType === 'TAKEOUT' && !initialOrder.customer_name) {
+                                            setShowTakeoutClientModal(true);
                                             return;
                                         }
 
@@ -2646,6 +2664,67 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     itemContext={discountingItem ? "Producto" : "Mesa"}
                 />
                 <InvoiceModal isOpen={showInvoiceModal} onClose={() => setShowInvoiceModal(false)} onSubmit={handleInvoiceSubmit} total={total + tipAmount} />
+                
+                {/* Modal para capturar datos de cliente en Para Llevar */}
+                {showTakeoutClientModal && (
+                    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6 animate-fade-in">
+                        <div className="w-full max-w-[400px] bg-[#2b2d3d] rounded-[32px] border border-white/10 shadow-2xl overflow-hidden animate-scale-up">
+                            <div className="bg-[#1e1f2b] p-6 border-b border-white/5 flex flex-col items-center">
+                                <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center mb-3">
+                                    <Package className="text-amber-500" size={24} />
+                                </div>
+                                <h3 className="text-lg font-black text-white uppercase tracking-tighter">Datos para Llevar</h3>
+                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Nombre y teléfono requeridos</p>
+                            </div>
+
+                            <div className="p-8 space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nombre del Cliente</label>
+                                    <input
+                                        autoFocus
+                                        type="text"
+                                        value={takeoutData.name}
+                                        onChange={(e) => setTakeoutData(prev => ({ ...prev, name: e.target.value.toUpperCase() }))}
+                                        placeholder="EJ: JUAN PEREZ"
+                                        className="w-full bg-black/20 border border-white/10 rounded-2xl p-4 text-white focus:border-amber-500/50 outline-none transition-all font-bold text-sm"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Teléfono</label>
+                                    <input
+                                        type="tel"
+                                        value={takeoutData.phone}
+                                        onChange={(e) => setTakeoutData(prev => ({ ...prev, phone: e.target.value }))}
+                                        placeholder="0000-0000"
+                                        className="w-full bg-black/20 border border-white/10 rounded-2xl p-4 text-white focus:border-amber-500/50 outline-none transition-all font-bold text-sm"
+                                    />
+                                </div>
+
+                                <div className="flex gap-4 pt-4">
+                                    <button
+                                        onClick={() => setShowTakeoutClientModal(false)}
+                                        className="flex-1 py-4 border border-white/10 rounded-2xl font-black text-[10px] text-gray-400 uppercase tracking-widest hover:bg-white/5 transition-all"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            if (!takeoutData.name.trim()) return;
+                                            setShowTakeoutClientModal(false);
+                                            handleOrderSubmission(undefined, takeoutData);
+                                        }}
+                                        disabled={!takeoutData.name.trim() || processing}
+                                        className="flex-1 py-4 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-amber-900/20 active:scale-95 transition-all"
+                                    >
+                                        {processing ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'CONFIRMAR ORDEN'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {table && <TransferTableModal isOpen={showTransferModal} onClose={() => setShowTransferModal(false)} currentTable={table} onTransfer={handleTableTransfer} />}
                 <TransferWaiterModal
                     isOpen={showTransferWaiterModal}

@@ -554,6 +554,22 @@ const App: React.FC = () => {
   }, []);
 
   const handleNavigate = (view: string) => {
+    // v1.6.5 - Direct TAKEOUT navigation with virtual order
+    if (view === 'TAKEOUT') {
+      setSelectedTable(null);
+      setActiveOrder({
+        id: null as any,
+        order_number: '000',
+        order_type: 'TAKEOUT',
+        status: 'pending',
+        waiter_id: currentUser?.id || '',
+        customer_name: '',
+        customer_phone: ''
+      } as any);
+      setCurrentView('ORDER');
+      return;
+    }
+
     // SECURITY: Admin Route Protection
     if (view.startsWith('ADMIN_')) {
       if (!currentUser || currentUser.role !== 'ADMIN') {
@@ -1287,7 +1303,6 @@ const App: React.FC = () => {
             {currentView === 'KDS_STATION_SELECT' && <KdsStationSelector onSelect={() => setCurrentView('KITCHEN')} onLogout={() => { setCurrentUser(null); setCurrentView('LOGIN'); }} />}
             {currentView === 'DELIVERY' && <DispatchView type="DELIVERY" onCreateOrder={handleCreateDispatchOrder} onEditOrder={handleReopenOrder} onBack={navigateBack} initialMode="NEW" currentUser={currentUser} />}
             {currentView === 'DELIVERY_LIST' && <DispatchView type="DELIVERY" onCreateOrder={handleCreateDispatchOrder} onEditOrder={handleReopenOrder} onBack={navigateBack} initialMode="LIST" currentUser={currentUser} />}
-            {currentView === 'TAKEOUT' && <DispatchView type="TAKEOUT" onCreateOrder={handleCreateDispatchOrder} onEditOrder={handleReopenOrder} onBack={navigateBack} initialMode="LIST" currentUser={currentUser} />}
 
             {currentView === 'HISTORY' && <OrderViewer onBack={() => setCurrentView('DASHBOARD')} onOpenOrder={handleReopenOrder} currentUser={currentUser} />}
             {currentView === 'BILLING_VIEWER' && (

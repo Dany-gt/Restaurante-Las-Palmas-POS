@@ -258,9 +258,9 @@ export const DispatchView: React.FC<{
     // For DELIVERY with initialMode NEW, show quick modal immediately
     const [showClientSelector, setShowClientSelector] = useState(false);
 
-    // Effect to auto-open client selector when entering DELIVERY with NEW mode
+    // Effect to auto-open client selector when entering DELIVERY or TAKEOUT with NEW mode
     useEffect(() => {
-        if (type === 'DELIVERY' && initialMode === 'NEW') {
+        if ((type === 'DELIVERY' || type === 'TAKEOUT') && initialMode === 'NEW') {
             setShowClientSelector(true);
         }
     }, [initialMode, type]);
