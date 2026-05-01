@@ -18,9 +18,13 @@ const ProductCard: React.FC<{ product: Product, currency: string }> = ({ product
         relative overflow-hidden rounded-lg cursor-default transition-all bg-[#2b2f3a] border border-white/5 aspect-square flex flex-col p-2
         ${product.is_enabled !== false ? 'opacity-100' : 'opacity-50'}
     `}>
-        <div className="flex-1 flex flex-col items-center justify-center w-full mb-1">
+        <div className="flex-1 flex flex-col items-center justify-center w-full mb-1 p-5 overflow-hidden">
             {product.image_url ? (
-                <img src={product.image_url} alt={product.name} className="w-full h-full object-cover rounded-md opacity-90" />
+                <img 
+                    src={product.image_url} 
+                    alt={product.name} 
+                    className="max-w-full max-h-full object-contain rounded-md opacity-90 transition-transform duration-300" 
+                />
             ) : (
                 <PlaceholderLogo />
             )}
@@ -142,9 +146,13 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
                                         onClick={() => setSelectedCat(cat)}
                                         className="group relative aspect-square bg-[#2b2f3a] rounded-lg p-3 flex flex-col items-center justify-between border-2 border-transparent hover:border-[#106ebe] transition-all shadow-md overflow-hidden"
                                     >
-                                        <div className="flex-1 flex flex-col items-center justify-center w-full mb-2">
+                                        <div className="flex-1 flex flex-col items-center justify-center w-full mb-2 p-5 overflow-hidden">
                                             {cat.imagen_url ? (
-                                                <img src={cat.imagen_url} alt={cat.nombre} className="w-full h-full object-cover rounded-md opacity-90 group-hover:scale-110 transition-transform duration-500" />
+                                                <img 
+                                                    src={cat.imagen_url} 
+                                                    alt={cat.nombre} 
+                                                    className="max-w-full max-h-full object-contain rounded-md opacity-90 group-hover:scale-110 transition-transform duration-500" 
+                                                />
                                             ) : (
                                                 <PlaceholderLogo />
                                             )}
@@ -161,9 +169,13 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
                                                 onClick={() => setSelectedSubCat(sub)}
                                                 className="group relative aspect-square bg-[#2b2f3a] rounded-lg p-3 flex flex-col items-center justify-between border-2 border-transparent hover:border-[#106ebe] transition-all shadow-md overflow-hidden"
                                             >
-                                                <div className="flex-1 flex flex-col items-center justify-center w-full mb-2">
+                                                <div className="flex-1 flex flex-col items-center justify-center w-full mb-2 p-5 overflow-hidden">
                                                     {sub.imagen_url ? (
-                                                        <img src={sub.imagen_url} alt={sub.nombre} className="w-full h-full object-cover rounded-md opacity-90 group-hover:scale-110 transition-transform duration-500" />
+                                                        <img 
+                                                            src={sub.imagen_url} 
+                                                            alt={sub.nombre} 
+                                                            className="max-w-full max-h-full object-contain rounded-md opacity-90 group-hover:scale-110 transition-transform duration-500" 
+                                                        />
                                                     ) : (
                                                         <PlaceholderLogo />
                                                     )}
