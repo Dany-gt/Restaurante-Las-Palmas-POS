@@ -66,8 +66,6 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
             const newVal = prev === '0.00' || prev === '0' ? key : prev + key;
             return newVal;
         });
-        // Keep focus on name input so user can hit Enter
-        nameInputRef.current?.focus();
     };
 
     const handleAddItem = () => {

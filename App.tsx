@@ -748,7 +748,10 @@ const App: React.FC = () => {
 
   // Global KDS Notifications (New Orders) - For Admins and Kitchen
   useEffect(() => {
-    if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'COCINA')) return;
+    if (!currentUser) return;
+    // roles that need KDS sounds (Admin/Cocina for new orders, Mesero for ready orders)
+    const needsKdsSound = ['ADMIN', 'COCINA', 'MESERO', 'SUPERVISOR', 'CAJERO'].includes(currentUser.role);
+    if (!needsKdsSound) return;
 
     const loadKdsSound = async () => {
       try {
@@ -767,20 +770,60 @@ const App: React.FC = () => {
     };
     loadKdsSound();
 
-    const kdsChannel = supabase.channel('kds_global_new_orders')
+    const kdsChannel = supabase.channel('kds_global_updates')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, async (payload) => {
-        // Prevent double sound if user is already in KitchenView
+        // 1. New Order Alert (for Admin/Kitchen)
+        if (currentUser.role !== 'ADMIN' && currentUser.role !== 'COCINA') return;
         if (currentView === 'KITCHEN') return;
 
         console.log('🔊 [App] Global KDS Order detected (INSERT)');
-        if (globalSoundSet.enabled) {
-          const url = kdsSoundUrlRef.current;
-          if (url) {
-            const audio = new Audio(url);
-            audio.volume = globalSoundSet.volume || 0.8;
-            console.log('🔊 [App] Playing Global KDS Alert...');
-            audio.play().catch(e => console.warn('KDS Global sound blocked:', e));
-          }
+        playKdsAlert();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'order_items' }, async (payload) => {
+        // 2. Ready Item Alert (for Waiters)
+        const oldStatus = payload.old?.status;
+        const newStatus = payload.new?.status;
+
+        if (newStatus === 'ready' && oldStatus !== 'ready') {
+          console.log('🔔 [App] Item Ready detected:', payload.new.product_name);
+          
+          // Fetch additional context (Table number)
+          try {
+            const { data: orderData } = await supabase
+              .from('orders')
+              .select('table_id, waiter_id, customer_name, tables(number)')
+              .eq('id', payload.new.order_id)
+              .single();
+
+            if (orderData) {
+              // Only notify the assigned waiter (or everyone if admin)
+              const isMyOrder = orderData.waiter_id === currentUser.id;
+              const isAdmin = ['ADMIN', 'SUPERVISOR', 'CAJERO'].includes(currentUser.role);
+              
+              if (isMyOrder || isAdmin) {
+                const tableNum = (orderData.tables as any)?.number || orderData.customer_name || 'General';
+                const msg = `Mesa ${tableNum}: ${payload.new.product_name} está LISTO`;
+                
+                // Show system notification
+                if (Notification.permission === 'granted') {
+                  new Notification('Platillo Listo', {
+                    body: msg,
+                    icon: '/pwa-192.png',
+                    tag: `ready-${payload.new.id}`
+                  });
+                }
+
+                // Show in-app notification
+                const event = new CustomEvent('app-notification', {
+                    detail: { type: 'SUCCESS', message: msg }
+                });
+                window.dispatchEvent(event);
+
+                // Play sound
+                playKdsAlert();
+              }
+            }
+          } catch (e) { console.warn('[App] Error processing ready notification', e); }
         }
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'system_settings' }, () => {
@@ -789,7 +832,18 @@ const App: React.FC = () => {
       .subscribe();
 
     return () => { supabase.removeChannel(kdsChannel); };
-  }, [currentUser, currentView]); // Removed globalSoundSet dependencies to avoid loops
+  }, [currentUser, currentView, globalSoundSet.enabled]);
+
+  const playKdsAlert = () => {
+    if (globalSoundSet.enabled) {
+      const url = kdsSoundUrlRef.current;
+      if (url) {
+        const audio = new Audio(url);
+        audio.volume = globalSoundSet.volume || 0.8;
+        audio.play().catch(e => console.warn('KDS Global sound blocked:', e));
+      }
+    }
+  };
 
   const handleSelectTable = async (table: Table, pax: number = 1) => {
     setSelectedTable(table);
