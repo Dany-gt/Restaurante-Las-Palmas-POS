@@ -22,6 +22,15 @@
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
     <script>
+        // Registrar Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('Service Worker registrado', reg))
+                    .catch(err => console.log('Error al registrar Service Worker', err));
+            });
+        }
+
         // Prevenir pull-to-refresh y zoom de "pellizco" rebeldes mediante JS
         document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
         document.addEventListener('gesturechange', function (e) { e.preventDefault(); });

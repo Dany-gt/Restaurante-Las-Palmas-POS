@@ -3,6 +3,7 @@
     "short_name": "Las Palmas",
     "id": "/",
     "start_url": "/",
+    "scope": "/",
     "display": "fullscreen",
     "display_override": [
         "fullscreen",
