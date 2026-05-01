@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { DateUtils } from '../utils/DateUtils';
 import { Order, Table, Product, Category, OrderItem, User } from '../types';
 import { Bell, BellOff, ChevronLeft, Trash2, Printer, CheckCircle, Search, Plus, Minus, Info, Loader2, ShoppingCart as ShoppingCartIcon, CreditCard, FileText, Receipt, Ban, Users, Percent, Settings2, Utensils, Truck, Package, MapPin, Edit3, Banknote, Split, Image, ArrowRightLeft, Mic, MicOff, UserPlus, Grid, UsersRound } from 'lucide-react';
@@ -2666,9 +2667,21 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 <InvoiceModal isOpen={showInvoiceModal} onClose={() => setShowInvoiceModal(false)} onSubmit={handleInvoiceSubmit} total={total + tipAmount} />
                 
                 {/* Modal para capturar datos de cliente en Para Llevar */}
-                {showTakeoutClientModal && (
-                    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6 animate-fade-in">
-                        <div className="w-full max-w-[400px] bg-[#2b2d3d] rounded-[32px] border border-white/10 shadow-2xl overflow-hidden animate-scale-up">
+                <AnimatePresence>
+                    {showTakeoutClientModal && (
+                    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/40 p-6 no-scrollbar overflow-hidden">
+                        <motion.div 
+                            drag
+                            dragMomentum={false}
+                            className="w-full max-w-[400px] bg-[#2b2d3d] rounded-[32px] border border-white/10 shadow-2xl overflow-hidden cursor-default"
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            transition={{ duration: 0.1 }}
+                        >
+                            {/* Drag Handle */}
+                            <div className="h-2 w-12 bg-white/10 rounded-full mx-auto mt-4 mb-2 touch-none cursor-grab active:cursor-grabbing" />
+                            
                             <div className="bg-[#1e1f2b] p-6 border-b border-white/5 flex flex-col items-center">
                                 <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center mb-3">
                                     <Package className="text-amber-500" size={24} />
@@ -2694,6 +2707,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Teléfono</label>
                                     <input
                                         type="tel"
+                                        data-keyboard="numeric"
                                         value={takeoutData.phone}
                                         onChange={(e) => setTakeoutData(prev => ({ ...prev, phone: e.target.value }))}
                                         placeholder="0000-0000"
@@ -2721,9 +2735,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 )}
+                </AnimatePresence>
 
                 {table && <TransferTableModal isOpen={showTransferModal} onClose={() => setShowTransferModal(false)} currentTable={table} onTransfer={handleTableTransfer} />}
                 <TransferWaiterModal

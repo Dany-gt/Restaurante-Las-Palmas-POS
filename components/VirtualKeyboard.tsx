@@ -186,7 +186,7 @@ export const VirtualKeyboard: React.FC = () => {
 
             // EXCLUSIONS
             if (['button', 'submit', 'checkbox', 'radio', 'hidden', 'file'].includes(input.type)) return;
-            if (input.type === 'number' || input.type === 'tel' || input.hasAttribute('data-no-keyboard')) {
+            if (input.hasAttribute('data-no-keyboard')) {
                 setIsVisible(false);
                 return;
             }
@@ -304,7 +304,7 @@ export const VirtualKeyboard: React.FC = () => {
         if (!activeElement) return;
 
         // Custom handling for numpad buttons to ensure they insert at cursor
-        if (button.match(/^[0-9]$/)) {
+        if (button.match(/^[0-9\-]$/)) {
             const start = activeElement.selectionStart || 0;
             const end = activeElement.selectionEnd || 0;
             const val = currentValueRef.current;
@@ -381,7 +381,8 @@ export const VirtualKeyboard: React.FC = () => {
             "7 8 9",
             "4 5 6",
             "1 2 3",
-            "{backspace} 0 {enter}"
+            "{backspace} 0 -",
+            "{enter}"
         ]
     };
 
