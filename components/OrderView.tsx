@@ -2726,7 +2726,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     <div className="relative">
                                         <input
                                             id="hidden-takeout-phone"
-                                            type="tel"
+                                            type="text"
                                             value={takeoutData.phone}
                                             onChange={(e) => setTakeoutData(prev => ({ ...prev, phone: e.target.value }))}
                                             inputMode="none"
