@@ -178,46 +178,81 @@ export const VirtualKeyboard: React.FC = () => {
     useEffect(() => {
         const handleInputInteraction = (e: Event) => {
             const target = e.target as HTMLElement;
-            const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+            if (!target) return;
+
+            const isFocusEvent = e.type === 'focusin';
+            const isClickEvent = e.type === 'click' || e.type === 'touchstart';
             
-            if (!isInput) return;
+            const isVirtualInput = target.hasAttribute('data-virtual-input');
+            const isRealInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
 
-            const input = target as HTMLInputElement | HTMLTextAreaElement;
+            // Logic:
+            // 1. Focusin handles real inputs.
+            // 2. Click handles proxy divs.
+            // 3. We prefer the real input if both events happen (focusin will win).
+            
+            let elementToActivate: HTMLElement | null = null;
 
+            if (isFocusEvent && (isRealInput || isVirtualInput)) {
+                elementToActivate = target;
+            } else if (isClickEvent && target.tagName === 'DIV' && isVirtualInput) {
+                // For proxy divs, we wait a tiny bit to see if they focus a real input
+                setTimeout(() => {
+                    if (document.activeElement && 
+                        (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') && 
+                        document.activeElement.hasAttribute('data-virtual-input')) {
+                        return; // Let focusin handle it
+                    }
+                    setActiveElement(target);
+                    setIsVisible(true);
+                    syncKeyboard(target);
+                }, 50);
+                return;
+            }
+
+            if (elementToActivate) {
+                setActiveElement(elementToActivate);
+                setIsVisible(true);
+                syncKeyboard(elementToActivate);
+            } else if (isClickEvent) {
+                // Hide if clicked outside
+                const keyboardEl = document.querySelector('.virtual-keyboard-container');
+                if (keyboardEl && !keyboardEl.contains(target)) {
+                    setIsVisible(false);
+                }
+            }
+        };
+
+        const syncKeyboard = (input: HTMLElement) => {
             // EXCLUSIONS
-            if (['button', 'submit', 'checkbox', 'radio', 'hidden', 'file'].includes(input.type)) return;
+            if (input instanceof HTMLInputElement && ['button', 'submit', 'checkbox', 'radio', 'hidden', 'file'].includes(input.type)) return;
             if (input.hasAttribute('data-no-keyboard')) {
                 setIsVisible(false);
                 return;
             }
 
-            setActiveElement(input);
-            setIsVisible(true);
+            // Determine mode
+            const keyboardMode = input.getAttribute('data-keyboard') || (input as any).dataset?.keyboard;
+            const isNumeric = (input instanceof HTMLInputElement && (input.type === 'number' || input.type === 'tel')) || keyboardMode === 'numeric' || keyboardMode === 'tel';
+            
+            setShowNumpadOnly(isNumeric);
 
-            // Auto-capitalize at start of input or after sentence-ending punctuation
-            if (!showNumpadOnly) {
-                const shouldCap = shouldAutoCapitalize(input.value);
+            // Auto-capitalize logic
+            if (!isNumeric) {
+                const val = input.tagName === 'DIV' ? input.innerText : (input as HTMLInputElement).value;
+                const shouldCap = shouldAutoCapitalize(val);
                 setIsShift(shouldCap);
             }
 
-            // Suppress native OS keyboard ONLY on mobile/tablets, NOT on Electron/Desktop
-            // This allows physical keyboard to work properly on desktop
+            // Suppress native keyboard
             const isElectron = (window as any).electron;
             const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-
             if (!isElectron && isTouchDevice) {
                 input.setAttribute('inputmode', 'none');
             }
 
-            // Determine mode
-            if (input.type === 'number' || input.type === 'tel' || input.dataset.keyboard === 'numeric') {
-                setShowNumpadOnly(true);
-            } else {
-                setShowNumpadOnly(false);
-            }
-
-            // Sync keyboard value immediately
-            const val = input.value;
+            // Sync values
+            const val = input.tagName === 'DIV' ? input.innerText : (input as HTMLInputElement).value;
             currentValueRef.current = val;
             if (keyboardMain.current) keyboardMain.current.setInput(val);
             if (keyboardNumpad.current) keyboardNumpad.current.setInput(val);
@@ -235,12 +270,14 @@ export const VirtualKeyboard: React.FC = () => {
         };
 
         document.addEventListener('click', handleInputInteraction);
-        document.addEventListener('touchstart', handleInputInteraction); // Para tablets
-        document.addEventListener('input', handlePhysicalInput); // Sync physical typing
+        document.addEventListener('touchstart', handleInputInteraction); 
+        document.addEventListener('focusin', handleInputInteraction); 
+        document.addEventListener('input', handlePhysicalInput);
 
         return () => {
             document.removeEventListener('focusin', handleInputInteraction);
             document.removeEventListener('click', handleInputInteraction);
+            document.removeEventListener('touchstart', handleInputInteraction);
             document.removeEventListener('input', handlePhysicalInput);
         };
     }, []);
@@ -274,8 +311,17 @@ export const VirtualKeyboard: React.FC = () => {
         if (setter) {
             setter.call(activeElement, finalInput);
             activeElement.dispatchEvent(new Event('input', { bubbles: true }));
+            activeElement.dispatchEvent(new Event('change', { bubbles: true }));
+        } else if (activeElement.tagName === 'DIV') {
+            activeElement.innerText = finalInput;
+            // Force events for React components
+            activeElement.dispatchEvent(new CustomEvent('virtual-input', { detail: { value: finalInput }, bubbles: true }));
+            activeElement.dispatchEvent(new Event('input', { bubbles: true }));
+            activeElement.dispatchEvent(new Event('change', { bubbles: true }));
         } else {
-            activeElement.value = finalInput;
+            (activeElement as any).value = finalInput;
+            activeElement.dispatchEvent(new Event('input', { bubbles: true }));
+            activeElement.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
         // AUTO-CAPITALIZATION LOGIC
@@ -303,23 +349,25 @@ export const VirtualKeyboard: React.FC = () => {
     const onChangeNumpad = (button: string) => {
         if (!activeElement) return;
 
-        // Custom handling for numpad buttons to ensure they insert at cursor
+        const isInput = activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement;
+        const val = currentValueRef.current;
+
+        // Custom handling for numpad buttons
         if (button.match(/^[0-9\-]$/)) {
-            const start = activeElement.selectionStart || 0;
-            const end = activeElement.selectionEnd || 0;
-            const val = currentValueRef.current;
+            const start = isInput ? (activeElement as any).selectionStart || 0 : val.length;
+            const end = isInput ? (activeElement as any).selectionEnd || 0 : val.length;
             const newVal = val.slice(0, start) + button + val.slice(end);
 
-            // Move cursor forward
-            setTimeout(() => {
-                activeElement.setSelectionRange(start + 1, start + 1);
-            }, 0);
+            if (isInput) {
+                setTimeout(() => {
+                    (activeElement as any).setSelectionRange(start + 1, start + 1);
+                }, 0);
+            }
 
             onChange(newVal);
         } else if (button === '{backspace}') {
-            const start = activeElement.selectionStart || 0;
-            const end = activeElement.selectionEnd || 0;
-            const val = currentValueRef.current;
+            const start = isInput ? (activeElement as any).selectionStart || 0 : val.length;
+            const end = isInput ? (activeElement as any).selectionEnd || 0 : val.length;
             let newVal = val;
             let newPos = start;
 
@@ -331,13 +379,16 @@ export const VirtualKeyboard: React.FC = () => {
                 newPos = start - 1;
             }
 
-            setTimeout(() => {
-                activeElement.setSelectionRange(newPos, newPos);
-            }, 0);
+            if (isInput) {
+                setTimeout(() => {
+                    (activeElement as any).setSelectionRange(newPos, newPos);
+                }, 0);
+            }
 
             onChange(newVal);
         } else if (button === '{enter}') {
-            handleClose();
+            setIsVisible(false);
+            if (activeElement) activeElement.blur();
         } else {
             onChange(keyboardNumpad.current.getInput());
         }

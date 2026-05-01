@@ -196,6 +196,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const [showTransferWaiterModal, setShowTransferWaiterModal] = useState(false);
     const [showAccountsModal, setShowAccountsModal] = useState(false);
     const [showTakeoutClientModal, setShowTakeoutClientModal] = useState(false);
+    const [focusedField, setFocusedField] = useState<string | null>(null);
     const [takeoutData, setTakeoutData] = useState({ name: '', phone: '' });
     const [showDeliveryPaymentModal, setShowDeliveryPaymentModal] = useState(false);
     const [showVoidModal, setShowVoidModal] = useState(false);
@@ -2693,26 +2694,61 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             <div className="p-8 space-y-6">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nombre del Cliente</label>
-                                    <input
-                                        autoFocus
-                                        type="text"
-                                        value={takeoutData.name}
-                                        onChange={(e) => setTakeoutData(prev => ({ ...prev, name: e.target.value.toUpperCase() }))}
-                                        placeholder="EJ: JUAN PEREZ"
-                                        className="w-full bg-black/20 border border-white/10 rounded-2xl p-4 text-white focus:border-amber-500/50 outline-none transition-all font-bold text-sm"
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            id="hidden-takeout-name"
+                                            type="text"
+                                            value={takeoutData.name}
+                                            onChange={(e) => setTakeoutData(prev => ({ ...prev, name: e.target.value }))}
+                                            inputMode="none"
+                                            className="absolute inset-0 opacity-0 pointer-events-none z-0"
+                                            data-virtual-input
+                                        />
+                                        <div
+                                            data-virtual-input
+                                            data-keyboard="text"
+                                            tabIndex={0}
+                                            onClick={() => document.getElementById('hidden-takeout-name')?.focus()}
+                                            className={`w-full bg-black/20 border rounded-2xl p-4 text-white outline-none transition-all font-bold text-sm min-h-[56px] flex items-center cursor-text relative z-10 ${focusedField === 'name' ? 'border-amber-500 shadow-[0_0_0_1px_rgba(245,158,11,0.5)] virtual-input-focused' : 'border-white/10'}`}
+                                        >
+                                            {takeoutData.name}
+                                        </div>
+                                        {!takeoutData.name && (
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 opacity-50 font-bold text-sm pointer-events-none z-20">
+                                                EJ: JUAN PEREZ
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Teléfono</label>
-                                    <input
-                                        type="tel"
-                                        data-keyboard="numeric"
-                                        value={takeoutData.phone}
-                                        onChange={(e) => setTakeoutData(prev => ({ ...prev, phone: e.target.value }))}
-                                        placeholder="0000-0000"
-                                        className="w-full bg-black/20 border border-white/10 rounded-2xl p-4 text-white focus:border-amber-500/50 outline-none transition-all font-bold text-sm"
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            id="hidden-takeout-phone"
+                                            type="tel"
+                                            value={takeoutData.phone}
+                                            onChange={(e) => setTakeoutData(prev => ({ ...prev, phone: e.target.value }))}
+                                            inputMode="none"
+                                            className="absolute inset-0 opacity-0 pointer-events-none z-0"
+                                            data-virtual-input
+                                            data-keyboard="numeric"
+                                        />
+                                        <div
+                                            data-virtual-input
+                                            data-keyboard="numeric"
+                                            tabIndex={0}
+                                            onClick={() => document.getElementById('hidden-takeout-phone')?.focus()}
+                                            className={`w-full bg-black/20 border rounded-2xl p-4 text-white outline-none transition-all font-bold text-sm min-h-[56px] flex items-center cursor-text relative z-10 ${focusedField === 'phone' ? 'border-amber-500 shadow-[0_0_0_1px_rgba(245,158,11,0.5)] virtual-input-focused' : 'border-white/10'}`}
+                                        >
+                                            {takeoutData.phone}
+                                        </div>
+                                        {!takeoutData.phone && (
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 opacity-50 font-bold text-sm pointer-events-none z-20">
+                                                0000-0000
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="flex gap-4 pt-4">

@@ -515,9 +515,17 @@ select.form-input option {
         padding: 10px !important;
     }
 
-    .mesa-card {
-        aspect-ratio: 1 / 1 !important;
-        height: auto !important;
-        font-size: 0.85rem !important;
-    }
+}
+
+@keyframes blink { 
+    0%, 100% { opacity: 1; } 
+    50% { opacity: 0; } 
+} 
+
+.virtual-input-focused::after { 
+    content: '|'; 
+    animation: blink 1s step-end infinite; 
+    color: #f59e0b; 
+    margin-left: 2px; 
+    font-weight: normal; 
 }
