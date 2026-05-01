@@ -22,13 +22,13 @@ import { useNotify } from '../hooks/useNotify';
 import { activityLogService } from '../services/ActivityLogService';
 
 const PlaceholderLogo = () => (
-    <div className="flex flex-col items-center justify-center h-full w-full">
-        <span className="text-[10px] font-bold tracking-[0.2em] text-gray-400 mb-0.5">RESTAURANTE</span>
-        <span className="text-sm font-black tracking-tighter text-orange-500 uppercase leading-none">LAS PALMAS</span>
-        <div className="flex items-center gap-1.5 mt-1">
-            <div className="h-[1px] w-4 bg-white/20"></div>
-            <span className="text-[10px] font-black text-white/40 tracking-widest">POS</span>
-            <div className="h-[1px] w-4 bg-white/20"></div>
+    <div className="flex flex-col items-center justify-center h-full w-full p-2">
+        <span className="text-[8px] font-bold tracking-[0.2em] text-gray-400 mb-0.5">RESTAURANTE</span>
+        <span className="text-[11px] font-black tracking-tighter text-orange-500 uppercase leading-none">LAS PALMAS</span>
+        <div className="flex items-center gap-1.5 mt-0.5">
+            <div className="h-[1px] w-3 bg-white/20"></div>
+            <span className="text-[8px] font-black text-white/40 tracking-widest">POS</span>
+            <div className="h-[1px] w-3 bg-white/20"></div>
         </div>
     </div>
 );
@@ -70,7 +70,7 @@ const ProductCard = React.memo<{
                 </div>
             )}
 
-            <div className="w-full aspect-square flex items-center justify-center rounded-lg overflow-hidden shrink-0 p-1">
+            <div className="w-full aspect-square flex items-center justify-center rounded-lg overflow-hidden shrink-0 p-2">
                 {product.image_url ? (
                     <img
                         src={product.image_url}
@@ -82,11 +82,11 @@ const ProductCard = React.memo<{
                 )}
             </div>
 
-            <div className="w-full flex flex-col items-center gap-0.5 mt-1">
-                <span className="text-[10px] sm:text-xs leading-tight font-black text-gray-200 line-clamp-2 uppercase tracking-wide min-h-[2.5rem] flex items-center justify-center px-1">
+            <div className="w-full flex flex-col items-center gap-0.5 mt-0.5">
+                <span className="text-[9px] sm:text-[10px] leading-tight font-black text-gray-200 line-clamp-2 uppercase tracking-wide min-h-[2.2rem] flex items-center justify-center px-1">
                     {product.name}
                 </span>
-                <span className="text-white font-black text-xs tabular-nums tracking-widest">
+                <span className="text-indigo-300 font-black text-[10px] tabular-nums tracking-widest">
                     {currency}{( (product as any).finalPrice ?? product.price ).toFixed(2)}
                 </span>
             </div>
@@ -2043,7 +2043,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         ) : (
                                 <div className="bg-[#2d2e3d]">
                                     {!selectedCat && (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 gap-3 sm:gap-4 p-4 no-scrollbar content-start">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-3 sm:gap-4 p-4 no-scrollbar content-start">
                                             {(() => {
                                                 const seen = new Set();
                                                 return categories
@@ -2077,14 +2077,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                                     <PlaceholderLogo />
                                                                 )}
                                                             </div>
-                                                            <span className="w-full text-center text-[9px] sm:text-[10px] font-black uppercase tracking-wide text-gray-200 leading-tight pt-1 pb-1">{cat.name}</span>
+                                                            <span className="w-full text-center text-[8px] sm:text-[9px] font-black uppercase tracking-wide text-gray-200 leading-tight pt-1 pb-1">{cat.name}</span>
                                                         </button>
                                                     ));
                                             })()}
                                         </div>
                                     )}
                                 {selectedCat && !selectedSubCat && (
-                                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 gap-2 sm:gap-3 content-start">
+                                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-2 sm:gap-3 content-start">
                                         {categories
                                             .filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO')
                                             .sort((a, b) => {
@@ -2102,7 +2102,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                             <PlaceholderLogo />
                                                         )}
                                                     </div>
-                                                    <span className="w-full text-center text-[9px] sm:text-[10px] font-black uppercase tracking-wide text-gray-200 leading-tight pt-1 pb-1">{sub.name}</span>
+                                                    <span className="w-full text-center text-[8px] sm:text-[9px] font-black uppercase tracking-wide text-gray-200 leading-tight pt-1 pb-1">{sub.name}</span>
                                                 </button>
                                             ))}
                                         {categories.filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO').length === 0 && (() => {
@@ -2199,7 +2199,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </div>
                                 )}
                                 {selectedSubCat && (
-                                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 gap-2 sm:gap-3 content-start">
+                                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-2 sm:gap-3 content-start">
                                         {(() => {
                                             const relatedSubCatIds = categories
                                                 .filter(c => c.name?.toUpperCase() === selectedSubCat.name?.toUpperCase())
