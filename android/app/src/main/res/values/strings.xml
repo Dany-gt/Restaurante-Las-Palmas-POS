@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Restaurante Las Palmas POS</string>
-    <string name="title_activity_main">Restaurante Las Palmas POS</string>
-    <string name="package_name">com.laspalmas.pos</string>
-    <string name="custom_url_scheme">com.laspalmas.pos</string>
+    <string name="app_name">Las Palmas Admin</string>
+    <string name="title_activity_main">Las Palmas Admin</string>
+    <string name="package_name">com.laspalmas.admin</string>
+    <string name="custom_url_scheme">com.laspalmas.admin</string>
 </resources>

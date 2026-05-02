@@ -307,7 +307,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             const isAuthorized = currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO';
             if (!isAuthorized) {
                 setPendingAction('edit');
-                setItemToDeleteId(item.id);
+                setItemToVoid(item);
                 setShowPinModal(true);
                 return;
             }
@@ -2591,11 +2591,39 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     requiredRole="ADMIN"
                     title="Autorización Requerida"
                     subtitle={pendingAction === 'cancel' ? "Anular Orden Completa" : "Eliminar Item"}
+                    remoteAuthEnabled={true}
+                    authPayload={{
+                        action_type: pendingAction === 'cancel' ? 'VOID_ORDER' : (pendingAction === 'edit' ? 'EDIT_ITEM' : 'VOID_ITEM'),
+                        action_details: pendingAction === 'cancel' 
+                            ? `Anular Orden Completa - Mesa ${table?.number || '?'}` 
+                            : `${pendingAction === 'edit' ? 'Editar' : 'Eliminar'}: ${itemToVoid?.product_name || (itemToVoid as any)?.products?.name || itemToVoid?.name || 'Producto'} (Cant: ${itemToVoid?.quantity || 1}) - Mesa ${table?.number || '?'}`,
+                        metadata: {
+                            order_id: activeOrderId,
+                            table_id: table?.id,
+                            table_number: table?.number,
+                            waiter_name: currentUser?.name,
+                            item_id: itemToVoid?.id,
+                            item_name: itemToVoid?.product_name || (itemToVoid as any)?.products?.name || itemToVoid?.name,
+                            quantity: itemToVoid?.quantity || 1,
+                            reason: voidReason
+                        }
+                    }}
                     onSuccess={async (authorizedUser: any, pin: string) => {
                         // El PIN de administrador es absoluto y permite cualquier acción de anulación
                         if (pendingAction === 'delete' && itemToVoid) {
                             // Ejecutar la anulación real del item en DB pasando el PIN para el RPC
                             handleVoidItem(pin);
+                        } else if (pendingAction === 'edit' && itemToVoid) {
+                            // Si es una edición autorizada, abrir el modal de modificadores
+                            const mockProduct: Product = {
+                                id: itemToVoid.product_id,
+                                name: itemToVoid.product_name,
+                                price: itemToVoid.price,
+                                category_id: 'unknown',
+                                branch_id: currentUser?.branch_id || 'unknown'
+                            };
+                            setEditingItemId(itemToVoid.id);
+                            setShowModifierModal(mockProduct);
                         } else if (pendingAction === 'cancel' && activeOrderId) {
                             setProcessing(true);
                             try {

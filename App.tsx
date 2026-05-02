@@ -40,7 +40,9 @@ import { BillingViewer } from './components/BillingViewer';
 import { Installer } from './components/admin/Installer';
 import ModuloProduccion from './components/produccion/ModuloProduccion';
 
-type ViewState = 'LOGIN' | 'DASHBOARD' | 'TABLES' | 'ORDER' | 'CHECKOUT' | 'HISTORY' | 'DELIVERY' | 'TAKEOUT' | 'KITCHEN' | 'ADMIN_PORTAL' | 'OPEN_SHIFT' | 'DRIVER_TRACKER' | 'BILLING_VIEWER' | 'KDS_STATION_SELECT' | 'PRODUCCION';
+import { AdminAuthPanel } from './components/AdminAuthPanel';
+
+type ViewState = 'LOGIN' | 'DASHBOARD' | 'TABLES' | 'ORDER' | 'CHECKOUT' | 'HISTORY' | 'DELIVERY' | 'TAKEOUT' | 'KITCHEN' | 'ADMIN_PORTAL' | 'OPEN_SHIFT' | 'DRIVER_TRACKER' | 'BILLING_VIEWER' | 'KDS_STATION_SELECT' | 'PRODUCCION' | 'ADMIN_AUTH_PANEL';
 
 import { useNotify } from './hooks/useNotify';
 
@@ -572,7 +574,7 @@ const App: React.FC = () => {
 
     // SECURITY: Admin Route Protection
     if (view.startsWith('ADMIN_')) {
-      if (!currentUser || currentUser.role !== 'ADMIN') {
+      if (!currentUser || currentUser.role?.toUpperCase() !== 'ADMIN') {
         console.warn('⛔ Unauthorized Admin Access attempt');
         return;
       }
@@ -1089,7 +1091,7 @@ const App: React.FC = () => {
         else if (activeOrder?.order_type === 'TAKEOUT') setCurrentView('TAKEOUT');
         else setCurrentView('TABLES');
       }
-    } else if (['TABLES', 'HISTORY', 'DELIVERY', 'DELIVERY_LIST', 'TAKEOUT', 'KITCHEN', 'ADMIN_PORTAL', 'BILLING_VIEWER'].includes(currentView)) {
+    } else if (['TABLES', 'HISTORY', 'DELIVERY', 'DELIVERY_LIST', 'TAKEOUT', 'KITCHEN', 'ADMIN_PORTAL', 'BILLING_VIEWER', 'ADMIN_AUTH_PANEL'].includes(currentView)) {
       setCurrentView('DASHBOARD');
     }
   };
@@ -1165,7 +1167,7 @@ const App: React.FC = () => {
           {currentView !== 'OPEN_SHIFT' && (
             <div className={`relative h-12 border-b border-white/5 flex items-center justify-between px-4 z-20 shadow-xl transition-colors ${currentView === 'ADMIN_PORTAL' ? 'bg-[#106ebe]' : 'bg-[#3a3b4d]'} ${(currentView === 'DELIVERY' || currentView === 'DELIVERY_LIST' || currentView === 'KDS_STATION_SELECT') ? 'hidden' : ''}`}>
               <div className="flex items-center gap-6">
-                {currentView !== 'DASHBOARD' && currentView !== 'ADMIN_PORTAL' && currentView !== 'CHECKOUT' && currentView !== 'DELIVERY' && currentView !== 'DELIVERY_LIST' && currentView !== 'KITCHEN' && (
+                {currentView !== 'DASHBOARD' && currentView !== 'ADMIN_PORTAL' && currentView !== 'ADMIN_AUTH_PANEL' && currentView !== 'CHECKOUT' && currentView !== 'DELIVERY' && currentView !== 'DELIVERY_LIST' && currentView !== 'KITCHEN' && (
                   <button onClick={navigateBack} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all pos-button">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -1369,7 +1371,8 @@ const App: React.FC = () => {
                 }}
               />
             )}
-            {currentView === 'ADMIN_PORTAL' && <AdminPortal currentUser={currentUser} initialTab={adminTab} onExit={handleLogout} />}
+            {currentView === 'ADMIN_PORTAL' && <AdminPortal currentUser={currentUser} initialTab={adminTab} onExit={handleLogout} onNavigate={handleNavigate} />}
+            {currentView === 'ADMIN_AUTH_PANEL' && <AdminAuthPanel currentUser={currentUser} onExit={() => setCurrentView(currentUser?.role?.toUpperCase() === 'ADMIN' ? 'ADMIN_PORTAL' : 'DASHBOARD')} />}
             {currentView === 'PRODUCCION' && (
               <ModuloProduccion 
                 sucursalId={currentUser?.branch_id || ''} 
@@ -1427,6 +1430,16 @@ const App: React.FC = () => {
           }}
           title="Límite de Mesas Alcanzado"
           subtitle="Se requiere autorización de Administrador."
+          remoteAuthEnabled={true}
+          authPayload={{
+            action_type: 'OPEN_TABLE',
+            action_details: `Apertura de Mesa (Límite Alcanzado) - ${pendingTableSelection?.table?.name || 'Mesa'}`,
+            metadata: { 
+              waiter_id: currentUser?.id,
+              waiter_name: currentUser?.name,
+              table_id: pendingTableSelection?.table?.id
+            }
+          }}
         />
       )}
 

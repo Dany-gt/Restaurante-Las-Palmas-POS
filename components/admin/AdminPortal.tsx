@@ -86,6 +86,7 @@ import { User } from '../../types';
 
 interface AdminPortalProps {
     onExit: () => void;
+    onNavigate?: (view: string) => void;
     initialTab?: string;
     currentUser: User | null;
 }
@@ -96,7 +97,7 @@ interface OpenTab {
     icon: any;
 }
 
-export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, initialTab, currentUser }) => {
+export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, initialTab, currentUser }) => {
     const [openTabs, setOpenTabs] = useState<OpenTab[]>([]);
     const [activeTabId, setActiveTabId] = useState<string | null>(null);
     const [activeRibbonGroup, setActiveRibbonGroup] = useState('SISTEMA');
@@ -171,11 +172,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, initialTab, cu
 
     const hasPermission = (requiredPermission: string[]) => {
         if (!currentUser) return false;
-        if (currentUser.role === 'ADMIN') return true;
+        if (currentUser.role?.toUpperCase() === 'ADMIN') return true;
+        if (currentUser.role?.toUpperCase() === 'SUPERVISOR' && requiredPermission.length === 0) return true;
         return requiredPermission.some(p => currentUser.permissions?.includes(p));
     };
 
     const TAB_PERMISSIONS: Record<string, string[]> = {
+        'ADMIN_AUTH': [], // Autorizaciones remotas: solo ADMIN (y SUPERVISOR si queremos)
         'SYS_CONFIG': ['Configuración General:Acceso'],
         'SYS_SOUNDS': ['Configuración General:Acceso'],
         'ADMIN_USERS': ['Usuarios:Acceso'],
@@ -267,6 +270,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, initialTab, cu
             id: 'SISTEMA',
             label: 'Sistema',
             items: [
+                { id: 'ADMIN_AUTH', label: 'Autorizaciones Remotas', icon: Shield, action: () => onNavigate?.('ADMIN_AUTH_PANEL') },
                 { id: 'SYS_CONFIG', label: 'Configuración General', icon: Settings },
                 { id: 'SYS_SOUNDS', label: 'Alertas de Sonido KDS', icon: Volume2 },
                 { id: 'ADMIN_USERS', label: 'Usuarios de Sistema', icon: Users },

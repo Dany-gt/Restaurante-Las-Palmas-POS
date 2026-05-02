@@ -1187,6 +1187,17 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 subtitle="SE REQUIERE PIN DE ADMINISTRADOR PARA MODIFICAR PROPINA"
                 requiredRole="ADMIN"
                 validateFn={validatePin}
+                remoteAuthEnabled={true}
+                authPayload={{
+                    action_type: 'MODIFY_TIP',
+                    action_details: `Modificar propina en Mesa ${table?.number || '?'} a Q${pendingTipAction?.amount?.toFixed(2) || '0.00'}`,
+                    metadata: {
+                        order_id: order?.id,
+                        table_id: table?.id,
+                        waiter_name: currentUser?.name,
+                        tip_amount: pendingTipAction?.amount
+                    }
+                }}
             />
         </div>
     );

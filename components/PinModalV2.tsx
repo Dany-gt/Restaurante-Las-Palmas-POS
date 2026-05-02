@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Lock, Loader2, X } from 'lucide-react';
+import { Lock, Loader2, X, Send, CheckCircle2, XCircle } from 'lucide-react';
 import { registrarAuditoria } from '../services/auditService';
+import { supabase } from '../supabase';
 
 interface PinModalProps {
     isOpen: boolean;
@@ -10,6 +11,12 @@ interface PinModalProps {
     subtitle?: string;
     requiredRole?: string;
     validateFn: (pin: string, role?: string) => Promise<{ valid: boolean; user?: any }>;
+    remoteAuthEnabled?: boolean;
+    authPayload?: {
+        action_type: string;
+        action_details: string;
+        metadata?: any;
+    };
 }
 
 export const PinModalV2: React.FC<PinModalProps> = ({
@@ -19,17 +26,21 @@ export const PinModalV2: React.FC<PinModalProps> = ({
     title = 'Verificación Requerida',
     subtitle = 'Ingrese su PIN de acceso',
     requiredRole,
-    validateFn
+    validateFn,
+    remoteAuthEnabled = false,
+    authPayload
 }) => {
     const [pin, setPin] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [remoteStatus, setRemoteStatus] = useState<'idle' | 'waiting' | 'approved' | 'rejected'>('idle');
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (isOpen) {
             setPin('');
             setError('');
+            setRemoteStatus('idle');
             setTimeout(() => inputRef.current?.focus(), 100);
         }
     }, [isOpen]);
@@ -110,6 +121,66 @@ export const PinModalV2: React.FC<PinModalProps> = ({
         }
     };
 
+    const handleRemoteAuthRequest = async () => {
+        if (!authPayload) return;
+        setLoading(true);
+        setError('');
+        setRemoteStatus('waiting');
+
+        try {
+            const cachedUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const requesterId = cachedUser?.id;
+
+            const { data, error: insertError } = await supabase
+                .from('admin_auth_requests')
+                .insert([{
+                    requester_id: requesterId,
+                    action_type: authPayload.action_type,
+                    action_details: authPayload.action_details,
+                    metadata: authPayload.metadata,
+                    status: 'pending'
+                }])
+                .select()
+                .single();
+
+            if (insertError) throw insertError;
+
+            // Subscribe to the created request
+            const channel = supabase.channel(`auth_request_${data.id}`)
+                .on('postgres_changes', {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'admin_auth_requests',
+                    filter: `id=eq.${data.id}`
+                }, (payload) => {
+                    const updatedRequest = payload.new;
+                    if (updatedRequest.status === 'approved') {
+                        setRemoteStatus('approved');
+                        // Create a dummy admin user object for the onSuccess callback
+                        const adminUser = { id: updatedRequest.resolved_by, name: 'Aprobación Remota', role: 'ADMIN' };
+                        setTimeout(() => {
+                            onSuccess(adminUser, 'REMOTE');
+                            onClose();
+                        }, 1000);
+                        supabase.removeChannel(channel);
+                    } else if (updatedRequest.status === 'rejected') {
+                        setRemoteStatus('rejected');
+                        setError('La solicitud fue RECHAZADA por el administrador.');
+                        setLoading(false);
+                        supabase.removeChannel(channel);
+                        setTimeout(() => setRemoteStatus('idle'), 3000);
+                    }
+                })
+                .subscribe();
+
+        } catch (error: any) {
+            console.error(error);
+            setError('Error al enviar la solicitud: ' + error.message);
+            setRemoteStatus('idle');
+            setLoading(false);
+        }
+    };
+
     const handlePinInput = (num: string) => {
         if (pin.length < 4) {
             setPin(prev => prev + num);
@@ -155,8 +226,34 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                     </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2.5 relative z-10 place-items-center">
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((key) => (
+                {remoteStatus === 'waiting' ? (
+                    <div className="flex flex-col items-center justify-center py-6 relative z-10 animate-in fade-in zoom-in duration-300">
+                        <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
+                        <h4 className="text-white font-bold text-center">Esperando Aprobación</h4>
+                        <p className="text-gray-400 text-xs text-center mt-2 px-4">
+                            Se ha enviado una notificación al administrador. La pantalla se desbloqueará sola.
+                        </p>
+                        <button 
+                            onClick={() => { setRemoteStatus('idle'); setLoading(false); setError(''); }}
+                            className="mt-6 text-xs text-gray-500 hover:text-white border border-gray-700 rounded-md px-4 py-2 transition-colors"
+                        >
+                            Cancelar Solicitud
+                        </button>
+                    </div>
+                ) : remoteStatus === 'approved' ? (
+                    <div className="flex flex-col items-center justify-center py-8 relative z-10 animate-in fade-in zoom-in duration-300">
+                        <CheckCircle2 className="w-16 h-16 text-emerald-500 mb-4" />
+                        <h4 className="text-white font-bold text-center text-lg">¡APROBADO!</h4>
+                    </div>
+                ) : remoteStatus === 'rejected' ? (
+                    <div className="flex flex-col items-center justify-center py-8 relative z-10 animate-in fade-in zoom-in duration-300">
+                        <XCircle className="w-16 h-16 text-red-500 mb-4" />
+                        <h4 className="text-white font-bold text-center text-lg">RECHAZADO</h4>
+                    </div>
+                ) : (
+                    <>
+                        <div className="grid grid-cols-3 gap-2.5 relative z-10 place-items-center">
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((key) => (
                         <button
                             key={key}
                             onClick={() => handlePinInput(key.toString())}
@@ -211,6 +308,21 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                         {loading ? <Loader2 className="animate-spin" size={20} /> : 'OK'}
                     </button>
                 </div>
+
+                {remoteAuthEnabled && authPayload && (
+                    <div className="mt-4 pt-4 border-t border-white/5 relative z-10">
+                        <button
+                            onClick={handleRemoteAuthRequest}
+                            disabled={loading}
+                            className="w-full py-3 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-md text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                        >
+                            <Send size={14} />
+                            Solicitar Autorización Remota
+                        </button>
+                    </div>
+                )}
+                </>
+                )}
             </div>
         </div>
     );

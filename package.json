@@ -9,7 +9,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "electron": "concurrently -k \"cross-env BROWSER=none npm run dev\" \"wait-on tcp:3000 && node launch-dev.js\"",
-    "electron:build": "npm run build && electron-builder"
+    "electron:build": "npm run build && electron-builder",
+    "cap:admin": "node scripts/prepare-admin-apk.js",
+    "cap:pos": "node scripts/prepare-pos-apk.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.1.0",
