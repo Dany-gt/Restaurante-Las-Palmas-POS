@@ -1439,26 +1439,35 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     };
 
     const handleVoidItem = async (adminPin?: string) => {
-        if (!itemToVoid || voidReason.trim().length < 5) return;
+        // v1.6.1 - Si es autorización remota o admin pin, permitimos motivo vacío con fallback
+        const effectiveReason = (voidReason.trim().length < 5 && (adminPin === 'REMOTE' || adminPin)) 
+            ? (voidReason.trim() || 'Autorización Remota') 
+            : voidReason;
+
+        if (!itemToVoid || effectiveReason.trim().length < 5) {
+            console.warn('⚠️ Intento de anulación sin motivo suficiente:', { itemToVoid, voidReason });
+            return;
+        }
 
         setProcessing(true);
         const nowGuate = DateUtils.toGuatemalaISO(new Date());
 
         try {
             // Update UI immediately (Optimistic UI)
-            setItems(prev => prev.filter(i => i.id !== itemToVoid.id));
+            const itemToRemove = itemToVoid; // Lock the reference
+            setItems(prev => prev.filter(i => i.id !== itemToRemove.id));
 
             if (!isOnline) {
                 console.log('🔌 Offline: Queuing void reason for later...');
                 const pending = JSON.parse(localStorage.getItem('pending_voids') || '[]');
-                pending.push({ id: itemToVoid.id, reason: voidReason, at: nowGuate });
+                pending.push({ id: itemToRemove.id, reason: effectiveReason, at: nowGuate });
                 localStorage.setItem('pending_voids', JSON.stringify(pending));
             } else {
                 // Update DB via RPC (v1.6.0 - Server-side PIN validation to bypass RLS)
                 const { data: rpcResult, error: voidError } = await supabase.rpc('void_item_with_pin', {
-                    p_item_id: itemToVoid.id,
+                    p_item_id: itemToRemove.id,
                     p_admin_pin: adminPin || '', // Pasamos el PIN para validación absoluta
-                    p_void_reason: voidReason,
+                    p_void_reason: effectiveReason,
                     p_voided_at: nowGuate
                 });
 
