@@ -4,6 +4,7 @@ import { supabase } from '../supabase';
 import { printService } from '../services/PrintService';
 import { billingService } from '../services/BillingService';
 import { DateUtils } from '../utils/DateUtils';
+import { ItemStatusBadge } from './ItemStatusBadge';
 
 interface OrderViewerProps {
     onBack: () => void;
@@ -31,6 +32,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
         fetchOrders();
         const sub = supabase.channel('order_viewer_sync')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, fetchOrders)
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'order_items' }, fetchOrders)
             .subscribe();
         return () => { supabase.removeChannel(sub); };
     }, [activeTab]);
@@ -43,7 +45,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
 
             let query = supabase
                 .from('orders')
-                .select('*')
+                .select('*, order_items(status)')
                 .order('created_at', { ascending: false });
 
             if (branchId) {
@@ -89,14 +91,24 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
             const tableLookup = new Map();
             tablesRes.data?.forEach(t => tableLookup.set(t.id, t));
 
-            const enrichedOrders = rawOrders.map(order => ({
-                ...order,
-                profiles: {
-                    name: profileLookup.get(order.waiter_id) || 'Desconocido',
-                    full_name: profileLookup.get(order.waiter_id) || 'Desconocido'
-                },
-                tables: tableLookup.get(order.table_id) || { number: '?', section: 'General' }
-            }));
+            const enrichedOrders = rawOrders.map(order => {
+                const rawItems: any[] = order.order_items || [];
+                const item_counts = {
+                    pending:   rawItems.filter(i => i.status === 'pending').length,
+                    preparing: rawItems.filter(i => i.status === 'preparing').length,
+                    ready:     rawItems.filter(i => ['ready', 'delivered'].includes(i.status)).length,
+                };
+                return {
+                    ...order,
+                    order_items: undefined,   // reset → fetchOrderItems se dispara al seleccionar
+                    item_counts,
+                    profiles: {
+                        name: profileLookup.get(order.waiter_id) || 'Desconocido',
+                        full_name: profileLookup.get(order.waiter_id) || 'Desconocido'
+                    },
+                    tables: tableLookup.get(order.table_id) || { number: '?', section: 'General' }
+                };
+            });
 
             setOrders(enrichedOrders);
             // Auto-select first order if none selected
@@ -115,6 +127,20 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
             fetchOrderItems(selectedOrder.id);
         }
     }, [selectedOrder]);
+
+    // Real-time: refresh item statuses when kitchen updates them (EN ESPERA → EN PREPARACIÓN → LISTO)
+    useEffect(() => {
+        if (!selectedOrder?.id) return;
+        const sub = supabase.channel(`ov_items_${selectedOrder.id}`)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'order_items',
+                filter: `order_id=eq.${selectedOrder.id}`
+            }, () => fetchOrderItems(selectedOrder.id))
+            .subscribe();
+        return () => { supabase.removeChannel(sub); };
+    }, [selectedOrder?.id]);
 
     const fetchOrderItems = async (orderId: string) => {
         try {
@@ -274,12 +300,15 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                             <div className="flex justify-between items-start">
                                                 <div className="flex gap-3">
                                                     <span className="font-bold text-white/50">{item.quantity}</span>
-                                                    <div className="flex flex-col">
+                                                    <div className="flex flex-col gap-1">
                                                         <span className="font-bold uppercase tracking-tight leading-tight text-white/80">{item.products?.name}</span>
                                                         {item.notes && (
-                                                            <span className="text-[10px] text-gray-400 mt-1 uppercase leading-tight italic">
+                                                            <span className="text-[10px] text-gray-400 uppercase leading-tight italic">
                                                                 {item.notes}
                                                             </span>
+                                                        )}
+                                                        {item.status && (
+                                                            <ItemStatusBadge item={item} />
                                                         )}
                                                     </div>
                                                 </div>
@@ -433,7 +462,7 @@ const OrderCard = ({ order, isSelected, onClick }: any) => {
                 {(order.order_type === 'DINE_IN' || !order.order_type) && (
                     <div className="ml-auto flex items-center gap-1 opacity-70">
                         <User size={12} />
-                        <span className="text-[10px] font-bold">{order.pax || 0}</span>
+                        <span className="text-[10px] font-bold">{order.pax_count || 0}</span>
                     </div>
                 )}
             </div>
@@ -441,6 +470,19 @@ const OrderCard = ({ order, isSelected, onClick }: any) => {
                 <Clock size={12} />
                 <span>{parseDBDate(order.created_at).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
             </div>
+            {(order.item_counts?.pending > 0 || order.item_counts?.preparing > 0 || order.item_counts?.ready > 0) && (
+                <div className="mt-1.5 flex flex-col gap-0.5 border-t border-white/5 pt-1.5">
+                    {order.item_counts?.pending > 0 && (
+                        <span className="text-[9px] font-black text-gray-400">🕐 {order.item_counts.pending} en espera</span>
+                    )}
+                    {order.item_counts?.preparing > 0 && (
+                        <span className="text-[9px] font-black text-amber-400">🔥 {order.item_counts.preparing} en preparación</span>
+                    )}
+                    {order.item_counts?.ready > 0 && (
+                        <span className="text-[9px] font-black text-emerald-400">✅ {order.item_counts.ready} listo</span>
+                    )}
+                </div>
+            )}
         </button>
     );
 };
