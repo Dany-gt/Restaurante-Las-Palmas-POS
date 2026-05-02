@@ -674,6 +674,13 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
           <div className="flex gap-4">
             <button
               type="button"
+              onClick={() => onNavigate('HISTORY')}
+              className="w-52 py-3 bg-blue-600/20 backdrop-blur-md border border-blue-500/30 rounded-xl text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] transition-all shadow-2xl active:scale-95 hover:bg-blue-600/40 hover:text-white"
+            >
+              VISOR DE ORDENES
+            </button>
+            <button
+              type="button"
               onClick={() => onRefreshMenu?.('config')}
               disabled={isSyncing}
               className={`w-52 py-3 bg-[#1a1b23]/80 backdrop-blur-md border border-white/10 rounded-xl text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] transition-all shadow-2xl active:scale-95 hover:text-white hover:bg-[#1a1b23] ${isSyncing ? 'opacity-50' : ''}`}

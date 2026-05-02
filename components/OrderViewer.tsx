@@ -50,6 +50,10 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                 query = query.eq('branch_id', branchId);
             }
 
+            if (currentUser?.role === 'MESERO') {
+                query = query.eq('waiter_id', currentUser.id);
+            }
+
             if (activeTab === 'OPEN') {
                 query = query.not('status', 'eq', 'completed').not('status', 'eq', 'cancelled');
             } else {
