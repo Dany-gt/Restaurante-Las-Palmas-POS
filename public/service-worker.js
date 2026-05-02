@@ -1,6 +1,6 @@
-const CACHE_NAME = 'las-palmas-pos-v1-2-3';
-const STATIC_CACHE = 'static-v1-2-3';
-const DYNAMIC_CACHE = 'dynamic-v1-2-3';
+const CACHE_NAME = 'las-palmas-pos-v1-2-5';
+const STATIC_CACHE = 'static-v1-2-5';
+const DYNAMIC_CACHE = 'dynamic-v1-2-5';
 
 const ASSETS = [
     '/',
@@ -11,6 +11,8 @@ const ASSETS = [
 // Install Event: Cache Static Assets
 self.addEventListener('install', (event) => {
     console.log('[Service Worker] Installing Service Worker ...', event);
+    // Take control immediately without waiting for old tabs to close
+    self.skipWaiting();
     event.waitUntil(
         caches.open(STATIC_CACHE).then((cache) => {
             console.log('[Service Worker] Precaching App Shell');
@@ -37,28 +39,37 @@ self.addEventListener('activate', (event) => {
     return self.clients.claim();
 });
 
-// Fetch Event: Stratagies
+// Fetch Event: Strategies
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
+    const method = event.request.method;
 
-    // 1. API Requests (Supabase) - Stale While Revalidate
-    // We want to return cached data instantly, but also update it from network
+    // 1. Supabase REST API
+    // Only cache GET requests. Writes (POST/PATCH/PUT/DELETE/HEAD) must ALWAYS
+    // go straight to the network so real-time data stays fresh.
     if (url.href.includes('supabase.co/rest/v1')) {
+        if (method !== 'GET') {
+            // Pass write requests through without any caching
+            return; // let browser handle it normally
+        }
+        // GET: Network-First with Cache Fallback
+        // ALWAYS fetch from network so real-time triggered fetchData gets instant fresh data.
+        // Cache is only used as a fallback when the device is offline.
         event.respondWith(
-            caches.open(DYNAMIC_CACHE).then((cache) => {
-                return cache.match(event.request).then((response) => {
-                    const fetchPromise = fetch(event.request)
-                        .then((networkResponse) => {
+            fetch(event.request)
+                .then((networkResponse) => {
+                    // Cache the fresh response for offline use
+                    if (networkResponse.ok) {
+                        caches.open(DYNAMIC_CACHE).then((cache) => {
                             cache.put(event.request, networkResponse.clone());
-                            return networkResponse;
-                        })
-                        .catch((err) => {
-                            // Network failed, nothing to do (we rely on cache)
-                            console.log('Network failed for API, using cache if available');
                         });
-                    return response || fetchPromise;
-                });
-            })
+                    }
+                    return networkResponse;
+                })
+                .catch(() => {
+                    // Network failed (device is offline) — serve from cache
+                    return caches.match(event.request);
+                })
         );
         return;
     }
@@ -81,6 +92,12 @@ self.addEventListener('fetch', (event) => {
     }
 
     // 3. Static Assets & Navigation - Cache First with Network Fallback
+    // IMPORTANT: Only intercept GET requests. POST/PATCH/DELETE (e.g. KDS printer, Supabase writes)
+    // must go straight to the network; intercepting them causes "network error response" in the console.
+    if (method !== 'GET') {
+        return; // let the browser handle writes normally
+    }
+
     event.respondWith(
         caches.match(event.request).then((response) => {
             if (response) {
@@ -88,14 +105,14 @@ self.addEventListener('fetch', (event) => {
             }
             return fetch(event.request).then((res) => {
                 return caches.open(DYNAMIC_CACHE).then((cache) => {
-                    // Don't cache chrome-extension or other non-http schemes
+                    // Only cache same-origin or http assets
                     if (event.request.url.startsWith('http')) {
                         cache.put(event.request, res.clone());
                     }
                     return res;
                 });
-            }).catch(err => {
-                // Optional: Return offline page for navigation requests
+            }).catch(() => {
+                // Network failed for static asset — nothing to return
             });
         })
     );

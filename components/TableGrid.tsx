@@ -133,11 +133,11 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
         const map: Record<string, string> = {};
         const ordersMap: Record<string, any> = {};
 
+        // Register ALL active orders regardless of waiter_id.
+        // This ensures tables with orders from other waiters show as "Ocupada".
+        // Access restriction (who can open) is handled exclusively by checkAccess().
         fetchedOrders?.forEach(o => {
           if (o.table_id) {
-            if (textUser?.role === 'MESERO' && o.waiter_id && o.waiter_id !== textUser.id) {
-              return;
-            }
             if (!map[o.table_id]) map[o.table_id] = o.created_at;
             ordersMap[o.table_id] = o;
           }
@@ -157,6 +157,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
     const channel = supabase.channel('table-grid-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tables' }, fetchData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, fetchData)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'order_items' }, fetchData)
       .subscribe();
 
     return () => {

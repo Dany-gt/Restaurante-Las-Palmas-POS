@@ -1390,7 +1390,7 @@ const App: React.FC = () => {
         <PinModal
           isOpen={showLimitPin}
           requiredRole="ADMIN"
-          validateFn={(pin) => validatePin(pin, 'ADMIN')}
+          validateFn={async (pin) => { const user = await validatePin(pin, 'ADMIN'); return { valid: !!user, user: user ?? undefined }; }}
           onSuccess={(user) => {
             setShowLimitPin(false);
             if (pendingTableSelection) {
