@@ -154,6 +154,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             return cached ? JSON.parse(cached) : [];
         } catch (e) { return []; }
     });
+    const [itemInventory, setItemInventory] = useState<any[]>(() => {
+        try {
+            const cached = localStorage.getItem('cached_inventory_item_branches');
+            return cached ? JSON.parse(cached) : [];
+        } catch (e) { return []; }
+    });
 
     // v1.5.2 - Listen for inventory refresh after order submission to update stock badges
     useEffect(() => {
@@ -161,6 +167,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             try {
                 const cachedInv = localStorage.getItem('cached_branch_inventory');
                 if (cachedInv) setBranchInventory(JSON.parse(cachedInv));
+
+                const cachedItemInv = localStorage.getItem('cached_inventory_item_branches');
+                if (cachedItemInv) setItemInventory(JSON.parse(cachedItemInv));
 
                 const cachedProds = localStorage.getItem('cached_products');
                 if (cachedProds) setProducts(JSON.parse(cachedProds));
@@ -1811,12 +1820,32 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 (u.product_name || '').trim().toUpperCase() === invName
                             );
                             if (soldItem) {
-                                console.log(`📦 Badge update: ${invName} ${inv.quantity} → ${inv.quantity - soldItem.quantity}`);
+                                console.log(`📦 Badge update (ProdInv): ${invName} ${inv.quantity} → ${inv.quantity - soldItem.quantity}`);
                                 return { ...inv, quantity: inv.quantity - soldItem.quantity };
                             }
                             return inv;
                         });
                         localStorage.setItem('cached_branch_inventory', JSON.stringify(updated));
+                        return updated;
+                    });
+
+                    // v1.6.0 - ALSO decrement Item Inventory (Insumos) by name
+                    setItemInventory(prev => {
+                        const updated = prev.map(inv => {
+                            if (inv.branch_id !== currentUser?.branch_id) return inv;
+                            // In itemInventory, the product_id is the item_id. 
+                            // But we match by name for maximum safety across tables.
+                            const itemProduct = products.find((p: any) => p.id === inv.item_id || p.id === inv.product_id);
+                            const itemName = (itemProduct?.name || '').trim().toUpperCase();
+                            const soldItem = unsentItems.find(u => (u.product_name || '').trim().toUpperCase() === itemName);
+                            
+                            if (soldItem) {
+                                console.log(`📦 Badge update (ItemInv): ${itemName} ${inv.quantity} → ${inv.quantity - soldItem.quantity}`);
+                                return { ...inv, quantity: inv.quantity - soldItem.quantity };
+                            }
+                            return inv;
+                        });
+                        localStorage.setItem('cached_inventory_item_branches', JSON.stringify(updated));
                         return updated;
                     });
 
@@ -2139,18 +2168,34 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             products.forEach(p => {
                                                 const nameKey = (p.name || '').trim().toUpperCase();
                                                 if (!nameKey) return;
- 
+                                                
+                                                // a) Search in Product Branch Inventory (Ventas)
                                                 const bInv = branchInventory.find(bi => bi.product_id === p.id && bi.branch_id === currentUser?.branch_id);
-                                                // Priority: branch_inventory > products.stock_actual > products.stock_quantity
-                                                const pStock = bInv ? bInv.quantity : (p.stock_actual ?? p.stock_quantity ?? 0);
+                                                
+                                                // b) Search in Item Inventory (Insumos - v1.6.0 Unification)
+                                                // We match by name because a Platillo might not have the same ID as its Insumo equivalent
+                                                const iInv = itemInventory.find(ii => {
+                                                    if (ii.branch_id !== currentUser?.branch_id) return false;
+                                                    // Find the name of the item in the inventory list to compare
+                                                    // Note: products state here contains all items (platillos + potentially cached others)
+                                                    const iProd = products.find(prod => prod.id === ii.item_id || prod.id === ii.product_id);
+                                                    return (iProd?.name || '').trim().toUpperCase() === nameKey;
+                                                });
+
+                                                // Priority: itemInventory (Insumos) > branchInventory > stock_actual > stock_quantity
+                                                // We use MAX to ensure if one table says 14 and other says 0, we show 14.
+                                                const invStock = bInv ? bInv.quantity : (p.stock_actual ?? p.stock_quantity ?? 0);
+                                                const itemStock = iInv ? iInv.quantity : -999999; // Sentinel to check if exists
+                                                
+                                                const finalStock = itemStock !== -999999 ? Math.max(invStock, itemStock) : invStock;
                                                 
                                                 const existing = globalDataMap.get(nameKey);
                                                 if (!existing) {
-                                                    globalDataMap.set(nameKey, { stock: pStock, image: p.image_url });
+                                                    globalDataMap.set(nameKey, { stock: finalStock, image: p.image_url });
                                                 } else {
                                                     // v1.5.3: Use MAX stock (not sum) to avoid positive+negative cancel-out
                                                     globalDataMap.set(nameKey, { 
-                                                        stock: Math.max(existing.stock, pStock),
+                                                        stock: Math.max(existing.stock, finalStock),
                                                         image: existing.image || p.image_url 
                                                     });
                                                 }

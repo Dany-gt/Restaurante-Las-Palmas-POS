@@ -83,20 +83,22 @@ export const useDataSync = () => {
                 settings,
                 roles,
                 branchPrices,
-                branchInventory
+                branchInventory,
+                itemInventory
             ] = await Promise.all([
                 safeFetch(supabase.from('tables').select('*').order('number'), 'tables'),
                 safeFetch(supabase.from('sections').select('*').order('priority', { ascending: true }).order('name'), 'sections'),
                 safeFetch(supabase.from('categories').select('*').order('order_index'), 'categories'),
                 safeFetch(supabase.from('product_categories').select('*').order('nombre'), 'product_categories'),
                 safeFetch(supabase.from('menu_categories').select('*').order('nombre'), 'menu_categories'),
-                safeFetch(supabase.from('products').select('*').eq('is_available', true).eq('es_platillo', true), 'products'),
+                safeFetch(supabase.from('products').select('*').eq('is_available', true), 'products'),
                 safeFetch(supabase.from('profiles').select('*'), 'profiles'),
                 safeFetch(supabase.from('kitchen_stations').select('*'), 'printers'),
                 safeFetch(supabase.from('system_settings').select('*').limit(1).maybeSingle(), 'settings'),
                 safeFetch(supabase.from('roles').select('*'), 'roles'),
                 safeFetch(supabase.from('product_branch_prices').select('*'), 'branchPrices'),
-                safeFetch(supabase.from('product_branch_inventory').select('*'), 'branchInventory')
+                safeFetch(supabase.from('product_branch_inventory').select('*'), 'branchInventory'),
+                safeFetch(supabase.from('inventory_item_branches').select('*'), 'itemInventory')
             ]);
 
             // 2. Saving logic
@@ -154,6 +156,9 @@ export const useDataSync = () => {
             if (branchInventory) {
                 await masterDataDB.saveData('branch_inventory' as any, branchInventory);
                 localStorage.setItem('cached_branch_inventory', JSON.stringify(branchInventory));
+            }
+            if (itemInventory) {
+                localStorage.setItem('cached_inventory_item_branches', JSON.stringify(itemInventory));
             }
             
             // Sync orders in background
