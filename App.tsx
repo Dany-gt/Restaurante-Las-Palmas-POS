@@ -579,8 +579,12 @@ const App: React.FC = () => {
         return;
       }
 
-      setAdminTab(null);
-      setCurrentView('ADMIN_PORTAL');
+      if (view === 'ADMIN_AUTH_PANEL') {
+        setCurrentView('ADMIN_AUTH_PANEL');
+      } else {
+        setAdminTab(null);
+        setCurrentView('ADMIN_PORTAL');
+      }
     } else {
       setCurrentView(view as ViewState);
     }

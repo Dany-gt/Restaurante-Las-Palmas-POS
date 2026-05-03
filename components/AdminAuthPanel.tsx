@@ -118,28 +118,28 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
     return (
         <div className="fixed inset-0 bg-[#0f1115] text-white flex flex-col font-sans overflow-hidden z-50">
             {/* Header */}
-            <header className="h-16 bg-[#16191f] border-b border-white/5 flex items-center justify-between px-6 shrink-0 shadow-md relative z-10">
-                <div className="flex items-center gap-4">
-                    <button onClick={onExit} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all">
-                        <ArrowLeft size={20} />
+            <header className="h-14 bg-[#16191f] border-b border-white/5 flex items-center justify-between px-5 shrink-0 shadow-md relative z-10">
+                <div className="flex items-center gap-3">
+                    <button onClick={onExit} className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-all">
+                        <ArrowLeft size={18} />
                     </button>
                     <div className="flex flex-col">
-                        <span className="text-sm font-black tracking-widest text-white">AUTORIZACIONES</span>
-                        <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">En Tiempo Real</span>
+                        <span className="text-[12px] font-black tracking-wider text-white">AUTORIZACIONES</span>
+                        <span className="text-[8px] text-indigo-400 font-bold uppercase tracking-widest">En Tiempo Real</span>
                     </div>
                 </div>
                 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     <button 
                         onClick={fetchRequests} 
-                        className={`p-2.5 rounded-xl transition-all ${loading ? 'bg-indigo-500/20 text-indigo-400' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
+                        className={`p-2 rounded-lg transition-all ${loading ? 'bg-indigo-500/20 text-indigo-400' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
                         disabled={loading}
                     >
-                        <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+                        <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
                     </button>
-                    <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
-                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                        <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">En Línea</span>
+                    <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                        <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></div>
+                        <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">En Línea</span>
                     </div>
                 </div>
             </header>
@@ -161,63 +161,63 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
                         </div>
                     ) : (
                         requests.map((req) => (
-                            <div key={req.id} className="bg-[#1e212b] border border-white/10 rounded-2xl p-5 shadow-2xl relative overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+                            <div key={req.id} className="bg-[#1e212b] border border-white/10 rounded-xl p-4 shadow-xl relative overflow-hidden animate-in fade-in slide-in-from-bottom-4">
                                 {/* Glassmorphism gradient blur behind the card content */}
-                                <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                                <div className="absolute -top-10 -right-10 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
                                 
                                 <div className="relative z-10">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="flex flex-col gap-1 w-full pr-4">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-xs font-bold text-indigo-400 uppercase tracking-widest">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex flex-col gap-1 w-full pr-3">
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">
                                                     {req.action_type ? req.action_type.replace(/_/g, ' ') : 'SOLICITUD'}
                                                 </span>
                                                 {req.metadata?.table_number && (
-                                                    <span className="bg-indigo-500/20 text-indigo-300 text-[10px] px-2 py-0.5 rounded-full font-black">
+                                                    <span className="bg-indigo-500/20 text-indigo-300 text-[9px] px-1.5 py-0.5 rounded-full font-bold">
                                                         MESA {req.metadata.table_number}
                                                     </span>
                                                 )}
                                             </div>
-                                            <h4 className="text-lg font-black text-white leading-tight">
+                                            <h4 className="text-[14px] font-semibold text-white leading-snug">
                                                  {req.action_details?.includes('Desconocido') || req.action_details?.includes('Producto (Cant')
                                                      ? `${req.action_type === 'EDIT_ITEM' ? 'Editar' : 'Eliminar'}: ${req.metadata?.item_name || 'Producto'} (Cant: ${req.metadata?.quantity || 1}) - Mesa ${req.metadata?.table_number || '?'}`
                                                      : (req.action_details || 'Detalles no disponibles')}
                                              </h4>
                                             {req.metadata?.reason && (
-                                                <div className="mt-2 bg-black/20 rounded-xl p-3 border border-white/5 relative">
-                                                    <span className="absolute top-0 left-4 -mt-2 bg-[#1e212b] px-1 text-[9px] text-gray-500 font-bold uppercase tracking-widest">Motivo</span>
-                                                    <span className="text-sm text-gray-300 italic">"{req.metadata.reason}"</span>
+                                                <div className="mt-2 bg-black/20 rounded-lg p-2.5 border border-white/5 relative">
+                                                    <span className="absolute top-0 left-3 -mt-2 bg-[#1e212b] px-1 text-[8px] text-gray-500 font-bold uppercase tracking-widest">Motivo</span>
+                                                    <span className="text-xs text-gray-300 italic leading-tight">"{req.metadata.reason}"</span>
                                                 </div>
                                             )}
                                         </div>
-                                        <span className="text-[10px] text-gray-500 font-bold bg-white/5 px-2 py-1 rounded-md shrink-0">
+                                        <span className="text-[9px] text-gray-500 font-medium bg-white/5 px-1.5 py-0.5 rounded-md shrink-0">
                                             {formatTimeAgo(req.created_at)}
                                         </span>
                                     </div>
                                     
-                                    <div className="flex items-center gap-2 mb-6">
-                                        <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold">
+                                    <div className="flex items-center gap-1.5 mb-4">
+                                        <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[9px] font-bold text-gray-300">
                                             {req.profiles?.name?.charAt(0) || req.metadata?.waiter_name?.charAt(0) || '?'}
                                         </div>
-                                        <span className="text-sm text-gray-400">
-                                            Solicitado por <span className="text-gray-200 font-bold">{req.profiles?.name || req.metadata?.waiter_name || 'Desconocido'}</span>
+                                        <span className="text-xs text-gray-400">
+                                            Solicitado por <span className="text-gray-300 font-medium">{req.profiles?.name || req.metadata?.waiter_name || 'Desconocido'}</span>
                                         </span>
                                     </div>
 
-                                    <div className="flex gap-3 mt-4">
+                                    <div className="flex gap-2.5 mt-2">
                                         <button
                                             onClick={() => handleAction(req.id, 'rejected')}
-                                            className="flex-1 py-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-xl font-black text-sm transition-all active:scale-95 flex justify-center items-center gap-2 border border-red-500/20"
+                                            className="flex-1 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg font-bold text-xs transition-all active:scale-95 flex justify-center items-center gap-1.5 border border-red-500/20"
                                         >
-                                            <XCircle size={18} />
-                                            RECHAZAR
+                                            <XCircle size={16} />
+                                            Rechazar
                                         </button>
                                         <button
                                             onClick={() => handleAction(req.id, 'approved')}
-                                            className="flex-1 py-4 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-black text-sm transition-all active:scale-95 flex justify-center items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]"
+                                            className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg font-bold text-xs transition-all active:scale-95 flex justify-center items-center gap-1.5 shadow-[0_4px_14px_rgba(16,185,129,0.2)] hover:shadow-[0_4px_20px_rgba(16,185,129,0.3)]"
                                         >
-                                            <CheckCircle2 size={18} />
-                                            APROBAR
+                                            <CheckCircle2 size={16} />
+                                            Aprobar
                                         </button>
                                     </div>
                                 </div>
