@@ -15,6 +15,11 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
     useEffect(() => {
         fetchRequests();
 
+        // Request browser notification permissions
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission();
+        }
+
         // Subscribe to real-time changes for new requests
         const channel = supabase.channel('admin_auth_channel_panel')
             .on('postgres_changes', {
@@ -27,6 +32,16 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
                 // Optional: Play a sound if it's a new INSERT
                 if (payload.eventType === 'INSERT' && payload.new.status === 'pending') {
                     playNotificationSound();
+                    
+                    // Native notification if permission granted
+                    if ("Notification" in window && Notification.permission === "granted") {
+                        new Notification("Nueva Solicitud de Autorización", {
+                            body: `${payload.new.metadata?.item_name || 'Acción'} - Mesa ${payload.new.metadata?.table_number || '?'}`,
+                            icon: '/icon.png',
+                            badge: '/icon.png',
+                            vibrate: [200, 100, 200]
+                        });
+                    }
                 }
             })
             .subscribe();
