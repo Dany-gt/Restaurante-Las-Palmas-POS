@@ -718,7 +718,10 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
                 </div>
                 <div className="flex gap-3">
                   {currentUser?.role === 'ADMIN' && (
-                    <DashboardButton label="Autorizaciones" color="bg-purple-500" onClick={() => onNavigate('ADMIN_AUTH_PANEL')} />
+                    <>
+                      <DashboardButton label="Panel Admin" color="bg-red-500" onClick={() => onNavigate('ADMIN_PORTAL')} />
+                      <DashboardButton label="Autorizaciones" color="bg-purple-500" onClick={() => onNavigate('ADMIN_AUTH_PANEL')} />
+                    </>
                   )}
                   <DashboardButton label="Visor de Ordenes" color="bg-blue-500" onClick={() => onNavigate('HISTORY')} />
                 </div>

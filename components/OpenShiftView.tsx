@@ -8,9 +8,10 @@ interface OpenShiftViewProps {
     currentUser: User;
     onShiftOpened: () => void;
     onBack?: () => void;
+    onNavigate?: (view: string) => void;
 }
 
-export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShiftOpened, onBack }) => {
+export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShiftOpened, onBack, onNavigate }) => {
     const [amount, setAmount] = useState('0.00');
     const [cashRegisters, setCashRegisters] = useState<any[]>([]);
     const [selectedRegisterId, setSelectedRegisterId] = useState<string>('');
@@ -183,6 +184,14 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
                     >
                         {loading ? 'Abriendo...' : 'Abrir Turno'}
                     </button>
+                    {currentUser.role === 'ADMIN' && onNavigate && (
+                        <button
+                            onClick={() => onNavigate('ADMIN_PORTAL')}
+                            className="mt-2 bg-red-600/20 hover:bg-red-600/30 text-red-500 py-3 rounded-xl font-black uppercase tracking-widest border border-red-500/20 active:scale-95 transition-all text-xs"
+                        >
+                            Ir a Panel Admin
+                        </button>
+                    )}
                 </div>
 
                 {/* Right Keypad */}

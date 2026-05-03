@@ -487,12 +487,10 @@ const App: React.FC = () => {
       else setCurrentView('KDS_STATION_SELECT');
     } else if (user.role?.toUpperCase() === 'PRODUCCION') {
       setCurrentView('PRODUCCION');
-    } else if (user.role?.toUpperCase() === 'ADMIN') {
-      setCurrentView('ADMIN_PORTAL');
     } else {
       // CASE-INSENSITIVE permission check: permissions are stored lowercase
       const normalizedPerms = (user.permissions || []).map(p => p.toLowerCase());
-      const hasCashAccess = user.role?.toUpperCase() === 'CAJERO' ||
+      const hasCashAccess = user.role?.toUpperCase() === 'CAJERO' || user.role?.toUpperCase() === 'ADMIN' ||
         normalizedPerms.some(p => p.includes('cajas:acceso') || p.includes('cajero'));
       if (hasCashAccess) {
         const { data: shiftData } = await supabase
@@ -1330,7 +1328,7 @@ const App: React.FC = () => {
           )}
 
           <main className="flex-1 overflow-hidden relative">
-            {currentView === 'OPEN_SHIFT' && currentUser && <OpenShiftView currentUser={currentUser} onShiftOpened={() => setCurrentView('DASHBOARD')} onBack={handleLogout} />}
+            {currentView === 'OPEN_SHIFT' && currentUser && <OpenShiftView currentUser={currentUser} onShiftOpened={() => setCurrentView('DASHBOARD')} onBack={handleLogout} onNavigate={handleNavigate} />}
             {currentView === 'DASHBOARD' && <Dashboard 
               onNavigate={handleNavigate} 
               isAdmin={currentUser?.role?.toUpperCase() === 'ADMIN' || !!currentUser?.role_id} 
