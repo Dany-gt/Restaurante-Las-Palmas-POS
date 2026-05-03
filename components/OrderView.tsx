@@ -296,22 +296,22 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     // ----------------------------------------------------------------------
 
     const handleEditItem = async (item: OrderItem) => {
-        const isSaved = !item.id.startsWith('i-');
+        const isSaved = !item.id.startsWith('i-') && item.is_sent;
         if (isSaved) {
-            // First check for order creator restriction
+            // Item ya enviado: SIEMPRE pedir comentario + PIN para anularlo
+            // (el doble clic en un item enviado inicia el flujo de anulación, no de edición)
             if (!isOrderCreator()) {
-                alert('🚫 No puedes editar productos de una orden que no creaste.');
+                alert('🚫 No puedes anular productos de una orden que no creaste.');
                 return;
             }
-
-            const isAuthorized = currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO';
-            if (!isAuthorized) {
-                setPendingAction('edit');
-                setItemToVoid(item);
-                setShowPinModal(true);
-                return;
-            }
+            // v1.6.2 - Flujo unificado: Comentario → PIN → Borrar
+            setItemToVoid(item);
+            setVoidReason('');
+            setPendingAction('delete');
+            setShowVoidModal(true);
+            return;
         }
+        // Item no enviado: abrir modal de modificadores directamente
         const mockProduct: Product = {
             id: item.product_id,
             name: item.product_name,
@@ -2617,20 +2617,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     }}
                     onSuccess={async (authorizedUser: any, pin: string) => {
                         // El PIN de administrador es absoluto y permite cualquier acción de anulación
-                        if (pendingAction === 'delete' && itemToVoid) {
+                        // v1.6.2 - Si hay itemToVoid y la acción es delete (o vino de un doble clic),
+                        //          siempre ejecutar la anulación del item.
+                        if ((pendingAction === 'delete') && itemToVoid) {
                             // Ejecutar la anulación real del item en DB pasando el PIN para el RPC
                             handleVoidItem(pin);
-                        } else if (pendingAction === 'edit' && itemToVoid) {
-                            // Si es una edición autorizada, abrir el modal de modificadores
-                            const mockProduct: Product = {
-                                id: itemToVoid.product_id,
-                                name: itemToVoid.product_name,
-                                price: itemToVoid.price,
-                                category_id: 'unknown',
-                                branch_id: currentUser?.branch_id || 'unknown'
-                            };
-                            setEditingItemId(itemToVoid.id);
-                            setShowModifierModal(mockProduct);
                         } else if (pendingAction === 'cancel' && activeOrderId) {
                             setProcessing(true);
                             try {
