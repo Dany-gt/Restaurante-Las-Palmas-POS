@@ -1809,6 +1809,44 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         try { return JSON.parse(localStorage.getItem('cached_products') || '[]'); } catch { return []; }
                     })();
 
+                    // v1.6.0 - SYNC SHADOW STOCK TO DATABASE (inventory_item_branches)
+                    // This ensures the Admin panel sees the decrement even without recipes
+                    const syncItemInventory = async () => {
+                        for (const item of unsentItems) {
+                            const nameKey = (item.product_name || '').trim().toUpperCase();
+                            // Find the inventory item ID by matching name in the products list
+                            const invProduct = products.find((p: any) => (p.name || '').trim().toUpperCase() === nameKey && !p.es_platillo);
+                            if (invProduct) {
+                                try {
+                                    // Decrement in DB
+                                    const { error: decError } = await supabase.rpc('decrement_inventory_item', {
+                                        p_item_id: invProduct.id,
+                                        p_branch_id: currentUser?.branch_id,
+                                        p_quantity: item.quantity
+                                    });
+                                    if (decError) {
+                                        // Fallback to direct update if RPC doesn't exist
+                                        console.warn('RPC decrement_inventory_item failed, trying direct update:', decError);
+                                        const { data: currentStock } = await supabase
+                                            .from('inventory_item_branches')
+                                            .select('quantity')
+                                            .eq('item_id', invProduct.id)
+                                            .eq('branch_id', currentUser?.branch_id)
+                                            .single();
+                                        
+                                        if (currentStock) {
+                                            await supabase.from('inventory_item_branches')
+                                                .update({ quantity: currentStock.quantity - item.quantity })
+                                                .eq('item_id', invProduct.id)
+                                                .eq('branch_id', currentUser?.branch_id);
+                                        }
+                                    }
+                                } catch (e) { console.error('Error syncing shadow stock:', e); }
+                            }
+                        }
+                    };
+                    syncItemInventory();
+
                     setBranchInventory(prev => {
                         const updated = prev.map(inv => {
                             if (inv.branch_id !== currentUser?.branch_id) return inv;
