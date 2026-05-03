@@ -487,6 +487,8 @@ const App: React.FC = () => {
       else setCurrentView('KDS_STATION_SELECT');
     } else if (user.role?.toUpperCase() === 'PRODUCCION') {
       setCurrentView('PRODUCCION');
+    } else if (user.role?.toUpperCase() === 'ADMIN') {
+      setCurrentView('ADMIN_PORTAL');
     } else {
       // CASE-INSENSITIVE permission check: permissions are stored lowercase
       const normalizedPerms = (user.permissions || []).map(p => p.toLowerCase());
@@ -572,7 +574,7 @@ const App: React.FC = () => {
 
     // SECURITY: Admin Route Protection
     if (view.startsWith('ADMIN_')) {
-      if (!currentUser || currentUser.role?.toUpperCase() !== 'ADMIN') {
+      if (!currentUser || (currentUser.role?.toUpperCase() !== 'ADMIN' && currentUser.originalRole?.toUpperCase() !== 'ADMIN')) {
         console.warn('⛔ Unauthorized Admin Access attempt');
         return;
       }

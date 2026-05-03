@@ -172,8 +172,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
 
     const hasPermission = (requiredPermission: string[]) => {
         if (!currentUser) return false;
-        if (currentUser.role?.toUpperCase() === 'ADMIN') return true;
-        if (currentUser.role?.toUpperCase() === 'SUPERVISOR' && requiredPermission.length === 0) return true;
+        if (currentUser.role?.toUpperCase() === 'ADMIN' || currentUser.originalRole?.toUpperCase() === 'ADMIN') return true;
+        if ((currentUser.role?.toUpperCase() === 'SUPERVISOR' || currentUser.originalRole?.toUpperCase() === 'SUPERVISOR') && requiredPermission.length === 0) return true;
         return requiredPermission.some(p => currentUser.permissions?.includes(p));
     };
 
