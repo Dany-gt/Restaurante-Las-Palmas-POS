@@ -940,36 +940,45 @@ export const InventoryProducts: React.FC = () => {
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             <label className="w-24 shrink-0 text-[10px] text-slate-800 font-bold uppercase tracking-tight">Categoría</label>
-                                                            <div className="flex-1 relative">
+                                                            <div className="flex-1 relative group">
+                                                                <div className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#106ebe] pointer-events-none">
+                                                                    <Search size={12} strokeWidth={3} />
+                                                                </div>
                                                                 <input
                                                                     type="text"
                                                                     placeholder="BUSCAR CATEGORÍA..."
                                                                     value={showCategoryDropdown ? categorySearch : (categories.find(c => c.id === formData.category_id)?.name || '')}
                                                                     onFocus={() => { setShowCategoryDropdown(true); setCategorySearch(''); }}
                                                                     onChange={e => { setCategorySearch(e.target.value); setShowCategoryDropdown(true); }}
-                                                                    className="w-full h-6 border border-gray-300 px-2 text-[11px] text-slate-800 font-bold focus:border-[#106ebe] outline-none uppercase font-bold bg-[#f8f9fa]"
+                                                                    className="w-full h-7 border border-gray-300 pl-7 pr-2 text-[11px] text-slate-800 font-bold focus:border-[#106ebe] focus:ring-1 focus:ring-[#106ebe]/20 outline-none uppercase font-bold bg-[#f8f9fa] transition-all shadow-sm"
                                                                 />
                                                                 {showCategoryDropdown && (
                                                                     <>
                                                                         <div className="fixed inset-0 z-40" onClick={() => setShowCategoryDropdown(false)} />
-                                                                        <div className="absolute z-50 top-full mt-1 inset-x-0 bg-white border border-gray-400 shadow-xl p-0.5 max-h-48 overflow-y-auto custom-scrollbar">
+                                                                        <div className="absolute z-50 top-full mt-1 inset-x-0 bg-white border border-gray-400 shadow-2xl p-1 max-h-64 overflow-y-auto custom-scrollbar rounded-sm animate-in fade-in slide-in-from-top-1 duration-200">
                                                                             <button
                                                                                 type="button"
                                                                                 onClick={() => { setFormData({ ...formData, category_id: '' }); setShowCategoryDropdown(false); }}
-                                                                                className="w-full text-left px-2 py-1 text-[10px] font-bold text-rose-600 hover:bg-[#106ebe] hover:text-white transition-colors uppercase"
+                                                                                className="w-full text-left px-3 py-2 text-[11px] font-bold text-rose-600 hover:bg-rose-50 transition-colors uppercase border-b border-gray-100 flex items-center justify-between"
                                                                             >
-                                                                                [Sin Categoría]
+                                                                                <span>[Sin Categoría]</span>
+                                                                                <X size={10} />
                                                                             </button>
                                                                             {categories.filter(c => c.name.toLowerCase().includes(categorySearch.toLowerCase())).map(c => (
                                                                                 <button
                                                                                     key={c.id}
                                                                                     type="button"
                                                                                     onClick={() => { setFormData({ ...formData, category_id: c.id }); setShowCategoryDropdown(false); }}
-                                                                                    className="w-full text-left px-2 py-0.5 text-[10px] text-slate-800 font-bold hover:bg-[#106ebe] hover:text-white transition-colors uppercase"
+                                                                                    className="w-full text-left px-3 py-2 text-[11px] text-slate-800 font-bold hover:bg-[#106ebe] hover:text-white transition-all uppercase border-b border-gray-50 last:border-0"
                                                                                 >
                                                                                     {c.name}
                                                                                 </button>
                                                                             ))}
+                                                                            {categories.filter(c => c.name.toLowerCase().includes(categorySearch.toLowerCase())).length === 0 && (
+                                                                                <div className="px-3 py-4 text-center text-[10px] text-gray-400 italic font-bold">
+                                                                                    No se encontraron categorías
+                                                                                </div>
+                                                                            )}
                                                                         </div>
                                                                     </>
                                                                 )}
@@ -977,36 +986,45 @@ export const InventoryProducts: React.FC = () => {
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             <label className="w-24 shrink-0 text-[10px] text-slate-800 font-bold uppercase tracking-tight">Proveedor</label>
-                                                            <div className="flex-1 relative">
+                                                            <div className="flex-1 relative group">
+                                                                <div className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#106ebe] pointer-events-none">
+                                                                    <Search size={12} strokeWidth={3} />
+                                                                </div>
                                                                 <input
                                                                     type="text"
                                                                     placeholder="BUSCAR PROVEEDOR..."
                                                                     value={showSupplierDropdown ? supplierSearch : (suppliers.find(s => s.id === formData.supplier_id)?.name || '')}
                                                                     onFocus={() => { setShowSupplierDropdown(true); setSupplierSearch(''); }}
                                                                     onChange={e => { setSupplierSearch(e.target.value); setShowSupplierDropdown(true); }}
-                                                                    className="w-full h-6 border border-gray-300 px-2 text-[11px] text-slate-800 font-bold focus:border-[#106ebe] outline-none uppercase font-bold bg-[#f8f9fa]"
+                                                                    className="w-full h-7 border border-gray-300 pl-7 pr-2 text-[11px] text-slate-800 font-bold focus:border-[#106ebe] focus:ring-1 focus:ring-[#106ebe]/20 outline-none uppercase font-bold bg-[#f8f9fa] transition-all shadow-sm"
                                                                 />
                                                                 {showSupplierDropdown && (
                                                                     <>
                                                                         <div className="fixed inset-0 z-40" onClick={() => setShowSupplierDropdown(false)} />
-                                                                        <div className="absolute z-50 top-full mt-1 inset-x-0 bg-white border border-gray-400 shadow-xl p-0.5 max-h-48 overflow-y-auto custom-scrollbar">
+                                                                        <div className="absolute z-50 top-full mt-1 inset-x-0 bg-white border border-gray-400 shadow-2xl p-1 max-h-64 overflow-y-auto custom-scrollbar rounded-sm animate-in fade-in slide-in-from-top-1 duration-200">
                                                                             <button
                                                                                 type="button"
                                                                                 onClick={() => { setFormData({ ...formData, supplier_id: '' }); setShowSupplierDropdown(false); }}
-                                                                                className="w-full text-left px-2 py-1 text-[10px] font-bold text-rose-600 hover:bg-[#106ebe] hover:text-white transition-colors uppercase"
+                                                                                className="w-full text-left px-3 py-2 text-[11px] font-bold text-rose-600 hover:bg-rose-50 transition-colors uppercase border-b border-gray-100 flex items-center justify-between"
                                                                             >
-                                                                                [Quitar Proveedor]
+                                                                                <span>[Quitar Proveedor]</span>
+                                                                                <X size={10} />
                                                                             </button>
                                                                             {suppliers.filter(s => s.name.toLowerCase().includes(supplierSearch.toLowerCase())).map(s => (
                                                                                 <button
                                                                                     key={s.id}
                                                                                     type="button"
                                                                                     onClick={() => { setFormData({ ...formData, supplier_id: s.id }); setShowSupplierDropdown(false); }}
-                                                                                    className="w-full text-left px-2 py-0.5 text-[10px] text-slate-800 font-bold hover:bg-[#106ebe] hover:text-white transition-colors uppercase"
+                                                                                    className="w-full text-left px-3 py-2 text-[11px] text-slate-800 font-bold hover:bg-[#106ebe] hover:text-white transition-all uppercase border-b border-gray-50 last:border-0"
                                                                                 >
                                                                                     {s.name}
                                                                                 </button>
                                                                             ))}
+                                                                            {suppliers.filter(s => s.name.toLowerCase().includes(supplierSearch.toLowerCase())).length === 0 && (
+                                                                                <div className="px-3 py-4 text-center text-[10px] text-gray-400 italic font-bold">
+                                                                                    No se encontraron proveedores
+                                                                                </div>
+                                                                            )}
                                                                         </div>
                                                                     </>
                                                                 )}
