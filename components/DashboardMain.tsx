@@ -106,7 +106,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
   };
 
   const isStrictAdmin = currentUser?.role === 'ADMIN';
-  const showOperational = !isStrictAdmin;
+  const showOperational = true;
   const showAdminPanel = isStrictAdmin || currentUser?.originalRole === 'ADMIN' || (currentUser?.permissions && currentUser.permissions.length > 0);
   const visibleAdminModules = ADMIN_MODULES.filter(mod => hasPermission(mod.perms));
 
