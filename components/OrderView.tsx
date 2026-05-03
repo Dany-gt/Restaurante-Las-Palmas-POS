@@ -1502,6 +1502,47 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 return inv;
             }));
 
+            // v1.6.0 - REVERT Item Inventory (Insumos) by name
+            setItemInventory(prev => {
+                const updated = prev.map(inv => {
+                    if (inv.branch_id !== currentUser?.branch_id) return inv;
+                    const itemProduct = products.find((p: any) => p.id === inv.item_id || p.id === inv.product_id);
+                    const itemName = (itemProduct?.name || '').trim().toUpperCase();
+                    if (itemName === (itemToVoid.product_name || '').trim().toUpperCase()) {
+                        console.log(`📦 Reverting ItemInv: ${itemName} ${inv.quantity} → ${inv.quantity + voidQty}`);
+                        return { ...inv, quantity: (inv.quantity || 0) + voidQty };
+                    }
+                    return inv;
+                });
+                localStorage.setItem('cached_inventory_item_branches', JSON.stringify(updated));
+                return updated;
+            });
+
+            // v1.6.0 - REVERT Insumos in DB (Sync Shadow Stock)
+            const revertItemInventoryInDB = async () => {
+                if (!isOnline) return;
+                const nameKey = (itemToVoid.product_name || '').trim().toUpperCase();
+                const invProduct = products.find((p: any) => (p.name || '').trim().toUpperCase() === nameKey && !p.es_platillo);
+                if (invProduct) {
+                    try {
+                        const { data: currentStock } = await supabase
+                            .from('inventory_item_branches')
+                            .select('quantity')
+                            .eq('item_id', invProduct.id)
+                            .eq('branch_id', currentUser?.branch_id)
+                            .single();
+                        
+                        if (currentStock) {
+                            await supabase.from('inventory_item_branches')
+                                .update({ quantity: currentStock.quantity + voidQty })
+                                .eq('item_id', invProduct.id)
+                                .eq('branch_id', currentUser?.branch_id);
+                        }
+                    } catch (e) { console.error('Error reverting shadow stock in DB:', e); }
+                }
+            };
+            revertItemInventoryInDB();
+
             // Sync with localStorage
             const cachedProdsStr = localStorage.getItem('cached_products');
             if (cachedProdsStr) {
@@ -1520,17 +1561,19 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 } catch (e) { console.error('Error updating cached products on void:', e); }
             }
 
-            const cachedInvStr = localStorage.getItem('cached_branch_inventory');
-            if (cachedInvStr) {
+            const cachedItemInvStr = localStorage.getItem('cached_inventory_item_branches');
+            if (cachedItemInvStr) {
                 try {
-                    const parsed = JSON.parse(cachedInvStr).map((inv: any) => {
-                        if (inv.product_id === itemToVoid.product_id && inv.branch_id === currentUser?.branch_id) {
+                    const parsed = JSON.parse(cachedItemInvStr).map((inv: any) => {
+                        const itemProduct = products.find((p: any) => p.id === inv.item_id || p.id === inv.product_id);
+                        const itemName = (itemProduct?.name || '').trim().toUpperCase();
+                        if (itemName === (itemToVoid.product_name || '').trim().toUpperCase() && inv.branch_id === currentUser?.branch_id) {
                             return { ...inv, quantity: (inv.quantity || 0) + voidQty };
                         }
                         return inv;
                     });
-                    localStorage.setItem('cached_branch_inventory', JSON.stringify(parsed));
-                } catch (e) { console.error('Error updating cached inventory on void:', e); }
+                    localStorage.setItem('cached_inventory_item_branches', JSON.stringify(parsed));
+                } catch (e) { console.error('Error updating cached items on void:', e); }
             }
 
             // Trigger UI refresh event
