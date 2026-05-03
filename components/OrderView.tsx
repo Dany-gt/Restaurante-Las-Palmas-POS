@@ -1428,13 +1428,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
         // Si el item YA está en base de datos, solo ADMIN o CAJERO pueden anularlo directamente.
         // Los meseros pueden iniciar el flujo pero requerirán PIN de administrador.
-        const canVoidDirectly = currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO';
-        if (!canVoidDirectly) {
-            setPendingAction('delete'); // Usaremos 'delete' como señal para requerir PIN de anulación de item
-        }
-
+        // v1.6.2 - FLUJO UNIFICADO: Siempre pedir motivo ANTES que el PIN
         setItemToVoid(item);
         setVoidReason('');
+        setPendingAction('delete');
         setShowVoidModal(true);
     };
 
@@ -2322,7 +2319,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         {(currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Anular Orden') || currentUser?.permissions?.includes('Cajero:Anular Orden')) && (
                             <button
                                 onClick={() => {
-                                    // Eliminamos el bloqueo de isOrderCreator() para permitir que el ADMIN anule cualquier orden
+                                    // v1.6.2 - Limpiar motivo y pedir comentario antes que el PIN
+                                    setVoidReason('');
                                     setPendingAction('cancel');
                                     setShowVoidModal(true);
                                 }}
@@ -2869,15 +2867,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </button>
                                     <button
                                         onClick={() => {
-                                            // El PIN de administrador es absoluto. Si no somos admin, siempre pedimos PIN para anular.
-                                            const isPrivileged = currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO';
-                                            
-                                            if (pendingAction === 'cancel' || pendingAction === 'delete' || !isPrivileged) {
-                                                setShowVoidModal(false);
-                                                setShowPinModal(true);
-                                            } else {
-                                                handleVoidItem();
-                                            }
+                                            // v1.6.2 - Al aceptar el motivo, cerramos este modal y abrimos el del PIN
+                                            // para proceder con la validación física o remota.
+                                            setShowVoidModal(false);
+                                            setShowPinModal(true);
                                         }}
                                         disabled={voidReason.trim().length < 5 || processing}
                                         className="flex-1 py-3 bg-[#6366f1] disabled:bg-gray-700 disabled:opacity-50 text-white rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg shadow-indigo-500/20 active:scale-95 transition-all"
