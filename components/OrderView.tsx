@@ -2595,7 +2595,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     isOpen={showPinModal}
                     onClose={() => setShowPinModal(false)}
                     validateFn={validatePin}
-                    requiredRole="ADMIN"
+                    requiredRole="CAJERO"
                     title="Autorización Requerida"
                     subtitle={pendingAction === 'cancel' ? "Anular Orden Completa" : "Eliminar Item"}
                     remoteAuthEnabled={true}
