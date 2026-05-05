@@ -338,24 +338,44 @@ export const MenuCosting: React.FC = () => {
             const baseUnit = (item.inventory_items?.unit_measure || '').toLowerCase();
 
             // LÓGICA DE CONVERSIÓN DE UNIDADES (Prorrateo Inteligente)
-            if (selectedUnit !== 'unidad') {
-                if (baseUnit.includes('libra') || baseUnit === 'lb') {
-                    if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
-                    if (selectedUnit.includes('gramo')) unitFactor = 1 / 453.592;
-                } else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
-                    if (selectedUnit.includes('gramo')) unitFactor = 1 / 1000;
-                    if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
-                } else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
-                    let baseInMl = 1;
-                    if (baseUnit.includes('mililitro') || baseUnit === 'ml') baseInMl = 1;
-                    else if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
-                    else if (baseUnit.includes('onza')) baseInMl = 29.5735;
+            if (selectedUnit.includes('unidad') || selectedUnit.includes('botella') || selectedUnit.includes('barril')) {
+                unitFactor = 1;
+            }
+            else if (baseUnit.includes('libra') || baseUnit === 'lb') {
+                if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
+                else if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 453.592;
+                else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 2.20462;
+            } else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
+                if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 1000;
+                else if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
+                else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 0.453592;
+            } else if (baseUnit.includes('onza')) {
+                if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 28.3495;
+                else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 16;
+                else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 35.274;
+                else if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') unitFactor = 1 / 29.5735;
+                else if (selectedUnit.includes('litro') || selectedUnit === 'lt') unitFactor = 1000 / 29.5735;
+                else if (selectedUnit.includes('galón') || selectedUnit.includes('galon')) unitFactor = 3785.41 / 29.5735;
+            } else if (baseUnit.includes('gramo') || baseUnit === 'g') {
+                if (selectedUnit.includes('onza')) unitFactor = 28.3495;
+                else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 453.592;
+                else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 1000;
+            } else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('galón') || baseUnit.includes('galon') || baseUnit.includes('botella') || baseUnit.includes('barril')) {
+                let baseInMl = 1;
+                if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                else if (baseUnit.includes('galón') || baseUnit.includes('galon')) baseInMl = 3785.41;
+                else if (baseUnit.includes('botella')) baseInMl = 750; // Estándar
+                else if (baseUnit.includes('barril')) baseInMl = 50000; // 50L
+                
+                let selectedInMl = 1;
+                if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
+                else if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+                else if (selectedUnit.includes('litro') || selectedUnit === 'lt') selectedInMl = 1000;
+                else if (selectedUnit.includes('galón') || selectedUnit.includes('galon')) selectedInMl = 3785.41;
+                else if (selectedUnit.includes('botella')) selectedInMl = 750;
+                else if (selectedUnit.includes('barril')) selectedInMl = 50000;
 
-                    let selectedInMl = 1;
-                    if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
-                    else if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
-                    else if (selectedUnit.includes('litro')) selectedInMl = 1000;
-                    
+                if (selectedUnit.includes('mililitro') || selectedUnit === 'ml' || selectedUnit.includes('onza') || selectedUnit.includes('litro') || selectedUnit === 'lt' || selectedUnit.includes('galón') || selectedUnit.includes('galon') || selectedUnit.includes('botella') || selectedUnit.includes('barril')) {
                     unitFactor = selectedInMl / baseInMl;
                 }
             }
@@ -454,29 +474,44 @@ export const MenuCosting: React.FC = () => {
                 const baseUnit = (item.inventory_items?.unit_measure || '').toLowerCase();
 
                 // LÓGICA DE CONVERSIÓN DE UNIDADES (Prorrateo Inteligente)
-                if (selectedUnit !== 'unidad') {
-                    // PESO (lb)
-                    if (baseUnit.includes('libra') || baseUnit === 'lb') {
-                        if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
-                        if (selectedUnit.includes('gramo')) unitFactor = 1 / 453.592;
-                    }
-                    // PESO (kg)
-                    else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
-                        if (selectedUnit.includes('gramo')) unitFactor = 1 / 1000;
-                        if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
-                    }
-                    // VOLUMEN (lt/ml/oz)
-                    else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
-                        let baseInMl = 1;
-                        if (baseUnit.includes('mililitro') || baseUnit === 'ml') baseInMl = 1;
-                        else if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
-                        else if (baseUnit.includes('onza')) baseInMl = 29.5735;
+                if (selectedUnit.includes('unidad') || selectedUnit.includes('botella') || selectedUnit.includes('barril')) {
+                    unitFactor = 1;
+                }
+                else if (baseUnit.includes('libra') || baseUnit === 'lb') {
+                    if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
+                    else if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 453.592;
+                    else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 2.20462;
+                } else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
+                    if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 1000;
+                    else if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
+                    else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 0.453592;
+                } else if (baseUnit.includes('onza')) {
+                    if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 28.3495;
+                    else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 16;
+                    else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 35.274;
+                    else if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') unitFactor = 1 / 29.5735;
+                    else if (selectedUnit.includes('litro') || selectedUnit === 'lt') unitFactor = 1000 / 29.5735;
+                    else if (selectedUnit.includes('galón') || selectedUnit.includes('galon')) unitFactor = 3785.41 / 29.5735;
+                } else if (baseUnit.includes('gramo') || baseUnit === 'g') {
+                    if (selectedUnit.includes('onza')) unitFactor = 28.3495;
+                    else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 453.592;
+                    else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 1000;
+                } else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('galón') || baseUnit.includes('galon') || baseUnit.includes('botella') || baseUnit.includes('barril')) {
+                    let baseInMl = 1;
+                    if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                    else if (baseUnit.includes('galón') || baseUnit.includes('galon')) baseInMl = 3785.41;
+                    else if (baseUnit.includes('botella')) baseInMl = 750;
+                    else if (baseUnit.includes('barril')) baseInMl = 50000;
+                    
+                    let selectedInMl = 1;
+                    if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
+                    else if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+                    else if (selectedUnit.includes('litro') || selectedUnit === 'lt') selectedInMl = 1000;
+                    else if (selectedUnit.includes('galón') || selectedUnit.includes('galon')) selectedInMl = 3785.41;
+                    else if (selectedUnit.includes('botella')) selectedInMl = 750;
+                    else if (selectedUnit.includes('barril')) selectedInMl = 50000;
 
-                        let selectedInMl = 1;
-                        if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
-                        else if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
-                        else if (selectedUnit.includes('litro')) selectedInMl = 1000;
-
+                    if (selectedUnit.includes('mililitro') || selectedUnit === 'ml' || selectedUnit.includes('onza') || selectedUnit.includes('litro') || selectedUnit === 'lt' || selectedUnit.includes('galón') || selectedUnit.includes('galon') || selectedUnit.includes('botella') || selectedUnit.includes('barril')) {
                         unitFactor = selectedInMl / baseInMl;
                     }
                 }
@@ -555,23 +590,40 @@ export const MenuCosting: React.FC = () => {
         const baseUnit = (productData?.unit_measure || '').toLowerCase();
 
         // LÓGICA DE CONVERSIÓN DE UNIDADES (Prorrateo Inteligente)
-        if (selectedUnit !== 'unidad') {
-            if (baseUnit.includes('libra') || baseUnit === 'lb') {
-                if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
-                if (selectedUnit.includes('gramo')) unitFactor = 1 / 453.592;
-            } else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
-                if (selectedUnit.includes('gramo')) unitFactor = 1 / 1000;
-                if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
-            } else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
-                let baseInMl = 1;
-                if (baseUnit.includes('mililitro') || baseUnit === 'ml') baseInMl = 1;
-                else if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
-                else if (baseUnit.includes('onza')) baseInMl = 29.5735;
+        if (selectedUnit === 'unidad' || selectedUnit === 'unidades') {
+            unitFactor = 1;
+        }
+        else if (baseUnit.includes('libra') || baseUnit === 'lb') {
+            if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
+            else if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 453.592;
+            else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 2.20462;
+        } else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
+            if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 1000;
+            else if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
+            else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 0.453592;
+        } else if (baseUnit.includes('onza')) {
+            if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 28.3495;
+            else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 16;
+            else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 35.274;
+            else if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') unitFactor = 1 / 29.5735;
+            else if (selectedUnit.includes('litro') || selectedUnit === 'lt') unitFactor = 1000 / 29.5735;
+            else if (selectedUnit.includes('galón') || selectedUnit.includes('galon')) unitFactor = 3785.41 / 29.5735;
+        } else if (baseUnit.includes('gramo') || baseUnit === 'g') {
+            if (selectedUnit.includes('onza')) unitFactor = 28.3495;
+            else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 453.592;
+            else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 1000;
+        } else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('galón') || baseUnit.includes('galon')) {
+            let baseInMl = 1;
+            if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+            else if (baseUnit.includes('galón') || baseUnit.includes('galon')) baseInMl = 3785.41;
+            
+            let selectedInMl = 1;
+            if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
+            else if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+            else if (selectedUnit.includes('litro') || selectedUnit === 'lt') selectedInMl = 1000;
+            else if (selectedUnit.includes('galón') || selectedUnit.includes('galon')) selectedInMl = 3785.41;
 
-                let selectedInMl = 1;
-                if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
-                else if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
-                else if (selectedUnit.includes('litro')) selectedInMl = 1000;
+            if (selectedUnit.includes('mililitro') || selectedUnit === 'ml' || selectedUnit.includes('onza') || selectedUnit.includes('litro') || selectedUnit === 'lt' || selectedUnit.includes('galón') || selectedUnit.includes('galon')) {
                 unitFactor = selectedInMl / baseInMl;
             }
         }
@@ -786,24 +838,40 @@ export const MenuCosting: React.FC = () => {
                                     const baseUnit = (productData?.unit_measure || '').toLowerCase();
 
                                     // LÓGICA DE CONVERSIÓN DE UNIDADES (Prorrateo Inteligente)
-                                    if (selectedUnit !== 'unidad') {
-                                        if (baseUnit.includes('libra') || baseUnit === 'lb') {
-                                            if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
-                                            if (selectedUnit.includes('gramo')) unitFactor = 1 / 453.592;
-                                        } else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
-                                            if (selectedUnit.includes('gramo')) unitFactor = 1 / 1000;
-                                            if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
-                                        } else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
-                                            let baseInMl = 1;
-                                            if (baseUnit.includes('mililitro') || baseUnit === 'ml') baseInMl = 1;
-                                            else if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
-                                            else if (baseUnit.includes('onza')) baseInMl = 29.5735;
+                                    if (selectedUnit === 'unidad' || selectedUnit === 'unidades') {
+                                        unitFactor = 1;
+                                    }
+                                    else if (baseUnit.includes('libra') || baseUnit === 'lb') {
+                                        if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
+                                        else if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 453.592;
+                                        else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 2.20462;
+                                    } else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
+                                        if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 1000;
+                                        else if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
+                                        else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 0.453592;
+                                    } else if (baseUnit.includes('onza')) {
+                                        if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 28.3495;
+                                        else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 16;
+                                        else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 35.274;
+                                        else if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') unitFactor = 1 / 29.5735;
+                                        else if (selectedUnit.includes('litro') || selectedUnit === 'lt') unitFactor = 1000 / 29.5735;
+                                        else if (selectedUnit.includes('galón') || selectedUnit.includes('galon')) unitFactor = 3785.41 / 29.5735;
+                                    } else if (baseUnit.includes('gramo') || baseUnit === 'g') {
+                                        if (selectedUnit.includes('onza')) unitFactor = 28.3495;
+                                        else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 453.592;
+                                        else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 1000;
+                                    } else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('galón') || baseUnit.includes('galon')) {
+                                        let baseInMl = 1;
+                                        if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                                        else if (baseUnit.includes('galón') || baseUnit.includes('galon')) baseInMl = 3785.41;
+                                        
+                                        let selectedInMl = 1;
+                                        if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
+                                        else if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+                                        else if (selectedUnit.includes('litro') || selectedUnit === 'lt') selectedInMl = 1000;
+                                        else if (selectedUnit.includes('galón') || selectedUnit.includes('galon')) selectedInMl = 3785.41;
 
-                                            let selectedInMl = 1;
-                                            if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
-                                            else if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
-                                            else if (selectedUnit.includes('litro')) selectedInMl = 1000;
-                                            
+                                        if (selectedUnit.includes('mililitro') || selectedUnit === 'ml' || selectedUnit.includes('onza') || selectedUnit.includes('litro') || selectedUnit === 'lt' || selectedUnit.includes('galón') || selectedUnit.includes('galon')) {
                                             unitFactor = selectedInMl / baseInMl;
                                         }
                                     }

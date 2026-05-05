@@ -133,7 +133,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
         const baseUnit = (ri.inventory_items?.unit_measure || ri.unit_measure || '').toLowerCase();
 
         // 0. Caso especial: UNIDADES (No dividir por factor si se usa como Unidad)
-        if (selectedUnit === 'unidad') {
+        if (selectedUnit === 'unidad' || selectedUnit === 'unidades') {
             return acc + (qty * cost);
         }
 
@@ -280,10 +280,14 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                 {value: 'Mililitro', label: 'Mililitro'},
                                                 {value: 'Gramo', label: 'Gramo'},
                                                 {value: 'Onza', label: 'Onza'},
+                                                {value: 'Onza liquida', label: 'Onza liquida'},
                                                 {value: 'Litro', label: 'Litro'},
+                                                {value: 'Galón', label: 'Galón'},
                                                 {value: 'Libra', label: 'Libra'},
-                                                {value: 'Kilogramo', label: 'Kilogramo'},
-                                                {value: 'Unidad', label: 'Unidad'}
+                                                {value: 'Kilo', label: 'Kilo'},
+                                                {value: 'Unidad', label: 'Unidad'},
+                                                {value: 'Botella', label: 'Botella'},
+                                                {value: 'Barril', label: 'Barril'}
                                             ]}
                                         />
                                         <label className="text-[11px] text-[#202020] font-[Arial] pl-2">Presentación</label>
@@ -311,7 +315,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                     </div>
                                     <div className="grid grid-cols-[165px_1fr_100px_1fr] items-center gap-2 pr-8">
                                         <label className="text-[8.5px] tracking-tighter whitespace-nowrap text-[#202020] font-[Arial]">
-                                            {`Cantidad de ${newProduct.unit_measure === 'Mililitro' ? 'ml' : newProduct.unit_measure === 'Gramo' ? 'g' : newProduct.unit_measure === 'Litro' ? 'L' : newProduct.unit_measure === 'Libra' ? 'lb' : newProduct.unit_measure === 'Kilogramo' ? 'kg' : newProduct.unit_measure === 'Onza' ? 'oz' : newProduct.unit_measure || 'ml'} en 1 ${newProduct.presentation_unit || 'Frasco'}`}
+                                            {`Cantidad de ${newProduct.unit_measure?.includes('Mililitro') ? 'ml' : newProduct.unit_measure?.includes('Gramo') ? 'g' : newProduct.unit_measure?.includes('Litro') ? 'L' : newProduct.unit_measure?.includes('Libra') ? 'lb' : newProduct.unit_measure?.includes('Kilo') ? 'kg' : newProduct.unit_measure?.includes('Onza') ? 'oz' : newProduct.unit_measure?.includes('Galón') || newProduct.unit_measure?.includes('Galon') ? 'gal' : newProduct.unit_measure || 'unidades'} en 1 ${newProduct.presentation_unit || 'Frasco'}`}
                                         </label>
                                         <input 
                                             type="text" 
@@ -510,8 +514,8 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                                 const baseUnit = (ri.inventory_items?.unit_measure || ri.unit_measure || '').toLowerCase();
 
                                                                 // 0. Caso especial: UNIDADES (No dividir por factor para unidad entera)
-                                                                if (selectedUnit === 'unidad') {
-                                                                    const lineCost = qty * cost;
+                                                                if (selectedUnit.includes('unidad') || selectedUnit.includes('botella') || selectedUnit.includes('barril')) {
+                                                                    const lineCost = qty * baseCost;
                                                                     return (
                                                                         <tr 
                                                                             key={ri.id || idx} 
@@ -558,36 +562,49 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                                 // 1. Unidades de PESO (Base Libra)
                                                                 if (baseUnit.includes('libra') || baseUnit === 'lb') {
                                                                     if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
-                                                                    if (selectedUnit.includes('gramo')) unitFactor = 1 / 453.592;
+                                                                    else if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 453.592;
+                                                                    else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 2.20462;
                                                                 }
                                                                 // 2. Unidades de PESO (Base Kilo)
                                                                 else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
-                                                                    if (selectedUnit.includes('gramo')) unitFactor = 1 / 1000;
-                                                                    if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
+                                                                    if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 1000;
+                                                                    else if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
+                                                                    else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 0.453592;
                                                                 }
                                                                 // 3. Unidades de PESO/VOLUMEN (Base Onza)
                                                                 else if (baseUnit.includes('onza')) {
-                                                                    if (selectedUnit.includes('gramo')) {
-                                                                        unitFactor = 1 / 28.3495; // Onza de peso estándar
-                                                                    } else if (selectedUnit.includes('libra')) {
-                                                                        unitFactor = 1 / 16;
-                                                                    } else if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') {
-                                                                        unitFactor = 29.5735; // Onza fluida a ml
-                                                                    } else if (selectedUnit.includes('litro')) {
-                                                                        unitFactor = 29.5735 / 1000;
-                                                                    }
+                                                                    if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 28.3495;
+                                                                    else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 16;
+                                                                    else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 35.274;
+                                                                    else if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') unitFactor = 1 / 29.5735;
+                                                                    else if (selectedUnit.includes('litro') || selectedUnit === 'lt') unitFactor = 1000 / 29.5735;
+                                                                    else if (selectedUnit.includes('galón') || selectedUnit.includes('galon')) unitFactor = 3785.41 / 29.5735;
                                                                 }
-                                                                // 4. Unidades de VOLUMEN (Base Mililitro / Litro)
-                                                                else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml') {
+                                                                // 4. Unidades de PESO (Base Gramo)
+                                                                else if (baseUnit.includes('gramo') || baseUnit === 'g') {
+                                                                    if (selectedUnit.includes('onza')) unitFactor = 28.3495;
+                                                                    else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 453.592;
+                                                                    else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 1000;
+                                                                }
+                                                                // 5. Unidades de VOLUMEN (Base Mililitro / Litro / Galón / Botella / Barril)
+                                                                else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('galón') || baseUnit.includes('galon') || baseUnit.includes('botella') || baseUnit.includes('barril')) {
                                                                     let baseInMl = 1;
                                                                     if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                                                                    else if (baseUnit.includes('galón') || baseUnit.includes('galon')) baseInMl = 3785.41;
+                                                                    else if (baseUnit.includes('botella')) baseInMl = 750;
+                                                                    else if (baseUnit.includes('barril')) baseInMl = 50000;
                                                                     
                                                                     let selectedInMl = 1;
                                                                     if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
-                                                                    if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
-                                                                    if (selectedUnit.includes('litro')) selectedInMl = 1000;
+                                                                    else if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
+                                                                    else if (selectedUnit.includes('litro') || selectedUnit === 'lt') selectedInMl = 1000;
+                                                                    else if (selectedUnit.includes('galón') || selectedUnit.includes('galon')) selectedInMl = 3785.41;
+                                                                    else if (selectedUnit.includes('botella')) selectedInMl = 750;
+                                                                    else if (selectedUnit.includes('barril')) selectedInMl = 50000;
 
-                                                                    unitFactor = selectedInMl / baseInMl;
+                                                                    if (selectedUnit.includes('mililitro') || selectedUnit === 'ml' || selectedUnit.includes('onza') || selectedUnit.includes('litro') || selectedUnit === 'lt' || selectedUnit.includes('galón') || selectedUnit.includes('galon') || selectedUnit.includes('botella') || selectedUnit.includes('barril')) {
+                                                                        unitFactor = selectedInMl / baseInMl;
+                                                                    }
                                                                 }
 
                                                                 const lineCost = qty * baseCost * unitFactor;

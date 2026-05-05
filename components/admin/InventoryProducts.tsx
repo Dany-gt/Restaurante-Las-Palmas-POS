@@ -70,15 +70,16 @@ export const InventoryProducts: React.FC = () => {
         const p = formData.presentation?.toUpperCase().trim();
         let suggested = 0;
 
-        if (u === 'MILILITRO' || u === 'ML') {
-            if (p === 'LITRO') suggested = 1000;
-            else if (p === 'GALÓN') suggested = 3785;
-            else if (p === 'BOTELLA') suggested = 750;
-        } else if (u === 'GRAMO' || u === 'GR') {
-            if (p === 'LIBRA' || p === 'LB') suggested = 454;
-            else if (p === 'KILOGRAMO' || p === 'KG') suggested = 1000;
-        } else if (u === 'ONZA' || u === 'OZ') {
-            if (p === 'LIBRA' || p === 'LB') suggested = 16;
+        if (u.includes('MILILITRO') || u === 'ML') {
+            if (p.includes('LITRO')) suggested = 1000;
+            else if (p.includes('GALÓN') || p === 'GALON') suggested = 3785;
+            else if (p.includes('BOTELLA')) suggested = 750;
+            else if (p.includes('BARRIL')) suggested = 50000;
+        } else if (u.includes('GRAMO') || u === 'GR') {
+            if (p.includes('LIBRA') || p === 'LB') suggested = 454;
+            else if (p.includes('KILO') || p === 'KG') suggested = 1000;
+        } else if (u.includes('ONZA') || u === 'OZ') {
+            if (p.includes('LIBRA') || p === 'LB') suggested = 16;
         }
 
         // Solo aplicar si el factor actual es el valor por defecto (1)
@@ -134,20 +135,37 @@ export const InventoryProducts: React.FC = () => {
     const INVENTORY_UNITS: Record<string, { factor: number, base: string, category: string }> = {
         'ML': { factor: 1, base: 'ML', category: 'Volumen' },
         'MILILITRO': { factor: 1, base: 'ML', category: 'Volumen' },
+        'MILILITROS': { factor: 1, base: 'ML', category: 'Volumen' },
         'LT': { factor: 1000, base: 'ML', category: 'Volumen' },
         'LITRO': { factor: 1000, base: 'ML', category: 'Volumen' },
+        'LITROS': { factor: 1000, base: 'ML', category: 'Volumen' },
         'FL OZ': { factor: 29.5735, base: 'ML', category: 'Volumen' },
+        'ONZA LIQUIDA': { factor: 29.5735, base: 'ML', category: 'Volumen' },
+        'ONZAS LIQUIDAS': { factor: 29.5735, base: 'ML', category: 'Volumen' },
         'GL': { factor: 3785.41, base: 'ML', category: 'Volumen' },
+        'GALON': { factor: 3785.41, base: 'ML', category: 'Volumen' },
+        'GALONES': { factor: 3785.41, base: 'ML', category: 'Volumen' },
+        'BOTELLA': { factor: 750, base: 'ML', category: 'Volumen' },
+        'BOTELLAS': { factor: 750, base: 'ML', category: 'Volumen' },
+        'BARRIL': { factor: 50000, base: 'ML', category: 'Volumen' },
+        'BARRILES': { factor: 50000, base: 'ML', category: 'Volumen' },
         'GR': { factor: 1, base: 'GR', category: 'Masa' },
         'GRAMO': { factor: 1, base: 'GR', category: 'Masa' },
+        'GRAMOS': { factor: 1, base: 'GR', category: 'Masa' },
         'MG': { factor: 0.001, base: 'GR', category: 'Masa' },
         'KG': { factor: 1000, base: 'GR', category: 'Masa' },
+        'KILO': { factor: 1000, base: 'GR', category: 'Masa' },
+        'KILOGRAMO': { factor: 1000, base: 'GR', category: 'Masa' },
+        'KILOGRAMOS': { factor: 1000, base: 'GR', category: 'Masa' },
         'LB': { factor: 453.592, base: 'GR', category: 'Masa' },
         'LIBRA': { factor: 453.592, base: 'GR', category: 'Masa' },
+        'LIBRAS': { factor: 453.592, base: 'GR', category: 'Masa' },
         'OZ': { factor: 28.3495, base: 'GR', category: 'Masa' },
         'ONZA': { factor: 28.3495, base: 'GR', category: 'Masa' },
+        'ONZAS': { factor: 28.3495, base: 'GR', category: 'Masa' },
         'UN': { factor: 1, base: 'UN', category: 'Conteo' },
         'UNIDAD': { factor: 1, base: 'UN', category: 'Conteo' },
+        'UNIDADES': { factor: 1, base: 'UN', category: 'Conteo' },
         'POR': { factor: 1, base: 'UN', category: 'Conteo' },
         'CAJA': { factor: 1, base: 'UN', category: 'Conteo' },
         'BOLSA': { factor: 1, base: 'UN', category: 'Conteo' },
@@ -899,7 +917,7 @@ export const InventoryProducts: React.FC = () => {
                                                                         <>
                                                                             <div className="fixed inset-0 z-40" onClick={() => setShowUnitDropdown(false)} />
                                                                             <div className="absolute z-50 top-full mt-1 inset-x-0 bg-white border border-gray-400 shadow-xl p-0.5 max-h-40 overflow-y-auto custom-scrollbar">
-                                                                                {['Unidad', 'Libra', 'Gramo', 'Onza', 'Mililitro', 'Litro'].map(u => (
+                                                                                {['Unidad', 'Libra', 'Gramo', 'Kilo', 'Onza', 'Onza liquida', 'Mililitro', 'Litro', 'Galón', 'Botella', 'Barril'].map(u => (
                                                                                     <button
                                                                                         key={u}
                                                                                         type="button"

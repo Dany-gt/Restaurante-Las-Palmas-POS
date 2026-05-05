@@ -203,7 +203,7 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
             })).sort((a, b) => a.name.localeCompare(b.name));
 
             setRows(finalMapped);
-            setFilteredRows(finalMapped);
+
         } catch (err: any) {
             console.error('Error fetchStock:', err);
             alert('Error al cargar inventario: ' + err.message);

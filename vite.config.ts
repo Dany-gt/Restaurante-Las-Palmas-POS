@@ -2,6 +2,7 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { satProxyPlugin } from './server/sat-plugin';
+import { aiProxyPlugin } from './server/ai-plugin';
 
 import basicSsl from '@vitejs/plugin-basic-ssl';
 
@@ -13,7 +14,7 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       host: '0.0.0.0',
     },
-    plugins: [react(), satProxyPlugin(env)],
+    plugins: [react(), satProxyPlugin(env), aiProxyPlugin(env)],
     build: {
       target: 'esnext', // Target modern browsers for smaller bundles
       minify: 'esbuild',
