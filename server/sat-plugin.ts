@@ -7,7 +7,7 @@ import { parseAuditDTE, parseAuditXML } from '../utils/satAuditParser';
 // ═══════════════════════════════════════════════════════════
 
 async function insertToSupabase(invoices: any[], supabaseUrl: string, supabaseKey: string, tipo: string, username: string): Promise<any> {
-    let imported = 0, skipped = 0, errors = 0;
+    let imported = 0, skipped = 0, errors = 0, lastError = '';
     const headers = { 
         'apikey': supabaseKey, 
         'Authorization': 'Bearer ' + supabaseKey, 

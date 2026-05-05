@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
     BarChart3, Save, Search, Loader2, X, AlertTriangle,
     CheckCircle, Building2, RefreshCw, Printer, Package,
@@ -102,7 +102,6 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
     const [branches, setBranches] = useState<Branch[]>([]);
     const [selectedBranch, setSelectedBranch] = useState<string>('');
     const [rows, setRows] = useState<LevelingRow[]>([]);
-    const [filteredRows, setFilteredRows] = useState<LevelingRow[]>([]);
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -143,13 +142,11 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
         if (selectedBranch) fetchStock();
     }, [selectedBranch]);
 
-    useEffect(() => {
+    const filteredRows = useMemo(() => {
         const q = search.toLowerCase();
-        setFilteredRows(
-            rows.filter(r => 
-                (r.name || '').toLowerCase().includes(q) || 
-                (r.code || '').toLowerCase().includes(q)
-            )
+        return rows.filter(r => 
+            (r.name || '').toLowerCase().includes(q) || 
+            (r.code || '').toLowerCase().includes(q)
         );
     }, [search, rows]);
     const fetchStock = async () => {
@@ -383,9 +380,7 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                 }
 
                 // 3. Get new running balance for kardex (approximate with branch stock)
-                const pres = (row.presentation || '').toUpperCase();
-                const isGrouped = ['CAJA', 'BOLSA', 'PAQUETE', 'SACO', 'SOBRE', 'FARDO'].includes(pres);
-                const unitCost = (isGrouped && row.conversion_factor > 1)
+                const unitCost = (row.conversion_factor > 1)
                     ? row.cost / row.conversion_factor
                     : row.cost;
                 const newBalance = normalizedPhysStock;
@@ -831,16 +826,9 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                             const diff = row.physical_stock !== '' ? row.difference : 0;
                                             
                                             // getUnitCost: Calcula el costo REAL por unidad base.
-                                            // Regla: si la presentación agrupa unidades (Caja/Bolsa/etc)
-                                            // y las porciones son > 1, dividir el precio.
-                                            // Si portions=1 pero presentación es Caja, el costo ya ES unitario.
+                                            // Usa conversion_factor directamente (base del producto).
                                             const getUnitCost = (r: LevelingRow): number => {
-                                                const pres = (r.presentation || '').toUpperCase();
-                                                const isGrouped = ['CAJA', 'BOLSA', 'PAQUETE', 'SACO', 'SOBRE', 'FARDO'].includes(pres);
-                                                if (isGrouped && r.conversion_factor > 1) {
-                                                    return r.cost / r.conversion_factor;
-                                                }
-                                                return r.cost;
+                                                return r.conversion_factor > 1 ? r.cost / r.conversion_factor : r.cost;
                                             };
                                             
                                             const unitCost = getUnitCost(row);
@@ -917,9 +905,7 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                                 Q{unitCost.toFixed(2)}
                                                             </span>
                                                             {(() => {
-                                                                const pres = (row.presentation || '').toUpperCase();
-                                                                const isGrouped = ['CAJA', 'BOLSA', 'PAQUETE', 'SACO', 'FARDO'].includes(pres);
-                                                                if (isGrouped && row.conversion_factor > 1) {
+                                                                if (row.conversion_factor > 1) {
                                                                     return <span className="text-[7px] text-slate-300 uppercase">x{row.conversion_factor} {row.unit}</span>;
                                                                 }
                                                                 return null;
