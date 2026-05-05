@@ -780,8 +780,8 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                     </td>
                                                     <td className="px-4 py-1 text-center">
                                                         <div className="flex flex-col items-center">
-                                                            <span className="font-black text-[11px] text-[#106ebe] tabular-nums">{row.system_stock}</span>
-                                                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Global: {(row as any).global_stock || 0}</span>
+                                                            <span className="font-black text-[11px] text-[#106ebe] tabular-nums">{(row as any).global_stock || 0}</span>
+                                                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Sucursal: {row.system_stock}</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-1 text-center">
@@ -858,8 +858,9 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                         <h3 className="text-xs font-black text-slate-800 uppercase leading-snug">{row.name}</h3>
                                                     </div>
                                                     <div className="text-right shrink-0">
-                                                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Existencia Sistema</div>
-                                                        <div className="text-sm font-black text-slate-600 tabular-nums">{row.system_stock} <span className="text-[9px] text-slate-400">{row.unit}</span></div>
+                                                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Existencia Global</div>
+                                                        <div className="text-sm font-black text-slate-600 tabular-nums">{(row as any).global_stock || 0} <span className="text-[9px] text-slate-400">{row.unit}</span></div>
+                                                        <div className="text-[8px] font-bold text-slate-400 uppercase">Sucursal: {row.system_stock}</div>
                                                     </div>
                                                 </div>
 
