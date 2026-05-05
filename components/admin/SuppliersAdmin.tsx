@@ -215,6 +215,13 @@ export const SuppliersAdmin: React.FC = () => {
                         <button className="bg-[#f0f0f0] border border-gray-400 px-4 h-[24px] text-[10px] font-bold uppercase hover:bg-[#e1e1e1] active:bg-[#d1d1d1] text-slate-800 rounded-sm shadow-sm transition-all flex items-center justify-center">
                             Buscar
                         </button>
+                        <button 
+                            onClick={fetchSuppliers}
+                            className="h-[24px] w-[24px] flex items-center justify-center bg-white border border-gray-400 hover:bg-gray-100 text-slate-600 transition-all rounded-sm shadow-sm"
+                            title="Refrescar Listado"
+                        >
+                            <RefreshCw size={12} />
+                        </button>
                     </div>
                 </div>
 
@@ -314,33 +321,33 @@ export const SuppliersAdmin: React.FC = () => {
                                                     autoFocus
                                                     value={formData.name} 
                                                     onChange={e => setFormData({ ...formData, name: e.target.value.toUpperCase() })} 
-                                                    className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE] bg-[#fffceb] font-bold" 
+                                                    className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE] bg-[#fffceb] font-bold text-slate-900" 
                                                 />
                                             </div>
 
                                             <div className="grid grid-cols-2 gap-x-8 gap-y-3">
                                                 <div className="flex items-center gap-4">
                                                     <label className="w-24 text-[11px] font-bold text-slate-600 uppercase">Teléfono</label>
-                                                    <input value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE]" />
+                                                    <input value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE] text-slate-900" />
                                                 </div>
                                                 <div className="flex items-center gap-4">
                                                     <label className="w-16 text-[11px] font-bold text-slate-600 uppercase text-right">Correo</label>
-                                                    <input value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value.toLowerCase() })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE]" />
+                                                    <input value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value.toLowerCase() })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE] text-slate-900" />
                                                 </div>
                                                 
                                                 <div className="flex items-center gap-4">
                                                     <label className="w-24 text-[11px] font-bold text-slate-600 uppercase">Contacto</label>
-                                                    <input value={formData.contact_name} onChange={e => setFormData({ ...formData, contact_name: e.target.value.toUpperCase() })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE]" />
+                                                    <input value={formData.contact_name} onChange={e => setFormData({ ...formData, contact_name: e.target.value.toUpperCase() })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE] text-slate-900" />
                                                 </div>
                                                 <div className="h-7" />
 
                                                 <div className="flex items-center gap-4">
                                                     <label className="w-24 text-[11px] font-bold text-slate-600 uppercase whitespace-nowrap">Tel. Contacto</label>
-                                                    <input value={formData.contact_phone} onChange={e => setFormData({ ...formData, contact_phone: e.target.value })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE]" />
+                                                    <input value={formData.contact_phone} onChange={e => setFormData({ ...formData, contact_phone: e.target.value })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE] text-slate-900" />
                                                 </div>
                                                 <div className="flex items-center gap-4">
                                                     <label className="w-16 text-[11px] font-bold text-slate-600 uppercase text-right">Correo</label>
-                                                    <input value={formData.contact_email} onChange={e => setFormData({ ...formData, contact_email: e.target.value.toLowerCase() })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE]" />
+                                                    <input value={formData.contact_email} onChange={e => setFormData({ ...formData, contact_email: e.target.value.toLowerCase() })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE] text-slate-900" />
                                                 </div>
                                             </div>
                                         </div>

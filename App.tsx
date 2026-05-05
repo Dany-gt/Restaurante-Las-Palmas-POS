@@ -1145,7 +1145,7 @@ const App: React.FC = () => {
             <p className="text-xs text-slate-400">Comuníquese para restaurar sus servicios.</p>
           </div>
           <div className="pt-6 border-t border-white/5">
-            <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Antigravity Multi-Tenant Engine v4.2</p>
+            <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Restaurante Las Palmas POS v4.2</p>
           </div>
         </div>
       </div>

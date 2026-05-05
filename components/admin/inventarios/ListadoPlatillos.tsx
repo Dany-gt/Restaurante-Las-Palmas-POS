@@ -118,6 +118,13 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                             BUSCAR
                         </button>
                     </div>
+                    <button 
+                        onClick={onRefresh}
+                        className="h-5 w-5 flex items-center justify-center bg-white border border-gray-400 hover:bg-gray-100 text-slate-600 transition-all"
+                        title="Refrescar Listado"
+                    >
+                        <RefreshCw size={12} />
+                    </button>
                 </div>
             </div>
 
@@ -141,7 +148,7 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                         {loading ? (
                             <tr><td colSpan={8} className="py-20 text-center text-[10px] uppercase font-bold text-slate-400">Consultando Base de Datos...</td></tr>
                         ) : filtered.length === 0 ? (
-                            <tr><td colSpan={8} className="py-20 text-center text-[10px] uppercase font-bold text-slate-400 italic">No se encontraron registros</td></tr>
+                            <tr><td colSpan={8} className="py-20 text-center text-[10px] uppercase font-bold text-slate-400">No se encontraron registros</td></tr>
                         ) : (
                             filtered.map((item) => (
                                 <tr 

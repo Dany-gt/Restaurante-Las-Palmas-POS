@@ -42,7 +42,7 @@ const CustomSelect = ({ value, onChange, options, placeholder = "Seleccionar..."
                     <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
                     <div className="absolute top-full left-0 right-0 mt-[1px] max-h-[140px] overflow-y-auto bg-white border border-gray-400 shadow-lg z-50 drop-shadow-md custom-scrollbar">
                         <div 
-                            className="px-2 py-1 text-[11px] hover:bg-[#106ebe] hover:text-white cursor-pointer text-gray-500 italic"
+                            className="px-2 py-1 text-[11px] hover:bg-[#106ebe] hover:text-white cursor-pointer text-gray-500"
                             onClick={() => { onChange(''); setIsOpen(false); }}
                         >
                             {placeholder}
@@ -258,7 +258,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                             value={newProduct.product_code || ''}
                                             onChange={e => setNewProduct({...newProduct, product_code: e.target.value})}
                                             onFocus={(e) => setTimeout(() => e.target.select(), 0)}
-                                            className="h-6 border border-gray-400 px-2 text-[11px] w-full outline-none focus:border-blue-500 selection:bg-[#3399ff] selection:text-white" 
+                                            className="h-6 border border-gray-400 px-2 text-[11px] w-full outline-none focus:border-blue-500 selection:bg-[#3399ff] selection:text-white text-black" 
                                         />
                                     </div>
                                     <div className="grid grid-cols-[165px_1fr] items-center gap-2 pr-8">
@@ -268,7 +268,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                             value={newProduct.name || ''}
                                             onChange={e => setNewProduct({...newProduct, name: e.target.value})}
                                             onFocus={(e) => setTimeout(() => e.target.select(), 0)}
-                                            className="h-6 border border-gray-400 px-2 text-[11px] w-full outline-none focus:border-[#106ebe] focus:bg-white selection:bg-[#3399ff] selection:text-white" 
+                                            className="h-6 border border-gray-400 px-2 text-[11px] w-full outline-none focus:border-[#106ebe] focus:bg-white selection:bg-[#3399ff] selection:text-white text-black" 
                                         />
                                     </div>
                                     <div className="grid grid-cols-[165px_1fr_100px_1fr] items-center gap-2 pr-8">
@@ -328,7 +328,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                 }
                                             }}
                                             onFocus={(e) => setTimeout(() => e.target.select(), 0)}
-                                            className="h-6 border border-gray-400 px-2 text-[11px] text-center outline-none focus:border-blue-500 font-bold selection:bg-[#3399ff] selection:text-white" 
+                                            className="h-6 border border-gray-400 px-2 text-[11px] text-center outline-none focus:border-blue-500 font-bold selection:bg-[#3399ff] selection:text-white text-black" 
                                         />
                                         <label className="text-[11px] text-[#202020] font-[Arial] pl-2">Precio Costo</label>
                                         <SmartPriceInput 
@@ -565,12 +565,23 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                                     if (selectedUnit.includes('gramo')) unitFactor = 1 / 1000;
                                                                     if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
                                                                 }
-                                                                // 3. Unidades de VOLUMEN (Base Mililitro / Litro)
-                                                                else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
+                                                                // 3. Unidades de PESO/VOLUMEN (Base Onza)
+                                                                else if (baseUnit.includes('onza')) {
+                                                                    if (selectedUnit.includes('gramo')) {
+                                                                        unitFactor = 1 / 28.3495; // Onza de peso estándar
+                                                                    } else if (selectedUnit.includes('libra')) {
+                                                                        unitFactor = 1 / 16;
+                                                                    } else if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') {
+                                                                        unitFactor = 29.5735; // Onza fluida a ml
+                                                                    } else if (selectedUnit.includes('litro')) {
+                                                                        unitFactor = 29.5735 / 1000;
+                                                                    }
+                                                                }
+                                                                // 4. Unidades de VOLUMEN (Base Mililitro / Litro)
+                                                                else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml') {
                                                                     let baseInMl = 1;
                                                                     if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
-                                                                    if (baseUnit.includes('onza')) baseInMl = 29.5735;
-
+                                                                    
                                                                     let selectedInMl = 1;
                                                                     if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
                                                                     if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
@@ -626,7 +637,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                             );
                                                             }) : (
                                                                 <tr>
-                                                                    <td colSpan={5} className="py-10 text-center text-[11px] text-gray-400 font-bold uppercase italic select-none">
+                                                                    <td colSpan={5} className="py-10 text-center text-[11px] text-gray-400 font-bold uppercase select-none">
                                                                         No hay insumos agregados a esta receta.
                                                                         <div className="text-[9px] mt-1 opacity-60 font-black tracking-widest">[ CLIC DERECHO PARA AGREGAR ]</div>
                                                                     </td>

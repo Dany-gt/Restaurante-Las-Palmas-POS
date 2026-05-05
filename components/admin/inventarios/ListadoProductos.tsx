@@ -31,6 +31,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
 }) => {
     const [items, setItems] = useState<Producto[]>([]);
     const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState('');
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number, product: Producto | null }>({ visible: false, x: 0, y: 0, product: null });
 
@@ -89,6 +90,12 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
         fetchData();
     }, [categorias, sucursalId]);
 
+    const filtered = items.filter(item => 
+        (item.nombre || '').toLowerCase().includes(search.toLowerCase()) ||
+        (item.codigo || '').toLowerCase().includes(search.toLowerCase()) ||
+        (item.categoria || '').toLowerCase().includes(search.toLowerCase())
+    );
+
     const handleContextMenu = (e: React.MouseEvent, product: Producto | null = null) => {
         e.preventDefault();
         e.stopPropagation();
@@ -121,8 +128,29 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
             onContextMenu={(e) => handleContextMenu(e)}
         >
             {/* Toolbar Superior */}
-            <div className="h-8 bg-[#f5f5f5] border-b border-gray-300 flex items-center px-2 shrink-0">
+            <div className="h-8 bg-[#f5f5f5] border-b border-gray-300 flex items-center justify-between px-2 shrink-0">
                 <span className="text-[11px] font-bold text-slate-800 uppercase tracking-tighter">Listado de Productos / Insumos</span>
+                <div className="flex items-center gap-1">
+                    <div className="relative flex items-center h-5">
+                        <input 
+                            type="text"
+                            placeholder="Buscar producto o código..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="bg-white border border-gray-400 h-full px-2 text-[10px] w-56 outline-none focus:border-[#106ebe]"
+                        />
+                        <button className="bg-[#f0f0f0] border border-gray-400 h-full px-4 text-[9px] font-bold border-l-0 hover:bg-white transition-colors active:bg-gray-200 text-black">
+                            BUSCAR
+                        </button>
+                    </div>
+                    <button 
+                        onClick={onRefresh}
+                        className="h-5 w-5 flex items-center justify-center bg-white border border-gray-400 hover:bg-gray-100 text-slate-600 transition-all"
+                        title="Refrescar Listado"
+                    >
+                        <RefreshCw size={12} />
+                    </button>
+                </div>
             </div>
 
 
@@ -143,10 +171,10 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                     <tbody className="bg-white">
                         {loading ? (
                             <tr><td colSpan={7} className="py-20 text-center text-[10px] uppercase font-bold text-slate-400 font-sans">Sincronizando Inventario...</td></tr>
-                        ) : items.length === 0 ? (
-                            <tr><td colSpan={7} className="py-20 text-center text-[10px] uppercase font-bold text-slate-400 font-sans italic">No se encontraron productos</td></tr>
+                        ) : filtered.length === 0 ? (
+                            <tr><td colSpan={7} className="py-20 text-center text-[10px] uppercase font-bold text-slate-400 font-sans">No se encontraron productos</td></tr>
                         ) : (
-                            items.map((item) => (
+                            filtered.map((item) => (
                                 <tr 
                                     key={item.id} 
                                     onClick={(e) => { e.stopPropagation(); setSelectedId(item.id); }}
@@ -190,7 +218,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
 
             {/* Footer */}
             <div className="h-6 bg-[#f0f0f0] border-t border-gray-300 px-2 flex items-center shrink-0">
-                <span className="text-[10px] font-bold text-slate-800 uppercase tracking-tighter">Productos: {items.length}</span>
+                <span className="text-[10px] font-bold text-slate-800 uppercase tracking-tighter">Productos: {filtered.length}</span>
             </div>
 
             {/* Context Menu Portal */}

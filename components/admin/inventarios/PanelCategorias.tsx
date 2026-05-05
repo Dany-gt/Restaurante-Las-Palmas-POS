@@ -405,7 +405,7 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
                         <div className="p-4 space-y-4">
                             {/* Datos de Categoría */}
                             <fieldset className="border border-gray-300 p-3 pt-1 bg-white/50">
-                                <legend className="px-2 text-[10px] font-bold text-[#106ebe] uppercase italic">Datos de Categoría</legend>
+                                <legend className="px-2 text-[10px] font-bold text-[#106ebe] uppercase">Datos de Categoría</legend>
                                 <div className="space-y-3 mt-1">
                                     <div className="flex items-center gap-4">
                                         <label className="text-[10px] font-bold text-gray-600 w-24">Categoría</label>
@@ -427,7 +427,7 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
                                                     />
                                                     {categoryForm.isSubCategory && <div className="w-2 h-2 bg-[#106ebe]" />}
                                                 </div>
-                                                <span className="text-[10px] font-bold text-gray-500 uppercase italic transition-colors group-hover:text-[#106ebe]">SubCategoría</span>
+                                                <span className="text-[10px] font-bold text-gray-500 uppercase transition-colors group-hover:text-[#106ebe]">SubCategoría</span>
                                             </label>
                                         </div>
                                     </div>
@@ -471,7 +471,7 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
 
                             {/* Sucursales */}
                             <fieldset className="border border-gray-300 p-0 bg-white shadow-sm overflow-hidden">
-                                <legend className="px-2 ml-3 text-[10px] font-bold text-[#106ebe] uppercase italic bg-white border border-gray-300 border-b-white">Sucursales</legend>
+                                <legend className="px-2 ml-3 text-[10px] font-bold text-[#106ebe] uppercase bg-white border border-gray-300 border-b-white">Sucursales</legend>
                                 <div className="max-h-[160px] overflow-auto custom-scrollbar">
                                     <table className="w-full border-collapse">
                                         <thead className="sticky top-0 bg-[#f5f5f5] z-10">
@@ -517,7 +517,7 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
 
                         {/* Status Bar style footer */}
                         <div className="h-6 bg-[#f0f0f0] border-t border-gray-300 px-3 flex items-center justify-between shrink-0">
-                            <span className="text-[9px] font-bold text-gray-400 italic">Estado: Listo...</span>
+                            <span className="text-[9px] font-bold text-gray-400">Estado: Listo...</span>
                             <span className="text-[9px] font-bold text-[#106ebe] font-mono tracking-tighter uppercase">{tipo === 'menu' ? 'Módulo Menú' : 'Módulo Insumos'}</span>
                         </div>
                     </div>
