@@ -46,6 +46,53 @@ export const InventoryProducts: React.FC = () => {
     const [showParentDropdown, setShowParentDropdown] = useState(false);
     const [showUnitDropdown, setShowUnitDropdown] = useState(false);
     const [showPresentationDropdown, setShowPresentationDropdown] = useState(false);
+
+    // Form State
+    const [formData, setFormData] = useState({
+        code: '',
+        name: '',
+        unit: 'Unidad',
+        presentation: 'Caja',
+        conversion_factor: 1,
+        cost: 0,
+        category_id: '',
+        supplier_id: '',
+        is_enabled: true
+    });
+    const [editingProduct, setEditingProduct] = useState<any | null>(null);
+    const [showModal, setShowModal] = useState(false);
+
+    // Lógica de "Factores Inteligentes" (Sugerencias automáticas basadas en unidades)
+    useEffect(() => {
+        if (!showModal || editingProduct) return; // Solo sugerir al CREAR nuevo producto
+        
+        const u = formData.unit?.toUpperCase().trim();
+        const p = formData.presentation?.toUpperCase().trim();
+        let suggested = 0;
+
+        if (u === 'MILILITRO' || u === 'ML') {
+            if (p === 'LITRO') suggested = 1000;
+            else if (p === 'GALÓN') suggested = 3785;
+            else if (p === 'BOTELLA') suggested = 750;
+        } else if (u === 'GRAMO' || u === 'GR') {
+            if (p === 'LIBRA' || p === 'LB') suggested = 454;
+            else if (p === 'KILOGRAMO' || p === 'KG') suggested = 1000;
+        } else if (u === 'ONZA' || u === 'OZ') {
+            if (p === 'LIBRA' || p === 'LB') suggested = 16;
+        }
+
+        // Solo aplicar si el factor actual es el valor por defecto (1)
+        if (suggested > 0 && formData.conversion_factor === 1) {
+            setFormData(prev => ({ ...prev, conversion_factor: suggested }));
+        }
+    }, [formData.unit, formData.presentation, showModal, editingProduct]);
+
+    useEffect(() => {
+        if (editingProduct) {
+            // Lógica adicional de edición si fuera necesaria
+        }
+    }, [editingProduct]);
+
     const [loading, setLoading] = useState(true);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const [showMobileCategories, setShowMobileCategories] = useState(false);
@@ -179,18 +226,6 @@ export const InventoryProducts: React.FC = () => {
         else if (type === 'recipe') setRecipeContextMenu({ x, y, index: data });
     };
 
-    // Form State
-    const [formData, setFormData] = useState({
-        code: '',
-        name: '',
-        unit: 'Unidad',
-        presentation: 'Caja',
-        conversion_factor: 1,
-        cost: 0,
-        category_id: '',
-        supplier_id: '',
-        is_enabled: true
-    });
     const [branchData, setBranchData] = useState<any[]>([]);
     const [recipeItems, setRecipeItems] = useState<any[]>([]);
 
@@ -926,15 +961,24 @@ export const InventoryProducts: React.FC = () => {
                                                             </div>
                                                             <div className="flex items-center gap-2">
                                                                 <label className="w-24 shrink-0 text-[10px] text-slate-800 font-bold uppercase tracking-tight">Costo</label>
-                                                                <div className="flex-1 flex items-center bg-gray-50 border border-gray-300 h-6 px-2">
-                                                                    <span className="text-[9px] text-slate-800 font-bold mr-1">Q</span>
-                                                                    <input
-                                                                        type="number"
-                                                                        step="any"
-                                                                        value={formData.cost}
-                                                                        onChange={e => setFormData({ ...formData, cost: parseFloat(e.target.value) || 0 })}
-                                                                        className="w-full bg-transparent border-none text-[11px] text-slate-800 font-bold outline-none font-bold text-[#106ebe]"
-                                                                    />
+                                                                <div className="flex-1 flex flex-col gap-1">
+                                                                    <div className="flex items-center bg-gray-50 border border-gray-300 h-6 px-2">
+                                                                        <span className="text-[9px] text-slate-800 font-bold mr-1">Q</span>
+                                                                        <input
+                                                                            type="number"
+                                                                            step="any"
+                                                                            value={formData.cost}
+                                                                            onChange={e => setFormData({ ...formData, cost: parseFloat(e.target.value) || 0 })}
+                                                                            className="w-full bg-transparent border-none text-[11px] text-slate-800 font-bold outline-none font-bold text-[#106ebe]"
+                                                                        />
+                                                                    </div>
+                                                                    {formData.cost > 0 && formData.conversion_factor > 0 && (
+                                                                        <div className="px-2 py-0.5 bg-blue-50/50 rounded flex justify-between items-center">
+                                                                            <span className="text-[8px] font-black text-[#106ebe] uppercase italic">
+                                                                                P. UNITARIO: Q{(formData.cost / formData.conversion_factor).toFixed(2)} / {formData.unit}
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </div>

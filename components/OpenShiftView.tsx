@@ -184,7 +184,7 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
                     >
                         {loading ? 'Abriendo...' : 'Abrir Turno'}
                     </button>
-                    {currentUser.role === 'ADMIN' && onNavigate && (
+                    {((currentUser.role === 'ADMIN' || currentUser.originalRole === 'ADMIN') && onNavigate) && (
                         <button
                             onClick={() => onNavigate('ADMIN_PORTAL')}
                             className="mt-2 bg-red-600/20 hover:bg-red-600/30 text-red-500 py-3 rounded-xl font-black uppercase tracking-widest border border-red-500/20 active:scale-95 transition-all text-xs"

@@ -8,6 +8,7 @@ import {
 import { supabase } from '../../supabase';
 import { DraggableWindow } from './AdminPortal';
 import { activityLogService } from '../../services/ActivityLogService';
+import { useNotify } from '../../hooks/useNotify';
 
 // Unit Conversion Logic (Consistente con InventoryProducts)
 const INVENTORY_UNITS: Record<string, { factor: number, base: string, category: string }> = {
@@ -28,11 +29,9 @@ const INVENTORY_UNITS: Record<string, { factor: number, base: string, category: 
     'UN': { factor: 1, base: 'UN', category: 'Conteo' },
     'UNIDAD': { factor: 1, base: 'UN', category: 'Conteo' },
     'POR': { factor: 1, base: 'UN', category: 'Conteo' },
-    'CAJA': { factor: 1, base: 'UN', category: 'Conteo' },
-    'BOLSA': { factor: 1, base: 'UN', category: 'Conteo' },
 };
 
-const convertQuantity = (qty: number, from: string, to: string) => {
+const convertQuantity = (qty: number, from: string, to: string, productFactor: number = 1) => {
     // Limpieza de código de unidad (ej: "Mililitro (ML)" -> "ML")
     const cleanUnit = (u: string) => {
         if (!u) return '';
@@ -40,11 +39,44 @@ const convertQuantity = (qty: number, from: string, to: string) => {
         return (match ? match[1] : u).toUpperCase().trim();
     };
 
-    const uFrom = INVENTORY_UNITS[cleanUnit(from)];
-    const uTo = INVENTORY_UNITS[cleanUnit(to)];
+    const cFrom = cleanUnit(from);
+    const cTo = cleanUnit(to);
+    
+    const uFrom = INVENTORY_UNITS[cFrom];
+    const uTo = INVENTORY_UNITS[cTo];
 
-    if (!uFrom || !uTo || uFrom.category !== uTo.category) return qty;
-    return (qty * uFrom.factor) / uTo.factor;
+    // Lógica Inteligente de Conversión Estándar
+    const getSmartFactor = (targetBase: string, presentation: string, manualFactor: number) => {
+        const p = presentation.toUpperCase();
+        
+        // 1. Si es unidad de conteo manual
+        if (p === 'CAJA' || p === 'BOLSA' || p === 'PAQUETE' || p === 'SACO' || p === 'SOBRE') 
+            return manualFactor;
+        
+        // 2. Factores estándar inteligentes basados en la base de destino
+        if (targetBase === 'ML') {
+            if (p === 'LITRO' || p === 'LT') return 1000;
+            if (p === 'GALÓN' || p === 'GL') return 3785.41;
+            if (p === 'BOTELLA') return 750;
+            if (p === 'FRASCO' || p === 'GARRAFÓN' || p === 'GARRAFON') return manualFactor;
+        } else if (targetBase === 'GR') {
+            if (p === 'LIBRA' || p === 'LB') return 453.59;
+            if (p === 'KILOGRAMO' || p === 'KG') return 1000;
+            if (p === 'ONZA' || p === 'OZ') return 28.35;
+            if (p === 'SACO') return manualFactor;
+        }
+        
+        return manualFactor;
+    };
+
+    const factorFrom = uFrom ? uFrom.factor : getSmartFactor(uTo ? uTo.base : '', cFrom, productFactor);
+    const factorTo = uTo ? uTo.factor : 1;
+
+    // Validación de categoría si ambos son unidades estándar
+    if (uFrom && uTo && uFrom.category !== uTo.category) return qty;
+
+    const result = (qty * factorFrom) / factorTo;
+    return isNaN(result) ? 0 : result;
 };
 
 interface LevelingRow {
@@ -60,11 +92,13 @@ interface LevelingRow {
     display_unit: string;
     normalized_physical: number | string;
     difference: number;
+    conversion_factor: number;
 }
 
 interface Branch { id: string; name: string; }
 
 export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser }) => {
+    const notify = useNotify();
     const [branches, setBranches] = useState<Branch[]>([]);
     const [selectedBranch, setSelectedBranch] = useState<string>('');
     const [rows, setRows] = useState<LevelingRow[]>([]);
@@ -127,27 +161,33 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
             // ENFOQUE ÚNICO: Solo tabla 'products' (Insumos)
             const { data: pData, error: pError } = await supabase
                 .from('products')
-                .select(`id, product_code, name, unit_measure, cost_price, es_platillo, presentation_unit, stock_actual, product_category_id, product_categories(nombre)`)
+                .select(`id, product_code, name, unit_measure, cost_price, es_platillo, presentation_unit, stock_actual, product_category_id, portions, conversion_factor, product_categories(nombre)`)
                 .eq('es_platillo', false);
 
             if (pError) console.error('Error al cargar productos:', pError);
 
-            const mappedProducts = (pData || []).map((p: any) => ({
-                item_id: p.id,
-                code: p.product_code || '',
-                name: p.name,
-                unit: p.unit_measure || 'UN',
-                cost: p.cost_price || 0,
-                presentation: p.presentation_unit || 'N/A',
-                category_name: p.product_categories?.nombre || 'SIN CATEGORÍA',
-                global_stock: p.stock_actual || 0,
-                source: 'products' as const,
-                system_stock: 0, // Se llenará con la sucursal abajo
-                physical_stock: '',
-                display_unit: p.unit_measure || 'UN',
-                normalized_physical: '',
-                difference: 0
-            }));
+            const mappedProducts = (pData || []).map((p: any) => {
+                // Usar el mayor valor entre portions y conversion_factor como factor real.
+                // Esto garantiza que si cualquiera de los dos tiene el valor correcto (ej: 24), se usa.
+                const portions = Math.max(p.portions || 1, p.conversion_factor || 1);
+                return {
+                    item_id: p.id,
+                    code: p.product_code || '',
+                    name: p.name,
+                    unit: p.unit_measure,
+                    cost: p.cost_price || 0, // Costo de la presentación completa (ej: Q61.78 por Caja)
+                    presentation: p.presentation_unit || 'N/A',
+                    category_name: p.product_categories?.nombre || 'SIN CATEGORÍA',
+                    global_stock: p.stock_actual || 0,
+                    source: 'products' as const,
+                    system_stock: 0,
+                    physical_stock: '',
+                    display_unit: p.unit_measure,
+                    normalized_physical: '',
+                    difference: 0,
+                    conversion_factor: portions
+                };
+            });
 
             const { data: branchStock, error: bError } = await supabase
                 .from('inventory_item_branches')
@@ -178,10 +218,13 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
         setRows(prev =>
             prev.map(r => {
                 if (r.item_id !== item_id) return r;
-                const rawPhysical = value === '' ? '' : parseFloat(value) || 0;
+                const rawPhysical = value === '' ? '' : parseFloat(value);
 
                 // Convertimos de la unidad de visualización a la del sistema
-                const normalizedPhys = rawPhysical === '' ? '' : convertQuantity(rawPhysical as number, r.display_unit, r.unit);
+                const normalizedPhys = rawPhysical === '' || isNaN(rawPhysical as number) 
+                    ? '' 
+                    : convertQuantity(rawPhysical as number, r.display_unit, r.unit, r.conversion_factor);
+                
                 const diff = normalizedPhys === '' ? 0 : (normalizedPhys as number) - r.system_stock;
 
                 return {
@@ -194,13 +237,50 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
         );
     };
 
+    const handleFactorChange = async (item_id: string, newFactor: string) => {
+        const factor = parseInt(newFactor) || 1;
+        
+        // 1. Update state locally for immediate feedback
+        setRows(prev => prev.map(r => {
+            if (r.item_id !== item_id) return r;
+            
+            // Recalcular stock normalizado con el nuevo factor
+            const rawPhysical = r.physical_stock === '' ? '' : parseFloat(r.physical_stock as string);
+            const normalizedPhys = rawPhysical === '' || isNaN(rawPhysical as number)
+                ? ''
+                : convertQuantity(rawPhysical as number, r.display_unit, r.unit, factor);
+            
+            const diff = normalizedPhys === '' ? 0 : (normalizedPhys as number) - r.system_stock;
+
+            return { 
+                ...r, 
+                conversion_factor: factor,
+                normalized_physical: normalizedPhys,
+                difference: diff
+            };
+        }));
+
+        // 2. Persist to database
+        const { error } = await supabase
+            .from('products')
+            .update({ portions: factor })
+            .eq('id', item_id);
+            
+        if (error) {
+            console.error('Error al actualizar factor:', error);
+            notify.error('No se pudo actualizar el factor en la base de datos');
+        } else {
+            notify.success('Factor actualizado correctamente');
+        }
+    };
+
     const handleUnitChange = (item_id: string, newUnit: string) => {
         setRows(prev =>
             prev.map(r => {
                 if (r.item_id !== item_id) return r;
 
                 const rawPhysical = r.physical_stock === '' ? '' : parseFloat(r.physical_stock as string) || 0;
-                const normalizedPhys = rawPhysical === '' ? '' : convertQuantity(rawPhysical as number, newUnit, r.unit);
+                const normalizedPhys = rawPhysical === '' ? '' : convertQuantity(rawPhysical as number, newUnit, r.unit, r.conversion_factor);
                 const diff = normalizedPhys === '' ? 0 : (normalizedPhys as number) - r.system_stock;
 
                 return {
@@ -219,11 +299,17 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
 
     const mermas = getAuditedRows()
         .filter(r => r.difference < 0)
-        .reduce((acc, r) => acc + Math.abs(r.difference) * r.cost, 0);
+        .reduce((acc, r) => {
+            const unitCost = r.conversion_factor > 0 ? r.cost / r.conversion_factor : r.cost;
+            return acc + Math.abs(r.difference) * unitCost;
+        }, 0);
 
     const sobrantes = getAuditedRows()
         .filter(r => r.difference > 0)
-        .reduce((acc, r) => acc + r.difference * r.cost, 0);
+        .reduce((acc, r) => {
+            const unitCost = r.conversion_factor > 0 ? r.cost / r.conversion_factor : r.cost;
+            return acc + r.difference * unitCost;
+        }, 0);
 
     const handleConfirmOpen = () => {
         const edited = getAuditedRows();
@@ -297,8 +383,13 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                 }
 
                 // 3. Get new running balance for kardex (approximate with branch stock)
+                const pres = (row.presentation || '').toUpperCase();
+                const isGrouped = ['CAJA', 'BOLSA', 'PAQUETE', 'SACO', 'SOBRE', 'FARDO'].includes(pres);
+                const unitCost = (isGrouped && row.conversion_factor > 1)
+                    ? row.cost / row.conversion_factor
+                    : row.cost;
                 const newBalance = normalizedPhysStock;
-                const balanceValue = newBalance * row.cost;
+                const balanceValue = newBalance * unitCost;
 
                 // 4. Insert into inventory_kardex
                 await supabase.from('inventory_kardex').insert({
@@ -312,7 +403,7 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                     quantity_in: diff > 0 ? diff : 0,
                     quantity_out: diff < 0 ? Math.abs(diff) : 0,
                     balance: newBalance,
-                    unit_cost: row.cost,
+                    unit_cost: unitCost,
                     balance_value: balanceValue,
                     notes: `${notes.trim()} (Captura: ${row.physical_stock} ${row.display_unit})`
                 });
@@ -416,7 +507,8 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                     const phys = typeof r.physical_stock === 'string'
                         ? parseFloat(r.physical_stock) || 0
                         : r.physical_stock;
-                    const diffVal = r.difference * r.cost;
+                    const unitCost = r.conversion_factor > 0 ? r.cost / r.conversion_factor : r.cost;
+                    const diffVal = r.difference * unitCost;
                     return `<tr>
                                     <td>${r.name}</td>
                                     <td class="right">${r.system_stock}</td>
@@ -735,12 +827,24 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredRows.map(row => {
-                                            const phys = typeof row.physical_stock === 'string'
-                                                ? (row.physical_stock === '' ? null : parseFloat(row.physical_stock) || 0)
-                                                : row.physical_stock;
-                                            const diff = phys !== null ? phys - row.system_stock : 0;
-                                            const valueDiff = diff * row.cost;
+                                            filteredRows.map(row => {
+                                            const diff = row.physical_stock !== '' ? row.difference : 0;
+                                            
+                                            // getUnitCost: Calcula el costo REAL por unidad base.
+                                            // Regla: si la presentación agrupa unidades (Caja/Bolsa/etc)
+                                            // y las porciones son > 1, dividir el precio.
+                                            // Si portions=1 pero presentación es Caja, el costo ya ES unitario.
+                                            const getUnitCost = (r: LevelingRow): number => {
+                                                const pres = (r.presentation || '').toUpperCase();
+                                                const isGrouped = ['CAJA', 'BOLSA', 'PAQUETE', 'SACO', 'SOBRE', 'FARDO'].includes(pres);
+                                                if (isGrouped && r.conversion_factor > 1) {
+                                                    return r.cost / r.conversion_factor;
+                                                }
+                                                return r.cost;
+                                            };
+                                            
+                                            const unitCost = getUnitCost(row);
+                                            const valueDiff = diff * unitCost;
                                             const isEdited = row.physical_stock !== '';
 
                                             return (
@@ -759,29 +863,25 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                     <td className="px-4 py-1">
                                                         <div className="flex flex-col">
                                                             <span className="text-[11px] font-black text-slate-800 uppercase leading-tight">{row.name}</span>
-                                                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{row.category_name}</span>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
+                                                                    {row.category_name}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-1 text-center">
                                                         <div className="flex flex-col items-center gap-0.5">
-                                                            <select
-                                                                value={row.display_unit}
-                                                                onChange={(e) => handleUnitChange(row.item_id, e.target.value)}
-                                                                className="text-[9px] font-black text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 outline-none cursor-pointer hover:bg-[#106ebe] hover:text-white transition-all appearance-none text-center min-w-[45px]"
-                                                            >
-                                                                {Object.keys(INVENTORY_UNITS)
-                                                                    .filter(uCode => INVENTORY_UNITS[uCode].category === INVENTORY_UNITS[row.unit.toUpperCase()]?.category)
-                                                                    .map(uCode => (
-                                                                        <option key={uCode} value={uCode}>{uCode}</option>
-                                                                    ))
-                                                                }
-                                                            </select>
+                                                            <span className="text-[9px] font-black text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 uppercase">
+                                                                {row.display_unit}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-1 text-center">
                                                         <div className="flex flex-col items-center">
-                                                            <span className="font-black text-[11px] text-[#106ebe] tabular-nums">{(row as any).global_stock || 0}</span>
-                                                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Sucursal: {row.system_stock}</span>
+                                                            <span className="font-black text-[11px] text-[#106ebe] tabular-nums" title="Stock actual en esta sucursal (Kardex)">{row.system_stock}</span>
+                                                            <span className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter">Global: {(row as any).global_stock || 0}</span>
+                                                            <span className="text-[6px] text-slate-300 uppercase leading-none mt-0.5">Dato de Inventario</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-1 text-center">
@@ -812,9 +912,19 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                         ) : <span className="text-slate-200 font-bold tracking-widest">—</span>}
                                                     </td>
                                                     <td className="px-4 py-1 text-right">
-                                                        <span className="text-[10px] font-bold text-slate-500 tabular-nums">
-                                                            Q{row.cost.toFixed(2)}
-                                                        </span>
+                                                        <div className="flex flex-col items-center text-right">
+                                                            <span className="text-[10px] font-bold text-slate-500 tabular-nums">
+                                                                Q{unitCost.toFixed(2)}
+                                                            </span>
+                                                            {(() => {
+                                                                const pres = (row.presentation || '').toUpperCase();
+                                                                const isGrouped = ['CAJA', 'BOLSA', 'PAQUETE', 'SACO', 'FARDO'].includes(pres);
+                                                                if (isGrouped && row.conversion_factor > 1) {
+                                                                    return <span className="text-[7px] text-slate-300 uppercase">x{row.conversion_factor} {row.unit}</span>;
+                                                                }
+                                                                return null;
+                                                            })()}
+                                                        </div>
                                                     </td>
                                                     <td className="px-4 py-1 text-right pr-6">
                                                         {isEdited ? (
@@ -840,17 +950,26 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                     </div>
                                 ) : (
                                     filteredRows.map(row => {
-                                        const phys = typeof row.physical_stock === 'string'
-                                            ? (row.physical_stock === '' ? null : parseFloat(row.physical_stock) || 0)
-                                            : row.physical_stock;
-                                        const diff = phys !== null ? phys - row.system_stock : 0;
-                                        const valueDiff = diff * row.cost;
+                                        const diff = row.physical_stock !== '' ? row.difference : 0;
+                                        const unitCost = row.conversion_factor > 0 ? row.cost / row.conversion_factor : row.cost;
+                                        const valueDiff = diff * unitCost;
                                         const isEdited = row.physical_stock !== '';
 
                                         return (
                                             <div key={row.item_id} className={`bg-white p-4 rounded-3xl border-2 transition-all shadow-sm flex flex-col gap-4 ${isEdited ? (diff < 0 ? 'border-rose-200 bg-rose-50/10' : diff > 0 ? 'border-emerald-200 bg-emerald-50/10' : 'border-indigo-200 bg-indigo-50/10') : 'border-slate-50'}`}>
                                                 <div className="flex justify-between items-start gap-3">
                                                     <div className="flex-1 min-w-0">
+                                                        <div className="flex justify-between items-center bg-gray-50/50 p-2 rounded mb-3">
+                                                            <span className="text-[10px] text-slate-500 uppercase font-bold">Precio Ref</span>
+                                                            <span className="text-xs font-black text-slate-800">
+                                                                Q{(() => {
+                                                                    const cleanUnit = row.display_unit.toUpperCase().trim();
+                                                                    const isBox = cleanUnit === 'CAJA' || cleanUnit === 'BOLSA' || cleanUnit === 'PAQUETE';
+                                                                    return (isBox ? (row.cost * row.conversion_factor) : row.cost).toFixed(2);
+                                                                })()}
+                                                                <span className="text-[9px] font-normal text-slate-500 ml-1">/{row.display_unit}</span>
+                                                            </span>
+                                                        </div>
                                                         <div className="flex items-center gap-2 mb-1">
                                                             <span className="text-[8px] font-black text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 uppercase">{row.code || 'S/C'}</span>
                                                             <span className="text-[9px] font-bold text-indigo-500 uppercase tracking-widest">{row.presentation}</span>
@@ -859,8 +978,12 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                     </div>
                                                     <div className="text-right shrink-0">
                                                         <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Existencia Global</div>
-                                                        <div className="text-sm font-black text-slate-600 tabular-nums">{(row as any).global_stock || 0} <span className="text-[9px] text-slate-400">{row.unit}</span></div>
-                                                        <div className="text-[8px] font-bold text-slate-400 uppercase">Sucursal: {row.system_stock}</div>
+                                                        <div className="text-sm font-black text-[#106ebe] tabular-nums">
+                                                            {row.system_stock} <span className="text-[9px] text-slate-400">{row.unit}</span>
+                                                        </div>
+                                                        <div className="text-[8px] font-bold text-slate-400 uppercase">
+                                                            Global: {(row as any).global_stock || 0}
+                                                        </div>
                                                     </div>
                                                 </div>
 

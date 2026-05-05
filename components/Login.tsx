@@ -313,7 +313,9 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
 
       // Si es CAJERO, pasamos a la selección de "Caja" (Dashboard de Cajas)
       // EXCEPTO si entró como MESERO usando PIN, en cuyo caso entra directo.
-      if (user.role === 'CAJERO' && !isCashierEnteringAsWaiter) {
+      const isAdminEnteringAsCashier = user.role === 'ADMIN' && selectedRole === 'CAJERO';
+
+      if ((user.role === 'CAJERO' && !isCashierEnteringAsWaiter) || isAdminEnteringAsCashier) {
         handleLoginSuccess(user);
       } else {
         // Si ingresó por botón MESERO intencionalmente y es CAJERO, su sesión asume rol de MESERO 

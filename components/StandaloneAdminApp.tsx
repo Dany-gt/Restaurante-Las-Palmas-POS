@@ -12,6 +12,7 @@ export const StandaloneAdminApp: React.FC = () => {
 
     // Auto-login if previously authenticated on this device
     useEffect(() => {
+        document.title = 'AUTORIZACIONES - Admin';
         const checkSession = async () => {
             const savedPin = localStorage.getItem('standalone_admin_pin');
             if (savedPin) {

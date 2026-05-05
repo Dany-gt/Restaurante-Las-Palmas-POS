@@ -319,7 +319,12 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                             onChange={e => {
                                                 const raw = e.target.value.replace(/,/g, '');
                                                 if (/^\d*\.?\d*$/.test(raw)) {
-                                                    setNewProduct({...newProduct, conversion_factor: raw});
+                                                    // Sincronizamos ambos campos inmediatamente al escribir
+                                                    setNewProduct({
+                                                        ...newProduct, 
+                                                        conversion_factor: raw,
+                                                        portions: raw
+                                                    });
                                                 }
                                             }}
                                             onFocus={(e) => setTimeout(() => e.target.select(), 0)}

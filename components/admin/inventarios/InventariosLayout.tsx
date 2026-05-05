@@ -310,10 +310,10 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                         product_code: prodData.product_code || '',
                         name: prodData.name || '',
                         cost_price: (prodData.cost_price || 0).toString(),
-                        portions: (prodData.portions || 1).toString(),
+                        portions: Math.max(prodData.portions || 1, prodData.conversion_factor || 1).toString(),
                         unit_measure: prodData.unit_measure || 'LB',
                         presentation_unit: prodData.presentation_unit || 'UNI',
-                        conversion_factor: (prodData.conversion_factor || 1).toString(),
+                        conversion_factor: Math.max(prodData.portions || 1, prodData.conversion_factor || 1).toString(),
                         supplier_id: prodData.supplier_id || ''
                     });
 
@@ -382,7 +382,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                         supplier_id: insumoData.supplier_id || '',
                         is_enabled: insumoData.is_enabled !== undefined ? insumoData.is_enabled : true,
                         price: '0',
-                        portions: '1',
+                        portions: (insumoData.portions || 1).toString(), // ✅ Leer el valor real de la BD (ej. 24 para Caja de 24)
                     });
                     // Insumos no tienen precios por sucursal ni receta ni modificadores
                     setBranchPrices([]);
@@ -609,7 +609,9 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     product_category_id: newProduct.category_id || null, // Guardamos en la columna de productos
                     unit_measure: newProduct.unit_measure || '',
                     presentation_unit: newProduct.presentation_unit || '',
-                    conversion_factor: parseFloat(newProduct.conversion_factor) || 1,
+                    // Sincronizar SIEMPRE ambos campos con el valor que el usuario ingresó en pantalla
+                    portions: parseInt(newProduct.conversion_factor) || parseInt(newProduct.portions) || 1,
+                    conversion_factor: parseFloat(newProduct.conversion_factor) || parseFloat(newProduct.portions) || 1,
                     cost_price: parseFloat(newProduct.cost_price) || 0,
                     price: 0,
                     supplier_id: newProduct.supplier_id || null,
@@ -618,7 +620,6 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     image_url: newProduct.image_url || null,
                     // FICHA TÉCNICA
                     prep_procedure: newProduct.prep_procedure || null,
-                    portions: parseInt(newProduct.portions) || 1,
                     prep_time: parseInt(newProduct.prep_time) || 0,
                     classification: newProduct.classification || null,
                     recipe_no: newProduct.recipe_no || null,

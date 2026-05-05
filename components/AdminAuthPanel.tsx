@@ -51,6 +51,23 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
         };
     }, []);
 
+    const fetchRequests = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('admin_auth_requests')
+                .select('*')
+                .eq('status', 'pending')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            setRequests(data || []);
+        } catch (error) {
+            console.error('Error fetching auth requests:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Fallback polling: fetch requests every 5 seconds in case realtime isn't enabled
     useEffect(() => {
         fetchRequests(); // Carga inicial
@@ -75,23 +92,6 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
             supabase.removeChannel(channel);
         };
     }, []);
-
-    const fetchRequests = async () => {
-        try {
-            const { data, error } = await supabase
-                .from('admin_auth_requests')
-                .select('*')
-                .eq('status', 'pending')
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
-            setRequests(data || []);
-        } catch (error) {
-            console.error('Error fetching auth requests:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const playNotificationSound = () => {
         try {
