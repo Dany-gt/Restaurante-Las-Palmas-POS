@@ -143,23 +143,15 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
     const getCompatibleUnits = (baseUnit: string) => {
         const lowerBase = (baseUnit || '').toLowerCase();
 
-        // GRUPO PESO (Masa)
-        if (['libra', 'lb', 'kilo', 'kg', 'kilogramo', 'gramo', 'gr', 'g', 'onza', 'onz'].some(u => lowerBase.includes(u))) {
-            return ['Libra', 'Kilo', 'Onza', 'Gramo'];
+        if (lowerBase.includes('libra') || lowerBase === 'lb' || lowerBase.includes('gramo') || lowerBase.includes('onza')) {
+            return ['gramos', 'onzas'];
         }
 
-        // GRUPO VOLUMEN (Líquidos)
-        if (['litro', 'lt', 'l', 'ml', 'mililitro', 'onza liquida', 'onza (liq)', 'botella', 'galon', 'galón', 'barril'].some(u => lowerBase.includes(u))) {
-            return ['Galón', 'Litro', 'Mililitro', 'Onza liquida', 'Botella', 'Barril'];
+        if (lowerBase.includes('mililitro') || lowerBase === 'ml' || lowerBase.includes('litro') || lowerBase === 'lt' || lowerBase.includes('galon') || lowerBase.includes('botella')) {
+            return ['mililitros', 'onzas'];
         }
 
-        // TODO LO DEMÁS (Unidad, Caja, etc.)
-        let baseStr = baseUnit || 'Unidad';
-        if (baseStr.toLowerCase().includes('unidad')) baseStr = 'Unidad';
-        
-        const units = [baseStr];
-        if (!units.some(u => u.toLowerCase().includes('unidad'))) units.push('Unidad');
-        return [...new Set(units.map(u => u.charAt(0).toUpperCase() + u.slice(1).toLowerCase()))];
+        return ['unidad'];
     };
 
     const handleImproveText = async (field: 'prep_procedure' | 'observations') => {
@@ -1243,74 +1235,65 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                         </thead>
                                                         <tbody className="divide-y divide-gray-100">
                                                             {recipeItems.map((ri, idx) => {
-                                                                // Cruzamos con el catálogo vivo para asegurar que si el usuario cambió el precio en otra pestaña, se refleje aquí al instante
                                                                 const itemFromCatalog = allProducts.find(p => p.id === ri.inventory_item_id);
                                                                 const productData = itemFromCatalog || (Array.isArray(ri.inventory_items) ? ri.inventory_items[0] : ri.inventory_items);
-
-                                                                const isNormalContributor = costingConfig?.is_normal_contributor !== false;
-                                                                const IVA_FACTOR = 1.12;
-
-                                                                const rawCost = (parseFloat(productData?.cost_price) || 0);
-                                                                const conversionFactor = (parseFloat(productData?.conversion_factor) || 1);
-
-                                                                const unitCostForCalc = rawCost; // Alinhado com a solicitação do usuário (Precio Factura)
-                                                                const costPerUnit = unitCostForCalc / conversionFactor;
+                                                                
+                                                                const rawCost = parseFloat(productData?.cost_price || '0');
+                                                                const conversionFactor = parseFloat(productData?.conversion_factor || '1') || 1;
+                                                                
+                                                                // Determinamos el costo base por unidad de medida del catálogo
+                                                                const costPerUnit = rawCost / conversionFactor;
 
                                                                 const qty = parseFloat(ri.quantity) || 0;
                                                                 let unitInternalFactor = 1;
                                                                 const lowerUnit = (ri.unit_measure || '').toLowerCase();
-                                                                const baseUnit = (ri.inventory_items?.unit_measure || '').toLowerCase();
+                                                                const baseUnit = (productData?.unit_measure || ri.inventory_items?.unit_measure || '').toLowerCase();
 
-                                                                // Conversiones Inteligentes (Basado en Unidad Base)
-                                                                if (lowerUnit.includes('unidad') || lowerUnit.includes('botella') || lowerUnit.includes('barril')) {
-                                                                    unitInternalFactor = 1; // No conversion
-                                                                }
-                                                                // 1. Unidades de PESO (Base Libra)
-                                                                else if (baseUnit.includes('libra') || baseUnit === 'lb') {
-                                                                    if (lowerUnit.includes('onza')) unitInternalFactor = 1 / 16;
-                                                                    else if (lowerUnit.includes('gramo') || lowerUnit === 'g') unitInternalFactor = 1 / 453.592;
-                                                                    else if (lowerUnit.includes('kilo') || lowerUnit === 'kg') unitInternalFactor = 2.20462;
-                                                                }
-                                                                // 2. Unidades de PESO (Base Kilo)
-                                                                else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
-                                                                    if (lowerUnit.includes('gramo') || lowerUnit === 'g') unitInternalFactor = 1 / 1000;
-                                                                    else if (lowerUnit.includes('onza')) unitInternalFactor = 1 / 35.274;
-                                                                    else if (lowerUnit.includes('libra') || lowerUnit === 'lb') unitInternalFactor = 0.453592;
-                                                                }
-                                                                // 3. Unidades de PESO/VOLUMEN (Base Onza)
-                                                                else if (baseUnit.includes('onza')) {
-                                                                    if (lowerUnit.includes('gramo') || lowerUnit === 'g') unitInternalFactor = 1 / 28.3495;
-                                                                    else if (lowerUnit.includes('libra') || lowerUnit === 'lb') unitInternalFactor = 16;
-                                                                    else if (lowerUnit.includes('kilo') || lowerUnit === 'kg') unitInternalFactor = 35.274;
-                                                                    else if (lowerUnit.includes('mililitro') || lowerUnit === 'ml') unitInternalFactor = 1 / 29.5735;
-                                                                    else if (lowerUnit.includes('litro') || lowerUnit === 'lt') unitInternalFactor = 1000 / 29.5735;
-                                                                    else if (lowerUnit.includes('galón') || lowerUnit.includes('galon')) unitInternalFactor = 3785.41 / 29.5735;
-                                                                }
-                                                                // 4. Unidades de PESO (Base Gramo)
-                                                                else if (baseUnit.includes('gramo') || baseUnit === 'g') {
-                                                                    if (lowerUnit.includes('onza')) unitInternalFactor = 28.3495;
-                                                                    else if (lowerUnit.includes('libra') || lowerUnit === 'lb') unitInternalFactor = 453.592;
-                                                                    else if (lowerUnit.includes('kilo') || lowerUnit === 'kg') unitInternalFactor = 1000;
-                                                                }
-                                                                // 5. Unidades de VOLUMEN (Base Mililitro / Litro / Galón / Botella / Barril)
-                                                                else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('galón') || baseUnit.includes('galon') || baseUnit.includes('botella') || baseUnit.includes('barril')) {
-                                                                    let baseInMl = 1;
-                                                                    if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
-                                                                    else if (baseUnit.includes('galón') || baseUnit.includes('galon')) baseInMl = 3785.41;
-                                                                    else if (baseUnit.includes('botella')) baseInMl = 750;
-                                                                    else if (baseUnit.includes('barril')) baseInMl = 50000;
-                                                                    
-                                                                    let selectedInMl = 1;
-                                                                    if (lowerUnit.includes('mililitro') || lowerUnit === 'ml') selectedInMl = 1;
-                                                                    else if (lowerUnit.includes('onza')) selectedInMl = 29.5735;
-                                                                    else if (lowerUnit.includes('litro') || lowerUnit === 'lt') selectedInMl = 1000;
-                                                                    else if (lowerUnit.includes('galón') || lowerUnit.includes('galon')) selectedInMl = 3785.41;
-                                                                    else if (lowerUnit.includes('botella')) selectedInMl = 750;
-                                                                    else if (lowerUnit.includes('barril')) selectedInMl = 50000;
+                                                                // Lógica de conversión de Volumen
+                                                                if (
+                                                                  baseUnit.includes('litro') || baseUnit === 'lt' || 
+                                                                  baseUnit.includes('mililitro') || baseUnit === 'ml' || 
+                                                                  baseUnit.includes('galon') || baseUnit.includes('botella') || 
+                                                                  baseUnit.includes('barril') || baseUnit.includes('onza')
+                                                                ) {
+                                                                  let baseInMl = 1;
+                                                                  if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                                                                  else if (baseUnit.includes('galon')) baseInMl = 3785.41;
+                                                                  else if (baseUnit.includes('botella')) baseInMl = 750;
+                                                                  else if (baseUnit.includes('barril')) baseInMl = 50000;
+                                                                  else if (baseUnit.includes('onza') || baseUnit === 'oz') baseInMl = 29.5735;
+                                                                  else baseInMl = 1; 
 
-                                                                    if (lowerUnit.includes('mililitro') || lowerUnit === 'ml' || lowerUnit.includes('onza') || lowerUnit.includes('litro') || lowerUnit === 'lt' || lowerUnit.includes('galón') || lowerUnit.includes('galon') || lowerUnit.includes('botella') || lowerUnit.includes('barril')) {
-                                                                        unitInternalFactor = selectedInMl / baseInMl;
-                                                                    }
+                                                                  let selectedInMl = 1;
+                                                                  if (lowerUnit.includes('mililitro') || lowerUnit === 'ml') selectedInMl = 1;
+                                                                  else if (lowerUnit.includes('onza') || lowerUnit === 'oz') selectedInMl = 29.5735;
+                                                                  else if (lowerUnit.includes('litro') || lowerUnit === 'lt') selectedInMl = 1000;
+                                                                  else if (lowerUnit.includes('galon')) selectedInMl = 3785.41;
+                                                                  else if (lowerUnit.includes('botella')) selectedInMl = 750;
+                                                                  else if (lowerUnit.includes('barril')) selectedInMl = 50000;
+                                                                  
+                                                                  unitInternalFactor = selectedInMl / baseInMl;
+                                                                } 
+                                                                // Lógica de conversión de Peso
+                                                                else if (
+                                                                  baseUnit.includes('gramo') || baseUnit === 'gr' || baseUnit === 'g' ||
+                                                                  baseUnit.includes('libra') || baseUnit === 'lb' || 
+                                                                  baseUnit.includes('kilogramo') || baseUnit === 'kg' ||
+                                                                  baseUnit.includes('onza') || baseUnit === 'oz'
+                                                                ) {
+                                                                  let baseInGr = 1;
+                                                                  if (baseUnit.includes('libra') || baseUnit === 'lb') baseInGr = 453.592;
+                                                                  else if (baseUnit.includes('kilogramo') || baseUnit === 'kg') baseInGr = 1000;
+                                                                  else if (baseUnit.includes('onza') || baseUnit === 'oz') baseInGr = 28.3495;
+                                                                  else baseInGr = 1; 
+
+                                                                  let selectedInGr = 1;
+                                                                  if (lowerUnit.includes('gramo') || lowerUnit === 'gr' || lowerUnit === 'g') selectedInGr = 1;
+                                                                  else if (lowerUnit.includes('onza') || lowerUnit === 'oz') selectedInGr = 28.3495;
+                                                                  else if (lowerUnit.includes('libra') || lowerUnit === 'lb') selectedInGr = 453.592;
+                                                                  else if (lowerUnit.includes('kilogramo') || lowerUnit === 'kg') selectedInGr = 1000;
+                                                                  
+                                                                  unitInternalFactor = selectedInGr / baseInGr;
                                                                 }
 
                                                                 const subtotal = qty * costPerUnit * unitInternalFactor;
@@ -1378,62 +1361,63 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                                     const IVA_FACTOR = 1.12;
 
                                                                     return recipeItems.reduce((acc, ri) => {
-                                                                        const rawCost = (parseFloat(ri.inventory_items?.cost_price) || 0);
-                                                                        const conversionFactor = (parseFloat(ri.inventory_items?.conversion_factor) || 1);
-
-                                                                        const unitCostForCalc = rawCost; // Alinhado com a solicitação do usuário (Precio Factura)
-                                                                        const costPerUnit = unitCostForCalc / conversionFactor;
+                                                                        const itemFromCatalog = allProducts.find(p => p.id === ri.inventory_item_id);
+                                                                        const productData = itemFromCatalog || (Array.isArray(ri.inventory_items) ? ri.inventory_items[0] : ri.inventory_items);
+                                                                        
+                                                                        const rawCost = parseFloat(productData?.cost_price || '0');
+                                                                        const conversionFactor = parseFloat(productData?.conversion_factor || '1') || 1;
+                                                                        const costPerUnit = rawCost / conversionFactor;
 
                                                                         const qty = parseFloat(ri.quantity) || 0;
                                                                         let unitInternalFactor = 1;
                                                                         const lowerUnit = (ri.unit_measure || '').toLowerCase();
-                                                                        const baseUnit = (ri.inventory_items?.unit_measure || '').toLowerCase();
+                                                                        const baseUnit = (productData?.unit_measure || ri.inventory_items?.unit_measure || '').toLowerCase();
 
-                                                                        if (lowerUnit === 'unidad' || lowerUnit === 'unidades') {
-                                                                            unitInternalFactor = 1;
-                                                                        }
-                                                                        // 1. Unidades de PESO (Base Libra)
-                                                                        else if (baseUnit.includes('libra') || baseUnit === 'lb') {
-                                                                            if (lowerUnit.includes('onza')) unitInternalFactor = 1 / 16;
-                                                                            else if (lowerUnit.includes('gramo') || lowerUnit === 'g') unitInternalFactor = 1 / 453.592;
-                                                                            else if (lowerUnit.includes('kilo') || lowerUnit === 'kg') unitInternalFactor = 2.20462;
-                                                                        }
-                                                                        // 2. Unidades de PESO (Base Kilo)
-                                                                        else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
-                                                                            if (lowerUnit.includes('gramo') || lowerUnit === 'g') unitInternalFactor = 1 / 1000;
-                                                                            else if (lowerUnit.includes('onza')) unitInternalFactor = 1 / 35.274;
-                                                                            else if (lowerUnit.includes('libra') || lowerUnit === 'lb') unitInternalFactor = 0.453592;
-                                                                        }
-                                                                        // 3. Unidades de PESO/VOLUMEN (Base Onza)
-                                                                        else if (baseUnit.includes('onza')) {
-                                                                            if (lowerUnit.includes('gramo') || lowerUnit === 'g') unitInternalFactor = 1 / 28.3495;
-                                                                            else if (lowerUnit.includes('libra') || lowerUnit === 'lb') unitInternalFactor = 16;
-                                                                            else if (lowerUnit.includes('kilo') || lowerUnit === 'kg') unitInternalFactor = 35.274;
-                                                                            else if (lowerUnit.includes('mililitro') || lowerUnit === 'ml') unitInternalFactor = 1 / 29.5735;
-                                                                            else if (lowerUnit.includes('litro') || lowerUnit === 'lt') unitInternalFactor = 1000 / 29.5735;
-                                                                            else if (lowerUnit.includes('galón') || lowerUnit.includes('galon')) unitInternalFactor = 3785.41 / 29.5735;
-                                                                        }
-                                                                        // 4. Unidades de PESO (Base Gramo)
-                                                                        else if (baseUnit.includes('gramo') || baseUnit === 'g') {
-                                                                            if (lowerUnit.includes('onza')) unitInternalFactor = 28.3495;
-                                                                            else if (lowerUnit.includes('libra') || lowerUnit === 'lb') unitInternalFactor = 453.592;
-                                                                            else if (lowerUnit.includes('kilo') || lowerUnit === 'kg') unitInternalFactor = 1000;
-                                                                        }
-                                                                        // 5. Unidades de VOLUMEN (Base Mililitro / Litro / Galón)
-                                                                        else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('galón') || baseUnit.includes('galon')) {
-                                                                            let baseInMl = 1;
-                                                                            if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
-                                                                            else if (baseUnit.includes('galón') || baseUnit.includes('galon')) baseInMl = 3785.41;
-                                                                            
-                                                                            let selectedInMl = 1;
-                                                                            if (lowerUnit.includes('mililitro') || lowerUnit === 'ml') selectedInMl = 1;
-                                                                            else if (lowerUnit.includes('onza')) selectedInMl = 29.5735;
-                                                                            else if (lowerUnit.includes('litro') || lowerUnit === 'lt') selectedInMl = 1000;
-                                                                            else if (lowerUnit.includes('galón') || lowerUnit.includes('galon')) selectedInMl = 3785.41;
+                                                                        // Lógica de conversión de Volumen
+                                                                        if (
+                                                                          baseUnit.includes('litro') || baseUnit === 'lt' || 
+                                                                          baseUnit.includes('mililitro') || baseUnit === 'ml' || 
+                                                                          baseUnit.includes('galon') || baseUnit === 'botella' || 
+                                                                          baseUnit.includes('barril') || baseUnit === 'onza'
+                                                                        ) {
+                                                                          let baseInMl = 1;
+                                                                          if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                                                                          else if (baseUnit.includes('galon')) baseInMl = 3785.41;
+                                                                          else if (baseUnit.includes('botella')) baseInMl = 750;
+                                                                          else if (baseUnit.includes('barril')) baseInMl = 50000;
+                                                                          else if (baseUnit.includes('onza') || baseUnit === 'oz') baseInMl = 29.5735;
+                                                                          else baseInMl = 1; 
 
-                                                                            if (lowerUnit.includes('mililitro') || lowerUnit === 'ml' || lowerUnit.includes('onza') || lowerUnit.includes('litro') || lowerUnit === 'lt' || lowerUnit.includes('galón') || lowerUnit.includes('galon')) {
-                                                                                unitInternalFactor = selectedInMl / baseInMl;
-                                                                            }
+                                                                          let selectedInMl = 1;
+                                                                          if (lowerUnit.includes('mililitro') || lowerUnit === 'ml') selectedInMl = 1;
+                                                                          else if (lowerUnit.includes('onza') || lowerUnit === 'oz') selectedInMl = 29.5735;
+                                                                          else if (lowerUnit.includes('litro') || lowerUnit === 'lt') selectedInMl = 1000;
+                                                                          else if (lowerUnit.includes('galon')) selectedInMl = 3785.41;
+                                                                          else if (lowerUnit.includes('botella')) selectedInMl = 750;
+                                                                          else if (lowerUnit.includes('barril')) selectedInMl = 50000;
+                                                                          
+                                                                          unitInternalFactor = selectedInMl / baseInMl;
+                                                                        } 
+                                                                        // Lógica de conversión de Peso
+                                                                        else if (
+                                                                          baseUnit.includes('gramo') || baseUnit === 'gr' || baseUnit === 'g' ||
+                                                                          baseUnit.includes('libra') || baseUnit === 'lb' || 
+                                                                          baseUnit.includes('kilogramo') || baseUnit === 'kg' ||
+                                                                          baseUnit.includes('onza') || baseUnit === 'oz'
+                                                                        ) {
+                                                                          let baseInGr = 1;
+                                                                          if (baseUnit.includes('libra') || baseUnit === 'lb') baseInGr = 453.592;
+                                                                          else if (baseUnit.includes('kilogramo') || baseUnit === 'kg') baseInGr = 1000;
+                                                                          else if (baseUnit.includes('onza') || baseUnit === 'oz') baseInGr = 28.3495;
+                                                                          else baseInGr = 1; 
+
+                                                                          let selectedInGr = 1;
+                                                                          if (lowerUnit.includes('gramo') || lowerUnit === 'gr' || lowerUnit === 'g') selectedInGr = 1;
+                                                                          else if (lowerUnit.includes('onza') || lowerUnit === 'oz') selectedInGr = 28.3495;
+                                                                          else if (lowerUnit.includes('libra') || lowerUnit === 'lb') selectedInGr = 453.592;
+                                                                          else if (lowerUnit.includes('kilogramo') || lowerUnit === 'kg') selectedInGr = 1000;
+                                                                          
+                                                                          unitInternalFactor = selectedInGr / baseInGr;
                                                                         }
 
                                                                         return acc + (qty * costPerUnit * unitInternalFactor);

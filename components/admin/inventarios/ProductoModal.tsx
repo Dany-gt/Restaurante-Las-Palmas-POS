@@ -132,33 +132,51 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
         const selectedUnit = (ri.unit_measure || '').toLowerCase();
         const baseUnit = (ri.inventory_items?.unit_measure || ri.unit_measure || '').toLowerCase();
 
-        // 0. Caso especial: UNIDADES (No dividir por factor si se usa como Unidad)
-        if (selectedUnit === 'unidad' || selectedUnit === 'unidades') {
-            return acc + (qty * cost);
-        }
+        // Lógica de conversión de Volumen
+        if (
+          baseUnit.includes('litro') || baseUnit === 'lt' || 
+          baseUnit.includes('mililitro') || baseUnit === 'ml' || 
+          baseUnit.includes('galon') || baseUnit.includes('botella') || 
+          baseUnit.includes('barril') || baseUnit.includes('onza')
+        ) {
+          let baseInMl = 1;
+          if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+          else if (baseUnit.includes('galon')) baseInMl = 3785.41;
+          else if (baseUnit.includes('botella')) baseInMl = 750;
+          else if (baseUnit.includes('barril')) baseInMl = 50000;
+          else if (baseUnit.includes('onza') || baseUnit === 'oz') baseInMl = 29.5735;
+          else baseInMl = 1; 
 
-        // 1. Unidades de PESO (Base Libra)
-        if (baseUnit.includes('libra') || baseUnit === 'lb') {
-            if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
-            if (selectedUnit.includes('gramo')) unitFactor = 1 / 453.592;
-        }
-        // 2. Unidades de PESO (Base Kilo)
-        else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
-            if (selectedUnit.includes('gramo')) unitFactor = 1 / 1000;
-            if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
-        }
-        // 3. Unidades de VOLUMEN (Base Mililitro / Litro)
-        else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('onza')) {
-            let baseInMl = 1;
-            if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
-            if (baseUnit.includes('onza')) baseInMl = 29.5735;
+          let selectedInMl = 1;
+          if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
+          else if (selectedUnit.includes('onza') || selectedUnit === 'oz') selectedInMl = 29.5735;
+          else if (selectedUnit.includes('litro') || selectedUnit === 'lt') selectedInMl = 1000;
+          else if (selectedUnit.includes('galon')) selectedInMl = 3785.41;
+          else if (selectedUnit.includes('botella')) selectedInMl = 750;
+          else if (selectedUnit.includes('barril')) selectedInMl = 50000;
+          
+          unitFactor = selectedInMl / baseInMl;
+        } 
+        // Lógica de conversión de Peso
+        else if (
+          baseUnit.includes('gramo') || baseUnit === 'gr' || baseUnit === 'g' ||
+          baseUnit.includes('libra') || baseUnit === 'lb' || 
+          baseUnit.includes('kilogramo') || baseUnit === 'kg' ||
+          baseUnit.includes('onza') || baseUnit === 'oz'
+        ) {
+          let baseInGr = 1;
+          if (baseUnit.includes('libra') || baseUnit === 'lb') baseInGr = 453.592;
+          else if (baseUnit.includes('kilogramo') || baseUnit === 'kg') baseInGr = 1000;
+          else if (baseUnit.includes('onza') || baseUnit === 'oz') baseInGr = 28.3495;
+          else baseInGr = 1; 
 
-            let selectedInMl = 1;
-            if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
-            if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
-            if (selectedUnit.includes('litro')) selectedInMl = 1000;
-
-            unitFactor = selectedInMl / baseInMl;
+          let selectedInGr = 1;
+          if (selectedUnit.includes('gramo') || selectedUnit === 'gr' || selectedUnit === 'g') selectedInGr = 1;
+          else if (selectedUnit.includes('onza') || selectedUnit === 'oz') selectedInGr = 28.3495;
+          else if (selectedUnit.includes('libra') || selectedUnit === 'lb') selectedInGr = 453.592;
+          else if (selectedUnit.includes('kilogramo') || selectedUnit === 'kg') selectedInGr = 1000;
+          
+          unitFactor = selectedInGr / baseInGr;
         }
 
         return acc + (qty * baseCost * unitFactor);
@@ -496,7 +514,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                             <tr className="h-[22px]">
                                                                 <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center">Producto</th>
                                                                 <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Cantidad</th>
-                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Medida</th>
+                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Medida</th>
                                                                 <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Precio Costo</th>
                                                                 <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-4 invisible"></th>
                                                             </tr>
@@ -513,98 +531,51 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                                 const selectedUnit = (ri.unit_measure || '').toLowerCase();
                                                                 const baseUnit = (ri.inventory_items?.unit_measure || ri.unit_measure || '').toLowerCase();
 
-                                                                // 0. Caso especial: UNIDADES (No dividir por factor para unidad entera)
-                                                                if (selectedUnit.includes('unidad') || selectedUnit.includes('botella') || selectedUnit.includes('barril')) {
-                                                                    const lineCost = qty * baseCost;
-                                                                    return (
-                                                                        <tr 
-                                                                            key={ri.id || idx} 
-                                                                            className={`border-b border-gray-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'} hover:bg-[#e8f2fe] transition-colors`}
-                                                                            onContextMenu={(e) => {
-                                                                                e.preventDefault();
-                                                                                e.stopPropagation();
-                                                                                setRecipeContextMenu && setRecipeContextMenu({
-                                                                                    visible: true,
-                                                                                    x: e.clientX,
-                                                                                    y: e.clientY,
-                                                                                    itemIdx: idx
-                                                                                });
-                                                                            }}
-                                                                        >
-                                                                            <td className="px-2 py-1 border-r border-gray-200 text-[11px] text-[#202020] font-[Arial] uppercase truncate">
-                                                                                {ri.inventory_items?.name || 'DESCONOCIDO'}
-                                                                            </td>
-                                                                            <td className="px-1 border-r border-gray-200">
-                                                                                <input 
-                                                                                    type="text"
-                                                                                    value={ri.quantity ? ri.quantity.toString().split('.').map((p: any, i: number) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : p).join('.') : '0'}
-                                                                                    onChange={(e) => {
-                                                                                        const raw = e.target.value.replace(/,/g, '');
-                                                                                        if (/^\d*\.?\d*$/.test(raw)) {
-                                                                                            const newItems = [...(recipeItems || [])];
-                                                                                            newItems[idx].quantity = raw;
-                                                                                            setRecipeItems && setRecipeItems(newItems);
-                                                                                        }
-                                                                                    }}
-                                                                                    className="w-full text-center px-1 text-[11px] font-bold font-[Arial] h-6 bg-transparent outline-none focus:bg-white focus:border focus:border-blue-400"
-                                                                                />
-                                                                            </td>
-                                                                            <td className="px-2 py-1 border-r border-gray-200 text-center text-[10px] text-[#202020] font-[Arial] uppercase">
-                                                                                {ri.unit_measure || ri.inventory_items?.unit_measure || 'UNI'}
-                                                                            </td>
-                                                                            <td className="px-2 py-1 border-r border-gray-200 text-right text-[11px] text-[#106ebe] font-black font-[Arial] tabular-nums">
-                                                                                {lineCost.toFixed(2)}
-                                                                            </td>
-                                                                        </tr>
-                                                                    );
-                                                                }
+                                                                // Lógica de conversión de Volumen
+                                                                if (
+                                                                  baseUnit.includes('litro') || baseUnit === 'lt' || 
+                                                                  baseUnit.includes('mililitro') || baseUnit === 'ml' || 
+                                                                  baseUnit.includes('galon') || baseUnit.includes('botella') || 
+                                                                  baseUnit.includes('barril') || baseUnit.includes('onza')
+                                                                ) {
+                                                                  let baseInMl = 1;
+                                                                  if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
+                                                                  else if (baseUnit.includes('galon')) baseInMl = 3785.41;
+                                                                  else if (baseUnit.includes('botella')) baseInMl = 750;
+                                                                  else if (baseUnit.includes('barril')) baseInMl = 50000;
+                                                                  else if (baseUnit.includes('onza') || baseUnit === 'oz') baseInMl = 29.5735;
+                                                                  else baseInMl = 1; 
 
-                                                                // 1. Unidades de PESO (Base Libra)
-                                                                if (baseUnit.includes('libra') || baseUnit === 'lb') {
-                                                                    if (selectedUnit.includes('onza')) unitFactor = 1 / 16;
-                                                                    else if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 453.592;
-                                                                    else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 2.20462;
-                                                                }
-                                                                // 2. Unidades de PESO (Base Kilo)
-                                                                else if (baseUnit.includes('kilo') || baseUnit === 'kg') {
-                                                                    if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 1000;
-                                                                    else if (selectedUnit.includes('onza')) unitFactor = 1 / 35.274;
-                                                                    else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 0.453592;
-                                                                }
-                                                                // 3. Unidades de PESO/VOLUMEN (Base Onza)
-                                                                else if (baseUnit.includes('onza')) {
-                                                                    if (selectedUnit.includes('gramo') || selectedUnit === 'g') unitFactor = 1 / 28.3495;
-                                                                    else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 16;
-                                                                    else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 35.274;
-                                                                    else if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') unitFactor = 1 / 29.5735;
-                                                                    else if (selectedUnit.includes('litro') || selectedUnit === 'lt') unitFactor = 1000 / 29.5735;
-                                                                    else if (selectedUnit.includes('galón') || selectedUnit.includes('galon')) unitFactor = 3785.41 / 29.5735;
-                                                                }
-                                                                // 4. Unidades de PESO (Base Gramo)
-                                                                else if (baseUnit.includes('gramo') || baseUnit === 'g') {
-                                                                    if (selectedUnit.includes('onza')) unitFactor = 28.3495;
-                                                                    else if (selectedUnit.includes('libra') || selectedUnit === 'lb') unitFactor = 453.592;
-                                                                    else if (selectedUnit.includes('kilo') || selectedUnit === 'kg') unitFactor = 1000;
-                                                                }
-                                                                // 5. Unidades de VOLUMEN (Base Mililitro / Litro / Galón / Botella / Barril)
-                                                                else if (baseUnit.includes('litro') || baseUnit === 'lt' || baseUnit.includes('mililitro') || baseUnit === 'ml' || baseUnit.includes('galón') || baseUnit.includes('galon') || baseUnit.includes('botella') || baseUnit.includes('barril')) {
-                                                                    let baseInMl = 1;
-                                                                    if (baseUnit.includes('litro') || baseUnit === 'lt') baseInMl = 1000;
-                                                                    else if (baseUnit.includes('galón') || baseUnit.includes('galon')) baseInMl = 3785.41;
-                                                                    else if (baseUnit.includes('botella')) baseInMl = 750;
-                                                                    else if (baseUnit.includes('barril')) baseInMl = 50000;
-                                                                    
-                                                                    let selectedInMl = 1;
-                                                                    if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
-                                                                    else if (selectedUnit.includes('onza')) selectedInMl = 29.5735;
-                                                                    else if (selectedUnit.includes('litro') || selectedUnit === 'lt') selectedInMl = 1000;
-                                                                    else if (selectedUnit.includes('galón') || selectedUnit.includes('galon')) selectedInMl = 3785.41;
-                                                                    else if (selectedUnit.includes('botella')) selectedInMl = 750;
-                                                                    else if (selectedUnit.includes('barril')) selectedInMl = 50000;
+                                                                  let selectedInMl = 1;
+                                                                  if (selectedUnit.includes('mililitro') || selectedUnit === 'ml') selectedInMl = 1;
+                                                                  else if (selectedUnit.includes('onza') || selectedUnit === 'oz') selectedInMl = 29.5735;
+                                                                  else if (selectedUnit.includes('litro') || selectedUnit === 'lt') selectedInMl = 1000;
+                                                                  else if (selectedUnit.includes('galon')) selectedInMl = 3785.41;
+                                                                  else if (selectedUnit.includes('botella')) selectedInMl = 750;
+                                                                  else if (selectedUnit.includes('barril')) selectedInMl = 50000;
+                                                                  
+                                                                  unitFactor = selectedInMl / baseInMl;
+                                                                } 
+                                                                // Lógica de conversión de Peso
+                                                                else if (
+                                                                  baseUnit.includes('gramo') || baseUnit === 'gr' || baseUnit === 'g' ||
+                                                                  baseUnit.includes('libra') || baseUnit === 'lb' || 
+                                                                  baseUnit.includes('kilogramo') || baseUnit === 'kg' ||
+                                                                  baseUnit.includes('onza') || baseUnit === 'oz'
+                                                                ) {
+                                                                  let baseInGr = 1;
+                                                                  if (baseUnit.includes('libra') || baseUnit === 'lb') baseInGr = 453.592;
+                                                                  else if (baseUnit.includes('kilogramo') || baseUnit === 'kg') baseInGr = 1000;
+                                                                  else if (baseUnit.includes('onza') || baseUnit === 'oz') baseInGr = 28.3495;
+                                                                  else baseInGr = 1; 
 
-                                                                    if (selectedUnit.includes('mililitro') || selectedUnit === 'ml' || selectedUnit.includes('onza') || selectedUnit.includes('litro') || selectedUnit === 'lt' || selectedUnit.includes('galón') || selectedUnit.includes('galon') || selectedUnit.includes('botella') || selectedUnit.includes('barril')) {
-                                                                        unitFactor = selectedInMl / baseInMl;
-                                                                    }
+                                                                  let selectedInGr = 1;
+                                                                  if (selectedUnit.includes('gramo') || selectedUnit === 'gr' || selectedUnit === 'g') selectedInGr = 1;
+                                                                  else if (selectedUnit.includes('onza') || selectedUnit === 'oz') selectedInGr = 28.3495;
+                                                                  else if (selectedUnit.includes('libra') || selectedUnit === 'lb') selectedInGr = 453.592;
+                                                                  else if (selectedUnit.includes('kilogramo') || selectedUnit === 'kg') selectedInGr = 1000;
+                                                                  
+                                                                  unitFactor = selectedInGr / baseInGr;
                                                                 }
 
                                                                 const lineCost = qty * baseCost * unitFactor;
