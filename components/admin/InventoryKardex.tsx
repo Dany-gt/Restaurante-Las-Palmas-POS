@@ -497,7 +497,7 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                             </div>
                         ) : (
                             <table className="w-full text-left border-collapse" style={{ minWidth: '1100px' }}>
-                                <thead className="sticky top-0 bg-slate-50 z-10 border-b border-slate-200">
+                                <thead className="sticky top-0 bg-[#e8e8e8] z-10 border-b border-gray-400">
                                     <tr className="text-[8.5px] font-black uppercase tracking-widest text-slate-400">
                                         <th className="px-3 py-2.5 whitespace-nowrap">Fecha / Hora</th>
                                         <th className="px-3 py-2.5 whitespace-nowrap">Sucursal</th>
@@ -514,12 +514,12 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
-                                    {paginated.map(row => {
+                                    {paginated.map((row, index) => {
                                         const prod = products.find(p => p.id === row.item_id);
                                         const branch = branches.find(b => b.id === row.branch_id);
                                         
                                         return (
-                                        <tr key={row.id} className="hover:bg-slate-50/60 transition-colors group">
+                                        <tr key={row.id} className={`h-7 transition-colors group ${index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#f2f7fb]`}>
                                             <td className="px-3 py-2 whitespace-nowrap">
                                                 <div className="flex flex-col">
                                                     <span className="text-[10px] font-black text-slate-700">

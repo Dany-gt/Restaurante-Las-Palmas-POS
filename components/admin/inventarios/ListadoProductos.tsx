@@ -174,15 +174,14 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                         ) : filtered.length === 0 ? (
                             <tr><td colSpan={7} className="py-20 text-center text-[10px] uppercase font-bold text-slate-400 font-sans">No se encontraron productos</td></tr>
                         ) : (
-                            filtered.map((item) => (
+                            filtered.map((item, index) => (
                                 <tr 
                                     key={item.id} 
                                     onClick={(e) => { e.stopPropagation(); setSelectedId(item.id); }}
-                                    onDoubleClick={() => onEdit(item.id, 'producto')}
                                     onContextMenu={(e) => handleContextMenu(e, item)}
                                     className={`
                                         h-6 cursor-pointer transition-colors
-                                        ${selectedId === item.id ? 'bg-[#106ebe] text-white font-bold' : 'hover:bg-blue-50 text-slate-800'}
+                                        ${selectedId === item.id ? 'bg-[#106ebe] text-white font-bold' : index % 2 === 0 ? 'bg-white hover:bg-blue-50 text-slate-800' : 'bg-[#f5f5f5] hover:bg-blue-50 text-slate-800'}
                                     `}
                                 >
                                     <td className="px-4 text-[10px] border-r border-gray-100 tabular-nums">{item.codigo || '---'}</td>

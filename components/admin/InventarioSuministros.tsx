@@ -457,7 +457,7 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                     /* ── TABLA ── */
                     <table className="w-full border-collapse text-left">
                         <thead className="sticky top-0 z-10">
-                            <tr className="bg-[#f0f0f0] border-b border-gray-300">
+                            <tr className="bg-[#e8e8e8] border-b border-gray-300">
                                 <th className="w-6 px-2 py-1 border-r border-gray-300"/>
                                 <th className="w-10 px-2 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Img</th>
                                 <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Nombre</th>
@@ -480,7 +480,7 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                 const isSelected = selectedIds.has(item.id);
                                 return (
                                     <tr key={item.id} onClick={() => toggleSelect(item.id)} onContextMenu={e=>handleContextMenu(e,item)}
-                                        className={`border-b border-gray-200 cursor-default transition-colors ${isSelected?'bg-[#cce5ff]':idx%2===0?'bg-white hover:bg-[#f0f7ff]':'bg-[#f8f8f8] hover:bg-[#f0f7ff]'}`}>
+                                        className={`border-b border-gray-100 cursor-default transition-colors ${isSelected?'bg-[#cce5ff]':idx%2===0?'bg-white hover:bg-[#f2f7fb]':'bg-[#f5f5f5] hover:bg-[#f2f7fb]'}`}>
                                         <td className="px-2 py-1 border-r border-gray-200 text-center">
                                             <div className={`w-3.5 h-3.5 border flex items-center justify-center mx-auto ${isSelected?'bg-[#106EBE] border-[#106EBE] text-white':'bg-white border-gray-300'}`}>
                                                 {isSelected && <Check size={10} strokeWidth={4}/>}
@@ -742,7 +742,7 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                             <th className="px-3 py-1 text-[10px] font-bold text-slate-700">Usuario</th>
                                         </tr></thead>
                                         <tbody>{movements.map((m,i) => (
-                                            <tr key={m.id} className={`border-b border-gray-200 ${i%2===0?'bg-white':'bg-[#f8f8f8]'}`}>
+                                            <tr key={m.id} className={`border-b border-gray-200 ${i % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
                                                 <td className="px-3 py-1 border-r border-gray-200 text-[10px] text-slate-600 whitespace-nowrap">{fmtDate(m.created_at)}</td>
                                                 <td className="px-3 py-1 border-r border-gray-200">
                                                     <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 ${m.tipo_movimiento==='entrada'?'bg-emerald-100 text-emerald-700':m.tipo_movimiento==='salida'?'bg-red-100 text-red-700':m.tipo_movimiento==='conteo_fisico'?'bg-purple-100 text-purple-700':'bg-amber-100 text-amber-700'}`}>{m.tipo_movimiento}</span>
@@ -790,7 +790,7 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                         const counted = physicalCounts[item.id];
                                         const diff = counted !== undefined && counted !== '' ? Number(counted) - item.stock_actual : null;
                                         return (
-                                            <tr key={item.id} className={`border-b border-gray-200 ${idx%2===0?'bg-white':'bg-[#f8f8f8]'}`}>
+                                            <tr key={item.id} className={`border-b border-gray-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
                                                 <td className="px-3 py-1 border-r border-gray-200 text-[10px] font-mono text-slate-500">{item.codigo_interno}</td>
                                                 <td className="px-3 py-1 border-r border-gray-200 text-[11px] font-bold text-slate-800">{item.nombre}</td>
                                                 <td className="px-3 py-1 border-r border-gray-200 text-center text-[12px] font-black text-slate-600">{item.stock_actual}</td>
@@ -918,7 +918,7 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                             ['Días restantes', viewItem.consumo_diario_promedio>0?`~${Math.floor(viewItem.stock_actual/viewItem.consumo_diario_promedio)} días`:'—'],
                                             ['Última compra', viewItem.fecha_ultima_compra||'—'],
                                         ].map(([l,v],i)=>(
-                                            <tr key={i} className={i%2===0?'bg-white':'bg-[#f8f8f8]'}>
+                                            <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}>
                                                 <td className="px-2 py-0.5 border border-gray-200 font-bold text-slate-600 w-36">{l}</td>
                                                 <td className="px-2 py-0.5 border border-gray-200 text-slate-800">{v}</td>
                                             </tr>

@@ -189,7 +189,7 @@ export const SectionsTablesAdmin: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filteredSections.map((s) => (
+              {filteredSections.map((s, index) => (
                 <tr
                   key={s.id}
                   onClick={() => setSelectedSectionId(s.id)}
@@ -201,10 +201,11 @@ export const SectionsTablesAdmin: React.FC = () => {
                     const rect = containerRef.current?.getBoundingClientRect();
                     setContextMenu({ x: e.clientX - (rect?.left || 0), y: e.clientY - (rect?.top || 0), section: s });
                   }}
-                  className={`h-6 transition-colors cursor-default relative border-b border-gray-50 ${selectedSectionId === s.id
-                    ? 'bg-[#106ebe] text-white shadow-[inset_3px_0_0_#106ebe]'
-                    : 'text-slate-900 even:bg-slate-50/50'
-                    }`}
+                  className={`h-6 transition-colors cursor-default relative border-b border-gray-50 ${
+                    selectedSectionId === s.id
+                      ? 'bg-[#106ebe] text-white shadow-[inset_3px_0_0_#106ebe]'
+                      : index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'
+                  } text-slate-900`}
                 >
                   <td className="px-4 font-bold flex items-center gap-2 h-6 border-r border-gray-100">
                     <MapPin size={12} className={selectedSectionId === s.id ? 'text-white' : 'text-slate-400'} />

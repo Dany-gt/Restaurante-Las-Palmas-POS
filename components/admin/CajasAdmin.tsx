@@ -204,7 +204,7 @@ export const CajasAdmin: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 bg-white">
-                            {filteredCashiers.map((c) => (
+                            {filteredCashiers.map((c, index) => (
                                 <tr
                                     key={c.id}
                                     onClick={() => setSelectedCajaId(c.id)}
@@ -216,10 +216,11 @@ export const CajasAdmin: React.FC = () => {
                                         const rect = containerRef.current?.getBoundingClientRect();
                                         setContextMenu({ x: e.clientX - (rect?.left || 0), y: e.clientY - (rect?.top || 0), caja: c });
                                     }}
-                                    className={`h-6 cursor-default transition-colors border-b border-gray-50 ${selectedCajaId === c.id
-                                        ? 'bg-[#106ebe] text-white'
-                                        : 'text-slate-900 even:bg-slate-50/50'
-                                        }`}
+                                    className={`h-6 cursor-default transition-colors border-b border-gray-50 ${
+                                        selectedCajaId === c.id
+                                            ? 'bg-[#106ebe] text-white'
+                                            : index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'
+                                    } text-slate-900`}
                                 >
                                     <td className="px-4 border-r border-gray-100">
                                         <div className="flex items-center gap-2">

@@ -280,7 +280,7 @@ export const RendimientoProduccion: React.FC = () => {
                                     {filtered.map((row, i) => (
                                         <tr
                                             key={row.id}
-                                            className={`border-b border-gray-100 hover:bg-blue-50/30 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'}`}
+                                            className={`border-b border-gray-100 hover:bg-blue-50/30 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}
                                         >
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-2">

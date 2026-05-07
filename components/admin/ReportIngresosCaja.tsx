@@ -488,7 +488,7 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
                             </tr>
                         )}
                         {filteredData.map((row, idx) => (
-                            <tr key={idx} className={`h-8 hover:bg-slate-100 group cursor-default transition-all duration-150 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f8f9fa]'} border-b border-gray-200`}>
+                            <tr key={idx} className={`h-8 hover:bg-slate-100 group cursor-default transition-all duration-150 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} border-b border-gray-200`}>
                                 <td className="border border-gray-300 px-2 whitespace-nowrap text-center tabular-nums text-black text-[11px]">{row.ingreso}</td>
                                 <td className="border border-gray-300 px-2 text-center text-black text-[11px] font-bold">#{row.noOrden}</td>
                                 <td className="border border-gray-300 px-2 text-center text-black text-[11px]">{row.cuenta}</td>

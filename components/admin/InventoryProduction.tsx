@@ -248,7 +248,7 @@ export const InventoryProduction: React.FC = () => {
                 onContextMenu={(e) => handleContextMenu(e, null)}
             >
                 <table className="w-full text-left border-collapse select-none min-w-[1000px]">
-                    <thead className="sticky top-0 bg-[#f1f5f9] border-b border-gray-400 z-30 shadow-sm">
+                    <thead className="sticky top-0 bg-[#e8e8e8] border-b border-gray-400 z-30 shadow-sm">
                         <tr className="h-9">
                             <th className="px-3 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300 text-center w-32">Fecha</th>
                             <th className="px-3 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300">No. / Código</th>
@@ -276,9 +276,9 @@ export const InventoryProduction: React.FC = () => {
                                     key={order.id}
                                     onClick={() => setSelectedOrderId(order.id)}
                                     onContextMenu={(e) => handleContextMenu(e, order)}
-                                    className={`h-9 border-b border-gray-200 transition-colors cursor-default select-none group 
-                                        ${selectedOrderId === order.id ? 'bg-[#cce8ff]' : (idx % 2 === 0 ? 'bg-white' : 'bg-[#f4f4f4]')} 
-                                        hover:bg-[#cce8ff]`}
+                                    className={`h-9 border-b border-gray-100 transition-colors cursor-default select-none group 
+                                        ${selectedOrderId === order.id ? 'bg-[#cce5ff]' : (idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]')} 
+                                        hover:bg-[#f2f7fb]`}
                                 >
                                     <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-700 text-center">{order.date}</td>
                                     <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-900 uppercase">{order.code}</td>

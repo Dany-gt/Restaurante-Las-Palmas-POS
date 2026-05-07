@@ -692,7 +692,7 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                                     <tr
                                         key={row.id}
                                         onContextMenu={(e) => handleContextMenu(e, row)}
-                                        className={`h-7 border-b border-gray-200 transition-colors cursor-default select-none group relative ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f4f4f4]'} hover:bg-[#cce8ff]`}
+                                        className={`h-7 border-b border-gray-200 transition-colors cursor-default select-none group relative ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#cce8ff]`}
                                     >
                                         <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-900 uppercase truncate group-hover:bg-[#cce8ff]">
                                             {categories.find(c => c.id === row.category_id)?.name || '--'}
@@ -1092,7 +1092,7 @@ const ProductMovementModal: React.FC<MovementModalProps> = ({ product, branchId,
                                             const typeColor = isCancelled ? 'text-rose-600 font-black' : (cleanType === 'VENTA' ? 'text-slate-900 font-bold' : '');
 
                                             return (
-                                                <tr key={move.id} className={`h-10 hover:bg-blue-50/50 transition-colors ${minIdx % 2 === 1 ? 'bg-slate-50/30' : ''}`}>
+                                                <tr key={move.id} className={`h-10 hover:bg-blue-50/50 transition-colors ${minIdx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
                                                     <td className="px-4 text-[10px] font-bold text-slate-600 border-r border-gray-100">
                                                         {new Date(move.created_at).toLocaleDateString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                                                     </td>

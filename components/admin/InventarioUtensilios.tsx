@@ -351,7 +351,7 @@ export const InventarioUtensilios: React.FC = () => {
                 ) : (
                     <table className="w-full border-collapse text-left">
                         <thead className="sticky top-0 z-10">
-                            <tr className="bg-[#f0f0f0] border-b border-gray-300">
+                            <tr className="bg-[#e8e8e8] border-b border-gray-300">
                                 <th className="w-6 px-2 py-1 border-r border-gray-300" />
                                 <th className="w-10 px-2 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Img</th>
                                 <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Nombre</th>
@@ -378,7 +378,7 @@ export const InventarioUtensilios: React.FC = () => {
                                         key={item.id}
                                         onClick={() => toggleSelect(item.id)}
                                         onContextMenu={e => handleContextMenu(e, item)}
-                                        className={`border-b border-gray-200 cursor-default transition-colors ${isBaja ? 'opacity-50 bg-red-50' : isSelected ? 'bg-[#cce5ff]' : idx % 2 === 0 ? 'bg-white hover:bg-[#f0f7ff]' : 'bg-[#f8f8f8] hover:bg-[#f0f7ff]'}`}
+                                        className={`border-b border-gray-100 cursor-default transition-colors ${isBaja ? 'opacity-50 bg-red-50' : isSelected ? 'bg-[#cce5ff]' : idx % 2 === 0 ? 'bg-white hover:bg-[#f2f7fb]' : 'bg-[#f5f5f5] hover:bg-[#f2f7fb]'}`}
                                     >
                                         <td className="px-2 py-1 border-r border-gray-200 text-center">
                                             <div className={`w-3.5 h-3.5 border flex items-center justify-center mx-auto ${isSelected ? 'bg-[#106EBE] border-[#106EBE] text-white' : 'bg-white border-gray-300'}`}>
@@ -732,7 +732,7 @@ export const InventarioUtensilios: React.FC = () => {
                                                 ['Responsable', viewItem.responsable_baja || '—'],
                                             ] : []),
                                         ].map(([l, v], i) => (
-                                            <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-[#f8f8f8]'}>
+                                            <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}>
                                                 <td className="px-2 py-0.5 border border-gray-200 font-bold text-slate-600 w-36">{l}</td>
                                                 <td className="px-2 py-0.5 border border-gray-200 text-slate-800">{v}</td>
                                             </tr>

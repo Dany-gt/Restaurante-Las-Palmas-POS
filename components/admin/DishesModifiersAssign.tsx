@@ -305,10 +305,10 @@ export const DishesModifiersAssign: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
-                                    {filteredProducts.map(prod => (
+                                    {filteredProducts.map((prod, index) => (
                                         <tr
                                             key={prod.id}
-                                            className="h-7 border-b border-gray-50 hover:bg-[#f2f7fb] cursor-pointer text-[10px] font-bold text-slate-900 uppercase"
+                                            className={`h-7 border-b border-gray-50 hover:bg-[#f2f7fb] cursor-pointer text-[10px] font-bold text-slate-900 uppercase ${index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}
                                             onClick={() => handleAddProduct(prod)}
                                         >
                                             <td className="px-4 border-r border-gray-100">{prod.name}</td>
@@ -343,8 +343,8 @@ export const DishesModifiersAssign: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {selectedProducts.map(prod => (
-                                        <tr key={prod.id} className="h-7 border-b border-gray-50 group">
+                                    {selectedProducts.map((prod, index) => (
+                                        <tr key={prod.id} className={`h-7 border-b border-gray-50 group ${index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
                                             <td className="px-4 text-[10px] font-bold text-[#106ebe] uppercase">{prod.name}</td>
                                             <td className="px-2 text-center">
                                                 <button
@@ -398,8 +398,8 @@ export const DishesModifiersAssign: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {selectedGroups.map(group => (
-                                        <tr key={group.id} className="h-9 border-b border-gray-50">
+                                    {selectedGroups.map((group, index) => (
+                                        <tr key={group.id} className={`h-9 border-b border-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
                                             <td className="px-4 text-[10px] font-bold text-[#106ebe] uppercase">{group.name}</td>
                                             <td className="px-1 text-center">
                                                 <input

@@ -814,7 +814,7 @@ export const InventoryProducts: React.FC = () => {
                                                 </td>
                                             </tr>
                                         ) : (
-                                            filteredProducts.map(prod => {
+                                            filteredProducts.map((prod, idx) => {
                                                 const isSelected = productContextMenu?.product?.id === prod.id;
                                                 const isSelectedRow = selectedProduct === prod.id;
                                                 return (
@@ -822,7 +822,7 @@ export const InventoryProducts: React.FC = () => {
                                                         key={prod.id}
                                                         onMouseDown={() => setSelectedProduct(prod.id)}
                                                         onDoubleClick={() => handleEdit(prod)}
-                                                        className={`h-6 cursor-pointer border-b border-gray-50 transition-colors ${isSelected || isSelectedRow ? 'bg-[#106ebe] text-white [&>td]:border-transparent' : 'text-slate-800 font-bold even:bg-slate-50/50 hover:bg-[#cce8ff]'}`}
+                                                        className={`h-6 cursor-pointer border-b border-gray-50 transition-colors ${isSelected || isSelectedRow ? 'bg-[#106ebe] text-white [&>td]:border-transparent' : `text-slate-800 font-bold ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#f2f7fb]`}`}
                                                         onContextMenu={(e) => handleContextMenu(e, 'product', prod)}
                                                     >
                                                         <td className="px-4 font-bold border-r border-gray-100 uppercase text-[10px]">{prod.code || '--'}</td>

@@ -227,7 +227,7 @@ export const ConfigPosCard: React.FC = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                filteredTerminals.map((pos) => {
+                                filteredTerminals.map((pos, index) => {
                                     const isSelected = editingTerminal?.id === pos.id;
                                     return (
                                         <tr
@@ -235,7 +235,11 @@ export const ConfigPosCard: React.FC = () => {
                                             onClick={() => setEditingTerminal(pos)}
                                             onDoubleClick={() => openEdit(pos)}
                                             onContextMenu={(e) => handleContextMenu(e, pos)}
-                                            className={`h-6 border-b border-gray-100 cursor-default transition-colors ${isSelected ? 'bg-[#106ebe] text-white shadow-[inset_3px_0_0_#106ebe]' : 'text-slate-900 even:bg-slate-50/50'}`}
+                                            className={`h-6 border-b border-gray-100 cursor-default transition-colors ${
+                                                isSelected
+                                                    ? 'bg-[#106ebe] text-white shadow-[inset_3px_0_0_#106ebe]'
+                                                    : index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'
+                                            } text-slate-900`}
                                         >
                                             <td className="px-4 border-r border-gray-100 uppercase font-bold text-[10px] tracking-tight">
                                                 <div className="flex items-center gap-2">

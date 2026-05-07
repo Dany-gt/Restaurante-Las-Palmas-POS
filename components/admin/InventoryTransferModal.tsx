@@ -330,7 +330,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                         {items.map((item, idx) => (
                                             <tr
                                                 key={idx}
-                                                className="h-7 border-b border-gray-100 group"
+                                                className={`h-7 border-b border-gray-100 group ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#f2f7fb]`}
                                                 onContextMenu={(e) => {
                                                     e.preventDefault();
                                                     e.stopPropagation();
@@ -504,7 +504,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                     {(productListSearch.length > 0
                                         ? inventoryItems.filter(i => i.name.toLowerCase().includes(productListSearch.toLowerCase()) || (i.code || '').toLowerCase().includes(productListSearch.toLowerCase()))
                                         : inventoryItems
-                                    ).map((item) => {
+                                    ).map((item, idx) => {
                                         const alreadyAdded = items.some(fi => fi.inventory_item_id === item.id);
                                         return (
                                             <tr
@@ -513,7 +513,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                                     setSelectedProductForConfig(item);
                                                     setConfigQty(1);
                                                 }}
-                                                className={`h-8 cursor-pointer border-b border-gray-100 hover:bg-blue-50 transition-colors group ${alreadyAdded ? 'bg-emerald-50/20' : ''}`}
+                                                className={`h-8 cursor-pointer border-b border-gray-100 transition-colors group ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#f2f7fb] ${alreadyAdded ? 'bg-emerald-50/20' : ''}`}
                                             >
                                                 <td className="px-3 text-[10px] border-r border-gray-100 font-mono text-gray-400 truncate">{item.code || '--'}</td>
                                                 <td className="px-3 text-[11px] border-r border-gray-100 font-bold uppercase truncate text-gray-800">{item.name}</td>

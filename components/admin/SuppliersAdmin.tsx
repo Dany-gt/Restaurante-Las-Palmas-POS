@@ -258,7 +258,7 @@ export const SuppliersAdmin: React.FC = () => {
                                         const nit = (sup.nit || '').toLowerCase();
                                         return matchesBranch && (name.includes(query) || nit.includes(query));
                                     })
-                                    .map(sup => (
+                                    .map((sup, index) => (
                                         <tr
                                             key={sup.id}
                                             onClick={() => setSelectedSupplierId(sup.id)}
@@ -267,7 +267,7 @@ export const SuppliersAdmin: React.FC = () => {
                                                 setSelectedSupplierId(sup.id);
                                                 handleContextMenu(e, sup);
                                             }}
-                                            className={`h-6 transition-colors cursor-pointer relative border-b border-gray-50 group ${selectedSupplierId === sup.id ? 'bg-[#106ebe] text-white' : 'text-slate-900 even:bg-slate-50/50 hover:bg-[#cce8ff]'}`}
+                                            className={`h-6 transition-colors cursor-pointer relative border-b border-gray-50 group ${selectedSupplierId === sup.id ? 'bg-[#106ebe] text-white' : (index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]') + ' text-slate-900 hover:bg-[#cce8ff]'}`}
                                         >
                                             <td className="px-4 font-bold uppercase text-[10px] border-r border-gray-100">{sup.name}</td>
                                             <td className="px-4 border-r border-gray-100 uppercase text-[10px]">{sup.phone || '--'}</td>

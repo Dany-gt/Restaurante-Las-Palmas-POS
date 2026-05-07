@@ -150,14 +150,15 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                         ) : filtered.length === 0 ? (
                             <tr><td colSpan={8} className="py-20 text-center text-[10px] uppercase font-bold text-slate-400">No se encontraron registros</td></tr>
                         ) : (
-                            filtered.map((item) => (
+                            filtered.map((item, index) => (
                                 <tr 
                                     key={item.id} 
                                     onClick={(e) => { e.stopPropagation(); setSelectedId(item.id); }}
+                                    onDoubleClick={() => onEdit(item.id)}
                                     onContextMenu={(e) => handleContextMenu(e, item)}
                                      className={`
                                          h-6 cursor-pointer transition-colors
-                                        ${selectedId === item.id ? 'bg-[#106ebe] text-white' : 'hover:bg-blue-50 text-slate-800'}
+                                        ${selectedId === item.id ? 'bg-[#106ebe] text-white font-bold' : index % 2 === 0 ? 'bg-white hover:bg-blue-50 text-slate-800' : 'bg-[#f5f5f5] hover:bg-blue-50 text-slate-800'}
                                     `}
                                 >
                                     <td className="px-4 text-[10px] font-bold border-r border-gray-100">{(item as any).product_code || '---'}</td>
@@ -242,6 +243,20 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                                 <span className="text-[11px] font-bold uppercase tracking-tight">Refrescar</span>
                             </button>
                             
+                            <button 
+                                disabled={!contextMenu.product}
+                                onClick={(e) => { 
+                                    if (!contextMenu.product) return;
+                                    e.stopPropagation(); 
+                                    onChangeCategory(contextMenu.product.id); 
+                                    setContextMenu({ ...contextMenu, visible: false }); 
+                                }}
+                                className={`w-full h-7 flex items-center gap-2.5 px-3 transition-none group ${!contextMenu.product ? 'opacity-40 cursor-not-allowed text-gray-400' : 'hover:bg-[#106ebe] hover:text-white text-slate-800'}`}
+                            >
+                                <Folder size={14} className={!contextMenu.product ? 'text-gray-400' : 'text-amber-500 group-hover:text-white'} />
+                                <span className="text-[11px] font-bold uppercase tracking-tight">Cambiar Categoría</span>
+                            </button>
+
                             <button 
                                 disabled={!contextMenu.product}
                                 onClick={(e) => { 

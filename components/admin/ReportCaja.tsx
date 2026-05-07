@@ -459,7 +459,7 @@ export const ReportCaja: React.FC = () => {
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                         {filteredShifts.map((s, idx) => (
-                            <tr key={s.id} className={`h-8 hover:bg-blue-50 cursor-default ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                            <tr key={s.id} className={`h-8 hover:bg-blue-50 cursor-default ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
                                 <td className="border border-gray-200 px-2 text-black">{s.start_time ? new Date(s.start_time).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '---'}</td>
                                 <td className="border border-gray-200 px-2 text-black">{s.end_time ? new Date(s.end_time).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'ABIERTO'}</td>
                                 <td className="border border-gray-200 px-2 font-bold text-black text-center">{s.cash_registers?.name || '---'}</td>

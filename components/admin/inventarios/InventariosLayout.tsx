@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useReactToPrint } from 'react-to-print';
-import { Search, Plus, Edit2, Trash2, Folder, Package, X, RefreshCw, ChefHat, FolderOpen, Save, Check, Image as ImageIcon, Printer, FileText, Sparkles, Loader2, AlertCircle, FolderPlus, Settings } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Folder, Package, X, RefreshCw, ChefHat, FolderOpen, Save, Check, Image as ImageIcon, Printer, FileText, Sparkles, Loader2, AlertCircle, FolderPlus, Settings, ChevronDown } from 'lucide-react';
 import { ConfirmDialog } from '../ConfirmDialog';
 // ••• SIDEBARS INDEPENDIENTES POR DOMINIO •••••••••••••
 import { MenuCategorySidebar } from '../menu/MenuCategorySidebar';       // D1: menu_categories
@@ -275,6 +275,8 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
 
     // Estados para Acciones Rápidas
     const [showQuickModal, setShowQuickModal] = useState<'category' | 'station' | null>(null);
+    const [quickSelectedId, setQuickSelectedId] = useState<string>('');
+    const [showDropdownList, setShowDropdownList] = useState(false);
     const [showQuickCatModal, setShowQuickCatModal] = useState(false);
     const [newCatName, setNewCatName] = useState('');
     const [quickTargetId, setQuickTargetId] = useState<string | null>(null);
@@ -740,12 +742,23 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
     };
 
     const handleChangeCategory = (id: string) => {
+        const product = allProducts.find(p => p.id === id);
+        if (product) {
+            const currentCatId = initialTab === 'platillos' ? product.menu_category_id : product.product_category_id;
+            setQuickSelectedId(currentCatId || '');
+        }
         setQuickTargetId(id);
+        setShowDropdownList(false);
         setShowQuickModal('category');
     };
 
     const handleChangeKitchen = (id: string) => {
+        const product = allProducts.find(p => p.id === id);
+        if (product) {
+            setQuickSelectedId(product.kitchen_station_id || '');
+        }
         setQuickTargetId(id);
+        setShowDropdownList(false);
         setShowQuickModal('station');
     };
 
@@ -860,41 +873,82 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                         <div className="p-1 bg-white/10 rounded">
                                             {showQuickModal === 'category' ? <Folder size={14} className="text-white" /> : <ChefHat size={14} className="text-white" />}
                                         </div>
-                                        <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">
-                                            {showQuickModal === 'category' ? 'Seleccionar Nueva Categoría' : 'Seleccionar Estación de Cocina'}
+                                        <h3 className="text-[11px] font-bold text-white tracking-tight">
+                                            {showQuickModal === 'category' ? 'Seleccione una Categoría' : 'Seleccione Estación de Cocina'}
                                         </h3>
                                     </div>
-                                    <button onClick={() => setShowQuickModal(null)} className="text-white/60 hover:text-white hover:bg-red-500 w-6 h-6 flex items-center justify-center transition-all">
-                                        <X size={16} />
+                                    <button onClick={() => { setShowQuickModal(null); setShowDropdownList(false); }} className="bg-[#cc0000] text-white w-5 h-5 flex items-center justify-center hover:bg-red-700 transition-colors border border-[#880000] mr-0.5">
+                                        <X size={12} strokeWidth={3} />
                                     </button>
                                 </div>
                                 <div className="p-4 max-h-[350px] overflow-y-auto custom-scrollbar bg-white m-1 border border-gray-300">
-                                    <div className="grid gap-1">
-                                        {(showQuickModal === 'category' ?
-                                            (initialTab === 'platillos' ? menuCategories : inventoryCategories) :
-                                            kitchens
-                                        ).map(item => (
+                                    <div className="bg-white border border-gray-400 p-5 shadow-inner">
+                                        <div className="mb-2">
+                                            <h4 className="text-[12px] font-bold text-slate-800 mb-4 tracking-tight">Categorias</h4>
+                                            <div className="flex items-center gap-4 px-2">
+                                                <label className="text-[11px] font-bold text-slate-600 min-w-[70px]">Categoria</label>
+                                                <div className="flex-1 relative">
+                                                    <button 
+                                                        onClick={() => setShowDropdownList(!showDropdownList)}
+                                                        className="w-full h-6 border border-gray-400 bg-white text-[11px] px-2 flex items-center justify-between font-bold uppercase outline-none focus:border-[#106ebe] shadow-sm text-slate-900"
+                                                    >
+                                                        <span className="truncate text-slate-950">
+                                                            {(showQuickModal === 'category' ? 
+                                                                (initialTab === 'platillos' ? menuCategories : inventoryCategories) : 
+                                                                kitchens
+                                                            ).find(c => c.id === quickSelectedId)?.name || '-- SELECCIONE --'}
+                                                        </span>
+                                                        <ChevronDown size={12} className="text-slate-800 shrink-0" />
+                                                    </button>
+                                                    
+                                                    {showDropdownList && (
+                                                        <div className="absolute top-full left-0 w-full z-[100001] bg-white border border-gray-400 shadow-[2px_2px_5px_rgba(0,0,0,0.2)] max-h-[160px] overflow-y-auto custom-scrollbar mt-[1px]">
+                                                            {(showQuickModal === 'category' ?
+                                                                (initialTab === 'platillos' ? menuCategories : inventoryCategories) :
+                                                                kitchens
+                                                            ).map(item => (
+                                                                <div 
+                                                                    key={item.id}
+                                                                    onClick={() => {
+                                                                        setQuickSelectedId(item.id);
+                                                                        setShowDropdownList(false);
+                                                                    }}
+                                                                    className={`px-2 py-1.5 text-[11px] font-bold uppercase cursor-pointer hover:bg-[#106ebe] hover:text-white transition-colors border-b border-gray-100 last:border-0 ${quickSelectedId === item.id ? 'bg-blue-100 text-[#106ebe]' : 'text-slate-900'}`}
+                                                                >
+                                                                    {item.name}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-center mt-8 pb-2">
                                             <button
-                                                key={item.id}
                                                 onClick={async () => {
-                                                    const table = initialTab === 'platillos' ? 'products' : 'productos';
-                                                    const field = showQuickModal === 'category' ? 'category_id' : 'kitchen_station_id';
-                                                    const { error } = await supabase.from(table).update({ [field]: item.id }).eq('id', quickTargetId);
+                                                    if (!quickSelectedId) return;
+                                                    const table = 'products';
+                                                    let field = '';
+                                                    if (showQuickModal === 'category') {
+                                                        field = initialTab === 'platillos' ? 'menu_category_id' : 'product_category_id';
+                                                    } else {
+                                                        field = 'kitchen_station_id';
+                                                    }
+                                                    
+                                                    const { error } = await supabase.from(table).update({ [field]: quickSelectedId }).eq('id', quickTargetId);
                                                     if (!error) {
                                                         handleRefresh();
                                                         setShowQuickModal(null);
+                                                        setQuickSelectedId('');
                                                     } else {
                                                         alert('Error al actualizar: ' + error.message);
                                                     }
                                                 }}
-                                                className="flex items-center gap-3 px-3 py-2 transition-all border border-transparent hover:border-[#106ebe] hover:bg-blue-50 text-left group"
+                                                className="bg-[#106ebe] text-white px-12 py-1.5 text-[11px] font-bold border border-[#0d5aa0] hover:bg-[#0d5aa0] shadow-md uppercase tracking-wider"
                                             >
-                                                {showQuickModal === 'category' ? <Folder size={14} className="text-amber-500" /> : <ChefHat size={14} className="text-blue-500" />}
-                                                <span className="text-[11px] font-bold uppercase text-slate-700 group-hover:text-[#106ebe]">
-                                                    {item.name}
-                                                </span>
+                                                Aceptar
                                             </button>
-                                        ))}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="px-4 py-2 bg-[#f5f5f5] border-t border-gray-300 flex justify-end">
@@ -1049,8 +1103,8 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                     // Búsqueda por nombre o código
                                                     return itemName.includes(q) || itemCode.includes(q);
                                                 })
-                                                .map(item => (
-                                                    <tr key={item.id} className="h-8 hover:bg-blue-50 border-b border-gray-100 cursor-pointer group transition-all active:bg-[#106ebe]/10"
+                                                .map((item, index) => (
+                                                    <tr key={item.id} className={`h-8 hover:bg-blue-50 border-b border-gray-100 cursor-pointer group transition-all active:bg-[#106ebe]/10 ${index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}
                                                         onDoubleClick={() => {
                                                             if (searchModal.type === 'inventory') {
                                                                 const units = getCompatibleUnits(item.unit_measure);

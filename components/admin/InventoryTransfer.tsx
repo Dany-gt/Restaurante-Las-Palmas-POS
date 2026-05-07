@@ -130,13 +130,13 @@ export const InventoryTransfer: React.FC = () => {
             }}
         >
             {/* Search/Action Bar */}
-            <div className="bg-[#e8e8e8] border-b border-gray-300 p-1 flex items-center justify-end gap-1.5 px-2 h-8 shrink-0">
+            <div className="bg-[#f0f0f0] border-b border-gray-300 p-1 flex items-center justify-end gap-1.5 px-2 h-8 shrink-0">
                 <input
                     type="text"
                     placeholder="Introduzca el texto a buscar..."
                     className="bg-white border border-gray-400 px-2 h-6 w-64 text-[11px] outline-none shadow-inner"
                 />
-                <button className="h-6 bg-gray-100 border border-gray-400 px-3 text-[11px] font-bold hover:bg-gray-200 active:bg-gray-300 text-black leading-none flex items-center">
+                <button className="h-6 bg-[#f0f0f0] border border-gray-400 px-3 text-[11px] font-bold hover:bg-[#e1e1e1] active:bg-[#d1d1d1] text-black leading-none flex items-center">
                     Buscar
                 </button>
             </div>
@@ -175,7 +175,7 @@ export const InventoryTransfer: React.FC = () => {
                                     e.stopPropagation();
                                     setContextMenu({ x: e.clientX, y: e.clientY, item });
                                 }}
-                                className="h-6 border-b border-gray-100 hover:bg-[#e8f2ff] cursor-pointer text-[11px] text-black transition-colors group"
+                                className={`h-6 border-b border-gray-100 cursor-pointer text-[11px] text-black transition-colors group ${i % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#f2f7fb]`}
                             >
                                 <td className="px-2 border-r border-gray-200 font-bold">{item.id}</td>
                                 <td className="px-2 border-r border-gray-200">{item.date}</td>
@@ -221,7 +221,7 @@ export const InventoryTransfer: React.FC = () => {
     return (
         <div ref={containerRef} className="flex flex-col w-full h-full bg-[#f0f0f0] text-black overflow-hidden relative">
             {/* Sucursal Bar: Larger and better aligned */}
-            <div className="bg-[#e8e8e8] px-4 py-1 border-b border-gray-300 flex items-center gap-3 shrink-0 h-10 shadow-sm">
+            <div className="bg-[#f0f0f0] px-4 py-1 border-b border-gray-300 flex items-center gap-3 shrink-0 h-10 shadow-sm">
                 <span className="text-[11px] font-bold uppercase whitespace-nowrap text-gray-700">Sucursal</span>
                 <div className="relative w-96 flex items-center">
                     <select

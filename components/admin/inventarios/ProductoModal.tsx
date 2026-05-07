@@ -427,7 +427,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                                 quantity: '0', min_stock: '0', is_enabled: true, is_assigned: true
                                                             };
                                                             return (
-                                                                <tr key={b.id} className={`border-b border-gray-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'} hover:bg-[#e8f2fe] transition-colors`}>
+                                                                <tr key={b.id} className={`border-b border-gray-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#e8f2fe] transition-colors`}>
                                                                     <td className="px-2 py-1 border-r border-gray-200 text-[11px] text-[#202020] font-[Arial]">{b.name}</td>
                                                                     <td className="px-1 border-r border-gray-200">
                                                                         <input 
@@ -582,7 +582,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                                 return (
                                                                 <tr 
                                                                     key={ri.id || idx} 
-                                                                    className={`border-b border-gray-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'} hover:bg-[#e8f2fe] transition-colors`}
+                                                                    className={`border-b border-gray-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#e8f2fe] transition-colors`}
                                                                     onContextMenu={(e) => {
                                                                         e.preventDefault();
                                                                         e.stopPropagation();

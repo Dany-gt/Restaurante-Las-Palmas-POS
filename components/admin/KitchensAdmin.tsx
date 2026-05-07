@@ -269,7 +269,7 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                                     </td>
                                 </tr>
                             ) : (
-                                filteredKitchens.map((k) => (
+                                filteredKitchens.map((k, index) => (
                                     <tr
                                         key={k.id}
                                         onClick={() => setSelectedKitchenId(k.id)}
@@ -281,10 +281,11 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                                             const rect = containerRef.current?.getBoundingClientRect();
                                             setContextMenu({ x: e.clientX - (rect?.left || 0), y: e.clientY - (rect?.top || 0), kitchen: k });
                                         }}
-                                        className={`h-6 transition-colors cursor-default relative border-b border-gray-50 ${selectedKitchenId === k.id
-                                            ? 'bg-[#106ebe] text-white shadow-[inset_3px_0_0_#106ebe]'
-                                            : 'text-slate-900 even:bg-slate-50/50'
-                                            }`}
+                                        className={`h-6 transition-colors cursor-default relative border-b border-gray-50 ${
+                                            selectedKitchenId === k.id
+                                                ? 'bg-[#106ebe] text-white shadow-[inset_3px_0_0_#106ebe]'
+                                                : index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'
+                                        } text-slate-900`}
                                     >
                                         <td className="px-4 font-bold flex items-center gap-2 h-6 border-r border-gray-100">
                                             <ChefHat size={12} className={selectedKitchenId === k.id ? 'text-white' : 'text-slate-400'} />
@@ -465,8 +466,8 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-200">
-                                                {branches.map(b => (
-                                                    <tr key={b.id} className="hover:bg-blue-50/50 transition-colors">
+                                                {branches.map((b, index) => (
+                                                    <tr key={b.id} className={`hover:bg-blue-50/50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
                                                         <td className="py-2 px-6 font-bold text-gray-700 border-r border-gray-300 uppercase">{b.name}</td>
                                                         <td className="py-2 px-2 text-center border-r border-gray-300">
                                                             <input type="checkbox" checked={formData.branch_id === b.id ? formData.is_printer : false} disabled={formData.branch_id !== b.id} onChange={e => formData.branch_id === b.id && setFormData({ ...formData, is_printer: e.target.checked })} className="w-3.5 h-3.5 accent-[#106ebe]" />

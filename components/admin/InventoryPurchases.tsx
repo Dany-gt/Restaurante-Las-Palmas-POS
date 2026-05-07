@@ -784,10 +784,10 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                                 ) : (
                                     purchases
                                         .filter(p => p.doc_number.toLowerCase().includes(searchTerm.toLowerCase()) || p.suppliers?.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                                        .map((purchase) => (
+                                        .map((purchase, idx) => (
                                             <tr
                                                 key={purchase.id}
-                                                className="h-6 cursor-default border-b border-gray-50 text-slate-900 even:bg-slate-50/50 group"
+                                                className={`h-6 cursor-default border-b border-gray-50 text-slate-900 group ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#f2f7fb]`}
                                                 onDoubleClick={() => handleLoadPurchase(purchase, 'VIEW')}
                                                 onContextMenu={(e) => {
                                                     e.preventDefault();
@@ -1080,7 +1080,7 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                                                         <tr
                                                             key={idx}
                                                             data-idx={idx}
-                                                            className="border-b border-gray-100 h-7"
+                                                            className={`border-b border-gray-100 h-7 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}
                                                         >
                                                             <td className="px-1 border-r border-gray-100">
                                                                 <input type="number" step="any" disabled={viewMode} value={item.quantity === 0 ? '' : item.quantity} onChange={e => handleUpdateItem(idx, { quantity: parseFloat(e.target.value) || 0 })}
@@ -1256,7 +1256,7 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                                                     const q = productListSearch.toLowerCase();
                                                     return i.name.toLowerCase().includes(q) || i.code.toLowerCase().includes(q);
                                                 })
-                                                .map((item) => {
+                                                .map((item, idx) => {
                                                     const alreadyAdded = formItems.some(fi => fi.inventory_item_id === item.id);
                                                     return (
                                                         <tr
@@ -1269,7 +1269,7 @@ export const InventoryPurchases: React.FC<InventoryPurchasesProps> = ({ currentU
                                                                 setSelectedProductForConfig(item);
                                                                 setConfigQty(1);
                                                             }}
-                                                            className={`h-7 transition-colors cursor-default border-b border-gray-100 group ${alreadyAdded ? 'opacity-50 grayscale bg-gray-50' : 'hover:bg-[#106ebe]/5'}`}
+                                                            className={`h-7 transition-colors cursor-default border-b border-gray-100 group ${alreadyAdded ? 'opacity-50 grayscale bg-gray-50' : (idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]')} hover:bg-[#106ebe]/5`}
                                                         >
                                                             <td className="px-4 py-1 text-[10px] border-r border-gray-100 truncate text-slate-600 tabular-nums">{item.code || '---'}</td>
                                                             <td className="px-4 py-1 text-[11px] border-r border-gray-100 font-bold truncate group-hover:text-[#106ebe] uppercase text-slate-800">{item.name}</td>

@@ -179,7 +179,7 @@ export const ConfigPrinters: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {filteredPrinters.map((p) => (
+                            {filteredPrinters.map((p, index) => (
                                 <tr
                                     key={p.id}
                                     onClick={() => setSelectedPrinterId(p.id)}
@@ -191,10 +191,11 @@ export const ConfigPrinters: React.FC = () => {
                                         const rect = containerRef.current?.getBoundingClientRect();
                                         setContextMenu({ x: e.clientX - (rect?.left || 0), y: e.clientY - (rect?.top || 0), printer: p });
                                     }}
-                                    className={`h-6 transition-colors cursor-default relative border-b border-gray-50 ${selectedPrinterId === p.id
-                                        ? 'bg-[#106ebe] text-white shadow-[inset_3px_0_0_#106ebe]'
-                                        : 'text-slate-900 even:bg-slate-50/50'
-                                        }`}
+                                    className={`h-6 transition-colors cursor-default relative border-b border-gray-50 ${
+                                        selectedPrinterId === p.id
+                                            ? 'bg-[#106ebe] text-white shadow-[inset_3px_0_0_#106ebe]'
+                                            : index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'
+                                    } text-slate-900`}
                                 >
                                     <td className="px-4 font-bold flex items-center gap-2 h-6 border-r border-gray-100">
                                         <Printer size={12} className={selectedPrinterId === p.id ? 'text-white' : 'text-slate-400'} />
