@@ -605,7 +605,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     unit_measure: newProduct.unit_measure || '',
                     presentation_unit: newProduct.presentation_unit || '',
                     // Sincronizar SIEMPRE ambos campos con el valor que el usuario ingresó en pantalla
-                    portions: parseInt(newProduct.conversion_factor) || parseInt(newProduct.portions) || 1,
+                    portions: parseFloat(newProduct.conversion_factor) || parseFloat(newProduct.portions) || 1,
                     conversion_factor: parseFloat(newProduct.conversion_factor) || parseFloat(newProduct.portions) || 1,
                     cost_price: parseFloat(newProduct.cost_price) || 0,
                     price: 0,

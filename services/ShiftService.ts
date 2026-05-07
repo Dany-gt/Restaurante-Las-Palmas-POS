@@ -438,7 +438,7 @@ export const shiftService = {
                     const { data: settings } = await supabase.from('system_settings').select('*').single();
                     if (settings?.smtp_user) {
                         await electron.sendEmail({
-                            to: settings.report_email || settings.smtp_user,
+                            to: settings.cashier_emails || settings.smtp_user,
                             subject: `Cierre de Caja - ${reportData.cashierName} - ${new Date().toLocaleDateString()}`,
                             body: `Se adjuntan los 5 reportes operativos del cierre de turno.\nCajero: ${reportData.cashierName}\nFecha: ${new Date().toLocaleString()}`,
                             smtpConfig: {

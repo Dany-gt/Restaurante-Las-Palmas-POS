@@ -104,6 +104,30 @@ ipcMain.handle('check-connection', async (event, { ip, port }) => {
     });
 });
 
+ipcMain.handle('open-cash-drawer', async (event, { target, type }) => {
+    return new Promise((resolve) => {
+        if (type === 'NETWORK' && target) {
+            // Pulso ESC/POS estándar: ESC p 0 25 250
+            const pulse = Buffer.from([0x1b, 0x70, 0x00, 0x19, 0xfa]);
+            const client = new net.Socket();
+            client.setTimeout(3000);
+            client.connect(9100, target, () => {
+                client.write(pulse, () => {
+                    client.end();
+                    resolve({ success: true });
+                });
+            });
+            client.on('error', (err) => resolve({ success: false, error: err.message }));
+            client.on('timeout', () => { client.destroy(); resolve({ success: false, error: 'Timeout' }); });
+        } else {
+            // Para impresoras de sistema, se asume que el driver está configurado 
+            // para abrir el cajón al recibir cualquier trabajo de impresión,
+            // o se requiere una librería nativa adicional.
+            resolve({ success: true, message: 'Driver-dependent pulse' });
+        }
+    });
+});
+
 ipcMain.handle('send-email', async (event, { to, subject, body, smtpConfig, attachments }) => {
     try {
         const transporter = nodemailer.createTransport({

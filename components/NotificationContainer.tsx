@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NotificationType } from '../hooks/useNotify';
+import { supabase } from '../supabase';
+import { getSecureSoundUrl } from '../utils/supabaseUtils';
 
 interface AppNotification {
     id: string;
@@ -9,6 +11,46 @@ interface AppNotification {
 
 export const NotificationContainer: React.FC = () => {
     const [notifications, setNotifications] = useState<AppNotification[]>([]);
+    const [soundsMap, setSoundsMap] = useState<Record<string, string>>({});
+    const [volume, setVolume] = useState(0.8);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    useEffect(() => {
+        const loadInitialData = async () => {
+            try {
+                // Load all active sounds to have them ready
+                const { data: sounds } = await supabase
+                    .from('sound_library')
+                    .select('id, file_url')
+                    .eq('is_active', true);
+
+                if (sounds) {
+                    const map: Record<string, string> = {};
+                    sounds.forEach(s => {
+                        map[s.id] = getSecureSoundUrl(s.file_url);
+                    });
+                    setSoundsMap(map);
+                }
+
+                // Initial volume from localStorage or DB
+                const localSettings = JSON.parse(localStorage.getItem('system_settings') || '{}');
+                if (localSettings.kds_alert_volume) {
+                    setVolume(localSettings.kds_alert_volume);
+                } else {
+                    const { data: settings } = await supabase
+                        .from('system_settings')
+                        .select('kds_alert_volume')
+                        .eq('id', 1)
+                        .single();
+                    if (settings?.kds_alert_volume) setVolume(settings.kds_alert_volume);
+                }
+            } catch (error) {
+                console.error('Error initializing notification sounds:', error);
+            }
+        };
+
+        loadInitialData();
+    }, []);
 
     useEffect(() => {
         const handleNotification = (event: any) => {
@@ -16,16 +58,50 @@ export const NotificationContainer: React.FC = () => {
             const id = crypto.randomUUID();
 
             setNotifications(prev => {
-                // Keep max 5 notifications
                 const updated = [...prev, { id, type, message }];
                 if (updated.length > 5) return updated.slice(updated.length - 5);
                 return updated;
             });
 
+            // Get latest settings from localStorage to be reactive
+            const localSettings = JSON.parse(localStorage.getItem('system_settings') || '{}');
+            const soundId = localSettings.pos_notification_sound_id;
+            const currentVolume = localSettings.kds_alert_volume || volume;
+
+            if (soundId) {
+                let url = soundsMap[soundId];
+                
+                // Fallback: if sound is not in map (e.g. newly added), fetch it
+                if (!url) {
+                    supabase
+                        .from('sound_library')
+                        .select('file_url')
+                        .eq('id', soundId)
+                        .single()
+                        .then(({ data }) => {
+                            if (data?.file_url) {
+                                const newUrl = getSecureSoundUrl(data.file_url);
+                                setSoundsMap(prev => ({ ...prev, [soundId]: newUrl }));
+                                playAudio(newUrl, currentVolume);
+                            }
+                        });
+                } else {
+                    playAudio(url, currentVolume);
+                }
+            }
+
             // Auto discard after 5 seconds
             setTimeout(() => {
                 setNotifications(prev => prev.filter(n => n.id !== id));
             }, 5000);
+        };
+
+        const playAudio = (url: string, vol: number) => {
+            const audio = new Audio(url);
+            audio.volume = vol;
+            audio.play().catch(err => {
+                console.warn('Notification audio playback failed:', err);
+            });
         };
 
         window.addEventListener('app-notification', handleNotification);

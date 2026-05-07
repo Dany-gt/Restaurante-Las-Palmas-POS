@@ -93,6 +93,8 @@ export const SystemConfig: React.FC<{
     const [uploading, setUploading] = useState(false);
     const [showConfirmClose, setShowConfirmClose] = useState(false);
     const [initialConfig, setInitialConfig] = useState<string>('');
+    const [testingSmtp, setTestingSmtp] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle');
+    const [testSmtpMsg, setTestSmtpMsg] = useState('');
 
     const getDirectUrl = (url: string) => {
         if (!url) return '';
@@ -232,6 +234,42 @@ export const SystemConfig: React.FC<{
         };
         fetchBranchBilling();
     }, [config.sucursal_id]);
+
+    const handleTestSmtp = async () => {
+        if (!config.smtp_host || !config.smtp_user || !config.smtp_pass) {
+            setTestSmtpMsg('Complete todos los campos SMTP antes de probar.');
+            setTestingSmtp('error');
+            return;
+        }
+        setTestingSmtp('loading');
+        setTestSmtpMsg('');
+        try {
+            const electron = (window as any).electronAPI || (window as any).electron;
+            if (!electron?.sendEmail) {
+                throw new Error('Esta función solo está disponible en la aplicación de escritorio (Electron).');
+            }
+            const result = await electron.sendEmail({
+                to: config.smtp_user,
+                subject: '✅ Prueba SMTP — Restaurante Las Palmas POS',
+                body: `Conexión SMTP verificada correctamente.\nHost: ${config.smtp_host}\nPuerto: ${config.smtp_port}\nUsuario: ${config.smtp_user}\nFecha: ${new Date().toLocaleString('es-GT')}`,
+                smtpConfig: {
+                    host: config.smtp_host,
+                    port: parseInt(config.smtp_port) || 465,
+                    user: config.smtp_user,
+                    pass: config.smtp_pass
+                }
+            });
+            if (result?.success) {
+                setTestingSmtp('ok');
+                setTestSmtpMsg(`✅ Correo de prueba enviado a ${config.smtp_user}`);
+            } else {
+                throw new Error(result?.error || 'Error desconocido del servidor SMTP.');
+            }
+        } catch (e: any) {
+            setTestingSmtp('error');
+            setTestSmtpMsg(`❌ Error: ${e.message}`);
+        }
+    };
 
     const handleSave = async () => {
         setSaving(true);
@@ -914,9 +952,25 @@ export const SystemConfig: React.FC<{
                                                 className="w-full bg-gray-50/50 border border-gray-100 text-[11px] font-bold px-4 py-2 rounded-lg outline-none focus:bg-white focus:border-[#106ebe] shadow-sm transition-all"
                                             />
                                         </div>
-                                        <div className="pt-4 border-t border-gray-50 flex justify-end">
-                                            <button className="px-6 py-2 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-indigo-600 hover:text-white transition-all active:scale-95 border border-indigo-100 shadow-sm">
-                                                Probar Conexión
+                                        <div className="pt-4 border-t border-gray-50 flex flex-col items-end gap-3">
+                                            {testSmtpMsg && (
+                                                <p className={`text-[10px] font-bold ${testingSmtp === 'ok' ? 'text-green-600' : 'text-red-500'}`}>
+                                                    {testSmtpMsg}
+                                                </p>
+                                            )}
+                                            <button
+                                                onClick={handleTestSmtp}
+                                                disabled={testingSmtp === 'loading'}
+                                                className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all active:scale-95 border shadow-sm flex items-center gap-2 ${
+                                                    testingSmtp === 'ok' ? 'bg-green-50 text-green-700 border-green-200' :
+                                                    testingSmtp === 'error' ? 'bg-red-50 text-red-600 border-red-200' :
+                                                    'bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-600 hover:text-white'
+                                                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                            >
+                                                {testingSmtp === 'loading' ? '⏳ Enviando...' :
+                                                 testingSmtp === 'ok' ? '✅ Conexión OK' :
+                                                 testingSmtp === 'error' ? '❌ Reintentar' :
+                                                 'Probar Conexión'}
                                             </button>
                                         </div>
                                     </div>
