@@ -14,6 +14,7 @@ import { useNotify } from '../../../hooks/useNotify';
 import { supabase } from '../../../supabase';
 import { DraggableWindow } from '../DraggableWindow';
 import { WindowsSaveButton } from '../../WindowsSaveButton';
+import { PremiumIcon, ICON_MAP } from '../../shared/PremiumIcon';
 
 const DOMAIN_TABLE = 'product_categories' as const;
 
@@ -22,6 +23,7 @@ interface ProductCategorySidebarProps {
     onToggle: (id: string) => void;
     width?: number;
     onRefresh?: () => void;
+    iconTheme?: 'classic' | 'premium';
 }
 
 interface FormState { 
@@ -34,7 +36,7 @@ interface FormState {
     imagen_url: string;
 }
 
-export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ selectedIds, onToggle, width = 190, onRefresh }) => {
+export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ selectedIds, onToggle, width = 190, onRefresh, iconTheme = 'classic' }) => {
     const notify = useNotify();
     const { categories, load, loading, create, update, remove } = useDomainCategories({
         table: DOMAIN_TABLE,
@@ -296,28 +298,28 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                             <>
                                 <button onClick={() => { handleOpenForm(null, contextMenu.id); setContextMenu(null); }}
                                     className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700">
-                                    <Plus size={11} /> Nuevo
+                                    {iconTheme === 'premium' ? <PremiumIcon name={ICON_MAP.PLUS} size={14} color="currentColor" /> : <Plus size={11} />} Nuevo
                                 </button>
                                 <div className="h-px bg-gray-300 my-0.5" />
                                 <button onClick={() => { handleOpenForm(contextMenu.id); setContextMenu(null); }}
                                     className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700">
-                                    <Edit2 size={11} /> Editar
+                                    {iconTheme === 'premium' ? <PremiumIcon name={ICON_MAP.EDIT} size={14} color="currentColor" /> : <Edit2 size={11} />} Editar
                                 </button>
                                 <button onClick={() => handleDelete(contextMenu.id!, contextMenu.nombre!)}
                                     className="w-full h-6 flex items-center gap-2 px-3 hover:bg-red-500 hover:text-white text-[11px] text-red-600">
-                                    <Trash2 size={11} /> Eliminar
+                                    {iconTheme === 'premium' ? <PremiumIcon name={ICON_MAP.TRASH} size={14} color="currentColor" /> : <Trash2 size={11} />} Eliminar
                                 </button>
                             </>
                         ) : (
                             <button onClick={() => { handleOpenForm(null); setContextMenu(null); }}
                                 className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700 font-bold">
-                                <Plus size={11} /> Nuevo
+                                {iconTheme === 'premium' ? <PremiumIcon name={ICON_MAP.PLUS} size={14} color="currentColor" /> : <Plus size={11} />} Nuevo
                             </button>
                         )}
                         <div className="h-px bg-gray-300 my-0.5" />
                         <button onClick={() => { load(); setContextMenu(null); }}
                             className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700">
-                            <RefreshCw size={11} /> Refrescar
+                            {iconTheme === 'premium' ? <PremiumIcon name={ICON_MAP.REFRESH} size={14} color="currentColor" /> : <RefreshCw size={11} />} Refrescar
                         </button>
                     </div>
                 </>, document.body
@@ -332,17 +334,17 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                             {/* Title Bar */}
                             <div className="bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 modal-header cursor-move">
                             <div className="flex items-center gap-2">
-                                <Folder size={14} className="text-white" />
+                                {iconTheme === 'premium' ? <PremiumIcon name={ICON_MAP.CATEGORY} size={18} /> : <Folder size={14} className="text-white" />}
                                 <span className="text-[11px] font-bold uppercase tracking-tight">Mantenimiento de Categorías de Inventario</span>
                             </div>
                             <div className="flex items-center h-full">
                                 <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
                                 <button onClick={() => fileInputRef.current?.click()} className="h-full px-2.5 hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer relative" title="Subir Imagen" disabled={isUploading}>
-                                    {isUploading ? <Loader2 size={16} className="text-white animate-spin" /> : <ImageIcon size={16} className="text-white" />}
+                                    {isUploading ? <Loader2 size={16} className="text-white animate-spin" /> : (iconTheme === 'premium' ? <PremiumIcon name={ICON_MAP.IMAGE} size={18} /> : <ImageIcon size={16} className="text-white" />)}
                                 </button>
                                 <WindowsSaveButton onClick={handleSave} loading={isSaving} variant="minimal" title="Guardar Datos (F2)" />
                                 <button onClick={() => setForm(null)} className="h-full px-3 hover:bg-red-500 transition-colors flex items-center" title="Cerrar">
-                                    <X size={16} />
+                                    {iconTheme === 'premium' ? <PremiumIcon name={ICON_MAP.CLOSE} size={18} /> : <X size={16} />}
                                 </button>
                             </div>
                         </div>

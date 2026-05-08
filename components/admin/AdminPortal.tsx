@@ -17,6 +17,7 @@ import {
     ListOrdered, FileWarning, FileMinus2,
     Sigma, CalendarDays, ArrowRightLeft, Scale, Wrench, Calculator
 } from 'lucide-react';
+import { PremiumIcon, ICON_MAP } from '../shared/PremiumIcon';
 // Existing Modules
 import { UsuariosAdmin } from './UsuariosAdmin';
 import { MenuAdmin } from './MenuAdmin';
@@ -254,6 +255,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
         id: string;
         label: string;
         icon: any;
+        iconify?: string;
         action?: () => void;
         section?: string;
         compact?: boolean;
@@ -270,120 +272,120 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
             id: 'SISTEMA',
             label: 'Sistema',
             items: [
-                { id: 'ADMIN_AUTH', label: 'Autorizaciones Remotas', icon: Shield, action: () => onNavigate?.('ADMIN_AUTH_PANEL') },
-                { id: 'SYS_CONFIG', label: 'Configuración General', icon: Settings },
-                { id: 'SYS_SOUNDS', label: 'Alertas de Sonido KDS', icon: Volume2 },
-                { id: 'ADMIN_USERS', label: 'Usuarios de Sistema', icon: Users },
-                { id: 'SYS_PERMS', label: 'Roles y Permisos', icon: Shield },
-                { id: 'SYS_BRANCHES', label: 'Sucursales', icon: Building },
-                ...(currentUser?.is_superadmin ? [{ id: 'SYS_ORGS', label: 'Gestión de Empresas', icon: Building }] : []),
-                { id: 'EXIT', label: 'Cerrar Aplicación', icon: LogOut, action: onExit },
+                { id: 'ADMIN_AUTH', label: 'Autorizaciones Remotas', icon: Shield, iconify: ICON_MAP.AUTH, action: () => onNavigate?.('ADMIN_AUTH_PANEL') },
+                { id: 'SYS_CONFIG', label: 'Configuración General', icon: Settings, iconify: ICON_MAP.ADMIN_CONFIG },
+                { id: 'SYS_SOUNDS', label: 'Alertas de Sonido KDS', icon: Volume2, iconify: ICON_MAP.SOUNDS },
+                { id: 'ADMIN_USERS', label: 'Usuarios de Sistema', icon: Users, iconify: ICON_MAP.CFG_USERS },
+                { id: 'SYS_PERMS', label: 'Roles y Permisos', icon: Shield, iconify: ICON_MAP.ADMIN_SYS },
+                { id: 'SYS_BRANCHES', label: 'Sucursales', icon: Building, iconify: ICON_MAP.CFG_SECTIONS },
+                ...(currentUser?.is_superadmin ? [{ id: 'SYS_ORGS', label: 'Gestión de Empresas', icon: Building, iconify: ICON_MAP.CFG_SECTIONS }] : []),
+                { id: 'EXIT', label: 'Cerrar Aplicación', icon: LogOut, iconify: ICON_MAP.LOGOUT, action: onExit },
             ]
         },
         {
             id: 'CONFIG',
             label: 'Configuraciones',
             items: [
-                { id: 'CFG_KITCHEN', label: 'Cocinas', icon: ChefHat },
-                { id: 'CFG_CASH', label: 'Cajas', icon: Wallet },
-                { id: 'ADMIN_SECTIONS', label: 'Secciones y Mesas', icon: MapPin },
-                { id: 'CFG_PRINTERS', label: 'Puntos de Impresión (Tablets)', icon: Printer },
-                { id: 'CFG_POS', label: 'POS Tarjeta', icon: CreditCard },
-                { id: 'CFG_WAITER_ST', label: 'Estaciones de Meseros', icon: Users },
-                { id: 'CFG_DISCOUNTS', label: 'Tipo de Descuentos', icon: Percent },
-                { id: 'CFG_PLATFORMS', label: 'Plataformas de Pedidos', icon: Globe },
-                { id: 'CFG_DELIVERY', label: 'Mis Repartidores', icon: Bike },
-                { id: 'CFG_RECEIVABLE', label: 'Cuentas por Cobrar', icon: Receipt },
-                { id: 'ADMIN_EXPENSES', label: 'Gastos y Categorías', icon: Tag },
+                { id: 'CFG_KITCHEN', label: 'Cocinas', icon: ChefHat, iconify: ICON_MAP.CFG_KITCHEN },
+                { id: 'CFG_CASH', label: 'Cajas', icon: Wallet, iconify: ICON_MAP.CFG_CASH },
+                { id: 'ADMIN_SECTIONS', label: 'Secciones y Mesas', icon: MapPin, iconify: ICON_MAP.CFG_SECTIONS },
+                { id: 'CFG_PRINTERS', label: 'Puntos de Impresión (Tablets)', icon: Printer, iconify: ICON_MAP.CFG_PRINTERS },
+                { id: 'CFG_POS', label: 'POS Tarjeta', icon: CreditCard, iconify: ICON_MAP.CFG_POS },
+                { id: 'CFG_WAITER_ST', label: 'Estaciones de Meseros', icon: Users, iconify: ICON_MAP.CFG_USERS },
+                { id: 'CFG_DISCOUNTS', label: 'Tipo de Descuentos', icon: Percent, iconify: ICON_MAP.CFG_DISCOUNTS },
+                { id: 'CFG_PLATFORMS', label: 'Plataformas de Pedidos', icon: Globe, iconify: ICON_MAP.CFG_PLATFORMS },
+                { id: 'CFG_DELIVERY', label: 'Mis Repartidores', icon: Bike, iconify: ICON_MAP.CFG_DRIVERS },
+                { id: 'CFG_RECEIVABLE', label: 'Cuentas por Cobrar', icon: Receipt, iconify: ICON_MAP.CFG_RECEIVABLE },
+                { id: 'ADMIN_EXPENSES', label: 'Gastos y Categorías', icon: Tag, iconify: ICON_MAP.CFG_EXPENSES },
             ]
         },
         {
             id: 'DISHES',
             label: 'Platillos y Bebidas',
             items: [
-                { id: 'ADMIN_MENU', label: 'Menú de Platillos', icon: Utensils, section: 'Menu' },
-                { id: 'DSH_PREVIEW', label: 'Vista Previa de Menú', icon: Eye, section: 'Menu' },
-                { id: 'DSH_MOD_LIST', label: 'Modificadores', icon: Puzzle, section: 'Modificadores' },
-                { id: 'DSH_MOD_GRP', label: 'Agrupar Modificadores', icon: Boxes, section: 'Modificadores' },
-                { id: 'DSH_MOD_ASSIGN', label: 'Asignar Modificadores', icon: Link, section: 'Modificadores' },
-                { id: 'DSH_OPT_LIST', label: 'Opciones', icon: ListChecks, section: 'Opciones' },
-                { id: 'DSH_OPT_GRP', label: 'Agrupar Opciones', icon: FolderTree, section: 'Opciones' },
-                { id: 'DSH_OPT_ASSIGN', label: 'Asignar Opciones', icon: Tags, section: 'Opciones' },
+                { id: 'ADMIN_MENU', label: 'Menú de Platillos', icon: Utensils, iconify: ICON_MAP.MENU_LIST, section: 'Menu' },
+                { id: 'DSH_PREVIEW', label: 'Vista Previa de Menú', icon: Eye, iconify: ICON_MAP.MENU_PREVIEW, section: 'Menu' },
+                { id: 'DSH_MOD_LIST', label: 'Modificadores', icon: Puzzle, iconify: ICON_MAP.MENU_MODS, section: 'Modificadores' },
+                { id: 'DSH_MOD_GRP', label: 'Agrupar Modificadores', icon: Boxes, iconify: ICON_MAP.MENU_MODS_GRP, section: 'Modificadores' },
+                { id: 'DSH_MOD_ASSIGN', label: 'Asignar Modificadores', icon: Link, iconify: ICON_MAP.MENU_MODS_ASG, section: 'Modificadores' },
+                { id: 'DSH_OPT_LIST', label: 'Opciones', icon: ListChecks, iconify: ICON_MAP.MENU_OPTS, section: 'Opciones' },
+                { id: 'DSH_OPT_GRP', label: 'Agrupar Opciones', icon: FolderTree, iconify: ICON_MAP.MENU_OPTS_GRP, section: 'Opciones' },
+                { id: 'DSH_OPT_ASSIGN', label: 'Asignar Opciones', icon: Tags, iconify: ICON_MAP.MENU_OPTS_ASG, section: 'Opciones' },
             ]
         },
         {
             id: 'INVENTORY',
             label: 'Inventarios',
             items: [
-                { id: 'INV_SUPPLIERS', label: 'Proveedores', icon: Truck, section: 'Materia Prima' },
-                { id: 'INV_PRODUCTS', label: 'Productos', icon: Package, section: 'Materia Prima' },
-                { id: 'INV_PURCHASES', label: 'Compras', icon: ShoppingCart, section: 'Movimientos de Inventario' },
-                { id: 'INV_LEVELING', label: 'Nivelación', icon: Scale, section: 'Movimientos de Inventario' },
-                { id: 'INV_TRANSFER', label: 'Traslado de Productos', icon: ArrowRightLeft, section: 'Movimientos de Inventario' },
-                { id: 'INV_KARDEX', label: 'Kardex de Inventario', icon: FileCheck2, section: 'Reportes de Inventario' },
-                { id: 'INV_STOCK_SUC', label: 'Existencias por Sucursal', icon: Layout, section: 'Existencias de Inventario' },
-                { id: 'INV_STOCK_REORDER', label: 'Existencias en Punto de Reorden', icon: ArrowDownToLine, section: 'Existencias de Inventario' },
-                { id: 'INV_STOCK_DATE', label: 'Existencias por Fecha', icon: CalendarDays, section: 'Existencias de Inventario' },
-                { id: 'INV_PRODUCTION', label: 'Ordenes de Producción', icon: Wrench, section: 'Producción' },
-                { id: 'INV_SUMINISTROS', label: 'Insumos y Suministros', icon: ShoppingCart, section: 'Suministros y Utensilios' },
-                { id: 'INV_UTENSILIOS', label: 'Utensilios de Cocina', icon: Wrench, section: 'Suministros y Utensilios' },
+                { id: 'INV_SUPPLIERS', label: 'Proveedores', icon: Truck, iconify: ICON_MAP.INV_SUPPLIERS, section: 'Materia Prima' },
+                { id: 'INV_PRODUCTS', label: 'Productos', icon: Package, iconify: ICON_MAP.INV_PRODUCTS, section: 'Materia Prima' },
+                { id: 'INV_PURCHASES', label: 'Compras', icon: ShoppingCart, iconify: ICON_MAP.INV_PURCHASES, section: 'Movimientos de Inventario' },
+                { id: 'INV_LEVELING', label: 'Nivelación', icon: Scale, iconify: ICON_MAP.INV_LEVELING, section: 'Movimientos de Inventario' },
+                { id: 'INV_TRANSFER', label: 'Traslado de Productos', icon: ArrowRightLeft, iconify: ICON_MAP.INV_TRANSFER, section: 'Movimientos de Inventario' },
+                { id: 'INV_KARDEX', label: 'Kardex de Inventario', icon: FileCheck2, iconify: ICON_MAP.INV_KARDEX, section: 'Reportes de Inventario' },
+                { id: 'INV_STOCK_SUC', label: 'Existencias por Sucursal', icon: Layout, iconify: ICON_MAP.INV_STOCK_SUC, section: 'Existencias de Inventario' },
+                { id: 'INV_STOCK_REORDER', label: 'Existencias en Punto de Reorden', icon: ArrowDownToLine, iconify: ICON_MAP.INV_STOCK_REORDER, section: 'Existencias de Inventario' },
+                { id: 'INV_STOCK_DATE', label: 'Existencias por Fecha', icon: CalendarDays, iconify: ICON_MAP.INV_STOCK_DATE, section: 'Existencias de Inventario' },
+                { id: 'INV_PRODUCTION', label: 'Ordenes de Producción', icon: Wrench, iconify: ICON_MAP.INV_PRODUCTION, section: 'Producción' },
+                { id: 'INV_SUMINISTROS', label: 'Insumos y Suministros', icon: ShoppingCart, iconify: ICON_MAP.SUMINISTROS, section: 'Suministros y Utensilios' },
+                { id: 'INV_UTENSILIOS', label: 'Utensilios de Cocina', icon: Wrench, iconify: ICON_MAP.UTENSILIOS, section: 'Suministros y Utensilios' },
             ]
         },
         {
             id: 'REPORTS',
             label: 'Reportes',
             items: [
-                { id: 'REP_GEN', label: 'Reporte General', icon: PieChart, section: 'General de Ventas' },
-                { id: 'REP_SUC', label: 'Reporte por Sucursal', icon: MapPin, section: 'General de Ventas' },
-                { id: 'REP_OPEN', label: 'Órdenes Abiertas', icon: Clock, section: 'Órdenes y Cuentas' },
-                { id: 'REP_CLOSED', label: 'Órdenes Cerradas', icon: FileCheck2, section: 'Órdenes y Cuentas' },
-                { id: 'REP_CLOSED_CH', label: 'Cerradas por Canal', icon: BarChart3, section: 'Órdenes y Cuentas' },
-                { id: 'REP_CREDIT', label: 'Órdenes Al Crédito', icon: CreditCardIcon, section: 'Órdenes y Cuentas' },
-                { id: 'REP_VOID', label: 'Órdenes Anuladas', icon: AlertTriangle, section: 'Órdenes y Cuentas' },
-                { id: 'REP_DISC', label: 'Órdenes con Descuentos', icon: BadgePercent, section: 'Órdenes y Cuentas' },
-                { id: 'REP_ALL', label: 'Todas las Órdenes', icon: ListOrdered, section: 'Órdenes y Cuentas' },
-                { id: 'REP_DELIVERY', label: 'Domicilio', icon: Bike, section: 'Órdenes y Cuentas' },
-                { id: 'REP_SOLD_GEN', label: 'Platillos Vendidos General', icon: Utensils, section: 'Platillos' },
-                { id: 'REP_SOLD_USER', label: 'Platillos por Usuario', icon: UserCheck, section: 'Platillos' },
-                { id: 'REP_DELETED', label: 'Platillos Eliminados', icon: Trash, section: 'Platillos' },
-                { id: 'REP_BILLED', label: 'Platillos Facturados', icon: ClipboardList, section: 'Platillos' },
-                { id: 'REP_CASH_CUT', label: 'Cortes de Caja', icon: Scissors, section: 'Cajas', compact: true },
-                { id: 'REP_CASH_IN', label: 'Ingresos a Caja', icon: ArrowDownToLine, section: 'Cajas', compact: true },
-                { id: 'REP_CASH_OTHER', label: 'Ingresos Otros', icon: ArrowUpFromLine, section: 'Cajas', compact: true },
-                { id: 'REP_INV', label: 'Facturas', icon: FileCheck, section: 'Facturas', compact: true },
-                { id: 'REP_INV_VOID', label: 'Facturas Anuladas', icon: FileX, section: 'Facturas', compact: true },
-                { id: 'REP_INV_UNFACT', label: 'Sin Facturar', icon: FileMinus2, section: 'Facturas', compact: true },
-                { id: 'REP_ACTIVITY', label: 'Historial de Actividad', icon: Shield, section: 'Auditoría', compact: false },
-                { id: 'REP_WAITER', label: 'Propinas de Meseros', icon: Users, section: 'Propinas' },
+                { id: 'REP_GEN', label: 'Reporte General', icon: PieChart, iconify: ICON_MAP.REP_CHART_PIE, section: 'General de Ventas' },
+                { id: 'REP_SUC', label: 'Reporte por Sucursal', icon: MapPin, iconify: ICON_MAP.REP_CHART_BAR, section: 'General de Ventas' },
+                { id: 'REP_OPEN', label: 'Órdenes Abiertas', icon: Clock, iconify: ICON_MAP.REP_ORDERS, section: 'Órdenes y Cuentas' },
+                { id: 'REP_CLOSED', label: 'Órdenes Cerradas', icon: FileCheck2, iconify: ICON_MAP.REP_INVOICE, section: 'Órdenes y Cuentas' },
+                { id: 'REP_CLOSED_CH', label: 'Cerradas por Canal', icon: BarChart3, iconify: ICON_MAP.REP_CHART_LINE, section: 'Órdenes y Cuentas' },
+                { id: 'REP_CREDIT', label: 'Órdenes Al Crédito', icon: CreditCardIcon, iconify: ICON_MAP.REP_ORDERS, section: 'Órdenes y Cuentas' },
+                { id: 'REP_VOID', label: 'Órdenes Anuladas', icon: AlertTriangle, iconify: ICON_MAP.REP_ORDERS, section: 'Órdenes y Cuentas' },
+                { id: 'REP_DISC', label: 'Órdenes con Descuentos', icon: BadgePercent, iconify: ICON_MAP.REP_ORDERS, section: 'Órdenes y Cuentas' },
+                { id: 'REP_ALL', label: 'Todas las Órdenes', icon: ListOrdered, iconify: ICON_MAP.REP_ORDERS, section: 'Órdenes y Cuentas' },
+                { id: 'REP_DELIVERY', label: 'Domicilio', icon: Bike, iconify: ICON_MAP.REP_ORDERS, section: 'Órdenes y Cuentas' },
+                { id: 'REP_SOLD_GEN', label: 'Platillos Vendidos General', icon: Utensils, iconify: ICON_MAP.REP_SOLD, section: 'Platillos' },
+                { id: 'REP_SOLD_USER', label: 'Platillos por Usuario', icon: UserCheck, iconify: ICON_MAP.REP_STATS, section: 'Platillos' },
+                { id: 'REP_DELETED', label: 'Platillos Eliminados', icon: Trash, iconify: ICON_MAP.TRASH, section: 'Platillos' },
+                { id: 'REP_BILLED', label: 'Platillos Facturados', icon: ClipboardList, iconify: ICON_MAP.REP_INVOICE, section: 'Platillos' },
+                { id: 'REP_CASH_CUT', label: 'Cortes de Caja', icon: Scissors, iconify: ICON_MAP.REP_CASH, section: 'Cajas', compact: true },
+                { id: 'REP_CASH_IN', label: 'Ingresos a Caja', icon: ArrowDownToLine, iconify: ICON_MAP.REP_STATS, section: 'Cajas', compact: true },
+                { id: 'REP_CASH_OTHER', label: 'Ingresos Otros', icon: ArrowUpFromLine, iconify: ICON_MAP.REP_CHART_BAR, section: 'Cajas', compact: true },
+                { id: 'REP_INV', label: 'Facturas', icon: FileCheck, iconify: ICON_MAP.REP_INVOICE, section: 'Facturas', compact: true },
+                { id: 'REP_INV_VOID', label: 'Facturas Anuladas', icon: FileX, iconify: ICON_MAP.REP_CHART_LINE, section: 'Facturas', compact: true },
+                { id: 'REP_INV_UNFACT', label: 'Sin Facturar', icon: FileMinus2, iconify: ICON_MAP.REP_CHART_PIE, section: 'Facturas', compact: true },
+                { id: 'REP_ACTIVITY', label: 'Historial de Actividad', icon: Shield, iconify: ICON_MAP.ADMIN_CONFIG, section: 'Auditoría', compact: false },
+                { id: 'REP_WAITER', label: 'Propinas de Meseros', icon: Users, iconify: ICON_MAP.WAITERS, section: 'Propinas' },
             ]
         },
         {
             id: 'DASHBOARDS',
             label: 'Dashboards',
             items: [
-                { id: 'DASH_CASH', label: 'Ingresos a Caja', icon: Wallet },
-                { id: 'DASH_INVOICE', label: 'Facturación', icon: FileText },
-                { id: 'DASH_SALES', label: 'Ventas Rendimiento', icon: TrendingUp },
-                { id: 'DASH_DISHES', label: 'Platos Rendimiento', icon: Utensils },
-                { id: 'DASH_EXPENSES', label: 'Gastos', icon: PieChart },
+                { id: 'DASH_CASH', label: 'Ingresos a Caja', icon: Wallet, iconify: ICON_MAP.DASH_CASH },
+                { id: 'DASH_INVOICE', label: 'Facturación', icon: FileText, iconify: ICON_MAP.DASH_INVOICE },
+                { id: 'DASH_SALES', label: 'Ventas Rendimiento', icon: TrendingUp, iconify: ICON_MAP.DASH_SALES },
+                { id: 'DASH_DISHES', label: 'Platos Rendimiento', icon: Utensils, iconify: ICON_MAP.DASH_DISHES },
+                { id: 'DASH_EXPENSES', label: 'Gastos', icon: PieChart, iconify: ICON_MAP.DASH_EXPENSES },
             ]
         },
         {
             id: 'STRATEGY',
             label: 'Estrategia',
             items: [
-                { id: 'STRAT_MENU_ENG', label: 'Ingeniería de Menús (Histórico)', icon: PieChart, section: 'Análisis de Rentabilidad' },
-                { id: 'STRAT_COSTING', label: 'Ficha Técnica & Costeo', icon: TrendingUp, section: 'Estrategia de Precios' },
-                { id: 'STRAT_COST_CONTROL', label: 'Control de Costos', icon: Calculator, section: 'Finanzas & Opex' },
-                { id: 'KITCHEN_PERF', label: 'Rendimiento de Cocina', icon: ChefHat, section: 'KDS & Tiempos' },
-                { id: 'PROD_REND', label: 'Rendimiento de Producción', icon: Layers, section: 'KDS & Tiempos' },
+                { id: 'STRAT_MENU_ENG', label: 'Ingeniería de Menús (Histórico)', icon: PieChart, iconify: ICON_MAP.STRAT_MENU, section: 'Análisis de Rentabilidad' },
+                { id: 'STRAT_COSTING', label: 'Ficha Técnica & Costeo', icon: TrendingUp, iconify: ICON_MAP.STRAT_COSTS, section: 'Estrategia de Precios' },
+                { id: 'STRAT_COST_CONTROL', label: 'Control de Costos', icon: Calculator, iconify: ICON_MAP.STRAT_FINANCE, section: 'Finanzas & Opex' },
+                { id: 'KITCHEN_PERF', label: 'Rendimiento de Cocina', icon: ChefHat, iconify: ICON_MAP.STRAT_KITCHEN, section: 'KDS & Tiempos' },
+                { id: 'PROD_REND', label: 'Rendimiento de Producción', icon: Layers, iconify: ICON_MAP.STRAT_PROD, section: 'KDS & Tiempos' },
             ]
         },
         {
             id: 'CONTABILIDAD',
             label: 'Contabilidad',
             items: [
-                { id: 'ACCT_HOME', label: 'Portal Contable', icon: Calculator, section: 'Contabilidad' },
+                { id: 'ACCT_HOME', label: 'Portal Contable', icon: Calculator, iconify: ICON_MAP.ACCT_PORTAL, section: 'Contabilidad' },
             ]
         }
     ].map(group => ({
@@ -450,10 +452,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
             setActiveTabId(newTabs.length > 0 ? newTabs[newTabs.length - 1].id : null);
         }
     };
-
-    const renderIcon = (item: any, size = 18) => {
+    const renderIcon = (item: any, size: number) => {
         const Icon = item.icon;
         const isActive = activeTabId === item.id;
+
+        if (iconTheme === 'premium' && item.iconify) {
+            return (
+                <div className={`transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
+                    <PremiumIcon icon={item.iconify} size={size} />
+                </div>
+            );
+        }
 
         return (
             <div className={`transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
@@ -529,7 +538,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
             case 'DSH_OPT_ASSIGN':
                 return <DishesOptionsAssign />;
             case 'INV_SUPPLIERS': return <SuppliersAdmin />;
-            case 'INV_PRODUCTS': return <InventariosLayout initialTab="productos" />;
+            case 'INV_PRODUCTS': return <InventariosLayout initialTab="productos" iconTheme={iconTheme} />;
             case 'INV_STOCK_SUC':
             case 'INV_STOCK_ALL':
             case 'INV_STOCK_REORDER':
@@ -543,7 +552,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
             case 'INV_SUMINISTROS': return <InventarioUnificado initialTab="insumo" />;
             case 'INV_UTENSILIOS': return <InventarioUnificado initialTab="utensilio" />;
             case 'ADMIN_USERS': return <UsuariosAdmin globalSearch={appliedSearch} />;
-            case 'ADMIN_MENU': return <InventariosLayout initialTab="platillos" />;
+            case 'ADMIN_MENU': return <InventariosLayout initialTab="platillos" iconTheme={iconTheme} />;
             case 'ADMIN_CATS': return <CategoriesAdmin />;
             case 'ADMIN_EXPENSES': return <ExpensesAdmin currentUser={currentUser} />;
             case 'ADMIN_TABLES': return <TablesAdmin />;
@@ -641,7 +650,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                                                             : 'text-gray-600 hover:bg-white/70 hover:text-gray-900'
                                                                             }`}
                                                                     >
-                                                                        <IC size={11} strokeWidth={isAct ? 2.5 : 2} className={`shrink-0 ${isAct ? 'text-white' : 'text-gray-400'}`} />
+                                                                        {iconTheme === 'premium' && item.iconify ? (
+                                                                            <PremiumIcon icon={item.iconify} size={18} className="shrink-0" />
+                                                                        ) : (
+                                                                            <IC size={11} strokeWidth={isAct ? 2.5 : 2} className={`shrink-0 ${isAct ? 'text-white' : 'text-gray-400'}`} />
+                                                                        )}
                                                                         <span className="text-[8.5px] font-bold uppercase tracking-tight leading-tight">{item.label}</span>
                                                                     </button>
                                                                 );
@@ -661,7 +674,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                                                     `}
                                                                 >
                                                                     <div className="flex items-center justify-center w-full pt-2 pb-0.5 shrink-0">
-                                                                        {renderIcon(item, 24)}
+                                                                        {renderIcon(item, 32)}
                                                                     </div>
                                                                     <div className="flex items-center justify-center w-full px-1 flex-1 min-h-[30px] pb-1">
                                                                         <span className={`text-[6.8px] font-bold text-center leading-[1] uppercase w-full ${activeTabId === item.id ? 'text-[#106ebe]' : 'text-gray-500 group-hover:text-gray-700'
@@ -787,7 +800,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                                                 className="flex items-center gap-4 p-4 bg-slate-50/50 border border-slate-100 rounded-2xl active:bg-slate-100 transition-all text-left"
                                                             >
                                                                 <div className="w-12 h-12 rounded-xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-[#4f46e5]">
-                                                                    <IC size={24} />
+                                                                    {iconTheme === 'premium' && item.iconify ? (
+                                                                        <PremiumIcon icon={item.iconify} size={28} />
+                                                                    ) : (
+                                                                        <IC size={24} />
+                                                                    )}
                                                                 </div>
                                                                 <div className="flex-1">
                                                                     <h4 className="text-[13px] font-bold text-slate-800 uppercase leading-none mb-1">{item.label}</h4>

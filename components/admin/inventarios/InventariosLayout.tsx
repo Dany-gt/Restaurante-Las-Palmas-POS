@@ -19,12 +19,14 @@ import { WindowsSaveButton } from '../../WindowsSaveButton';
 import { DraggableWindow } from '../shared/DraggableWindow';
 
 
+import { PremiumIcon, ICON_MAP } from '../shared/PremiumIcon';
 
 interface InventariosLayoutProps {
     initialTab: 'platillos' | 'productos';
+    iconTheme?: string;
 }
 
-export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab }) => {
+export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab, iconTheme }) => {
     const notify = useNotify();
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     const printRef = useRef<HTMLDivElement>(null);
@@ -800,6 +802,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                         <MenuCategorySidebar
                             width={sidebarWidth}
                             selectedIds={selectedMenuIds}
+                            iconTheme={iconTheme}
                             onToggle={(id, childrenIds) => {
                                 setSelectedMenuIds(prev => {
                                     // Seleccion única estricta: si ya está seleccionado, lo quitamos, si no, es el único seleccionado
@@ -813,6 +816,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                         <ProductCategorySidebar
                             width={sidebarWidth}
                             selectedIds={selectedProdIds}
+                            iconTheme={iconTheme}
                             onToggle={(id) => {
                                 setSelectedProdIds(prev => {
                                     // Seleccion única estricta: si ya está seleccionado, lo quitamos, si no, es el único seleccionado
@@ -835,6 +839,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                         {initialTab === 'platillos' ? (
                             <ListadoPlatillos
                                 key={`platillos-${refreshKey}`}
+                                iconTheme={iconTheme}
                                 categorias={categoriaMenuSel}
                                 sucursalId={selectedBranch}
                                 onEdit={(id) => handleEdit(id, 'platillo')}
@@ -847,6 +852,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                         ) : (
                             <ListadoProductos
                                 key={`productos-${refreshKey}`}
+                                iconTheme={iconTheme}
                                 categorias={categoriaProdSel}
                                 sucursalId={selectedBranch}
                                 onEdit={(id) => handleEdit(id, 'producto')}

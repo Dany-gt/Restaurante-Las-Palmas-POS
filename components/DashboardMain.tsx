@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { QIcon } from './QIcon';
+import { PremiumIcon, ICON_MAP } from './shared/PremiumIcon';
 
 import { User } from '../types';
 
@@ -34,20 +35,20 @@ interface DashboardProps {
 }
 
 const MODULES = [
-  { id: 'TABLES', label: 'MESAS', icon: Utensils, color: 'bg-white/5' },
-  { id: 'QUICK', label: 'VENTA RÁPIDA', icon: ShoppingCart, color: 'bg-white/5' },
-  { id: 'TAKEOUT', label: 'PARA LLEVAR', icon: Truck, color: 'bg-white/5' },
-  { id: 'DELIVERY', label: 'A DOMICILIO', icon: Home, color: 'bg-white/5' },
+  { id: 'TABLES', label: 'MESAS', icon: Utensils, iconify: ICON_MAP.TABLES, color: 'bg-white/5' },
+  { id: 'QUICK', label: 'VENTA RÁPIDA', icon: ShoppingCart, iconify: ICON_MAP.QUICK, color: 'bg-white/5' },
+  { id: 'TAKEOUT', label: 'PARA LLEVAR', icon: Truck, iconify: ICON_MAP.TAKEOUT, color: 'bg-white/5' },
+  { id: 'DELIVERY', label: 'A DOMICILIO', icon: Home, iconify: ICON_MAP.DELIVERY, color: 'bg-white/5' },
 ];
 
 // Mapped to groups in AdminPortal
 const ADMIN_MODULES = [
-  { id: 'ADMIN_SYS', label: 'SISTEMA', icon: Settings, color: 'bg-white/5', perms: ['Configuración General:Acceso', 'Usuarios:Acceso', 'Roles de Usuario:Acceso'] },
-  { id: 'ADMIN_CONFIG', label: 'CONFIGURACIONES', icon: Briefcase, color: 'bg-white/5', perms: ['Cocinas:Acceso', 'Cajas:Acceso', 'Secciones:Acceso'] },
-  { id: 'ADMIN_DISHES', label: 'PLATILLOS', icon: Utensils, color: 'bg-white/5', perms: ['Platillos y Bebidas:Acceso'] },
-  { id: 'ADMIN_INV', label: 'INVENTARIOS', icon: Package, color: 'bg-white/5', perms: ['Productos:Acceso', 'Proveedores:Acceso'] },
-  { id: 'ADMIN_REP', label: 'REPORTES', icon: FileText, color: 'bg-white/5', perms: ['Reportes:Reporte General'] },
-  { id: 'ADMIN_DASH', label: 'DASHBOARDS', icon: BarChart3, color: 'bg-white/5', perms: ['Reportes:Dashboards', 'Reportes:Ingresos a Caja'] },
+  { id: 'ADMIN_SYS', label: 'SISTEMA', icon: Settings, iconify: ICON_MAP.ADMIN_SYS, color: 'bg-white/5', perms: ['Configuración General:Acceso', 'Usuarios:Acceso', 'Roles de Usuario:Acceso'] },
+  { id: 'ADMIN_CONFIG', label: 'CONFIGURACIONES', icon: Briefcase, iconify: ICON_MAP.ADMIN_CONFIG, color: 'bg-white/5', perms: ['Cocinas:Acceso', 'Cajas:Acceso', 'Secciones:Acceso'] },
+  { id: 'ADMIN_DISHES', label: 'PLATILLOS', icon: Utensils, iconify: ICON_MAP.ADMIN_DISHES, color: 'bg-white/5', perms: ['Platillos y Bebidas:Acceso'] },
+  { id: 'ADMIN_INV', label: 'INVENTARIOS', icon: Package, iconify: ICON_MAP.ADMIN_INV, color: 'bg-white/5', perms: ['Productos:Acceso', 'Proveedores:Acceso'] },
+  { id: 'ADMIN_REP', label: 'REPORTES', icon: FileText, iconify: ICON_MAP.ADMIN_REP, color: 'bg-white/5', perms: ['Reportes:Reporte General'] },
+  { id: 'ADMIN_DASH', label: 'DASHBOARDS', icon: BarChart3, iconify: ICON_MAP.ADMIN_DASH, color: 'bg-white/5', perms: ['Reportes:Dashboards', 'Reportes:Ingresos a Caja'] },
 ];
 
 import { useSecurityPolicy } from '../hooks/useSecurityPolicy';
@@ -563,8 +564,12 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
                   onClick={() => onNavigate(mod.id)}
                   className={`group relative w-64 h-24 rounded-xl flex items-center justify-center gap-6 bg-[#3a3b4d] border border-white/5 shadow-xl transition-all hover:bg-[#45465a] active:scale-95 animate-fade-in`}
                 >
-                  <div className="opacity-40 group-hover:opacity-100 transition-opacity">
-                    <mod.icon size={42} className="text-gray-400 group-hover:text-white" strokeWidth={1} />
+                  <div className="opacity-80 group-hover:opacity-100 transition-opacity">
+                    {mod.iconify ? (
+                      <PremiumIcon icon={mod.iconify} size={48} />
+                    ) : (
+                      <mod.icon size={42} className="text-gray-400 group-hover:text-white" strokeWidth={1} />
+                    )}
                   </div>
                   <span className="text-base font-black tracking-widest text-white uppercase">{mod.label}</span>
                 </button>

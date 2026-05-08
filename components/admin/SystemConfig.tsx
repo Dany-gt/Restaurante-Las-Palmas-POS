@@ -873,6 +873,28 @@ export const SystemConfig: React.FC<{
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            {/* Icon Theme Toggle */}
+                                            <h3 className="text-[11px] font-black text-[#106ebe] uppercase tracking-widest border-b border-blue-50 pb-2 pt-2">Iconografía del Sistema</h3>
+                                            <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-4">
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <button
+                                                        onClick={() => setConfig({ ...config, icon_theme: 'classic' })}
+                                                        className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2 ${config.icon_theme === 'classic' ? 'border-[#106ebe] bg-blue-50/50' : 'border-gray-100 hover:border-blue-200 bg-white'}`}
+                                                    >
+                                                        <Layers size={24} className={config.icon_theme === 'classic' ? 'text-[#106ebe]' : 'text-gray-400'} />
+                                                        <span className={`text-[10px] font-black uppercase ${config.icon_theme === 'classic' ? 'text-[#106ebe]' : 'text-gray-500'}`}>Clásico (Lucide)</span>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setConfig({ ...config, icon_theme: 'premium' })}
+                                                        className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2 ${config.icon_theme === 'premium' ? 'border-[#106ebe] bg-blue-50/50' : 'border-gray-100 hover:border-blue-200 bg-white'}`}
+                                                    >
+                                                        <Baseline size={24} className={config.icon_theme === 'premium' ? 'text-[#106ebe]' : 'text-gray-400'} />
+                                                        <span className={`text-[10px] font-black uppercase ${config.icon_theme === 'premium' ? 'text-[#106ebe]' : 'text-gray-500'}`}>Premium (Iconify)</span>
+                                                    </button>
+                                                </div>
+                                                <p className="text-[9px] text-gray-400 italic text-center">El tema Premium utiliza iconos Flat Business de alta fidelidad. Requiere reinicio de la vista para aplicar cambios globales.</p>
+                                            </div>
                                         </div>
 
                                         <div className="space-y-6">
