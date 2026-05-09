@@ -949,6 +949,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                             <span className="shrink-0">Mesa: {table?.number || '?'}</span>
                             <span className="text-gray-700 shrink-0 hidden sm:inline">|</span>
                             <span className="truncate hidden sm:inline text-gray-500">Atiende: {(order as any).profiles?.name || currentUser?.name || 'Mesero'}</span>
+                            <span className="text-gray-700 shrink-0 hidden sm:inline">|</span>
+                            <span className="text-amber-400 font-black shrink-0 uppercase tracking-widest hidden sm:inline">
+                                {order.items?.length || 0} PLATILLOS
+                            </span>
                         </div>
 
                         <div className="w-24 hidden lg:block"></div>
@@ -962,10 +966,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-sm font-bold text-gray-200">{item.product_name}</span>
-                                        <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{currency}{item.unit_price.toFixed(2)} c/u</span>
+                                        <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{currency}{(item.unit_price || 0).toFixed(2)} c/u</span>
                                     </div>
                                 </div>
-                                <span className="text-sm font-black text-white">{currency}{(item.unit_price * item.quantity).toFixed(2)}</span>
+                                <span className="text-sm font-black text-white">{currency}{((item.unit_price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                             </div>
                         ))}
                     </div>

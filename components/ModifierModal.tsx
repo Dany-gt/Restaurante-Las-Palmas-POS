@@ -450,7 +450,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                           )}
                           {item.extra_price > 0 && (
                             <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${qty > 0 ? 'bg-white/20 text-white border border-white/10' : 'bg-white/5 text-gray-400 border border-white/5'}`}>
-                              +Q{item.extra_price.toFixed(2)}
+                              +Q{(item.extra_price || 0).toFixed(2)}
                             </span>
                           )}
                           {qty === 0 && !isDisabled && (item.type === 'ADD' ? <Plus size={16} className="absolute top-4 right-4 text-white/10" /> : <Minus size={16} className="absolute top-4 right-4 text-white/10" />)}
@@ -479,7 +479,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                 <div className="bg-white/5 border border-white/5 rounded-xl p-3 mb-3 flex justify-between items-center transition-all">
                   <div className="flex-1">
                     <span className="text-xs font-black text-white uppercase block leading-tight">{product.name}</span>
-                    <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Precio Base: Q{Number(product.price).toFixed(2)}</span>
+                    <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Precio Base: Q{(Number(product.price) || 0).toFixed(2)}</span>
                   </div>
                   {itemQuantity > 1 && (
                     <div className="bg-white/10 px-2.5 py-1 rounded-md">
@@ -497,7 +497,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                     </span>
                     <div className="flex items-center gap-3">
                       <span className="text-[10px] font-black text-white/40">
-                        {mod.extra_price > 0 ? `+Q${(mod.extra_price * mod.quantity).toFixed(2)}` : '--'}
+                        {mod.extra_price > 0 ? `+Q${((mod.extra_price || 0) * (mod.quantity || 1)).toFixed(2)}` : '--'}
                       </span>
                       <button onClick={() => decrementItem(mod)} className="opacity-0 group-hover:opacity-100 p-1 hover:text-white transition-all">
                         <Trash2 size={12} className="shrink-0" />
@@ -578,7 +578,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                     <div className="text-right flex-1 pl-6">
                       <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-1.5 border-b border-white/5 border-dashed pb-1.5">Sub-Total</p>
                       <p className="text-2xl font-black text-white tabular-nums tracking-tighter">
-                        Q{calculateTotal().toFixed(2)}
+                        Q{(calculateTotal() || 0).toFixed(2)}
                       </p>
                     </div>
                   </div>

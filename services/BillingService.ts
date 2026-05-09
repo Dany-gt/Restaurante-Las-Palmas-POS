@@ -431,18 +431,6 @@ class BillingService {
     private async saveInvoiceRecord(request: InvoiceRequest, response: InvoiceResponse): Promise<void> {
         if (!response.success) return;
 
-        let subtotal = request.subtotal;
-        let tax_total = request.tax_total;
-        let grand_total = request.grand_total;
-
-        if (request.payment_method === 'CARD' && request.tip_amount && request.tip_amount > 0) {
-            const tipTax = request.tip_amount - (request.tip_amount / 1.12);
-            const tipSubtotal = request.tip_amount - tipTax;
-
-            subtotal += tipSubtotal;
-            tax_total += tipTax;
-        }
-
         const { error } = await supabase.from('invoices').insert({
             order_id: request.order_id,
             customer_nit: request.customer.nit,
@@ -452,9 +440,11 @@ class BillingService {
             series: response.series,
             document_number: response.document_number,
             certification_date: response.certification_date,
-            subtotal: subtotal,
-            tax_total: tax_total,
-            grand_total: grand_total,
+            subtotal: request.subtotal,
+            tax_total: request.tax_total,
+            grand_total: request.grand_total,
+            tip_amount: request.tip_amount || 0,
+            discount_amount: request.discount_total || 0,
             status: 'ACTIVE',
             pdf_url: response.pdf_url,
             xml_url: response.xml_url,
@@ -467,27 +457,17 @@ class BillingService {
     }
 
     async saveContingencyInvoice(request: InvoiceRequest, orderNumber: string): Promise<void> {
-        let subtotal = request.subtotal;
-        let tax_total = request.tax_total;
-        let grand_total = request.grand_total;
-
-        if (request.payment_method === 'CARD' && request.tip_amount && request.tip_amount > 0) {
-            const tipTax = request.tip_amount - (request.tip_amount / 1.12);
-            const tipSubtotal = request.tip_amount - tipTax;
-
-            subtotal += tipSubtotal;
-            tax_total += tipTax;
-        }
-
         const { error } = await supabase.from('invoices').insert({
             order_id: request.order_id,
             customer_nit: request.customer.nit,
             customer_name: request.customer.name,
             series: 'CONT',
             document_number: `PEND-${orderNumber}`,
-            subtotal: subtotal,
-            tax_total: tax_total,
-            grand_total: grand_total,
+            subtotal: request.subtotal,
+            tax_total: request.tax_total,
+            grand_total: request.grand_total,
+            tip_amount: request.tip_amount || 0,
+            discount_amount: request.discount_total || 0,
             status: 'ACTIVE',
         });
 

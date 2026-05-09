@@ -312,7 +312,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                                         )}
                                                     </div>
                                                 </div>
-                                                <span className="font-bold tabular-nums tracking-tighter shrink-0 ml-2 text-white/90">Q{(item.unit_price * item.quantity).toFixed(2)}</span>
+                                                <span className="font-bold tabular-nums tracking-tighter shrink-0 ml-2 text-white/90">Q{((item.unit_price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                                             </div>
                                         </div>
                                     ))}

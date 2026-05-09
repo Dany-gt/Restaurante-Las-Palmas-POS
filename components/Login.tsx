@@ -765,7 +765,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
 
       {/* Main Container updated width for Dashboard */}
       {/* Main Container updated width for Dashboard */}
-      <div className={`relative z-10 w-full ${showRegisterSelection ? 'w-screen h-screen rounded-none' : 'max-w-3xl h-[480px] rounded-[40px]'} bg-gradient-to-br from-[#2d2e3d] to-[#3a3b4d] border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] flex overflow-hidden transition-all duration-700 login-card animate-fade-in`}>
+      <div className={`relative z-10 w-full ${showRegisterSelection ? 'w-screen h-screen rounded-none' : 'max-w-3xl h-[480px] rounded-[40px]'} bg-gradient-to-br from-[#2d2e3d] to-[#3a3b4d] border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] flex overflow-hidden transition-all duration-300 login-card animate-fade-in`}>
 
         {/* CONTROLES NATIVOS (SOLO VISIBLE SI ELECTRON ESTÁ PRESENTE) */}
         <div className="absolute top-4 right-6 z-[100] flex items-center gap-2">

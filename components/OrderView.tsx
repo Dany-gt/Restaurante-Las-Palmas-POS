@@ -495,7 +495,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             // Aggregate mode: Create a virtual order for the ticket
             orderToPrint = {
                 order_number: 'MULTIPLE',
-                customer_name: 'Todas las Cuentas',
+                customer_name: 'CUENTA COMPLETA',
                 order_type: initialOrder.order_type || 'DINE_IN',
                 created_at: DateUtils.nowISO()
             };
@@ -2551,7 +2551,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <span className="text-sm lg:text-xs font-bold tabular-nums text-white">{currency}{(item.price * item.quantity).toFixed(2)}</span>
+                                                    <span className="text-sm lg:text-xs font-bold tabular-nums text-white">{currency}{((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 mt-1.5 lg:mt-1">
                                                     <span className="text-xs lg:text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded font-black">x{item.quantity}</span>
@@ -2660,9 +2660,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 if (!finalOrderId) return;
                                             }
 
+                                            // Identify the correct base order data (use current account if activeOrderId exists)
+                                            const currentOrderData = activeOrderId 
+                                                ? (tableOrders.find(o => o.id === activeOrderId) || initialOrder)
+                                                : initialOrder;
+
                                             // In aggregate mode, we simulate an order object to open the modal
                                             const updatedOrder = activeOrderId ? {
-                                                ...initialOrder,
+                                                ...currentOrderData,
                                                 id: finalOrderId,
                                                 subtotal,
                                                 tax_amount: taxAmount,
@@ -2671,17 +2676,24 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 items: checkoutItems.map(i => ({
                                                     ...i,
                                                     product_name: i.product_name,
-                                                    unit_price: i.price,
+                                                    unit_price: (i as any).unit_price || i.price || 0,
                                                     quantity: i.quantity,
                                                     is_sent: true
                                                 }))
                                             } : {
                                                 ...initialOrder,
                                                 id: 'VIRTUAL',
+                                                customer_name: 'CUENTA COMPLETA',
                                                 subtotal: subtotal,
                                                 tax_amount: taxAmount,
                                                 total: total + tipAmount,
-                                                items: checkoutItems
+                                                items: checkoutItems.map(i => ({
+                                                    ...i,
+                                                    product_name: i.product_name,
+                                                    unit_price: (i as any).unit_price || i.price || 0,
+                                                    quantity: i.quantity,
+                                                    is_sent: true
+                                                }))
                                             };
                                             onCheckout?.(updatedOrder as any);
                                         }}
@@ -2697,15 +2709,15 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             </div>
 
                             <div className="w-44 lg:w-40 flex flex-col justify-center space-y-1 text-right text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                                <div className="flex justify-between"><span>Sub-Total</span><span className="text-white">{currency}{subtotal.toFixed(2)}</span></div>
-                                {totalSavings > 0 && (
+                                <div className="flex justify-between"><span>Sub-Total</span><span className="text-white">{currency}{(subtotal || 0).toFixed(2)}</span></div>
+                                {(totalSavings || 0) > 0 && (
                                     <div className="flex justify-between text-rose-400">
                                         <span>Ahorro Total</span>
-                                        <span>-{currency}{totalSavings.toFixed(2)}</span>
+                                        <span>-{currency}{(totalSavings || 0).toFixed(2)}</span>
                                     </div>
                                 )}
-                                <div className="flex justify-between"><span>Propina</span><span className="text-white">{currency}{tipAmount.toFixed(2)}</span></div>
-                                <div className="border-t border-white/10 pt-1 mt-1 flex justify-between text-xs text-white font-black"><span>Total</span><span>{currency}{(total + tipAmount).toFixed(2)}</span></div>
+                                <div className="flex justify-between"><span>Propina</span><span className="text-white">{currency}{(tipAmount || 0).toFixed(2)}</span></div>
+                                <div className="border-t border-white/10 pt-1 mt-1 flex justify-between text-xs text-white font-black"><span>Total</span><span>{currency}{((total || 0) + (tipAmount || 0)).toFixed(2)}</span></div>
                             </div>
                         </div>
                     </div>

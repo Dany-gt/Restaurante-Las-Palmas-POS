@@ -87,14 +87,12 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
             } else if (activeTab === 'CONTINGENCIA') {
                 // Combine invoices that are NOT certified (Contingency) with orphaned contingency orders
                 const invoiceContingency = allInvoices?.filter(inv =>
-                    !inv.uuid ||
-                    inv.uuid === '' ||
-                    inv.series === 'CONT' ||
-                    inv.document_number?.includes('PEND')
+                    ((!inv.uuid || inv.uuid === '' || inv.series === 'CONT' || inv.document_number?.includes('PEND'))) &&
+                    inv.status === 'ACTIVE'
                 ) || [];
 
                 const orphanedOrders = contingencyOrders?.filter(o =>
-                    !invoiceContingency.some(inv => inv.order_id === o.id)
+                    o.status !== 'pending' && !invoiceContingency.some(inv => inv.order_id === o.id)
                 ).map(o => ({
                     ...o,
                     order_id: o.id,
@@ -102,6 +100,8 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                     customer_nit: 'CF',
                     total: o.total,
                     grand_total: o.total,
+                    tip_amount: o.tip_amount || 0,
+                    discount_amount: o.discount || o.discount_amount || 0,
                     is_pure_order: true
                 })) || [];
 
@@ -266,9 +266,19 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
 
             // 3. Update Order Status (Return to Table as Pending)
             const orderId = selectedRecord.order_id || selectedRecord.id;
+            
+            // Mark invoice as CANCELLED so it disappears from the list
+            if (selectedRecord.id && (selectedRecord.uuid || selectedRecord.series === 'CONT' || selectedRecord.document_number?.includes('PEND'))) {
+                await supabase.from('invoices').update({ 
+                    status: 'CANCELLED',
+                    cancellation_reason: voidReason 
+                }).eq('id', selectedRecord.id);
+            }
+
             await supabase.from('orders').update({
                 status: 'pending',        // Return to sales area
                 is_paid: false,           // Mark as unpaid
+                is_contingency: false,    // Clear contingency flag so it doesn't show in this list
                 payment_method: null,     // Clear payment method
                 cancellation_reason: voidReason,
                 cancelled_at: new Date().toISOString(),
@@ -445,7 +455,19 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                             <span className="text-[10px] font-black text-white group-hover:text-white uppercase truncate max-w-[140px]">
                                                 {record.customer_name || 'CONSUMIDOR FINAL'}
                                             </span>
-                                            <span className="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">ORDEN #{record.order_number || record.orders?.order_number || '---'}</span>
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="text-[8px] font-black text-indigo-400 uppercase tracking-tighter">
+                                                    ORDEN #{record.order_number || record.orders?.order_number || '---'}
+                                                </span>
+                                                {(record.orders?.order_type === 'DINE_IN' || record.order_type === 'DINE_IN') && (
+                                                    <>
+                                                        <span className="w-0.5 h-0.5 rounded-full bg-gray-600"></span>
+                                                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter">
+                                                            MESA {record.orders?.tables?.number || record.tables?.number || record.orders?.table?.number || record.table?.number || '---'}
+                                                        </span>
+                                                    </>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className="text-right">
                                             <span className={`text-sm font-black tracking-tighter tabular-nums ${selectedRecord?.id === record.id ? 'text-white' : 'text-white'}`}>
@@ -578,7 +600,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                         <p className="text-[7px] font-black text-gray-600 uppercase tracking-widest leading-none mb-1">Origen / Tipo</p>
                                         <p className="text-[10px] font-black text-white uppercase truncate">
                                             {(selectedRecord.orders?.order_type || selectedRecord.order_type) === 'DINE_IN' 
-                                                ? `MESA ${(selectedRecord.orders?.tables?.number || selectedRecord.tables?.number || '---')}`
+                                                ? `MESA ${(selectedRecord.orders?.tables?.number || selectedRecord.tables?.number || selectedRecord.orders?.table?.number || selectedRecord.table?.number || '---')}`
                                                 : (selectedRecord.orders?.order_type || selectedRecord.order_type) === 'TAKEOUT'
                                                     ? 'PARA LLEVAR'
                                                     : (selectedRecord.orders?.order_type || selectedRecord.order_type) === 'DELIVERY'
@@ -633,15 +655,20 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                                     <div className="ml-auto w-full max-w-[220px] space-y-1">
                                                         <div className="flex justify-between text-[10px]">
                                                             <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Sub-Total</span>
-                                                            <span className="font-black tabular-nums text-white/80">Q{parseFloat(selectedRecord.subtotal || selectedRecord.total || selectedRecord.grand_total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                            <span className="font-black tabular-nums text-white/80">Q{parseFloat(
+                                                                ((selectedRecord.grand_total || selectedRecord.total || 0) 
+                                                                - (selectedRecord.tip_amount || selectedRecord.tip_total || selectedRecord.orders?.tip_amount || 0) 
+                                                                + (selectedRecord.discount || selectedRecord.discount_amount || selectedRecord.orders?.discount || selectedRecord.orders?.discount_amount || 0))
+                                                                .toString()
+                                                            ).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                                         </div>
                                                         <div className="flex justify-between text-[10px]">
                                                             <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Descuento</span>
-                                                            <span className="font-black tabular-nums text-white/80">-Q{parseFloat(selectedRecord.discount || selectedRecord.discount_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                            <span className="font-black tabular-nums text-white/80">-Q{parseFloat((selectedRecord.discount || selectedRecord.discount_amount || selectedRecord.orders?.discount || selectedRecord.orders?.discount_amount || 0).toString()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                                         </div>
                                                         <div className="flex justify-between text-[10px]">
                                                             <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Propina</span>
-                                                            <span className="font-black tabular-nums text-white/80">Q{parseFloat(selectedRecord.tip_amount || selectedRecord.tip_total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                            <span className="font-black tabular-nums text-white/80">Q{parseFloat((selectedRecord.tip_amount || selectedRecord.tip_total || selectedRecord.orders?.tip_amount || 0).toString()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                                         </div>
                                                         <div className="mt-3 pt-3 border-t border-white/10 flex justify-between items-baseline">
                                                             <span className="text-[11px] font-black text-white/40 uppercase tracking-widest leading-none">Total</span>
