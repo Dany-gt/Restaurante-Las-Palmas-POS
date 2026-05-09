@@ -2088,11 +2088,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     return (
         <div className={`fixed inset-0 w-full h-full text-white font-sans flex flex-col overflow-hidden z-40 animate-fade-in bg-[#2d2e3d]`}>
             {/* TOP HEADER BAR */}
-            <div className="h-12 bg-[#3a3b4d] border-b border-white/5 flex items-center justify-between px-4 shrink-0">
-                <button onClick={handleClose} className="p-2 hover:bg-white/5 rounded-lg text-gray-400 hover:text-white transition-colors">
+            <div className="h-12 bg-[#3a3b4d] border-b border-white/5 flex items-center px-4 shrink-0 relative">
+                <button onClick={handleClose} className="p-2 hover:bg-white/5 rounded-lg text-gray-400 hover:text-white transition-colors absolute left-4 z-10">
                     <ChevronLeft size={20} />
                 </button>
-                <div className="flex items-center gap-3 text-xs md:text-sm lg:text-xs font-bold uppercase tracking-wider text-gray-300">
+                <div className="flex-1 flex items-center justify-center gap-3 text-xs md:text-sm lg:text-xs font-bold uppercase tracking-wider text-gray-300">
                     <span>Orden: #{tableOrders.find(o => o.id === activeOrderId)?.order_number || initialOrder.order_number || '...'}</span>
                     <span className="text-gray-600">|</span>
                     <span className="text-indigo-400">
@@ -2106,16 +2106,19 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             <span>Mesa: {table.number}</span>
                         </>
                     )}
-                    {activeOrderId && tableOrders.length > 1 && (
-                        <>
-                            <span className="text-gray-600">|</span>
-                            <span className="text-amber-400">{tableOrders.find(o => o.id === activeOrderId)?.customer_name || 'Cuenta'}</span>
-                        </>
-                    )}
-                    <span className="text-gray-600">|</span>
+                    <span className="text-gray-600 mx-3">|</span>
+                    <span className="text-amber-400">
+                        {(() => {
+                            const currentOrder = tableOrders.find(o => o.id === activeOrderId);
+                            const name = currentOrder?.customer_name || initialOrder.customer_name;
+                            if (!name || name.toUpperCase() === 'CUENTA PRINCIPAL') return 'CUENTA 1';
+                            return name.toUpperCase();
+                        })()}
+                    </span>
+                    <span className="text-gray-600 mx-1">|</span>
                     <span className="hidden sm:inline">Atiende: {tableOrders.find(o => o.id === activeOrderId)?.waiter?.name || currentUser?.name || 'Mesero'}</span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="absolute right-4 flex items-center gap-3">
                     {/* Clock & Date */}
                     <div className="hidden lg:flex flex-col items-center leading-none mr-1 bg-black/20 px-2 py-1 rounded-lg border border-white/5">
                         <span className="text-[11px] font-black tracking-widest text-indigo-400 tabular-nums">{timeDisplay}</span>
@@ -2464,9 +2467,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
                 <div className={`w-[280px] sm:w-[300px] lg:w-[350px] shrink-0 border-l border-white/5 flex flex-col relative z-20 ${(currentUser?.role?.toUpperCase() === 'MESERO' || currentUser?.role?.toUpperCase() === 'CAJERO') ? 'bg-transparent' : 'bg-[#222630]'}`}>
                     <div className="p-3 lg:p-3 border-b border-white/5 flex flex-col gap-3 shrink-0">
-                        {tableOrders.length > 1 && (
-                            <div className="pt-1 space-y-1">
-                                <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest pl-1">Cuenta Activa</span>
+                        <div className="pt-1 space-y-1">
+                            {tableOrders.length > 1 ? (
                                 <select
                                     value={activeOrderId ?? '__all__'}
                                     onChange={(e) => {
@@ -2479,18 +2481,20 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     <option value="__all__">📋 Todas las cuentas (Mesa)</option>
                                     {tableOrders.map((ord, idx) => (
                                         <option key={ord.id} value={ord.id}>
-                                            {ord.customer_name || `Cuenta ${idx + 1}`}
+                                            {(ord.customer_name && ord.customer_name.toUpperCase() !== 'CUENTA PRINCIPAL') ? ord.customer_name : `Cuenta ${idx + 1}`}
                                         </option>
                                     ))}
                                 </select>
-                            </div>
-                        )}
-                        <div className="flex justify-between items-center px-1">
-                            <div className="flex items-center gap-2">
-                                <ShoppingCartIcon size={16} className="text-indigo-400" />
-                                <span className="text-[11px] font-black uppercase tracking-widest">Resumen</span>
-                            </div>
-                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{checkoutItems.length} PLATILLOS</span>
+                            ) : (
+                                <div className="w-full bg-[#1e212b] border border-white/10 rounded-xl px-3 py-2 text-[11px] font-black text-white uppercase tracking-tighter text-center">
+                                    {(() => {
+                                        const currentOrder = tableOrders.find(o => o.id === activeOrderId);
+                                        const name = currentOrder?.customer_name || initialOrder.customer_name;
+                                        if (!name || name.toUpperCase() === 'CUENTA PRINCIPAL') return 'CUENTA 1';
+                                        return name.toUpperCase();
+                                    })()}
+                                </div>
+                            )}
                         </div>
                     </div>
 

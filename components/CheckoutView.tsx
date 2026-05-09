@@ -933,12 +933,25 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
 
                 {/* MIDDLE PANEL: ITEMS LIST */}
                 <div className="flex-1 bg-[#1e212b] rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col">
-                    <div className="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center text-xs font-black uppercase tracking-[0.3em] text-gray-500">
-                        <span>Resumen de Orden</span>
-                        <div className="flex items-center gap-2 text-indigo-400">
-                            <ShoppingCart size={16} />
-                            <span>{order.items?.length || 0} Items</span>
+                    <div className="p-6 border-b border-white/5 bg-white/5 flex items-center justify-between text-xs font-black uppercase tracking-wider text-gray-400 relative">
+                        {/* Left spacer to help center the middle content */}
+                        <div className="w-24 hidden lg:block"></div>
+
+                        <div className="flex-1 flex justify-center items-center gap-3 overflow-hidden">
+                            <span className="text-white shrink-0">Orden: #{(order as any).order_number || '...'}</span>
+                            <span className="text-gray-700 shrink-0">|</span>
+                            <span className="text-amber-400 font-black shrink-0 uppercase tracking-widest">
+                                {!order.customer_name || order.customer_name.toUpperCase() === 'CUENTA PRINCIPAL' ? 'CUENTA 1' : order.customer_name}
+                            </span>
+                            <span className="text-gray-700 shrink-0">|</span>
+                            <span className="text-indigo-400 truncate">{table?.section || 'SALA'}</span>
+                            <span className="text-gray-700 shrink-0">|</span>
+                            <span className="shrink-0">Mesa: {table?.number || '?'}</span>
+                            <span className="text-gray-700 shrink-0 hidden sm:inline">|</span>
+                            <span className="truncate hidden sm:inline text-gray-500">Atiende: {(order as any).profiles?.name || currentUser?.name || 'Mesero'}</span>
                         </div>
+
+                        <div className="w-24 hidden lg:block"></div>
                     </div>
                     <div className="flex-1 overflow-y-auto p-6 space-y-2">
                         {order.items?.map((item, idx) => (

@@ -948,6 +948,49 @@ const App: React.FC = () => {
     setCurrentView('ORDER');
   };
 
+  const handleCheckoutComplete = async () => {
+    if (selectedTable) {
+      try {
+        // Query if there are more orders for this table that are NOT completed/cancelled
+        const { data: remainingOrders } = await supabase
+          .from('orders')
+          .select('id')
+          .eq('table_id', selectedTable.id)
+          .neq('status', 'completed')
+          .neq('status', 'cancelled');
+
+        if (remainingOrders && remainingOrders.length > 0) {
+          // There are still pending accounts. Go back to the table view.
+          setActiveOrder(null);
+          handleSelectTable(selectedTable);
+        } else {
+          // No more accounts. Go to main grid.
+          setSelectedTable(null);
+          setActiveOrder(null);
+          setCurrentView('TABLES');
+        }
+      } catch (error) {
+        console.error('Error checking remaining orders:', error);
+        setSelectedTable(null);
+        setActiveOrder(null);
+        setCurrentView('TABLES');
+      }
+    } else {
+      // For Takeout/Delivery, go back to dashboard
+      const type = activeOrder?.order_type;
+      setSelectedTable(null);
+      setActiveOrder(null);
+      
+      if (currentUser?.role === 'MESERO' || currentUser?.role === 'CAJERO') {
+        setCurrentView('DASHBOARD');
+      } else {
+        if (type === 'DELIVERY') setCurrentView('DELIVERY_LIST');
+        else if (type === 'TAKEOUT') setCurrentView('TAKEOUT');
+        else setCurrentView('TABLES');
+      }
+    }
+  };
+
   const handleCreateDispatchOrder = async (customerData: any) => {
     try {
       // 1. Gestionar Cliente (Buscar por teléfono o crear)
@@ -1356,7 +1399,7 @@ const App: React.FC = () => {
                 onToggleWaiterVoice={() => setWaiterVoiceEnabled(!waiterVoiceEnabled)}
               />
             )}
-            {currentView === 'CHECKOUT' && activeOrder && <CheckoutView order={activeOrder} table={selectedTable} currentUser={currentUser} settings={settings} onBack={() => setCurrentView('ORDER')} onComplete={() => { setSelectedTable(null); setActiveOrder(null); setCurrentView('TABLES'); }} />}
+            {currentView === 'CHECKOUT' && activeOrder && <CheckoutView order={activeOrder} table={selectedTable} currentUser={currentUser} settings={settings} onBack={() => setCurrentView('ORDER')} onComplete={handleCheckoutComplete} />}
             {currentView === 'KITCHEN' && <KitchenView />}
             {currentView === 'KDS_STATION_SELECT' && <KdsStationSelector onSelect={() => setCurrentView('KITCHEN')} onLogout={() => { setCurrentUser(null); setCurrentView('LOGIN'); }} />}
             {currentView === 'DELIVERY' && <DispatchView type="DELIVERY" onCreateOrder={handleCreateDispatchOrder} onEditOrder={handleReopenOrder} onBack={navigateBack} initialMode="NEW" currentUser={currentUser} />}

@@ -35,6 +35,19 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
     const nitInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (!isOpen) return;
+            if (e.key === 'F10') {
+                e.preventDefault();
+                handleContingency();
+            }
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                handleSubmit();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
         if (isOpen) {
             setCustomer({ nit: '', name: '', email: '', address: 'CIUDAD', phone: '' });
             setActiveInput('nit');
@@ -44,6 +57,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                 nitInputRef.current?.focus();
             }, 50);
         }
+        return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen]);
 
     const handleNitLookup = async () => {
@@ -107,29 +121,53 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
         if (activeInput === 'nit') setIsVerified(false);
     };
 
-    const handleContingency = () => {
-        setCustomer({
+    const handleContingency = async () => {
+        const data: CustomerData = {
             nit: CONSUMIDOR_FINAL_NIT,
             name: CONSUMIDOR_FINAL_NAME,
             email: '',
             address: 'CIUDAD',
             phone: '',
             is_contingency: true
-        });
+        };
+        setCustomer(data);
         setIsVerified(true);
         setError('');
+        
+        // Process immediately
+        setLoading(true);
+        try {
+            await billingService.saveCustomer(data);
+            onSubmit(data, 'EFECTIVO');
+        } catch (err) {
+            setError('ERROR AL PROCESAR');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleCF = () => {
-        setCustomer({
+    const handleCF = async () => {
+        const data: CustomerData = {
             nit: 'CF',
             name: CONSUMIDOR_FINAL_NAME,
             email: '',
             address: 'CIUDAD',
             phone: ''
-        });
+        };
+        setCustomer(data);
         setIsVerified(true);
         setError('');
+
+        // Process immediately
+        setLoading(true);
+        try {
+            await billingService.saveCustomer(data);
+            onSubmit(data, 'EFECTIVO');
+        } catch (err) {
+            setError('ERROR AL PROCESAR');
+        } finally {
+            setLoading(false);
+        }
     };
 
     // ... handlePorConsumo ... allow edit always?
@@ -145,20 +183,48 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 
 
 
-    const handlePorConsumo = () => {
-        setCustomer(prev => ({
-            ...prev,
-            is_por_consumo: !prev.is_por_consumo,
+    const handlePorConsumo = async () => {
+        const data = {
+            ...customer,
+            is_por_consumo: !customer.is_por_consumo,
             is_por_almuerzo: false
-        }));
+        };
+        setCustomer(data);
+        
+        // If it's a quick toggle and user has data, we could auto-submit, 
+        // but user might want to check. However, user said "al presionar pase de una vez a procesar".
+        if (data.nit && data.name) {
+            setLoading(true);
+            try {
+                await billingService.saveCustomer(data);
+                onSubmit(data, 'EFECTIVO');
+            } catch (err) {
+                setError('ERROR AL PROCESAR');
+            } finally {
+                setLoading(false);
+            }
+        }
     };
 
-    const handlePorAlmuerzo = () => {
-        setCustomer(prev => ({
-            ...prev,
-            is_por_almuerzo: !prev.is_por_almuerzo,
+    const handlePorAlmuerzo = async () => {
+        const data = {
+            ...customer,
+            is_por_almuerzo: !customer.is_por_almuerzo,
             is_por_consumo: false
-        }));
+        };
+        setCustomer(data);
+
+        if (data.nit && data.name) {
+            setLoading(true);
+            try {
+                await billingService.saveCustomer(data);
+                onSubmit(data, 'EFECTIVO');
+            } catch (err) {
+                setError('ERROR AL PROCESAR');
+            } finally {
+                setLoading(false);
+            }
+        }
     };
 
     const handleWhatsApp = () => {
@@ -227,7 +293,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             <div className="w-full max-w-4xl bg-[#1e2330] rounded-lg shadow-2xl border border-gray-800/50 flex flex-col overflow-hidden relative">
 
                 {/* Header */}
-                <div className="bg-[#1e2330] border-b border-gray-800 p-4 text-center">
+                <div className="bg-[#1e2330] border-b border-gray-800 p-4 flex justify-center items-center">
                     <h2 className="text-lg font-bold text-white uppercase tracking-wide">DATOS FACTURACIÓN</h2>
                 </div>
 
