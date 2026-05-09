@@ -54,6 +54,22 @@ Si se crea un nuevo módulo y se desea asignarle un icono premium:
    ```
 4. En el archivo del módulo (ejemplo: `AdminPortal.tsx`), asigna esa clave a la propiedad `iconify` del ítem del menú.
 
+## 5. Estándar de Interfaz del Ribbon (Diseño Industrial)
+
+A partir de mayo de 2026, se ha establecido un estándar de diseño "Industrial/Clásico" para el portal administrativo de Páladar POS, eliminando tendencias modernas de bordes redondeados en favor de una estética sólida y rectangular (Estilo Office 2013+).
+
+### Especificaciones de Diseño
+- **Bordes:** `rounded-none` en todos los componentes del Ribbon (botones, pestañas, paneles).
+- **Colores Oficiales:**
+  - **Encabezado y Pestañas Inactivas:** `#106ebe` (Azul corporativo).
+  - **Ribbon y Pestaña Activa:** `#f3f4f6` (Gris neutro).
+- **Efecto de Integración ("Mordida"):**
+  - La pestaña activa debe fundirse cromáticamente con el panel del ribbon inferior.
+  - Las pestañas inactivas deben mimetizarse con el azul del encabezado superior (`App.tsx`).
+
+### Implementación Técnica
+La integración se logra mediante la unificación de los fondos en `App.tsx` y `AdminPortal.tsx`, eliminando bordes de separación (`border-b`) y sombras externas para crear un bloque arquitectónico único.
+
 ---
-**Documentación generada el:** 08 de Mayo, 2026.
-**Estado del Sistema:** Migración al 100% completada en módulos administrativos.
+**Documentación actualizada el:** 08 de Mayo, 2026.
+**Estado del Sistema:** Interfaz estandarizada al estilo Industrial Páladar.

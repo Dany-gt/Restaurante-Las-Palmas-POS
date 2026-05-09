@@ -10,7 +10,7 @@ import { User, Table, Order } from './types';
 import { useGlobalKeyboardNavigation } from './hooks/useGlobalKeyboardNavigation';
 
 import { supabase } from './supabase';
-import { Loader2, AlertTriangle, Trash2 } from 'lucide-react';
+import { Loader2, AlertTriangle, Trash2, Power } from 'lucide-react';
 import { VirtualKeyboard } from './components/VirtualKeyboard';
 import { PinModalV2 as PinModal } from './components/PinModalV2';
 import { useSecurityPolicy } from './hooks/useSecurityPolicy';
@@ -1169,7 +1169,7 @@ const App: React.FC = () => {
       ) : (
         <>
           {currentView !== 'OPEN_SHIFT' && (
-            <div className={`relative h-12 border-b border-white/5 flex items-center justify-between px-4 z-20 shadow-xl transition-colors ${currentView === 'ADMIN_PORTAL' ? 'bg-[#106ebe]' : 'bg-[#3a3b4d]'} ${(currentView === 'DELIVERY' || currentView === 'DELIVERY_LIST' || currentView === 'KDS_STATION_SELECT') ? 'hidden' : ''}`}>
+            <div className={`relative h-12 flex items-center justify-between px-4 z-20 transition-colors ${currentView === 'ADMIN_PORTAL' ? 'bg-[#106ebe]' : 'bg-[#3a3b4d] border-b border-white/5 shadow-xl'} ${(currentView === 'DELIVERY' || currentView === 'DELIVERY_LIST' || currentView === 'KDS_STATION_SELECT') ? 'hidden' : ''}`}>
               <div className="flex items-center gap-6">
                 {currentView !== 'DASHBOARD' && currentView !== 'ADMIN_PORTAL' && currentView !== 'ADMIN_AUTH_PANEL' && currentView !== 'CHECKOUT' && currentView !== 'DELIVERY' && currentView !== 'DELIVERY_LIST' && currentView !== 'KITCHEN' && (
                   <button onClick={navigateBack} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all pos-button">
@@ -1289,12 +1289,10 @@ const App: React.FC = () => {
                       handleLogout(false); // Full logout for others
                     }
                   }}
-                  className="p-2.5 text-red-100 hover:bg-white/10 rounded-xl transition-colors pos-button mr-2"
-                  title="Cerrar Sesión"
+                  className="p-2.5 text-white hover:bg-red-500/20 rounded-xl transition-all pos-button mr-2 group"
+                  title="Cerrar Aplicación"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="m17 16 4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1" />
-                  </svg>
+                  <Power size={20} className="group-hover:scale-110 transition-transform text-red-200" />
                 </button>
 
                 {/* Electron Window Controls - Absolute Right (Only Min/Max as requested) */}

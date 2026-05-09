@@ -31,9 +31,9 @@ export const ICON_MAP = {
   // Dashboards Específicos
   DASH_CASH: 'flat-color-icons:safe',
   DASH_INVOICE: 'flat-color-icons:survey',
-  DASH_SALES: 'flat-color-icons:advertising',
+  DASH_SALES: 'flat-color-icons:positive-dynamic',
   DASH_DISHES: 'flat-color-icons:rating',
-  DASH_EXPENSES: 'flat-color-icons:external',
+  DASH_EXPENSES: 'flat-color-icons:negative-dynamic',
 
   // Estrategia
   STRAT_MENU: 'flat-color-icons:reading',
@@ -83,7 +83,17 @@ export const ICON_MAP = {
   // Reportes
   REP_GENERAL: 'flat-color-icons:advertising',
   REP_ORDERS: 'flat-color-icons:document',
+  REP_OPEN: 'flat-color-icons:opened-folder',
+  REP_CLOSED: 'flat-color-icons:inspection',
+  REP_CLOSED_CH: 'flat-color-icons:flow-chart',
+  REP_CREDIT: 'flat-color-icons:neutral-trading',
+  REP_VOID: 'flat-color-icons:disclaimer',
+  REP_DISC: 'flat-color-icons:sales-performance',
+  REP_ALL: 'flat-color-icons:numerical-sorting-12',
+  REP_DELIVERY: 'flat-color-icons:shipped',
   REP_SOLD: 'flat-color-icons:doughnut-chart',
+  REP_SOLD_GEN: 'flat-color-icons:rating',
+  REP_SOLD_USER: 'flat-color-icons:manager',
   REP_CASH: 'flat-color-icons:safe',
   REP_INVOICE: 'flat-color-icons:survey',
   REP_STATS: 'flat-color-icons:statistics',
@@ -101,8 +111,8 @@ export const ICON_MAP = {
   LOGOUT: 'flat-color-icons:leave',
   AUTH: 'flat-color-icons:signature',
   SOUNDS: 'flat-color-icons:audio-file',
-  SUMINISTROS: 'flat-color-icons:list',
-  UTENSILIOS: 'flat-color-icons:wrench',
+  SUMINISTROS: 'flat-color-icons:filing-cabinet',
+  UTENSILIOS: 'fluent-emoji-flat:cooking',
 
   // UI Genérica (Premium fallback)
   CLOSE: 'flat-color-icons:cancel',
