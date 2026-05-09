@@ -18,9 +18,21 @@ export const WindowsConfirmModal: React.FC<Props> = ({
     const confirmBtnRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
-        // Focus the 'Sí' button on mount
-        confirmBtnRef.current?.focus();
-    }, []);
+        if (message) {
+            // Focus the 'Sí' button on mount
+            confirmBtnRef.current?.focus();
+
+            // Trigger sound only notification
+            const event = new CustomEvent('app-notification', {
+                detail: {
+                    type: 'ALERT',
+                    message: message,
+                    soundOnly: true
+                }
+            });
+            window.dispatchEvent(event);
+        }
+    }, [message]);
 
     return (
         <div className="fixed inset-0 bg-transparent flex justify-center items-center z-[999999]">

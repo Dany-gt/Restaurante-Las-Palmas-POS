@@ -337,16 +337,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
             items: [
                 { id: 'REP_GEN', label: 'Reporte General', icon: PieChart, iconify: ICON_MAP.REP_CHART_PIE, section: 'General de Ventas' },
                 { id: 'REP_SUC', label: 'Reporte por Sucursal', icon: MapPin, iconify: ICON_MAP.REP_CHART_BAR, section: 'General de Ventas' },
-                { id: 'REP_OPEN', label: 'Órdenes Abiertas', icon: Clock, iconify: ICON_MAP.REP_ORDERS, section: 'Órdenes y Cuentas' },
-                { id: 'REP_CLOSED', label: 'Órdenes Cerradas', icon: FileCheck2, iconify: ICON_MAP.REP_INVOICE, section: 'Órdenes y Cuentas' },
-                { id: 'REP_CLOSED_CH', label: 'Cerradas por Canal', icon: BarChart3, iconify: ICON_MAP.REP_CHART_LINE, section: 'Órdenes y Cuentas' },
-                { id: 'REP_CREDIT', label: 'Órdenes Al Crédito', icon: CreditCardIcon, iconify: ICON_MAP.REP_ORDERS, section: 'Órdenes y Cuentas' },
-                { id: 'REP_VOID', label: 'Órdenes Anuladas', icon: AlertTriangle, iconify: ICON_MAP.REP_ORDERS, section: 'Órdenes y Cuentas' },
-                { id: 'REP_DISC', label: 'Órdenes con Descuentos', icon: BadgePercent, iconify: ICON_MAP.REP_ORDERS, section: 'Órdenes y Cuentas' },
-                { id: 'REP_ALL', label: 'Todas las Órdenes', icon: ListOrdered, iconify: ICON_MAP.REP_ORDERS, section: 'Órdenes y Cuentas' },
-                { id: 'REP_DELIVERY', label: 'Domicilio', icon: Bike, iconify: ICON_MAP.REP_ORDERS, section: 'Órdenes y Cuentas' },
-                { id: 'REP_SOLD_GEN', label: 'Platillos Vendidos General', icon: Utensils, iconify: ICON_MAP.REP_SOLD, section: 'Platillos' },
-                { id: 'REP_SOLD_USER', label: 'Platillos por Usuario', icon: UserCheck, iconify: ICON_MAP.REP_STATS, section: 'Platillos' },
+                { id: 'REP_OPEN', label: 'Órdenes Abiertas', icon: Clock, iconify: ICON_MAP.REP_OPEN, section: 'Órdenes y Cuentas' },
+                { id: 'REP_CLOSED', label: 'Órdenes Cerradas', icon: FileCheck2, iconify: ICON_MAP.REP_CLOSED, section: 'Órdenes y Cuentas' },
+                { id: 'REP_CLOSED_CH', label: 'Cerradas por Canal', icon: BarChart3, iconify: ICON_MAP.REP_CLOSED_CH, section: 'Órdenes y Cuentas' },
+                { id: 'REP_CREDIT', label: 'Órdenes Al Crédito', icon: CreditCardIcon, iconify: ICON_MAP.REP_CREDIT, section: 'Órdenes y Cuentas' },
+                { id: 'REP_VOID', label: 'Órdenes Anuladas', icon: AlertTriangle, iconify: ICON_MAP.REP_VOID, section: 'Órdenes y Cuentas' },
+                { id: 'REP_DISC', label: 'Órdenes con Descuentos', icon: BadgePercent, iconify: ICON_MAP.REP_DISC, section: 'Órdenes y Cuentas' },
+                { id: 'REP_ALL', label: 'Todas las Órdenes', icon: ListOrdered, iconify: ICON_MAP.REP_ALL, section: 'Órdenes y Cuentas' },
+                { id: 'REP_DELIVERY', label: 'Domicilio', icon: Bike, iconify: ICON_MAP.REP_DELIVERY, section: 'Órdenes y Cuentas' },
+                { id: 'REP_SOLD_GEN', label: 'Platillos Vendidos General', icon: Utensils, iconify: ICON_MAP.REP_SOLD_GEN, section: 'Platillos' },
+                { id: 'REP_SOLD_USER', label: 'Platillos por Usuario', icon: UserCheck, iconify: ICON_MAP.REP_SOLD_USER, section: 'Platillos' },
                 { id: 'REP_DELETED', label: 'Platillos Eliminados', icon: Trash, iconify: ICON_MAP.TRASH, section: 'Platillos' },
                 { id: 'REP_BILLED', label: 'Platillos Facturados', icon: ClipboardList, iconify: ICON_MAP.REP_INVOICE, section: 'Platillos' },
                 { id: 'REP_CASH_CUT', label: 'Cortes de Caja', icon: Scissors, iconify: ICON_MAP.REP_CASH, section: 'Cajas', compact: true },
@@ -601,15 +601,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
             <div className={`h-full w-full flex flex-col bg-[#e6e6e6] overflow-hidden transition-all duration-500 scale-in ${isMinimized ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}>
                 {/* Ribbon Menu Modern - Hidden on Mobile */}
                 {!isMobile && (
-                    <div className="bg-white border-b border-gray-100 shrink-0 shadow-sm relative z-30 font-sans">
-                        <div className="flex items-center px-4 pt-1 gap-1">
+                    <div className="bg-[#106ebe] shrink-0 relative z-30 font-sans">
+                        <div className="flex items-center gap-0">
                             {MENU_STRUCTURE.map(group => (
                                 <button
                                     key={group.id}
                                     onClick={() => setActiveRibbonGroup(group.id)}
-                                    className={`px-5 py-2 text-[11px] font-bold rounded-t-lg transition-all ${activeRibbonGroup === group.id
-                                        ? 'bg-[#f0f0f0] text-[#106ebe] border-x border-t border-gray-300 shadow-sm font-black'
-                                        : 'text-gray-400 hover:bg-gray-50'
+                                    className={`px-5 h-8 flex items-center text-[11px] font-bold transition-all ${activeRibbonGroup === group.id
+                                        ? 'bg-[#f3f4f6] text-[#106ebe] font-black'
+                                        : 'bg-[#106ebe] text-blue-100 hover:bg-[#1a7bc9]'
                                         }`}
                                 >
                                     {group.label}
@@ -617,7 +617,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                             ))}
                         </div>
 
-                        <div className="bg-[#f0f0f0] p-1 pr-4 flex items-center gap-0.5 min-h-[88px] overflow-x-auto scrollbar-hide border-b border-gray-300">
+                        <div className="bg-[#f3f4f6] p-1 pr-4 flex items-center gap-0.5 min-h-[92px] overflow-x-auto scrollbar-hide border-b border-gray-300 shadow-sm relative z-10">
                             {(() => {
                                 const group = MENU_STRUCTURE.find(g => g.id === activeRibbonGroup);
                                 if (!group) return null;
@@ -645,8 +645,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                                                         key={item.id}
                                                                         onClick={() => openModule(item)}
                                                                         title={item.label}
-                                                                        className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-all group ${isAct
-                                                                            ? 'bg-[#106ebe] text-white'
+                                                                        className={`flex items-center gap-1.5 px-3 py-1 transition-all group ${isAct
+                                                                            ? 'bg-[#106ebe] text-white shadow-sm'
                                                                             : 'text-gray-600 hover:bg-white/70 hover:text-gray-900'
                                                                             }`}
                                                                     >
@@ -667,7 +667,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                                                     key={item.id}
                                                                     onClick={() => openModule(item)}
                                                                     title={item.label}
-                                                                    className={`flex flex-col items-center w-[76px] h-[74px] rounded-lg transition-all group relative
+                                                                    className={`flex flex-col items-center w-[76px] h-[74px] transition-all group relative
                                                                         ${activeTabId === item.id
                                                                             ? 'bg-white shadow-sm ring-1 ring-gray-200'
                                                                             : 'border-2 border-transparent hover:bg-white/60'}
@@ -690,7 +690,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                                 <div className="mt-2 text-[8px] font-black uppercase text-gray-400 tracking-[0.2em]">{name}</div>
                                             </div>
                                             {idx < Object.entries(sections).length - 1 && (
-                                                <div className="h-14 w-px bg-gray-300 mx-1.5 self-center" />
+                                                <div className="w-[1px] self-stretch bg-gray-400/30 mx-1.5 -my-1" />
                                             )}
                                         </React.Fragment>
                                     );
@@ -702,14 +702,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
 
                 {/* Document Tab Bar Modern - Hidden on Mobile */}
                 {!isMobile && (
-                    <div className="bg-[#f0f0f0] border-b border-gray-300 flex items-center h-10 px-4 gap-1 shrink-0 overflow-x-auto scrollbar-hide shadow-[inset_0_-1px_0_#fff]">
+                    <div className="bg-[#e6e6e6] border-b border-gray-300 flex items-center h-9 px-2 gap-px shrink-0 overflow-x-auto scrollbar-hide shadow-inner">
                         {openTabs.map(tab => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTabId(tab.id)}
-                                className={`flex items-center gap-2 px-4 h-[32px] self-end text-[11px] font-bold transition-all group min-w-[140px] border-t border-x rounded-t ${activeTabId === tab.id
-                                    ? 'bg-white text-[#106ebe] border-gray-300 border-t-2 border-t-[#106ebe] shadow-[inset_1px_1px_0_#fff] z-10 h-[34px]'
-                                    : 'bg-[#e0e0e0] text-slate-500 border-gray-300 hover:bg-[#d5d5d5]'
+                                className={`flex items-center gap-2 px-4 h-full text-[10.5px] font-bold transition-all group min-w-[150px] border-r border-gray-300 ${activeTabId === tab.id
+                                    ? 'bg-white text-[#106ebe] z-10'
+                                    : 'bg-[#dcdcdc] text-gray-500 hover:bg-[#d0d0d0]'
                                     }`}
                             >
                                 <tab.icon size={14} className={activeTabId === tab.id ? 'text-[#106ebe]' : 'text-slate-400'} />

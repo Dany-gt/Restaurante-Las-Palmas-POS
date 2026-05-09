@@ -26,6 +26,25 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     cancelText = 'Cancelar',
     type = 'warning'
 }) => {
+    const confirmBtnRef = React.useRef<HTMLButtonElement>(null);
+
+    React.useEffect(() => {
+        if (isOpen) {
+            // Focus the 'Aceptar' button
+            confirmBtnRef.current?.focus();
+
+            // Trigger sound only notification
+            const event = new CustomEvent('app-notification', {
+                detail: {
+                    type: type === 'danger' ? 'ERROR' : 'ALERT',
+                    message: message,
+                    soundOnly: true
+                }
+            });
+            window.dispatchEvent(event);
+        }
+    }, [isOpen, type, message]);
+
     if (!isOpen) return null;
 
     const getIcon = () => {

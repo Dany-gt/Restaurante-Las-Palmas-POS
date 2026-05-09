@@ -11,9 +11,11 @@ interface AppNotification {
 
 export const NotificationContainer: React.FC = () => {
     const [notifications, setNotifications] = useState<AppNotification[]>([]);
-    const [soundsMap, setSoundsMap] = useState<Record<string, string>>({});
+    const [soundsMap, setSoundsMap] = useState<Record<string, { url: string, name: string }>>({});
     const [volume, setVolume] = useState(0.8);
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const soundsMapRef = useRef<Record<string, { url: string, name: string }>>({});
+    const volumeRef = useRef(0.8);
 
     useEffect(() => {
         const loadInitialData = async () => {
@@ -21,15 +23,19 @@ export const NotificationContainer: React.FC = () => {
                 // Load all active sounds to have them ready
                 const { data: sounds } = await supabase
                     .from('sound_library')
-                    .select('id, file_url')
+                    .select('id, file_url, name')
                     .eq('is_active', true);
 
                 if (sounds) {
-                    const map: Record<string, string> = {};
+                    const map: Record<string, { url: string, name: string }> = {};
                     sounds.forEach(s => {
-                        map[s.id] = getSecureSoundUrl(s.file_url);
+                        map[s.id] = { 
+                            url: getSecureSoundUrl(s.file_url),
+                            name: s.name.toLowerCase()
+                        };
                     });
                     setSoundsMap(map);
+                    soundsMapRef.current = map;
                 }
 
                 // Initial volume from localStorage or DB
@@ -42,7 +48,10 @@ export const NotificationContainer: React.FC = () => {
                         .select('kds_alert_volume')
                         .eq('id', 1)
                         .single();
-                    if (settings?.kds_alert_volume) setVolume(settings.kds_alert_volume);
+                    if (settings?.kds_alert_volume) {
+                        setVolume(settings.kds_alert_volume);
+                        volumeRef.current = settings.kds_alert_volume;
+                    }
                 }
             } catch (error) {
                 console.error('Error initializing notification sounds:', error);
@@ -54,39 +63,55 @@ export const NotificationContainer: React.FC = () => {
 
     useEffect(() => {
         const handleNotification = (event: any) => {
-            const { type, message } = event.detail;
+            console.log('📬 Notification Event received:', event.detail);
+            const { type, message, soundOnly } = event.detail;
             const id = crypto.randomUUID();
 
-            setNotifications(prev => {
-                const updated = [...prev, { id, type, message }];
-                if (updated.length > 5) return updated.slice(updated.length - 5);
-                return updated;
-            });
+            if (!soundOnly) {
+                setNotifications(prev => {
+                    const updated = [...prev, { id, type, message }];
+                    if (updated.length > 5) return updated.slice(updated.length - 5);
+                    return updated;
+                });
+            }
 
-            // Get latest settings from localStorage to be reactive
             const localSettings = JSON.parse(localStorage.getItem('system_settings') || '{}');
-            const soundId = localSettings.pos_notification_sound_id;
-            const currentVolume = localSettings.kds_alert_volume || volume;
+            const isWarning = type === 'ERROR' || type === 'ALERT';
+            const soundId = isWarning 
+                ? (localSettings.pos_warning_sound_id || localSettings.pos_notification_sound_id)
+                : localSettings.pos_notification_sound_id;
 
-            if (soundId) {
-                let url = soundsMap[soundId];
+            if (soundId || isWarning) {
+                let soundData = soundId ? soundsMapRef.current[soundId] : null;
                 
-                // Fallback: if sound is not in map (e.g. newly added), fetch it
-                if (!url) {
+                // Fallback for warnings: look for a sound named 'alvertencia' if no specific ID is set
+                if (!soundData && isWarning) {
+                    const fallbackId = Object.keys(soundsMapRef.current).find(id => 
+                        soundsMapRef.current[id].name === 'alvertencia' || 
+                        soundsMapRef.current[id].name === 'advertencia'
+                    );
+                    if (fallbackId) soundData = soundsMapRef.current[fallbackId];
+                }
+
+                const currentVolume = localSettings.kds_alert_volume || volumeRef.current;
+
+                if (soundData) {
+                    playAudio(soundData.url, currentVolume);
+                } else if (soundId) {
                     supabase
                         .from('sound_library')
-                        .select('file_url')
+                        .select('file_url, name')
                         .eq('id', soundId)
                         .single()
                         .then(({ data }) => {
                             if (data?.file_url) {
                                 const newUrl = getSecureSoundUrl(data.file_url);
-                                setSoundsMap(prev => ({ ...prev, [soundId]: newUrl }));
+                                const newEntry = { url: newUrl, name: data.name.toLowerCase() };
+                                soundsMapRef.current = { ...soundsMapRef.current, [soundId]: newEntry };
+                                setSoundsMap(prev => ({ ...prev, [soundId]: newEntry }));
                                 playAudio(newUrl, currentVolume);
                             }
                         });
-                } else {
-                    playAudio(url, currentVolume);
                 }
             }
 
@@ -97,6 +122,7 @@ export const NotificationContainer: React.FC = () => {
         };
 
         const playAudio = (url: string, vol: number) => {
+            console.log('🔔 Notification sound triggered:', { url, volume: vol });
             const audio = new Audio(url);
             audio.volume = vol;
             audio.play().catch(err => {

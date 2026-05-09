@@ -24,6 +24,7 @@ export const ConfigSoundsCard: React.FC = () => {
         defaultSoundId: '',
         waiterSoundId: '',
         posNotificationSoundId: '',
+        posWarningSoundId: '',
         enabled: true,
         volume: 0.8,
         voiceVolume: 1.0,
@@ -67,7 +68,7 @@ export const ConfigSoundsCard: React.FC = () => {
         try {
             const { data } = await supabase
                 .from('system_settings')
-                .select('kds_default_sound_id, kds_alert_enabled, kds_alert_volume, waiter_sound_id, pos_notification_sound_id, kds_voice_volume, kds_voice_phrase')
+                .select('*')
                 .eq('id', 1)
                 .single();
 
@@ -77,6 +78,7 @@ export const ConfigSoundsCard: React.FC = () => {
                     defaultSoundId: data.kds_default_sound_id || '',
                     waiterSoundId: (data as any).waiter_sound_id || '',
                     posNotificationSoundId: (data as any).pos_notification_sound_id || '',
+                    posWarningSoundId: (data as any).pos_warning_sound_id || '',
                     enabled: data.kds_alert_enabled ?? true,
                     volume: data.kds_alert_volume ?? 0.8,
                     voiceVolume: (data as any).kds_voice_volume ?? 1.0,
@@ -293,12 +295,26 @@ export const ConfigSoundsCard: React.FC = () => {
         setSaving(true);
         // Message removal handled by notify
         try {
+            // 1. Always save to local storage for immediate station effect
+            const currentSettings = JSON.parse(localStorage.getItem('system_settings') || '{}');
+            const newLocalSettings = {
+                ...currentSettings,
+                pos_notification_sound_id: settings.posNotificationSoundId,
+                pos_warning_sound_id: settings.posWarningSoundId,
+                kds_alert_volume: settings.volume,
+                waiter_sound_id: settings.waiterSoundId,
+                kds_default_sound_id: settings.defaultSoundId
+            };
+            localStorage.setItem('system_settings', JSON.stringify(newLocalSettings));
+
+            // 2. Try to persist to database
             const { error } = await supabase
                 .from('system_settings')
                 .update({
                     kds_default_sound_id: settings.defaultSoundId || null,
                     waiter_sound_id: settings.waiterSoundId || null,
                     pos_notification_sound_id: settings.posNotificationSoundId || null,
+                    pos_warning_sound_id: settings.posWarningSoundId || null,
                     kds_alert_enabled: settings.enabled,
                     kds_alert_volume: settings.volume,
                     kds_voice_volume: settings.voiceVolume,
@@ -306,21 +322,15 @@ export const ConfigSoundsCard: React.FC = () => {
                 })
                 .eq('id', 1);
 
-            if (error) throw error;
-            
-            // Update local storage so other components (like NotificationContainer) pick it up immediately
-            const currentSettings = JSON.parse(localStorage.getItem('system_settings') || '{}');
-            localStorage.setItem('system_settings', JSON.stringify({
-                ...currentSettings,
-                pos_notification_sound_id: settings.posNotificationSoundId,
-                kds_alert_volume: settings.volume,
-                waiter_sound_id: settings.waiterSoundId,
-                kds_default_sound_id: settings.defaultSoundId
-            }));
-
-            notify.success('Configuración guardada');
+            if (error) {
+                console.warn('Database sync failed (possibly missing column), but settings saved locally:', error);
+                notify.success('Configuración aplicada localmente');
+            } else {
+                notify.success('Configuración guardada en la nube');
+            }
         } catch (error: any) {
-            notify.error('Error al guardar configuración');
+            console.error('Error saving sound settings:', error);
+            notify.error('Error al sincronizar con el servidor');
         } finally {
             setSaving(false);
         }
@@ -448,6 +458,20 @@ export const ConfigSoundsCard: React.FC = () => {
                             className="bg-gray-50 border border-gray-100 rounded-lg py-1 px-3 text-[11px] font-bold text-gray-700 outline-none focus:ring-2 focus:ring-[#106ebe]/10"
                         >
                             <option value="">Sin sonido</option>
+                            {sounds.map(sound => (
+                                <option key={sound.id} value={sound.id}>{sound.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[9px] font-bold text-red-400 uppercase tracking-widest px-1">Advertencias POS</span>
+                        <select
+                            value={settings.posWarningSoundId}
+                            onChange={(e) => setSettings(prev => ({ ...prev, posWarningSoundId: e.target.value }))}
+                            className="bg-red-50/50 border border-red-100 rounded-lg py-1 px-3 text-[11px] font-bold text-red-700 outline-none focus:ring-2 focus:ring-red-500/10"
+                        >
+                            <option value="">Igual a Notif.</option>
                             {sounds.map(sound => (
                                 <option key={sound.id} value={sound.id}>{sound.name}</option>
                             ))}
