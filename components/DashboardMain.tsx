@@ -35,10 +35,10 @@ interface DashboardProps {
 }
 
 const MODULES = [
-  { id: 'TABLES', label: 'MESAS', icon: Utensils, iconify: ICON_MAP.TABLES, color: 'bg-white/5' },
-  { id: 'QUICK', label: 'VENTA RÁPIDA', icon: ShoppingCart, iconify: ICON_MAP.QUICK, color: 'bg-white/5' },
-  { id: 'TAKEOUT', label: 'PARA LLEVAR', icon: Truck, iconify: ICON_MAP.TAKEOUT, color: 'bg-white/5' },
-  { id: 'DELIVERY', label: 'A DOMICILIO', icon: Home, iconify: ICON_MAP.DELIVERY, color: 'bg-white/5' },
+  { id: 'TABLES', label: 'MESAS', icon: Utensils, color: 'bg-white/5' },
+  { id: 'QUICK', label: 'VENTA RÁPIDA', icon: ShoppingCart, color: 'bg-white/5' },
+  { id: 'TAKEOUT', label: 'PARA LLEVAR', icon: Truck, color: 'bg-white/5' },
+  { id: 'DELIVERY', label: 'A DOMICILIO', icon: Home, color: 'bg-white/5' },
 ];
 
 // Mapped to groups in AdminPortal
@@ -769,8 +769,6 @@ const DashboardButton = ({ label, color, onClick, disabled }: { label: string, c
     disabled={disabled}
     className={`relative w-40 h-16 bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg transition-all active:scale-95 group focus:outline-none flex items-center justify-center p-2 overflow-hidden shadow-lg shadow-black/40 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
   >
-    {/* Color indicator stripe on the bottom right corner as per Imagen 2 */}
-    <div className={`absolute top-0 right-0 w-3 h-3 ${color || 'bg-gray-500'} opacity-80`} style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%)' }}></div>
     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-300 group-hover:text-white text-center leading-[1.1]">{label}</span>
   </button>
 );

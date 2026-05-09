@@ -60,7 +60,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
 
             let invoicesQuery = supabase
                 .from('invoices')
-                .select('*, orders!inner(*)')
+                .select('*, orders!inner(*, tables(number))')
                 .gte('created_at', queryStart)
                 .lte('created_at', queryEnd)
                 .order('created_at', { ascending: false });
@@ -72,7 +72,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
             // 2. Fetch Orders marked for contingency
             let contingencyQuery = supabase
                 .from('orders')
-                .select('*')
+                .select('*, tables(number)')
                 .eq('is_contingency', true)
                 .gte('created_at', queryStart)
                 .lte('created_at', queryEnd);
@@ -445,7 +445,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                             <span className="text-[10px] font-black text-white group-hover:text-white uppercase truncate max-w-[140px]">
                                                 {record.customer_name || 'CONSUMIDOR FINAL'}
                                             </span>
-                                            <span className="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">ORDEN #{record.order_number}</span>
+                                            <span className="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">ORDEN #{record.order_number || record.orders?.order_number || '---'}</span>
                                         </div>
                                         <div className="text-right">
                                             <span className={`text-sm font-black tracking-tighter tabular-nums ${selectedRecord?.id === record.id ? 'text-white' : 'text-white'}`}>
@@ -547,12 +547,12 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                             </div>
 
                             {/* Info Area */}
-                            <div className="grid grid-cols-2 gap-3 p-3 bg-black/5 border-b border-white/5 shrink-0">
+                            <div className="grid grid-cols-3 gap-3 p-3 bg-black/5 border-b border-white/5 shrink-0">
                                 <div className="bg-white/[0.03] p-2.5 rounded-sm border border-white/5 flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400">
                                         <User size={16} />
                                     </div>
-                                    <div>
+                                    <div className="min-w-0 flex-1">
                                         <p className="text-[7px] font-black text-gray-600 uppercase tracking-widest leading-none mb-1">Cliente / NIT</p>
                                         <p className="text-[10px] font-black text-white uppercase truncate">{selectedRecord.customer_name || 'Consumidor Final'}</p>
                                         <p className="text-[8px] font-bold text-indigo-400/80 tracking-widest uppercase">{selectedRecord.customer_nit || 'CF'}</p>
@@ -563,10 +563,32 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                     <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400">
                                         <Hash size={16} />
                                     </div>
-                                    <div>
+                                    <div className="min-w-0 flex-1">
                                         <p className="text-[7px] font-black text-gray-600 uppercase tracking-widest leading-none mb-1">Orden / Fecha</p>
-                                        <p className="text-[10px] font-black text-white">#{selectedRecord.order_number}</p>
-                                        <p className="text-[8px] font-bold text-gray-500 tracking-tighter uppercase">{new Date(selectedRecord.created_at).toLocaleString()}</p>
+                                        <p className="text-[10px] font-black text-white">#{selectedRecord.order_number || selectedRecord.orders?.order_number || '---'}</p>
+                                        <p className="text-[8px] font-bold text-gray-500 tracking-tighter uppercase">{new Date(selectedRecord.created_at).toLocaleString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white/[0.03] p-2.5 rounded-sm border border-white/5 flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                                        <MapPin size={16} />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-[7px] font-black text-gray-600 uppercase tracking-widest leading-none mb-1">Origen / Tipo</p>
+                                        <p className="text-[10px] font-black text-white uppercase truncate">
+                                            {(selectedRecord.orders?.order_type || selectedRecord.order_type) === 'DINE_IN' 
+                                                ? `MESA ${(selectedRecord.orders?.tables?.number || selectedRecord.tables?.number || '---')}`
+                                                : (selectedRecord.orders?.order_type || selectedRecord.order_type) === 'TAKEOUT'
+                                                    ? 'PARA LLEVAR'
+                                                    : (selectedRecord.orders?.order_type || selectedRecord.order_type) === 'DELIVERY'
+                                                        ? 'A DOMICILIO'
+                                                        : 'VENTA GENERAL'
+                                            }
+                                        </p>
+                                        <p className="text-[8px] font-bold text-indigo-400/80 tracking-widest uppercase">
+                                            {selectedRecord.orders?.order_type || selectedRecord.order_type || 'GENERAL'}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -611,19 +633,19 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                                     <div className="ml-auto w-full max-w-[220px] space-y-1">
                                                         <div className="flex justify-between text-[10px]">
                                                             <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Sub-Total</span>
-                                                            <span className="font-black tabular-nums text-white/80">Q{parseFloat(selectedRecord.subtotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                            <span className="font-black tabular-nums text-white/80">Q{parseFloat(selectedRecord.subtotal || selectedRecord.total || selectedRecord.grand_total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                                         </div>
                                                         <div className="flex justify-between text-[10px]">
                                                             <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Descuento</span>
-                                                            <span className="font-black tabular-nums text-white/80">-Q{parseFloat(selectedRecord.discount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                            <span className="font-black tabular-nums text-white/80">-Q{parseFloat(selectedRecord.discount || selectedRecord.discount_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                                         </div>
                                                         <div className="flex justify-between text-[10px]">
                                                             <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Propina</span>
-                                                            <span className="font-black tabular-nums text-white/80">Q{parseFloat(selectedRecord.tip_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                            <span className="font-black tabular-nums text-white/80">Q{parseFloat(selectedRecord.tip_amount || selectedRecord.tip_total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                                         </div>
                                                         <div className="mt-3 pt-3 border-t border-white/10 flex justify-between items-baseline">
                                                             <span className="text-[11px] font-black text-white/40 uppercase tracking-widest leading-none">Total</span>
-                                                            <span className="text-2xl font-black tabular-nums text-white leading-none">Q{parseFloat(selectedRecord.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                            <span className="text-2xl font-black tabular-nums text-white leading-none">Q{parseFloat(selectedRecord.grand_total || selectedRecord.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                                         </div>
                                                     </div>
                                                 </div>

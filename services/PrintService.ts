@@ -653,9 +653,11 @@ class PrintService {
         Documento de Control Interno<br>Rest. Las Palmas
       </div>
     `;
-    const paperWidth = '80mm'; // Default for specific IP if we don't know the printer type
-    const html = this.generateTicketHTML('ANULACIÓN DE PRODUCTO', content, undefined, paperWidth);
-    return await this.printToSpecificIP('192.168.88.11', html);
+    const title = 'ANULACIÓN DE PRODUCTO';
+    const htmlContent = (pw: string) => this.generateTicketHTML(title, content, undefined, pw);
+    
+    await this.executePrint(title, htmlContent, { silent: true });
+    return true;
   }
 
   // ─── DETAILED EXPENSE TICKET ──────────────────────────────────────

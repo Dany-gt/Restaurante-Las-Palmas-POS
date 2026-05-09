@@ -29,7 +29,7 @@ export const AccountsManagementModal: React.FC<AccountsManagementModalProps> = (
                 const mappedAccounts = orders.map((order, idx) => ({
                     id: order.id || `temp-${Date.now()}-${idx}`,
                     originalOrderId: order.id,
-                    name: order.customer_name || (idx === 0 ? 'Cuenta Principal' : `Cuenta ${idx + 1}`),
+                    name: order.customer_name || `Cuenta ${idx + 1}`,
                     items: [...(order.items || order.order_items || [])].map((i: any) => ({
                         ...i,
                         price: i.price ?? i.unit_price ?? 0,
@@ -39,7 +39,7 @@ export const AccountsManagementModal: React.FC<AccountsManagementModalProps> = (
                 setAccounts(mappedAccounts);
             } else {
                 // Fallback (should typically not happen if properly called)
-                setAccounts([{ id: 'main', name: 'Cuenta Principal', items: [] }]);
+                setAccounts([{ id: 'main', name: 'Cuenta 1', items: [] }]);
             }
             setActiveAccountIdx(0);
             setEditingIdx(null);
