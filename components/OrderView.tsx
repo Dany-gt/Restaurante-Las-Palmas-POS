@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DateUtils } from '../utils/DateUtils';
 import { Order, Table, Product, Category, OrderItem, User } from '../types';
-import { Bell, BellOff, ChevronLeft, Trash2, Printer, CheckCircle, Search, Plus, Minus, Info, Loader2, ShoppingCart as ShoppingCartIcon, CreditCard, FileText, Receipt, Ban, Users, Percent, Settings2, Utensils, Truck, Package, MapPin, Edit3, Banknote, Split, Image, ArrowRightLeft, Mic, MicOff, UserPlus, Grid, UsersRound } from 'lucide-react';
+import { Bell, BellOff, ChevronLeft, Trash2, Printer, CheckCircle, Search, Plus, Minus, Info, Loader2, ShoppingCart as ShoppingCartIcon, CreditCard, FileText, Receipt, Ban, Users, Percent, Settings2, Utensils, Truck, Package, MapPin, Edit3, Banknote, Split, Image, ArrowRightLeft, Mic, MicOff, UserPlus, Grid, UsersRound, ChevronDown, LayoutGrid } from 'lucide-react';
 import { supabase } from '../supabase';
 import { printService, TicketData } from '../services/PrintService';
 import { billingService } from '../services/BillingService';
@@ -14,6 +14,7 @@ import { DiscountModal } from './DiscountModal';
 import { TransferTableModal } from './TransferTableModal';
 import { TransferWaiterModal } from './TransferWaiterModal';
 import { AccountsManagementModal } from './AccountsManagementModal';
+import { AccountsOverviewModal } from './AccountsOverviewModal';
 import { DeliveryPaymentModal } from './DeliveryPaymentModal';
 import { useSecurityPolicy } from '../hooks/useSecurityPolicy';
 import { CustomerData } from '../types/billing';
@@ -21,6 +22,8 @@ import { ItemStatusBadge } from './ItemStatusBadge';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { useNotify } from '../hooks/useNotify';
 import { activityLogService } from '../services/ActivityLogService';
+import { WindowsConfirmModal } from './WindowsConfirmModal';
+import { WindowsInputModal } from './WindowsInputModal';
 
 const PlaceholderLogo = () => (
     <div className="flex flex-col items-center justify-center h-full w-full p-2">
@@ -58,7 +61,7 @@ const ProductCard = React.memo<{
             {/* Checking/Loading Overlay */}
             {isChecking && (
                 <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center z-20">
-                    <Loader2 className="animate-spin text-indigo-400" size={24} />
+                    <Loader2 className="animate-spin text-white/20" size={24} />
                 </div>
             )}
             {/* Inventory Badge */}
@@ -87,7 +90,7 @@ const ProductCard = React.memo<{
                 <span className="text-[9px] sm:text-[10px] leading-tight font-black text-gray-200 line-clamp-2 uppercase tracking-wide min-h-[2.2rem] flex items-center justify-center px-1">
                     {product.name}
                 </span>
-                <span className="text-indigo-300 font-black text-[10px] tabular-nums tracking-widest">
+                <span className="text-white/40 font-black text-[10px] tabular-nums tracking-widest">
                     {currency}{( (product as any).finalPrice ?? product.price ).toFixed(2)}
                 </span>
             </div>
@@ -204,6 +207,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const [showTransferModal, setShowTransferModal] = useState(false);
     const [showTransferWaiterModal, setShowTransferWaiterModal] = useState(false);
     const [showAccountsModal, setShowAccountsModal] = useState(false);
+    const [showAccountsOverviewModal, setShowAccountsOverviewModal] = useState(false);
     const [showTakeoutClientModal, setShowTakeoutClientModal] = useState(false);
     const [focusedField, setFocusedField] = useState<string | null>(null);
     const [takeoutData, setTakeoutData] = useState({ name: '', phone: '' });
@@ -220,6 +224,45 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const [itemToDeleteId, setItemToDeleteId] = useState<string | null>(null);
     const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
+    const [customDialog, setCustomDialog] = useState<{
+        title?: string;
+        message: string;
+        onConfirm: () => void;
+        onDeny?: () => void;
+        onCancel?: () => void;
+        type?: 'confirm' | 'alert';
+    } | null>(null);
+
+    const [customInput, setCustomInput] = useState<{
+        title?: string;
+        message: string;
+        defaultValue?: string;
+        placeholder?: string;
+        onConfirm: (value: string) => void;
+    } | null>(null);
+
+    const showAlert = (message: string, title: string = 'Atención') => {
+        setCustomDialog({
+            title,
+            message,
+            type: 'alert',
+            onConfirm: () => setCustomDialog(null)
+        });
+    };
+
+    const showConfirm = (message: string, onConfirm: () => void, title: string = 'Confirmar') => {
+        setCustomDialog({
+            title,
+            message,
+            type: 'confirm',
+            onConfirm: () => {
+                onConfirm();
+                setCustomDialog(null);
+            },
+            onCancel: () => setCustomDialog(null)
+        });
+    };
+
     // Check if current user is the creator of the order
     const isOrderCreator = () => {
         if (!currentUser || !activeOrderId) return true;
@@ -233,6 +276,151 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
         // Compare creator ID
         return currentOrder.waiter_id === currentUser.id;
+    };
+
+    const handleRenameAccount = async (orderId: string) => {
+        const order = tableOrders.find(o => o.id === orderId);
+        if (!order) return;
+        
+        setCustomInput({
+            title: 'Editar Cuenta',
+            message: 'Ingrese el nuevo nombre para la cuenta:',
+            defaultValue: order.customer_name || '',
+            onConfirm: async (newName) => {
+                try {
+                    const { error } = await supabase.from('orders')
+                        .update({ customer_name: newName })
+                        .eq('id', orderId);
+                    
+                    if (error) throw error;
+                    await fetchData(false, orderId);
+                    notify.success('Nombre actualizado');
+                    setCustomInput(null);
+                } catch (e) {
+                    console.error(e);
+                    notify.error('Error al actualizar nombre');
+                }
+            }
+        });
+    };
+
+    const handleDeleteEmptyAccount = async (orderId: string, reason?: string) => {
+        const order = tableOrders.find(o => o.id === orderId);
+        if (!order) return;
+
+        // Regla: No permitir eliminar si solo queda 1 cuenta (debe usar Anular Orden)
+        if (tableOrders.length <= 1) {
+            setCustomDialog({
+                title: 'Acción No Permitida',
+                message: 'No puedes eliminar la única cuenta restante desde aquí. Para cancelar toda la orden, sal de esta ventana y presiona "Anular Orden".',
+                type: 'alert',
+                onConfirm: () => setCustomDialog(null)
+            });
+            return;
+        }
+
+        // Solo ADMIN y CAJERO pueden eliminar cuentas
+        if (currentUser?.role !== 'ADMIN' && currentUser?.role !== 'CAJERO') {
+            setCustomDialog({
+                title: 'Acceso Denegado',
+                message: 'Solo Administradores y Cajeros pueden eliminar cuentas.',
+                type: 'alert',
+                onConfirm: () => setCustomDialog(null)
+            });
+            return;
+        }
+
+        const orderItems = order.items || order.order_items || [];
+
+        const proceedToDelete = async () => {
+            setCustomDialog(null);
+            setProcessing(true);
+            try {
+                // LOG: Registro de eliminación de cuenta antes de borrarla
+                activityLogService.logFinancial({
+                    user: currentUser!,
+                    module: 'VENTAS',
+                    action: 'CUENTA_ELIMINADA',
+                    entity_id: orderId,
+                    entity_type: 'ORDER',
+                    details: {
+                        mesa: table?.number,
+                        cuenta: order.customer_name,
+                        motivo: reason || 'Sin motivo especificado',
+                        items_anulados: orderItems.length,
+                        items: orderItems.map((i: any) => ({ 
+                            nombre: i.product_name || i.name || i.producto?.nombre, 
+                            cantidad: i.quantity, 
+                            precio: i.price 
+                        })),
+                        total_cuenta: (order.subtotal || 0) + (order.tip_amount || 0)
+                    }
+                }, {
+                    amount: (order.subtotal || 0) + (order.tip_amount || 0),
+                    type: 'EGRESO',
+                    currency: 'GTQ'
+                });
+
+                // Eliminar facturas relacionadas primero (evita error de FK)
+                await supabase.from('invoices').delete().eq('order_id', orderId);
+
+                const { error } = await supabase.from('orders').delete().eq('id', orderId);
+                if (error) throw error;
+                
+                if (activeOrderId === orderId) {
+                    const remaining = tableOrders.filter(o => o.id !== orderId);
+                    setActiveOrderId(remaining.length > 0 ? remaining[0].id : (initialOrder?.id || null));
+                }
+                
+                await fetchData(false);
+
+                // v1.7.2 - Print Cancellation Receipt for Audit if order had items
+                if (orderItems.length > 0) {
+                    await printService.printCancelledTicket({
+                        orderNumber: order.order_number,
+                        createdAt: order.created_at,
+                        items: orderItems,
+                        tableNumber: table?.number
+                    }, reason || 'Sin motivo especificado');
+                }
+
+                notify.success('Cuenta eliminada con éxito');
+            } catch (e: any) {
+                console.error(e);
+                notify.error('Error al eliminar cuenta: ' + e.message);
+            } finally {
+                setProcessing(false);
+            }
+        };
+
+        if (orderItems.length > 0) {
+            // PASO 1: Advertencia de platillos enviados
+            setCustomDialog({
+                title: 'Acción No Permitida',
+                message: 'La Cuenta tiene platillos ya enviados a cocina, necesitará tener permisos para poder eliminarla.',
+                type: 'alert',
+                onConfirm: () => {
+                    // PASO 2: Confirmación de eliminación con platillos
+                    setCustomDialog({
+                        title: 'Eliminar Cuenta',
+                        message: 'Al eliminar esta cuenta también eliminará sus platillos. ¿Seguro de continuar?',
+                        type: 'confirm',
+                        onConfirm: proceedToDelete,
+                        onCancel: () => setCustomDialog(null)
+                    });
+                }
+            });
+            return;
+        }
+
+        // Cuenta vacía: confirmación directa
+        setCustomDialog({
+            title: 'Eliminar Cuenta',
+            message: '¿Desea proceder a eliminar esta cuenta vacía?',
+            type: 'confirm',
+            onConfirm: proceedToDelete,
+            onCancel: () => setCustomDialog(null)
+        });
     };
 
     const safeParseDate = (d: string | null | undefined) => {
@@ -307,17 +495,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const handleEditItem = async (item: OrderItem) => {
         const isSaved = !item.id.startsWith('i-') && item.is_sent;
         if (isSaved) {
-            // Item ya enviado: SIEMPRE pedir comentario + PIN para anularlo
-            // (el doble clic en un item enviado inicia el flujo de anulación, no de edición)
-            if (!isOrderCreator()) {
-                alert('🚫 No puedes anular productos de una orden que no creaste.');
-                return;
+            // v1.7.1 - El doble clic en un item enviado ya no inicia la anulación.
+            // Se reserva la anulación exclusivamente para el icono del basurero.
+            // En su lugar, abrimos la gestión de descuentos ya que "la que vale es descuento".
+            const canDiscount = currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos');
+            if (canDiscount) {
+                setDiscountingItem(item);
+                setShowDiscountModal(true);
             }
-            // v1.6.2 - Flujo unificado: Comentario → PIN → Borrar
-            setItemToVoid(item);
-            setVoidReason('');
-            setPendingAction('delete');
-            setShowVoidModal(true);
             return;
         }
         // Item no enviado: abrir modal de modificadores directamente
@@ -457,7 +642,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
     const handlePrintKitchen = async () => {
         if (settings && settings.enable_kitchen_printing === false) {
-            alert('⚠️ La impresión de cocina está desactivada en la configuración del sistema.');
+            showAlert('La impresión de cocina está desactivada en la configuración del sistema.', 'Configuración');
             return;
         }
 
@@ -564,9 +749,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 // We're in aggregate view on a tablet. We CANNOT use DB trigger easily because it requires an orderId.
                 // But typically pre-account aggregate print is done at the cashier (electron).
                 // Let's alert them if on tablet.
-                alert('La pre-cuenta agregada (Todas las cuentas) debe imprimirse desde la caja principal.');
+                showAlert('La pre-cuenta agregada (Todas las cuentas) debe imprimirse desde la caja principal.');
             } else {
-                alert('Guarde la orden antes de imprimir la pre-cuenta.');
+                showAlert('Guarde la orden antes de imprimir la pre-cuenta.');
             }
         }
     };
@@ -872,7 +1057,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     if (table?.id) await supabase.from('tables').update({ status: 'available' }).eq('id', table.id);
 
                     if (customer.is_contingency) {
-                        alert('✅ Pedido Finalizado (MODO CONTINGENCIA)');
+                        showAlert('Pedido Finalizado (MODO CONTINGENCIA)', 'Éxito');
                     } else {
                         // Print single consolidated invoice
                         const ticketData = {
@@ -916,6 +1101,36 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         }
     };
 
+
+    const handleAddEmptyAccount = async () => {
+        setProcessing(true);
+        try {
+            const { data: newOrder, error } = await supabase.from('orders').insert({
+                table_id: table?.id,
+                status: 'pending',
+                order_type: 'DINE_IN',
+                waiter_id: currentUser?.id,
+                customer_name: `CUENTA ${tableOrders.length + 1}`,
+                pax_count: 1,
+                branch_id: currentUser?.branch_id,
+                created_at: DateUtils.toGuatemalaISO(new Date(Date.now() + serverOffset))
+            }).select().single();
+
+            if (error) throw error;
+            if (newOrder) {
+                await fetchData(false, newOrder.id);
+                setActiveOrderId(newOrder.id);
+                notify.success('Cuenta añadida');
+            }
+        } catch (e: any) {
+            console.error(e);
+            notify.error('Error al añadir cuenta');
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+
     const handleAccountDivision = async (accounts: any[]) => {
         setProcessing(true);
         try {
@@ -939,7 +1154,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
                     if (createErr) {
                         console.error('❌ Error creando nueva cuenta:', createErr);
-                        alert(`Error al crear la cuenta "${acc.name}": ${createErr.message}`);
+                        showAlert(`Error al crear la cuenta "${acc.name}": ${createErr.message}`, 'Error');
                         setProcessing(false);
                         return;
                     }
@@ -968,10 +1183,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
                         if (moveError) {
                             console.error('❌ Error crítico al mover items:', moveError);
-                            alert(`Error al mover items a ${acc.name}: ${moveError.message}`);
+                            showAlert(`Error al mover items a ${acc.name}: ${moveError.message}`, 'Error');
                         } else {
                             if (!moveData || moveData.length === 0) {
-                                alert(`⚠️ Advertencia: No se pudieron mover los productos a ${acc.name}. Verifique permisos o si la orden está bloqueada.`);
+                                showAlert(`Advertencia: No se pudieron mover los productos a ${acc.name}. Verifique permisos o si la orden está bloqueada.`, 'Advertencia');
                             } else {
                                 // Log item movement within split
                                 if (currentUser) {
@@ -1044,7 +1259,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
         } catch (e: any) {
             console.error('Error dividing accounts:', e);
-            alert('Error al dividir cuentas: ' + e.message);
+            showAlert('Error al dividir cuentas: ' + e.message, 'Error');
         }
         setProcessing(false);
     };
@@ -1607,6 +1822,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 });
             }
 
+            // v1.7.2 - Find the specific order number for this voided item
+            const currentOrderNumber = tableOrders.find(o => o.id === activeOrderId)?.order_number || initialOrder?.order_number;
+
             // Audit Print (Always try local print if Electron)
             await printService.printVoidTicket({
                 waiterName: currentUser?.name || 'SISTEMA',
@@ -1614,12 +1832,13 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 productName: itemToVoid.product_name,
                 quantity: itemToVoid.quantity,
                 voidReason: voidReason,
-                voidedAt: DateUtils.formatDisplay(new Date())
+                voidedAt: DateUtils.formatDisplay(new Date()),
+                orderNumber: currentOrderNumber
             });
 
         } catch (e) {
             console.error('❌ Error anular:', e);
-            alert('No se pudo procesar la anulación en el servidor.');
+            showAlert('No se pudo procesar la anulación en el servidor.', 'Error de Servidor');
         } finally {
             setProcessing(false);
             setShowVoidModal(false);
@@ -1700,7 +1919,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             await fetchData();
         } catch (e: any) {
             console.error('Error transferring waiter:', e);
-            alert('Error al transferir responsable: ' + e.message);
+            showAlert('Error al transferir responsable: ' + e.message, 'Error');
         }
         setProcessing(false);
     };
@@ -1759,11 +1978,43 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             })
         };
 
-        // 2. CHECK OFFLINE STATUS
-        if (!navigator.onLine) {
+        // 2. CHECK OFFLINE STATUS (ping real — no confiar en navigator.onLine)
+        let isReallyOffline = !navigator.onLine;
+        if (!isReallyOffline) {
+            try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 3000);
+                const { error: pingErr } = await supabase
+                    .from('system_settings').select('id').limit(1).abortSignal(controller.signal);
+                clearTimeout(timeout);
+                if (pingErr) isReallyOffline = true;
+            } catch {
+                isReallyOffline = true;
+            }
+        }
+        if (isReallyOffline) {
             try {
                 await import('../services/OfflineDB').then(m => m.offlineDB.saveRecord('ORDER', orderData));
                 console.log('📦 Orden guardada en IndexedDB (Offline):', finalOrderId);
+
+                // v1.7.0 - MARCAR MESA COMO OCUPADA LOCALMENTE para que TableGrid la muestre correctamente
+                if (table?.id) {
+                    try {
+                        const offlineTables = JSON.parse(localStorage.getItem('offline_occupied_tables') || '{}');
+                        offlineTables[table.id] = {
+                            order_id: finalOrderId,
+                            table_id: table.id,
+                            table_number: table.number,
+                            waiter_id: currentUser?.id,
+                            waiter_name: currentUser?.name,
+                            created_at: new Date().toISOString()
+                        };
+                        localStorage.setItem('offline_occupied_tables', JSON.stringify(offlineTables));
+                        console.log('🏷️ Mesa marcada como ocupada localmente:', table.number);
+                    } catch (lsErr) {
+                        console.warn('Error guardando estado de mesa offline:', lsErr);
+                    }
+                }
 
                 // v1.4.6 - NO CLEARING of state allowed for resilience
                 setItems(current => current.map(item => {
@@ -2095,7 +2346,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 <div className="flex-1 flex items-center justify-center gap-3 text-xs md:text-sm lg:text-xs font-bold uppercase tracking-wider text-gray-300">
                     <span>Orden: #{tableOrders.find(o => o.id === activeOrderId)?.order_number || initialOrder.order_number || '...'}</span>
                     <span className="text-gray-600">|</span>
-                    <span className="text-indigo-400">
+                    <span className="text-white/60">
                         {initialOrder.order_type === 'TAKEOUT' ? 'PARA LLEVAR' : 
                          initialOrder.order_type === 'DELIVERY' ? 'DOMICILIO' : 
                          (table?.section || 'SALA')}
@@ -2109,6 +2360,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     <span className="text-gray-600 mx-3">|</span>
                     <span className="text-amber-400">
                         {(() => {
+                            if (activeOrderId === null) return 'CUENTA COMPLETA';
                             const currentOrder = tableOrders.find(o => o.id === activeOrderId);
                             const name = currentOrder?.customer_name || initialOrder.customer_name;
                             if (!name || name.toUpperCase() === 'CUENTA PRINCIPAL') return 'CUENTA 1';
@@ -2121,23 +2373,29 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 <div className="absolute right-4 flex items-center gap-3">
                     {/* Clock & Date */}
                     <div className="hidden lg:flex flex-col items-center leading-none mr-1 bg-black/20 px-2 py-1 rounded-lg border border-white/5">
-                        <span className="text-[11px] font-black tracking-widest text-indigo-400 tabular-nums">{timeDisplay}</span>
+                        <span className="text-[11px] font-black tracking-widest text-white/40 tabular-nums">{timeDisplay}</span>
                         <span className="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">{dateDisplay}</span>
                     </div>
 
                     <div className="flex flex-col items-center lg:hidden leading-none mr-1">
-                        <span className="text-[10px] font-black text-indigo-400 tabular-nums">{timeDisplay.substring(0, 5)}</span>
+                        <span className="text-[10px] font-black text-white/40 tabular-nums">{timeDisplay.substring(0, 5)}</span>
                     </div>
 
                     {/* Network Status Indicator */}
-                    <div className={`w-3 h-3 rounded-full shadow-sm ring-2 ring-white/10 transition-all duration-500 ${isOnline ? 'bg-emerald-500 shadow-emerald-500/50' : 'bg-red-500 shadow-red-500/50 animate-pulse'}`} title={isOnline ? "En Línea" : "Sin Conexión al Servidor"} />
-
+                    <div 
+                        className={`w-3 h-3 rounded-full ring-2 transition-all duration-500 ${
+                            isOnline 
+                                ? 'bg-emerald-400 ring-emerald-400/30 shadow-sm shadow-emerald-400/50' 
+                                : 'bg-red-500 ring-red-500/30 animate-pulse shadow-sm shadow-red-500/50'
+                        }`} 
+                        title={isOnline ? "En Línea" : "Sin Conexión al Servidor"} 
+                    />
 
                     <button
                         onClick={() => onToggleWaiterVoice?.()}
                         className={`p-2 rounded-lg transition-all border ${waiterVoiceEnabled
-                            ? 'bg-emerald-600/20 border-emerald-500/30 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
-                            : 'bg-white/5 border-white/10 text-gray-500 hover:text-white'
+                            ? 'bg-white/15 border-white/25 text-white shadow-none'
+                            : 'bg-white/5 border-white/10 text-white/40 hover:text-white hover:bg-white/10'
                             }`}
                         title={waiterVoiceEnabled ? "Desactivar avisos de cocina" : "Activar avisos de cocina"}
                     >
@@ -2154,13 +2412,13 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 <ChevronLeft size={14} /> Regresar al Menú
                             </button>
                             <span className="text-xs text-gray-600">|</span>
-                            <span className="text-xs font-black text-indigo-400 uppercase tracking-widest">{selectedSubCat ? selectedSubCat.name : selectedCat?.name}</span>
+                            <span className="text-xs font-black text-white uppercase tracking-widest">{selectedSubCat ? selectedSubCat.name : selectedCat?.name}</span>
                         </div>
                     )}
 
                     <div className="flex-1 overflow-y-auto p-4 content-start">
                         {loading ? (
-                            <div className="flex-1 flex items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-indigo-500" /></div>
+                            <div className="flex-1 flex items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-white/20" /></div>
                         ) : (
                                 <div className="bg-[#2d2e3d]">
                                     {!selectedCat && (
@@ -2190,7 +2448,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                         return true;
                                                     })
                                                     .map(cat => (
-                                                        <button key={cat.id} onClick={() => setSelectedCat(cat)} className="aspect-square bg-[#3a3b4d] rounded-2xl p-2 flex flex-col items-center justify-between border-2 border-white/5 hover:border-indigo-500/50 hover:bg-[#45465e] active:scale-95 transition-all shadow-xl group">
+                                                        <button key={cat.id} onClick={() => setSelectedCat(cat)} className="aspect-square bg-[#3a3b4d] rounded-2xl p-2 flex flex-col items-center justify-between border-2 border-white/5 hover:border-white/20 hover:bg-[#45465e] active:scale-95 transition-all shadow-xl group">
                                                             <div className="flex-1 flex flex-col items-center justify-center w-full mb-3">
                                                                 {cat.image_url ? (
                                                                     <img src={cat.image_url} alt={cat.name} className="w-full h-full object-contain rounded-xl opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
@@ -2421,14 +2679,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     </div>
 
                     <div className="h-20 lg:h-16 bg-black/20 border-t border-white/5 flex items-center justify-center gap-4 lg:gap-4 px-4 shrink-0 z-10">
-                        <button onClick={() => setShowPaxModal(true)} className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 shadow-md">
+                        <button onClick={() => setShowPaxModal(true)} className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 shadow-none">
                             <Users size={18} />
                             <span className="text-[9px] font-bold mt-0.5 uppercase tracking-tighter">Personas</span>
                         </button>
                         {table && (
                             <button
                                 onClick={() => setShowTransferModal(true)}
-                                className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 shadow-md"
+                                className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 shadow-none"
                                 title="Cambiar a otra Mesa (Trasladar Cuenta)"
                             >
                                 <ArrowRightLeft size={18} />
@@ -2438,7 +2696,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         {currentUser?.role === 'CAJERO' && (
                             <button
                                 onClick={() => setShowTransferWaiterModal(true)}
-                                className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 shadow-md"
+                                className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 shadow-none"
                                 title="Transferir Responsable"
                             >
                                 <UsersRound size={18} />
@@ -2455,7 +2713,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 }}
                                 disabled={!activeOrderId}
                                 className={`h-[50px] px-8 rounded-lg text-sm font-bold transition-all ${activeOrderId
-                                    ? 'bg-[#3f4251] text-white hover:bg-rose-600 active:scale-95 border border-white/5 shadow-md'
+                                    ? 'bg-[#3f4251] text-white hover:bg-white/10 active:scale-95 border border-white/5 shadow-none'
                                     : 'bg-[#2a2d37] text-gray-500 opacity-40 cursor-not-allowed border border-white/5'}`}
                                 title="Anular Orden Completa"
                             >
@@ -2468,39 +2726,32 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 <div className={`w-[280px] sm:w-[300px] lg:w-[350px] shrink-0 border-l border-white/5 flex flex-col relative z-20 ${(currentUser?.role?.toUpperCase() === 'MESERO' || currentUser?.role?.toUpperCase() === 'CAJERO') ? 'bg-transparent' : 'bg-[#222630]'}`}>
                     <div className="p-3 lg:p-3 border-b border-white/5 flex flex-col gap-3 shrink-0">
                         <div className="pt-1 space-y-1">
-                            {tableOrders.length > 1 ? (
-                                <select
-                                    value={activeOrderId ?? '__all__'}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        setActiveOrderId(val === '__all__' ? null : val);
-                                    }}
-                                    className="w-full bg-[#1e212b] border border-white/10 rounded-xl px-3 py-2 text-[11px] font-black text-white uppercase tracking-tighter outline-none focus:border-indigo-500/50 transition-all cursor-pointer appearance-none"
-                                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
-                                >
-                                    <option value="__all__">📋 Todas las cuentas (Mesa)</option>
-                                    {tableOrders.map((ord, idx) => (
-                                        <option key={ord.id} value={ord.id}>
-                                            {(ord.customer_name && ord.customer_name.toUpperCase() !== 'CUENTA PRINCIPAL') ? ord.customer_name : `Cuenta ${idx + 1}`}
-                                        </option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <div className="w-full bg-[#1e212b] border border-white/10 rounded-xl px-3 py-2 text-[11px] font-black text-white uppercase tracking-tighter text-center">
-                                    {(() => {
-                                        const currentOrder = tableOrders.find(o => o.id === activeOrderId);
-                                        const name = currentOrder?.customer_name || initialOrder.customer_name;
-                                        if (!name || name.toUpperCase() === 'CUENTA PRINCIPAL') return 'CUENTA 1';
-                                        return name.toUpperCase();
-                                    })()}
+                            <button
+                                onClick={() => setShowAccountsOverviewModal(true)}
+                                className="w-full bg-[#1e212b] border border-white/10 rounded-xl px-4 py-3 text-[11px] font-black text-white uppercase tracking-widest flex items-center justify-between group hover:border-white/20 transition-all shadow-none active:scale-95"
+                            >
+                                <div className="flex items-center gap-2">
+                                    <LayoutGrid size={14} className="text-white/60" />
+                                    <span>
+                                        {activeOrderId === null 
+                                            ? '📋 CUENTA COMPLETA' 
+                                            : (() => {
+                                                const currentOrder = tableOrders.find(o => o.id === activeOrderId);
+                                                const name = currentOrder?.customer_name || initialOrder.customer_name;
+                                                if (!name || name.toUpperCase() === 'CUENTA PRINCIPAL') return 'CUENTA 1';
+                                                return name.toUpperCase();
+                                            })()
+                                        }
+                                    </span>
                                 </div>
-                            )}
+                                <ChevronDown size={14} className="text-gray-600 group-hover:text-white transition-colors" />
+                            </button>
                         </div>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-2 space-y-1">
                         {loading ? (
-                            <div className="h-full flex flex-col items-center justify-center text-indigo-400 animate-pulse">
+                            <div className="h-full flex flex-col items-center justify-center text-white/40 animate-pulse">
                                 <Loader2 className="animate-spin mb-2" size={32} />
                                 <span className="text-[10px] font-bold uppercase tracking-widest">Sincronizando...</span>
                             </div>
@@ -2510,7 +2761,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 <span className="text-[10px] font-bold uppercase tracking-widest mt-2">Sin Productos</span>
                             </div>
                         ) : (
-                            [...checkoutItems]
+                                [...checkoutItems]
                                 .sort((a, b) => {
                                     if (!activeOrderId) {
                                         const aOrderIdx = tableOrders.findIndex(o => o.id === (a as any).order_id);
@@ -2534,11 +2785,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 setDiscountingItem(item);
                                                 setShowDiscountModal(true);
                                             }}
-                                            className="bg-white/5 rounded-lg p-3 flex justify-between group transition-colors border border-white/5 select-none relative hover:bg-rose-500/5 cursor-pointer"
+                                            className="bg-white/5 rounded-lg p-3 flex justify-between group transition-colors border border-white/5 select-none relative hover:bg-white/10 cursor-pointer"
                                         >
                                             {/* Account Badge for Unified View */}
                                             {!activeOrderId && (item as any).order_id && tableOrders.length > 1 && (
-                                                <span className="absolute top-1 right-1 px-1 bg-indigo-500/20 text-indigo-400 text-[8px] font-black rounded uppercase">C{itemOrderNum}</span>
+                                                <span className="absolute top-1 right-1 px-1 bg-white/10 text-white/60 text-[8px] font-black rounded uppercase">C{itemOrderNum}</span>
                                             )}
                                             <div className="flex-1">
                                                 <div className="flex justify-between items-start">
@@ -2546,7 +2797,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                         <span className="text-sm lg:text-xs font-bold text-gray-200 leading-tight">{item.product_name}</span>
                                                         {item.is_sent && <ItemStatusBadge item={item} serverOffset={serverOffset} tick={tick} />}
                                                         {((item.discount_percentage || 0) > 0 || (item.discount_amount || 0) > 0) && (
-                                                            <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest leading-none mt-0.5">
+                                                            <span className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mt-0.5">
                                                                 {item.discount_type === 'AMOUNT' ? `-Q${item.discount_amount?.toFixed(2)}` : `-${item.discount_percentage}%`} Desc.
                                                             </span>
                                                         )}
@@ -2554,28 +2805,28 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                     <span className="text-sm lg:text-xs font-bold tabular-nums text-white">{currency}{((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 mt-1.5 lg:mt-1">
-                                                    <span className="text-xs lg:text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded font-black">x{item.quantity}</span>
+                                                    <span className="text-xs lg:text-[10px] bg-white/10 text-white/60 px-2 py-0.5 rounded font-black">x{item.quantity}</span>
                                                     {item.notes && <span className="text-xs lg:text-[10px] text-gray-500 truncate max-w-[150px]">{item.notes}</span>}
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1 ml-2">
                                                 {!item.is_sent ? (
                                                     <>
-                                                        <button onClick={(e) => { e.stopPropagation(); handleEditItem(item); }} className="p-1.5 bg-indigo-500/10 text-indigo-400 rounded hover:bg-indigo-500 hover:text-white transition-colors"><Edit3 size={12} /></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); handleEditItem(item); }} className="p-1.5 bg-white/10 text-white/60 rounded hover:bg-white/20 hover:text-white transition-colors"><Edit3 size={12} /></button>
                                                         {item.id.startsWith('i-') && (
                                                             <>
                                                                 <button onClick={(e) => { e.stopPropagation(); updateQty(item.id, -1); }} className="p-1.5 bg-white/5 text-gray-400 rounded hover:bg-white/10 hover:text-white"><Minus size={12} /></button>
                                                                 <button onClick={(e) => { e.stopPropagation(); updateQty(item.id, 1); }} className="p-1.5 bg-white/5 text-gray-400 rounded hover:bg-white/10 hover:text-white"><Plus size={12} /></button>
                                                             </>
                                                         )}
-                                                        <button onClick={(e) => { e.stopPropagation(); removeItem(item.id); }} className="p-1.5 bg-red-500/10 text-red-400 rounded hover:bg-red-500 hover:text-white"><Trash2 size={12} /></button>
+                                                        <button onClick={(e) => { e.stopPropagation(); removeItem(item.id); }} className="p-1.5 bg-white/5 text-white/40 rounded hover:bg-white/20 hover:text-white"><Trash2 size={12} /></button>
                                                     </>
                                                 ) : (
                                                     // Botón de ANULAR para items ya enviados (Solo visible para Admin/Caja)
                                                     (currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO') && (
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                                                            className="p-1.5 bg-red-600 text-white rounded-lg shadow-lg active:scale-90 transition-all animate-pulse-subtle"
+                                                            className="p-1.5 bg-white/10 text-white rounded-lg shadow-none active:scale-90 transition-all"
                                                             title="Anular Producto"
                                                         >
                                                             <Trash2 size={14} />
@@ -2591,16 +2842,16 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
                     <div className="bg-black/20 p-3 border-t border-white/5">
                         <div className="grid grid-cols-5 gap-2 mb-4 h-12">
-                            <button onClick={handlePrintPreAccount} className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl flex items-center justify-center text-indigo-400 transition-all active:scale-95">
-                                <Printer size={18} />
+                            <button onClick={handlePrintPreAccount} className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/60 transition-all active:scale-95 hover:bg-white/10">
+                                <Printer size={20} />
                             </button>
-                            <button onClick={() => setShowDiscountModal(true)} disabled={currentUser?.role !== 'ADMIN' && currentUser?.role !== 'CAJERO' && !(currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos'))} className={`rounded-xl flex items-center justify-center transition-all active:scale-95 ${(currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos')) ? 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-400' : 'bg-white/5 border border-white/10 text-gray-600 opacity-50 cursor-not-allowed'}`}>
-                                <Percent size={18} />
+                            <button onClick={() => setShowDiscountModal(true)} disabled={currentUser?.role !== 'ADMIN' && currentUser?.role !== 'CAJERO' && !(currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos'))} className={`rounded-xl flex items-center justify-center transition-all active:scale-95 ${(currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos')) ? 'bg-white/5 border border-white/10 text-white/60 hover:bg-white/10' : 'bg-white/20 border border-white/5 text-gray-600 opacity-50 cursor-not-allowed'}`}>
+                                <Percent size={20} />
                             </button>
-                            <button onClick={() => setShowAccountsModal(true)} className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl flex items-center justify-center text-indigo-400 transition-all active:scale-95">
-                                <Split size={18} />
+                            <button onClick={() => setShowAccountsModal(true)} className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/60 transition-all active:scale-95 hover:bg-white/10">
+                                <Users size={20} />
                             </button>
-                            <button className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-gray-500 transition-all active:scale-95">
+                            <button className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/60 transition-all active:scale-95 hover:bg-white/10">
                                 <Minus size={18} />
                             </button>
                             <button className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-gray-500 transition-all active:scale-95">
@@ -2634,9 +2885,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
                                         await handleOrderSubmission();
                                     }}
-                                    className={`flex-1 rounded-xl flex flex-col items-center justify-center gap-1 shadow-lg active:scale-95 transition-all text-white ${(!activeOrderId && tableOrders.length > 0)
-                                        ? 'bg-[#2b2f3a] border border-white/10 opacity-50 cursor-not-allowed'
-                                        : (activeOrderId ? (checkoutItems.filter(i => !i.is_sent).length > 0 ? 'bg-indigo-600' : 'bg-[#2b2f3a] border border-white/10 opacity-50 cursor-not-allowed') : 'bg-indigo-600')
+                                    className={`flex-1 rounded-xl flex flex-col items-center justify-center gap-1 shadow-none active:scale-95 transition-all ${(!activeOrderId && tableOrders.length > 0)
+                                        ? 'bg-[#2b2f3a] border border-white/10 opacity-50 cursor-not-allowed text-white'
+                                        : (activeOrderId ? (checkoutItems.filter(i => !i.is_sent).length > 0 ? 'bg-white text-black' : 'bg-[#2b2f3a] border border-white/10 opacity-50 cursor-not-allowed text-white') : 'bg-white text-black')
                                         }`}
                                 >
                                     <FileText size={20} />
@@ -2698,7 +2949,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             onCheckout?.(updatedOrder as any);
                                         }}
                                         disabled={checkoutItems.length === 0}
-                                        className="flex-1 bg-emerald-600 rounded-xl flex flex-col items-center justify-center gap-1 shadow-lg active:scale-95 transition-all text-white disabled:opacity-50 disabled:bg-gray-700"
+                                        className="flex-1 bg-white/10 rounded-xl flex flex-col items-center justify-center gap-1 shadow-none active:scale-95 transition-all text-white disabled:opacity-50 disabled:bg-gray-700"
                                     >
                                         <Banknote size={20} />
                                         <span className="text-[10px] font-black uppercase tracking-widest leading-none">
@@ -2711,7 +2962,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             <div className="w-44 lg:w-40 flex flex-col justify-center space-y-1 text-right text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                                 <div className="flex justify-between"><span>Sub-Total</span><span className="text-white">{currency}{(subtotal || 0).toFixed(2)}</span></div>
                                 {(totalSavings || 0) > 0 && (
-                                    <div className="flex justify-between text-rose-400">
+                                    <div className="flex justify-between text-white/50">
                                         <span>Ahorro Total</span>
                                         <span>-{currency}{(totalSavings || 0).toFixed(2)}</span>
                                     </div>
@@ -2810,10 +3061,21 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 });
 
                                 if (table?.id) await supabase.from('tables').update({ status: 'available' }).eq('id', table.id);
+
+                                // v1.7.2 - Print Cancellation Receipt for Audit
+                                if (cancelledOrder) {
+                                    await printService.printCancelledTicket({
+                                        orderNumber: cancelledOrder.order_number,
+                                        createdAt: cancelledOrder.created_at,
+                                        items: items,
+                                        tableNumber: table?.number
+                                    }, voidReason || 'Sin motivo especificado');
+                                }
+
                                 onClose?.();
                             } catch (error: any) { 
                                 console.error(error); 
-                                alert(`🚫 Error: ${error.message}`);
+                                showAlert(`Error: ${error.message}`, 'Error');
                             }
                             setProcessing(false);
                         }
@@ -2852,8 +3114,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             <div className="h-2 w-12 bg-white/10 rounded-full mx-auto mt-4 mb-2 touch-none cursor-grab active:cursor-grabbing" />
                             
                             <div className="bg-[#1e1f2b] p-6 border-b border-white/5 flex flex-col items-center">
-                                <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center mb-3">
-                                    <Package className="text-amber-500" size={24} />
+                                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-3">
+                                    <Package className="text-white" size={24} />
                                 </div>
                                 <h3 className="text-lg font-black text-white uppercase tracking-tighter">Datos para Llevar</h3>
                                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Nombre y teléfono requeridos</p>
@@ -2877,7 +3139,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             data-keyboard="text"
                                             tabIndex={0}
                                             onClick={() => document.getElementById('hidden-takeout-name')?.focus()}
-                                            className={`w-full bg-black/20 border rounded-2xl p-4 text-white outline-none transition-all font-bold text-sm min-h-[56px] flex items-center cursor-text relative z-10 ${focusedField === 'name' ? 'border-amber-500 shadow-[0_0_0_1px_rgba(245,158,11,0.5)] virtual-input-focused' : 'border-white/10'}`}
+                                            className={`w-full bg-black/20 border rounded-2xl p-4 text-white outline-none transition-all font-bold text-sm min-h-[56px] flex items-center cursor-text relative z-10 ${focusedField === 'name' ? 'border-white/40 shadow-none virtual-input-focused' : 'border-white/10'}`}
                                         >
                                             {takeoutData.name}
                                         </div>
@@ -2907,7 +3169,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             data-keyboard="numeric"
                                             tabIndex={0}
                                             onClick={() => document.getElementById('hidden-takeout-phone')?.focus()}
-                                            className={`w-full bg-black/20 border rounded-2xl p-4 text-white outline-none transition-all font-bold text-sm min-h-[56px] flex items-center cursor-text relative z-10 ${focusedField === 'phone' ? 'border-amber-500 shadow-[0_0_0_1px_rgba(245,158,11,0.5)] virtual-input-focused' : 'border-white/10'}`}
+                                            className={`w-full bg-black/20 border rounded-2xl p-4 text-white outline-none transition-all font-bold text-sm min-h-[56px] flex items-center cursor-text relative z-10 ${focusedField === 'phone' ? 'border-white/40 shadow-none virtual-input-focused' : 'border-white/10'}`}
                                         >
                                             {takeoutData.phone}
                                         </div>
@@ -2933,7 +3195,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             handleOrderSubmission(undefined, takeoutData);
                                         }}
                                         disabled={!takeoutData.name.trim() || processing}
-                                        className="flex-1 py-4 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-amber-900/20 active:scale-95 transition-all"
+                                        className="flex-1 py-4 bg-white hover:bg-white/90 disabled:opacity-50 text-black rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-none active:scale-95 transition-all"
                                     >
                                         {processing ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'CONFIRMAR ORDEN'}
                                     </button>
@@ -2951,7 +3213,40 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     currentWaiterName={tableOrders.find(o => o.id === activeOrderId)?.waiter?.name || currentUser?.name}
                     onTransfer={handleTransferWaiter}
                 />
-                <AccountsManagementModal isOpen={showAccountsModal} onClose={() => setShowAccountsModal(false)} orders={tableOrders} onConfirm={handleAccountDivision} />
+                <AccountsManagementModal
+                    isOpen={showAccountsModal}
+                    onClose={() => setShowAccountsModal(false)}
+                    orders={tableOrders}
+                    onConfirm={handleAccountDivision}
+                    onOpenOverview={() => {
+                        setShowAccountsModal(false);
+                        setShowAccountsOverviewModal(true);
+                    }}
+                />
+                <AccountsOverviewModal
+                    isOpen={showAccountsOverviewModal}
+                    onClose={() => setShowAccountsOverviewModal(false)}
+                    tableOrders={tableOrders}
+                    activeOrderId={activeOrderId}
+                    onSelectAccount={(id) => {
+                        setActiveOrderId(id);
+                        setShowAccountsOverviewModal(false);
+                    }}
+                    onAddAccount={handleAddEmptyAccount}
+                    onEditAccount={handleRenameAccount}
+                    onDeleteAccount={handleDeleteEmptyAccount}
+                    onSplitAccount={() => {
+                        setShowAccountsOverviewModal(false);
+                        setShowAccountsModal(true);
+                    }}
+                    onPrintAccount={(id) => {
+                        if (id !== activeOrderId) {
+                            setActiveOrderId(id);
+                        }
+                        handlePrintPreAccount();
+                    }}
+                    initialOrder={initialOrder}
+                />
 
                 <DeliveryPaymentModal
                     isOpen={showDeliveryPaymentModal}
@@ -2988,7 +3283,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     value={voidReason}
                                     onChange={(e) => setVoidReason(e.target.value)}
                                     placeholder="Describa el motivo..."
-                                    className="w-full h-40 bg-[#1e1f2b] border border-white/10 rounded-lg p-4 text-white focus:border-indigo-500/50 outline-none transition-all resize-none text-sm placeholder:text-gray-500"
+                                    className="w-full h-40 bg-[#1e1f2b] border border-white/10 rounded-lg p-4 text-white focus:border-white/40 outline-none transition-all resize-none text-sm placeholder:text-gray-500"
                                 />
 
                                 <div className="flex gap-4 mt-6">
@@ -3006,7 +3301,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             setShowPinModal(true);
                                         }}
                                         disabled={voidReason.trim().length < 5 || processing}
-                                        className="flex-1 py-3 bg-[#6366f1] disabled:bg-gray-700 disabled:opacity-50 text-white rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg shadow-indigo-500/20 active:scale-95 transition-all"
+                                        className="flex-1 py-3 bg-white disabled:bg-gray-700 disabled:opacity-50 text-black rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg shadow-white/5 active:scale-95 transition-all"
                                     >
                                         {processing ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'ACEPTAR'}
                                     </button>
@@ -3015,6 +3310,29 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         </div>
                     </div>
                 )}
+
+                <AnimatePresence>
+                    {customDialog && (
+                        <WindowsConfirmModal
+                            title={customDialog.title}
+                            message={customDialog.message}
+                            type={customDialog.type}
+                            onConfirm={customDialog.onConfirm}
+                            onDeny={customDialog.onDeny}
+                            onCancel={customDialog.onCancel}
+                        />
+                    )}
+                    {customInput && (
+                        <WindowsInputModal
+                            title={customInput.title}
+                            message={customInput.message}
+                            defaultValue={customInput.defaultValue}
+                            placeholder={customInput.placeholder}
+                            onConfirm={customInput.onConfirm}
+                            onCancel={() => setCustomInput(null)}
+                        />
+                    )}
+                </AnimatePresence>
             </div>
         </div >
     );

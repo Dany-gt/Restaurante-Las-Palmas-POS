@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CheckCircle2, XCircle, Clock, ArrowLeft, LogOut, ShieldAlert, RefreshCw } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, ArrowLeft, ShieldAlert, RefreshCw } from 'lucide-react';
 import { User } from '../types';
+import { AdminNotifications } from './admin/AdminNotifications';
 
 interface AdminAuthPanelProps {
     currentUser: User | null;
     onExit: () => void;
+    onNavigate?: (view: string, tab?: string | null) => void;
 }
 
-export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onExit }) => {
+export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onExit, onNavigate }) => {
     const [requests, setRequests] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -40,7 +42,7 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
                             icon: '/icon.png',
                             badge: '/icon.png',
                             vibrate: [200, 100, 200]
-                        });
+                        } as any);
                     }
                 }
             })
@@ -145,6 +147,10 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
                 </div>
                 
                 <div className="flex items-center gap-2">
+                    <AdminNotifications 
+                        currentUser={currentUser} 
+                        onViewAll={() => onNavigate?.('ADMIN_PORTAL', 'REP_ACTIVITY')} 
+                    />
                     <button 
                         onClick={fetchRequests} 
                         className={`p-2 rounded-lg transition-all ${loading ? 'bg-indigo-500/20 text-indigo-400' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'}`}
