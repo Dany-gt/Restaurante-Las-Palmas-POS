@@ -146,14 +146,18 @@ export const RemotePrintListener: React.FC = () => {
 
     if (!isListening) return null;
 
+    // Si está online, ocultamos el título para que no estorbe en la interfaz.
+    // Solo lo mostramos en color rojo si hay un fallo de red local.
+    if (networkStatus === 'online') return null;
+
     return (
-        <div className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 ${networkStatus === 'online' ? 'bg-black/90 text-emerald-400 border-emerald-500/30' : 'bg-red-900/90 text-white border-red-500/50'} px-4 py-2 rounded-full text-xs font-mono border shadow-lg z-[9999] pointer-events-none flex items-center gap-2 select-none backdrop-blur-sm transition-colors duration-500`}>
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-900/90 text-white border-red-500/50 px-4 py-2 rounded-full text-xs font-mono border shadow-lg z-[9999] pointer-events-none flex items-center gap-2 select-none backdrop-blur-sm transition-colors duration-500">
             <span className="relative flex h-2 w-2">
-                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${networkStatus === 'online' ? 'bg-emerald-400' : 'bg-red-500'} opacity-75`}></span>
-                <span className={`relative inline-flex rounded-full h-2 w-2 ${networkStatus === 'online' ? 'bg-emerald-500' : 'bg-red-600'}`}></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
             </span>
             <span className="font-bold tracking-wider">
-                {networkStatus === 'online' ? 'VIGILANDO IMPRESORAS...' : 'ERROR DE RED LOCAL (CAJA)'}
+                ERROR DE RED LOCAL (CAJA)
             </span>
         </div>
     );
