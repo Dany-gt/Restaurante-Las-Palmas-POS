@@ -72,10 +72,7 @@ ipcMain.handle('print-html', async (event, { html, printerName, silent }) => {
     
     return new Promise((resolve) => {
         let printWindow = new BrowserWindow({ 
-            show: false,
-            webPreferences: {
-                offscreen: true // Evita parpadeos de ventana
-            }
+            show: false
         });
         
         // Timeout de seguridad: 30 segundos para evitar fugas de memoria
@@ -187,11 +184,34 @@ ipcMain.handle('open-cash-drawer', async (event, { target, type }) => {
             });
             client.on('error', (err) => resolve({ success: false, error: err.message }));
             client.on('timeout', () => { client.destroy(); resolve({ success: false, error: 'Timeout' }); });
+        } else if (type === 'SYSTEM' && target) {
+            console.log(`🔌 [Electron] Forzando pulso de caja en impresora USB: ${target}`);
+            // Creamos un trabajo de impresión en blanco. Si el driver de Epson está 
+            // configurado para abrir la caja al imprimir, esto lanzará el pulso físico.
+            let workerWindow = new BrowserWindow({ show: false });
+            workerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(' ')}`);
+            
+            workerWindow.webContents.on('did-finish-load', () => {
+                workerWindow.webContents.print({
+                    silent: true,
+                    deviceName: target,
+                    margins: { marginType: 'none' }
+                }, (success, failureReason) => {
+                    workerWindow.close();
+                    if (success) {
+                        resolve({ success: true });
+                    } else {
+                        resolve({ success: false, error: failureReason });
+                    }
+                });
+            });
+
+            workerWindow.webContents.on('did-fail-load', () => {
+                workerWindow.close();
+                resolve({ success: false, error: 'Failed to load dummy print job' });
+            });
         } else {
-            // Para impresoras de sistema, se asume que el driver está configurado 
-            // para abrir el cajón al recibir cualquier trabajo de impresión,
-            // o se requiere una librería nativa adicional.
-            resolve({ success: true, message: 'Driver-dependent pulse' });
+            resolve({ success: false, error: 'Tipo de impresora o destino no válido' });
         }
     });
 });
