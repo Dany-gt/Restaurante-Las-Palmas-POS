@@ -244,8 +244,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
         <div className="px-10 py-5 bg-[#16191f] border-b border-white/5 flex justify-center items-center shrink-0 relative">
           <div className="flex items-center gap-5 text-[10px] font-black uppercase tracking-[0.25em]">
             <div className="flex items-center gap-1.5">
-              <span className="text-gray-500 font-bold">ORDEN:</span>
-              <span className="text-indigo-400">#{orderNumber || '000'}</span>
+              <span className="text-white/60 font-bold">ORDEN:</span>
+              <span className="text-white">#{orderNumber || '000'}</span>
             </div>
             <div className="w-[1px] h-3 bg-white/10"></div>
             <span className="text-gray-300">{tableName || 'SIN MESA'}</span>
@@ -535,7 +535,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                     </button>
                     <button
                       onClick={() => { setNotes(''); setSelectedItems([]); setItemQuantity(1); }}
-                      className="w-12 h-12 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-rose-500 transition-all active:scale-95"
+                      className="w-12 h-12 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition-all active:scale-95"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -586,7 +586,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                   {getValidationErrors().length > 0 && (
                     <div className="space-y-2">
                       {getValidationErrors().map((err, i) => (
-                        <p key={i} className="text-[10px] font-bold text-rose-500/60 uppercase tracking-widest flex items-center gap-2">
+                        <p key={i} className="text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
                           <X size={12} /> {err}
                         </p>
                       ))}

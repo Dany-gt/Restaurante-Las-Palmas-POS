@@ -38,18 +38,49 @@ export const ConfigPrinters: React.FC = () => {
     };
 
     const [formData, setFormData] = useState(defaultFormData);
+    const [systemPrinters, setSystemPrinters] = useState<any[]>([]);
+    const [isDetecting, setIsDetecting] = useState(false);
+
+    const detectPrinters = async () => {
+        const electron = (window as any).electronAPI || (window as any).electron;
+        if (!electron) {
+            notify.info('La detección automática solo funciona en la versión de escritorio.');
+            return;
+        }
+        setIsDetecting(true);
+        try {
+            const list = await electron.getPrinters();
+            setSystemPrinters(list);
+            if (list.length > 0) {
+                notify.success(`${list.length} impresoras detectadas en Windows`);
+            } else {
+                notify.warn('No se encontraron impresoras instaladas en este equipo');
+            }
+        } catch (err) {
+            console.error(err);
+            notify.error('Error al consultar drivers de impresión');
+        } finally {
+            setIsDetecting(false);
+        }
+    };
 
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [{ data: printersData }, { data: branchesData }] = await Promise.all([
+            console.log('📡 [ConfigPrinters] Cargando impresoras...');
+            const [{ data: printersData, error: pError }, { data: branchesData, error: bError }] = await Promise.all([
                 supabase.from('printers').select('*, branch:branches(name)').order('name'),
                 supabase.from('branches').select('*').order('name')
             ]);
+            
+            if (pError) console.error('Error printers:', pError);
+            if (bError) console.error('Error branches:', bError);
+            
+            console.log(`✅ [ConfigPrinters] ${printersData?.length || 0} impresoras cargadas.`);
             setPrinters(printersData || []);
             setBranches(branchesData || []);
         } catch (err) {
-            console.error(err);
+            console.error('Catch error fetchData:', err);
         } finally {
             setLoading(false);
         }
@@ -57,6 +88,9 @@ export const ConfigPrinters: React.FC = () => {
 
     useEffect(() => {
         fetchData();
+        // Detectamos impresoras al montar si estamos en electron
+        const electron = (window as any).electronAPI || (window as any).electron;
+        if (electron) detectPrinters();
     }, []);
 
     const handleSave = async () => {
@@ -65,21 +99,30 @@ export const ConfigPrinters: React.FC = () => {
             return;
         }
         setIsSaving(true);
+        
+        // Limpiamos datos según el tipo de conexión
         const dataToSave = {
             ...formData,
-            name: formData.connection_type === 'SYSTEM' ? formData.name : formData.name.toUpperCase()
+            name: formData.connection_type === 'SYSTEM' ? formData.name : formData.name.toUpperCase(),
+            address: formData.connection_type === 'NETWORK' ? formData.address : null,
+            port: formData.connection_type === 'NETWORK' ? formData.port : null
         };
 
+        console.log('💾 [ConfigPrinters] Guardando impresora:', dataToSave);
+
         try {
-            const { error } = editingPrinter
-                ? await supabase.from('printers').update(dataToSave).eq('id', editingPrinter.id)
-                : await supabase.from('printers').insert([dataToSave]);
+            const { data, error } = editingPrinter
+                ? await supabase.from('printers').update(dataToSave).eq('id', editingPrinter.id).select()
+                : await supabase.from('printers').insert([dataToSave]).select();
 
             if (error) throw error;
+            console.log('✅ [ConfigPrinters] Guardado exitoso:', data);
+            
             setShowModal(false);
-            fetchData();
+            await fetchData(); // Recarga completa
             notify.success('Punto de impresión guardado correctamente');
         } catch (error: any) {
+            console.error('❌ [ConfigPrinters] Error al guardar:', error);
             notify.error('Error al guardar: ' + error.message);
         } finally {
             setIsSaving(false);
@@ -141,6 +184,17 @@ export const ConfigPrinters: React.FC = () => {
                     </select>
                 </div>
 
+                <div className="flex items-center gap-2">
+                    <button 
+                        onClick={detectPrinters}
+                        disabled={isDetecting}
+                        className="h-7 px-3 bg-blue-50 text-[#106ebe] hover:bg-[#106ebe] hover:text-white text-[10px] font-bold uppercase rounded border border-blue-200 flex items-center gap-2 transition-all disabled:opacity-50"
+                    >
+                        {isDetecting ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+                        Detectar Drivers
+                    </button>
+                </div>
+
                 <div className="flex-1 max-w-md flex items-center gap-1 ml-auto">
                     <div className="relative flex-1">
                         <input
@@ -173,9 +227,10 @@ export const ConfigPrinters: React.FC = () => {
                     <table className="w-full border-collapse text-[11px]">
                         <thead className="sticky top-0 z-20 bg-[#e8e8e8] select-none">
                             <tr className="border-b border-gray-400 h-10">
-                                <th className="px-6 py-2 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[40%] transition-all">Nombre</th>
-                                <th className="px-6 py-2 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[40%]">Impresora</th>
-                                <th className="px-6 py-2 text-center text-[10px] font-bold text-black uppercase w-[20%]">Habilitado</th>
+                                <th className="px-6 py-2 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[35%] transition-all">Nombre</th>
+                                <th className="px-6 py-2 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[35%]">Impresora</th>
+                                <th className="px-6 py-2 text-center text-[10px] font-bold text-black uppercase w-[15%]">Habilitado</th>
+                                <th className="px-6 py-2 text-center text-[10px] font-bold text-black uppercase w-[15%]">Acciones</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -206,11 +261,62 @@ export const ConfigPrinters: React.FC = () => {
                                             {p.connection_type === 'SYSTEM' ? p.name : (p.address || 'LOCAL/USB')}
                                         </span>
                                     </td>
-                                    <td className="px-4">
+                                    <td className="px-4 border-r border-gray-100">
                                         <div className="flex justify-center items-center h-full">
                                             <div className={`w-3.5 h-3.5 border flex items-center justify-center transition-all ${p.is_active ? (selectedPrinterId === p.id ? 'bg-white border-white text-[#106ebe]' : 'bg-[#106ebe] border-[#106ebe] text-white') : 'bg-white border-gray-300'}`}>
                                                 {p.is_active && <Check size={10} strokeWidth={4} />}
                                             </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-4">
+                                        <div className="flex justify-center items-center h-full gap-2">
+                                            <button 
+                                                onClick={async (e) => {
+                                                    e.stopPropagation();
+                                                    notify.info('Iniciando prueba de impresión...');
+                                                    try {
+                                                        const testHtml = `
+                                                            <div style="text-align:center; font-family: sans-serif; padding: 20px;">
+                                                                <h2 style="margin:0;">PRUEBA POS</h2>
+                                                                <p style="font-size:12px;">Punto: ${p.name}</p>
+                                                                <p style="font-size:10px;">${new Date().toLocaleString()}</p>
+                                                                <div style="border-top: 1px dashed #000; margin: 10px 0;"></div>
+                                                                <p style="font-size:14px; font-weight:bold;">¡CONEXIÓN EXITOSA!</p>
+                                                            </div>
+                                                        `;
+                                                        
+                                                        const electron = (window as any).electronAPI;
+                                                        if (!electron) {
+                                                            notify.warn('Función solo disponible en Electron');
+                                                            return;
+                                                        }
+
+                                                        let result;
+                                                        if (p.connection_type === 'SYSTEM') {
+                                                            result = await electron.printHtml(testHtml, p.name, true);
+                                                        } else if (p.connection_type === 'NETWORK') {
+                                                            // Usamos el nuevo traductor ESC/POS
+                                                            const rawContent = (printService as any).htmlToEscPos(testHtml);
+                                                            result = await electron.printToNetwork(p.address, p.port || 9100, rawContent, true);
+                                                        }
+
+                                                        if (result?.success) {
+                                                            notify.success('Prueba enviada correctamente');
+                                                        } else {
+                                                            notify.error('Fallo en la prueba: ' + (result?.error || 'Error desconocido'));
+                                                        }
+                                                    } catch (err: any) {
+                                                        notify.error('Error: ' + err.message);
+                                                    }
+                                                }}
+                                                className={`px-2 py-0.5 rounded text-[9px] font-black uppercase transition-all ${
+                                                    selectedPrinterId === p.id 
+                                                        ? 'bg-white text-[#106ebe] hover:bg-blue-50' 
+                                                        : 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm'
+                                                }`}
+                                            >
+                                                Prueba
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -293,12 +399,26 @@ export const ConfigPrinters: React.FC = () => {
                                     <div className="p-4 space-y-3">
                                         <div className="grid grid-cols-[100px_1fr] items-center gap-4">
                                             <label className="text-[11px] font-medium text-gray-700">Nombre</label>
-                                            <input
-                                                value={formData.name}
-                                                onChange={e => setFormData({ ...formData, name: formData.connection_type === 'SYSTEM' ? e.target.value : e.target.value.toUpperCase() })}
-                                                type="text"
-                                                className="h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-bold text-[#106ebe] outline-none focus:border-[#106ebe]"
-                                            />
+                                            <div className="flex gap-2">
+                                                <input
+                                                    value={formData.name}
+                                                    onChange={e => setFormData({ ...formData, name: formData.connection_type === 'SYSTEM' ? e.target.value : e.target.value.toUpperCase() })}
+                                                    type="text"
+                                                    placeholder="Nombre descriptivo o Driver..."
+                                                    className="flex-1 h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-bold text-[#106ebe] outline-none focus:border-[#106ebe]"
+                                                />
+                                                {formData.connection_type === 'SYSTEM' && systemPrinters.length > 0 && (
+                                                    <select
+                                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                        className="w-[200px] h-7 bg-emerald-50 border border-emerald-200 rounded px-1 text-[10px] font-black text-emerald-700 outline-none"
+                                                    >
+                                                        <option value="">USAR DRIVER DETECTADO...</option>
+                                                        {systemPrinters.map(p => (
+                                                            <option key={p.name} value={p.name}>{p.name.toUpperCase()}</option>
+                                                        ))}
+                                                    </select>
+                                                )}
+                                            </div>
                                         </div>
 
                                         <div className="grid grid-cols-[100px_1fr] items-center gap-4">
@@ -342,7 +462,14 @@ export const ConfigPrinters: React.FC = () => {
                                                     </div>
                                                 ) : (
                                                     <div className="h-7 px-2 flex items-center text-[10px] text-gray-400">
-                                                        {formData.connection_type === 'SYSTEM' ? 'Use el nombre exacto del driver' : 'Puerto local'}
+                                                        {formData.connection_type === 'SYSTEM' ? (
+                                                            <button 
+                                                                onClick={detectPrinters}
+                                                                className="text-[#106ebe] hover:underline font-bold"
+                                                            >
+                                                                Refrescar drivers instalados
+                                                            </button>
+                                                        ) : 'Puerto local'}
                                                     </div>
                                                 )}
                                             </div>
@@ -373,7 +500,6 @@ export const ConfigPrinters: React.FC = () => {
                                                         <option key={branch.id} value={branch.id}>{branch.name}</option>
                                                     ))}
                                                 </select>
-
                                                 <label className="flex items-center gap-2 cursor-pointer select-none">
                                                     <div
                                                         onClick={() => setFormData({ ...formData, is_active: !formData.is_active })}

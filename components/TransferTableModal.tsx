@@ -48,21 +48,21 @@ export const TransferTableModal: React.FC<TransferTableModalProps> = ({ isOpen, 
                 <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                         {loading ? (
-                            <div className="col-span-full py-12 flex justify-center"><Loader2 className="animate-spin text-indigo-500 w-8 h-8" /></div>
+                            <div className="col-span-full py-12 flex justify-center"><Loader2 className="animate-spin text-white w-8 h-8" /></div>
                         ) : tables.length > 0 ? (
                             tables.map(table => (
                                 <button
                                     key={table.id}
                                     onClick={() => setSelectedTableId(table.id)}
                                     className={`group relative h-20 rounded-xl border flex flex-col items-center justify-center transition-all overflow-hidden ${selectedTableId === table.id
-                                        ? 'bg-indigo-600 border-indigo-500 shadow-lg shadow-indigo-600/20 translate-y-[-2px]'
+                                        ? 'bg-white border-white shadow-xl shadow-black/50 translate-y-[-2px]'
                                         : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10 active:scale-95'
                                         }`}
                                 >
-                                    <span className={`text-xl font-black tracking-tighter z-10 ${selectedTableId === table.id ? 'text-white' : 'text-gray-300'}`}>
+                                    <span className={`text-xl font-black tracking-tighter z-10 ${selectedTableId === table.id ? 'text-black' : 'text-gray-300'}`}>
                                         {table.number}
                                     </span>
-                                    <span className={`text-[8px] font-bold uppercase tracking-widest z-10 ${selectedTableId === table.id ? 'text-indigo-200' : 'text-gray-600'}`}>
+                                    <span className={`text-[8px] font-bold uppercase tracking-widest z-10 ${selectedTableId === table.id ? 'text-black/60' : 'text-gray-600'}`}>
                                         {table.section}
                                     </span>
 
@@ -86,7 +86,7 @@ export const TransferTableModal: React.FC<TransferTableModalProps> = ({ isOpen, 
                     <button
                         disabled={!selectedTableId}
                         onClick={() => selectedTableId && onTransfer(selectedTableId)}
-                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-800 disabled:text-gray-600 text-white rounded-xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-indigo-600/20 transition-all active:scale-95 flex items-center justify-center gap-2 group"
+                        className="w-full py-4 bg-white hover:bg-white/90 disabled:bg-white/5 disabled:text-gray-600 disabled:border-white/5 text-black rounded-xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-black/40 transition-all active:scale-95 flex items-center justify-center gap-2 group"
                     >
                         <span>Confirmar Traslado</span>
                         <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />

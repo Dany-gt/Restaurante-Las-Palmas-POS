@@ -531,7 +531,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
             <div className="flex-1 flex flex-col animate-fade-in justify-center pt-10">
               <div className="mb-10 text-center">
                 <h2 className="text-[24px] font-black text-white tracking-tighter uppercase leading-none mb-2">BIENVENIDO</h2>
-                <div className="w-12 h-1 bg-[#4f46e5] rounded-full mx-auto mb-6" />
+                <div className="w-12 h-1 bg-white rounded-full mx-auto mb-6" />
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Selecciona tu Perfil</p>
               </div>
 
@@ -543,19 +543,21 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   { id: 'ADMIN', icon: <ShieldCheck size={24} />, label: 'Admin' },
                   { id: 'PRODUCCION', icon: <Layers size={24} />, label: 'Producción', fullWidth: true }
                 ].map(role => (
-                  <button
-                    key={role.id}
-                    onClick={() => handleRoleSelect(role.id as UserRole)}
-                    className={`flex flex-col items-center justify-center p-6 rounded-[24px] transition-all active:scale-95 border border-white/10 shadow-2xl backdrop-blur-md
-                      ${role.fullWidth ? 'col-span-2 aspect-[2/1]' : 'aspect-square'}
-                      ${selectedRole === role.id ? 'bg-[#4f46e5] border-[#4f46e5]' : 'bg-white/5 hover:bg-white/10'}
-                    `}
-                  >
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-3 ${selectedRole === role.id ? 'bg-white text-[#4f46e5]' : 'bg-white/5 text-[#4f46e5]'}`}>
-                      {role.icon}
-                    </div>
-                    <span className="text-[12px] font-black uppercase tracking-widest text-white">{role.label}</span>
-                  </button>
+                    <button
+                      key={role.id}
+                      onClick={() => handleRoleSelect(role.id as UserRole)}
+                      className={`flex flex-col items-center justify-center p-5 rounded-[24px] transition-all active:scale-95 border shadow-2xl backdrop-blur-md
+                        ${role.fullWidth ? 'col-span-2 aspect-[2.2/1]' : 'aspect-square'}
+                        ${selectedRole === role.id 
+                          ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20 scale-[1.02]' 
+                          : 'bg-white/5 border-white/10 text-white hover:bg-white/10'}
+                      `}
+                    >
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-2 transition-colors ${selectedRole === role.id ? 'bg-white/10 text-white' : 'bg-white/5 text-white/40'}`}>
+                        {role.icon}
+                      </div>
+                      <span className={`text-[11px] font-black uppercase tracking-widest ${selectedRole === role.id ? 'text-white' : 'text-white/60'}`}>{role.label}</span>
+                    </button>
                 ))}
               </div>
             </div>
@@ -571,7 +573,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 </button>
                 <div>
                   <h3 className="text-[16px] font-black text-white uppercase tracking-tight leading-none">{selectedRole}</h3>
-                  <p className="text-[9px] font-bold text-[#4f46e5] uppercase tracking-widest mt-1">Ingresa tus credenciales</p>
+                  <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-1">Ingresa tus credenciales</p>
                 </div>
               </div>
 
@@ -601,7 +603,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                             setShowPinPad(true);
                           }
                         }}
-                        className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-base font-bold text-white outline-none focus:border-[#4f46e5] transition-all appearance-none"
+                        className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-base font-bold text-white outline-none focus:border-white transition-all appearance-none"
                         required
                       >
                         <option value="" className="bg-[#1a1b23]">SELECCIONAR SUCURSAL</option>
@@ -622,7 +624,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                             inputMode="text"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-base font-bold text-white placeholder:text-gray-600 outline-none focus:border-[#4f46e5] transition-all"
+                            className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-base font-bold text-white placeholder:text-gray-600 outline-none focus:border-white transition-all"
                             placeholder="NOMBRE DE USUARIO"
                             autoComplete="username"
                             required
@@ -638,7 +640,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-base font-bold text-white placeholder:text-gray-600 outline-none focus:border-[#4f46e5] transition-all"
+                            className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-base font-bold text-white placeholder:text-gray-600 outline-none focus:border-white transition-all"
                             placeholder="CONTRASEÑA"
                             autoComplete="current-password"
                             required
@@ -654,7 +656,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                             setPin('');
                             setShowPinPad(true);
                           }}
-                          className="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-black py-6 rounded-2xl text-[16px] shadow-2xl shadow-[#4f46e5]/40 active:scale-[0.95] transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                          className="w-full bg-white hover:bg-white/90 text-black font-black py-6 rounded-2xl text-[16px] shadow-2xl shadow-white/10 active:scale-[0.95] transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500"
                         >
                           <Calculator size={24} />
                           <span>INGRESAR PIN</span>
@@ -673,9 +675,9 @@ Generado: ${new Date().toLocaleString('es-GT')}
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-[#4f46e5] hover:bg-[#4338ca] text-white font-black py-4 rounded-2xl text-[13px] shadow-xl shadow-[#4f46e5]/20 active:scale-[0.98] transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3 mt-4"
+                      className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-2xl text-[13px] shadow-xl shadow-indigo-600/20 active:scale-[0.98] transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3 mt-4"
                     >
-                      {loading ? <Loader2 className="animate-spin" size={20} /> : 'INICIAR SESIÓN'}
+                      {loading ? <Loader2 className="animate-spin text-white" size={20} /> : 'INICIAR SESIÓN'}
                     </button>
                   )}
                 </form>
@@ -704,7 +706,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
               </button>
 
               <div className="mb-10 text-center">
-                <div className="w-16 h-16 bg-[#4f46e5]/20 rounded-2xl flex items-center justify-center text-[#4f46e5] mx-auto mb-4 border border-[#4f46e5]/20">
+                <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 border border-white/20">
                   <Users size={32} />
                 </div>
                 <h3 className="text-[20px] font-black text-white uppercase tracking-tighter">Ingrese su PIN</h3>
@@ -716,7 +718,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 {[...Array(4)].map((_, i) => (
                   <div
                     key={i}
-                    className={`w-4 h-4 rounded-full transition-all duration-300 ${pin.length > i ? 'bg-[#4f46e5] scale-125 shadow-[0_0_20px_rgba(79,70,229,0.8)]' : 'bg-white/10 border border-white/5'}`}
+                    className={`w-4 h-4 rounded-full transition-all duration-300 ${pin.length > i ? 'bg-white scale-125 shadow-[0_0_20px_rgba(255,255,255,0.4)]' : 'bg-white/10 border border-white/5'}`}
                   ></div>
                 ))}
               </div>
@@ -798,19 +800,19 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   }}
                   className="p-3 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all shadow-lg group"
                 >
-                  <ArrowLeft size={18} className="group-hover:text-indigo-400" />
+                  <ArrowLeft size={18} className="group-hover:text-white" />
                 </button>
                 <div>
                   <h4 className="text-[12px] font-black text-white uppercase tracking-[0.3em] leading-none">RESTAURANTE LAS PALMAS POS</h4>
                   <p className="text-[8px] font-bold text-gray-500 uppercase tracking-widest mt-2">DASHBOARD DE OPERADORES</p>
                 </div>
               </div>
-              <div className="text-right">
+<div className="text-right">
                 <div className="flex items-center gap-3 justify-end">
-                  <span className="text-[8px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-400/10 px-3 py-1 rounded-full border border-indigo-500/10">0 Ordenes Asignadas</span>
+                  <span className="text-[8px] font-black text-white/60 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/10">0 Ordenes Asignadas</span>
                   <div className="flex flex-col items-end">
                     <span className="text-[11px] font-black text-white uppercase tracking-widest">{authenticatedUser?.name}</span>
-                    <span className="text-[7px] font-bold text-green-500 uppercase tracking-[0.2em] mt-0.5">Acceso Autorizado</span>
+                    <span className="text-[7px] font-bold text-white/60 uppercase tracking-[0.2em] mt-0.5">Acceso Autorizado</span>
                   </div>
                 </div>
               </div>
@@ -823,15 +825,15 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 <button
                   type="button"
                   onClick={() => handleOperatorClick(authenticatedUser)}
-                  className="flex flex-col items-center justify-center gap-4 p-8 bg-[#23242f] border-2 border-indigo-500/40 rounded-3xl hover:bg-indigo-600/20 hover:border-indigo-500/60 transition-all group relative shadow-2xl hover:-translate-y-1"
+                  className="flex flex-col items-center justify-center gap-4 p-8 bg-[#23242f] border-2 border-white/40 rounded-3xl hover:bg-white/10 hover:border-white/60 transition-all group relative shadow-2xl hover:-translate-y-1"
                 >
-                  <div className={`w-2.5 h-2.5 rounded-full absolute top-4 left-4 ${openShiftUserIds.includes(authenticatedUser?.id) ? 'bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.9)]' : 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.9)]'}`}></div>
-                  <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center text-indigo-400 group-hover:text-indigo-300 transition-colors shadow-inner border border-white/5">
+                  <div className={`w-2.5 h-2.5 rounded-full absolute top-4 left-4 ${openShiftUserIds.includes(authenticatedUser?.id) ? 'bg-white animate-pulse shadow-[0_0_12px_rgba(255,255,255,0.6)]' : 'bg-white/20 shadow-[0_0_12px_rgba(255,255,255,0.2)]'}`}></div>
+                  <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 group-hover:text-white transition-colors shadow-inner border border-white/5">
                     <CashRegisterIcon size={40} strokeWidth={1} />
                   </div>
                   <div className="text-center">
                     <span className="text-[12px] font-black text-white uppercase tracking-widest block truncate max-w-[160px]">{authenticatedUser?.name || 'MI TERMINAL'}</span>
-                    <span className="text-[8px] font-bold text-indigo-400 uppercase tracking-widest mt-1">CAJA PRINCIPAL</span>
+                    <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest mt-1">CAJA PRINCIPAL</span>
                   </div>
                 </button>
 
@@ -841,10 +843,10 @@ Generado: ${new Date().toLocaleString('es-GT')}
                     key={reg.id}
                     type="button"
                     onClick={() => handleOperatorClick(reg)}
-                    className="flex flex-col items-center justify-center gap-4 p-8 bg-[#23242f] border border-white/5 rounded-3xl hover:bg-indigo-600/20 hover:border-indigo-500/30 transition-all group relative shadow-2xl hover:-translate-y-1"
+                    className="flex flex-col items-center justify-center gap-4 p-8 bg-[#23242f] border border-white/5 rounded-3xl hover:bg-white/10 hover:border-white/20 transition-all group relative shadow-2xl hover:-translate-y-1"
                   >
-                    <div className={`w-2.5 h-2.5 rounded-full absolute top-4 left-4 ${openShiftUserIds.includes(reg.id) ? 'bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.9)]' : 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.9)]'}`}></div>
-                    <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-indigo-400 transition-colors shadow-inner">
+                    <div className={`w-2.5 h-2.5 rounded-full absolute top-4 left-4 ${openShiftUserIds.includes(reg.id) ? 'bg-white animate-pulse shadow-[0_0_12px_rgba(255,255,255,0.6)]' : 'bg-white/20 shadow-[0_0_12px_rgba(255,255,255,0.2)]'}`}></div>
+                    <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-white transition-colors shadow-inner">
                       <CashRegisterIcon size={40} strokeWidth={1} />
                     </div>
                     <div className="text-center">
@@ -906,7 +908,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 <div className="text-center">
                   <span className="text-[7.5px] font-bold text-gray-500 tracking-[0.4em] uppercase">Restaurante</span>
                   <h1 className="text-lg font-black text-white tracking-tighter leading-none mt-1 font-outfit">LAS PALMAS</h1>
-                  <p className="text-[7px] font-black text-indigo-400 tracking-[0.5em] mt-1 uppercase">Sistema POS</p>
+                  <p className="text-[7px] font-black text-white/40 tracking-[0.5em] mt-1 uppercase">Sistema POS</p>
                 </div>
               </div>
 
@@ -941,7 +943,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-[11px] font-bold text-white placeholder:text-gray-500 outline-none focus:border-indigo-500 focus:bg-black/60 transition-all tracking-widest"
+                      className="w-full bg-black/40 border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-[11px] font-bold text-white placeholder:text-gray-500 outline-none focus:border-white focus:bg-black/60 transition-all tracking-widest"
                       placeholder="USUARIO"
                       required
                     />
@@ -971,7 +973,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-700 text-white font-black py-2.5 rounded-xl text-[10px] shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition-all uppercase tracking-widest flex items-center justify-center gap-2"
+                  className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 text-white font-black py-2.5 rounded-xl text-[10px] shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all uppercase tracking-widest flex items-center justify-center gap-2"
                 >
                   {loading ? <Loader2 className="animate-spin" size={14} /> : 'Iniciar Sesión'}
                 </button>
@@ -1018,18 +1020,18 @@ Generado: ${new Date().toLocaleString('es-GT')}
                       <button
                         key={role.id}
                         onClick={() => handleRoleSelect(role.id as UserRole)}
-                        className={`w-[160px] flex items-center justify-center gap-2 p-3 border transition-all group active:scale-95 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl ${isSelected
-                          ? 'bg-indigo-600 border-indigo-400 ring-4 ring-indigo-500/20'
-                          : 'bg-black/40 border-white/20 hover:bg-black/60 shadow-xl'
+                        className={`w-[160px] flex items-center justify-center gap-2 p-3 border transition-all group active:scale-95 shadow-xl rounded-2xl ${isSelected
+                          ? 'bg-indigo-600 border-indigo-500 ring-4 ring-indigo-500/20'
+                          : 'bg-black/40 border-white/10 hover:bg-black/60'
                           }`}
                       >
                         <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center transition-all ${isSelected
                           ? 'bg-white text-indigo-600'
-                          : 'bg-white/5 text-indigo-400 group-hover:bg-white/10 group-hover:text-white'
+                          : 'bg-white/5 text-white/40 group-hover:bg-white/10 group-hover:text-white'
                           }`}>
                           {role.icon}
                         </div>
-                        <span className={`text-[10px] font-black uppercase tracking-wider truncate ${isSelected ? 'text-white' : 'text-gray-300'}`}>
+                        <span className={`text-[10px] font-black uppercase tracking-wider truncate ${isSelected ? 'text-white' : 'text-gray-400'}`}>
                           {role.label}
                         </span>
                       </button>
@@ -1063,7 +1065,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
             </button>
 
             <div className="mb-6 text-center">
-              <div className="w-12 h-12 bg-indigo-500/20 rounded-full flex items-center justify-center text-indigo-400 mx-auto mb-3 border border-indigo-500/20">
+              <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white mx-auto mb-3 border border-white/20">
                 <Users size={24} />
               </div>
               <h3 className="text-lg font-black text-white uppercase tracking-tighter">Ingrese su PIN</h3>
@@ -1128,16 +1130,16 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 {/* BOTÓN TODAS LAS CAJAS */}
                 <button
                   onClick={() => setSelectedRegisterForClose('ALL')}
-                  className={`h-20 border rounded-xl flex items-center justify-center p-4 transition-all group overflow-hidden relative ${selectedRegisterForClose === 'ALL' ? 'bg-indigo-600/30 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.3)]' : 'bg-[#23242f] border-white/5 hover:bg-white/10'}`}
+                  className={`h-20 border rounded-xl flex items-center justify-center p-4 transition-all group overflow-hidden relative ${selectedRegisterForClose === 'ALL' ? 'bg-white/10 border-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'bg-[#23242f] border-white/5 hover:bg-white/10'}`}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-transparent transition-opacity ${selectedRegisterForClose === 'ALL' ? 'opacity-100' : 'opacity-0'}`}></div>
+                  <div className={`absolute inset-0 bg-gradient-to-r from-white/10 to-transparent transition-opacity ${selectedRegisterForClose === 'ALL' ? 'opacity-100' : 'opacity-0'}`}></div>
                   <span className={`font-black text-xs uppercase tracking-widest relative z-10 text-center ${selectedRegisterForClose === 'ALL' ? 'text-white' : 'text-gray-400'}`}>Todas las Cajas</span>
                 </button>
 
                 {/* BOTÓN PRINCIPAL (USUARIO ACTUAL) */}
                 <button
                   onClick={() => setSelectedRegisterForClose(authenticatedUser?.id)}
-                  className={`h-20 border rounded-xl flex items-center justify-center p-4 transition-all text-center ${selectedRegisterForClose === authenticatedUser?.id ? 'bg-indigo-600/30 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.3)]' : 'bg-[#23242f] border-white/5 hover:bg-white/10'}`}
+                  className={`h-20 border rounded-xl flex items-center justify-center p-4 transition-all text-center ${selectedRegisterForClose === authenticatedUser?.id ? 'bg-white/10 border-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'bg-[#23242f] border-white/5 hover:bg-white/10'}`}
                 >
                   <span className={`font-bold text-xs uppercase tracking-widest leading-tight ${selectedRegisterForClose === authenticatedUser?.id ? 'text-white' : 'text-gray-400'}`}>{authenticatedUser?.name || 'PRINCIPAL'}</span>
                 </button>

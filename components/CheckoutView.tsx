@@ -765,7 +765,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     }).catch(console.error);
                 }
 
-                // Print FEL Invoice with DTE data
+                // ─── IMPRESIÓN DEL TICKET ───
                 try {
                     await printService.printInvoiceTicket({
                         orderId: order.id,
@@ -799,8 +799,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         customerName: customer.name,
                         paymentMethod: payments.length > 0 ? payments[0].method : paymentMethod
                     });
-                } catch (printError) {
+                    notify.success('Venta procesada e impresión enviada');
+                } catch (printError: any) {
                     console.error('Error printing invoice:', printError);
+                    notify.error('Venta procesada pero falló la impresión: ' + (printError.message || 'Error de driver'));
                 }
 
                 setInvoiceSuccess(true);
@@ -828,13 +830,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 <div className="flex items-center gap-6">
                     {/* Clock & Date */}
                     <div className="hidden md:flex flex-col items-center leading-none bg-black/40 px-3 py-1.5 rounded-2xl border border-white/5 shadow-inner">
-                        <span className="text-[13px] font-black tracking-widest text-indigo-400 tabular-nums">{timeDisplay}</span>
+                        <span className="text-[13px] font-black tracking-widest text-white/40 tabular-nums">{timeDisplay}</span>
                         <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter mt-0.5">{dateDisplay}</span>
                     </div>
 
                     <div className="flex flex-col items-end">
                         <span className="text-sm font-bold text-gray-200">{currentUser?.name}</span>
-                        <span className="text-[10px] text-indigo-500/80 font-black uppercase tracking-widest">Cobrar Cuenta</span>
+                        <span className="text-[10px] text-white/40 font-black uppercase tracking-widest">Cobrar Cuenta</span>
                     </div>
                 </div>
 
@@ -856,7 +858,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         <div className="flex justify-between text-gray-400 text-sm font-black uppercase leading-tight">
                             <div className="flex flex-col">
                                 <span>PROPINA</span>
-                                {tipMethod && <span className="text-[10px] text-indigo-400/60 font-black tracking-widest leading-none">Vía {tipMethod}</span>}
+                                {tipMethod && <span className="text-[10px] text-white/40 font-black tracking-widest leading-none">Vía {tipMethod}</span>}
                             </div>
                             <span>{currency}{currentTip.toFixed(2)}</span>
                         </div>
@@ -873,7 +875,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                 if (mAmount === 0) return null;
                                 return (
                                     <div key={method} className="flex flex-col gap-0.5">
-                                        <div className="flex justify-between text-indigo-300 text-xs font-bold uppercase tracking-wider">
+                                        <div className="flex justify-between text-white text-xs font-bold uppercase tracking-wider">
                                             <span>{method}</span>
                                             <span>{currency}{mAmount.toFixed(2)}</span>
                                         </div>
@@ -908,7 +910,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         </div>
 
                         <div className="mt-4 flex flex-col gap-1.5">
-                            <div className="flex justify-between text-red-400 text-sm font-black uppercase leading-tight tracking-tighter">
+                            <div className="flex justify-between text-white text-sm font-black uppercase leading-tight tracking-tighter">
                                 <span>RESTANTE</span>
                                 <span>{currency}{Math.max(0, balance).toFixed(2)}</span>
                             </div>
@@ -924,7 +926,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     {!existingInvoice && totalPaid < total && (
                         <button
                             onClick={handleAnticipatedInvoice}
-                            className="w-full py-5 rounded-3xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-95 flex items-center justify-center gap-3 shadow-2xl group"
+                            className="w-full py-5 rounded-3xl bg-white/5 hover:bg-white/10 text-white border border-white/10 font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-95 flex items-center justify-center gap-3 shadow-2xl group"
                         >
                             <FileText size={22} className="group-hover:scale-110 transition-transform" /> Factura Anticipada
                         </button>
@@ -940,17 +942,17 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         <div className="flex-1 flex justify-center items-center gap-3 overflow-hidden">
                             <span className="text-white shrink-0">Orden: #{(order as any).order_number || '...'}</span>
                             <span className="text-gray-700 shrink-0">|</span>
-                            <span className="text-amber-400 font-black shrink-0 uppercase tracking-widest">
+                            <span className="text-white font-black shrink-0 uppercase tracking-widest">
                                 {!order.customer_name || order.customer_name.toUpperCase() === 'CUENTA PRINCIPAL' ? 'CUENTA 1' : order.customer_name}
                             </span>
                             <span className="text-gray-700 shrink-0">|</span>
-                            <span className="text-indigo-400 truncate">{table?.section || 'SALA'}</span>
+                            <span className="text-white truncate">{table?.section || 'SALA'}</span>
                             <span className="text-gray-700 shrink-0">|</span>
-                            <span className="shrink-0">Mesa: {table?.number || '?'}</span>
+                            <span className="text-white shrink-0">Mesa: {table?.number || '?'}</span>
                             <span className="text-gray-700 shrink-0 hidden sm:inline">|</span>
                             <span className="truncate hidden sm:inline text-gray-500">Atiende: {(order as any).profiles?.name || currentUser?.name || 'Mesero'}</span>
                             <span className="text-gray-700 shrink-0 hidden sm:inline">|</span>
-                            <span className="text-amber-400 font-black shrink-0 uppercase tracking-widest hidden sm:inline">
+                            <span className="text-white font-black shrink-0 uppercase tracking-widest hidden sm:inline">
                                 {order.items?.length || 0} PLATILLOS
                             </span>
                         </div>
@@ -961,7 +963,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         {order.items?.map((item, idx) => (
                             <div key={idx} className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-indigo-600/20 flex items-center justify-center text-indigo-400 font-black">
+                                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white font-black">
                                         {item.quantity}
                                     </div>
                                     <div className="flex flex-col">
@@ -979,11 +981,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 <div className="w-[380px] flex flex-col gap-3 shrink-0">
                     <div className="bg-[#1e212b] rounded-3xl p-4 border border-white/5 shadow-2xl flex flex-col gap-4">
                         {/* AMOUNT DISPLAY */}
-                        <div className={`bg-black/40 rounded-2xl h-16 flex items-center justify-end px-6 text-3xl font-black tabular-nums tracking-tighter border transition-all duration-300 shadow-inner relative overflow-hidden ${isAmountSelected ? 'text-white border-indigo-500 shadow-[inset_0_0_20px_rgba(99,102,241,0.2)]' : 'text-indigo-400 border-white/10'}`}>
+                        <div className={`bg-black/40 rounded-2xl h-16 flex items-center justify-end px-6 text-3xl font-black tabular-nums tracking-tighter border transition-all duration-300 shadow-inner relative overflow-hidden ${isAmountSelected ? 'text-white border-white/30 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)]' : 'text-white/30 border-white/10'}`}>
                             {isAmountSelected && (
-                                <div className="absolute inset-x-0 bottom-0 top-0 bg-indigo-500/20 animate-pulse pointer-events-none" />
+                                <div className="absolute inset-x-0 bottom-0 top-0 bg-white/5 animate-pulse pointer-events-none" />
                             )}
-                            <span className={`mr-2 text-xl ${isAmountSelected ? 'text-white/50' : 'text-indigo-400/30'}`}>{currency}</span>
+                            <span className={`mr-2 text-xl ${isAmountSelected ? 'text-white/50' : 'text-white/20'}`}>{currency}</span>
                             {amount}
                         </div>
 
@@ -997,7 +999,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                         <button
                                             key={n.toString()}
                                             onClick={() => handleNumberClick(n.toString())}
-                                            className={`w-14 h-14 rounded-2xl bg-[#262b36] border border-white/5 flex items-center justify-center text-xl font-black transition-all active:scale-95 hover:bg-[#2d3340] hover:border-indigo-500/30 ${n === 0 ? 'col-span-2 w-auto' : ''}`}
+                                            className={`w-14 h-14 rounded-2xl bg-[#262b36] border border-white/5 flex items-center justify-center text-xl font-black transition-all active:scale-95 hover:bg-[#2d3340] hover:border-white/20 ${n === 0 ? 'col-span-2 w-auto' : ''}`}
                                         >
                                             {n}
                                         </button>
@@ -1006,20 +1008,20 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
 
                                 {/* CONTROLS */}
                                 <div className="flex flex-col gap-2 w-14">
-                                    <button onClick={handleBackspace} className="w-14 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-red-400/80 transition-all active:scale-95 hover:bg-red-500/10"><Delete size={20} /></button>
-                                    <button onClick={handleReset} className="w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400/80 transition-all active:scale-95 hover:bg-orange-500/20" title="Resetear Pagos"><RotateCcw size={18} /></button>
-                                    <button onClick={handleAddPayment} className="w-14 flex-1 rounded-2xl bg-indigo-500/20 border border-indigo-500/50 flex items-center justify-center text-indigo-400 transition-all active:scale-95 hover:bg-indigo-500/30"><Check size={24} /></button>
+                                    <button onClick={handleBackspace} className="w-14 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-white/80 transition-all active:scale-95 hover:bg-white/10"><Delete size={20} /></button>
+                                    <button onClick={handleReset} className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 transition-all active:scale-95 hover:bg-white/10" title="Resetear Pagos"><RotateCcw size={18} /></button>
+                                    <button onClick={handleAddPayment} className="w-14 flex-1 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/20"><Check size={24} /></button>
                                 </div>
                             </div>
 
                             {/* RIGHT COLUMN: PAYMENT METHODS (approx 30%) */}
                             <div className="flex-1 flex flex-col gap-2">
                                 {[
-                                    { id: 'EFECTIVO', icon: Banknote, label: 'Efectivo', color: 'indigo' },
-                                    { id: 'TARJETA', icon: CreditCard, label: 'Tarjeta', color: 'indigo' },
-                                    { id: 'AL CRÉDITO', icon: Wallet, label: 'Crédito', color: 'indigo' },
-                                    { id: 'OTROS', icon: Landmark, label: 'Otros', color: 'indigo' },
-                                    { id: 'PROPINA', icon: Percent, label: 'Propina', color: 'emerald' },
+                                    { id: 'EFECTIVO', icon: Banknote, label: 'Efectivo' },
+                                    { id: 'TARJETA', icon: CreditCard, label: 'Tarjeta' },
+                                    { id: 'AL CRÉDITO', icon: Wallet, label: 'Crédito' },
+                                    { id: 'OTROS', icon: Landmark, label: 'Otros' },
+                                    { id: 'PROPINA', icon: Percent, label: 'Propina' },
                                 ].map(m => (
                                     <button
                                         key={m.id}
@@ -1046,12 +1048,12 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                             }
                                         }}
                                         className={`flex-1 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all border font-black uppercase tracking-[0.1em] transition-all duration-200 ${selectedMethod === m.id
-                                            ? 'bg-indigo-600 border-indigo-400 text-white shadow-[0_0_20px_rgba(99,102,241,0.3)]'
+                                            ? 'bg-white text-black border-white'
                                             : 'bg-[#262b36] border-white/5 text-gray-400 hover:border-white/20 hover:bg-[#2d3340]'
-                                            } ${m.id === 'PROPINA' ? 'text-emerald-400 border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10' : ''}`}
+                                            }`}
                                         style={{ fontSize: '9px' }}
                                     >
-                                        <m.icon size={18} className={m.id === 'PROPINA' ? 'text-emerald-400' : 'opacity-80'} />
+                                        <m.icon size={18} className="opacity-80" />
                                         <span className="leading-none text-center">{m.label}</span>
                                     </button>
                                 ))}
@@ -1063,7 +1065,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         <button
                             onClick={handleFinalize}
                             disabled={totalPaid < total}
-                            className={`h-16 rounded-2xl flex items-center justify-center text-lg font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 ${totalPaid >= total ? 'bg-[#5c6bff] text-white shadow-indigo-600/20' : 'bg-white/5 text-gray-600 cursor-not-allowed border border-white/5'}`}
+                            className={`h-16 rounded-2xl flex items-center justify-center text-lg font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 ${totalPaid >= total ? 'bg-white text-black shadow-white/10' : 'bg-white/5 text-white/30 cursor-not-allowed border border-white/5'}`}
                         >
                             {existingInvoice && totalPaid >= total ? 'FINALIZAR' : 'PAGAR'}
                         </button>
@@ -1077,7 +1079,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     <div className="bg-[#14171c] w-full max-w-4xl rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col">
                         <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                             <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400">Selección de Procesador</span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">Selección de Procesador</span>
                                 <h3 className="text-xl font-black text-white uppercase tracking-tighter">SELECCIONE POS</h3>
                             </div>
                             <button onClick={() => { setShowPosSelector(false); setSelectedTerminal(null); }} className="p-3 bg-white/5 rounded-full text-white transition-all">
@@ -1091,7 +1093,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                     <button
                                         key={pos.id}
                                         onClick={() => setSelectedTerminal(pos)}
-                                        className={`group relative aspect-[1.4/1] bg-white rounded-3xl flex flex-col items-center justify-center p-6 transition-all active:scale-95 border-4 ${selectedTerminal?.id === pos.id ? 'border-indigo-500 ring-8 ring-indigo-500/20 shadow-[0_0_40px_rgba(99,102,241,0.3)]' : 'border-transparent shadow-xl'}`}
+                                        className={`group relative aspect-[1.4/1] bg-white rounded-3xl flex flex-col items-center justify-center p-6 transition-all active:scale-95 border-4 ${selectedTerminal?.id === pos.id ? 'border-black ring-8 ring-white/10 shadow-2xl' : 'border-transparent shadow-xl'}`}
                                     >
                                         <div className="flex-1 w-full flex items-center justify-center p-2">
                                             {pos.logo_url ? (
@@ -1102,7 +1104,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                                 </div>
                                             )}
                                         </div>
-                                        <div className={`w-full h-10 flex items-center justify-center text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-xl mt-2 ${selectedTerminal?.id === pos.id ? 'bg-indigo-500 text-white' : 'bg-black/5 text-gray-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-400'}`}>
+                                        <div className={`w-full h-10 flex items-center justify-center text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-xl mt-2 ${selectedTerminal?.id === pos.id ? 'bg-black text-white' : 'bg-black/5 text-gray-400 group-hover:bg-black/10 group-hover:text-black'}`}>
                                             {pos.name}
                                         </div>
                                     </button>
@@ -1120,7 +1122,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                             <button
                                 onClick={() => selectedTerminal && handlePosSelect(selectedTerminal.name)}
                                 disabled={!selectedTerminal}
-                                className={`flex-1 h-16 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all flex items-center justify-center gap-3 active:scale-95 ${selectedTerminal ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-xl shadow-indigo-600/20' : 'bg-gray-800 text-gray-600 cursor-not-allowed opacity-50'}`}
+                                className={`flex-1 h-16 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all flex items-center justify-center gap-3 active:scale-95 ${selectedTerminal ? 'bg-white text-black hover:bg-white/90 shadow-xl' : 'bg-white/5 text-white/20 cursor-not-allowed opacity-50'}`}
                             >
                                 ACEPTAR
                             </button>
@@ -1181,8 +1183,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
             {processing && (
                 <div className="fixed inset-0 bg-[#0f1115]/80 backdrop-blur-sm z-[100] flex items-center justify-center">
                     <div className="flex flex-col items-center gap-4">
-                        <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                        <span className="font-black uppercase tracking-widest text-indigo-400">Procesando...</span>
+                        <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+                        <span className="font-black uppercase tracking-widest text-white/40">Procesando...</span>
                     </div>
                 </div>
             )}

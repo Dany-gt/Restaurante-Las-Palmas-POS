@@ -33,22 +33,33 @@ export const useOfflineSync = () => {
     const ensureSessionValid = async (): Promise<boolean> => {
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            
+
+            // Sin sesión o expirada: intentar refresh forzado antes de rendirse
             if (!session) {
-                if (!authError) setAuthError(true);
-                return false;
+                console.log('📡 useOfflineSync: Sin sesión activa. Intentando refresh forzado...');
+                const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+                if (refreshError || !refreshData.session) {
+                    if (!authError) setAuthError(true);
+                    return false;
+                }
+                if (authError) setAuthError(false);
+                return true;
             }
 
             // PATRÓN PROACTIVO: Refrescar si faltan menos de 5 minutos (300s)
             const expiresAt = session.expires_at || 0;
             const now = Math.floor(Date.now() / 1000);
-            
+
             if (expiresAt - now < 300) {
                 console.log('📡 useOfflineSync: Sesión próxima a expirar. Refrescando...');
                 const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
                 if (refreshError || !refreshData.session) {
-                    setAuthError(true);
-                    return false;
+                    // Último intento: verificar si la sesión original aún funciona
+                    const { error: pingError } = await supabase.from('system_settings').select('id').limit(1);
+                    if (pingError) {
+                        setAuthError(true);
+                        return false;
+                    }
                 }
             }
 
@@ -65,10 +76,40 @@ export const useOfflineSync = () => {
      * Ejecuta el envío de registros locales al servidor de forma secuencial y segura.
      */
     const syncRecords = useCallback(async () => {
-        if (!navigator.onLine || isSyncing) return;
+        if (isSyncing) return;
+        // Verificación real de conectividad (usando tabla existente, sin RPC personalizado)
+        try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 4000);
+            const { error: pingErr } = await supabase
+                .from('system_settings')
+                .select('id')
+                .limit(1)
+                .abortSignal(controller.signal);
+            clearTimeout(timeout);
+            if (pingErr) return; // Sin servidor accesible, cancelar silenciosamente
+        } catch {
+            return;
+        }
 
         const pending = await offlineDB.getPendingRecords();
         if (pending.length === 0) {
+            updatePendingCount();
+            return;
+        }
+
+        // FIX C4: Dead Letter Queue — separar registros corruptos (demasiados reintentos)
+        const MAX_RETRIES = 5;
+        const activePending = pending.filter(r => r.retryCount < MAX_RETRIES);
+        const deadLetters = pending.filter(r => r.retryCount >= MAX_RETRIES);
+
+        if (deadLetters.length > 0) {
+            console.warn(`☠️ Dead Letters: ${deadLetters.length} registro(s) excedieron ${MAX_RETRIES} reintentos y serán ignorados.`,
+                deadLetters.map(d => ({ id: d.id.slice(0, 8), type: d.type })));
+            window.dispatchEvent(new CustomEvent('offline-dead-letters', { detail: deadLetters.length }));
+        }
+
+        if (activePending.length === 0) {
             updatePendingCount();
             return;
         }
@@ -82,7 +123,7 @@ export const useOfflineSync = () => {
                 return;
             }
 
-            for (const record of pending) {
+            for (const record of activePending) {
                 try {
                     const success = await processRecord(record);
                     if (success) {
@@ -186,10 +227,10 @@ export const useOfflineSync = () => {
         window.addEventListener('offline-sync-trigger', syncRecords);
         window.addEventListener('manual-offline-sync' as any, handleForceSync);
 
-        // Intervalo moderado: Cada 60 segundos
+        // FIX C2: Intervalo sin navigator.onLine — syncRecords ya hace su propio ping real
+        // Cada 60s intenta sync; si no hay internet, la función retorna sola en <4s
         const interval = setInterval(() => {
-            if (navigator.onLine) syncRecords();
-            else updatePendingCount();
+            syncRecords();
         }, 60000);
 
         return () => {

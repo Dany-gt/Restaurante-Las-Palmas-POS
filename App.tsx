@@ -142,12 +142,22 @@ const App: React.FC = () => {
   };
 
   // Initialize Offline Sync
-  useOfflineSync();
+  const { syncRecords } = useOfflineSync();
 
   // Initialize Master Data Sync
   const { syncData, syncType, isSyncing } = useDataSync();
 
   const { isOnline, isServerConnected } = useNetworkStatus();
+
+  // Auto-sync when connectivity is restored
+  useEffect(() => {
+    if (isOnline) {
+      console.log('🌐 Conexión restaurada - Sincronizando registros pendientes...');
+      // Small delay to let the connection stabilize
+      const t = setTimeout(() => syncRecords(), 1500);
+      return () => clearTimeout(t);
+    }
+  }, [isOnline]);
 
   // Connection Banner Component
   const ConnectionBanner = () => {
@@ -555,7 +565,7 @@ const App: React.FC = () => {
     fetchSettings();
   }, []);
 
-  const handleNavigate = (view: string) => {
+  const handleNavigate = (view: string, tab: string | null = null) => {
     // v1.6.5 - Direct TAKEOUT navigation with virtual order
     if (view === 'TAKEOUT') {
       setSelectedTable(null);
@@ -582,7 +592,8 @@ const App: React.FC = () => {
       if (view === 'ADMIN_AUTH_PANEL') {
         setCurrentView('ADMIN_AUTH_PANEL');
       } else {
-        setAdminTab(null);
+        if (tab) setAdminTab(tab);
+        else setAdminTab(null);
         setCurrentView('ADMIN_PORTAL');
       }
     } else {
@@ -1251,61 +1262,12 @@ const App: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <div
                     className={`relative w-4 h-4 rounded-full shadow-lg border-2 border-white/20 transition-all duration-500 ${isOnline ? 'bg-emerald-500 shadow-emerald-500/40' : 'bg-red-500 shadow-red-500/40 animate-pulse'}`}
-                    title={isOnline ? (offlinePendingCount > 0 ? `En Línea - Sincronizando ${offlinePendingCount} registros` : "En Línea") : "Sin Conexión al Servidor"}
+                    title={isOnline ? "En Línea" : "Sin Conexión al Servidor"}
                   >
                     {isOnline && (
                       <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-10"></div>
                     )}
-                    
-                    {offlinePendingCount > 0 && (
-                      <div className="absolute -top-2 -right-2 bg-indigo-600 text-[9px] font-black text-white w-4 h-4 rounded-full flex items-center justify-center border border-white/20 shadow-lg animate-bounce">
-                        {offlinePendingCount}
-                      </div>
-                    )}
                   </div>
-
-                  {offlinePendingCount > 0 && (
-                    <button 
-                      onClick={async (e) => {
-                          e.stopPropagation();
-                          
-                          if (isOnline) {
-                              notify.info('Intentando sincronizar registros locales...');
-                              // Trigger manual sync event
-                              window.dispatchEvent(new CustomEvent('manual-offline-sync'));
-                              // Also try to refresh master data which might help auth
-                              window.dispatchEvent(new CustomEvent('refresh-inventory'));
-                              return;
-                          }
-
-                          if (window.confirm('⚠️ ATENCIÓN: El sistema no logra sincronizar. Se cerrará la sesión y se limpiarán los errores locales. Esto SOLUCIONARÁ los avisos de "Sin Conexión". ¿Desea continuar?')) {
-                              try {
-                                  const { offlineDB } = await import('./services/OfflineDB');
-                                  await offlineDB.clearAll();
-                                  await supabase.auth.signOut();
-                                  
-                                  // Preserve registration
-                                  const actData = localStorage.getItem('activation_data');
-                                  const devFinger = localStorage.getItem('device_fingerprint');
-                                  localStorage.clear();
-                                  if (actData) localStorage.setItem('activation_data', actData);
-                                  if (devFinger) localStorage.setItem('device_fingerprint', devFinger);
-
-                                  window.location.reload();
-                              } catch (err) {
-                                  console.error('Reset Error:', err);
-                                  // v1.6.15 - Silent error only, no intrusive notifications
-                                  console.warn('🔒 SESIÓN EXPIRADA: Acceso offline habilitado.');
-                              }
-                          }
-                      }}
-                      className="p-1 px-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 rounded-lg flex items-center gap-1 transition-all border border-red-500/20 group"
-                      title={isOnline ? "Sincronizar Datos Pendientes" : "Reiniciar Sesión y Limpiar Errores"}
-                    >
-                        <Trash2 size={12} className="group-hover:scale-110 transition-transform" />
-                        <span className="text-[8px] font-black uppercase">{isOnline ? 'Enviar Ahora' : 'Reiniciar App'}</span>
-                    </button>
-                  )}
                 </div>
 
                 {/* Clock & Date Bar Right */}
@@ -1417,7 +1379,7 @@ const App: React.FC = () => {
               />
             )}
             {currentView === 'ADMIN_PORTAL' && <AdminPortal currentUser={currentUser} initialTab={adminTab} onExit={handleLogout} onNavigate={handleNavigate} />}
-            {currentView === 'ADMIN_AUTH_PANEL' && <AdminAuthPanel currentUser={currentUser} onExit={() => setCurrentView(currentUser?.role?.toUpperCase() === 'ADMIN' ? 'ADMIN_PORTAL' : 'DASHBOARD')} />}
+            {currentView === 'ADMIN_AUTH_PANEL' && <AdminAuthPanel currentUser={currentUser} onExit={() => setCurrentView(currentUser?.role?.toUpperCase() === 'ADMIN' ? 'ADMIN_PORTAL' : 'DASHBOARD')} onNavigate={handleNavigate} />}
             {currentView === 'PRODUCCION' && (
               <ModuloProduccion 
                 sucursalId={currentUser?.branch_id || ''} 

@@ -35,7 +35,7 @@ export const TipMethodModal: React.FC<TipMethodModalProps> = ({
             <div className="bg-[#1e212b] w-full max-w-md rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col">
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                        <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white">
                             <Percent size={18} />
                         </div>
                         <h3 className="text-sm font-black uppercase tracking-[0.3em] text-white">MÉTODO DE PROPINA</h3>
@@ -50,17 +50,17 @@ export const TipMethodModal: React.FC<TipMethodModalProps> = ({
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Monto de Propina</span>
                         <div className="relative group">
                             <div className="flex items-center justify-center gap-2">
-                                <span className="text-2xl font-black text-indigo-400/50">{currency}</span>
+                                <span className="text-2xl font-black text-white/20">{currency}</span>
                                 <input
                                     type="number"
                                     step="0.01"
                                     value={localAmount}
                                     onChange={(e) => setLocalAmount(e.target.value)}
-                                    className={`bg-transparent text-5xl font-black tabular-nums tracking-tighter border-none outline-none w-48 text-center focus:ring-0 ${isLocked ? 'text-indigo-400/80 cursor-pointer' : 'text-indigo-400'}`}
+                                    className={`bg-transparent text-5xl font-black tabular-nums tracking-tighter border-none outline-none w-48 text-center focus:ring-0 ${isLocked ? 'text-white/80 cursor-pointer' : 'text-white'}`}
                                     autoFocus
                                 />
                             </div>
-                            <div className={`mt-2 flex items-center justify-center gap-1.5 text-[9px] font-black uppercase tracking-widest transition-colors ${isLocked ? 'text-amber-500/60' : 'text-indigo-400/40 group-hover:text-indigo-400/60'}`}>
+                            <div className={`mt-2 flex items-center justify-center gap-1.5 text-[9px] font-black uppercase tracking-widest transition-colors ${isLocked ? 'text-white/40' : 'text-white/20 group-hover:text-white/40'}`}>
                                 {isLocked ? <Edit3 size={10} /> : <Edit3 size={10} />}
                                 <span>{isLocked ? 'Editar (Requiere PIN)' : 'Editar Monto'}</span>
                             </div>
@@ -70,9 +70,9 @@ export const TipMethodModal: React.FC<TipMethodModalProps> = ({
                     <div className="grid grid-cols-3 gap-3 w-full">
                         <button
                             onClick={() => onConfirm('EFECTIVO', currentVal)}
-                            className="flex flex-col items-center justify-center gap-3 p-6 rounded-3xl bg-white/5 border border-white/5 hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all group"
+                            className="flex flex-col items-center justify-center gap-3 p-6 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/20 transition-all group"
                         >
-                            <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-emerald-400 group-hover:bg-emerald-400/20 transition-all">
+                            <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-white group-hover:bg-white/10 transition-all">
                                 <Banknote size={28} />
                             </div>
                             <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:text-white">Efectivo</span>
@@ -101,7 +101,7 @@ export const TipMethodModal: React.FC<TipMethodModalProps> = ({
 
                     <button
                         onClick={() => onConfirm('EFECTIVO', 0)}
-                        className={`w-full py-4 mt-6 rounded-2xl border border-dashed transition-all font-black text-[10px] uppercase tracking-[0.2em] ${isLocked ? 'border-amber-500/20 text-amber-500/60 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/5' : 'border-white/10 text-gray-500 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/5'}`}
+                        className={`w-full py-4 mt-6 rounded-2xl border border-dashed transition-all font-black text-[10px] uppercase tracking-[0.2em] ${isLocked ? 'border-white/20 text-white/60 hover:text-white hover:border-white/30 hover:bg-white/5' : 'border-white/10 text-gray-500 hover:text-white hover:border-white/30 hover:bg-white/5'}`}
                     >
                         {isLocked ? 'QUITAR PROPINA (PIDE PIN)' : 'QUITAR / SIN PROPINA'}
                     </button>

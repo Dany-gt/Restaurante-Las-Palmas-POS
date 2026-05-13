@@ -16,6 +16,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
   const [loading, setLoading] = useState(false);
   const [occupancyTimes, setOccupancyTimes] = useState<Record<string, string>>({});
   const [activeOrders, setActiveOrders] = useState<Record<string, any>>({});
+  const [offlineOccupied, setOfflineOccupied] = useState<Record<string, any>>({});
   const [now, setNow] = useState(Date.now());
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
@@ -146,6 +147,38 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
         setOccupancyTimes(map);
         setActiveOrders(ordersMap);
 
+        // v1.7.0 - Leer mesas ocupadas localmente (guardadas offline)
+        // FIX A3: TTL de 24h para evitar mesas fantasma permanentes
+        try {
+          const offlineTablesStr = localStorage.getItem('offline_occupied_tables');
+          if (offlineTablesStr) {
+            const offlineTables: Record<string, any> = JSON.parse(offlineTablesStr);
+            const MAX_OFFLINE_AGE_MS = 24 * 60 * 60 * 1000; // 24 horas
+            const now24 = Date.now();
+            const cleaned: Record<string, any> = {};
+
+            for (const tableId in offlineTables) {
+              const entry = offlineTables[tableId];
+              const age = now24 - new Date(entry.created_at || 0).getTime();
+              // Conservar solo si: no se sincronizó AÚN y tiene menos de 24h
+              if (!ordersMap[tableId] && age < MAX_OFFLINE_AGE_MS) {
+                cleaned[tableId] = entry;
+              }
+            }
+
+            const removedCount = Object.keys(offlineTables).length - Object.keys(cleaned).length;
+            if (removedCount > 0) {
+              console.log(`🧹 TableGrid: Limpiadas ${removedCount} mesa(s) offline (sincronizadas o expiradas)`);
+              localStorage.setItem('offline_occupied_tables', JSON.stringify(cleaned));
+            }
+            setOfflineOccupied(cleaned);
+          } else {
+            setOfflineOccupied({});
+          }
+        } catch (e) {
+          setOfflineOccupied({});
+        }
+
       } catch (err) {
         console.error('FetchData Error:', err);
       }
@@ -154,13 +187,22 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
 
     fetchData();
 
+    // FIX C3: Debounce 1.5s para agrupar cambios simultáneos (ej: orden + items = 2 eventos)
+    // Sin debounce, una sola orden disparaba 3+ fetchData() en cascada
+    let debounceTimer: ReturnType<typeof setTimeout>;
+    const debouncedFetch = () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(fetchData, 1500);
+    };
+
     const channel = supabase.channel('table-grid-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'tables' }, fetchData)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, fetchData)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'order_items' }, fetchData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tables' }, debouncedFetch)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, debouncedFetch)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'order_items' }, debouncedFetch)
       .subscribe();
 
     return () => {
+      clearTimeout(debounceTimer);
       supabase.removeChannel(channel);
     };
   }, []);
@@ -225,7 +267,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
     }
 
     // 2. Determine flow based on status
-    const isOccupied = t.status === 'occupied' || !!activeOrders[t.id];
+    const isOccupied = t.status === 'occupied' || !!activeOrders[t.id] || !!offlineOccupied[t.id];
 
     if (isOccupied) {
       onSelectTable(t, 1);
@@ -255,7 +297,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
             <button
               key={s}
               onClick={() => setActiveSection(s)}
-              className={`px-10 py-5 lg:px-8 lg:py-4 rounded-2xl font-black text-sm lg:text-xs tracking-[0.2em] uppercase transition-all border area-button ${activeSection === s ? 'bg-indigo-600 border-indigo-500 shadow-xl shadow-indigo-500/20' : 'bg-[#3a3b4d] border-white/5 text-gray-400'
+              className={`px-10 py-5 lg:px-8 lg:py-4 rounded-2xl font-black text-sm lg:text-xs tracking-[0.2em] uppercase transition-all border area-button ${activeSection === s ? 'bg-white text-black border-white shadow-xl' : 'bg-[#3a3b4d] border-white/5 text-gray-400'
                 }`}
             >
               {s}
@@ -268,7 +310,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
         {tables.length === 0 ? (
           loading ? (
             <div className="flex-1 flex items-center justify-center">
-              <Loader2 className="animate-spin text-indigo-500" size={48} />
+              <Loader2 className="animate-spin text-white/20" size={48} />
             </div>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
@@ -289,8 +331,9 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-6 mesas-grid">
             {filtered.map(t => {
               const access = checkAccess(t);
-              // Calculate effective status based on live orders too
-              const isOccupied = t.status === 'occupied' || !!activeOrders[t.id];
+              // Calculate effective status based on live orders AND offline-saved orders
+              const isOccupied = t.status === 'occupied' || !!activeOrders[t.id] || !!offlineOccupied[t.id];
+              const isOfflineOnly = !activeOrders[t.id] && !!offlineOccupied[t.id]; // Offline but not yet synced
 
               return (
                 <button
@@ -304,12 +347,26 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
                     </div>
                   )}
+                  {/* Badge: Pendiente de sincronizar (Offline) */}
+                  {isOfflineOnly && (
+                    <div className="absolute top-4 left-4 flex items-center gap-1 bg-amber-500/20 border border-amber-500/40 rounded-full px-2 py-0.5" title="Orden guardada sin internet - pendiente de sincronizar">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                      <span className="text-[8px] font-black text-amber-400 uppercase tracking-widest">Local</span>
+                    </div>
+                  )}
                   <span className="text-6xl lg:text-5xl font-black text-white mb-1 tracking-tighter">{t.number}</span>
                   <span className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">
                     {isOccupied ? 'Ocupada' : t.locked_by ? 'Reservada' : 'Disponible'}
                   </span>
-                  <div className={`w-2.5 h-2.5 rounded-full ${isOccupied ? 'bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]' : t.locked_by ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]'
-                    }`} />
+                  <div className={`w-2.5 h-2.5 rounded-full ${
+                    isOfflineOnly
+                      ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse'
+                      : isOccupied
+                        ? 'bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]'
+                        : t.locked_by
+                          ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse'
+                          : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]'
+                  }`} />
                 </button>
               )
             })}
@@ -321,7 +378,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
       {showCounter && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-6 animate-fade-in backdrop-blur-sm">
           <div className="w-full max-w-[320px] bg-[#2d2e3d] rounded-2xl p-6 border border-white/5 shadow-2xl relative z-[101]">
-            <h3 className="text-center text-[10px] font-black text-indigo-400 tracking-[0.4em] uppercase mb-2">Mesa {showCounter.number}</h3>
+            <h3 className="text-center text-[10px] font-black text-white/40 tracking-[0.4em] uppercase mb-2">Mesa {showCounter.number}</h3>
             <h4 className="text-center text-lg font-black mb-8 tracking-tight text-white">CANTIDAD PERSONAS</h4>
 
             <div className="flex items-center justify-center gap-6 mb-8">
@@ -332,7 +389,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
 
             <div className="flex gap-4">
               <button onClick={() => setShowCounter(null)} className="flex-1 py-4 bg-[#3a3b4d] border border-white/5 rounded-xl font-black uppercase tracking-widest text-[10px] text-white transition-all">Cancelar</button>
-              <button onClick={() => { onSelectTable(showCounter, pax); setShowCounter(null); }} className="flex-[1.5] py-3 bg-indigo-600 rounded-xl font-black uppercase tracking-widest text-[10px] text-white shadow-lg shadow-indigo-500/20 active:scale-95 transition-all">Confirmar</button>
+              <button onClick={() => { onSelectTable(showCounter, pax); setShowCounter(null); }} className="flex-[1.5] py-3 bg-white text-black rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg active:scale-95 transition-all">Confirmar</button>
             </div>
           </div>
         </div>

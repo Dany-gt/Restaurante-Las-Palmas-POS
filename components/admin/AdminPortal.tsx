@@ -81,6 +81,7 @@ import { WindowsModalProvider } from './WindowsModalContext';
 import { WindowsTaskbar } from './WindowsTaskbar';
 import { DraggableWindow } from './DraggableWindow';
 import { InventariosLayout } from './inventarios/InventariosLayout';
+import { AdminNotifications } from './AdminNotifications';
 export { DraggableWindow };
 
 import { User } from '../../types';
@@ -615,6 +616,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                     {group.label}
                                 </button>
                             ))}
+
+                            <div className="flex-1" />
                         </div>
 
                         <div className="bg-[#f3f4f6] p-1 pr-4 flex items-center gap-0.5 min-h-[92px] overflow-x-auto scrollbar-hide border-b border-gray-300 shadow-sm relative z-10">

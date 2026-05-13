@@ -204,7 +204,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
 
                     {error && (
                         <div className="absolute top-0 translate-y-16 w-full flex justify-center z-50">
-                            <span className="text-[9px] font-black text-white bg-indigo-600 px-3 py-1.5 rounded-md shadow-lg">
+                            <span className="text-[9px] font-black text-white bg-black/80 px-3 py-1.5 rounded-md shadow-lg border border-white/10">
                                 {error}
                             </span>
                         </div>
@@ -217,7 +217,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                                 className={`
                                     w-3 h-3 border border-gray-700 transition-all duration-200
                                     ${pin.length > i
-                                        ? 'bg-indigo-500 border-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.4)]'
+                                        ? 'bg-gray-400 border-gray-400 shadow-[0_0_8px_rgba(255,255,255,0.2)]'
                                         : 'bg-black/40'
                                     }
                                 `}
@@ -228,7 +228,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
 
                 {remoteStatus === 'waiting' ? (
                     <div className="flex flex-col items-center justify-center py-6 relative z-10 animate-in fade-in zoom-in duration-300">
-                        <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
+                        <Loader2 className="w-12 h-12 text-white animate-spin mb-4" />
                         <h4 className="text-white font-bold text-center">Esperando Aprobación</h4>
                         <p className="text-gray-400 text-xs text-center mt-2 px-4">
                             Se ha enviado una notificación al administrador. La pantalla se desbloqueará sola.
@@ -242,12 +242,12 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                     </div>
                 ) : remoteStatus === 'approved' ? (
                     <div className="flex flex-col items-center justify-center py-8 relative z-10 animate-in fade-in zoom-in duration-300">
-                        <CheckCircle2 className="w-16 h-16 text-emerald-500 mb-4" />
+                        <CheckCircle2 className="w-16 h-16 text-white mb-4" />
                         <h4 className="text-white font-bold text-center text-lg">¡APROBADO!</h4>
                     </div>
                 ) : remoteStatus === 'rejected' ? (
                     <div className="flex flex-col items-center justify-center py-8 relative z-10 animate-in fade-in zoom-in duration-300">
-                        <XCircle className="w-16 h-16 text-red-500 mb-4" />
+                        <XCircle className="w-16 h-16 text-white/40 mb-4" />
                         <h4 className="text-white font-bold text-center text-lg">RECHAZADO</h4>
                     </div>
                 ) : (
@@ -301,11 +301,11 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                         className="
                             group relative w-16 h-14 rounded-md text-sm font-black text-white 
                             transition-all duration-100 active:scale-95 flex items-center justify-center 
-                            bg-indigo-600 hover:bg-indigo-500 border border-indigo-400/20 
+                            bg-white hover:bg-white/90 border border-white 
                             shadow-lg disabled:opacity-50 disabled:pointer-events-none
                         "
                     >
-                        {loading ? <Loader2 className="animate-spin" size={20} /> : 'OK'}
+                        {loading ? <Loader2 className="animate-spin text-black" size={20} /> : <span className="text-black">OK</span>}
                     </button>
                 </div>
 

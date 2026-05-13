@@ -740,7 +740,13 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         // If Tablet/Mobile -> Request Print via DB
         const isElectron = !!((window as any).electronAPI || (window as any).electron);
         if (isElectron) {
+            try {
             await printService.printPreAccountTicket(ticketData);
+            notify.success('Pre-cuenta enviada a impresión');
+        } catch (err: any) {
+            console.error('Error printing pre-account:', err);
+            notify.error('Error al imprimir pre-cuenta: ' + (err.message || 'Fallo de driver'));
+        }
         } else {
             // Request Remote Print
             if (ticketData.orderId && ticketData.orderId !== 'NEW') {

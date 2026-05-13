@@ -134,13 +134,14 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
         setIsVerified(true);
         setError('');
         
-        // Process immediately
-        setLoading(true);
+        // Proceso ultra-rápido: no esperamos al guardado si falla, lo prioritario es facturar
         try {
-            await billingService.saveCustomer(data);
+            setLoading(true);
+            billingService.saveCustomer(data).catch(e => console.warn('Silent fail saving customer:', e));
             onSubmit(data, 'EFECTIVO');
         } catch (err) {
-            setError('ERROR AL PROCESAR');
+            setError('ERROR CRÍTICO');
+            console.error('Contingency error:', err);
         } finally {
             setLoading(false);
         }
@@ -264,15 +265,15 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
         return (
             <div className="fixed inset-0 z-[120] flex items-center justify-center bg-[#0a0c10]/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
                 <div className="w-full max-w-md bg-[#1e232f] rounded-[2rem] border border-white/10 shadow-2xl flex flex-col items-center p-10 text-center animate-in zoom-in duration-300">
-                    <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 text-emerald-400">
+                    <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mb-6 text-white">
                         <Check size={48} />
                     </div>
                     <h2 className="text-3xl font-black uppercase tracking-tighter text-white mb-2">Factura Generada</h2>
-                    <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mb-8">El proceso se completó correctamente</p>
+                    <p className="text-white/40 font-bold uppercase tracking-widest text-[10px] mb-8">El proceso se completó correctamente</p>
 
                     <button
                         onClick={handleWhatsApp}
-                        className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-emerald-600/20 transition-all flex items-center justify-center gap-3 mb-4 active:scale-95 hover:bg-emerald-500"
+                        className="w-full py-5 bg-white/10 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl transition-all flex items-center justify-center gap-3 mb-4 active:scale-95 hover:bg-white/20"
                     >
                         <Smartphone size={20} /> Enviar WhatsApp
                     </button>
@@ -290,11 +291,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="w-full max-w-4xl bg-[#1e2330] rounded-lg shadow-2xl border border-gray-800/50 flex flex-col overflow-hidden relative">
+            <div className="w-full max-w-4xl bg-[#1e2330] rounded-[2.5rem] shadow-2xl border border-white/10 flex flex-col overflow-hidden relative">
 
                 {/* Header */}
-                <div className="bg-[#1e2330] border-b border-gray-800 p-4 flex justify-center items-center">
-                    <h2 className="text-lg font-bold text-white uppercase tracking-wide">DATOS FACTURACIÓN</h2>
+                <div className="bg-white/5 border-b border-white/5 p-6 flex justify-center items-center">
+                    <h2 className="text-sm font-black text-white uppercase tracking-[0.3em]">DATOS FACTURACIÓN</h2>
                 </div>
 
                 <div className="flex flex-col md:flex-row p-6 gap-6 bg-[#1f2333]">
@@ -303,7 +304,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                     <div className="flex-1 flex flex-col gap-4">
 
                         {/* NIT & Search */}
-                        <div className={`flex items-center bg-[#181b25] border rounded-md h-12 transition-all overflow-hidden ${activeInput === 'nit' ? 'border-indigo-500 ring-1 ring-indigo-500/50' : 'border-gray-700'}`}>
+                        <div className={`flex items-center bg-black/20 border rounded-xl h-12 transition-all overflow-hidden ${activeInput === 'nit' ? 'border-white/40 ring-1 ring-white/10' : 'border-white/5'}`}>
                             <div className="w-10 h-full flex items-center justify-center text-gray-400 border-r border-gray-700/50">
                                 <Grid size={18} />
                             </div>
@@ -319,7 +320,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 data-no-keyboard
                             />
                             {loading ? (
-                                <div className="px-3"><Loader2 className="animate-spin text-indigo-500" size={18} /></div>
+                                <div className="px-3"><Loader2 className="animate-spin text-white" size={18} /></div>
                             ) : (
                                 <button
                                     onClick={() => handleNitLookup()}
@@ -331,7 +332,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                         </div>
 
                         {/* Name */}
-                        <div className={`flex items-center bg-[#181b25] border rounded-md h-12 transition-all overflow-hidden ${activeInput === 'name' ? 'border-indigo-500 ring-1 ring-indigo-500/50' : 'border-gray-700'}`}>
+                        <div className={`flex items-center bg-black/20 border rounded-xl h-12 transition-all overflow-hidden ${activeInput === 'name' ? 'border-white/40 ring-1 ring-white/10' : 'border-white/5'}`}>
                             <div className="w-10 h-full flex items-center justify-center text-gray-400 border-r border-gray-700/50">
                                 <User size={18} />
                             </div>
@@ -347,7 +348,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                         </div>
 
                         {/* Address */}
-                        <div className={`flex items-center bg-[#181b25] border rounded-md h-12 transition-all overflow-hidden ${activeInput === 'address' ? 'border-indigo-500 ring-1 ring-indigo-500/50' : 'border-gray-700'}`}>
+                        <div className={`flex items-center bg-black/20 border rounded-xl h-12 transition-all overflow-hidden ${activeInput === 'address' ? 'border-white/40 ring-1 ring-white/10' : 'border-white/5'}`}>
                             <div className="w-10 h-full flex items-center justify-center text-gray-400 border-r border-gray-700/50">
                                 <MapPin size={18} />
                             </div>
@@ -363,7 +364,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                         </div>
 
                         {/* Phone */}
-                        <div className={`flex items-center bg-[#181b25] border rounded-md h-12 transition-all overflow-hidden ${activeInput === 'phone' ? 'border-indigo-500 ring-1 ring-indigo-500/50' : 'border-gray-700'}`}>
+                        <div className={`flex items-center bg-black/20 border rounded-xl h-12 transition-all overflow-hidden ${activeInput === 'phone' ? 'border-white/40 ring-1 ring-white/10' : 'border-white/5'}`}>
                             <div className="w-10 h-full flex items-center justify-center text-gray-400 border-r border-gray-700/50">
                                 <Smartphone size={18} />
                             </div>
@@ -402,13 +403,13 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                     <div className="w-full md:w-[320px] bg-[#1a1e29] p-4 rounded-lg border border-gray-800 flex flex-col shadow-inner">
 
                         {/* Display - Small - STRICTLY NIT */}
-                        <div className="bg-[#151820] rounded border border-gray-800 text-right h-16 flex flex-col justify-center px-4 mb-4 relative overflow-hidden">
-                            <span className="text-[10px] font-bold text-indigo-500/70 uppercase tracking-wider mb-0.5">
+                        <div className="bg-black/40 rounded-2xl border border-white/5 text-right h-16 flex flex-col justify-center px-4 mb-4 relative overflow-hidden">
+                            <span className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-0.5">
                                 INGRESANDO NIT...
                             </span>
                             <div className="flex justify-end items-center overflow-hidden">
                                 <span className="text-2xl font-bold text-white truncate tracking-wide">
-                                    {customer.nit || ''}<span className="animate-pulse text-indigo-500 font-light">|</span>
+                                    {customer.nit || ''}<span className="animate-pulse text-white/40 font-light">|</span>
                                 </span>
                             </div>
                         </div>
@@ -422,7 +423,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 </button>
                             ))}
                             {/* Delete Button - Row 1 & 2, Col 4 */}
-                            <button onClick={handleBackspace} className="row-span-2 h-full bg-[#232836] hover:bg-red-900/30 active:bg-red-900/50 rounded text-red-500 transition-all shadow-sm border border-gray-700/30 flex items-center justify-center">
+                            <button onClick={handleBackspace} className="row-span-2 h-full bg-white/5 hover:bg-white/10 active:scale-95 rounded-2xl text-white/50 transition-all shadow-sm border border-white/5 flex items-center justify-center">
                                 <Delete size={24} />
                             </button>
 
@@ -440,12 +441,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 </button>
                             ))}
 
-                            {/* Enter Button - Row 3 & 4, Col 4 */}
                             {/* Enter Button (NIT Lookup ONLY) - Row 3 & 4, Col 4 */}
                             <button
                                 onClick={handleNitLookup}
                                 disabled={!customer.nit || loading}
-                                className="row-span-2 h-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:bg-gray-800 disabled:text-gray-600 text-white rounded font-bold shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center active:scale-95"
+                                className="row-span-2 h-full bg-white text-black hover:bg-white/90 disabled:opacity-50 disabled:bg-white/10 disabled:text-white/20 rounded-2xl font-black shadow-lg transition-all flex items-center justify-center active:scale-95"
                                 title="Buscar NIT"
                             >
                                 {loading ? (
@@ -467,17 +467,17 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                 </div>
 
                 {/* Footer Actions */}
-                <div className="p-4 bg-[#1a1e29] border-t border-gray-800 flex gap-4 justify-end">
+                <div className="p-8 bg-white/5 border-t border-white/5 flex gap-4 justify-end">
                     <button
                         onClick={onClose}
-                        className="px-6 h-12 rounded border border-gray-600 text-gray-300 font-bold uppercase hover:bg-white/5 active:bg-white/10 transition-all text-sm tracking-wider"
+                        className="px-8 h-14 rounded-2xl border border-white/10 text-white/40 font-black uppercase hover:bg-white/5 active:scale-95 transition-all text-xs tracking-[0.2em]"
                     >
                         CANCELAR
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={!customer.nit || !customer.name}
-                        className="px-8 h-12 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-bold uppercase shadow-lg shadow-indigo-600/30 transition-all active:scale-[0.98] text-sm tracking-wider flex items-center gap-2"
+                        className="px-10 h-14 rounded-2xl bg-white text-black font-black uppercase shadow-xl transition-all active:scale-95 text-xs tracking-[0.2em] flex items-center gap-2 disabled:opacity-50 disabled:bg-white/10 disabled:text-white/20"
                     >
                         {!loading ? <CheckCircle size={18} /> : <Loader2 className="animate-spin" size={18} />}
                         {loading ? 'PROCESANDO' : 'ACEPTAR'}

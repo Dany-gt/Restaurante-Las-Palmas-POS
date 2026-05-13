@@ -47,7 +47,7 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[110] flex items-center justify-center p-6 animate-fade-in">
             <div className="bg-[#1e212b] w-full max-w-2xl rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col">
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
-                    <h3 className="text-sm font-black uppercase tracking-[0.3em] text-indigo-400">TIPO DE PAGO</h3>
+                    <h3 className="text-sm font-black uppercase tracking-[0.3em] text-white">TIPO DE PAGO</h3>
                     <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full text-gray-500 transition-colors">
                         <X size={20} />
                     </button>
@@ -61,8 +61,8 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
                                 key={type.id}
                                 onClick={() => setSelectedType(type.id)}
                                 className={`flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${selectedType === type.id
-                                        ? 'bg-indigo-600 border-indigo-400 shadow-lg'
-                                        : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                        ? 'bg-white border-white text-black shadow-lg'
+                                        : 'bg-white/5 border-white/5 text-white hover:bg-white/10'
                                     }`}
                             >
                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedType === type.id ? 'bg-white/20' : 'bg-white/5'}`}>
@@ -85,7 +85,7 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
                                     type="number"
                                     value={amount}
                                     onChange={e => setAmount(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm font-bold focus:border-indigo-500 outline-none transition-all text-right"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm font-bold focus:border-white/30 outline-none transition-all text-right"
                                 />
                             </div>
                         </div>
@@ -96,7 +96,7 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
                                 type="text"
                                 value={documentNo}
                                 onChange={e => setDocumentNo(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold focus:border-indigo-500 outline-none transition-all"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold focus:border-white/30 outline-none transition-all"
                                 placeholder="Referencia / No. Cheque"
                             />
                         </div>
@@ -106,7 +106,7 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
                             <textarea
                                 value={description}
                                 onChange={e => setDescription(e.target.value)}
-                                className="w-full flex-1 bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold focus:border-indigo-500 outline-none transition-all resize-none"
+                                className="w-full flex-1 bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold focus:border-white/30 outline-none transition-all resize-none"
                                 placeholder="Notas adicionales..."
                             />
                         </div>
@@ -122,7 +122,7 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
                     </button>
                     <button
                         onClick={handleConfirm}
-                        className="flex-1 h-14 rounded-2xl bg-indigo-600 font-black uppercase tracking-widest text-white hover:bg-indigo-500 transition-all shadow-lg flex items-center justify-center gap-2"
+                        className="flex-1 h-14 rounded-2xl bg-white text-black font-black uppercase tracking-widest hover:bg-white/90 transition-all shadow-lg flex items-center justify-center gap-2"
                     >
                         <Check size={20} />
                         ACEPTAR

@@ -57,39 +57,107 @@ ipcMain.on('window-close', () => {
 // --- Funciones de Memoria (IMPRESION, EMAIL, PDF, SAT) ---
 
 ipcMain.handle('get-printers', async () => {
-    return await mainWindow.webContents.getPrintersAsync();
+    try {
+        const printers = await mainWindow.webContents.getPrintersAsync();
+        console.log(`🖨️ [Electron] ${printers.length} impresoras detectadas en el sistema`);
+        return printers;
+    } catch (err) {
+        console.error('❌ [Electron] Error al obtener impresoras:', err);
+        return [];
+    }
 });
 
 ipcMain.handle('print-html', async (event, { html, printerName, silent }) => {
-    // Implementación interna de impresión
+    console.log(`🖨️ [Electron] Iniciando flujo de impresión: "${printerName || 'Predeterminada'}" (Silencioso: ${silent})`);
+    
     return new Promise((resolve) => {
-        let printWindow = new BrowserWindow({ show: false });
-        printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
-        printWindow.webContents.on('did-finish-load', () => {
-            printWindow.webContents.print({
-                silent: silent || false,
-                printBackground: true,
-                deviceName: printerName || ''
-            }, () => {
+        let printWindow = new BrowserWindow({ 
+            show: false,
+            webPreferences: {
+                offscreen: true // Evita parpadeos de ventana
+            }
+        });
+        
+        // Timeout de seguridad: 30 segundos para evitar fugas de memoria
+        const timeout = setTimeout(() => {
+            if (!printWindow.isDestroyed()) {
                 printWindow.close();
-                resolve({ success: true });
-            });
+                console.error('❌ [Electron] Timeout alcanzado esperando did-finish-load');
+                resolve({ success: false, error: 'Timeout cargando contenido de impresión' });
+            }
+        }, 30000);
+
+        printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
+        
+        printWindow.webContents.on('did-finish-load', () => {
+            console.log('📄 [Electron] Contenido HTML cargado. Esperando renderizado (500ms)...');
+            
+            // Un pequeño delay ayuda a que fuentes y estilos se apliquen bien antes de imprimir
+            setTimeout(() => {
+                if (printWindow.isDestroyed()) return;
+                
+                printWindow.webContents.print({
+                    silent: silent || false,
+                    printBackground: true,
+                    deviceName: printerName || '',
+                    margins: { marginType: 'none' } // Importante para térmicas
+                }, (success, failureReason) => {
+                    clearTimeout(timeout);
+                    console.log(`🏁 [Electron] Impresión finalizada. Éxito: ${success}${failureReason ? `. Motivo: ${failureReason}` : ''}`);
+                    
+                    if (!printWindow.isDestroyed()) {
+                        printWindow.close();
+                    }
+                    resolve({ success, error: failureReason });
+                });
+            }, 500);
+        });
+
+        printWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+            clearTimeout(timeout);
+            console.error(`❌ [Electron] Error al cargar el data URI: ${errorDescription} (${errorCode})`);
+            if (!printWindow.isDestroyed()) {
+                printWindow.close();
+            }
+            resolve({ success: false, error: `Error de carga: ${errorDescription}` });
         });
     });
 });
 
-ipcMain.handle('print-to-network', async (event, { ip, port, html }) => {
+ipcMain.handle('print-to-network', async (event, { ip, port, content, isRaw }) => {
     return new Promise((resolve) => {
+        const net = require('net');
         const client = new net.Socket();
-        client.setTimeout(5000);
+        const timeout = 10000;
+        
+        client.setTimeout(timeout);
+        
         client.connect(port || 9100, ip, () => {
-            client.write(html, 'utf-8', () => {
-                client.end();
-                resolve({ success: true });
+            console.log(`🔌 [Electron] Conectado a impresora en ${ip}:${port || 9100}`);
+            
+            // Si es raw (Buffer/Uint8Array), lo enviamos tal cual
+            // Si es texto, lo convertimos a Buffer con encoding adecuado
+            const buffer = isRaw ? Buffer.from(content) : Buffer.from(content, 'utf-8');
+            
+            client.write(buffer, () => {
+                // Pequeño delay antes de cerrar para asegurar que el buffer se vacíe
+                setTimeout(() => {
+                    client.end();
+                    resolve({ success: true });
+                }, 200);
             });
         });
-        client.on('error', (err) => resolve({ success: false, error: err.message }));
-        client.on('timeout', () => { client.destroy(); resolve({ success: false, error: 'Timeout' }); });
+
+        client.on('error', (err) => {
+            console.error(`❌ [Electron] Error de red en impresora: ${err.message}`);
+            resolve({ success: false, error: err.message });
+        });
+
+        client.on('timeout', () => {
+            console.error('❌ [Electron] Timeout conectando a impresora');
+            client.destroy();
+            resolve({ success: false, error: 'No se pudo conectar a la impresora (Timeout)' });
+        });
     });
 });
 
@@ -158,18 +226,20 @@ ipcMain.handle('generate-pdf', async (event, { html, name }) => {
         let workerWindow = new BrowserWindow({ show: false });
         workerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
         workerWindow.webContents.on('did-finish-load', async () => {
-            try {
-                const data = await workerWindow.webContents.printToPDF({
-                    marginsType: 0,
-                    printBackground: true,
-                    pageSize: 'A4'
-                });
-                workerWindow.close();
-                resolve({ success: true, data: data.toString('base64') });
-            } catch (error) {
-                workerWindow.close();
-                resolve({ success: false, error: error.message });
-            }
+            setTimeout(async () => {
+                try {
+                    const data = await workerWindow.webContents.printToPDF({
+                        marginsType: 0,
+                        printBackground: true,
+                        pageSize: 'A4'
+                    });
+                    workerWindow.close();
+                    resolve({ success: true, data: data.toString('base64') });
+                } catch (error) {
+                    workerWindow.close();
+                    resolve({ success: false, error: error.message });
+                }
+            }, 500);
         });
     });
 });

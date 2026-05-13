@@ -146,7 +146,7 @@ class PrintService {
     const isSmall = paperWidth === '58mm';
     const maxWidth = isSmall ? '48mm' : '68mm';
     const fontSize = isSmall ? '8.5px' : '9.5px';
-    const padding = isSmall ? '1mm 1mm 1mm 4mm' : '1mm 2mm 1mm 10mm';
+    const padding = isSmall ? '1mm 2mm 1mm 2mm' : '1mm 4mm 1mm 4mm';
 
     return `<!DOCTYPE html>
 <html>
@@ -163,14 +163,13 @@ class PrintService {
     body {
       font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
       font-size: ${fontSize};
-      margin: 0 auto;
+      margin: 0;
       padding: ${padding} !important;
-      max-width: ${maxWidth};
+      width: ${maxWidth};
       line-height: 1.1;
       letter-spacing: -0.5px;
       color: #000;
       background: #fff;
-      overflow: hidden;
     }
     .header { text-align: center; margin-bottom: 5px; }
     .restaurant-name { font-size: ${isSmall ? '11px' : '13px'}; font-weight: 900; }
@@ -222,14 +221,33 @@ class PrintService {
   private async getNetworkPrinter(): Promise<{ address: string; port: number; paperWidth: string } | null> {
     try {
       const { data, error } = await supabase
-        .from('printers').select('id, address, port, paper_width')
-        .eq('connection_type', 'NETWORK').eq('is_active', true)
-        .order('id', { ascending: true }); // Prioritize older (main) printers or we can filter by main_printer_id
+        .from('printers').select('id, name, address, port, paper_width')
+        .eq('connection_type', 'NETWORK').eq('is_active', true);
 
-      let printer = data?.find(p => p.id === this.settings?.main_printer_id) || data?.[0];
+      if (!data || data.length === 0) return null;
+
+      // 1. Prioridad Máxima: Impresora llamada "CAJA", "PRINCIPAL" o con la IP específica del usuario
+      let printer = data.find(p => 
+        p.name.toUpperCase().includes('CAJA') || 
+        p.name.toUpperCase().includes('PRINCIPAL') ||
+        p.address === '192.168.88.11' ||
+        p.name.toUpperCase().includes('EPSON')
+      );
+
+      // 2. Segunda Prioridad: La marcada como principal en settings
+      if (!printer && this.settings?.main_printer_id) {
+        printer = data.find(p => p.id === this.settings.main_printer_id);
+      }
+
+      // 3. Fallback: La primera que encuentre
+      if (!printer) printer = data[0];
 
       if (!printer?.address) return null;
-      return { address: printer.address, port: printer.port || 9100, paperWidth: printer.paper_width || '80mm' };
+      return { 
+        address: printer.address, 
+        port: printer.port || 9100, 
+        paperWidth: printer.paper_width || '80mm' 
+      };
     } catch { return null; }
   }
 
@@ -260,65 +278,83 @@ class PrintService {
     const isPOS = !window.location.hash.toLowerCase().includes('admin') && !window.location.pathname.toLowerCase().includes('admin');
     const silent = options?.silent ?? isPOS;
 
-    console.log(`🖨️ Printing: ${title} | Context: ${isPOS ? 'POS' : 'ADMIN'} | Silent: ${silent}`);
+    console.log(`🖨️ [PrintService] Iniciando impresión de "${title}" | Silencioso: ${silent} | Es POS: ${isPOS}`);
 
     // 1. Determine paperWidth if possible
-    const sys = await this.getSystemPrinter();
-    if (sys) paperWidth = sys.paperWidth;
-    else {
-      const net = await this.getNetworkPrinter();
-      if (net) paperWidth = net.paperWidth;
-    }
+    const sysPrinter = await this.getSystemPrinter();
+    const netPrinter = await this.getNetworkPrinter();
+    
+    if (sysPrinter) paperWidth = sysPrinter.paperWidth;
+    else if (netPrinter) paperWidth = netPrinter.paperWidth;
 
     const html = typeof htmlContent === 'function' ? htmlContent(paperWidth) : htmlContent;
 
     // Web/Mobile → browser dialog
     if (!this.isElectron()) {
-      console.log('[Web] Printing via browser dialog:', title);
+      console.log('🌐 [PrintService] Entorno Web detectado. Abriendo diálogo de impresión del navegador.');
       this.openPrintWindow(html);
       return;
     }
 
+    const electron = (window as any).electronAPI || (window as any).electron;
+    console.log('🖥️ [PrintService] Entorno Electron detectado.');
+
     // PrintNode (cloud)
     if (this.settings?.printnode_enabled && this.settings?.printnode_printer_id) {
+      console.log('☁️ [PrintService] PrintNode habilitado. Intentando imprimir vía nube...');
       if (!printNodeService.isEnabled) await printNodeService.init();
       const ok = await printNodeService.printHtml(this.settings.printnode_printer_id, title, html);
-      if (ok) { console.log('Printed via PrintNode:', title); return; }
-      console.warn('PrintNode failed, falling back.');
+      if (ok) { console.log('✅ [PrintService] Impresión exitosa vía PrintNode'); return; }
+      console.warn('⚠️ [PrintService] Falló PrintNode, intentando local/red...');
     }
 
     // SYSTEM printer (Windows driver)
-    const electron = (window as any).electronAPI || (window as any).electron;
     if (electron && electron.printHtml) {
-      const sys = await this.getSystemPrinter();
-      if (sys) {
-        console.log('Printing to SYSTEM printer:', sys.name, 'Size:', sys.paperWidth, 'Silent:', silent);
-        const r = await electron.printHtml(html, sys.name, silent);
-        if (r.success) { console.log('✅ Printed via SYSTEM:', sys.name); return; }
-        console.warn('SYSTEM printer failed:', r.error);
+      if (sysPrinter) {
+        console.log(`📠 [PrintService] Intentando impresora de sistema: "${sysPrinter.name}"`);
+        const r = await electron.printHtml(html, sysPrinter.name, silent);
+        if (r.success) { 
+            console.log('✅ [PrintService] Impresión exitosa vía driver de sistema'); 
+            return; 
+        }
+        console.warn(`❌ [PrintService] Error en impresora de sistema:`, r.error);
+      } else {
+        console.warn('⚠️ [PrintService] No hay impresora de sistema configurada en la tabla "printers".');
       }
     }
 
     // NETWORK printer (TCP)
     if (electron && electron.printToNetwork) {
-      const net = await this.getNetworkPrinter();
-      if (net) {
-        console.log('Printing to NETWORK:', net.address);
-        const r = await electron.printToNetwork(net.address, net.port, html);
-        if (r.success) { console.log('✅ Printed via NETWORK:', net.address); return; }
-        console.warn('NETWORK print failed:', r.error);
+      if (netPrinter) {
+        console.log(`🌐 [PrintService] Intentando impresora de red: ${netPrinter.address}:${netPrinter.port}`);
+        
+        // 🛠️ TRADUCCIÓN CRÍTICA: Convertimos HTML a texto limpio con comandos ESC/POS básicos
+        const rawContent = this.htmlToEscPos(html);
+        
+        const r = await electron.printToNetwork(netPrinter.address, netPrinter.port, rawContent, true);
+        if (r.success) { 
+            console.log('✅ [PrintService] Impresión exitosa vía red TCP'); 
+            return; 
+        }
+        console.warn('❌ [PrintService] Error en impresión de red:', r.error);
       }
     }
 
-    // Saved local printer fallback
+    // Saved local printer fallback (Last resort for Electron)
     if (electron && electron.printHtml) {
       const saved = localStorage.getItem('pos_printer_name');
       const pName = saved && saved !== 'null' ? saved : undefined;
+      console.log(`💾 [PrintService] Intentando fallback con impresora guardada en localStorage: ${pName || 'PREDETERMINADA'}`);
       const r = await electron.printHtml(html, pName, silent);
-      if (r.success) return;
+      if (r.success) {
+          console.log('✅ [PrintService] Impresión exitosa vía fallback local');
+          return;
+      }
+      console.warn('❌ [PrintService] Fallback local también falló:', r.error);
     }
 
-    // Ultimate fallback
+    // Ultimate fallback (Open Window)
+    console.warn('🚨 [PrintService] Todos los métodos fallaron. Forzando ventana de impresión del navegador.');
     this.openPrintWindow(html);
   }
 
@@ -466,13 +502,20 @@ class PrintService {
       </div>
     `;
 
-    await this.executePrint('PRE-CUENTA', (pw) => this.generateTicketHTML('', content, 'Gracias por preferirnos.', pw), { silent: true });
+    await this.executePrint('PRE-CUENTA', (pw) => this.generateTicketHTML('PRE-CUENTA', content, 'Gracias por preferirnos.', pw), { silent: true });
   }
 
   // ─── INVOICE TICKET (FEL) ─────────────────────────────────────────
 
   async printInvoiceTicket(data: any): Promise<void> {
     if (!this.settings) await this.loadSettings();
+
+    // Si es contingencia (no tiene dteInfo) y no es una anulación ni reimpresión, no imprimir para ahorrar papel
+    if (!data.dteInfo && !data.isCancelled && !data.isReprint) {
+      console.log('Skipping physical print for contingency invoice to save paper.');
+      return;
+    }
+
     let title = 'FACTURA FEL';
     if (data.isCancelled) title = 'ANULACIÓN FACTURA';
     else if (data.isReprint) title = 'COMPROBANTE DE PAGO';
@@ -598,23 +641,38 @@ class PrintService {
   async printCancelledTicket(data: any, reason: string): Promise<void> {
     if (!this.settings) await this.loadSettings();
     const content = `
-      <div style="text-align:center;border:2px solid #000;padding:10px;margin-bottom:15px;">
-        <div style="font-size:16px;font-weight:900;">COMPROBANTE DE ANULACIÓN</div>
-        <div style="font-size:12px;margin-top:5px;">Orden #${data.orderNumber}</div>
+      <div style="text-align:center; border:2px solid #000; padding:8px; margin-bottom:15px;">
+        <div style="font-size:16px; font-weight:900; letter-spacing: 1px;">ORDEN ANULADA</div>
+        <div style="font-size:12px; margin-top:5px; font-weight:bold;">ORDEN #${data.orderNumber}</div>
       </div>
-      <div style="margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:bold;color:#f00;">MOTIVO DE ANULACIÓN:</div>
-        <div style="font-size:12px;font-weight:900;background:#eee;padding:5px;border-radius:4px;">${reason.toUpperCase()}</div>
+      
+      <div class="info-grid" style="margin-bottom: 8px;">
+        <div class="info-line"><span class="info-label" style="width:55px;">HORA:</span> ${new Date(data.createdAt).toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}</div>
+        <div class="info-line" style="text-align: right;"><span class="info-label" style="width:45px;">MESA:</span> ${data.tableNumber || '---'}</div>
+        <div class="info-line" style="grid-column: span 2;"><span class="info-label" style="width:55px;">FECHA:</span> ${new Date().toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'short' })}</div>
       </div>
-      <div class="divider"></div>
-      <div style="font-size:10px;margin-bottom:10px;">
-        <div><strong>Fecha Original:</strong> ${new Date(data.createdAt).toLocaleString('es-GT')}</div>
-        <div><strong>Fecha Anulación:</strong> ${new Date().toLocaleString('es-GT')}</div>
+
+      <div class="thick-divider"></div>
+
+      <div style="font-size:10px; font-weight:bold; color:#cc0000; margin-bottom:5px; text-transform:uppercase;">Motivo de Anulación:</div>
+      <div style="font-size:12px; font-weight:800; background:#f9f9f9; padding:8px; border:1px solid #000; border-radius:4px; margin-bottom:15px; text-align: left;">
+        ${reason.toUpperCase()}
       </div>
-      <div style="border-top:1px solid #000;border-bottom:1px solid #000;padding:5px 0;margin-bottom:10px;">
-        ${(data.items || []).map((item: any) => '<div style="display:flex;font-size:10px;margin-bottom:3px;"><span style="width:25px;">' + item.quantity + '</span><span style="flex:1;text-transform:uppercase;">' + item.name + '</span></div>').join('')}
+
+      <div style="font-size:10px; font-weight:bold; margin-bottom:5px; text-transform:uppercase; border-bottom: 1px solid #000; padding-bottom: 2px;">PLATILLOS ANULADOS:</div>
+      <div style="margin-bottom:15px;">
+        ${(data.items || []).map((item: any) => `
+          <div style="display:flex; font-size:11px; margin-bottom:4px; align-items: flex-start;">
+            <span style="width:25px; font-weight:bold;">${item.quantity}</span>
+            <span style="flex:1; text-transform:uppercase;">${item.name || item.product_name || 'PRODUCTO'}</span>
+          </div>
+        `).join('')}
       </div>
-      <div style="text-align:center;font-size:9px;font-style:italic;margin-top:15px;">Documento de Control Interno<br>No válido como factura</div>
+
+      <div style="text-align:center; font-size:9px; font-style:italic; margin-top:20px; border-top: 1px dotted #000; padding-top: 8px;">
+        DOCUMENTO DE CONTROL INTERNO<br>
+        <strong>NO VÁLIDO COMO FACTURA</strong>
+      </div>
     `;
     await this.executePrint('AVISO ANULACION', (pw) => this.generateTicketHTML('ANULACIÓN', content, '', pw), { silent: true });
   }
@@ -628,29 +686,38 @@ class PrintService {
     quantity: number;
     voidReason: string;
     voidedAt: string;
+    orderNumber?: string | number;
   }): Promise<boolean> {
     const content = `
-      <div style="text-align:center;border:2px solid #000;padding:10px;margin-bottom:15px;">
-        <div style="font-size:16px;font-weight:900;">VALE DE ANULACIÓN</div>
+      <div style="text-align:center; border:2px solid #000; padding:5px; margin-bottom:10px;">
+        <div style="font-size:16px; font-weight:900; letter-spacing: 1px;">PLATILLO ANULADO</div>
+        ${data.orderNumber ? `<div style="font-size:11px; margin-top:2px; font-weight:bold;">ORDEN #${data.orderNumber}</div>` : ''}
       </div>
-      <div style="font-size:12px;margin-bottom:15px;">
-        <div><strong>MESERO:</strong> ${data.waiterName.toUpperCase()}</div>
-        <div><strong>MESA:</strong> ${data.tableNumber}</div>
-        <div><strong>HORA:</strong> ${data.voidedAt}</div>
+      
+      <div class="info-grid" style="margin-bottom: 5px;">
+        <div class="info-line"><span class="info-label" style="width:55px;">MESERO:</span> ${data.waiterName.toUpperCase()}</div>
+        <div class="info-line" style="text-align: right;"><span class="info-label" style="width:45px;">MESA:</span> ${data.tableNumber}</div>
+        <div class="info-line" style="grid-column: span 2;"><span class="info-label" style="width:55px;">HORA:</span> ${data.voidedAt}</div>
       </div>
-      <div style="border-top:1px solid #000;border-bottom:1px solid #000;padding:10px 0;margin-bottom:15px;">
-        <div style="font-size:14px;font-weight:bold;text-align:center;">
-          ELIMINADO: ${data.quantity}x ${data.productName.toUpperCase()}
-        </div>
+
+      <div class="thick-divider"></div>
+      
+      <div style="font-size:10px; font-weight:bold; color:#cc0000; margin-bottom:5px; text-transform:uppercase; border-bottom: 1px solid #eee;">Detalle de Eliminación:</div>
+      <div class="item-row" style="padding: 5px 0; margin-bottom: 10px; display: flex; align-items: center;">
+        <span class="qty" style="font-size:18px; width:45px; font-weight: 900;">${data.quantity}x</span>
+        <span class="description" style="font-size:15px; flex:1; font-weight: 700;">${data.productName.toUpperCase()}</span>
       </div>
-      <div>
-        <div style="font-size:11px;font-weight:bold;color:#cc0000;margin-bottom:5px;">RAZÓN DE LA ANULACIÓN:</div>
-        <div style="font-size:14px;font-weight:900;background:#f0f0f0;padding:10px;border:1px solid #ccc;border-radius:4px;text-align:center;">
-          ${data.voidReason.toUpperCase()}
-        </div>
+
+      <div class="divider"></div>
+      
+      <div style="font-size:10px; font-weight:bold; color:#cc0000; margin-bottom:5px; text-transform:uppercase;">Motivo de Anulación:</div>
+      <div style="font-size:13px; font-weight:800; background:#f9f9f9; padding:10px; border:1px solid #000; border-radius:4px; line-height: 1.2; text-align: left;">
+        ${data.voidReason.toUpperCase()}
       </div>
-      <div style="text-align:center;font-size:9px;font-style:italic;margin-top:30px;">
-        Documento de Control Interno<br>Rest. Las Palmas
+
+      <div style="text-align:center; font-size:9px; font-style:italic; margin-top:30px; border-top: 1px dotted #000; padding-top: 8px;">
+        DOCUMENTO DE CONTROL INTERNO<br>
+        <strong>REST. LAS PALMAS POS</strong>
       </div>
     `;
     const title = 'ANULACIÓN DE PRODUCTO';
@@ -930,6 +997,70 @@ class PrintService {
     } catch (e) {
       console.error('Error in openCashDrawer:', e);
     }
+  }
+
+  /**
+   * 🛠️ TRADUCTOR MAESTRO: HTML -> COMANDOS EPSON (ESC/POS)
+   * Convierte tickets diseñados para pantalla en datos binarios para impresoras térmicas.
+   */
+  public htmlToEscPos(html: string): Uint8Array {
+    const ESC = 0x1B;
+    const GS = 0x1D;
+    const LF = 0x0A;
+    const commands: number[] = [];
+
+    // 1. Inicializar impresora
+    commands.push(ESC, 0x40); 
+    
+    // 2. Procesar el HTML
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    const walk = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = (node.textContent || '')
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos para evitar símbolos raros
+          .replace(/[^\x20-\x7E\x0A\x0D]/g, ""); // Solo caracteres ASCII básicos
+        
+        for (let i = 0; i < text.length; i++) {
+          commands.push(text.charCodeAt(i));
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const el = node as HTMLElement;
+        const tagName = el.tagName.toUpperCase();
+        
+        // Estilos de texto (Negrita)
+        const isBold = el.style.fontWeight === 'bold' || el.style.fontWeight === '900' || ['H1', 'H2', 'H3', 'STRONG', 'B'].includes(tagName);
+        if (isBold) commands.push(ESC, 0x45, 0x01); // Bold ON
+
+        // Alineación
+        const textAlign = el.style.textAlign || (el.classList.contains('header') ? 'center' : 'left');
+        if (textAlign === 'center') commands.push(ESC, 0x61, 0x01);
+        else if (textAlign === 'right') commands.push(ESC, 0x61, 0x02);
+
+        // Procesar hijos
+        for (let i = 0; i < el.childNodes.length; i++) {
+          walk(el.childNodes[i]);
+        }
+
+        // Saltos de línea para bloques
+        if (['DIV', 'H1', 'H2', 'H3', 'P', 'BR', 'TR'].includes(tagName)) {
+          commands.push(LF);
+        }
+
+        // Resetear estilos para el siguiente elemento
+        if (isBold) commands.push(ESC, 0x45, 0x00); // Bold OFF
+        if (textAlign !== 'left') commands.push(ESC, 0x61, 0x00); // Reset Align
+      }
+    };
+
+    walk(doc.body);
+
+    // 3. Finalización: Alimentar papel y Cortar
+    commands.push(LF, LF, LF, LF, LF); // 5 líneas de avance
+    commands.push(GS, 0x56, 0x42, 0x00); // Comando de corte (Full Cut)
+    
+    return new Uint8Array(commands);
   }
 }
 
