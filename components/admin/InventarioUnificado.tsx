@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { registrarAuditoria, detectarCambios } from '../../services/auditService';
 import { useNotify } from '../../hooks/useNotify';
+import { generateUUID } from '../../utils/uuid';
 import { ConfirmDialog } from './ConfirmDialog';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -648,7 +649,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                 });
             }
             const newPhoto: Photo = {
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 url, tipo:selectedPhotoType,
                 descripcion:photoDesc,
                 fecha_foto:new Date().toISOString(),

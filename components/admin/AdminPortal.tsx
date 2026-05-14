@@ -539,7 +539,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
             case 'DSH_OPT_ASSIGN':
                 return <DishesOptionsAssign />;
             case 'INV_SUPPLIERS': return <SuppliersAdmin />;
-            case 'INV_PRODUCTS': return <InventariosLayout initialTab="productos" iconTheme={iconTheme} />;
+            case 'INV_PRODUCTS': return <InventariosLayout initialTab="productos" iconTheme={iconTheme} currentUser={currentUser} />;
             case 'INV_STOCK_SUC':
             case 'INV_STOCK_ALL':
             case 'INV_STOCK_REORDER':
@@ -553,7 +553,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
             case 'INV_SUMINISTROS': return <InventarioUnificado initialTab="insumo" />;
             case 'INV_UTENSILIOS': return <InventarioUnificado initialTab="utensilio" />;
             case 'ADMIN_USERS': return <UsuariosAdmin globalSearch={appliedSearch} />;
-            case 'ADMIN_MENU': return <InventariosLayout initialTab="platillos" iconTheme={iconTheme} />;
+            case 'ADMIN_MENU': return <InventariosLayout initialTab="platillos" iconTheme={iconTheme} currentUser={currentUser} />;
             case 'ADMIN_CATS': return <CategoriesAdmin />;
             case 'ADMIN_EXPENSES': return <ExpensesAdmin currentUser={currentUser} />;
             case 'ADMIN_TABLES': return <TablesAdmin />;

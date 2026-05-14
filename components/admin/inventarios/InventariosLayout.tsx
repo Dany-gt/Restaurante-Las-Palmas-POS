@@ -17,18 +17,20 @@ import { useNotify } from '../../../hooks/useNotify';
 import { registrarAuditoria, detectarCambios } from '../../../services/auditService';
 import { WindowsSaveButton } from '../../WindowsSaveButton';
 import { DraggableWindow } from '../shared/DraggableWindow';
+import { activityLogService } from '../../../services/ActivityLogService';
 
 
-import { PremiumIcon, ICON_MAP } from '../shared/PremiumIcon';
+import { PremiumIcon, ICON_MAP } from '../../shared/PremiumIcon';
 
 interface InventariosLayoutProps {
     initialTab: 'platillos' | 'productos';
     iconTheme?: string;
+    currentUser?: any;
 }
 
-export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab, iconTheme }) => {
+export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab, iconTheme, currentUser: propUser }) => {
     const notify = useNotify();
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const currentUser = propUser || JSON.parse(localStorage.getItem('currentUser') || '{}');
     const printRef = useRef<HTMLDivElement>(null);
     const handlePrint = useReactToPrint({ contentRef: printRef });
 
@@ -61,6 +63,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
     const [activeTab, setActiveTab] = useState<'general' | 'branches' | 'recipe' | 'modifiers'>('general');
     const [loadingForm, setLoadingForm] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [originalProduct, setOriginalProduct] = useState<any>(null);
     // Estados de Formulario (Copiados de MenuAdmin)
     const [newProduct, setNewProduct] = useState<any>({
         name: '', short_name: '', description: '', price: '0', category_id: '', kitchen_station_id: '',
@@ -303,9 +306,9 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 // Cargar desde tabla 'products'
                 const { data: prodData } = await supabase.from('products').select('*').eq('id', id).single();
                 if (prodData) {
-                    setNewProduct({
+                    const mappedProduct = {
                         ...prodData,
-                        category_id: prodData.menu_category_id || '',  // Mapeamos a category_id para el modal, pero viene de menu_category_id
+                        category_id: prodData.menu_category_id || '',
                         product_code: prodData.product_code || '',
                         name: prodData.name || '',
                         cost_price: (prodData.cost_price || 0).toString(),
@@ -314,7 +317,9 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                         presentation_unit: prodData.presentation_unit || 'UNI',
                         conversion_factor: Math.max(prodData.portions || 1, prodData.conversion_factor || 1).toString(),
                         supplier_id: prodData.supplier_id || ''
-                    });
+                    };
+                    setNewProduct(mappedProduct);
+                    setOriginalProduct(mappedProduct);
 
                     // Precios por Sucursal
                     const { data: bpData } = await supabase.from('product_branch_prices').select('*').eq('product_id', id);
@@ -369,9 +374,9 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 // Cargar desde tabla 'products' con es_platillo=false
                 const { data: insumoData } = await supabase.from('products').select('*').eq('id', id).eq('es_platillo', false).single();
                 if (insumoData) {
-                    setNewProduct({
+                    const mappedInsumo = {
                         ...insumoData,
-                        category_id: insumoData.product_category_id || '', // Mapeamos a category_id para el modal, pero viene de product_category_id
+                        category_id: insumoData.product_category_id || '',
                         product_code: insumoData.product_code || '',
                         name: insumoData.name || '',
                         cost_price: (insumoData.cost_price || 0).toString(),
@@ -381,8 +386,10 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                         supplier_id: insumoData.supplier_id || '',
                         is_enabled: insumoData.is_enabled !== undefined ? insumoData.is_enabled : true,
                         price: '0',
-                        portions: (insumoData.portions || 1).toString(), // ✅ Leer el valor real de la BD (ej. 24 para Caja de 24)
-                    });
+                        portions: (insumoData.portions || 1).toString(),
+                    };
+                    setNewProduct(mappedInsumo);
+                    setOriginalProduct(mappedInsumo);
                     // Insumos no tienen precios por sucursal ni receta ni modificadores
                     setBranchPrices([]);
                     setAssignedModifierGroups([]);
@@ -683,6 +690,35 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
             }
 
             notify.success('Registro guardado correctamente');
+            
+            // --- REGISTRO DE AUDITORÍA ---
+            const action = editingId ? 'PRODUCTO_MODIFICADO' : 'PRODUCTO_CREADO';
+            const diff = editingId && originalProduct ? detectarCambios(originalProduct, newProduct) : null;
+            const changes = diff ? diff.campos_modificados.map(campo => ({
+                field: campo,
+                before: diff.valores_anteriores[campo],
+                after: diff.valores_nuevos[campo]
+            })) : [];
+            
+            activityLogService.log({
+                user: currentUser?.id ? currentUser : { id: 'SISTEMA', name: 'SISTEMA', role: 'ADMIN' },
+                module: modalType === 'platillo' ? 'MENU' : 'INVENTARIO',
+                action: action,
+                details: {
+                    nombre: newProduct.name,
+                    id: savedId,
+                    descripcion: editingId ? `Modificación de ${modalType === 'platillo' ? 'platillo' : 'producto'}` : `Creación de nuevo ${modalType === 'platillo' ? 'platillo' : 'producto'}`
+                },
+                changes: changes.map((c: any) => ({
+                    field: String(c.field || ''),
+                    before: c.before,
+                    after: c.after
+                })),
+                severity: 'INFO',
+                entity_id: String(savedId || ''),
+                entity_type: modalType === 'platillo' ? 'platillo' : 'producto'
+            });
+
             handleRefresh();
             setShowModal(false);
             setShowTechnicalModal(false);

@@ -91,49 +91,59 @@ export const registrarAuditoria = async (
         ip = data.ip;
     } catch(e) {}
     
+    const atributos = {
+      sub_modulo: evento.sub_modulo,
+      descripcion: evento.accion_descripcion,
+      entidad: {
+        tipo: evento.entidad_tipo,
+        id: evento.entidad_id,
+        nombre: evento.entidad_nombre
+      },
+      cambios: {
+        anteriores: evento.valores_anteriores,
+        nuevos: evento.valores_nuevos,
+        campos: evento.campos_modificados
+      },
+      reversion: {
+        es_reversible: evento.es_reversible || false,
+        datos: evento.datos_para_revertir
+      },
+      metadata: evento.metadata,
+      url: window.location.pathname,
+      sesion_id: getSessionId(),
+      timestamp_local: formatLocalTimestamp(new Date())
+    };
+
     const registro = {
-      org_id: 'default',
-      usuario_id: user?.id || 'sistema',
+      usuario_id: user?.id && user.id !== 'sistema' ? user.id : null,
       usuario_nombre: user?.nombre || 'Sistema',
       usuario_rol: user?.rol || 'SISTEMA',
-      usuario_ip: ip,
-      usuario_dispositivo: deviceInfo,
-      usuario_url_actual: window.location.pathname,
-      sesion_id: getSessionId(),
       modulo: evento.modulo,
-      sub_modulo: evento.sub_modulo,
       accion: evento.accion,
-      accion_descripcion: evento.accion_descripcion,
-      entidad_tipo: evento.entidad_tipo,
-      entidad_id: evento.entidad_id,
-      entidad_nombre: evento.entidad_nombre,
-      valores_anteriores: evento.valores_anteriores,
-      valores_nuevos: evento.valores_nuevos,
-      campos_modificados: evento.campos_modificados,
-      impacto_financiero: evento.impacto_financiero,
-      es_reversible: evento.es_reversible || false,
-      datos_para_revertir: evento.datos_para_revertir,
-      metadata: evento.metadata,
-      timestamp: new Date().toISOString(),
-      timestamp_local: formatLocalTimestamp(new Date())
+      accion_descripcion: evento.accion_descripcion || evento.accion,
+      es_financiero: !!evento.impacto_financiero,
+      impacto_tipo: evento.impacto_financiero?.monto_total ? (evento.impacto_financiero.monto_total > 0 ? 'INGRESO' : 'EGRESO') : null,
+      impacto_monto: evento.impacto_financiero?.monto_total || 0,
+      atributos: atributos,
+      ip_origen: ip,
+      dispositivo: deviceInfo,
+      fecha_hora: new Date().toISOString()
     };
     
     const { error } = await supabase
-      .from('activity_log_detailed')
+      .from('activity_log')
       .insert(registro);
     
     if (error) {
-      console.error('Audit log error:', error);
-      // Fallback
       const prev = JSON.parse(localStorage.getItem('audit_fallback') || '[]');
-      prev.push(registro);
+      prev.push({ ...registro, _error: error.message });
       localStorage.setItem('audit_fallback', JSON.stringify(prev));
     }
     
-    return { success: !error };
-  } catch (err) {
+    return { success: !error, error: error?.message };
+  } catch (err: any) {
     console.error('Audit service error:', err);
-    return { success: false };
+    return { success: false, error: err.message };
   }
 }
 

@@ -155,8 +155,11 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                             filtered.map((item, index) => (
                                 <tr 
                                     key={item.id} 
-                                    onClick={(e) => { e.stopPropagation(); setSelectedId(item.id); }}
-                                    onDoubleClick={() => onEdit(item.id)}
+                                    onClick={(e) => { 
+                                        e.stopPropagation(); 
+                                        setSelectedId(item.id); 
+                                        if (e.detail === 2) onEdit(item.id);
+                                    }}
                                     onContextMenu={(e) => handleContextMenu(e, item)}
                                      className={`
                                          h-6 cursor-pointer transition-colors
@@ -255,7 +258,7 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                                 }}
                                 className={`w-full h-7 flex items-center gap-2.5 px-3 transition-none group ${!contextMenu.product ? 'opacity-40 cursor-not-allowed text-gray-400' : 'hover:bg-[#106ebe] hover:text-white text-slate-800'}`}
                             >
-                                {iconTheme === 'premium' ? <PremiumIcon name={ICON_MAP.CATEGORY} size={16} color="currentColor" /> : <Folder size={14} className={!contextMenu.product ? 'text-gray-400' : 'text-amber-500 group-hover:text-white'} />}
+                                {iconTheme === 'premium' ? <PremiumIcon icon={ICON_MAP.CATEGORY} size={16} color="currentColor" /> : <Folder size={14} className={!contextMenu.product ? 'text-gray-400' : 'text-amber-500 group-hover:text-white'} />}
                                 <span className="text-[11px] font-bold uppercase tracking-tight">Cambiar Categoría</span>
                             </button>
 
@@ -269,7 +272,7 @@ export const ListadoPlatillos: React.FC<ListadoPlatillosProps> = ({
                                 }}
                                 className={`w-full h-7 flex items-center gap-2.5 px-3 transition-none group ${!contextMenu.product ? 'opacity-40 cursor-not-allowed text-gray-400' : 'hover:bg-[#106ebe] hover:text-white text-slate-800'}`}
                             >
-                                {iconTheme === 'premium' ? <PremiumIcon name={ICON_MAP.CHEF} size={16} color="currentColor" /> : <ChefHat size={14} className={!contextMenu.product ? 'text-gray-400' : 'text-blue-500 group-hover:text-white'} />}
+                                {iconTheme === 'premium' ? <PremiumIcon icon={ICON_MAP.CHEF} size={16} color="currentColor" /> : <ChefHat size={14} className={!contextMenu.product ? 'text-gray-400' : 'text-blue-500 group-hover:text-white'} />}
                                 <span className="text-[11px] font-bold uppercase tracking-tight">Cambiar Cocina</span>
                             </button>
                         </div>

@@ -1,3 +1,4 @@
+import { generateUUID } from '../utils/uuid';
 
 const DB_NAME = 'LasPalmas_POS_Offline';
 const DB_VERSION = 2;
@@ -43,7 +44,7 @@ class OfflineDB {
 
     async saveRecord(type: OfflineRecord['type'], data: any): Promise<string> {
         const db = await this.init();
-        const id = data.id || crypto.randomUUID();
+        const id = data.id || generateUUID();
         const record: OfflineRecord = {
             id,
             type,

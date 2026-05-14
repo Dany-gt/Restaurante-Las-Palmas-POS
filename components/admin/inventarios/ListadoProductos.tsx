@@ -179,7 +179,11 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                             filtered.map((item, index) => (
                                 <tr 
                                     key={item.id} 
-                                    onClick={(e) => { e.stopPropagation(); setSelectedId(item.id); }}
+                                    onClick={(e) => { 
+                                        e.stopPropagation(); 
+                                        setSelectedId(item.id); 
+                                        if (e.detail === 2) onEdit(item.id, 'producto');
+                                    }}
                                     onContextMenu={(e) => handleContextMenu(e, item)}
                                     className={`
                                         h-6 cursor-pointer transition-colors
@@ -289,7 +293,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                 }}
                                 className={`w-full h-7 flex items-center gap-2.5 px-3 transition-none group ${!contextMenu.product ? 'opacity-40 cursor-not-allowed text-gray-400' : 'hover:bg-[#106ebe] hover:text-white text-slate-800'}`}
                             >
-                                {iconTheme === 'premium' ? <PremiumIcon name={ICON_MAP.BOX} size={16} color="currentColor" /> : <Package size={14} className={!contextMenu.product ? 'text-gray-400' : 'text-blue-500 group-hover:text-white'} />}
+                                {iconTheme === 'premium' ? <PremiumIcon icon={ICON_MAP.BOX} size={16} color="currentColor" /> : <Package size={14} className={!contextMenu.product ? 'text-gray-400' : 'text-blue-500 group-hover:text-white'} />}
                                 <span className="text-[11px] font-bold uppercase tracking-tight">Ver Kardex</span>
                             </button>
                         </div>

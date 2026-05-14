@@ -61,6 +61,8 @@ export const InventoryProducts: React.FC = () => {
     });
     const [editingProduct, setEditingProduct] = useState<any | null>(null);
     const [showModal, setShowModal] = useState(false);
+    const [activeModalTab, setActiveModalTab] = useState<'SUCURSALES' | 'RECETA'>('SUCURSALES');
+    const [saving, setSaving] = useState(false);
 
     // Lógica de "Factores Inteligentes" (Sugerencias automáticas basadas en unidades)
     useEffect(() => {
@@ -115,11 +117,7 @@ export const InventoryProducts: React.FC = () => {
     const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
     const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
-    // UI States
-    const [showModal, setShowModal] = useState(false);
-    const [editingProduct, setEditingProduct] = useState<any | null>(null);
-    const [activeModalTab, setActiveModalTab] = useState<'SUCURSALES' | 'RECETA'>('SUCURSALES');
-    const [saving, setSaving] = useState(false);
+    // UI States (Consolidated above)
 
     // Search and Config Modals for Recipes
     const [showSearchModal, setShowSearchModal] = useState(false);
@@ -425,12 +423,16 @@ export const InventoryProducts: React.FC = () => {
             supplier_id: product.supplier_id || '',
             is_enabled: product.is_enabled ?? true
         });
-        await Promise.all([
+
+        // Abrir modal inmediatamente para dar feedback al usuario
+        setActiveModalTab('SUCURSALES');
+        setShowModal(true);
+
+        // Cargar datos adicionales en segundo plano
+        Promise.all([
             fetchItemBranches(product.id),
             fetchItemRecipe(product.id)
         ]);
-        setActiveModalTab('SUCURSALES');
-        setShowModal(true);
     };
 
     const handleDelete = async (id: string) => {
@@ -820,8 +822,10 @@ export const InventoryProducts: React.FC = () => {
                                                 return (
                                                     <tr
                                                         key={prod.id}
-                                                        onMouseDown={() => setSelectedProduct(prod.id)}
-                                                        onDoubleClick={() => handleEdit(prod)}
+                                                        onClick={(e) => {
+                                                            setSelectedProduct(prod.id);
+                                                            if (e.detail === 2) handleEdit(prod);
+                                                        }}
                                                         className={`h-6 cursor-pointer border-b border-gray-50 transition-colors ${isSelected || isSelectedRow ? 'bg-[#106ebe] text-white [&>td]:border-transparent' : `text-slate-800 font-bold ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#f2f7fb]`}`}
                                                         onContextMenu={(e) => handleContextMenu(e, 'product', prod)}
                                                     >

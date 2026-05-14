@@ -14,6 +14,7 @@ import { DateUtils } from '../utils/DateUtils';
 import { PinModalV2 } from './PinModalV2';
 import { useSecurityPolicy } from '../hooks/useSecurityPolicy';
 import { activityLogService } from '../services/ActivityLogService';
+import { generateUUID } from '../utils/uuid';
 
 interface CheckoutViewProps {
     order: Order;
@@ -574,7 +575,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 // OFFLINE SAVE TO INDEXEDDB
                 const cardPayment = payments.find(p => p.method === 'TARJETA');
                 const orderData = {
-                    id: order.id || crypto.randomUUID(),
+                    id: order.id || generateUUID(),
                     order: {
                         status: 'completed',
                         payment_method: payments.length > 0 ? payments[0].method : paymentMethod,

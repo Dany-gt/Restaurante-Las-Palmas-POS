@@ -3,6 +3,7 @@ import { supabase } from '../supabase';
 import { User } from '../types';
 import { ArrowLeft, Delete, Check } from 'lucide-react';
 import { activityLogService } from '../services/ActivityLogService';
+import { generateUUID } from '../utils/uuid';
 
 interface OpenShiftViewProps {
     currentUser: User;
@@ -65,7 +66,7 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
         const numericAmount = parseFloat(amount);
         if (isNaN(numericAmount)) return;
 
-        const shiftId = crypto.randomUUID();
+        const shiftId = generateUUID();
         const shiftData = {
             id: shiftId,
             cash_register_id: selectedRegisterId,

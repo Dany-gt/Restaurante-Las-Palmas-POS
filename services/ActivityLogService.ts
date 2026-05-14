@@ -231,55 +231,40 @@ class ActivityLogService {
         };
 
         try {
-            const { error: legacyError } = await supabase.from('activity_logs').insert({
-                user_id: user.id,
-                user_name: user.name,
-                user_role: user.role,
-                module: module,
-                action: action,
-                details: enrichedDetails,
-                branch_id: branchId || user.branch_id,
-                org_id: orgId || user.org_id
-            });
-
-            // --- REDIRECCIÓN AL NUEVO SISTEMA (VIGILANCIA TOTAL) ---
-            try {
-                let prevValues: Record<string, any> | undefined;
-                let newValues: Record<string, any> = { ...enrichedDetails };
-                
-                if (changes && changes.length > 0) {
-                    prevValues = {};
-                    newValues = {};
-                    changes.forEach(c => {
-                        prevValues![c.field] = c.before;
-                        newValues[c.field] = c.after;
-                    });
-                }
-
-                await registrarAuditoria({
-                    modulo: String(module) || 'SISTEMA',
-                    accion: String(action),
-                    accion_descripcion: `${action} registrado vía sistema legado`,
-                    entidad_id: String(enrichedDetails._meta.entity_id || ''),
-                    entidad_tipo: String(enrichedDetails._meta.entity_type || 'GENERAL').toLowerCase(),
-                    entidad_nombre: String(enrichedDetails._meta.entity_type || 'Entidad'),
-                    valores_anteriores: prevValues,
-                    valores_nuevos: newValues,
-                    metadata: enrichedDetails,
-                    impacto_financiero: financial ? {
-                        monto_total: financial.amount,
-                        diferencia_precio: financial.amount,
-                        impacto_mensual_estimado: `Impacto ${financial.type}: Q${financial.amount}`
-                    } : undefined
-                }, { id: user.id, nombre: user.name, rol: user.role });
-            } catch (auditErr) {
-                console.error('Error syncing log to new audit system:', auditErr);
+            // --- REDIRECCIÓN AL NUEVO SISTEMA (VIGILANCIA TOTAL - INMUTABLE) ---
+            let prevValues: Record<string, any> | undefined;
+            let newValues: Record<string, any> = { ...enrichedDetails };
+            
+            if (changes && changes.length > 0) {
+                prevValues = {};
+                newValues = {};
+                changes.forEach(c => {
+                    prevValues![c.field] = c.before;
+                    newValues[c.field] = c.after;
+                });
             }
 
-            if (legacyError) {
-                console.error('❌ Error logging activity (Legacy DB):', legacyError);
+            const { success, error } = await registrarAuditoria({
+                modulo: String(module) || 'SISTEMA',
+                accion: String(action),
+                accion_descripcion: details?.descripcion || `${action} registrado vía ActivityLogService`,
+                entidad_id: String(enrichedDetails._meta.entity_id || ''),
+                entidad_tipo: String(enrichedDetails._meta.entity_type || 'GENERAL').toLowerCase(),
+                entidad_nombre: String(enrichedDetails._meta.entity_type || 'Entidad'),
+                valores_anteriores: prevValues,
+                valores_nuevos: newValues,
+                metadata: enrichedDetails,
+                impacto_financiero: financial ? {
+                    monto_total: financial.amount,
+                    diferencia_precio: financial.amount,
+                    impacto_mensual_estimado: `Impacto ${financial.type}: Q${financial.amount}`
+                } : undefined
+            }, user ? { id: user.id, nombre: user.name, rol: user.role } : undefined);
+
+            if (!success) {
+                console.error('❌ Error logging activity:', error);
                 this.saveToLocalFallback(params);
-                return { success: false, error: legacyError.message };
+                return { success: false, error: error };
             }
 
             return { success: true };
@@ -370,15 +355,15 @@ class ActivityLogService {
      */
     async getLogs(filters: ActivityLogFilters): Promise<ActivityLog[]> {
         let query = supabase
-            .from('activity_log_detailed')
+            .from('activity_log')
             .select('*')
-            .order('timestamp', { ascending: false });
+            .order('fecha_hora', { ascending: false });
 
         if (filters.startDate) {
-            query = query.gte('timestamp', `${filters.startDate}T00:00:00`);
+            query = query.gte('fecha_hora', `${filters.startDate}T00:00:00`);
         }
         if (filters.endDate) {
-            query = query.lte('timestamp', `${filters.endDate}T23:59:59`);
+            query = query.lte('fecha_hora', `${filters.endDate}T23:59:59`);
         }
         if (filters.module && filters.module !== 'ALL') {
             query = query.eq('modulo', filters.module);
@@ -398,35 +383,38 @@ class ActivityLogService {
         }
 
         return (data || []).map((row: any) => {
-            const changes = [];
-            if (row.valores_anteriores && row.valores_nuevos) {
-                for (const k in row.valores_nuevos) {
-                    const before = row.valores_anteriores[k];
-                    const after = row.valores_nuevos[k];
-                    if (JSON.stringify(before) !== JSON.stringify(after)) {
-                        changes.push({ field: k, before, after });
-                    }
+            const atributos = row.atributos || {};
+            const cambios = atributos.cambios || {};
+            
+            // Reconstruir lista de cambios para el UI
+            const uiChanges = [];
+            if (cambios.anteriores && cambios.nuevos) {
+                for (const k in cambios.nuevos) {
+                    uiChanges.push({
+                        field: k,
+                        before: cambios.anteriores[k],
+                        after: cambios.nuevos[k]
+                    });
                 }
             }
 
             return {
-                id: row.id || row.sesion_id,
+                id: row.id,
                 user_name: row.usuario_nombre,
                 user_role: row.usuario_rol,
                 module: row.modulo,
                 action: row.accion,
-                created_at: row.timestamp || row.timestamp_local,
+                created_at: row.fecha_hora,
                 details: {
-                    ...(row.valores_nuevos || {}),
-                    ...(row.metadata || {}),
-                    _changes: changes,
-                    _financial: row.impacto_financiero ? {
-                        amount: row.impacto_financiero.monto_total || row.impacto_financiero.diferencia_precio || 0,
-                        type: row.impacto_financiero.diferencia_precio < 0 ? 'EGRESO' : 'INGRESO',
-                        notes: row.impacto_financiero.impacto_mensual_estimado || ''
+                    ...atributos,
+                    _changes: uiChanges,
+                    _financial: row.es_financiero ? {
+                        amount: row.impacto_monto,
+                        type: row.impacto_tipo,
+                        notes: atributos.descripcion
                     } : undefined,
                     _meta: {
-                        severity: (row.metadata?.severity) || (row.impacto_financiero ? 'FINANCIAL' : 'INFO')
+                        severity: atributos.metadata?.severity || (row.es_financiero ? 'FINANCIAL' : 'INFO')
                     }
                 }
             } as any;
@@ -446,7 +434,7 @@ class ActivityLogService {
             let synced = 0;
 
             for (const log of pendingLogs) {
-                const { error } = await supabase.from('activity_logs').insert(log);
+                const { error } = await supabase.from('activity_log').insert(log);
                 if (!error) synced++;
             }
 

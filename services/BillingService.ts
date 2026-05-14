@@ -10,6 +10,7 @@ import {
     CONSUMIDOR_FINAL_NIT,
     CONSUMIDOR_FINAL_NAME
 } from '../types/billing';
+import { generateUUID } from '../utils/uuid';
 
 class BillingService {
     private settingsByBranch: Record<string, BillingSettings> = {};
@@ -108,7 +109,7 @@ class BillingService {
         }
 
         try {
-            const tempUuid = crypto.randomUUID();
+            const tempUuid = generateUUID();
             const rawXml = this.buildFELXML(request, tempUuid, settings);
             const signedXml = await this.signInvoice(rawXml, false, settings);
             const certificationParams = await this.certifyInvoice(signedXml, false, settings);

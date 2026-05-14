@@ -6,6 +6,7 @@ import { printService } from '../../services/PrintService';
 import { reportTemplates } from '../../services/ReportTemplates';
 import { activityLogService } from '../../services/ActivityLogService';
 import { User } from '../../types';
+import { generateUUID } from '../../utils/uuid';
 import { ExpenseReportViewerModal } from './ExpenseReportViewerModal';
 
 interface ExpensesAdminProps {
@@ -215,7 +216,7 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
     if (!newExpense.description || !newExpense.amount || !newExpense.category) return alert('Complete todos los campos');
 
     // Prepare Base Object
-    const expenseId = crypto.randomUUID();
+    const expenseId = generateUUID();
     const expenseData = {
       id: expenseId,
       description: newExpense.description.toUpperCase(),

@@ -7,6 +7,7 @@ import { Clock, CheckCircle2, Flame, ChefHat, Bell, AlertCircle, Loader2, Play, 
 import { supabase } from '../supabase';
 import { speak, speakAfterAudio } from '../utils/voice';
 import { getSecureSoundUrl } from '../utils/supabaseUtils';
+import { generateUUID } from '../utils/uuid';
 
 interface KDSItem {
   id: string;
@@ -597,7 +598,7 @@ export const KitchenView: React.FC = () => {
           created_at: orderTimestamp,
           order_number: data.orderNumber,
           items: (data.items || []).map((i: any) => ({
-            id: i.id || crypto.randomUUID(),
+            id: i.id || generateUUID(),
             product_name: i.product_name || 'Desconocido',
             quantity: i.quantity || 1,
             notes: i.notes,

@@ -1,3 +1,5 @@
+import { generateUUID } from '../utils/uuid';
+
 const DB_NAME = 'LasPalmas_POS_MasterData';
 const DB_VERSION = 3;
 
@@ -45,7 +47,7 @@ class MasterDataDB {
                 if (Array.isArray(data)) {
                     data.forEach(item => {
                         // Ensure it has an id, fallback to a random UUID if not (though master data usually has one)
-                        if (!item.id) item.id = crypto.randomUUID();
+                        if (!item.id) item.id = generateUUID();
                         store.put(item);
                     });
                 } else if (data && typeof data === 'object') {

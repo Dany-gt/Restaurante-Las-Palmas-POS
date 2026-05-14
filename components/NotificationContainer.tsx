@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NotificationType } from '../hooks/useNotify';
 import { supabase } from '../supabase';
 import { getSecureSoundUrl } from '../utils/supabaseUtils';
+import { generateUUID } from '../utils/uuid';
 
 interface AppNotification {
     id: string;
@@ -65,7 +66,7 @@ export const NotificationContainer: React.FC = () => {
         const handleNotification = (event: any) => {
             console.log('📬 Notification Event received:', event.detail);
             const { type, message, soundOnly } = event.detail;
-            const id = crypto.randomUUID();
+            const id = generateUUID();
 
             if (!soundOnly) {
                 setNotifications(prev => {

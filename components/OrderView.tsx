@@ -24,6 +24,7 @@ import { useNotify } from '../hooks/useNotify';
 import { activityLogService } from '../services/ActivityLogService';
 import { WindowsConfirmModal } from './WindowsConfirmModal';
 import { WindowsInputModal } from './WindowsInputModal';
+import { generateUUID } from '../utils/uuid';
 
 const PlaceholderLogo = () => (
     <div className="flex flex-col items-center justify-center h-full w-full p-2">
@@ -1943,7 +1944,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         if (processing || items.length === 0 || (activeOrderId && unsentItems.length === 0)) return;
 
         // 1. GENERATE OR RETRIEVE UUID (Mandatory for Offline Resilience)
-        const finalOrderId = activeOrderId || crypto.randomUUID();
+        const finalOrderId = activeOrderId || generateUUID();
 
         const nowWithOffset = new Date(Date.now() + serverOffset);
 
@@ -2456,7 +2457,16 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                         return (a.name || '').localeCompare(b.name || '');
                                                     })
                                                     .filter(c => {
-                                                        const key = (c.name || '').trim().toUpperCase();
+                                                        // v1.6.18 - Normalize accents and plurals for better de-duplication
+                                                        const rawName = (c.name || '').trim().toUpperCase();
+                                                        const normalized = rawName.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                                                        const key = normalized
+                                                            .replace(/\bDE\b/g, '')
+                                                            .replace(/\bDEL\b/g, '')
+                                                            .replace(/S\b/g, '') // Singularize
+                                                            .replace(/\s+/g, ' ')
+                                                            .trim();
+                                                        
                                                         if (!key || seen.has(key)) return false;
                                                         seen.add(key);
                                                         return true;
@@ -2500,8 +2510,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             ))}
                                         {categories.filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO').length === 0 && (() => {
                                             // SENIOR BRIDGE FIX: Collect all IDs for categories with this NAME to handle duplicates
+                                            // v1.6.15 - STRICT SECTION FILTERING: Only match within the same section (MENU vs INVENTORY)
                                             const relatedCatIds = categories
-                                                .filter(c => c.name?.toUpperCase() === selectedCat.name?.toUpperCase())
+                                                .filter(c => 
+                                                    c.name?.toUpperCase() === selectedCat.name?.toUpperCase() && 
+                                                    (c.section || 'MENU') === (selectedCat.section || 'MENU')
+                                                )
                                                 .map(c => c.id);
                                             
                                             // v1.4.1 - STRICT CATEGORY FILTERING & GLOBAL SHADOW STOCK
@@ -2516,7 +2530,17 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 const matchesInventory = relatedCatIds.includes(p.product_category_id) || relatedCatIds.includes(p.category_id);
                                                 
                                                 if (isInventorySection) return matchesInventory;
-                                                return matchesMenu && p.classification !== 'INSUMO';
+
+                                                // v1.6.16 - FIXED: Allow matchesInventory in Menu section too
+                                                // Since relatedCatIds is now strictly filtered by section (MENU), 
+                                                // matchesInventory will only be true for products in a Menu category.
+                                                const isMatch = matchesMenu || matchesInventory;
+
+                                                // v1.6.15 - Extra safety: Don't show technical inventory items in Menu even if IDs match
+                                                const isTechnicalItem = p.classification === 'INSUMO' || (p.name || '').toUpperCase().includes('MERMA');
+                                                const isNotPlatillo = (p as any).es_platillo === false && p.classification !== 'PRODUCTO';
+                                                
+                                                return isMatch && !isTechnicalItem && !isNotPlatillo;
                                             });
 
                                             // 1. Build a GLOBAL Map for Stock AND Images by Name
@@ -2614,11 +2638,17 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 .filter(c => c.name?.toUpperCase() === selectedSubCat.name?.toUpperCase())
                                                 .map(c => c.id);
 
-                                            const filteredSubProds = products.filter(p => (
-                                                relatedSubCatIds.includes(p.category_id) || 
-                                                relatedSubCatIds.includes(p.product_category_id) || 
-                                                relatedSubCatIds.includes(p.menu_category_id)
-                                            ) && p.classification !== 'INSUMO');
+                                            const filteredSubProds = products.filter(p => {
+                                                const matchesAny = relatedSubCatIds.includes(p.category_id) || 
+                                                                 relatedSubCatIds.includes(p.product_category_id) || 
+                                                                 relatedSubCatIds.includes(p.menu_category_id);
+                                                
+                                                // v1.6.17 - STRICT FILTERING for Sub-Categories too
+                                                const isTechnicalItem = p.classification === 'INSUMO' || (p.name || '').toUpperCase().includes('MERMA');
+                                                const isNotPlatillo = (p as any).es_platillo === false && p.classification !== 'PRODUCTO';
+                                                
+                                                return matchesAny && !isTechnicalItem && !isNotPlatillo;
+                                            });
 
                                             // v1.4.1 - Shadow Stock for Sub-Categories
                                             const globalDataMap = new Map<string, { stock: number, image?: string }>();

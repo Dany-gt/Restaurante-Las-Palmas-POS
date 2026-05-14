@@ -14,6 +14,7 @@ import {
     Info
 } from 'lucide-react';
 import { supabase } from '../../supabase';
+import { generateUUID } from '../../utils/uuid';
 import { WindowsSaveButton } from '../WindowsSaveButton';
 import { WindowsConfirmModal } from '../WindowsConfirmModal';
 import { DraggableWindow } from './DraggableWindow';
@@ -45,7 +46,7 @@ export const ManualTipDistributionModal: React.FC<Props> = ({
 }) => {
     const [waiterVales, setWaiterVales] = useState<Record<string, number>>({});
     const [employees, setEmployees] = useState<EmployeeRow[]>([
-        { id: crypto.randomUUID(), name: '', vales: 0 }
+        { id: generateUUID(), name: '', vales: 0 }
     ]);
 
     const [loading, setLoading] = useState(false);
@@ -96,7 +97,7 @@ export const ManualTipDistributionModal: React.FC<Props> = ({
         setWaiterVales(prev => ({ ...prev, [name]: value }));
     };
 
-    const addEmployee = () => setEmployees([...employees, { id: crypto.randomUUID(), name: '', vales: 0 }]);
+    const addEmployee = () => setEmployees([...employees, { id: generateUUID(), name: '', vales: 0 }]);
     const removeEmployee = (id: string) => employees.length > 1 && setEmployees(employees.filter(e => e.id !== id));
     const updateEmployee = (id: string, field: keyof EmployeeRow, value: string | number) =>
         setEmployees(employees.map(e => e.id === id ? { ...e, [field]: value } : e));

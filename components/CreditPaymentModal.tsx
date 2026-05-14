@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Search, User, CreditCard, Loader2, Save, Banknote, CreditCard as CardIcon, Wallet, ArrowLeft, Check } from 'lucide-react';
 import { supabase } from '../supabase';
+import { generateUUID } from '../utils/uuid';
 
 interface CreditPaymentModalProps {
     onClose: () => void;
@@ -75,7 +76,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
         }
 
         const paymentData = {
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             customer_id: selectedCustomer.id,
             amount: paymentAmount,
             payment_method: paymentMethod,

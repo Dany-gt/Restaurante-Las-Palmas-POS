@@ -33,6 +33,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 dayjs.locale('es');
 import * as XLSX from 'xlsx';
+import { generateUUID } from '@/utils/uuid';
 
 // --- COMPONENTES DE APOYO INTERNOS ---
 import { WindowsConfirmModal } from '@/components/WindowsConfirmModal';
@@ -176,7 +177,7 @@ interface ManualTipProps {
 }
 const ManualTipDistributionModal: React.FC<ManualTipProps> = ({ onClose, totalBruta: initialTotalBruta, branchId, startDate, endDate, waiterData = [] }) => {
     const [meseroVales, setMeseroVales] = useState<Record<string, number>>({});
-    const [employees, setEmployees] = useState<{ id: string, name: string, vales: number }[]>([{ id: crypto.randomUUID(), name: '', vales: 0 }]);
+    const [employees, setEmployees] = useState<{ id: string, name: string, vales: number }[]>([{ id: generateUUID(), name: '', vales: 0 }]);
     const [loading, setLoading] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [showPrintPreview, setShowPrintPreview] = useState(false);
@@ -321,7 +322,7 @@ const ManualTipDistributionModal: React.FC<ManualTipProps> = ({ onClose, totalBr
                             <div className="space-y-3">
                                 <div className="bg-[#106ebe] h-9 px-4 flex justify-between items-center rounded-t-sm shadow-sm">
                                     <div className="flex items-center gap-2"><ChefHat size={16} className="text-emerald-400" /><span className="text-white text-[10px] font-black uppercase tracking-widest">Personal de Apoyo (45% de Ley)</span></div>
-                                    <button onClick={() => setEmployees([...employees, { id: crypto.randomUUID(), name: '', vales: 0 }])} className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 h-6 rounded-sm text-[9px] font-black uppercase flex items-center gap-1.5 border border-emerald-400/30 transition-none"><UserPlus size={14} /> Agregar Personal</button>
+                                    <button onClick={() => setEmployees([...employees, { id: generateUUID(), name: '', vales: 0 }])} className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 h-6 rounded-sm text-[9px] font-black uppercase flex items-center gap-1.5 border border-emerald-400/30 transition-none"><UserPlus size={14} /> Agregar Personal</button>
                                 </div>
                                 <div className="border rounded-b-sm overflow-hidden shadow-sm">
                                     <table className="w-full text-[11px]">

@@ -127,7 +127,9 @@ export const ICON_MAP = {
   IMAGE: 'flat-color-icons:picture',
   SPARKLES: 'flat-color-icons:flash-on',
   REFRESH: 'flat-color-icons:refresh',
-  EDIT: 'flat-color-icons:edit-image'
+  EDIT: 'flat-color-icons:edit-image',
+  BOX: 'flat-color-icons:package',
+  CATEGORY: 'flat-color-icons:opened-folder'
 };
 
 export const PremiumIcon: React.FC<PremiumIconProps> = ({ icon, size = 24, className = '', color }) => {
