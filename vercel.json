@@ -6,6 +6,10 @@
             "config": { "maxDuration": 60 }
         },
         {
+            "src": "api/proxy.js",
+            "use": "@vercel/node"
+        },
+        {
             "src": "package.json",
             "use": "@vercel/static-build",
             "config": { "distDir": "dist" }
@@ -15,6 +19,10 @@
         {
             "source": "/api/sat-sync",
             "destination": "/api/sat-sync.py"
+        },
+        {
+            "source": "/api/proxy",
+            "destination": "/api/proxy.js"
         },
         {
             "source": "/((?!api/).*)",

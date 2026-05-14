@@ -345,9 +345,9 @@ class BillingService {
 
         const signerUrl = 'https://signer-emisores.feel.com.gt/sign_solicitud_firmas/firma_xml';
         const proxies = [
-            'https://corsproxy.io/?url=',
-            'https://thingproxy.freeboard.io/fetch/',
-            'https://cors-anywhere.herokuapp.com/'
+            '/api/proxy?url=',
+            'https://api.codetabs.com/v1/proxy?quest=',
+            'https://corsproxy.io/?url='
         ];
 
         let lastError = null;
@@ -386,9 +386,9 @@ class BillingService {
         };
 
         const proxies = [
-            'https://corsproxy.io/?url=',
-            'https://thingproxy.freeboard.io/fetch/',
-            'https://cors-anywhere.herokuapp.com/'
+            '/api/proxy?url=',
+            'https://api.codetabs.com/v1/proxy?quest=',
+            'https://corsproxy.io/?url='
         ];
 
         let lastError = null;
@@ -516,10 +516,9 @@ class BillingService {
 
             const proxies = [
                 '',
-                'https://corsproxy.io/?url=',
-                'https://api.allorigins.win/raw?url=',
-                'https://thingproxy.freeboard.io/fetch/',
-                'https://cors-anywhere.herokuapp.com/'
+                '/api/proxy?url=',
+                'https://api.codetabs.com/v1/proxy?quest=',
+                'https://corsproxy.io/?url='
             ];
 
             const configs = [
@@ -615,10 +614,9 @@ class BillingService {
         ];
 
         const proxies = [
-            'https://corsproxy.io/?url=',
-            'https://api.allorigins.win/raw?url=',
-            'https://thingproxy.freeboard.io/fetch/',
-            'https://cors-anywhere.herokuapp.com/'
+            '/api/proxy?url=',
+            'https://api.codetabs.com/v1/proxy?quest=',
+            'https://corsproxy.io/?url='
         ];
 
         let lastErrorDesc = '';
