@@ -346,6 +346,7 @@ class BillingService {
         const signerUrl = 'https://signer-emisores.feel.com.gt/sign_solicitud_firmas/firma_xml';
         const proxies = [
             'https://corsproxy.io/?url=',
+            'https://thingproxy.freeboard.io/fetch/',
             'https://cors-anywhere.herokuapp.com/'
         ];
 
@@ -386,6 +387,7 @@ class BillingService {
 
         const proxies = [
             'https://corsproxy.io/?url=',
+            'https://thingproxy.freeboard.io/fetch/',
             'https://cors-anywhere.herokuapp.com/'
         ];
 
