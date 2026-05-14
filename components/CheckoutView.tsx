@@ -407,7 +407,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 if (updateError) throw updateError;
                 if (table?.id) await supabase.from('tables').update({ status: 'available' }).eq('id', table.id);
 
-                if (hasCashPayment) printService.openCashDrawer().catch(console.error);
+                printService.openCashDrawer({
+                    orderId: order.id,
+                    userId: currentUser?.id || '',
+                    userName: currentUser?.name || 'Cajero',
+                    amount: hasCashPayment ? (payments.find(p => p.method === 'EFECTIVO')?.amount || total) : 0,
+                    reason: 'Cobro de Orden (Contingencia/Facturado)'
+                }).catch(console.error);
 
                 // Logging action
                 if (currentUser) {
@@ -749,21 +755,19 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     });
                 }
 
-                // Open Cash Drawer if payment includes CASH
+                // Open Cash Drawer for ALL payments (to store cash or card vouchers)
                 const cashPayments = payments.filter(p => p.method === 'EFECTIVO');
                 const cashAmount = payments.length > 0
                     ? cashPayments.reduce((acc, p) => acc + p.amount, 0)
                     : (paymentMethod === 'EFECTIVO' ? total : 0);
 
-                if (cashAmount > 0) {
-                    printService.openCashDrawer({
-                        orderId: order.id,
-                        userId: currentUser?.id || '',
-                        userName: currentUser?.name || 'Cajero',
-                        amount: cashAmount,
-                        reason: 'Cobro de Orden'
-                    }).catch(console.error);
-                }
+                printService.openCashDrawer({
+                    orderId: order.id,
+                    userId: currentUser?.id || '',
+                    userName: currentUser?.name || 'Cajero',
+                    amount: cashAmount,
+                    reason: 'Cobro de Orden'
+                }).catch(console.error);
 
                 // ─── IMPRESIÓN DEL TICKET ───
                 try {
@@ -799,10 +803,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         customerName: customer.name,
                         paymentMethod: payments.length > 0 ? payments[0].method : paymentMethod
                     });
-                    notify.success('Venta procesada e impresión enviada');
+                    console.log('Venta procesada e impresión enviada');
                 } catch (printError: any) {
                     console.error('Error printing invoice:', printError);
-                    notify.error('Venta procesada pero falló la impresión: ' + (printError.message || 'Error de driver'));
+                    alert('Venta procesada pero falló la impresión: ' + (printError.message || 'Error de driver'));
                 }
 
                 setInvoiceSuccess(true);
@@ -935,29 +939,29 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
 
                 {/* MIDDLE PANEL: ITEMS LIST */}
                 <div className="flex-1 bg-[#1e212b] rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col">
-                    <div className="p-6 border-b border-white/5 bg-white/5 flex items-center justify-between text-xs font-black uppercase tracking-wider text-gray-400 relative">
+                    <div className="p-2 sm:p-3 border-b border-white/5 bg-white/5 flex items-center justify-between text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-wider text-gray-300 relative">
                         {/* Left spacer to help center the middle content */}
-                        <div className="w-24 hidden lg:block"></div>
+                        <div className="w-1 sm:w-6 hidden lg:block"></div>
 
-                        <div className="flex-1 flex justify-center items-center gap-3 overflow-hidden">
-                            <span className="text-white shrink-0">Orden: #{(order as any).order_number || '...'}</span>
-                            <span className="text-gray-700 shrink-0">|</span>
+                        <div className="flex-1 flex flex-nowrap justify-center items-center gap-x-1 sm:gap-x-2 overflow-hidden whitespace-nowrap">
+                            <span className="text-white shrink-0">#{(order as any).order_number || '...'}</span>
+                            <span className="text-gray-600 shrink-0">|</span>
                             <span className="text-white font-black shrink-0 uppercase tracking-widest">
                                 {!order.customer_name || order.customer_name.toUpperCase() === 'CUENTA PRINCIPAL' ? 'CUENTA 1' : order.customer_name}
                             </span>
-                            <span className="text-gray-700 shrink-0">|</span>
-                            <span className="text-white truncate">{table?.section || 'SALA'}</span>
-                            <span className="text-gray-700 shrink-0">|</span>
-                            <span className="text-white shrink-0">Mesa: {table?.number || '?'}</span>
-                            <span className="text-gray-700 shrink-0 hidden sm:inline">|</span>
-                            <span className="truncate hidden sm:inline text-gray-500">Atiende: {(order as any).profiles?.name || currentUser?.name || 'Mesero'}</span>
-                            <span className="text-gray-700 shrink-0 hidden sm:inline">|</span>
-                            <span className="text-white font-black shrink-0 uppercase tracking-widest hidden sm:inline">
-                                {order.items?.length || 0} PLATILLOS
+                            <span className="text-gray-600 shrink-0">|</span>
+                            <span className="text-white shrink-0">{table?.section || 'SALA'}</span>
+                            <span className="text-gray-600 shrink-0">|</span>
+                            <span className="text-white shrink-0">MESA: {table?.number || '?'}</span>
+                            <span className="text-gray-600 shrink-0">|</span>
+                            <span className="text-gray-400 shrink-0">ATIENDE: {(order as any).profiles?.name || currentUser?.name || 'Mesero'}</span>
+                            <span className="text-gray-600 shrink-0">|</span>
+                            <span className="text-white font-black shrink-0 uppercase tracking-widest">
+                                {order.items?.length || 0} ITEMS
                             </span>
                         </div>
 
-                        <div className="w-24 hidden lg:block"></div>
+                        <div className="w-2 sm:w-12 hidden lg:block"></div>
                     </div>
                     <div className="flex-1 overflow-y-auto p-6 space-y-2">
                         {order.items?.map((item, idx) => (
