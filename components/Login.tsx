@@ -827,7 +827,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   onClick={() => handleOperatorClick(authenticatedUser)}
                   className="flex flex-col items-center justify-center gap-4 p-8 bg-[#23242f] border-2 border-white/40 rounded-3xl hover:bg-white/10 hover:border-white/60 transition-all group relative shadow-2xl hover:-translate-y-1"
                 >
-                  <div className={`w-2.5 h-2.5 rounded-full absolute top-4 left-4 ${openShiftUserIds.includes(authenticatedUser?.id) ? 'bg-white animate-pulse shadow-[0_0_12px_rgba(255,255,255,0.6)]' : 'bg-white/20 shadow-[0_0_12px_rgba(255,255,255,0.2)]'}`}></div>
+                  <div className={`w-2.5 h-2.5 rounded-full absolute top-4 left-4 ${openShiftUserIds.includes(authenticatedUser?.id) ? 'bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.6)]' : 'bg-white/10 shadow-[0_0_12px_rgba(255,255,255,0.1)]'}`}></div>
                   <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 group-hover:text-white transition-colors shadow-inner border border-white/5">
                     <CashRegisterIcon size={40} strokeWidth={1} />
                   </div>
@@ -845,7 +845,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                     onClick={() => handleOperatorClick(reg)}
                     className="flex flex-col items-center justify-center gap-4 p-8 bg-[#23242f] border border-white/5 rounded-3xl hover:bg-white/10 hover:border-white/20 transition-all group relative shadow-2xl hover:-translate-y-1"
                   >
-                    <div className={`w-2.5 h-2.5 rounded-full absolute top-4 left-4 ${openShiftUserIds.includes(reg.id) ? 'bg-white animate-pulse shadow-[0_0_12px_rgba(255,255,255,0.6)]' : 'bg-white/20 shadow-[0_0_12px_rgba(255,255,255,0.2)]'}`}></div>
+                    <div className={`w-2.5 h-2.5 rounded-full absolute top-4 left-4 ${openShiftUserIds.includes(reg.id) ? 'bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.6)]' : 'bg-white/10 shadow-[0_0_12px_rgba(255,255,255,0.1)]'}`}></div>
                     <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-white transition-colors shadow-inner">
                       <CashRegisterIcon size={40} strokeWidth={1} />
                     </div>

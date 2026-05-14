@@ -1690,16 +1690,15 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 pending.push({ id: itemToRemove.id, reason: effectiveReason, at: nowGuate });
                 localStorage.setItem('pending_voids', JSON.stringify(pending));
             } else {
-                // Update DB via RPC (v1.6.0 - Server-side PIN validation to bypass RLS)
                 const { data: rpcResult, error: voidError } = await supabase.rpc('void_item_with_pin', {
                     p_item_id: itemToRemove.id,
-                    p_admin_pin: adminPin || '', // Pasamos el PIN para validación absoluta
+                    p_admin_pin: adminPin || '', 
                     p_void_reason: effectiveReason,
                     p_voided_at: nowGuate
                 });
 
                 if (voidError || (rpcResult && rpcResult.success === false)) {
-                    throw voidError || new Error(rpcResult?.error || 'Error desconocido en el servidor (PIN inválido?)');
+                    throw voidError || new Error(rpcResult?.error || 'Error al anular item');
                 }
             }
 
