@@ -944,7 +944,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         <div className="w-1 sm:w-6 hidden lg:block"></div>
 
                         <div className="flex-1 flex flex-nowrap justify-center items-center gap-x-1 sm:gap-x-2 overflow-hidden whitespace-nowrap">
-                            <span className="text-white shrink-0">#{(order as any).order_number || '...'}</span>
+                            <span className="text-white shrink-0">ORDEN: #{(order as any).order_number || '...'}</span>
                             <span className="text-gray-600 shrink-0">|</span>
                             <span className="text-white font-black shrink-0 uppercase tracking-widest">
                                 {!order.customer_name || order.customer_name.toUpperCase() === 'CUENTA PRINCIPAL' ? 'CUENTA 1' : order.customer_name}
@@ -957,7 +957,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                             <span className="text-gray-400 shrink-0">ATIENDE: {(order as any).profiles?.name || currentUser?.name || 'Mesero'}</span>
                             <span className="text-gray-600 shrink-0">|</span>
                             <span className="text-white font-black shrink-0 uppercase tracking-widest">
-                                {order.items?.length || 0} ITEMS
+                                {order.items?.length || 0} PLATILLOS
                             </span>
                         </div>
 
