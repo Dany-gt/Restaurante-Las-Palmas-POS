@@ -142,7 +142,7 @@ class PrintService {
 
   // ─── CORE HTML TEMPLATE ───────────────────────────────────────────
 
-  private generateTicketHTML(title: string, content: string, footer?: string, paperWidth: string = '80mm'): string {
+  private generateTicketHTML(title: string, content: string, footer?: string, paperWidth: string = '80mm', hideHeader: boolean = false): string {
     const isSmall = paperWidth === '58mm';
     const maxWidth = isSmall ? '48mm' : '68mm';
     const fontSize = isSmall ? '8.5px' : '9.5px';
@@ -202,13 +202,14 @@ class PrintService {
   </style>
 </head>
 <body>
+  ${!hideHeader ? `
   <div class="header">
     <div class="restaurant-name">${this.restaurantInfo?.name || 'RESTAURANTE LAS PALMAS'}</div>
-
     <div class="restaurant-info">${this.restaurantInfo?.phone ? 'Tel: ' + this.restaurantInfo.phone : ''}</div>
     <div class="restaurant-info">${this.restaurantInfo?.email || ''}</div>
     <div class="restaurant-info" style="font-weight:bold;">${(this.restaurantInfo?.website || '').toLowerCase()}</div>
   </div>
+  ` : ''}
   ${title ? '<div class="ticket-title">' + title + '</div>' : '<div class="dotted-divider"></div>'}
   <div class="content">${content}</div>
   ${footer ? '<div class="footer">' + footer + '</div>' : ''}
@@ -681,6 +682,8 @@ class PrintService {
 
   async printVoidTicket(data: {
     waiterName: string;
+    cashierName: string;
+    sectionName: string;
     tableNumber: string | number;
     productName: string;
     quantity: number;
@@ -689,14 +692,16 @@ class PrintService {
     orderNumber?: string | number;
   }): Promise<boolean> {
     const content = `
-      <div style="text-align:center; border:2px solid #000; padding:5px; margin-bottom:10px;">
+      <div style="text-align:center; margin-bottom:10px;">
         <div style="font-size:16px; font-weight:900; letter-spacing: 1px;">PLATILLO ANULADO</div>
         ${data.orderNumber ? `<div style="font-size:11px; margin-top:2px; font-weight:bold;">ORDEN #${data.orderNumber}</div>` : ''}
       </div>
       
       <div class="info-grid" style="margin-bottom: 5px;">
-        <div class="info-line"><span class="info-label" style="width:55px;">MESERO:</span> ${data.waiterName.toUpperCase()}</div>
+        <div class="info-line"><span class="info-label" style="width:55px;">CAJERO:</span> ${data.cashierName.toUpperCase()}</div>
         <div class="info-line" style="text-align: right;"><span class="info-label" style="width:45px;">MESA:</span> ${data.tableNumber}</div>
+        <div class="info-line"><span class="info-label" style="width:55px;">MESERO:</span> ${data.waiterName.toUpperCase()}</div>
+        <div class="info-line" style="text-align: right;"><span class="info-label" style="width:55px;">SECCIÓN:</span> ${data.sectionName.toUpperCase()}</div>
         <div class="info-line" style="grid-column: span 2;"><span class="info-label" style="width:55px;">HORA:</span> ${data.voidedAt}</div>
       </div>
 
@@ -721,7 +726,7 @@ class PrintService {
       </div>
     `;
     const title = 'ANULACIÓN DE PRODUCTO';
-    const htmlContent = (pw: string) => this.generateTicketHTML(title, content, undefined, pw);
+    const htmlContent = (pw: string) => this.generateTicketHTML('', content, undefined, pw, true);
     
     await this.executePrint(title, htmlContent, { silent: true });
     return true;
@@ -959,7 +964,7 @@ class PrintService {
       const electron = (window as any).electronAPI || (window as any).electron;
       if (this.isElectron() && electron && electron.openCashDrawer) {
         // Try to find a printer explicitly configured for cash drawer
-        const { data: drawerPrinter } = await supabase
+        let { data: drawerPrinter } = await supabase
           .from('printers')
           .select('name, address, connection_type')
           .eq('opens_cash_drawer', true)
@@ -967,15 +972,31 @@ class PrintService {
           .limit(1)
           .single();
 
+        // Fallback: If no printer is explicitly marked for drawer, try the first active system printer
+        if (!drawerPrinter) {
+          const { data: fallbackPrinter } = await supabase
+            .from('printers')
+            .select('name, address, connection_type')
+            .eq('is_active', true)
+            .limit(1)
+            .single();
+          drawerPrinter = fallbackPrinter;
+        }
+
         let target = undefined;
         let type = undefined;
 
         if (drawerPrinter) {
           target = drawerPrinter.connection_type === 'NETWORK' ? drawerPrinter.address : drawerPrinter.name;
           type = drawerPrinter.connection_type;
+          console.log(`📠 [PrintService] Usando impresora "${drawerPrinter.name}" para pulso de gaveta.`);
+        } else {
+          console.warn('⚠️ No se encontró ninguna impresora configurada para abrir la gaveta.');
         }
 
-        const electron = (window as any).electronAPI || (window as any).electron;
+        // Anti-collision delay: wait a bit if a print job might be starting
+        await new Promise(resolve => setTimeout(resolve, 300));
+
         const r = await electron.openCashDrawer({ target, type });
         if (r.success) {
           console.log('✅ Cash drawer pulse sent successfully.');

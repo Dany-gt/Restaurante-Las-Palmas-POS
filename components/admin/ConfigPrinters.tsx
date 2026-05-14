@@ -34,7 +34,8 @@ export const ConfigPrinters: React.FC = () => {
         port: 9100,
         paper_width: '80mm',
         is_active: true,
-        branch_id: ''
+        branch_id: '',
+        opens_cash_drawer: false
     };
 
     const [formData, setFormData] = useState(defaultFormData);
@@ -54,7 +55,7 @@ export const ConfigPrinters: React.FC = () => {
             if (list.length > 0) {
                 notify.success(`${list.length} impresoras detectadas en Windows`);
             } else {
-                notify.warn('No se encontraron impresoras instaladas en este equipo');
+                notify.alert('No se encontraron impresoras instaladas en este equipo');
             }
         } catch (err) {
             console.error(err);
@@ -150,7 +151,8 @@ export const ConfigPrinters: React.FC = () => {
             port: printer.port || 9100,
             paper_width: printer.paper_width || '80mm',
             is_active: printer.is_active,
-            branch_id: printer.branch_id || ''
+            branch_id: printer.branch_id || '',
+            opens_cash_drawer: printer.opens_cash_drawer || false
         });
         setShowModal(true);
     };
@@ -287,7 +289,7 @@ export const ConfigPrinters: React.FC = () => {
                                                         
                                                         const electron = (window as any).electronAPI;
                                                         if (!electron) {
-                                                            notify.warn('Función solo disponible en Electron');
+                                                            notify.alert('Función solo disponible en Electron');
                                                             return;
                                                         }
 
@@ -500,6 +502,12 @@ export const ConfigPrinters: React.FC = () => {
                                                         <option key={branch.id} value={branch.id}>{branch.name}</option>
                                                     ))}
                                                 </select>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-[100px_1fr] items-center gap-4">
+                                            <label className="text-[11px] font-medium text-gray-700">Opciones</label>
+                                            <div className="flex items-center gap-6">
                                                 <label className="flex items-center gap-2 cursor-pointer select-none">
                                                     <div
                                                         onClick={() => setFormData({ ...formData, is_active: !formData.is_active })}
@@ -507,7 +515,20 @@ export const ConfigPrinters: React.FC = () => {
                                                     >
                                                         {formData.is_active && <Check size={12} strokeWidth={4} />}
                                                     </div>
-                                                    <span className="text-[11px] font-medium text-gray-700">Habilitado</span>
+                                                    <span className="text-[11px] font-medium text-gray-700">Impresora Habilitada</span>
+                                                </label>
+
+                                                <label className="flex items-center gap-2 cursor-pointer select-none group">
+                                                    <div
+                                                        onClick={() => setFormData({ ...formData, opens_cash_drawer: !formData.opens_cash_drawer })}
+                                                        className={`w-4 h-4 border-2 rounded flex items-center justify-center transition-all ${formData.opens_cash_drawer ? 'bg-[#106ebe] border-[#106ebe] text-white shadow-sm' : 'bg-white border-gray-300 group-hover:border-[#106ebe]'}`}
+                                                    >
+                                                        {formData.opens_cash_drawer && <Check size={12} strokeWidth={4} />}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[11px] font-bold text-[#106ebe] uppercase tracking-tighter">Gaveta de Dinero</span>
+                                                        <span className="text-[9px] text-gray-500">Activa el pulso de apertura al imprimir</span>
+                                                    </div>
                                                 </label>
                                             </div>
                                         </div>

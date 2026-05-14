@@ -103,7 +103,10 @@ ipcMain.handle('print-html', async (event, { html, printerName, silent }) => {
                     console.log(`🏁 [Electron] Impresión finalizada. Éxito: ${success}${failureReason ? `. Motivo: ${failureReason}` : ''}`);
                     
                     if (!printWindow.isDestroyed()) {
-                        printWindow.close();
+                        // Delay crucial: Evita que el spooler cancele o pierda el pulso de la gaveta por cerrar muy rápido
+                        setTimeout(() => {
+                            if (!printWindow.isDestroyed()) printWindow.close();
+                        }, 1500);
                     }
                     resolve({ success, error: failureReason });
                 });
@@ -170,34 +173,62 @@ ipcMain.handle('check-connection', async (event, { ip, port }) => {
 });
 
 ipcMain.handle('open-cash-drawer', async (event, { target, type }) => {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] 💰 [Electron] Solicitud de apertura de gaveta recibida. Tipo: ${type}, Destino: ${target || 'PREDETERMINADO'}`);
+    
     return new Promise((resolve) => {
         if (type === 'NETWORK' && target) {
             // Pulso ESC/POS estándar: ESC p 0 25 250
             const pulse = Buffer.from([0x1b, 0x70, 0x00, 0x19, 0xfa]);
             const client = new net.Socket();
             client.setTimeout(3000);
+            
+            console.log(`[${timestamp}] 🔌 [Electron] Enviando pulso TCP a ${target}:9100...`);
+            
             client.connect(9100, target, () => {
                 client.write(pulse, () => {
+                    console.log(`[${timestamp}] ✅ [Electron] Pulso TCP enviado con éxito a ${target}`);
                     client.end();
                     resolve({ success: true });
                 });
             });
-            client.on('error', (err) => resolve({ success: false, error: err.message }));
-            client.on('timeout', () => { client.destroy(); resolve({ success: false, error: 'Timeout' }); });
+            
+            client.on('error', (err) => {
+                console.error(`[${timestamp}] ❌ [Electron] Error enviando pulso TCP: ${err.message}`);
+                resolve({ success: false, error: err.message });
+            });
+            
+            client.on('timeout', () => {
+                console.error(`[${timestamp}] ❌ [Electron] Timeout enviando pulso TCP a ${target}`);
+                client.destroy();
+                resolve({ success: false, error: 'Timeout' });
+            });
         } else if (type === 'SYSTEM' && target) {
-            console.log(`🔌 [Electron] Forzando pulso de caja en impresora USB: ${target}`);
-            // Creamos un trabajo de impresión en blanco. Si el driver de Epson está 
-            // configurado para abrir la caja al imprimir, esto lanzará el pulso físico.
+            console.log(`[${timestamp}] 🔌 [Electron] Generando pulso vía Driver Windows (Dummy Job) para: ${target}`);
+            
+            // Creamos un trabajo de impresión en blanco pero NO vacío, para evitar que el spooler lo descarte.
             let workerWindow = new BrowserWindow({ show: false });
-            workerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(' ')}`);
+            const dummyHtml = `<html><body style="margin:0;padding:0;font-size:1px;color:white;">.</body></html>`;
+            workerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(dummyHtml)}`);
             
             workerWindow.webContents.on('did-finish-load', () => {
+                console.log(`[${timestamp}] 📄 [Electron] Dummy Job cargado para ${target}. Iniciando impresión...`);
+                
                 workerWindow.webContents.print({
                     silent: true,
                     deviceName: target,
                     margins: { marginType: 'none' }
                 }, (success, failureReason) => {
-                    workerWindow.close();
+                    console.log(`[${timestamp}] 🏁 [Electron] Dummy Job finalizado. Éxito: ${success}${failureReason ? `. Motivo: ${failureReason}` : ''}`);
+                    
+                    // Delay para asegurar que el spooler procese el trabajo y envíe el pulso
+                    setTimeout(() => {
+                        if (!workerWindow.isDestroyed()) {
+                            workerWindow.close();
+                            console.log(`[${timestamp}] 🧹 [Electron] Ventana de dummy job cerrada.`);
+                        }
+                    }, 1500);
+                    
                     if (success) {
                         resolve({ success: true });
                     } else {
@@ -206,12 +237,15 @@ ipcMain.handle('open-cash-drawer', async (event, { target, type }) => {
                 });
             });
 
-            workerWindow.webContents.on('did-fail-load', () => {
-                workerWindow.close();
-                resolve({ success: false, error: 'Failed to load dummy print job' });
+            workerWindow.webContents.on('did-fail-load', (e, code, desc) => {
+                console.error(`[${timestamp}] ❌ [Electron] Error cargando dummy job: ${desc} (${code})`);
+                if (!workerWindow.isDestroyed()) workerWindow.close();
+                resolve({ success: false, error: 'Failed to load dummy print job: ' + desc });
             });
         } else {
-            resolve({ success: false, error: 'Tipo de impresora o destino no válido' });
+            const errorMsg = !target ? 'Destino no especificado' : 'Tipo de impresora no soportado para pulso';
+            console.warn(`[${timestamp}] ⚠️ [Electron] ${errorMsg}`);
+            resolve({ success: false, error: errorMsg });
         }
     });
 });

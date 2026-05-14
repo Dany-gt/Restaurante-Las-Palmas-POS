@@ -146,7 +146,7 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                 }
             }
 
-            // Print Receipt Silently
+            // Print Receipt Silently & Open Cash Drawer
             try {
                 await printService.printDetailedExpense({
                     amount: total,
@@ -155,6 +155,14 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                     items: items,
                     cashierName: currentUser.name
                 });
+                
+                // Open cash drawer after printing expense
+                printService.openCashDrawer({
+                    userId: currentUser?.id,
+                    userName: currentUser?.name,
+                    amount: total,
+                    reason: `Gasto: ${expenseData.description || selectedCategory}`
+                }).catch(console.error);
             } catch (printErr) {
                 console.error('Error printing expense:', printErr);
             }
