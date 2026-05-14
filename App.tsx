@@ -46,7 +46,7 @@ type ViewState = 'LOGIN' | 'DASHBOARD' | 'TABLES' | 'ORDER' | 'CHECKOUT' | 'HIST
 
 import { useNotify } from './hooks/useNotify';
 
-const APP_VERSION = '1.6.19'; // v1.6.19 - Fix Menu Price Input Final
+const APP_VERSION = '1.6.20'; // v1.6.20 - Vercel SAT Proxy & EloTouch Layout
 
 
 console.log('%c🚀 LAS PALMAS POS SYSTEM - VERSION ' + APP_VERSION + ' LOADED', 'background: #4f46e5; color: white; padding: 10px; font-weight: bold; border-radius: 5px;');
