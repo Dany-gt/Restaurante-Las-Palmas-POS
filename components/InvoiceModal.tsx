@@ -158,31 +158,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
         setCustomer(data);
         setIsVerified(true);
         setError('');
-
-        // Process immediately
-        setLoading(true);
-        try {
-            await billingService.saveCustomer(data);
-            onSubmit(data, 'EFECTIVO');
-        } catch (err) {
-            setError('ERROR AL PROCESAR');
-        } finally {
-            setLoading(false);
-        }
     };
-
-    // ... handlePorConsumo ... allow edit always?
-    // ... handlePorAlmuerzo ... allow edit always?
-
-    // ... JSX modifications for inputs ...
-    // Note: Since I cannot edit disjoint lines easily with `replace_file_content`, I'll use `multi_replace` conceptually by providing a large chunk or multiple replace calls.
-    // Wait, `replace_file_content` is only for contiguous blocks.
-    // The previous instruction asked to replace `isVerified` injection in multple places.
-    // But `handleNitLookup`, `handleChange`, `handleKeypadClick` and `handleBackspace` are contiguous enough?
-    // No, `handleNitLookup` (line 47) -> `handleChange` (line 74) -> `handleKeypadClick` (line 94) -> `handleBackspace` (line 102) -> `handleContingency` (line 109).
-    // They are sequential. I can replace the whole block from line 31 to 119.
-
-
 
     const handlePorConsumo = async () => {
         const data = {
@@ -191,20 +167,6 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             is_por_almuerzo: false
         };
         setCustomer(data);
-        
-        // If it's a quick toggle and user has data, we could auto-submit, 
-        // but user might want to check. However, user said "al presionar pase de una vez a procesar".
-        if (data.nit && data.name) {
-            setLoading(true);
-            try {
-                await billingService.saveCustomer(data);
-                onSubmit(data, 'EFECTIVO');
-            } catch (err) {
-                setError('ERROR AL PROCESAR');
-            } finally {
-                setLoading(false);
-            }
-        }
     };
 
     const handlePorAlmuerzo = async () => {
@@ -214,18 +176,6 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             is_por_consumo: false
         };
         setCustomer(data);
-
-        if (data.nit && data.name) {
-            setLoading(true);
-            try {
-                await billingService.saveCustomer(data);
-                onSubmit(data, 'EFECTIVO');
-            } catch (err) {
-                setError('ERROR AL PROCESAR');
-            } finally {
-                setLoading(false);
-            }
-        }
     };
 
     const handleWhatsApp = () => {

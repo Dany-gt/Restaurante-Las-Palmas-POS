@@ -1829,12 +1829,21 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             }
 
             // v1.7.2 - Find the specific order number for this voided item
-            const currentOrderNumber = tableOrders.find(o => o.id === activeOrderId)?.order_number || initialOrder?.order_number;
+            const currentOrder = tableOrders.find(o => o.id === activeOrderId) || initialOrder;
+            const currentOrderNumber = currentOrder?.order_number;
+            const orderType = currentOrder?.order_type || 'DINE_IN';
+            const displayTable = (orderType === 'TAKEOUT' || orderType === 'DELIVERY') 
+                ? 'PARA LLEVAR' 
+                : (table?.number || '--');
+            const sectionName = table?.section || 'SALA';
+            const waiterName = (itemToVoid as any).waiter_name || currentOrder?.waiter?.name || currentOrder?.profiles?.name || currentUser?.name || 'MESERO';
 
             // Audit Print (Always try local print if Electron)
             await printService.printVoidTicket({
-                waiterName: currentUser?.name || 'SISTEMA',
-                tableNumber: table?.number || '0',
+                waiterName: waiterName,
+                cashierName: currentUser?.name || 'SISTEMA',
+                sectionName: sectionName,
+                tableNumber: displayTable,
                 productName: itemToVoid.product_name,
                 quantity: itemToVoid.quantity,
                 voidReason: voidReason,

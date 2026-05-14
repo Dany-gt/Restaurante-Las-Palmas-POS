@@ -427,9 +427,9 @@ export const ShiftMonitorModal: React.FC<ShiftMonitorModalProps> = ({ currentUse
                                 <div className="w-8 h-8 rounded-md bg-indigo-500/10 flex items-center justify-center text-indigo-500 group-hover:text-indigo-400 transition-colors">
                                     <ShoppingCart size={16} />
                                 </div>
-                                <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 group-hover:text-gray-400 transition-colors">Ordenes Asignadas</span>
+                                <span className="text-xs font-black uppercase tracking-widest text-gray-500 group-hover:text-gray-400 transition-colors">Ordenes Asignadas</span>
                             </div>
-                            <span className="text-base font-black text-white tracking-tight">{data.stats.assignedOrders}</span>
+                            <span className="text-lg font-black text-white tracking-tight">{data.stats.assignedOrders}</span>
                         </div>
 
                         {/* 2. Apertura */}
@@ -438,9 +438,9 @@ export const ShiftMonitorModal: React.FC<ShiftMonitorModalProps> = ({ currentUse
                                 <div className="w-8 h-8 rounded-md bg-amber-500/10 flex items-center justify-center text-amber-500 group-hover:text-amber-400 transition-colors">
                                     <Clock size={16} />
                                 </div>
-                                <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 group-hover:text-gray-400 transition-colors">Apertura</span>
+                                <span className="text-xs font-black uppercase tracking-widest text-gray-500 group-hover:text-gray-400 transition-colors">Apertura</span>
                             </div>
-                            <span className="text-[10px] font-bold text-gray-400 text-right leading-tight tracking-tight">
+                            <span className="text-xs font-bold text-gray-400 text-right leading-tight tracking-tight">
                                 {new Date(data.startTime).toLocaleString('es-GT', {
                                     day: '2-digit', month: '2-digit', year: 'numeric',
                                     hour: '2-digit', minute: '2-digit',
@@ -453,10 +453,10 @@ export const ShiftMonitorModal: React.FC<ShiftMonitorModalProps> = ({ currentUse
                         {!isBlind && (
                             <div className="mt-0.5 p-3 bg-[#2b2f3a] rounded-xl border border-white/5 shadow-xl relative overflow-hidden group">
                                 <div className="flex justify-between items-center mb-0.5 relative z-10">
-                                    <span className="text-[9px] text-gray-500 font-black uppercase tracking-widest">Ventas Totales</span>
+                                    <span className="text-xs text-gray-500 font-black uppercase tracking-widest">Ventas Totales</span>
                                 </div>
                                 <div className="flex items-center gap-2 relative z-10">
-                                    <span className="text-xl font-black text-indigo-400 tracking-tighter tabular-nums">
+                                    <span className="text-2xl font-black text-indigo-400 tracking-tighter tabular-nums">
                                         {formatCurrency(data.salesTotal)}
                                     </span>
                                 </div>
@@ -467,30 +467,30 @@ export const ShiftMonitorModal: React.FC<ShiftMonitorModalProps> = ({ currentUse
                         {!isBlind && (
                             <div className="mt-2 pt-1">
                                 <div className="flex items-center gap-2.5 mb-2">
-                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Cuadre de Efectivo</span>
+                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-gray-600">Cuadre de Efectivo</span>
                                     <div className="h-px flex-1 bg-white/5"></div>
                                 </div>
 
                                 <div className="space-y-2 px-1">
-                                    <div className="flex justify-between items-center text-xs">
-                                        <span className="text-gray-500 font-bold uppercase tracking-widest text-[9px]">(+) Inicial</span>
-                                        <span className="text-white font-mono font-bold tracking-tight text-[10px]">{formatCurrency(data.cashDetail.initial)}</span>
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-gray-500 font-bold uppercase tracking-widest text-[11px]">(+) Inicial</span>
+                                        <span className="text-white font-mono font-bold tracking-tight text-sm">{formatCurrency(data.cashDetail.initial)}</span>
                                     </div>
-                                    <div className="flex justify-between items-center text-xs">
-                                        <span className="text-gray-500 font-bold uppercase tracking-widest text-[9px]">(+) Ventas (sin prop.)</span>
-                                        <span className="text-white font-mono font-bold tracking-tight text-[10px]">{formatCurrency(data.cashDetail.sales)}</span>
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-gray-500 font-bold uppercase tracking-widest text-[11px]">(+) Ventas (sin prop.)</span>
+                                        <span className="text-white font-mono font-bold tracking-tight text-sm">{formatCurrency(data.cashDetail.sales)}</span>
                                     </div>
-                                    <div className="flex justify-between items-center text-xs">
-                                        <span className="text-gray-500 font-bold uppercase tracking-widest text-[9px]">(+) Abonos a CC</span>
-                                        <span className="text-white font-mono font-bold tracking-tight text-[10px]">{formatCurrency(data.cashDetail.abonos)}</span>
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-gray-500 font-bold uppercase tracking-widest text-[11px]">(+) Abonos a CC</span>
+                                        <span className="text-white font-mono font-bold tracking-tight text-sm">{formatCurrency(data.cashDetail.abonos)}</span>
                                     </div>
-                                    <div className="flex justify-between items-center text-xs">
-                                        <span className="text-gray-500 font-bold uppercase tracking-widest text-[9px]">(+) Propinas</span>
-                                        <span className="text-white font-mono font-bold tracking-tight text-[10px]">{formatCurrency(data.cashDetail.tips)}</span>
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-gray-500 font-bold uppercase tracking-widest text-[11px]">(+) Propinas</span>
+                                        <span className="text-white font-mono font-bold tracking-tight text-sm">{formatCurrency(data.cashDetail.tips)}</span>
                                     </div>
-                                    <div className="flex justify-between items-center text-xs text-rose-400">
-                                        <span className="font-bold uppercase tracking-widest text-[9px]">(-) Gastos</span>
-                                        <span className="font-mono font-bold tracking-tight text-[10px]">{formatCurrency(data.cashDetail.expenses)}</span>
+                                    <div className="flex justify-between items-center text-sm text-rose-400">
+                                        <span className="font-bold uppercase tracking-widest text-[11px]">(-) Gastos</span>
+                                        <span className="font-mono font-bold tracking-tight text-sm">{formatCurrency(data.cashDetail.expenses)}</span>
                                     </div>
 
                                     <div className="h-2 flex items-center">
@@ -498,15 +498,15 @@ export const ShiftMonitorModal: React.FC<ShiftMonitorModalProps> = ({ currentUse
                                     </div>
 
                                     <div className="flex justify-between items-center">
-                                        <span className="text-[10px] text-indigo-400 font-black uppercase tracking-widest">Efectivo Sistema</span>
-                                        <span className="text-lg text-white font-black tabular-nums tracking-tighter">
+                                        <span className="text-xs text-indigo-400 font-black uppercase tracking-widest">Efectivo Sistema</span>
+                                        <span className="text-xl text-white font-black tabular-nums tracking-tighter">
                                             {formatCurrency(data.cashDetail.total)}
                                         </span>
                                     </div>
 
-                                    <div className="flex justify-between items-center text-xs text-gray-500">
-                                        <span className="font-bold uppercase tracking-widest text-[9px]">Efectivo Contado</span>
-                                        <span className="font-mono font-bold tracking-tight text-[10px]">{formatCurrency(data.countedCash)}</span>
+                                    <div className="flex justify-between items-center text-sm text-gray-500">
+                                        <span className="font-bold uppercase tracking-widest text-[11px]">Efectivo Contado</span>
+                                        <span className="font-mono font-bold tracking-tight text-sm">{formatCurrency(data.countedCash)}</span>
                                     </div>
 
                                     <div className="h-2 flex items-center">
@@ -514,10 +514,10 @@ export const ShiftMonitorModal: React.FC<ShiftMonitorModalProps> = ({ currentUse
                                     </div>
 
                                     <div className={`flex justify-between items-center ${data.difference < 0 ? 'text-rose-500' : data.difference > 0 ? 'text-emerald-500' : 'text-gray-500'}`}>
-                                        <span className="text-[10px] font-black uppercase tracking-widest">
+                                        <span className="text-xs font-black uppercase tracking-widest">
                                             {data.difference < 0 ? 'Faltante' : data.difference > 0 ? 'Sobrante' : 'Diferencia'}
                                         </span>
-                                        <span className="text-xl font-black tabular-nums tracking-tighter">
+                                        <span className="text-2xl font-black tabular-nums tracking-tighter">
                                             {formatCurrency(data.difference)}
                                         </span>
                                     </div>

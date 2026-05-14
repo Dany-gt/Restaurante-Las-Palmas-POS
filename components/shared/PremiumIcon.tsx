@@ -50,7 +50,7 @@ export const ICON_MAP = {
   CFG_CASH: 'flat-color-icons:money-transfer',
   CFG_SECTIONS: 'flat-color-icons:org-unit',
   CFG_PRINTERS: 'flat-color-icons:print',
-  CFG_POS: 'flat-color-icons:chip-card',
+  CFG_POS: 'fluent-emoji-flat:credit-card',
   CFG_USERS: 'flat-color-icons:conference-call',
   CFG_DISCOUNTS: 'flat-color-icons:sales-performance',
   CFG_PLATFORMS: 'flat-color-icons:globe',
