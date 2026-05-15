@@ -258,15 +258,9 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
     }
 
     // Corte Ciego (Refined logic)
-    // If it's standard closing, we still ask confirmation or check blind permissions
+    // Law of the user: No confirmation dialogues for closure.
     const isBlind = currentUser.role?.toUpperCase() === 'CAJERO' && normalizedPerms.some(p => p.includes('corte ciego'));
-
-    if (!isBlind && !skipConfirm) {
-      // Use system modal instead of native browser confirm
-      setShowCorteZConfirm(true);
-      return; // Wait for user to confirm via modal
-    }
-
+    
     // CHECK FOR OPEN ORDERS before Z closure
     if (type === 'Z') {
       const { allowed, reason } = await canCloseCashRegister();
@@ -478,20 +472,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
 
   return (
     <div className={`h-full flex flex-col pt-8 pb-32 overflow-y-auto relative bg-[#2d2e3d]`}>
-      {/* CORTE Z SYSTEM CONFIRM MODAL */}
-      {showCorteZConfirm && (
-        <WindowsConfirmModal
-          title="Confirmar Corte Final (Z)"
-          message="¿Desea realizar un Corte Z (Cierre de Turno)? Esta acción cerrará el turno actual."
-          onConfirm={() => {
-            setShowCorteZConfirm(false);
-            // DO NOT close ShiftMonitorModal here, leave it in the background to prevent flashing the dashboard
-            handleCloseShift('Z', true);
-          }}
-          onCancel={() => setShowCorteZConfirm(false)}
-          onDeny={() => setShowCorteZConfirm(false)}
-        />
-      )}
+      {/* CORTE Z SYSTEM CONFIRM MODAL REMOVED BY USER REQUEST */}
       {showExpenseModal && currentUser && (
 
         <NewExpenseModal
@@ -511,6 +492,14 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
           currentUser={currentUser}
           onClose={() => setShowShiftMonitorModal(false)}
           onArqueo={async () => {
+            // Law of the user: Open drawer when arqueo starts
+            const { printService } = await import('../services/PrintService');
+            printService.openCashDrawer({ 
+                userId: currentUser.id, 
+                userName: currentUser.name,
+                reason: 'Arqueo de Caja'
+            });
+
             // Open Arqueo modal, but conceptualize it as part of X
             try {
               const { reportData } = await shiftService.getShiftData(currentUser);
