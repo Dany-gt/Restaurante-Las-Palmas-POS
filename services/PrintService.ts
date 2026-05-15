@@ -339,7 +339,7 @@ class PrintService {
         
         // 🛠️ TRADUCCIÓN CRÍTICA: Convertimos HTML a texto limpio con comandos ESC/POS básicos
         const shouldOpenDrawer = options?.openDrawer !== undefined ? options.openDrawer : !!netPrinter.opens_cash_drawer;
-        const rawContent = this.htmlToEscPos(html, { openDrawer: shouldOpenDrawer });
+        const rawContent = this.htmlToEscPos(html, { openDrawer: shouldOpenDrawer, paperWidth: netPrinter.paperWidth });
         
         const r = await electron.printToNetwork(netPrinter.address, netPrinter.port, rawContent, true);
         if (r.success) { 
@@ -1089,7 +1089,7 @@ class PrintService {
   // ─── CASH DRAWER ──────────────────────────────────────────────────
 
   // ─── TRADUCTOR QUIRÚRGICO: HTML -> COMANDOS EPSON (ESC/POS)
-  public htmlToEscPos(html: string, options: { openDrawer?: boolean } = {}): Uint8Array {
+  public htmlToEscPos(html: string, options: { openDrawer?: boolean; paperWidth?: string } = {}): Uint8Array {
     const ESC = 0x1B;
     const GS = 0x1D;
     const LF = 0x0A;
@@ -1106,6 +1106,7 @@ class PrintService {
     // 3. Procesar el HTML
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
+    const paperWidth = options.paperWidth === '58mm' ? 32 : 42;
 
     const walk = (node: Node) => {
       if (node.nodeType === Node.TEXT_NODE) {
@@ -1142,7 +1143,7 @@ class PrintService {
 
         if (tagName === 'HR' || el.classList.contains('divider') || el.classList.contains('thick-divider') || el.classList.contains('dotted-divider')) {
           const char = el.classList.contains('thick-divider') ? '=' : (el.classList.contains('dotted-divider') ? '.' : '-');
-          const line = char.repeat(42) + '\n';
+          const line = char.repeat(paperWidth) + '\n';
           for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
           handledCustom = true;
         }
@@ -1169,7 +1170,7 @@ class PrintService {
               } else {
                 const leftText = child.textContent?.trim() || '';
                 const rightText = nextChild.textContent?.trim() || '';
-                const spaceLen = Math.max(1, 42 - leftText.length - rightText.length);
+                const spaceLen = Math.max(1, paperWidth - leftText.length - rightText.length);
                 const line = leftText + ' '.repeat(spaceLen) + rightText + '\n';
                 for (let j = 0; j < line.length; j++) commands.push(line.charCodeAt(j));
                 i++; // Skip next child
@@ -1181,8 +1182,8 @@ class PrintService {
 
         // Caso especial: Recuadro de datos (Nit/Nombre)
         else if (el.classList.contains('data-box')) {
-          const line = '|' + ' '.repeat(40) + '|\n';
-          const topBottom = '+' + '-'.repeat(40) + '+\n';
+          const line = '|' + ' '.repeat(paperWidth - 2) + '|\n';
+          const topBottom = '+' + '-'.repeat(paperWidth - 2) + '+\n';
           for (let i = 0; i < topBottom.length; i++) commands.push(topBottom.charCodeAt(i));
           
           const height = parseInt(el.style.height) || 20;
@@ -1207,29 +1208,15 @@ class PrintService {
           if (desc || price) {
             const qtyStr = qty !== null ? `${qty.padStart(3)} ` : '';
             const priceStr = price.padStart(8);
-            const maxDescLen = Math.max(5, 42 - qtyStr.length - priceStr.length);
+            const maxDescLen = Math.max(5, paperWidth - qtyStr.length - priceStr.length);
             
-            let remainingDesc = desc;
-            let firstLine = true;
+            const descCorta = desc.length > maxDescLen 
+                ? desc.substring(0, maxDescLen - 3) + "..." 
+                : desc.padEnd(maxDescLen);
+                
+            let line = qtyStr + descCorta + priceStr + '\n';
+            for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
             
-            if (!remainingDesc) {
-               let line = qtyStr + ''.padEnd(maxDescLen) + priceStr + '\n';
-               for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
-            } else {
-                while (remainingDesc.length > 0 || firstLine) {
-                   const chunk = remainingDesc.substring(0, maxDescLen);
-                   remainingDesc = remainingDesc.substring(maxDescLen);
-                   
-                   let line = '';
-                   if (firstLine) {
-                      line = qtyStr + chunk.padEnd(maxDescLen) + priceStr + '\n';
-                      firstLine = false;
-                   } else {
-                      line = ''.padEnd(qtyStr.length) + chunk.padEnd(maxDescLen) + ''.padEnd(priceStr.length) + '\n';
-                   }
-                   for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
-                }
-            }
             handledCustom = true;
           }
         }
@@ -1246,12 +1233,12 @@ class PrintService {
           const val = el.querySelector('.total-value')?.textContent?.trim() || '';
           
           if (label && val) {
-             const spaceLen = Math.max(1, 42 - label.length - val.length);
+             const spaceLen = Math.max(1, paperWidth - label.length - val.length);
              const line = label + ' '.repeat(spaceLen) + val + '\n';
              for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
           } else {
              const text = el.textContent?.trim() || '';
-             const spaceLen = Math.max(0, 42 - text.length);
+             const spaceLen = Math.max(0, paperWidth - text.length);
              const line = ' '.repeat(spaceLen) + text + '\n';
              for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
           }
