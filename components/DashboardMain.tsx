@@ -378,7 +378,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
           difference_amount: difference,
           cash_detail: cashDetail,
           closing_notes: notes || ''
-        }, shift.cash_register_id);
+        }, shift.cash_register_id, currentUser);
 
         // LOG: Shift Closed (Corte Z)
         activityLogService.logFinancial({
@@ -534,7 +534,22 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
           data={closureData}
           onPrint={async () => {
             const { printService } = await import('../services/PrintService');
+            // Print main Z-Report
             await printService.printZReport(closureData);
+            
+            // If there are expenses, print the summary ticket too
+            if (closureData.expenses && closureData.expenses.length > 0) {
+              await printService.printExpensesSummary(closureData);
+            }
+
+            // Law of the user: When printing is done, send email automatically as backup
+            try {
+              if (currentUser) {
+                await shiftService.sendClosureEmail(currentUser, closureData);
+              }
+            } catch (e) {
+              console.error('Error sending auto-email backup:', e);
+            }
           }}
           onFinish={() => {
             setShowClosureSummary(false);

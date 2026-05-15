@@ -57,11 +57,13 @@ export const reportTemplates = {
             
             <div class="divider"></div>
 
-            <div class="section-title">VENTAS</div>
-            ${data.salesByMethod.map(m => `
-                <div class="row"><span>${m.method}:</span><span>${formatQ(m.amount)}</span></div>
-            `).join('')}
             <div class="row bold"><span>Total:</span><span>${formatQ(data.salesTotal)}</span></div>
+
+            <div class="divider"></div>
+            <div class="section-title">VENTAS POR CANAL</div>
+            ${(data.salesByChannel || []).map(c => `
+                <div class="row"><span>${c.channel}:</span><span>${formatQ(c.amount)}</span></div>
+            `).join('')}
 
             <div class="divider"></div>
 

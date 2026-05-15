@@ -30,6 +30,7 @@ export interface ShiftReportData {
     type: 'X' | 'Z';
     shiftId: string;
     cashierName: string;
+    registerName: string;
     startTime: string;
     endTime: string;
     startAmount: number;
@@ -76,7 +77,7 @@ export const shiftService = {
             // Find open shift for user — open means NO end_time recorded yet
             const { data: shiftRows } = await supabase
                 .from('shifts')
-                .select('*')
+                .select('*, cash_registers(name)')
                 .eq('cashier_id', user.id)
                 .is('end_time', null)
                 .order('start_time', { ascending: false })
@@ -173,7 +174,7 @@ export const shiftService = {
             const salesByMethodMap: Record<string, number> = { 'EFECTIVO': 0, 'TARJETA': 0, 'CRÉDITO': 0, 'OTROS': 0 };
             const tipsByMethodMap: Record<string, number> = { 'EFECTIVO': 0, 'TARJETA': 0, 'OTROS': 0 };
             const abonosByMethodMap: Record<string, number> = { 'EFECTIVO': 0, 'TARJETA': 0, 'TRANSFERENCIA': 0, 'CHEQUE': 0, 'OTROS': 0 };
-            const salesByChannelMap: Record<string, number> = { 'RESTAURANTE': 0, 'PARA LLEVAR': 0, 'A DOMICILIO': 0, 'PLATAFORMAS': 0, 'PICKUP': 0 };
+            const salesByChannelMap: Record<string, number> = { 'SERVICIO MESAS': 0, 'PARA LLEVAR': 0, 'A DOMICILIO': 0, 'PLATAFORMAS': 0, 'PICKUP': 0, 'VENTA RÁPIDA': 0 };
 
             const stats: ShiftStats = {
                 ordersAttended: 0,
@@ -235,8 +236,14 @@ export const shiftService = {
 
                     // Channel breakdown
                     const channel = (o.order_type || 'DINE_IN').toUpperCase();
-                    const channelKey = channel === 'DINE_IN' ? 'RESTAURANTE' : (channel === 'TAKEOUT' ? 'PARA LLEVAR' : (channel === 'DELIVERY' ? 'A DOMICILIO' : 'PLATAFORMAS'));
-                    salesByChannelMap[channelKey] += Number(o.total || 0);
+                    const channelKey = 
+                        channel === 'DINE_IN' ? 'SERVICIO MESAS' : 
+                        channel === 'TAKEOUT' ? 'PARA LLEVAR' : 
+                        channel === 'DELIVERY' ? 'A DOMICILIO' : 
+                        channel === 'PICKUP' ? 'PICKUP' :
+                        channel === 'QUICK_SALE' ? 'VENTA RÁPIDA' : 'PLATAFORMAS';
+                    
+                    salesByChannelMap[channelKey] = (salesByChannelMap[channelKey] || 0) + Number(o.total || 0);
 
                     // Add to detailed list
                     detailedOrders.push({
@@ -275,6 +282,7 @@ export const shiftService = {
                 type: 'X', // Default to X, can be overridden
                 shiftId: shift.id,
                 cashierName: user.name || (user as any).full_name || 'Cajero',
+                registerName: (shift as any).cash_registers?.name || 'PRINCIPAL',
                 startTime: shift.start_time,
                 endTime: new Date().toISOString(),
                 startAmount: Number(shift.start_amount),
@@ -379,81 +387,99 @@ export const shiftService = {
 
         // --- AUTOMATED PROFESSIONAL REPORT BUNDLE ---
         try {
-            const electron = (window as any).electronAPI || (window as any).electron;
-            if (user && electron) {
-                const { reportData } = await this.getShiftData(user);
-                if (reportData) {
-                    reportData.type = 'Z';
-                    reportData.endTime = closingData.end_time;
-                    reportData.countedCash = closingData.counted_amount;
-                    reportData.difference = closingData.difference_amount;
-
-                    const { reportTemplates } = await import('./ReportTemplates');
-                    const css = `/* report-base.css content */ body { font-family: 'Courier New'; width: 80mm; margin: 0 auto; color: #000; } .header { text-align: center; } .title { text-align: center; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 5px 0; } .row { display: flex; justify-content: space-between; } .divider { border-top: 1px dashed #000; margin: 8px 0; }`;
-
-                    const generatePdf = async (html: string, name: string) => {
-                        const fullHtml = reportTemplates.wrap(html, css);
-                        const result = await electron.generatePdf(fullHtml, name);
-                        return { filename: `${name}.pdf`, content: result.data };
-                    };
-
-                    // 1. Fetch products below reorder point (Inventory)
-                    const { data: invRaw } = await supabase.from('inventory_items').select('*');
-                    const inventoryData = (invRaw || [])
-                        .filter(i => Number(i.quantity) <= Number(i.min_stock))
-                        .map(i => ({
-                            name: i.name,
-                            stock: Number(i.quantity),
-                            unit: i.unit,
-                            category_name: 'Inventario'
-                        }));
-
-                    // 2. Fetch sold dishes (Order Items)
-                    const { data: itemsRaw } = await supabase
-                        .from('order_items')
-                        .select('quantity, unit_price, products(name), orders!inner(created_at, status)')
-                        .eq('orders.status', 'completed')
-                        .gte('orders.created_at', reportData.startTime)
-                        .lte('orders.created_at', reportData.endTime);
-
-                    // Group by product name
-                    const soldGroups: Record<string, any> = {};
-                    (itemsRaw || []).forEach((item: any) => {
-                        const name = item.products?.name || 'Producto';
-                        if (!soldGroups[name]) soldGroups[name] = { name, quantity: 0, total: 0 };
-                        soldGroups[name].quantity += Number(item.quantity);
-                        soldGroups[name].total += Number(item.quantity) * Number(item.unit_price);
-                    });
-                    const soldItems = Object.values(soldGroups).sort((a, b) => b.total - a.total);
-
-                    // 3. Generate PDFs with the DYNAMIC data
-                    const attachments = [
-                        await generatePdf(reportTemplates.generateCierreCaja(reportData), 'Cierre_Caja'),
-                        await generatePdf(reportTemplates.generateCuadreTarjetas(reportData), 'Cuadre_Tarjetas'),
-                        await generatePdf(reportTemplates.generateGastos(reportData), 'Resumen_Gastos'),
-                        await generatePdf(reportTemplates.generateInventario(inventoryData), 'Inventario'),
-                        await generatePdf(reportTemplates.generatePlatosVendidos(soldItems, `${reportData.startTime} - ${reportData.endTime}`), 'Platos_Vendidos')
-                    ];
-
-                    const { data: settings } = await supabase.from('system_settings').select('*').single();
-                    if (settings?.smtp_user) {
-                        await electron.sendEmail({
-                            to: settings.cashier_emails || settings.smtp_user,
-                            subject: `Cierre de Caja - ${reportData.cashierName} - ${new Date().toLocaleDateString()}`,
-                            body: `Se adjuntan los 5 reportes operativos del cierre de turno.\nCajero: ${reportData.cashierName}\nFecha: ${new Date().toLocaleString()}`,
-                            smtpConfig: {
-                                host: settings.smtp_host,
-                                port: settings.smtp_port,
-                                user: settings.smtp_user,
-                                pass: settings.smtp_pass
-                            },
-                            attachments
-                        });
-                    }
-                }
-            }
+            await this.sendClosureEmail(user, {
+                ...closingData,
+                shiftId,
+                endTime: closingData.end_time,
+                countedCash: closingData.counted_amount,
+                difference: closingData.difference_amount
+            });
         } catch (e) {
             console.error('Error generating/sending reports bundle:', e);
+        }
+    },
+
+    /**
+     * Sends the professional report bundle via email.
+     */
+    async sendClosureEmail(user: User, data: any) {
+        try {
+            const electron = (window as any).electronAPI || (window as any).electron;
+            if (!user || !electron) return;
+
+            const { reportData } = await this.getShiftData(user);
+            if (!reportData) return;
+
+            // Update with latest closure data if provided
+            reportData.type = 'Z';
+            if (data.endTime) reportData.endTime = data.endTime;
+            if (data.countedCash !== undefined) reportData.countedCash = data.countedCash;
+            if (data.difference !== undefined) reportData.difference = data.difference;
+
+            const { reportTemplates } = await import('./ReportTemplates');
+            const css = `/* report-base.css content */ body { font-family: 'Courier New'; width: 80mm; margin: 0 auto; color: #000; } .header { text-align: center; } .title { text-align: center; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 5px 0; } .row { display: flex; justify-content: space-between; } .divider { border-top: 1px dashed #000; margin: 8px 0; }`;
+
+            const generatePdf = async (html: string, name: string) => {
+                const fullHtml = reportTemplates.wrap(html, css);
+                const result = await electron.generatePdf(fullHtml, name);
+                return { filename: `${name}.pdf`, content: result.data };
+            };
+
+            // 1. Fetch products below reorder point (Inventory)
+            const { data: invRaw } = await supabase.from('inventory_items').select('*');
+            const inventoryData = (invRaw || [])
+                .filter(i => Number(i.quantity) <= Number(i.min_stock))
+                .map(i => ({
+                    name: i.name,
+                    stock: Number(i.quantity),
+                    unit: i.unit,
+                    category_name: 'Inventario'
+                }));
+
+            // 2. Fetch sold dishes (Order Items)
+            const { data: itemsRaw } = await supabase
+                .from('order_items')
+                .select('quantity, unit_price, products(name), orders!inner(created_at, status)')
+                .eq('orders.status', 'completed')
+                .gte('orders.created_at', reportData.startTime)
+                .lte('orders.created_at', reportData.endTime);
+
+            // Group by product name
+            const soldGroups: Record<string, any> = {};
+            (itemsRaw || []).forEach((item: any) => {
+                const name = item.products?.name || 'Producto';
+                if (!soldGroups[name]) soldGroups[name] = { name, quantity: 0, total: 0 };
+                soldGroups[name].quantity += Number(item.quantity);
+                soldGroups[name].total += Number(item.quantity) * Number(item.unit_price);
+            });
+            const soldItems = Object.values(soldGroups).sort((a, b) => b.total - a.total);
+
+            // 3. Generate PDFs with the DYNAMIC data
+            const attachments = [
+                await generatePdf(reportTemplates.generateCierreCaja(reportData), 'Cierre_Caja'),
+                await generatePdf(reportTemplates.generateCuadreTarjetas(reportData), 'Cuadre_Tarjetas'),
+                await generatePdf(reportTemplates.generateGastos(reportData), 'Resumen_Gastos'),
+                await generatePdf(reportTemplates.generateInventario(inventoryData), 'Inventario'),
+                await generatePdf(reportTemplates.generatePlatosVendidos(soldItems, `${reportData.startTime} - ${reportData.endTime}`), 'Platos_Vendidos')
+            ];
+
+            const { data: settings } = await supabase.from('system_settings').select('*').single();
+            if (settings?.smtp_user) {
+                await electron.sendEmail({
+                    to: settings.cashier_emails || settings.smtp_user,
+                    subject: `Cierre de Caja - ${reportData.cashierName} - ${new Date().toLocaleDateString()}`,
+                    body: `Se adjuntan los 5 reportes operativos del cierre de turno.\nCajero: ${reportData.cashierName}\nFecha: ${new Date().toLocaleString()}`,
+                    smtpConfig: {
+                        host: settings.smtp_host,
+                        port: settings.smtp_port,
+                        user: settings.smtp_user,
+                        pass: settings.smtp_pass
+                    },
+                    attachments
+                });
+            }
+        } catch (e) {
+            throw e;
         }
     }
 };

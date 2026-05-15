@@ -30,6 +30,7 @@ export interface PrintSettings {
   printnode_enabled: boolean;
   printnode_printer_id: number | null;
   main_printer_id: number | null;
+  restaurant_logo?: string;
 }
 
 class PrintService {
@@ -103,6 +104,7 @@ class PrintService {
           printnode_enabled: data.printnode_enabled ?? false,
           printnode_printer_id: data.printnode_printer_id ? parseInt(data.printnode_printer_id) : null,
           main_printer_id: data.main_printer_id ? parseInt(data.main_printer_id) : null,
+          restaurant_logo: data.restaurant_logo || '',
         };
         this.restaurantInfo = {
           name: data.commercial_name || data.restaurant_name || 'RESTAURANTE LAS PALMAS',
@@ -204,7 +206,7 @@ class PrintService {
 <body>
     ${!hideHeader ? `
     <div class="header">
-      ${this.settings?.restaurant_logo ? `
+      ${this.settings?.restaurant_logo && this.settings.restaurant_logo.length > 5 ? `
         <div style="text-align:center; margin-bottom: 8px;">
           <img src="${this.settings?.restaurant_logo}" style="max-width: 150px; max-height: 80px; filter: grayscale(1);" />
         </div>
@@ -819,6 +821,68 @@ class PrintService {
     await this.executePrint('GASTO', (pw) => this.generateTicketHTML('GASTO', content, 'COMPROBANTE DE GASTO', pw, true), { silent: false });
   }
 
+  // ─── EXPENSES SUMMARY TICKET (SHIFT CLOSURE) ────────────────────
+
+  async printExpensesSummary(data: any): Promise<void> {
+    if (!this.settings) await this.loadSettings();
+    const expenses = data.expenses || [];
+    if (expenses.length === 0) return;
+
+    const fmt = (val: number) => 'Q' + Number(val || 0).toFixed(2);
+    const dateStr = (d: string) => { try { return new Date(d).toLocaleString('es-GT', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return d; } };
+
+    const content = `
+      <div class="info-grid">
+        <div><strong>Caja:</strong> ${data.registerName || 'PRINCIPAL'}</div>
+        <div><strong>Turno:</strong> ${data.shiftNumber || '---'}</div>
+        <div style="grid-column: span 2;"><strong>Cajero:</strong> ${data.cashierName}</div>
+      </div>
+      
+      <div class="thick-divider"></div>
+      
+      ${expenses.map((exp: any) => `
+        <div style="background: #f9f9f9; padding: 4px; margin-bottom: 8px; border: 1px solid #eee;">
+          <div style="font-size: 11px; font-weight: bold; border-bottom: 1px solid #000; margin-bottom: 4px;">
+            CATEGORÍA: ${exp.category.toUpperCase()}
+          </div>
+          
+          <div class="item-row" style="font-weight: bold; font-size: 9px; margin-bottom: 2px;">
+            <span class="description">GASTO</span>
+            <span class="price">TOTAL</span>
+          </div>
+
+          ${Array.isArray(exp.items) && exp.items.length > 0 ? 
+            exp.items.map((item: any) => `
+              <div class="item-row" style="font-size: 10px;">
+                <span class="description" style="text-transform:none;">- ${item.name}</span>
+                <span class="price">${fmt(item.price)}</span>
+              </div>
+            `).join('')
+            : `
+              <div class="item-row" style="font-size: 10px;">
+                <span class="description" style="text-transform:none;">- ${exp.description}</span>
+                <span class="price">${fmt(exp.amount)}</span>
+              </div>
+            `
+          }
+          
+          <div style="text-align: right; font-weight: 900; font-size: 12px; border-top: 1px dashed #ccc; margin-top: 4px; padding-top: 2px;">
+            Total: ${fmt(exp.amount)}
+          </div>
+        </div>
+      `).join('')}
+
+      <div class="thick-divider"></div>
+      <div class="grand-total" style="text-align:right; font-weight: 900; font-size: 16px;">TOTAL: ${fmt(data.expensesTotal || 0)}</div>
+      
+      <div style="text-align:center; font-size:9px; font-style:italic; margin-top:15px;">
+        Impreso: ${new Date().toLocaleString('es-GT')}
+      </div>
+    `;
+
+    await this.executePrint('RESUMEN DE GASTOS', (pw) => this.generateTicketHTML('RESUMEN DE GASTOS', content, 'RESUMEN DE GASTOS', pw, false), { silent: false });
+  }
+
   // ─── Z REPORT ─────────────────────────────────────────────────────
 
   async printZReport(data: any): Promise<void> {
@@ -841,12 +905,23 @@ class PrintService {
         <div>Abiertas: ${data.stats?.openOrders || 0}</div>
       </div>
       <div class="thick-divider"></div>
-      <div style="text-align:center;font-weight:bold;margin-bottom:5px;">VENTAS</div>
       ${data.salesByMethod.map((s: any) => '<div class="item-row"><span class="description" style="text-transform:none;">' + s.method + ':</span> <span class="price">' + fmt(s.amount) + '</span></div>').join('')}
+      
+      <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">RESUMEN PROPINAS</div>
+      ${(data.tipsByMethod || []).filter((t: any) => t.amount > 0).length > 0 
+        ? data.tipsByMethod.filter((t: any) => t.amount > 0).map((t: any) => '<div class="item-row"><span class="description" style="text-transform:none;">' + t.method + ':</span> <span class="price">' + fmt(t.amount) + '</span></div>').join('')
+        : '<div style="text-align:center;font-size:10px;">SIN PROPINAS REGISTRADAS</div>'
+      }
+
+      <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">RESUMEN VENTAS POR CANAL</div>
+      ${(data.salesByChannel || []).map((c: any) => `
+        <div class="item-row">
+          <span class="description" style="text-transform:none;">${c.channel}:</span>
+          <span class="price">${fmt(c.amount)}</span>
+        </div>
+      `).join('')}
       <div class="divider"></div>
-      <div class="total-line" style="font-weight:bold;">
-        <span class="total-label">Total Ventas:</span> <span class="total-value">${fmt(data.salesTotal)}</span>
-      </div>
+
       <div style="text-align:center;font-weight:bold;margin:15px 0 5px 0;border-top:1px solid #000;padding-top:5px;">CUADRE EFECTIVO</div>
       <div class="item-row"><span class="description" style="text-transform:none;">(+) INICIAL:</span> <span class="price">${fmt(data.cashDetail.initial)}</span></div>
       <div class="item-row"><span class="description" style="text-transform:none;">(+) VENTAS:</span> <span class="price">${fmt(data.cashDetail.sales)}</span></div>

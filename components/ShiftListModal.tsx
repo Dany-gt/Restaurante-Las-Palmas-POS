@@ -122,9 +122,10 @@ export const ShiftListModal: React.FC<ShiftListModalProps> = ({ isOpen, onClose 
 
                     const channelName =
                         channel === 'DINE_IN' ? 'SERVICIO MESAS' :
-                            channel === 'TAKEOUT' ? 'PARA LLEVAR' :
-                                channel === 'DELIVERY' ? 'A DOMICILIO' :
-                                    channel === 'QUICK_SALE' ? 'VENTA RÁPIDA' : channel;
+                        channel === 'TAKEOUT' ? 'PARA LLEVAR' :
+                        channel === 'DELIVERY' ? 'A DOMICILIO' :
+                        channel === 'PICKUP' ? 'PICKUP' :
+                        channel === 'QUICK_SALE' ? 'VENTA RÁPIDA' : 'PLATAFORMAS';
 
                     salesByChannel[channelName] = (salesByChannel[channelName] || 0) + subtotal;
                 }
@@ -175,6 +176,7 @@ export const ShiftListModal: React.FC<ShiftListModalProps> = ({ isOpen, onClose 
                 notes: shift.closing_notes || '',
                 abonosByMethod: [],
                 posCardDetail: [],
+                expenses: expenses || [],
             };
 
             return reportData;
@@ -189,6 +191,18 @@ export const ShiftListModal: React.FC<ShiftListModalProps> = ({ isOpen, onClose 
         try {
             const reportData = await getShiftReportData(shift);
             await printService.printZReport(reportData);
+            
+            // Re-print expenses summary if any
+            if (reportData.expensesTotal > 0) {
+                await printService.printExpensesSummary(reportData);
+            }
+
+            // Law of the user: When printing is done, send email automatically
+            try {
+                await handleEmail(shift);
+            } catch (e) {
+                console.error('Error sending auto-email from history:', e);
+            }
         } catch (error: any) {
             console.error('Error printing shift:', error);
         } finally {
