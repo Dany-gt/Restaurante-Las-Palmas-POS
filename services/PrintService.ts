@@ -202,19 +202,19 @@ class PrintService {
   </style>
 </head>
 <body>
-  ${!hideHeader ? `
-  <div class="header">
-    ${this.settings?.restaurant_logo ? `
-      <div style="text-align:center; margin-bottom: 8px;">
-        <img src="${this.settings.restaurant_logo}" style="max-width: 150px; max-height: 80px; filter: grayscale(1);" />
-      </div>
+    ${!hideHeader ? `
+    <div class="header">
+      ${this.settings?.restaurant_logo ? `
+        <div style="text-align:center; margin-bottom: 8px;">
+          <img src="${this.settings?.restaurant_logo}" style="max-width: 150px; max-height: 80px; filter: grayscale(1);" />
+        </div>
+      ` : ''}
+      <div class="restaurant-name" style="font-size: ${isSmall ? '13px' : '16px'}; border-bottom: 1px solid #eee; padding-bottom: 3px; display: inline-block;">${this.restaurantInfo?.name || 'RESTAURANTE LAS PALMAS'}</div>
+      <div class="restaurant-info" style="margin-top: 5px;">${this.restaurantInfo?.phone ? 'Tel: ' + this.restaurantInfo.phone : ''}</div>
+      <div class="restaurant-info">${this.restaurantInfo?.email || ''}</div>
+      <div class="restaurant-info" style="font-weight:bold; letter-spacing: 1px;">${(this.restaurantInfo?.website || '').toLowerCase()}</div>
+    </div>
     ` : ''}
-    <div class="restaurant-name" style="font-size: ${isSmall ? '13px' : '16px'}; border-bottom: 1px solid #eee; padding-bottom: 3px; display: inline-block;">${this.restaurantInfo?.name || 'RESTAURANTE LAS PALMAS'}</div>
-    <div class="restaurant-info" style="margin-top: 5px;">${this.restaurantInfo?.phone ? 'Tel: ' + this.restaurantInfo.phone : ''}</div>
-    <div class="restaurant-info">${this.restaurantInfo?.email || ''}</div>
-    <div class="restaurant-info" style="font-weight:bold; letter-spacing: 1px;">${(this.restaurantInfo?.website || '').toLowerCase()}</div>
-  </div>
-  ` : ''}
   ${title ? '<div class="ticket-title">' + title + '</div>' : '<div class="dotted-divider"></div>'}
   <div class="content">${content}</div>
   ${footer ? '<div class="footer">' + footer + '</div>' : ''}
@@ -1013,84 +1013,7 @@ class PrintService {
 
   // ─── CASH DRAWER ──────────────────────────────────────────────────
 
-  async openCashDrawer(data?: { orderId?: string; userId?: string; userName?: string; amount?: number; reason?: string }): Promise<void> {
-    try {
-      // 1. Audit Log in Supabase
-      if (data?.userId && data?.userName) {
-        const { error } = await supabase.from('cash_drawer_logs').insert([{
-          user_id: data.userId,
-          user_name: data.userName,
-          order_id: data.orderId || null,
-          amount: data.amount || 0,
-          reason: data.reason || 'Apertura Manual'
-        }]);
-        if (error) console.error('Error logging cash drawer opening:', error);
-      }
-
-      // 2. Local ESC/POS (Electron)
-      const electron = (window as any).electronAPI || (window as any).electron;
-      if (this.isElectron() && electron && electron.openCashDrawer) {
-        // Try to find a printer explicitly configured for cash drawer
-        let { data: drawerPrinter } = await supabase
-          .from('printers')
-          .select('name, address, connection_type')
-          .eq('opens_cash_drawer', true)
-          .eq('is_active', true)
-          .limit(1)
-          .single();
-
-        // Fallback: If no printer is explicitly marked for drawer, try the first active system printer
-        if (!drawerPrinter) {
-          const { data: fallbackPrinter } = await supabase
-            .from('printers')
-            .select('name, address, connection_type')
-            .eq('is_active', true)
-            .limit(1)
-            .single();
-          drawerPrinter = fallbackPrinter;
-        }
-
-        let target = undefined;
-        let type = undefined;
-
-        if (drawerPrinter) {
-          target = drawerPrinter.connection_type === 'NETWORK' ? drawerPrinter.address : drawerPrinter.name;
-          type = drawerPrinter.connection_type;
-          console.log(`📠 [PrintService] Usando impresora "${drawerPrinter.name}" para pulso de gaveta.`);
-        } else {
-          console.warn('⚠️ No se encontró ninguna impresora configurada para abrir la gaveta.');
-        }
-
-        // Anti-collision delay: wait a bit if a print job might be starting
-        await new Promise(resolve => setTimeout(resolve, 300));
-
-        const r = await electron.openCashDrawer({ target, type });
-        if (r.success) {
-          console.log('✅ Cash drawer pulse sent successfully.');
-          return;
-        } else {
-          console.warn('⚠️ electron.openCashDrawer failed:', r.error);
-        }
-      }
-
-      // 3. Fallback to PrintNode
-      if (this.settings?.printnode_enabled && this.settings?.printnode_printer_id) {
-        if (!this.settings) await this.loadSettings();
-        const cmd1 = 'G3AAGfo='; // ESC p 0 25 250 (Base64)
-        const cmd2 = 'G3ABGfo='; // ESC p 1 25 250 (Base64)
-        await printNodeService.printRaw(this.settings.printnode_printer_id, cmd1, 'ABRIR CAJON 1');
-        await printNodeService.printRaw(this.settings.printnode_printer_id, cmd2, 'ABRIR CAJON 2');
-        console.log('✅ Cash drawer pulse sent via PrintNode.');
-      }
-    } catch (e) {
-      console.error('Error in openCashDrawer:', e);
-    }
-  }
-
-  /**
-   * 🛠️ TRADUCTOR QUIRÚRGICO: HTML -> COMANDOS EPSON (ESC/POS)
-   * Convierte tickets diseñados para pantalla en datos binarios para impresoras térmicas.
-   */
+  // ─── TRADUCTOR QUIRÚRGICO: HTML -> COMANDOS EPSON (ESC/POS)
   public htmlToEscPos(html: string, options: { openDrawer?: boolean } = {}): Uint8Array {
     const ESC = 0x1B;
     const GS = 0x1D;
