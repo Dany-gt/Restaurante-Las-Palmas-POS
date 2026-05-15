@@ -518,10 +518,10 @@ class PrintService {
 
       <div class="divider"></div>
 
-      <div style="display:flex; font-weight:bold; font-size:12px; margin-bottom:5px;">
-        <span style="width:40px;">CANT</span>
-        <span style="flex:1;">DESCRIPCION</span>
-        <span style="width:70px; text-align: right;">TOTAL</span>
+      <div class="item-row" style="font-weight:bold; font-size:12px; margin-bottom:5px;">
+        <span class="qty" style="width:40px;">CANT.</span>
+        <span class="description" style="flex:1;">DESCRIPCIÓN</span>
+        <span class="price" style="width:70px; text-align: right;">TOTAL</span>
       </div>
       
       <div class="divider"></div>
@@ -609,10 +609,10 @@ class PrintService {
         <div class="info-line"><span class="info-label">Nombre:</span> ${data.customerName || 'Consumidor Final'}</div>
       </div>
       <div class="dotted-divider"></div>
-      <div style="display:flex; font-weight:900; font-size:12px; margin-bottom:5px;">
-        <span style="width:30px;">Cant.</span>
-        <span style="flex:1;">Descripción</span>
-        <span style="width:75px; text-align:right;">Total</span>
+      <div class="item-row" style="font-weight:900; font-size:12px; margin-bottom:5px;">
+        <span class="qty" style="width:30px;">CANT.</span>
+        <span class="description" style="flex:1;">DESCRIPCIÓN</span>
+        <span class="price" style="width:75px; text-align:right;">TOTAL</span>
       </div>
       ${(data.items || []).map((item: any) => `
         <div class="item-row">
@@ -674,8 +674,8 @@ class PrintService {
         ${data.reference ? '<br><span style="font-weight:700;">REF: ' + data.reference.toUpperCase() + '</span>' : ''}
       </div>
       <div class="dotted-divider"></div>
-      <div style="display:flex;font-weight:900;font-size:12px;margin-bottom:5px;">
-        <span style="width:30px;">Cant.</span><span style="flex:1;">Descripción</span><span style="width:75px;text-align:right;">Total</span>
+      <div class="item-row" style="font-weight:900;font-size:12px;margin-bottom:5px;">
+        <span class="qty" style="width:30px;">CANT.</span><span class="description" style="flex:1;">DESCRIPCIÓN</span><span class="price" style="width:75px;text-align:right;">TOTAL</span>
       </div>
       ${data.items.map((item: any) => `
         <div class="item-row">
@@ -1021,15 +1021,15 @@ class PrintService {
         <div><strong>Hasta:</strong> ${endDate}</div>
       </div>
 
-      <div style="display:flex; font-weight:bold; font-size:11px; border-bottom:1px solid #000; margin-bottom:5px; padding-bottom:2px;">
-        <span style="width:40px; text-align:center;">CANT</span>
-        <span style="flex:1;">DESCRIPCIÓN</span>
+      <div class="item-row" style="font-weight:bold; font-size:11px; border-bottom:1px solid #000; margin-bottom:5px; padding-bottom:2px;">
+        <span class="qty" style="width:40px; text-align:center;">CANT.</span>
+        <span class="description" style="flex:1;">DESCRIPCIÓN</span>
       </div>
 
       ${data.map(item => `
-        <div style="display:flex; font-size:10px; margin-bottom:4px; align-items: flex-start;">
-          <span style="width:40px; text-align:center; font-weight:bold;">${item.quantity}</span>
-          <span style="flex:1; text-transform:uppercase;">${item.name}</span>
+        <div class="item-row" style="font-size:10px; margin-bottom:4px; align-items: flex-start;">
+          <span class="qty" style="width:40px; text-align:center; font-weight:bold;">${item.quantity}</span>
+          <span class="description" style="flex:1; text-transform:uppercase;">${item.name}</span>
         </div>
       `).join('')}
 
@@ -1138,72 +1138,135 @@ class PrintService {
         else if (textAlign === 'right') commands.push(ESC, 0x61, 0x02);
 
         // Caso especial: Separador (HR o clase divider)
+        let handledCustom = false;
+
         if (tagName === 'HR' || el.classList.contains('divider') || el.classList.contains('thick-divider') || el.classList.contains('dotted-divider')) {
           const char = el.classList.contains('thick-divider') ? '=' : (el.classList.contains('dotted-divider') ? '.' : '-');
           const line = char.repeat(42) + '\n';
           for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
-          return; // No procesar hijos de un HR
+          handledCustom = true;
         }
 
         // Caso especial: Grilla de información (info-grid) - Alinear 2 columnas
-        if (el.classList.contains('info-grid')) {
-          const children = Array.from(el.children);
-          if (children.length >= 2) {
-            for (let i = 0; i < children.length; i += 2) {
-              const leftNode = children[i];
-              const rightNode = children[i+1];
-              
-              // Clean text and handle bold labels if present
-              const leftText = leftNode?.textContent?.trim() || '';
-              const rightText = rightNode?.textContent?.trim() || '';
-              
-              const line = leftText.padEnd(42 - rightText.length) + rightText + '\n';
+        else if (el.classList.contains('info-grid')) {
+          const children = Array.from(el.children) as HTMLElement[];
+          for (let i = 0; i < children.length; i++) {
+            const child = children[i];
+            const isFullWidth = child.style.gridColumn.includes('span 2') || child.classList.contains('full-width');
+            
+            if (isFullWidth || i === children.length - 1) {
+              const text = child.textContent?.trim() || '';
+              const line = text + '\n';
               for (let j = 0; j < line.length; j++) commands.push(line.charCodeAt(j));
+            } else {
+              const nextChild = children[i+1];
+              const nextIsFullWidth = nextChild.style.gridColumn.includes('span 2') || nextChild.classList.contains('full-width');
+              
+              if (nextIsFullWidth) {
+                const text = child.textContent?.trim() || '';
+                const line = text + '\n';
+                for (let j = 0; j < line.length; j++) commands.push(line.charCodeAt(j));
+              } else {
+                const leftText = child.textContent?.trim() || '';
+                const rightText = nextChild.textContent?.trim() || '';
+                const spaceLen = Math.max(1, 42 - leftText.length - rightText.length);
+                const line = leftText + ' '.repeat(spaceLen) + rightText + '\n';
+                for (let j = 0; j < line.length; j++) commands.push(line.charCodeAt(j));
+                i++; // Skip next child
+              }
             }
-            return; // Ya procesamos la grilla
           }
+          handledCustom = true;
         }
 
         // Caso especial: Recuadro de datos (Nit/Nombre)
-        if (el.classList.contains('data-box')) {
+        else if (el.classList.contains('data-box')) {
           const line = '|' + ' '.repeat(40) + '|\n';
           const topBottom = '+' + '-'.repeat(40) + '+\n';
-          
           for (let i = 0; i < topBottom.length; i++) commands.push(topBottom.charCodeAt(i));
           
-          // Render space lines based on height (roughly)
           const height = parseInt(el.style.height) || 20;
           const linesCount = Math.max(1, Math.floor(height / 15));
           for (let h = 0; h < linesCount; h++) {
             for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
           }
-          
           for (let i = 0; i < topBottom.length; i++) commands.push(topBottom.charCodeAt(i));
-          return;
+          handledCustom = true;
         }
 
-        // Caso especial: Item de ticket (Item-Row) - Intentar alinear columnas
-        if (el.classList.contains('item-row')) {
-          // Extraer descripción y precio para alineación quirúrgica
-          const desc = el.querySelector('.description')?.textContent?.trim() || '';
-          const price = el.querySelector('.price')?.textContent?.trim() || '';
-          const qty = el.querySelector('.qty')?.textContent?.trim() || '';
+        // Caso especial: Item de ticket (Item-Row)
+        else if (el.classList.contains('item-row')) {
+          const descNode = el.querySelector('.description');
+          const priceNode = el.querySelector('.price');
+          const qtyNode = el.querySelector('.qty');
+          
+          const desc = descNode ? descNode.textContent?.trim() || '' : '';
+          const price = priceNode ? priceNode.textContent?.trim() || '' : '';
+          const qty = qtyNode ? qtyNode.textContent?.trim() : null;
           
           if (desc || price) {
-            let line = '';
-            let qtyStr = qty ? `${qty} ` : '';
-            const remainingSpace = 42 - qtyStr.length - price.length;
-            const truncatedDesc = desc.substring(0, Math.max(0, remainingSpace - 1));
-            line += qtyStr + truncatedDesc.padEnd(remainingSpace) + price + '\n';
+            const qtyStr = qty !== null ? `${qty.padStart(3)} ` : '';
+            const priceStr = price.padStart(8);
+            const maxDescLen = Math.max(5, 42 - qtyStr.length - priceStr.length);
             
-            for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
-            return; // Ya procesamos la fila manualmente
+            let remainingDesc = desc;
+            let firstLine = true;
+            
+            if (!remainingDesc) {
+               let line = qtyStr + ''.padEnd(maxDescLen) + priceStr + '\n';
+               for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
+            } else {
+                while (remainingDesc.length > 0 || firstLine) {
+                   const chunk = remainingDesc.substring(0, maxDescLen);
+                   remainingDesc = remainingDesc.substring(maxDescLen);
+                   
+                   let line = '';
+                   if (firstLine) {
+                      line = qtyStr + chunk.padEnd(maxDescLen) + priceStr + '\n';
+                      firstLine = false;
+                   } else {
+                      line = ''.padEnd(qtyStr.length) + chunk.padEnd(maxDescLen) + ''.padEnd(priceStr.length) + '\n';
+                   }
+                   for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
+                }
+            }
+            handledCustom = true;
           }
         }
 
-        // Procesar hijos
-        for (let i = 0; i < el.childNodes.length; i++) {
-          walk(el.childNodes[i]);
+        // Caso especial: Total Line
+        else if (el.classList.contains('total-line') || el.classList.contains('grand-total')) {
+          const isGrand = el.classList.contains('grand-total');
+          if (isGrand) {
+             commands.push(ESC, 0x45, 0x01); // Bold ON
+             commands.push(GS, 0x21, 0x01); // Double height
+          }
+          
+          const label = el.querySelector('.total-label')?.textContent?.trim() || '';
+          const val = el.querySelector('.total-value')?.textContent?.trim() || '';
+          
+          if (label && val) {
+             const spaceLen = Math.max(1, 42 - label.length - val.length);
+             const line = label + ' '.repeat(spaceLen) + val + '\n';
+             for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
+          } else {
+             const text = el.textContent?.trim() || '';
+             const spaceLen = Math.max(0, 42 - text.length);
+             const line = ' '.repeat(spaceLen) + text + '\n';
+             for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
+          }
+          
+          if (isGrand) {
+             commands.push(ESC, 0x45, 0x00); // Bold OFF
+             commands.push(GS, 0x21, 0x00); // Normal size
+          }
+          handledCustom = true;
+        }
+
+        if (!handledCustom) {
+           for (let i = 0; i < el.childNodes.length; i++) {
+             walk(el.childNodes[i]);
+           }
         }
 
         // Resetear estilos para el siguiente elemento
@@ -1213,7 +1276,7 @@ class PrintService {
 
         // Saltos de línea para bloques
         if (['DIV', 'H1', 'H2', 'H3', 'P', 'BR', 'TR'].includes(tagName)) {
-          commands.push(LF);
+          if (!handledCustom) commands.push(LF);
         }
       }
     };
