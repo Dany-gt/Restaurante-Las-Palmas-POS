@@ -219,10 +219,10 @@ class PrintService {
 
   // ─── PRINTER RESOLUTION ───────────────────────────────────────────
 
-  private async getNetworkPrinter(): Promise<{ address: string; port: number; paperWidth: string } | null> {
+  private async getNetworkPrinter(): Promise<{ address: string; port: number; paperWidth: string; opens_cash_drawer?: boolean } | null> {
     try {
       const { data, error } = await supabase
-        .from('printers').select('id, name, address, port, paper_width')
+        .from('printers').select('id, name, address, port, paper_width, opens_cash_drawer')
         .eq('connection_type', 'NETWORK').eq('is_active', true);
 
       if (!data || data.length === 0) return null;
@@ -247,7 +247,8 @@ class PrintService {
       return { 
         address: printer.address, 
         port: printer.port || 9100, 
-        paperWidth: printer.paper_width || '80mm' 
+        paperWidth: printer.paper_width || '80mm',
+        opens_cash_drawer: !!printer.opens_cash_drawer
       };
     } catch { return null; }
   }
@@ -330,7 +331,7 @@ class PrintService {
         console.log(`🌐 [PrintService] Intentando impresora de red: ${netPrinter.address}:${netPrinter.port}`);
         
         // 🛠️ TRADUCCIÓN CRÍTICA: Convertimos HTML a texto limpio con comandos ESC/POS básicos
-        const rawContent = this.htmlToEscPos(html);
+        const rawContent = this.htmlToEscPos(html, { openDrawer: netPrinter.opens_cash_drawer });
         
         const r = await electron.printToNetwork(netPrinter.address, netPrinter.port, rawContent, true);
         if (r.success) { 
@@ -737,19 +738,29 @@ class PrintService {
   async printDetailedExpense(expense: any): Promise<void> {
     if (!this.settings) await this.loadSettings();
     const content = `
-      <div><strong>CATEGORÍA:</strong> ${expense.category}</div>
-      <div><strong>DESCRIPCIÓN:</strong> ${expense.description}</div>
+      <div style="font-size: 11px; margin-bottom: 2px;"><strong>CATEGORÍA:</strong> ${expense.category}</div>
+      <div style="font-size: 11px; margin-bottom: 5px;"><strong>DESCRIPCIÓN:</strong> ${expense.description}</div>
+      
       <div class="divider"></div>
+      
+      <div class="item-row" style="font-weight: bold; border-bottom: 1px solid #000; margin-bottom: 5px; font-size: 10px; padding-bottom: 2px;">
+        <span class="description">PRODUCTO</span>
+        <span class="price">MONTO</span>
+      </div>
+
       ${(expense.items || []).map((item: any) => `
         <div class="item-row">
           <span class="description" style="text-transform:none;">${item.name}</span>
           <span class="price">Q${Number(item.price).toFixed(2)}</span>
         </div>
       `).join('')}
+      
       <div class="thick-divider"></div>
-      <div class="grand-total" style="text-align:right;">TOTAL: Q${Number(expense.amount).toFixed(2)}</div>
+      <div class="grand-total" style="text-align:right; font-weight: 900; font-size: 15px;">TOTAL: Q${Number(expense.amount).toFixed(2)}</div>
     `;
-    await this.executePrint('REIMPRESIÓN GASTO', (pw) => this.generateTicketHTML('REIMPRESIÓN GASTO', content, 'COPIA DE REGISTRO', pw), { silent: false });
+    
+    // Pass true as 5th argument to hide the restaurant header/logo
+    await this.executePrint('GASTO', (pw) => this.generateTicketHTML('GASTO', content, 'COMPROBANTE DE GASTO', pw, true), { silent: false });
   }
 
   // ─── Z REPORT ─────────────────────────────────────────────────────
@@ -1021,10 +1032,10 @@ class PrintService {
   }
 
   /**
-   * 🛠️ TRADUCTOR MAESTRO: HTML -> COMANDOS EPSON (ESC/POS)
+   * 🛠️ TRADUCTOR QUIRÚRGICO: HTML -> COMANDOS EPSON (ESC/POS)
    * Convierte tickets diseñados para pantalla en datos binarios para impresoras térmicas.
    */
-  public htmlToEscPos(html: string): Uint8Array {
+  public htmlToEscPos(html: string, options: { openDrawer?: boolean } = {}): Uint8Array {
     const ESC = 0x1B;
     const GS = 0x1D;
     const LF = 0x0A;
@@ -1032,17 +1043,25 @@ class PrintService {
 
     // 1. Inicializar impresora
     commands.push(ESC, 0x40); 
+
+    // 2. Pulso de gaveta (opcional, al inicio para evitar esperas)
+    if (options.openDrawer) {
+      commands.push(ESC, 0x70, 0x00, 0x19, 0xFA);
+    }
     
-    // 2. Procesar el HTML
+    // 3. Procesar el HTML
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
     const walk = (node: Node) => {
       if (node.nodeType === Node.TEXT_NODE) {
-        const text = (node.textContent || '')
-          .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos para evitar símbolos raros
-          .replace(/[^\x20-\x7E\x0A\x0D]/g, ""); // Solo caracteres ASCII básicos
+        let text = (node.textContent || '')
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos
+          .replace(/[^\x20-\x7E\x0A\x0D]/g, ""); // Solo ASCII básico
         
+        // Trim text to avoid extra spaces if it's just whitespace between tags
+        if (!text.trim() && text.length > 0) return;
+
         for (let i = 0; i < text.length; i++) {
           commands.push(text.charCodeAt(i));
         }
@@ -1050,34 +1069,67 @@ class PrintService {
         const el = node as HTMLElement;
         const tagName = el.tagName.toUpperCase();
         
-        // Estilos de texto (Negrita)
+        // Estilos de texto (Negrita y Tamaño)
         const isBold = el.style.fontWeight === 'bold' || el.style.fontWeight === '900' || ['H1', 'H2', 'H3', 'STRONG', 'B'].includes(tagName);
+        const isBig = tagName === 'H1' || (el.style.fontSize && parseInt(el.style.fontSize) > 16);
+        const isMedium = tagName === 'H2' || tagName === 'H3' || (el.style.fontSize && parseInt(el.style.fontSize) > 12);
+
         if (isBold) commands.push(ESC, 0x45, 0x01); // Bold ON
+        if (isBig) commands.push(GS, 0x21, 0x11); // Double width & height
+        else if (isMedium) commands.push(GS, 0x21, 0x01); // Double height
 
         // Alineación
-        const textAlign = el.style.textAlign || (el.classList.contains('header') ? 'center' : 'left');
+        const textAlign = el.style.textAlign || (el.classList.contains('header') || el.classList.contains('text-center') ? 'center' : 'left');
         if (textAlign === 'center') commands.push(ESC, 0x61, 0x01);
         else if (textAlign === 'right') commands.push(ESC, 0x61, 0x02);
+
+        // Caso especial: Separador (HR o clase divider)
+        if (tagName === 'HR' || el.classList.contains('divider') || el.classList.contains('thick-divider')) {
+          const char = el.classList.contains('thick-divider') ? '=' : '-';
+          const line = char.repeat(42) + '\n';
+          for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
+          return; // No procesar hijos de un HR
+        }
+
+        // Caso especial: Item de ticket (Item-Row) - Intentar alinear columnas
+        if (el.classList.contains('item-row')) {
+          // Extraer descripción y precio para alineación quirúrgica
+          const desc = el.querySelector('.description')?.textContent?.trim() || '';
+          const price = el.querySelector('.price')?.textContent?.trim() || '';
+          const qty = el.querySelector('.qty')?.textContent?.trim() || '';
+          
+          if (desc || price) {
+            let line = '';
+            if (qty) line += `${qty} `;
+            const remainingSpace = 42 - line.length - price.length;
+            const truncatedDesc = desc.substring(0, Math.max(0, remainingSpace - 1));
+            line += truncatedDesc.padEnd(remainingSpace) + price + '\n';
+            
+            for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
+            return; // Ya procesamos la fila manualmente
+          }
+        }
 
         // Procesar hijos
         for (let i = 0; i < el.childNodes.length; i++) {
           walk(el.childNodes[i]);
         }
 
+        // Resetear estilos para el siguiente elemento
+        if (isBig || isMedium) commands.push(GS, 0x21, 0x00); // Font size Normal
+        if (isBold) commands.push(ESC, 0x45, 0x00); // Bold OFF
+        if (textAlign !== 'left') commands.push(ESC, 0x61, 0x00); // Reset Align
+
         // Saltos de línea para bloques
         if (['DIV', 'H1', 'H2', 'H3', 'P', 'BR', 'TR'].includes(tagName)) {
           commands.push(LF);
         }
-
-        // Resetear estilos para el siguiente elemento
-        if (isBold) commands.push(ESC, 0x45, 0x00); // Bold OFF
-        if (textAlign !== 'left') commands.push(ESC, 0x61, 0x00); // Reset Align
       }
     };
 
     walk(doc.body);
 
-    // 3. Finalización: Alimentar papel y Cortar
+    // 4. Finalización: Alimentar papel y Cortar
     commands.push(LF, LF, LF, LF, LF); // 5 líneas de avance
     commands.push(GS, 0x56, 0x42, 0x00); // Comando de corte (Full Cut)
     

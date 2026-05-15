@@ -204,30 +204,35 @@ ipcMain.handle('open-cash-drawer', async (event, { target, type }) => {
                 resolve({ success: false, error: 'Timeout' });
             });
         } else if (type === 'SYSTEM' && target) {
-            console.log(`[${timestamp}] 🔌 [Electron] Generando pulso vía Driver Windows (Dummy Job) para: ${target}`);
+            console.log(`[${timestamp}] 🔌 [Electron] Generando pulso vía Driver Windows para: ${target}`);
             
-            // Creamos un trabajo de impresión en blanco pero NO vacío, para evitar que el spooler lo descarte.
+            // Creamos un trabajo de impresión que contenga un carácter invisible pero real para que el spooler no lo ignore.
             let workerWindow = new BrowserWindow({ show: false });
-            const dummyHtml = `<html><body style="margin:0;padding:0;font-size:1px;color:white;">.</body></html>`;
+            const dummyHtml = `
+                <html>
+                    <body style="margin:0;padding:0;overflow:hidden;">
+                        <div style="font-size:1px;color:rgba(0,0,0,0.01); line-height:1px;">.</div>
+                    </body>
+                </html>
+            `;
             workerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(dummyHtml)}`);
             
             workerWindow.webContents.on('did-finish-load', () => {
-                console.log(`[${timestamp}] 📄 [Electron] Dummy Job cargado para ${target}. Iniciando impresión...`);
+                console.log(`[${timestamp}] 📄 [Electron] Dummy Job cargado. Ejecutando pulso de gaveta...`);
                 
                 workerWindow.webContents.print({
                     silent: true,
                     deviceName: target,
                     margins: { marginType: 'none' }
                 }, (success, failureReason) => {
-                    console.log(`[${timestamp}] 🏁 [Electron] Dummy Job finalizado. Éxito: ${success}${failureReason ? `. Motivo: ${failureReason}` : ''}`);
+                    console.log(`[${timestamp}] 🏁 [Electron] Resultado pulso gaveta: ${success}${failureReason ? `. Motivo: ${failureReason}` : ''}`);
                     
-                    // Delay para asegurar que el spooler procese el trabajo y envíe el pulso
+                    // Delay para que el spooler termine de enviar el comando antes de cerrar la ventana
                     setTimeout(() => {
                         if (!workerWindow.isDestroyed()) {
                             workerWindow.close();
-                            console.log(`[${timestamp}] 🧹 [Electron] Ventana de dummy job cerrada.`);
                         }
-                    }, 1500);
+                    }, 1000);
                     
                     if (success) {
                         resolve({ success: true });
