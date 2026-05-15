@@ -74,6 +74,18 @@ const App: React.FC = () => {
     };
   }, [notify]);
 
+  // AUTOLIMPIEZA AL CERRAR EL PROGRAMA (ELECTRON / BROWSER)
+  // Destruye el usuario activo para que obligue a loguearse al volver a abrir,
+  // pero conserva los datos de activación de la caja (device_fingerprint).
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      localStorage.removeItem('currentUser');
+      sessionStorage.removeItem('currentUser');
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
   const [loadingSession, setLoadingSession] = useState(true);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [operatorDashboardLead, setOperatorDashboardLead] = useState<User | null>(null);
@@ -549,6 +561,11 @@ const App: React.FC = () => {
     setAdminTab(null);
     setPendingTableSelection(null);
     setShowLimitPin(false);
+    
+    // Forzar recarga ligera para limpiar cualquier estado residual en memoria (Evita que entre directo sin abrir caja)
+    setTimeout(() => {
+      window.location.reload();
+    }, 300);
   };
 
   const [settings, setSettings] = useState<any>({});
