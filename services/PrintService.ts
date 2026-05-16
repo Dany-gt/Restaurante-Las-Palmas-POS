@@ -245,8 +245,8 @@ class PrintService {
       if (!data || data.length === 0) return null;
 
       // 1. Prioridad Máxima: Impresora llamada "CAJA", "PRINCIPAL" o con la IP específica del usuario
-      let printer = data.find(p => 
-        p.name.toUpperCase().includes('CAJA') || 
+      let printer = data.find(p =>
+        p.name.toUpperCase().includes('CAJA') ||
         p.name.toUpperCase().includes('PRINCIPAL') ||
         p.address === '192.168.88.11' ||
         p.name.toUpperCase().includes('EPSON')
@@ -261,9 +261,9 @@ class PrintService {
       if (!printer) printer = data[0];
 
       if (!printer?.address) return null;
-      return { 
-        address: printer.address, 
-        port: printer.port || 9100, 
+      return {
+        address: printer.address,
+        port: printer.port || 9100,
         name: printer.name || '',
         paperWidth: printer.paper_width || '80mm',
         opens_cash_drawer: !!printer.opens_cash_drawer
@@ -303,7 +303,7 @@ class PrintService {
     // 1. Determine paperWidth if possible
     const sysPrinter = await this.getSystemPrinter();
     const netPrinter = await this.getNetworkPrinter();
-    
+
     if (sysPrinter) paperWidth = sysPrinter.paperWidth;
     else if (netPrinter) paperWidth = netPrinter.paperWidth;
 
@@ -333,9 +333,9 @@ class PrintService {
       if (sysPrinter) {
         console.log(`📠 [PrintService] Intentando impresora de sistema: "${sysPrinter.name}"`);
         const r = await electron.printHtml(html, sysPrinter.name, silent);
-        if (r.success) { 
-            console.log('✅ [PrintService] Impresión exitosa vía driver de sistema'); 
-            return; 
+        if (r.success) {
+          console.log('✅ [PrintService] Impresión exitosa vía driver de sistema');
+          return;
         }
         console.warn(`❌ [PrintService] Error en impresora de sistema:`, r.error);
       } else {
@@ -348,7 +348,7 @@ class PrintService {
     if (electron && (electron.printToNetwork || electron.openCashDrawer)) {
       if (netPrinter) {
         // Determinamos si REALMENTE debemos abrir el cajón (parámetro manda sobre config de impresora)
-        const shouldOpenDrawer = options?.openDrawer === true; 
+        const shouldOpenDrawer = options?.openDrawer === true;
 
         // 1. APERTURA VELOZ: Solo si el parámetro es estrictamente TRUE
         if (shouldOpenDrawer) {
@@ -358,21 +358,21 @@ class PrintService {
 
         // 2. IMPRESIÓN DE DISEÑO
         if (electron.printHtml) {
-            console.log(`🎨 [PrintService] Usando diseño de Windows para impresora de red`);
-            // Pasamos silent: true siempre en el POS para evitar diálogos
-            const r = await electron.printHtml(html, netPrinter.name, silent);
-            if (r.success) return;
+          console.log(`🎨 [PrintService] Usando diseño de Windows para impresora de red`);
+          // Pasamos silent: true siempre en el POS para evitar diálogos
+          const r = await electron.printHtml(html, netPrinter.name, silent);
+          if (r.success) return;
         }
 
         // 3. FALLBACK RAW: Si todo lo anterior falla, usamos el modo IP clásico (rápido pero diseño básico)
         console.log(`🌐 [PrintService] Usando modo RAW por IP: ${netPrinter.address}:${netPrinter.port}`);
         const shouldOpenDrawerRaw = options?.openDrawer !== undefined ? options.openDrawer : !!netPrinter.opens_cash_drawer;
         const rawContent = this.htmlToEscPos(html, { openDrawer: shouldOpenDrawerRaw, paperWidth: netPrinter.paperWidth });
-        
+
         const r = await electron.printToNetwork(netPrinter.address, netPrinter.port, rawContent, true);
-        if (r.success) { 
-            console.log('✅ [PrintService] Impresión exitosa vía red TCP (RAW)'); 
-            return; 
+        if (r.success) {
+          console.log('✅ [PrintService] Impresión exitosa vía red TCP (RAW)');
+          return;
         }
         console.warn('❌ [PrintService] Error en impresión de red:', r.error);
       }
@@ -385,8 +385,8 @@ class PrintService {
       console.log(`💾 [PrintService] Intentando fallback con impresora guardada en localStorage: ${pName || 'PREDETERMINADA'}`);
       const r = await electron.printHtml(html, pName, silent);
       if (r.success) {
-          console.log('✅ [PrintService] Impresión exitosa vía fallback local');
-          return;
+        console.log('✅ [PrintService] Impresión exitosa vía fallback local');
+        return;
       }
       console.warn('❌ [PrintService] Fallback local también falló:', r.error);
     }
@@ -591,9 +591,9 @@ class PrintService {
       </div>
     `;
 
-    await this.executePrint('PRE-CUENTA', (pw) => this.generateTicketHTML('PRE-CUENTA', content, 'Gracias por su preferencia.', pw), { 
-      silent: options?.silent ?? true, 
-      openDrawer: options?.openDrawer ?? false 
+    await this.executePrint('PRE-CUENTA', (pw) => this.generateTicketHTML('PRE-CUENTA', content, 'Gracias por su preferencia.', pw), {
+      silent: options?.silent ?? true,
+      openDrawer: options?.openDrawer ?? false
     });
   }
 
@@ -838,7 +838,7 @@ class PrintService {
     `;
     const title = 'ANULACIÓN DE PRODUCTO';
     const htmlContent = (pw: string) => this.generateTicketHTML('', content, undefined, pw, true);
-    
+
     await this.executePrint(title, htmlContent, { silent: true });
     return true;
   }
@@ -848,28 +848,30 @@ class PrintService {
   async printDetailedExpense(expense: any): Promise<void> {
     if (!this.settings) await this.loadSettings();
     const content = `
-      <div style="font-size: 11px; margin-bottom: 2px;"><strong>CATEGORÍA:</strong> ${expense.category}</div>
-      <div style="font-size: 11px; margin-bottom: 5px;"><strong>DESCRIPCIÓN:</strong> ${expense.description}</div>
-      
-      <div class="divider"></div>
-      
-      <table>
-        <tr class="item-row" style="font-weight:bold; border-bottom:1px solid #000;">
-          <td class="col-desc description">PRODUCTO</td>
-          <td class="col-price price">MONTO</td>
-        </tr>
-        ${(expense.items || []).map((item: any) => `
-          <tr class="item-row">
-            <td class="col-desc description">${item.name}</td>
-            <td class="col-price price">Q${Number(item.price).toFixed(2)}</td>
+      <div style="padding-left: 5px;">
+        <div style="font-size: 11px; margin-bottom: 2px;"><strong>CATEGORÍA:</strong> ${expense.category}</div>
+        <div style="font-size: 11px; margin-bottom: 5px;"><strong>DESCRIPCIÓN:</strong> ${expense.description}</div>
+        
+        <div class="divider"></div>
+        
+        <table>
+          <tr class="item-row" style="font-weight:bold; border-bottom:1px solid #000;">
+            <td class="col-desc description">PRODUCTO</td>
+            <td class="col-price price">MONTO</td>
           </tr>
-        `).join('')}
-      </table>
-      
-      <div class="thick-divider"></div>
-      <div class="grand-total" style="text-align:right;">TOTAL: Q${Number(expense.amount).toFixed(2)}</div>
+          ${(expense.items || []).map((item: any) => `
+            <tr class="item-row">
+              <td class="col-desc description">${item.name}</td>
+              <td class="col-price price">Q${Number(item.price).toFixed(2)}</td>
+            </tr>
+          `).join('')}
+        </table>
+        
+        <div class="thick-divider"></div>
+        <div class="grand-total" style="text-align:right;">TOTAL: Q${Number(expense.amount).toFixed(2)}</div>
+      </div>
     `;
-    
+
     // Pass true as 5th argument to hide the restaurant header/logo
     await this.executePrint('GASTO', (pw) => this.generateTicketHTML('GASTO', content, 'COMPROBANTE DE GASTO', pw, true), { silent: true, openDrawer: true });
   }
@@ -885,52 +887,54 @@ class PrintService {
     const dateStr = (d: string) => { try { return new Date(d).toLocaleString('es-GT', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return d; } };
 
     const content = `
-      <div class="info-grid">
-        <div class="info-line"><span>Caja:</span> ${data.registerName || 'PRINCIPAL'}</div>
-        <div class="info-line" style="text-align: right;"><span>Turno:</span> ${data.shiftNumber || '---'}</div>
-        <div class="info-line" style="grid-column: span 2;"><span>Cajero:</span> ${data.cashierName}</div>
-      </div>
-      
-      <div class="thick-divider"></div>
-      
-      ${expenses.map((exp: any) => `
-        <div style="margin-bottom: 10px;">
-          <div style="font-size: 11px; font-weight: bold; text-transform: uppercase;">CATEGORÍA: ${exp.category}</div>
-          <div class="divider" style="margin: 3px 0;"></div>
-          
-          <table>
-            <tr class="item-row" style="font-weight: bold; font-size: 9px;">
-              <td class="col-desc description">GASTO</td>
-              <td class="col-price price">TOTAL</td>
-            </tr>
-
-            ${Array.isArray(exp.items) && exp.items.length > 0 ? 
-              exp.items.map((item: any) => `
-                <tr class="item-row">
-                  <td class="col-desc description" style="font-size: 9px;">- ${item.name}</td>
-                  <td class="col-price price">${fmt(item.price)}</td>
-                </tr>
-              `).join('')
-              : `
-                <tr class="item-row">
-                  <td class="col-desc description" style="font-size: 9px;">- ${exp.description}</td>
-                  <td class="col-price price">${fmt(exp.amount)}</td>
-                </tr>
-              `
-            }
-          </table>
-          
-          <div style="text-align: right; font-weight: bold; border-top: 1px dotted #ccc; margin-top: 4px;">
-            Subtotal: ${fmt(exp.amount)}
-          </div>
+      <div style="padding-left: 5px;">
+        <div class="info-grid">
+          <div class="info-line"><span>Caja:</span> ${data.registerName || 'PRINCIPAL'}</div>
+          <div class="info-line" style="text-align: right;"><span>Turno:</span> ${data.shiftNumber || '---'}</div>
+          <div class="info-line" style="grid-column: span 2;"><span>Cajero:</span> ${data.cashierName}</div>
         </div>
-      `).join('')}
+        
+        <div class="thick-divider"></div>
+        
+        ${expenses.map((exp: any) => `
+          <div style="margin-bottom: 10px;">
+            <div style="font-size: 11px; font-weight: bold; text-transform: uppercase;">CATEGORÍA: ${exp.category}</div>
+            <div class="divider" style="margin: 3px 0;"></div>
+            
+            <table>
+              <tr class="item-row" style="font-weight: bold; font-size: 9px;">
+                <td class="col-desc description">GASTO</td>
+                <td class="col-price price">TOTAL</td>
+              </tr>
 
-      <div class="thick-divider"></div>
-      <div class="grand-total" style="text-align:right;">TOTAL EGRESOS: ${fmt(data.expensesTotal || 0)}</div>
-      
-      <div style="text-align:center; font-size:9px; font-style:italic; margin-top:15px;">
-        Impreso: ${new Date().toLocaleString('es-GT')}
+              ${Array.isArray(exp.items) && exp.items.length > 0 ?
+          exp.items.map((item: any) => `
+                  <tr class="item-row">
+                    <td class="col-desc description" style="font-size: 9px;">- ${item.name}</td>
+                    <td class="col-price price">${fmt(item.price)}</td>
+                  </tr>
+                `).join('')
+          : `
+                  <tr class="item-row">
+                    <td class="col-desc description" style="font-size: 9px;">- ${exp.description}</td>
+                    <td class="col-price price">${fmt(exp.amount)}</td>
+                  </tr>
+                `
+        }
+            </table>
+            
+            <div style="text-align: right; font-weight: bold; border-top: 1px dotted #ccc; margin-top: 4px;">
+              Subtotal: ${fmt(exp.amount)}
+            </div>
+          </div>
+        `).join('')}
+
+        <div class="thick-divider"></div>
+        <div class="grand-total" style="text-align:right;">TOTAL EGRESOS: ${fmt(data.expensesTotal || 0)}</div>
+        
+        <div style="text-align:center; font-size:9px; font-style:italic; margin-top:15px;">
+          Impreso: ${new Date().toLocaleString('es-GT')}
+        </div>
       </div>
     `;
 
@@ -971,15 +975,15 @@ class PrintService {
       
       <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">RESUMEN PROPINAS</div>
       <table>
-        ${(data.tipsByMethod || []).filter((t: any) => t.amount > 0).length > 0 
-          ? data.tipsByMethod.filter((t: any) => t.amount > 0).map((t: any) => `
+        ${(data.tipsByMethod || []).filter((t: any) => t.amount > 0).length > 0
+        ? data.tipsByMethod.filter((t: any) => t.amount > 0).map((t: any) => `
             <tr class="item-row">
               <td class="col-desc description">${t.method}:</td>
               <td class="col-price price">${fmt(t.amount)}</td>
             </tr>
           `).join('')
-          : '<tr><td colspan="2" style="text-align:center;font-size:10px;">SIN PROPINAS REGISTRADAS</td></tr>'
-        }
+        : '<tr><td colspan="2" style="text-align:center;font-size:10px;">SIN PROPINAS REGISTRADAS</td></tr>'
+      }
       </table>
 
       <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">VENTAS POR CANAL</div>
@@ -1183,13 +1187,13 @@ class PrintService {
     const commands: number[] = [];
 
     // 1. Inicializar impresora
-    commands.push(ESC, 0x40); 
+    commands.push(ESC, 0x40);
 
     // 2. Pulso de gaveta (opcional, al inicio para evitar esperas)
     if (options.openDrawer) {
       commands.push(ESC, 0x70, 0x00, 0x19, 0xFA);
     }
-    
+
     // 3. Procesar el HTML
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
@@ -1200,7 +1204,7 @@ class PrintService {
         let text = (node.textContent || '')
           .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos
           .replace(/[^\x20-\x7E\x0A\x0D]/g, ""); // Solo ASCII básico
-        
+
         // Trim text to avoid extra spaces if it's just whitespace between tags
         if (!text.trim() && text.length > 0) return;
 
@@ -1210,7 +1214,7 @@ class PrintService {
       } else if (node.nodeType === Node.ELEMENT_NODE) {
         const el = node as HTMLElement;
         const tagName = el.tagName.toUpperCase();
-        
+
         // Estilos de texto (Negrita y Tamaño)
         const isBold = el.style.fontWeight === 'bold' || el.style.fontWeight === '900' || ['H1', 'H2', 'H3', 'STRONG', 'B'].includes(tagName) || el.classList.contains('restaurant-name') || el.classList.contains('ticket-title');
         const isBig = tagName === 'H1' || el.classList.contains('restaurant-name') || (el.style.fontSize && parseInt(el.style.fontSize) > 16);
@@ -1241,15 +1245,15 @@ class PrintService {
           for (let i = 0; i < children.length; i++) {
             const child = children[i];
             const isFullWidth = child.style.gridColumn.includes('span 2') || child.classList.contains('full-width');
-            
+
             if (isFullWidth || i === children.length - 1) {
               const text = child.textContent?.trim() || '';
               const line = text + '\n';
               for (let j = 0; j < line.length; j++) commands.push(line.charCodeAt(j));
             } else {
-              const nextChild = children[i+1];
+              const nextChild = children[i + 1];
               const nextIsFullWidth = nextChild.style.gridColumn.includes('span 2') || nextChild.classList.contains('full-width');
-              
+
               if (nextIsFullWidth) {
                 const text = child.textContent?.trim() || '';
                 const line = text + '\n';
@@ -1272,7 +1276,7 @@ class PrintService {
           const line = '|' + ' '.repeat(paperWidth - 2) + '|\n';
           const topBottom = '+' + '-'.repeat(paperWidth - 2) + '+\n';
           for (let i = 0; i < topBottom.length; i++) commands.push(topBottom.charCodeAt(i));
-          
+
           const height = parseInt(el.style.height) || 20;
           const linesCount = Math.max(1, Math.floor(height / 15));
           for (let h = 0; h < linesCount; h++) {
@@ -1287,23 +1291,23 @@ class PrintService {
           const descNode = el.querySelector('.description');
           const priceNode = el.querySelector('.price');
           const qtyNode = el.querySelector('.qty');
-          
+
           const desc = descNode ? descNode.textContent?.trim() || '' : '';
           const price = priceNode ? priceNode.textContent?.trim() || '' : '';
           const qty = qtyNode ? qtyNode.textContent?.trim() : null;
-          
+
           if (desc || price) {
             const qtyStr = qty !== null ? `${qty.padStart(3)} ` : '';
             const priceStr = price.padStart(8);
             const maxDescLen = Math.max(5, paperWidth - qtyStr.length - priceStr.length);
-            
-            const descCorta = desc.length > maxDescLen 
-                ? desc.substring(0, maxDescLen - 3) + "..." 
-                : desc.padEnd(maxDescLen);
-                
+
+            const descCorta = desc.length > maxDescLen
+              ? desc.substring(0, maxDescLen - 3) + "..."
+              : desc.padEnd(maxDescLen);
+
             let line = qtyStr + descCorta + priceStr + '\n';
             for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
-            
+
             handledCustom = true;
           }
         }
@@ -1312,35 +1316,35 @@ class PrintService {
         else if (el.classList.contains('total-line') || el.classList.contains('grand-total')) {
           const isGrand = el.classList.contains('grand-total');
           if (isGrand) {
-             commands.push(ESC, 0x45, 0x01); // Bold ON
-             commands.push(GS, 0x21, 0x01); // Double height
+            commands.push(ESC, 0x45, 0x01); // Bold ON
+            commands.push(GS, 0x21, 0x01); // Double height
           }
-          
+
           const label = el.querySelector('.total-label')?.textContent?.trim() || '';
           const val = el.querySelector('.total-value')?.textContent?.trim() || '';
-          
+
           if (label && val) {
-             const spaceLen = Math.max(1, paperWidth - label.length - val.length);
-             const line = label + ' '.repeat(spaceLen) + val + '\n';
-             for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
+            const spaceLen = Math.max(1, paperWidth - label.length - val.length);
+            const line = label + ' '.repeat(spaceLen) + val + '\n';
+            for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
           } else {
-             const text = el.textContent?.trim() || '';
-             const spaceLen = Math.max(0, paperWidth - text.length);
-             const line = ' '.repeat(spaceLen) + text + '\n';
-             for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
+            const text = el.textContent?.trim() || '';
+            const spaceLen = Math.max(0, paperWidth - text.length);
+            const line = ' '.repeat(spaceLen) + text + '\n';
+            for (let i = 0; i < line.length; i++) commands.push(line.charCodeAt(i));
           }
-          
+
           if (isGrand) {
-             commands.push(ESC, 0x45, 0x00); // Bold OFF
-             commands.push(GS, 0x21, 0x00); // Normal size
+            commands.push(ESC, 0x45, 0x00); // Bold OFF
+            commands.push(GS, 0x21, 0x00); // Normal size
           }
           handledCustom = true;
         }
 
         if (!handledCustom) {
-           for (let i = 0; i < el.childNodes.length; i++) {
-             walk(el.childNodes[i]);
-           }
+          for (let i = 0; i < el.childNodes.length; i++) {
+            walk(el.childNodes[i]);
+          }
         }
 
         // Resetear estilos para el siguiente elemento
@@ -1360,7 +1364,7 @@ class PrintService {
     // 4. Finalización: Alimentar papel y Cortar
     commands.push(LF, LF, LF, LF, LF); // 5 líneas de avance
     commands.push(GS, 0x56, 0x42, 0x00); // Comando de corte (Full Cut)
-    
+
     return new Uint8Array(commands);
   }
 }
