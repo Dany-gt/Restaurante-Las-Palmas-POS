@@ -1,6 +1,11 @@
 import { supabase } from '../supabase';
 import { printNodeService } from './PrintNodeService';
 
+export interface PrintOptions {
+  silent?: boolean;
+  openDrawer?: boolean;
+}
+
 export interface TicketData {
   orderId: string;
   orderNumber?: number;
