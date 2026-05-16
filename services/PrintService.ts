@@ -851,7 +851,7 @@ class PrintService {
     `;
     
     // Pass true as 5th argument to hide the restaurant header/logo
-    await this.executePrint('GASTO', (pw) => this.generateTicketHTML('GASTO', content, 'COMPROBANTE DE GASTO', pw, true), { silent: false });
+    await this.executePrint('GASTO', (pw) => this.generateTicketHTML('GASTO', content, 'COMPROBANTE DE GASTO', pw, true), { silent: true, openDrawer: true });
   }
 
   // ─── EXPENSES SUMMARY TICKET (SHIFT CLOSURE) ────────────────────
@@ -914,7 +914,7 @@ class PrintService {
       </div>
     `;
 
-    await this.executePrint('RESUMEN DE GASTOS', (pw) => this.generateTicketHTML('RESUMEN DE GASTOS', content, 'RESUMEN DE GASTOS', pw, false), { silent: false });
+    await this.executePrint('RESUMEN DE GASTOS', (pw) => this.generateTicketHTML('RESUMEN DE GASTOS', content, 'RESUMEN DE GASTOS', pw, false), { silent: true });
   }
 
   // ─── Z REPORT ─────────────────────────────────────────────────────
@@ -996,7 +996,7 @@ class PrintService {
       <div style="margin-top:40px;border-top:1px solid #000;text-align:center;font-size:11px;">FIRMA CAJERO: ${data.cashierName}</div>
       ${data.notes ? '<div style="margin-top:20px;border-top:1px dashed #000;padding-top:5px;"><strong>OBSERVACIONES:</strong><br>' + data.notes + '</div>' : ''}
     `;
-    await this.executePrint('CIERRE DE CAJA', (pw) => this.generateTicketHTML('CIERRE DE CAJA', content, undefined, pw), { silent: false, openDrawer: true });
+    await this.executePrint('CIERRE DE CAJA', (pw) => this.generateTicketHTML('CIERRE DE CAJA', content, undefined, pw), { silent: true, openDrawer: true });
   }
 
   // ─── GENERAL REPORT ───────────────────────────────────────────────
@@ -1065,7 +1065,7 @@ class PrintService {
       </div>
     `;
 
-    await this.executePrint('REPORTE GENERAL', (pw) => this.generateTicketHTML('REPORTE', content, undefined, pw), { silent: false });
+    await this.executePrint('REPORTE GENERAL', (pw) => this.generateTicketHTML('REPORTE', content, undefined, pw), { silent: true });
   }
 
   // ─── SOLD DISHES REPORT ──────────────────────────────────────────
@@ -1107,7 +1107,7 @@ class PrintService {
       </div>
     `;
 
-    await this.executePrint('REPORTE PLATILLOS', (pw) => this.generateTicketHTML('REPORTE COCINA', content, undefined, pw), { silent: false });
+    await this.executePrint('REPORTE PLATILLOS', (pw) => this.generateTicketHTML('REPORTE COCINA', content, undefined, pw), { silent: true });
   }
 
   // ─── RECIPE TICKET ───────────────────────────────────────────────
