@@ -236,7 +236,7 @@ class PrintService {
 
   // ─── PRINTER RESOLUTION ───────────────────────────────────────────
 
-  private async getNetworkPrinter(): Promise<{ address: string; port: number; paperWidth: string; opens_cash_drawer?: boolean } | null> {
+  private async getNetworkPrinter(): Promise<{ address: string; port: number; name: string; paperWidth: string; opens_cash_drawer?: boolean } | null> {
     try {
       const { data, error } = await supabase
         .from('printers').select('id, name, address, port, paper_width, opens_cash_drawer')
@@ -264,6 +264,7 @@ class PrintService {
       return { 
         address: printer.address, 
         port: printer.port || 9100, 
+        name: printer.name || '',
         paperWidth: printer.paper_width || '80mm',
         opens_cash_drawer: !!printer.opens_cash_drawer
       };
