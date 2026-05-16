@@ -164,36 +164,38 @@ class PrintService {
     body {
       font-family: 'Courier New', Courier, monospace;
       font-size: ${fontSize};
+      font-weight: bold; /* Forzamos negrita en todo para que se vea bien negro */
       margin: 0;
       padding: ${padding} !important;
       width: ${maxWidth};
       line-height: 1.2;
       color: #000;
       background: #fff;
+      -webkit-print-color-adjust: exact;
     }
     table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-    th, td { padding: 2px 0; vertical-align: top; overflow: hidden; }
-    .col-qty { width: ${isSmall ? '25px' : '35px'}; font-weight: bold; }
-    .col-price { width: ${isSmall ? '60px' : '85px'}; text-align: right; font-weight: bold; }
-    .col-desc { text-align: left; }
+    th, td { padding: 2px 0; vertical-align: top; overflow: hidden; color: #000; }
+    .col-qty { width: ${isSmall ? '25px' : '35px'}; font-weight: 900; }
+    .col-price { width: ${isSmall ? '60px' : '85px'}; text-align: right; font-weight: 900; }
+    .col-desc { text-align: left; font-weight: bold; text-transform: uppercase; }
     
-    .header { text-align: center; margin-bottom: 8px; }
+    .header { text-align: center; margin-bottom: 8px; color: #000; }
     .restaurant-name { font-size: ${isSmall ? '12px' : '15px'}; font-weight: 900; text-transform: uppercase; }
     .ticket-title {
-      text-align: center; font-weight: bold; font-size: ${isSmall ? '11px' : '13px'};
-      border-top: 1px dashed #000; border-bottom: 1px dashed #000;
+      text-align: center; font-weight: 900; font-size: ${isSmall ? '11px' : '13px'};
+      border-top: 1.5px solid #000; border-bottom: 1.5px solid #000;
       padding: 4px 0; margin: 6px 0; text-transform: uppercase;
     }
-    .divider { border-top: 1px dashed #000; margin: 8px 0; width: 100%; }
-    .dotted-divider { border-top: 1px dotted #000; margin: 8px 0; }
+    .divider { border-top: 1px solid #000; margin: 8px 0; width: 100%; }
+    .dotted-divider { border-top: 1px dashed #000; margin: 8px 0; }
     .thick-divider { border-top: 2px solid #000; margin: 8px 0; }
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 8px 0; }
-    .info-line { display: flex; justify-content: space-between; }
-    .total-line { display: flex; justify-content: space-between; font-weight: bold; margin: 3px 0; }
-    .grand-total { font-size: ${isSmall ? '13px' : '16px'}; border-top: 1px solid #000; padding-top: 5px; margin-top: 5px; }
-    .footer { text-align: center; margin-top: 15px; font-style: italic; font-size: ${isSmall ? '8px' : '10px'}; }
-    .data-box { border: 1px solid #000; margin-top: 5px; padding: 2px; }
-    .note { font-size: 0.9em; padding-left: 5px; font-style: italic; }
+    .info-line { display: flex; justify-content: space-between; font-weight: bold; }
+    .total-line { display: flex; justify-content: space-between; font-weight: 900; margin: 3px 0; }
+    .grand-total { font-size: ${isSmall ? '13px' : '16px'}; border-top: 2px solid #000; padding-top: 5px; margin-top: 5px; }
+    .footer { text-align: center; margin-top: 15px; font-weight: bold; font-size: ${isSmall ? '8px' : '10px'}; }
+    .data-box { border: 1.5px solid #000; margin-top: 5px; padding: 2px; }
+    .note { font-size: 0.9em; padding-left: 5px; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -325,34 +327,30 @@ class PrintService {
     }
 
     // NETWORK printer (TCP)
-    // ESTRATEGIA HÍBRIDA: Si es precuenta o factura, preferimos el diseño de Windows
-    // pero abrimos el cajón por IP para que sea instantáneo.
+    // ESTRATEGIA HÍBRIDA: Diseño Windows + Apertura IP
     if (electron && (electron.printToNetwork || electron.openCashDrawer)) {
       if (netPrinter) {
-        // 1. APERTURA VELOZ: Si debe abrir cajón, lo hacemos por IP (Instantáneo)
-        if (options?.openDrawer || netPrinter.opens_cash_drawer) {
+        // Determinamos si REALMENTE debemos abrir el cajón (parámetro manda sobre config de impresora)
+        const shouldOpenDrawer = options?.openDrawer === true; 
+
+        // 1. APERTURA VELOZ: Solo si el parámetro es estrictamente TRUE
+        if (shouldOpenDrawer) {
           console.log(`⚡ [PrintService] Apertura veloz de gaveta vía IP: ${netPrinter.address}`);
           electron.openCashDrawer({ target: netPrinter.address, type: 'NETWORK' });
         }
 
-        // 2. IMPRESIÓN DE DISEÑO: Si el diseño de IP no es bueno, intentamos usar el Driver de Windows
-        // Buscamos si existe una impresora de sistema con nombre similar o usamos la predeterminada
+        // 2. IMPRESIÓN DE DISEÑO
         if (electron.printHtml) {
-            console.log(`🎨 [PrintService] Usando diseño de Windows para impresora de red (vía Driver)`);
-            // Intentamos imprimir al nombre de la impresora (si está instalada en Windows con ese nombre)
-            // o a la predeterminada si el nombre no coincide.
+            console.log(`🎨 [PrintService] Usando diseño de Windows para impresora de red`);
+            // Pasamos silent: true siempre en el POS para evitar diálogos
             const r = await electron.printHtml(html, netPrinter.name, silent);
-            if (r.success) {
-                console.log('✅ [PrintService] Impresión de alta calidad finalizada');
-                return;
-            }
-            console.warn('⚠️ [PrintService] Falló impresión por Driver en red, intentando modo RAW...');
+            if (r.success) return;
         }
 
         // 3. FALLBACK RAW: Si todo lo anterior falla, usamos el modo IP clásico (rápido pero diseño básico)
         console.log(`🌐 [PrintService] Usando modo RAW por IP: ${netPrinter.address}:${netPrinter.port}`);
-        const shouldOpenDrawer = options?.openDrawer !== undefined ? options.openDrawer : !!netPrinter.opens_cash_drawer;
-        const rawContent = this.htmlToEscPos(html, { openDrawer: shouldOpenDrawer, paperWidth: netPrinter.paperWidth });
+        const shouldOpenDrawerRaw = options?.openDrawer !== undefined ? options.openDrawer : !!netPrinter.opens_cash_drawer;
+        const rawContent = this.htmlToEscPos(html, { openDrawer: shouldOpenDrawerRaw, paperWidth: netPrinter.paperWidth });
         
         const r = await electron.printToNetwork(netPrinter.address, netPrinter.port, rawContent, true);
         if (r.success) { 
