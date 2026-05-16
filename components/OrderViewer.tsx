@@ -389,8 +389,8 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                             total: selectedOrder.total,
                                             createdAt: selectedOrder.created_at
                                         };
-                                        // Usamos printPreCheck para órdenes abiertas en el visor
-                                        printService.printPreCheck(ticketData as any);
+                                        // Usamos printPreCheck para órdenes abiertas en el visor y forzamos silencio
+                                        printService.printPreAccountTicket(ticketData as any, { silent: true });
                                     }}
                                     className="w-10 h-10 bg-white/5 border border-white/5 rounded-sm flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition-all shrink-0"
                                 >
