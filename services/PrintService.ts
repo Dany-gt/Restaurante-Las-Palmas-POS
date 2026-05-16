@@ -521,7 +521,7 @@ class PrintService {
     customerPhone?: string;
     deliveryAddress?: string;
     driverName?: string;
-  }): Promise<void> {
+  }, options?: PrintOptions): Promise<void> {
     if (!this.settings) await this.loadSettings();
 
     const content = `
@@ -585,7 +585,10 @@ class PrintService {
       </div>
     `;
 
-    await this.executePrint('PRE-CUENTA', (pw) => this.generateTicketHTML('PRE-CUENTA', content, 'Gracias por su preferencia.', pw), { silent: true, openDrawer: false });
+    await this.executePrint('PRE-CUENTA', (pw) => this.generateTicketHTML('PRE-CUENTA', content, 'Gracias por su preferencia.', pw), { 
+      silent: options?.silent ?? true, 
+      openDrawer: options?.openDrawer ?? false 
+    });
   }
 
   // ─── INVOICE TICKET (FEL) ─────────────────────────────────────────
