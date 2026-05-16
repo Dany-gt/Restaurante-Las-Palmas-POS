@@ -192,7 +192,13 @@ class PrintService {
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 8px 0; }
     .info-line { display: flex; justify-content: space-between; font-weight: bold; }
     .total-line { display: flex; justify-content: space-between; font-weight: 900; margin: 3px 0; }
-    .grand-total { font-size: ${isSmall ? '13px' : '16px'}; border-top: 2px solid #000; padding-top: 5px; margin-top: 5px; }
+    .grand-total { 
+      font-size: ${isSmall ? '13px' : '16px'}; 
+      border-top: 1.5px solid #000; 
+      padding-top: 5px; 
+      margin-top: 5px; 
+      /* Eliminamos cualquier borde inferior para que sea más limpio */
+    }
     .footer { text-align: center; margin-top: 15px; font-weight: bold; font-size: ${isSmall ? '8px' : '10px'}; }
     .data-box { border: 1.5px solid #000; margin-top: 5px; padding: 2px; }
     .note { font-size: 0.9em; padding-left: 5px; font-weight: bold; }
@@ -211,7 +217,12 @@ class PrintService {
       <div style="font-size: 0.9em;">${this.restaurantInfo?.phone ? 'Tel: ' + this.restaurantInfo.phone : ''}</div>
     </div>
     ` : ''}
-  ${title ? '<div class="ticket-title">' + title + '</div>' : '<div class="dotted-divider"></div>'}
+  ${title ? `
+    <div style="text-align: center; font-weight: 900; font-size: ${isSmall ? '12px' : '14px'}; margin: 10px 0 5px 0; text-transform: uppercase;">
+      ${title}
+    </div>
+    <div style="border-top: 1px solid #000; margin-bottom: 10px;"></div>
+  ` : '<div class="dotted-divider"></div>'}
   <div class="content">${content}</div>
   ${footer ? '<div class="footer">' + footer + '</div>' : ''}
 </body>

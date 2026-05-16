@@ -372,9 +372,11 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                         const ticketData = {
                                             orderId: selectedOrder.id,
                                             orderNumber: selectedOrder.order_number,
+                                            orderType: selectedOrder.order_type, // ¡Crucial para que diga PARA LLEVAR!
                                             tableNumber: selectedOrder.tables?.number,
                                             tableName: selectedOrder.tables?.section,
                                             waiterName: selectedOrder.profiles?.name,
+                                            accountName: selectedOrder.account_name || 'Principal',
                                             items: (selectedOrder.order_items || []).map((i: any) => ({
                                                 name: i.products?.name || 'Desconocido',
                                                 quantity: i.quantity,
@@ -382,21 +384,13 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                                 notes: i.notes
                                             })),
                                             subtotal: selectedOrder.subtotal,
-                                            taxAmount: selectedOrder.tax_amount || selectedOrder.tax || 0,
+                                            discount: selectedOrder.discount || 0,
                                             tipAmount: selectedOrder.tip_amount || selectedOrder.tip || 0,
                                             total: selectedOrder.total,
-                                            createdAt: selectedOrder.created_at,
-                                            paymentMethod: selectedOrder.payment_method,
-                                            customerNit: invoice?.customer_nit,
-                                            customerName: invoice?.customer_name,
-                                            dteInfo: invoice ? {
-                                                serie: invoice.series,
-                                                numero: invoice.document_number,
-                                                fechaCertificacion: invoice.certification_date || invoice.created_at,
-                                                autorizacion: invoice.uuid
-                                            } : undefined
+                                            createdAt: selectedOrder.created_at
                                         };
-                                        printService.printInvoiceTicket(ticketData as any);
+                                        // Usamos printPreCheck para órdenes abiertas en el visor
+                                        printService.printPreCheck(ticketData as any);
                                     }}
                                     className="w-10 h-10 bg-white/5 border border-white/5 rounded-sm flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition-all shrink-0"
                                 >
