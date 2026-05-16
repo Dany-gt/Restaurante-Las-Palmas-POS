@@ -87,30 +87,31 @@ ipcMain.handle('print-html', async (event, { html, printerName, silent }) => {
         printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
         
         printWindow.webContents.on('did-finish-load', () => {
-            console.log('📄 [Electron] Contenido HTML cargado. Esperando renderizado (500ms)...');
+            console.log('📄 [Electron] Contenido HTML cargado. Iniciando impresión inmediata...');
             
-            // Un pequeño delay ayuda a que fuentes y estilos se apliquen bien antes de imprimir
+            // Reducimos el delay a 100ms para tickets simples, es suficiente para renderizar texto
             setTimeout(() => {
                 if (printWindow.isDestroyed()) return;
                 
                 printWindow.webContents.print({
-                    silent: silent || false,
+                    silent: !!silent, // Forzamos booleano
                     printBackground: true,
                     deviceName: printerName || '',
-                    margins: { marginType: 'none' } // Importante para térmicas
+                    color: false, // Blanco y negro para mayor velocidad en térmicas
+                    margins: { marginType: 'none' } 
                 }, (success, failureReason) => {
                     clearTimeout(timeout);
-                    console.log(`🏁 [Electron] Impresión finalizada. Éxito: ${success}${failureReason ? `. Motivo: ${failureReason}` : ''}`);
+                    console.log(`🏁 [Electron] Impresión finalizada. Éxito: ${success}`);
                     
                     if (!printWindow.isDestroyed()) {
-                        // Delay crucial: Evita que el spooler cancele o pierda el pulso de la gaveta por cerrar muy rápido
+                        // Cerramos rápido pero dejando un margen para que el driver reciba la info
                         setTimeout(() => {
                             if (!printWindow.isDestroyed()) printWindow.close();
-                        }, 1500);
+                        }, 500);
                     }
                     resolve({ success, error: failureReason });
                 });
-            }, 500);
+            }, 100);
         });
 
         printWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {

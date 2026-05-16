@@ -146,16 +146,15 @@ class PrintService {
 
   private generateTicketHTML(title: string, content: string, footer?: string, paperWidth: string = '80mm', hideHeader: boolean = false): string {
     const isSmall = paperWidth === '58mm';
-    const maxWidth = isSmall ? '48mm' : '68mm';
-    const fontSize = isSmall ? '8.5px' : '9.5px';
-    const padding = isSmall ? '1mm 2mm 1mm 2mm' : '1mm 4mm 1mm 4mm';
+    const maxWidth = isSmall ? '48mm' : '72mm';
+    const fontSize = isSmall ? '8.5px' : '10.5px';
+    const padding = isSmall ? '1mm 1mm' : '1mm 3mm';
 
     return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
     @page { margin: 0; }
     @media print {
       @page { margin: 0; }
@@ -163,58 +162,51 @@ class PrintService {
     }
     * { box-sizing: border-box; }
     body {
-      font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+      font-family: 'Courier New', Courier, monospace;
       font-size: ${fontSize};
       margin: 0;
       padding: ${padding} !important;
       width: ${maxWidth};
-      line-height: 1.1;
-      letter-spacing: -0.5px;
+      line-height: 1.2;
       color: #000;
       background: #fff;
     }
-    .header { text-align: center; margin-bottom: 5px; }
-    .restaurant-name { font-size: ${isSmall ? '11px' : '13px'}; font-weight: 900; }
-    .restaurant-info { font-size: ${isSmall ? '8px' : '10px'}; line-height: 1.1; font-weight: 500; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { padding: 2px 0; vertical-align: top; overflow: hidden; }
+    .col-qty { width: ${isSmall ? '25px' : '35px'}; font-weight: bold; }
+    .col-price { width: ${isSmall ? '60px' : '85px'}; text-align: right; font-weight: bold; }
+    .col-desc { text-align: left; }
+    
+    .header { text-align: center; margin-bottom: 8px; }
+    .restaurant-name { font-size: ${isSmall ? '12px' : '15px'}; font-weight: 900; text-transform: uppercase; }
     .ticket-title {
-      text-align: center; font-weight: 900; font-size: ${isSmall ? '12px' : '14px'};
+      text-align: center; font-weight: bold; font-size: ${isSmall ? '11px' : '13px'};
       border-top: 1px dashed #000; border-bottom: 1px dashed #000;
-      padding: 3px 0; margin: 5px 0; text-transform: uppercase;
-      width: 100%;
+      padding: 4px 0; margin: 6px 0; text-transform: uppercase;
     }
-    .info-grid { display: grid; grid-template-columns: 3fr 2fr; font-size: ${isSmall ? '9.5px' : '11.5px'}; margin: 8px 0; row-gap: 2px; }
-    .info-label { font-weight: bold; width: ${isSmall ? '45px' : '65px'}; display: inline-block; }
-    .info-line { display: flex; align-items: flex-start; }
+    .divider { border-top: 1px dashed #000; margin: 8px 0; width: 100%; }
     .dotted-divider { border-top: 1px dotted #000; margin: 8px 0; }
-    .divider { border-top: 1px dashed #000; margin: 8px 0; }
     .thick-divider { border-top: 2px solid #000; margin: 8px 0; }
-    .item-row { display: flex; align-items: flex-start; margin-bottom: 5px; font-size: ${isSmall ? '9px' : '11px'}; }
-    .qty { width: 25px; font-weight: 700; }
-    .description { flex: 1; font-weight: 600; text-transform: uppercase; }
-    .price { width: ${isSmall ? '50px' : '65px'}; text-align: right; font-weight: 700; }
-    .note { font-size: ${isSmall ? '8.5px' : '10.5px'}; font-style: italic; margin-left: 20px; margin-top: -3px; }
-    .totals-container { margin-top: 10px; }
-    .total-line { display: flex; justify-content: flex-end; font-size: ${isSmall ? '10.5px' : '12.5px'}; margin-bottom: 1px; }
-    .total-label { width: ${isSmall ? '65px' : '85px'}; text-align: right; margin-right: 15px; }
-    .total-value { width: ${isSmall ? '50px' : '60px'}; text-align: right; font-weight: 700; }
-    .grand-total { font-size: ${isSmall ? '12px' : '15px'}; font-weight: 900; padding-top: 4px; border-top: 1px solid #000; margin-top: 4px; }
-    .data-box { border: 1px solid #000; margin-top: 5px; padding: 2px; min-height: 30px; }
-    .data-label { font-size: ${isSmall ? '9.5px' : '11px'}; font-weight: bold; margin-top: 8px; }
-    .footer { text-align: center; font-size: ${isSmall ? '9px' : '11px'}; margin-top: 20px; font-weight: 700; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 8px 0; }
+    .info-line { display: flex; justify-content: space-between; }
+    .total-line { display: flex; justify-content: space-between; font-weight: bold; margin: 3px 0; }
+    .grand-total { font-size: ${isSmall ? '13px' : '16px'}; border-top: 1px solid #000; padding-top: 5px; margin-top: 5px; }
+    .footer { text-align: center; margin-top: 15px; font-style: italic; font-size: ${isSmall ? '8px' : '10px'}; }
+    .data-box { border: 1px solid #000; margin-top: 5px; padding: 2px; }
+    .note { font-size: 0.9em; padding-left: 5px; font-style: italic; }
   </style>
 </head>
 <body>
     ${!hideHeader ? `
     <div class="header">
       ${this.settings?.restaurant_logo && this.settings.restaurant_logo.length > 5 ? `
-        <div style="text-align:center; margin-bottom: 8px;">
-          <img src="${this.settings?.restaurant_logo}" style="max-width: 150px; max-height: 80px; filter: grayscale(1);" />
+        <div style="text-align:center; margin-bottom: 10px;">
+          <img src="${this.settings?.restaurant_logo}" style="max-width: 140px; max-height: 70px; filter: grayscale(1);" />
         </div>
       ` : ''}
-      <div class="restaurant-name" style="font-size: ${isSmall ? '13px' : '16px'}; border-bottom: 1px solid #eee; padding-bottom: 3px; display: inline-block;">${this.restaurantInfo?.name || 'RESTAURANTE LAS PALMAS'}</div>
-      <div class="restaurant-info" style="margin-top: 5px;">${this.restaurantInfo?.phone ? 'Tel: ' + this.restaurantInfo.phone : ''}</div>
-      <div class="restaurant-info">${this.restaurantInfo?.email || ''}</div>
-      <div class="restaurant-info" style="font-weight:bold; letter-spacing: 1px;">${(this.restaurantInfo?.website || '').toLowerCase()}</div>
+      <div class="restaurant-name">${this.restaurantInfo?.name || 'RESTAURANTE LAS PALMAS'}</div>
+      <div style="font-size: 0.9em;">${this.restaurantInfo?.address || ''}</div>
+      <div style="font-size: 0.9em;">${this.restaurantInfo?.phone ? 'Tel: ' + this.restaurantInfo.phone : ''}</div>
     </div>
     ` : ''}
   ${title ? '<div class="ticket-title">' + title + '</div>' : '<div class="dotted-divider"></div>'}
@@ -333,17 +325,38 @@ class PrintService {
     }
 
     // NETWORK printer (TCP)
-    if (electron && electron.printToNetwork) {
+    // ESTRATEGIA HÍBRIDA: Si es precuenta o factura, preferimos el diseño de Windows
+    // pero abrimos el cajón por IP para que sea instantáneo.
+    if (electron && (electron.printToNetwork || electron.openCashDrawer)) {
       if (netPrinter) {
-        console.log(`🌐 [PrintService] Intentando impresora de red: ${netPrinter.address}:${netPrinter.port}`);
-        
-        // 🛠️ TRADUCCIÓN CRÍTICA: Convertimos HTML a texto limpio con comandos ESC/POS básicos
+        // 1. APERTURA VELOZ: Si debe abrir cajón, lo hacemos por IP (Instantáneo)
+        if (options?.openDrawer || netPrinter.opens_cash_drawer) {
+          console.log(`⚡ [PrintService] Apertura veloz de gaveta vía IP: ${netPrinter.address}`);
+          electron.openCashDrawer({ target: netPrinter.address, type: 'NETWORK' });
+        }
+
+        // 2. IMPRESIÓN DE DISEÑO: Si el diseño de IP no es bueno, intentamos usar el Driver de Windows
+        // Buscamos si existe una impresora de sistema con nombre similar o usamos la predeterminada
+        if (electron.printHtml) {
+            console.log(`🎨 [PrintService] Usando diseño de Windows para impresora de red (vía Driver)`);
+            // Intentamos imprimir al nombre de la impresora (si está instalada en Windows con ese nombre)
+            // o a la predeterminada si el nombre no coincide.
+            const r = await electron.printHtml(html, netPrinter.name, silent);
+            if (r.success) {
+                console.log('✅ [PrintService] Impresión de alta calidad finalizada');
+                return;
+            }
+            console.warn('⚠️ [PrintService] Falló impresión por Driver en red, intentando modo RAW...');
+        }
+
+        // 3. FALLBACK RAW: Si todo lo anterior falla, usamos el modo IP clásico (rápido pero diseño básico)
+        console.log(`🌐 [PrintService] Usando modo RAW por IP: ${netPrinter.address}:${netPrinter.port}`);
         const shouldOpenDrawer = options?.openDrawer !== undefined ? options.openDrawer : !!netPrinter.opens_cash_drawer;
         const rawContent = this.htmlToEscPos(html, { openDrawer: shouldOpenDrawer, paperWidth: netPrinter.paperWidth });
         
         const r = await electron.printToNetwork(netPrinter.address, netPrinter.port, rawContent, true);
         if (r.success) { 
-            console.log('✅ [PrintService] Impresión exitosa vía red TCP'); 
+            console.log('✅ [PrintService] Impresión exitosa vía red TCP (RAW)'); 
             return; 
         }
         console.warn('❌ [PrintService] Error en impresión de red:', r.error);
@@ -411,7 +424,7 @@ class PrintService {
           type = drawerPrinter.connection_type;
         }
 
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // Eliminamos el delay de 300ms para que la apertura sea instantánea
         await electron.openCashDrawer({ target, type });
       }
     } catch (e) {
@@ -505,42 +518,43 @@ class PrintService {
     const content = `
       <div class="thick-divider"></div>
       
-      <div class="info-grid" style="font-size: 11px;">
-        <div class="info-line"><span style="font-weight: bold;">FECHA:</span> ${new Date(data.createdAt).toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'medium' })}</div>
-        <div class="info-line" style="text-align: right;"><span style="font-weight: bold;">ORDEN:</span> #${data.orderNumber || '---'}</div>
+      <div class="info-grid">
+        <div class="info-line"><span>FECHA:</span> ${new Date(data.createdAt).toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'short' })}</div>
+        <div class="info-line" style="text-align: right;"><span>ORDEN:</span> #${data.orderNumber || '---'}</div>
         
-        <div class="info-line"><span style="font-weight: bold;">SECC:</span> ${data.tableName || '---'}</div>
-        <div class="info-line" style="text-align: right;"><span style="font-weight: bold;">MESA:</span> ${data.tableNumber || '---'}</div>
+        <div class="info-line"><span>SECC:</span> ${data.tableName || '---'}</div>
+        <div class="info-line" style="text-align: right;"><span>MESA:</span> ${data.tableNumber || '---'}</div>
         
-        <div class="info-line" style="grid-column: span 2;"><span style="font-weight: bold;">MESERO:</span> ${data.waiterName || '---'}</div>
-        <div class="info-line" style="grid-column: span 2;"><span style="font-weight: bold;">CUENTA:</span> ${data.customerName || 'Cuenta 1'}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>MESERO:</span> ${data.waiterName || '---'}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>CUENTA:</span> ${data.customerName || 'Cuenta 1'}</div>
       </div>
 
       <div class="divider"></div>
 
-      <div class="item-row" style="font-weight:bold; font-size:12px; margin-bottom:5px;">
-        <span class="qty" style="width:40px;">CANT.</span>
-        <span class="description" style="flex:1;">DESCRIPCIÓN</span>
-        <span class="price" style="width:70px; text-align: right;">TOTAL</span>
-      </div>
-      
-      <div class="divider"></div>
-
-      ${data.items.map(item => `
-        <div class="item-row">
-          <span class="qty" style="width:40px;">${item.quantity}</span>
-          <span class="description" style="flex:1;">${item.name.toUpperCase()}</span>
-          <span class="price" style="width:70px; text-align: right;">Q${((item.price || 0) * item.quantity).toFixed(2)}</span>
-        </div>
-        ${item.notes ? '<div style="font-size:10px; margin-left:45px;">(' + item.notes + ')</div>' : ''}
-      `).join('')}
+      <table>
+        <tr class="item-row" style="font-weight:bold; border-bottom:1px solid #000;">
+          <td class="col-qty qty">CANT.</td>
+          <td class="col-desc description">DESCRIPCIÓN</td>
+          <td class="col-price price">TOTAL</td>
+        </tr>
+        ${data.items.map(item => `
+          <tr class="item-row">
+            <td class="col-qty qty">${item.quantity}</td>
+            <td class="col-desc">
+              <div class="description">${item.name.toUpperCase()}</div>
+              ${item.notes ? `<div class="note">(${item.notes})</div>` : ''}
+            </td>
+            <td class="col-price price">Q${((item.price || 0) * item.quantity).toFixed(2)}</td>
+          </tr>
+        `).join('')}
+      </table>
 
       <div class="divider"></div>
 
       <div class="totals-container">
         <div class="total-line"><span class="total-label">SUB-TOTAL:</span> <span class="total-value">Q${(data.subtotal || 0).toFixed(2)}</span></div>
         <div class="total-line"><span class="total-label">PROPINA:</span> <span class="total-value">Q${(data.tipAmount || 0).toFixed(2)}</span></div>
-        <div class="total-line grand-total" style="font-size: 14px; margin-top: 5px;">
+        <div class="total-line grand-total">
           <span class="total-label">TOTAL:</span> <span class="total-value">Q${(data.total || 0).toFixed(2)}</span>
         </div>
       </div>
@@ -548,13 +562,13 @@ class PrintService {
       <div class="divider"></div>
 
       <div style="margin-top: 5px;">
-        <span style="font-weight: bold; font-size: 11px;">NIT:</span>
-        <div class="data-box" style="height: 25px;"></div>
+        <div style="font-weight: bold; font-size: 11px;">NIT:</div>
+        <div class="data-box" style="height: 25px; border: 1px solid #000;"></div>
       </div>
 
       <div style="margin-top: 5px;">
-        <span style="font-weight: bold; font-size: 11px;">NOMBRE:</span>
-        <div class="data-box" style="height: 40px;"></div>
+        <div style="font-weight: bold; font-size: 11px;">NOMBRE:</div>
+        <div class="data-box" style="height: 40px; border: 1px solid #000;"></div>
       </div>
 
       <div style="text-align:center; font-size:11px; margin-top:20px; font-weight:bold;">
@@ -595,48 +609,54 @@ class PrintService {
       ${data.isCancelled ? '<div style="text-align:center;color:red;font-weight:bold;margin-bottom:10px;font-size:12px;border:2px solid red;padding:5px;">ANULADA: ' + (data.cancellationReason || 'ERROR EN POS') + '</div>' : ''}
       ${data.dteInfo ? `
         <div class="info-grid">
-          <div class="info-line" style="grid-column: span 2;"><span class="info-label">Serie:</span> ${data.dteInfo.serie}</div>
-          <div class="info-line" style="grid-column: span 2;"><span class="info-label">Número:</span> ${data.dteInfo.numero}</div>
-          <div class="info-line" style="grid-column: span 2;"><span class="info-label">Fecha:</span> ${data.dteInfo.fechaCertificacion}</div>
+          <div class="info-line" style="grid-column: span 2;"><span>Serie:</span> ${data.dteInfo.serie}</div>
+          <div class="info-line" style="grid-column: span 2;"><span>Número:</span> ${data.dteInfo.numero}</div>
+          <div class="info-line" style="grid-column: span 2;"><span>Fecha:</span> ${data.dteInfo.fechaCertificacion}</div>
         </div>
         <div style="font-size:9px; word-break:break-all; margin-bottom:8px; text-align:center;">
           <span style="font-weight:bold;">UUID:</span><br>${data.dteInfo.autorizacion}
         </div>
       ` : '<div style="text-align:center;font-weight:bold;margin:10px 0;">*** MODO CONTINGENCIA ***</div>'}
-      <div class="dotted-divider"></div>
-      <div style="font-size:12px; margin-bottom:10px;">
-        <div class="info-line"><span class="info-label">Nit:</span> ${data.customerNit || 'CF'}</div>
-        <div class="info-line"><span class="info-label">Nombre:</span> ${data.customerName || 'Consumidor Final'}</div>
+      <div class="divider"></div>
+      <div style="font-size:11px; margin-bottom:10px;">
+        <div class="info-line"><span>Nit:</span> ${data.customerNit || 'CF'}</div>
+        <div class="info-line"><span>Nombre:</span> ${data.customerName || 'Consumidor Final'}</div>
       </div>
-      <div class="dotted-divider"></div>
-      <div class="item-row" style="font-weight:900; font-size:12px; margin-bottom:5px;">
-        <span class="qty" style="width:30px;">CANT.</span>
-        <span class="description" style="flex:1;">DESCRIPCIÓN</span>
-        <span class="price" style="width:75px; text-align:right;">TOTAL</span>
-      </div>
-      ${(data.items || []).map((item: any) => `
-        <div class="item-row">
-          <span class="qty">${item.quantity}</span>
-          <span class="description">${item.name}</span>
-          <span class="price">Q${((item.price || 0) * item.quantity).toFixed(2)}</span>
-        </div>
-      `).join('')}
-      <div class="dotted-divider"></div>
+      <div class="divider"></div>
+      
+      <table>
+        <tr class="item-row" style="font-weight:bold; border-bottom:1px solid #000;">
+          <td class="col-qty qty">CANT.</td>
+          <td class="col-desc description">DESCRIPCIÓN</td>
+          <td class="col-price price">TOTAL</td>
+        </tr>
+        ${(data.items || []).map((item: any) => `
+          <tr class="item-row">
+            <td class="col-qty qty">${item.quantity}</td>
+            <td class="col-desc">
+              <div class="description">${item.name.toUpperCase()}</div>
+            </td>
+            <td class="col-price price">Q${((item.price || 0) * item.quantity).toFixed(2)}</td>
+          </tr>
+        `).join('')}
+      </table>
+
+      <div class="divider"></div>
       <div class="totals-container">
-        <div class="total-line"><span class="total-label">Sub-Total:</span> <span class="total-value">Q${(data.subtotal || 0).toFixed(2)}</span></div>
-        <div class="total-line"><span class="total-label">Impuesto:</span> <span class="total-value">Q${(data.taxAmount || 0).toFixed(2)}</span></div>
+        <div class="total-line"><span>Sub-Total:</span> <span>Q${(data.subtotal || 0).toFixed(2)}</span></div>
+        <div class="total-line"><span>Impuesto:</span> <span>Q${(data.taxAmount || 0).toFixed(2)}</span></div>
         ${data.paymentMethod === 'TARJETA' && data.tipAmount > 0
-        ? `<div class="total-line"><span class="total-label">Propina:</span> <span class="total-value">Q${data.tipAmount.toFixed(2)}</span></div>
-             <div class="total-line grand-total"><span class="total-label">Total:</span> <span class="total-value">Q${(legalTotal + data.tipAmount).toFixed(2)}</span></div>`
-        : `<div class="total-line grand-total"><span class="total-label">Total:</span> <span class="total-value">Q${legalTotal.toFixed(2)}</span></div>
-             ${data.tipAmount > 0 ? '<div class="total-line" style="font-style:italic;margin-top:5px;font-size:10px;"><span class="total-label">Propina (Exenta de IVA):</span> <span class="total-value">Q' + data.tipAmount.toFixed(2) + '</span></div>' : ''}`
+        ? `<div class="total-line"><span>Propina:</span> <span>Q${data.tipAmount.toFixed(2)}</span></div>
+             <div class="total-line grand-total"><span>Total:</span> <span>Q${(legalTotal + data.tipAmount).toFixed(2)}</span></div>`
+        : `<div class="total-line grand-total"><span>Total:</span> <span>Q${legalTotal.toFixed(2)}</span></div>
+             ${data.tipAmount > 0 ? '<div class="total-line" style="font-style:italic;margin-top:5px;font-size:9px;"><span>Propina (Exenta de IVA):</span> <span>Q' + data.tipAmount.toFixed(2) + '</span></div>' : ''}`
       }
       </div>
-      <div class="dotted-divider"></div>
-      <div style="text-align:center;margin-top:10px;font-size:10px;">
-        <div style="font-weight:900;">DOCUMENTO TRIBUTARIO ELECTRÓNICO</div>
-        <div style="font-weight:bold;margin-top:2px;">${this.restaurantInfo?.invoice_phrases || ''}</div>
-        <div style="font-size:9px;margin-top:2px;">${this.restaurantInfo?.certifier_legend || ''}</div>
+      <div class="divider"></div>
+      <div style="text-align:center;margin-top:10px;font-size:9px;">
+        <div style="font-weight:bold;">DOCUMENTO TRIBUTARIO ELECTRÓNICO</div>
+        <div style="margin-top:2px;">${this.restaurantInfo?.invoice_phrases || ''}</div>
+        <div style="margin-top:2px;">${this.restaurantInfo?.certifier_legend || ''}</div>
       </div>
       ${qrImg}
       <div style="text-align:center;font-size:10px;font-style:italic;">
@@ -663,35 +683,43 @@ class PrintService {
     const currentSubtotal = (data.items || []).reduce((acc, i) => acc + ((i.price || 0) * i.quantity), 0);
     const content = `
       <div class="info-grid">
-        <div class="info-line" style="grid-column: span 2;"><span class="info-label">Fecha:</span> ${new Date().toLocaleString('es-GT')}</div>
-        <div class="info-line" style="grid-column: span 2;"><span class="info-label">Orden:</span> #${data.orderNumber || data.orderId.substring(0, 8)}</div>
-        <div class="info-line" style="grid-column: span 2;"><span class="info-label">Cliente:</span> ${data.customerName.toUpperCase()}</div>
-        <div class="info-line" style="grid-column: span 2;"><span class="info-label">Teléfono:</span> ${data.customerPhone}</div>
+        <div class="info-line"><span>Fecha:</span> ${new Date().toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'short' })}</div>
+        <div class="info-line" style="text-align: right;"><span>Orden:</span> #${data.orderNumber || data.orderId.substring(0, 8)}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>Cliente:</span> ${data.customerName.toUpperCase()}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>Teléfono:</span> ${data.customerPhone}</div>
       </div>
-      <div class="data-label">Dirección de Entrega:</div>
-      <div style="font-size:12px;font-weight:500;border:1.5px solid #000;padding:6px;margin-bottom:8px;">
+      <div style="font-weight: bold; font-size: 11px; margin-top: 5px;">Dirección de Entrega:</div>
+      <div style="font-size:12px;font-weight:bold;border:2px solid #000;padding:6px;margin:5px 0;">
         ${data.deliveryAddress.toUpperCase()}
-        ${data.reference ? '<br><span style="font-weight:700;">REF: ' + data.reference.toUpperCase() + '</span>' : ''}
+        ${data.reference ? '<br><span style="font-size:10px; font-weight:normal;">REF: ' + data.reference.toUpperCase() + '</span>' : ''}
       </div>
-      <div class="dotted-divider"></div>
-      <div class="item-row" style="font-weight:900;font-size:12px;margin-bottom:5px;">
-        <span class="qty" style="width:30px;">CANT.</span><span class="description" style="flex:1;">DESCRIPCIÓN</span><span class="price" style="width:75px;text-align:right;">TOTAL</span>
-      </div>
-      ${data.items.map((item: any) => `
-        <div class="item-row">
-          <span class="qty">${item.quantity}</span>
-          <span class="description">${item.name}</span>
-          <span class="price">Q${((item.price || 0) * item.quantity).toFixed(2)}</span>
-        </div>
-        ${item.notes ? '<div class="note">(' + item.notes + ')</div>' : ''}
-      `).join('')}
-      <div class="dotted-divider"></div>
+      <div class="divider"></div>
+      
+      <table>
+        <tr class="item-row" style="font-weight:bold; border-bottom:1px solid #000;">
+          <td class="col-qty qty">CANT.</td>
+          <td class="col-desc description">DESCRIPCIÓN</td>
+          <td class="col-price price">TOTAL</td>
+        </tr>
+        ${data.items.map((item: any) => `
+          <tr class="item-row">
+            <td class="col-qty qty">${item.quantity}</td>
+            <td class="col-desc">
+              <div class="description">${item.name.toUpperCase()}</div>
+              ${item.notes ? `<div class="note">(${item.notes})</div>` : ''}
+            </td>
+            <td class="col-price price">Q${((item.price || 0) * item.quantity).toFixed(2)}</td>
+          </tr>
+        `).join('')}
+      </table>
+
+      <div class="divider"></div>
       <div class="totals-container">
-        <div class="total-line grand-total"><span class="total-label">Total:</span> <span class="total-value">Q${(data.total || currentSubtotal).toFixed(2)}</span></div>
+        <div class="total-line grand-total"><span>Total:</span> <span>Q${(data.total || currentSubtotal).toFixed(2)}</span></div>
       </div>
-      ${data.paymentMethod ? '<div class="dotted-divider"></div><div style="font-size:12px;font-weight:bold;background:#eee;padding:5px;text-align:center;">PAGO: ' + data.paymentMethod.toUpperCase().replace(/\n/g, ' ') + '</div>' : ''}
-      ${data.driverName ? '<div class="dotted-divider"></div><div style="font-weight:bold;">Motorista: ' + data.driverName + '</div>' : ''}
-      <div style="text-align:center;font-size:11px;margin-top:15px;font-weight:900;">*** COMPROBANTE DE ENTREGA ***</div>
+      ${data.paymentMethod ? '<div class="divider"></div><div style="font-size:11px;font-weight:bold;background:#eee;padding:5px;text-align:center;border:1px solid #000;">PAGO: ' + data.paymentMethod.toUpperCase().replace(/\n/g, ' ') + '</div>' : ''}
+      ${data.driverName ? '<div class="divider"></div><div style="font-weight:bold;text-align:center;">Motorista: ' + data.driverName + '</div>' : ''}
+      <div style="text-align:center;font-size:11px;margin-top:20px;font-weight:bold;">*** COMPROBANTE DE ENTREGA ***</div>
     `;
     await this.executePrint('TICKET DOMICILIO', (pw) => this.generateTicketHTML('ORDEN DOMICILIO', content, '¡Gracias por su compra!', pw), { silent: true });
   }
@@ -706,28 +734,32 @@ class PrintService {
         <div style="font-size:12px; margin-top:5px; font-weight:bold;">ORDEN #${data.orderNumber}</div>
       </div>
       
-      <div class="info-grid" style="margin-bottom: 8px;">
-        <div class="info-line"><span class="info-label" style="width:55px;">HORA:</span> ${new Date(data.createdAt).toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}</div>
-        <div class="info-line" style="text-align: right;"><span class="info-label" style="width:45px;">MESA:</span> ${data.tableNumber || '---'}</div>
-        <div class="info-line" style="grid-column: span 2;"><span class="info-label" style="width:55px;">FECHA:</span> ${new Date().toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'short' })}</div>
+      <div class="info-grid">
+        <div class="info-line"><span>HORA:</span> ${new Date(data.createdAt).toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}</div>
+        <div class="info-line" style="text-align: right;"><span>MESA:</span> ${data.tableNumber || '---'}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>FECHA:</span> ${new Date().toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'short' })}</div>
       </div>
 
       <div class="thick-divider"></div>
 
       <div style="font-size:10px; font-weight:bold; color:#cc0000; margin-bottom:5px; text-transform:uppercase;">Motivo de Anulación:</div>
-      <div style="font-size:12px; font-weight:800; background:#f9f9f9; padding:8px; border:1px solid #000; border-radius:4px; margin-bottom:15px; text-align: left;">
+      <div style="font-size:12px; font-weight:bold; background:#f9f9f9; padding:8px; border:1px solid #000; margin-bottom:15px;">
         ${reason.toUpperCase()}
       </div>
 
-      <div style="font-size:10px; font-weight:bold; margin-bottom:5px; text-transform:uppercase; border-bottom: 1px solid #000; padding-bottom: 2px;">PLATILLOS ANULADOS:</div>
-      <div style="margin-bottom:15px;">
+      <div style="font-size:10px; font-weight:bold; margin-bottom:5px; text-transform:uppercase;">PLATILLOS ANULADOS:</div>
+      <table>
+        <tr class="item-row" style="font-weight:bold; border-bottom:1px solid #000;">
+          <td class="col-qty qty">CANT.</td>
+          <td class="col-desc description">DESCRIPCIÓN</td>
+        </tr>
         ${(data.items || []).map((item: any) => `
-          <div style="display:flex; font-size:11px; margin-bottom:4px; align-items: flex-start;">
-            <span style="width:25px; font-weight:bold;">${item.quantity}</span>
-            <span style="flex:1; text-transform:uppercase;">${item.name || item.product_name || 'PRODUCTO'}</span>
-          </div>
+          <tr class="item-row">
+            <td class="col-qty qty">${item.quantity}</td>
+            <td class="col-desc description">${(item.name || item.product_name || 'PRODUCTO').toUpperCase()}</td>
+          </tr>
         `).join('')}
-      </div>
+      </table>
 
       <div style="text-align:center; font-size:9px; font-style:italic; margin-top:20px; border-top: 1px dotted #000; padding-top: 8px;">
         DOCUMENTO DE CONTROL INTERNO<br>
@@ -756,26 +788,28 @@ class PrintService {
         ${data.orderNumber ? `<div style="font-size:11px; margin-top:2px; font-weight:bold;">ORDEN #${data.orderNumber}</div>` : ''}
       </div>
       
-      <div class="info-grid" style="margin-bottom: 5px;">
-        <div class="info-line"><span class="info-label" style="width:55px;">CAJERO:</span> ${data.cashierName.toUpperCase()}</div>
-        <div class="info-line" style="text-align: right;"><span class="info-label" style="width:45px;">MESA:</span> ${data.tableNumber}</div>
-        <div class="info-line"><span class="info-label" style="width:55px;">MESERO:</span> ${data.waiterName.toUpperCase()}</div>
-        <div class="info-line" style="text-align: right;"><span class="info-label" style="width:55px;">SECCIÓN:</span> ${data.sectionName.toUpperCase()}</div>
-        <div class="info-line" style="grid-column: span 2;"><span class="info-label" style="width:55px;">HORA:</span> ${data.voidedAt}</div>
+      <div class="info-grid">
+        <div class="info-line"><span>CAJERO:</span> ${data.cashierName.toUpperCase()}</div>
+        <div class="info-line" style="text-align: right;"><span>MESA:</span> ${data.tableNumber}</div>
+        <div class="info-line"><span>MESERO:</span> ${data.waiterName.toUpperCase()}</div>
+        <div class="info-line" style="text-align: right;"><span>SECCIÓN:</span> ${data.sectionName.toUpperCase()}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>HORA:</span> ${data.voidedAt}</div>
       </div>
 
       <div class="thick-divider"></div>
       
-      <div style="font-size:10px; font-weight:bold; color:#cc0000; margin-bottom:5px; text-transform:uppercase; border-bottom: 1px solid #eee;">Detalle de Eliminación:</div>
-      <div class="item-row" style="padding: 5px 0; margin-bottom: 10px; display: flex; align-items: center;">
-        <span class="qty" style="font-size:18px; width:45px; font-weight: 900;">${data.quantity}x</span>
-        <span class="description" style="font-size:15px; flex:1; font-weight: 700;">${data.productName.toUpperCase()}</span>
-      </div>
+      <div style="font-size:10px; font-weight:bold; color:#cc0000; margin-bottom:5px; text-transform:uppercase;">Detalle de Eliminación:</div>
+      <table>
+        <tr class="item-row">
+          <td class="col-qty qty" style="font-size:18px;">${data.quantity}x</td>
+          <td class="col-desc description" style="font-size:15px;">${data.productName.toUpperCase()}</td>
+        </tr>
+      </table>
 
       <div class="divider"></div>
       
       <div style="font-size:10px; font-weight:bold; color:#cc0000; margin-bottom:5px; text-transform:uppercase;">Motivo de Anulación:</div>
-      <div style="font-size:13px; font-weight:800; background:#f9f9f9; padding:10px; border:1px solid #000; border-radius:4px; line-height: 1.2; text-align: left;">
+      <div style="font-size:13px; font-weight:bold; background:#f9f9f9; padding:10px; border:1px solid #000;">
         ${data.voidReason.toUpperCase()}
       </div>
 
@@ -801,20 +835,21 @@ class PrintService {
       
       <div class="divider"></div>
       
-      <div class="item-row" style="font-weight: bold; border-bottom: 1px solid #000; margin-bottom: 5px; font-size: 10px; padding-bottom: 2px;">
-        <span class="description">PRODUCTO</span>
-        <span class="price">MONTO</span>
-      </div>
-
-      ${(expense.items || []).map((item: any) => `
-        <div class="item-row">
-          <span class="description" style="text-transform:none;">${item.name}</span>
-          <span class="price">Q${Number(item.price).toFixed(2)}</span>
-        </div>
-      `).join('')}
+      <table>
+        <tr class="item-row" style="font-weight:bold; border-bottom:1px solid #000;">
+          <td class="col-desc description">PRODUCTO</td>
+          <td class="col-price price">MONTO</td>
+        </tr>
+        ${(expense.items || []).map((item: any) => `
+          <tr class="item-row">
+            <td class="col-desc description">${item.name}</td>
+            <td class="col-price price">Q${Number(item.price).toFixed(2)}</td>
+          </tr>
+        `).join('')}
+      </table>
       
       <div class="thick-divider"></div>
-      <div class="grand-total" style="text-align:right; font-weight: 900; font-size: 15px;">TOTAL: Q${Number(expense.amount).toFixed(2)}</div>
+      <div class="grand-total" style="text-align:right;">TOTAL: Q${Number(expense.amount).toFixed(2)}</div>
     `;
     
     // Pass true as 5th argument to hide the restaurant header/logo
@@ -833,47 +868,48 @@ class PrintService {
 
     const content = `
       <div class="info-grid">
-        <div><strong>Caja:</strong> ${data.registerName || 'PRINCIPAL'}</div>
-        <div><strong>Turno:</strong> ${data.shiftNumber || '---'}</div>
-        <div style="grid-column: span 2;"><strong>Cajero:</strong> ${data.cashierName}</div>
+        <div class="info-line"><span>Caja:</span> ${data.registerName || 'PRINCIPAL'}</div>
+        <div class="info-line" style="text-align: right;"><span>Turno:</span> ${data.shiftNumber || '---'}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>Cajero:</span> ${data.cashierName}</div>
       </div>
       
       <div class="thick-divider"></div>
       
       ${expenses.map((exp: any) => `
-        <div style="background: #f9f9f9; padding: 4px; margin-bottom: 8px; border: 1px solid #eee;">
-          <div style="font-size: 11px; font-weight: bold; border-bottom: 1px solid #000; margin-bottom: 4px;">
-            CATEGORÍA: ${exp.category.toUpperCase()}
-          </div>
+        <div style="margin-bottom: 10px;">
+          <div style="font-size: 11px; font-weight: bold; text-transform: uppercase;">CATEGORÍA: ${exp.category}</div>
+          <div class="divider" style="margin: 3px 0;"></div>
           
-          <div class="item-row" style="font-weight: bold; font-size: 9px; margin-bottom: 2px;">
-            <span class="description">GASTO</span>
-            <span class="price">TOTAL</span>
-          </div>
+          <table>
+            <tr class="item-row" style="font-weight: bold; font-size: 9px;">
+              <td class="col-desc description">GASTO</td>
+              <td class="col-price price">TOTAL</td>
+            </tr>
 
-          ${Array.isArray(exp.items) && exp.items.length > 0 ? 
-            exp.items.map((item: any) => `
-              <div class="item-row" style="font-size: 10px;">
-                <span class="description" style="text-transform:none;">- ${item.name}</span>
-                <span class="price">${fmt(item.price)}</span>
-              </div>
-            `).join('')
-            : `
-              <div class="item-row" style="font-size: 10px;">
-                <span class="description" style="text-transform:none;">- ${exp.description}</span>
-                <span class="price">${fmt(exp.amount)}</span>
-              </div>
-            `
-          }
+            ${Array.isArray(exp.items) && exp.items.length > 0 ? 
+              exp.items.map((item: any) => `
+                <tr class="item-row">
+                  <td class="col-desc description" style="font-size: 9px;">- ${item.name}</td>
+                  <td class="col-price price">${fmt(item.price)}</td>
+                </tr>
+              `).join('')
+              : `
+                <tr class="item-row">
+                  <td class="col-desc description" style="font-size: 9px;">- ${exp.description}</td>
+                  <td class="col-price price">${fmt(exp.amount)}</td>
+                </tr>
+              `
+            }
+          </table>
           
-          <div style="text-align: right; font-weight: 900; font-size: 12px; border-top: 1px dashed #ccc; margin-top: 4px; padding-top: 2px;">
-            Total: ${fmt(exp.amount)}
+          <div style="text-align: right; font-weight: bold; border-top: 1px dotted #ccc; margin-top: 4px;">
+            Subtotal: ${fmt(exp.amount)}
           </div>
         </div>
       `).join('')}
 
       <div class="thick-divider"></div>
-      <div class="grand-total" style="text-align:right; font-weight: 900; font-size: 16px;">TOTAL: ${fmt(data.expensesTotal || 0)}</div>
+      <div class="grand-total" style="text-align:right;">TOTAL EGRESOS: ${fmt(data.expensesTotal || 0)}</div>
       
       <div style="text-align:center; font-size:9px; font-style:italic; margin-top:15px;">
         Impreso: ${new Date().toLocaleString('es-GT')}
@@ -891,10 +927,10 @@ class PrintService {
     const dateStr = (d: string) => { try { return new Date(d).toLocaleString('es-GT', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return d; } };
     const content = `
       <div class="info-grid">
-        <div><strong>CAJA:</strong> ${(this.restaurantInfo?.name || 'PRINCIPAL').split(' ')[0]}</div>
-        <div><strong>CAJERO:</strong> ${data.cashierName}</div>
-        <div><strong>APERTURA:</strong> ${dateStr(data.startTime)}</div>
-        <div><strong>CIERRE:</strong> ${dateStr(data.endTime)}</div>
+        <div class="info-line"><span>CAJA:</span> ${(this.restaurantInfo?.name || 'PRINCIPAL').split(' ')[0]}</div>
+        <div class="info-line" style="text-align: right;"><span>CAJERO:</span> ${data.cashierName}</div>
+        <div class="info-line"><span>APERTURA:</span> ${dateStr(data.startTime)}</div>
+        <div class="info-line" style="text-align: right;"><span>CIERRE:</span> ${dateStr(data.endTime)}</div>
       </div>
       <div class="thick-divider"></div>
       <div class="info-grid" style="font-size:10px;">
@@ -905,37 +941,58 @@ class PrintService {
         <div>Abiertas: ${data.stats?.openOrders || 0}</div>
       </div>
       <div class="thick-divider"></div>
-      ${data.salesByMethod.map((s: any) => '<div class="item-row"><span class="description" style="text-transform:none;">' + s.method + ':</span> <span class="price">' + fmt(s.amount) + '</span></div>').join('')}
+      
+      <table>
+        ${data.salesByMethod.map((s: any) => `
+          <tr class="item-row">
+            <td class="col-desc description">${s.method}:</td>
+            <td class="col-price price">${fmt(s.amount)}</td>
+          </tr>
+        `).join('')}
+      </table>
       
       <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">RESUMEN PROPINAS</div>
-      ${(data.tipsByMethod || []).filter((t: any) => t.amount > 0).length > 0 
-        ? data.tipsByMethod.filter((t: any) => t.amount > 0).map((t: any) => '<div class="item-row"><span class="description" style="text-transform:none;">' + t.method + ':</span> <span class="price">' + fmt(t.amount) + '</span></div>').join('')
-        : '<div style="text-align:center;font-size:10px;">SIN PROPINAS REGISTRADAS</div>'
-      }
+      <table>
+        ${(data.tipsByMethod || []).filter((t: any) => t.amount > 0).length > 0 
+          ? data.tipsByMethod.filter((t: any) => t.amount > 0).map((t: any) => `
+            <tr class="item-row">
+              <td class="col-desc description">${t.method}:</td>
+              <td class="col-price price">${fmt(t.amount)}</td>
+            </tr>
+          `).join('')
+          : '<tr><td colspan="2" style="text-align:center;font-size:10px;">SIN PROPINAS REGISTRADAS</td></tr>'
+        }
+      </table>
 
-      <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">RESUMEN VENTAS POR CANAL</div>
-      ${(data.salesByChannel || []).map((c: any) => `
-        <div class="item-row">
-          <span class="description" style="text-transform:none;">${c.channel}:</span>
-          <span class="price">${fmt(c.amount)}</span>
-        </div>
-      `).join('')}
+      <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">VENTAS POR CANAL</div>
+      <table>
+        ${(data.salesByChannel || []).map((c: any) => `
+          <tr class="item-row">
+            <td class="col-desc description">${c.channel}:</td>
+            <td class="col-price price">${fmt(c.amount)}</td>
+          </tr>
+        `).join('')}
+      </table>
+      
       <div class="divider"></div>
 
       <div style="text-align:center;font-weight:bold;margin:15px 0 5px 0;border-top:1px solid #000;padding-top:5px;">CUADRE EFECTIVO</div>
-      <div class="item-row"><span class="description" style="text-transform:none;">(+) INICIAL:</span> <span class="price">${fmt(data.cashDetail.initial)}</span></div>
-      <div class="item-row"><span class="description" style="text-transform:none;">(+) VENTAS:</span> <span class="price">${fmt(data.cashDetail.sales)}</span></div>
-      <div class="item-row"><span class="description" style="text-transform:none;">(+) ABONOS:</span> <span class="price">${fmt(data.cashDetail.abonos)}</span></div>
-      <div class="item-row"><span class="description" style="text-transform:none;">(+) PROPINAS:</span> <span class="price">${fmt(data.cashDetail.tips)}</span></div>
-      <div class="item-row"><span class="description" style="text-transform:none;">(-) GASTOS:</span> <span class="price">${fmt(data.cashDetail.expenses)}</span></div>
+      <table>
+        <tr class="item-row"><td class="description">(+) INICIAL:</td><td class="price">${fmt(data.cashDetail.initial)}</td></tr>
+        <tr class="item-row"><td class="description">(+) VENTAS:</td><td class="price">${fmt(data.cashDetail.sales)}</td></tr>
+        <tr class="item-row"><td class="description">(+) ABONOS:</td><td class="price">${fmt(data.cashDetail.abonos)}</td></tr>
+        <tr class="item-row"><td class="description">(+) PROPINAS:</td><td class="price">${fmt(data.cashDetail.tips)}</td></tr>
+        <tr class="item-row"><td class="description">(-) GASTOS:</td><td class="price">${fmt(data.cashDetail.expenses)}</td></tr>
+      </table>
+      
       <div class="thick-divider"></div>
-      <div class="total-line" style="font-weight:bold;">
+      <div class="total-line">
         <span class="total-label">ESPERADO:</span> <span class="total-value">${fmt(data.cashDetail.total)}</span>
       </div>
-      <div class="total-line" style="font-weight:bold;">
+      <div class="total-line">
         <span class="total-label">CONTADO:</span> <span class="total-value">${fmt(data.countedCash)}</span>
       </div>
-      <div class="total-line" style="font-weight:bold; ${data.difference !== 0 ? 'color:red;' : ''}">
+      <div class="total-line" style="${data.difference !== 0 ? 'color:red;' : ''}">
         <span class="total-label">DIFERENCIA:</span> <span class="total-value">${data.difference === 0 ? 'CUADRADO' : fmt(data.difference)}</span>
       </div>
       <div style="margin-top:40px;border-top:1px solid #000;text-align:center;font-size:11px;">FIRMA CAJERO: ${data.cashierName}</div>
@@ -953,36 +1010,42 @@ class PrintService {
     const content = `
       <div style="text-align:center; font-weight:bold; font-size:14px; margin-bottom:10px; border-bottom: 2px solid #000; padding-bottom:5px;">REPORTE GENERAL</div>
       <div class="info-grid">
-        <div><strong>DEL:</strong> ${startDate}</div>
-        <div><strong>AL:</strong> ${endDate}</div>
-        <div style="grid-column: span 2;"><strong>SUCURSAL:</strong> ${branchName.toUpperCase()}</div>
+        <div class="info-line"><span>DEL:</span> ${startDate}</div>
+        <div class="info-line" style="text-align: right;"><span>AL:</span> ${endDate}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>SUCURSAL:</span> ${branchName.toUpperCase()}</div>
       </div>
       
       <div class="thick-divider"></div>
       <div style="text-align:center;font-weight:bold;margin-bottom:5px;">VENTAS</div>
-      <div class="item-row"><span class="description" style="text-transform:none;">Efectivo:</span> <span class="price">${fmt(reportData.ventas.efectivo)}</span></div>
-      <div class="item-row"><span class="description" style="text-transform:none;">Tarjeta:</span> <span class="price">${fmt(reportData.ventas.tarjeta)}</span></div>
-      <div class="item-row"><span class="description" style="text-transform:none;">Al Crédito:</span> <span class="price">${fmt(reportData.ventas.credito)}</span></div>
-      <div class="item-row"><span class="description" style="text-transform:none;">Otros:</span> <span class="price">${fmt(reportData.ventas.otros)}</span></div>
-      <div class="total-line" style="font-weight:bold; margin-top:5px;">
+      <table>
+        <tr class="item-row"><td class="description">Efectivo:</td><td class="price">${fmt(reportData.ventas.efectivo)}</td></tr>
+        <tr class="item-row"><td class="description">Tarjeta:</td><td class="price">${fmt(reportData.ventas.tarjeta)}</td></tr>
+        <tr class="item-row"><td class="description">Al Crédito:</td><td class="price">${fmt(reportData.ventas.credito)}</td></tr>
+        <tr class="item-row"><td class="description">Otros:</td><td class="price">${fmt(reportData.ventas.otros)}</td></tr>
+      </table>
+      <div class="total-line">
         <span class="total-label">TOTAL VENTAS:</span> <span class="total-value">${fmt(reportData.ventas.total)}</span>
       </div>
 
       <div class="divider"></div>
       <div style="text-align:center;font-weight:bold;margin-bottom:5px;">PROPINAS</div>
-      <div class="item-row"><span class="description" style="text-transform:none;">Efectivo:</span> <span class="price">${fmt(reportData.propinas.efectivo)}</span></div>
-      <div class="item-row"><span class="description" style="text-transform:none;">Tarjeta:</span> <span class="price">${fmt(reportData.propinas.tarjeta)}</span></div>
-      <div class="item-row"><span class="description" style="text-transform:none;">Otros:</span> <span class="price">${fmt(reportData.propinas.otros)}</span></div>
-      <div class="total-line" style="font-weight:bold; margin-top:5px;">
+      <table>
+        <tr class="item-row"><td class="description">Efectivo:</td><td class="price">${fmt(reportData.propinas.efectivo)}</td></tr>
+        <tr class="item-row"><td class="description">Tarjeta:</td><td class="price">${fmt(reportData.propinas.tarjeta)}</td></tr>
+        <tr class="item-row"><td class="description">Otros:</td><td class="price">${fmt(reportData.propinas.otros)}</td></tr>
+      </table>
+      <div class="total-line">
         <span class="total-label">TOTAL PROPINAS:</span> <span class="total-value">${fmt(reportData.propinas.total)}</span>
       </div>
       
       <div class="divider"></div>
       <div style="text-align:center;font-weight:bold;margin-bottom:5px;">EGRESOS Y DESCUENTOS</div>
-      <div class="item-row"><span class="description" style="text-transform:none;">Compras c/Caja:</span> <span class="price">${fmt(reportData.egresos.compras)}</span></div>
-      <div class="item-row"><span class="description" style="text-transform:none;">Gastos Mnl.:</span> <span class="price">${fmt(reportData.egresos.gastos)}</span></div>
-      <div class="item-row"><span class="description" style="text-transform:none;">Descuentos:</span> <span class="price">${fmt(reportData.egresos.descuentos)}</span></div>
-      <div class="total-line" style="font-weight:bold; color:red; margin-top:5px;">
+      <table>
+        <tr class="item-row"><td class="description">Compras c/Caja:</td><td class="price">${fmt(reportData.egresos.compras)}</td></tr>
+        <tr class="item-row"><td class="description">Gastos Mnl.:</td><td class="price">${fmt(reportData.egresos.gastos)}</td></tr>
+        <tr class="item-row"><td class="description">Descuentos:</td><td class="price">${fmt(reportData.egresos.descuentos)}</td></tr>
+      </table>
+      <div class="total-line" style="color:red;">
         <span class="total-label" style="color:#000;">TOTAL EGRESOS:</span> <span class="total-value">${fmt(reportData.egresos.total)}</span>
       </div>
 
@@ -990,14 +1053,16 @@ class PrintService {
       <div style="text-align:center;font-weight:bold;margin-bottom:5px;">MÉTRICAS</div>
       <div class="info-grid" style="font-size:10px;">
         <div>Atendidas: ${reportData.ordenes.atendidas}</div>
-        <div>Anuladas: ${reportData.ordenes.anuladas}</div>
+        <div style="text-align:right;">Anuladas: ${reportData.ordenes.anuladas}</div>
         <div style="grid-column: span 2;">Comensales: ${reportData.ordenes.comensales}</div>
       </div>
       <div class="divider"></div>
-      <div class="item-row"><span class="description" style="text-transform:none;">Ticket Prom. / Orden:</span> <span class="price">${fmt(reportData.ticket.porOrden)}</span></div>
-      <div class="item-row"><span class="description" style="text-transform:none;">Ticket Prom. / Persona:</span> <span class="price">${fmt(reportData.ticket.porPersona)}</span></div>
+      <table>
+        <tr class="item-row"><td class="description">Ticket Prom. / Orden:</td><td class="price">${fmt(reportData.ticket.porOrden)}</td></tr>
+        <tr class="item-row"><td class="description">Ticket Prom. / Pers.:</td><td class="price">${fmt(reportData.ticket.porPersona)}</td></tr>
+      </table>
       
-      <div style="text-align:center; font-size:9px; font-style:italic; margin-top:15px;">
+      <div style="text-align:center; font-size:9px; font-style:italic; margin-top:20px; border-top:1px dotted #000; padding-top:8px;">
         Impreso el: ${new Date().toLocaleString('es-GT')}
       </div>
     `;
@@ -1016,24 +1081,26 @@ class PrintService {
         <div style="font-size:10px;">${categoryLabel}</div>
       </div>
       
-      <div style="font-size:10px; margin-bottom:10px; border-bottom:1px dashed #000; padding-bottom:5px;">
+      <div style="font-size:10px; margin-bottom:10px;">
         <div><strong>Desde:</strong> ${startDate}</div>
         <div><strong>Hasta:</strong> ${endDate}</div>
       </div>
 
-      <div class="item-row" style="font-weight:bold; font-size:11px; border-bottom:1px solid #000; margin-bottom:5px; padding-bottom:2px;">
-        <span class="qty" style="width:40px; text-align:center;">CANT.</span>
-        <span class="description" style="flex:1;">DESCRIPCIÓN</span>
-      </div>
+      <table>
+        <tr class="item-row" style="font-weight:bold; border-bottom:1px solid #000;">
+          <td class="col-qty qty">CANT.</td>
+          <td class="col-desc description">DESCRIPCIÓN</td>
+        </tr>
+        ${data.map(item => `
+          <tr class="item-row">
+            <td class="col-qty qty">${item.quantity}</td>
+            <td class="col-desc description">${item.name.toUpperCase()}</td>
+          </tr>
+        `).join('')}
+      </table>
 
-      ${data.map(item => `
-        <div class="item-row" style="font-size:10px; margin-bottom:4px; align-items: flex-start;">
-          <span class="qty" style="width:40px; text-align:center; font-weight:bold;">${item.quantity}</span>
-          <span class="description" style="flex:1; text-transform:uppercase;">${item.name}</span>
-        </div>
-      `).join('')}
-
-      <div style="border-top:1px solid #000; margin-top:10px; padding-top:5px; text-align:right;">
+      <div class="divider"></div>
+      <div style="text-align:right;">
         <div style="font-size:11px; font-weight:bold;">TOTAL UNIDADES: ${data.reduce((acc, curr) => acc + curr.quantity, 0)}</div>
       </div>
 
@@ -1056,25 +1123,27 @@ class PrintService {
         <div style="font-size:14px; font-weight:900; margin-top:4px;">${productName.toUpperCase()}</div>
       </div>
       
-      <div class="dotted-divider"></div>
-      <div style="display:flex; font-weight:bold; font-size:11px; border-bottom:1px solid #000; margin-bottom:5px; padding-bottom:4px;">
-        <span style="flex:1;">INSUMO</span>
-        <span style="width:40px; text-align:center;">CANT.</span>
-        <span style="width:50px; text-align:center;">MEDIDA</span>
-      </div>
+      <div class="divider"></div>
+      <table>
+        <tr class="item-row" style="font-weight:bold; border-bottom:1px solid #000;">
+          <td class="col-desc description">INSUMO</td>
+          <td class="col-qty qty">CANT.</td>
+          <td style="width:50px; text-align:center;">UNIDAD</td>
+        </tr>
 
-      ${recipeItems.map(item => {
+        ${recipeItems.map(item => {
       const invItem = inventoryItems.find(i => i.id === item.inventory_item_id);
       const itemName = invItem?.name || 'Insumo desconocido';
       return `
-        <div style="display:flex; font-size:10px; margin-bottom:6px; align-items: flex-start; border-bottom:1px dashed #eee; padding-bottom:3px;">
-          <span style="flex:1; text-transform:uppercase; font-weight:600;">${itemName}</span>
-          <span style="width:40px; text-align:center; font-weight:900;">${item.quantity}</span>
-          <span style="width:50px; text-align:center; font-weight:bold; text-transform:uppercase; font-size:9px;">${item.unit_measure.substring(0, 5)}</span>
-        </div>
+        <tr class="item-row">
+          <td class="col-desc description">${itemName.toUpperCase()}</td>
+          <td class="col-qty qty">${item.quantity}</td>
+          <td style="text-align:center; font-size:9px;">${item.unit_measure.substring(0, 5).toUpperCase()}</td>
+        </tr>
         `;
     }).join('')}
-      <div class="dotted-divider"></div>
+      </table>
+      <div class="divider"></div>
 
       <div style="text-align:center; font-size:9px; font-style:italic; margin-top:20px;">
         ${this.restaurantInfo?.name || 'Restaurante Las Palmas'}<br>
