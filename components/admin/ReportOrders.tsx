@@ -1183,7 +1183,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
             {/* Order Viewer Modal PORTAL */}
             {
                 showOrderModal && viewingOrder && createPortal(
-                    <div className={`fixed inset-0 z-[11000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4 overflow-hidden`}>
+                    <div className={`fixed inset-0 z-[11000] flex items-center justify-center bg-black/40 p-0 sm:p-4 overflow-hidden`}>
                         <DraggableWindow disabled={isMobile}>
                             <div className={`bg-[#f0f0f0] border border-[#106ebe] shadow-2xl flex flex-col w-full h-full sm:w-[480px] sm:h-auto sm:max-h-[92vh] overflow-hidden select-none font-sans ${isMobile ? '' : 'rounded-sm'}`}>
                                 {/* Title Bar */}
@@ -1364,7 +1364,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
             {/* Vista Previa / Modal de Impresión */}
             {
                 showPrintModal && createPortal(
-                    <div className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-hidden">
+                    <div className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/50 p-4 overflow-hidden">
                         <DraggableWindow>
                             <div className="bg-[#f0f0f0] border border-[#106ebe] shadow-2xl flex flex-col w-[90vw] max-w-6xl h-[90vh] overflow-hidden select-none font-sans">
                                 {/* Toolbar Modal */}

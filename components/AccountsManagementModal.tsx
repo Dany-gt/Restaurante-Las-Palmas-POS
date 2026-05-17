@@ -25,16 +25,32 @@ export const AccountsManagementModal: React.FC<AccountsManagementModalProps> = (
 
     useEffect(() => {
         if (isOpen) {
-            const initialAccounts = orders.map((o, idx) => ({
-                id: o.id || `acc-${idx}`,
-                name: o.customer_name && o.customer_name.toUpperCase() !== 'CUENTA PRINCIPAL' 
-                    ? o.customer_name 
-                    : `CUENTA ${idx + 1}`,
-                items: (o.items || o.order_items || []).map((item: any) => ({
-                    ...item,
-                    uniqueId: `${item.id}-${Math.random().toString(36).substr(2, 9)}`
-                }))
-            }));
+            const usedNames = new Set<string>();
+            const initialAccounts = orders.map((o, idx) => {
+                let name = o.customer_name?.trim();
+                if (!name || name.toUpperCase() === 'CUENTA PRINCIPAL') {
+                    name = `CUENTA ${idx + 1}`;
+                }
+
+                let finalName = name.toUpperCase();
+                if (usedNames.has(finalName)) {
+                    let nextNum = idx + 1;
+                    while (usedNames.has(`CUENTA ${nextNum}`)) {
+                        nextNum++;
+                    }
+                    finalName = `CUENTA ${nextNum}`;
+                }
+                usedNames.add(finalName);
+
+                return {
+                    id: o.id || `acc-${idx}`,
+                    name: finalName,
+                    items: (o.items || o.order_items || []).map((item: any) => ({
+                        ...item,
+                        uniqueId: `${item.id}-${Math.random().toString(36).substr(2, 9)}`
+                    }))
+                };
+            });
             setAccounts(initialAccounts);
             setActiveAccountIdx(0);
             setSelectedItems(new Set());

@@ -46,27 +46,43 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
 
     if (!isOpen) return null;
 
-    const getOrderSummary = (order: any, index: number): OrderSummary => {
-        const items = order.items || order.order_items || [];
-        const subtotal = items.reduce((sum: number, i: any) => sum + ((i.price ?? i.unit_price ?? 0) * (i.quantity ?? 1)), 0);
-        const discount = items.reduce((sum: number, i: any) => sum + (i.discount_amount || 0), 0);
-        const tip = order.tip_amount || (subtotal * 0.1); 
-        const total = subtotal - discount + tip;
+    const getOrderSummaries = (orders: any[]): OrderSummary[] => {
+        const usedNames = new Set<string>();
+        return orders.map((order, index) => {
+            const items = order.items || order.order_items || [];
+            const subtotal = items.reduce((sum: number, i: any) => sum + ((i.price ?? i.unit_price ?? 0) * (i.quantity ?? 1)), 0);
+            const discount = items.reduce((sum: number, i: any) => sum + (i.discount_amount || 0), 0);
+            const tip = order.tip_amount || (subtotal * 0.1); 
+            const total = subtotal - discount + tip;
 
-        return {
-            id: order.id,
-            customer_name: (order.customer_name && order.customer_name.toUpperCase() !== 'CUENTA PRINCIPAL') 
-                ? order.customer_name 
-                : `CUENTA ${index + 1}`,
-            items,
-            subtotal,
-            discount,
-            tip,
-            total
-        };
+            let name = order.customer_name?.trim();
+            if (!name || name.toUpperCase() === 'CUENTA PRINCIPAL') {
+                name = `CUENTA ${index + 1}`;
+            }
+
+            let finalName = name.toUpperCase();
+            if (usedNames.has(finalName)) {
+                let nextNum = index + 1;
+                while (usedNames.has(`CUENTA ${nextNum}`)) {
+                    nextNum++;
+                }
+                finalName = `CUENTA ${nextNum}`;
+            }
+            usedNames.add(finalName);
+
+            return {
+                id: order.id,
+                customer_name: finalName,
+                items,
+                subtotal,
+                discount,
+                tip,
+                total
+            };
+        });
     };
 
-    const summaries = tableOrders.map((order, idx) => getOrderSummary(order, idx));
+    const summaries = getOrderSummaries(tableOrders);
 
     const handleDeleteClick = () => {
         if (!localSelectedId) return;

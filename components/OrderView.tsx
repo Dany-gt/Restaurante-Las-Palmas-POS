@@ -713,7 +713,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             orderId: activeOrderId || 'VIRTUAL',
             orderNumber: orderToPrint?.order_number,
             orderType: orderType,
-            customerName: orderToPrint?.customer_name,
+            customerName: getOrderDisplayName(orderToPrint?.id || activeOrderId),
             tableNumber: table?.number,
             tableName: table?.section,
             waiterName: currentUser?.name || (currentUser as any)?.full_name,
@@ -1121,12 +1121,29 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const handleAddEmptyAccount = async () => {
         setProcessing(true);
         try {
+            // Find next available name like "CUENTA X"
+            const usedNames = new Set<string>();
+            tableOrders.forEach((o, index) => {
+                const name = o.customer_name?.trim().toUpperCase();
+                if (!name || name === 'CUENTA PRINCIPAL') {
+                    usedNames.add(`CUENTA ${index + 1}`);
+                } else {
+                    usedNames.add(name);
+                }
+            });
+
+            let nextNum = 1;
+            while (usedNames.has(`CUENTA ${nextNum}`)) {
+                nextNum++;
+            }
+            const nextName = `CUENTA ${nextNum}`;
+
             const { data: newOrder, error } = await supabase.from('orders').insert({
                 table_id: table?.id,
                 status: 'pending',
                 order_type: 'DINE_IN',
                 waiter_id: currentUser?.id,
-                customer_name: `CUENTA ${tableOrders.length + 1}`,
+                customer_name: nextName,
                 pax_count: 1,
                 branch_id: currentUser?.branch_id,
                 created_at: DateUtils.toGuatemalaISO(new Date(Date.now() + serverOffset))
@@ -1146,6 +1163,45 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         }
     };
 
+    const getOrderDisplayName = (orderId: string | null): string => {
+        if (orderId === null) return 'CUENTA COMPLETA';
+        
+        const currentOrder = tableOrders.find(o => o.id === orderId) || (orderId === initialOrder?.id ? initialOrder : null);
+        if (!currentOrder) return 'CUENTA 1';
+
+        const usedNames = new Set<string>();
+        let targetName = '';
+
+        tableOrders.forEach((order, index) => {
+            let name = order.customer_name?.trim();
+            if (!name || name.toUpperCase() === 'CUENTA PRINCIPAL') {
+                name = `CUENTA ${index + 1}`;
+            }
+
+            let finalName = name.toUpperCase();
+            if (usedNames.has(finalName)) {
+                let nextNum = index + 1;
+                while (usedNames.has(`CUENTA ${nextNum}`)) {
+                    nextNum++;
+                }
+                finalName = `CUENTA ${nextNum}`;
+            }
+            usedNames.add(finalName);
+
+            if (order.id === orderId) {
+                targetName = finalName;
+            }
+        });
+
+        if (targetName) return targetName;
+
+        let name = currentOrder.customer_name?.trim();
+        if (!name || name.toUpperCase() === 'CUENTA PRINCIPAL') {
+            const index = tableOrders.findIndex(o => o.id === orderId);
+            return `CUENTA ${index >= 0 ? index + 1 : 1}`;
+        }
+        return name.toUpperCase();
+    };
 
     const handleAccountDivision = async (accounts: any[]) => {
         setProcessing(true);
@@ -2383,13 +2439,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     )}
                     <span className="text-gray-600 mx-3">|</span>
                     <span className="text-amber-400">
-                        {(() => {
-                            if (activeOrderId === null) return 'CUENTA COMPLETA';
-                            const currentOrder = tableOrders.find(o => o.id === activeOrderId);
-                            const name = currentOrder?.customer_name || initialOrder.customer_name;
-                            if (!name || name.toUpperCase() === 'CUENTA PRINCIPAL') return 'CUENTA 1';
-                            return name.toUpperCase();
-                        })()}
+                        {getOrderDisplayName(activeOrderId)}
                     </span>
                     <span className="text-gray-600 mx-1">|</span>
                     <span className="hidden sm:inline">Atiende: {tableOrders.find(o => o.id === activeOrderId)?.waiter?.name || currentUser?.name || 'Mesero'}</span>
@@ -2788,12 +2838,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     <span>
                                         {activeOrderId === null 
                                             ? '📋 CUENTA COMPLETA' 
-                                            : (() => {
-                                                const currentOrder = tableOrders.find(o => o.id === activeOrderId);
-                                                const name = currentOrder?.customer_name || initialOrder.customer_name;
-                                                if (!name || name.toUpperCase() === 'CUENTA PRINCIPAL') return 'CUENTA 1';
-                                                return name.toUpperCase();
-                                            })()
+                                            : getOrderDisplayName(activeOrderId)
                                         }
                                     </span>
                                 </div>
@@ -2973,6 +3018,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             const updatedOrder = activeOrderId ? {
                                                 ...currentOrderData,
                                                 id: finalOrderId,
+                                                customer_name: getOrderDisplayName(activeOrderId),
                                                 subtotal,
                                                 tax_amount: taxAmount,
                                                 tip_amount: tipAmount,

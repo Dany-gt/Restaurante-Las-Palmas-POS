@@ -253,11 +253,6 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
             if (p) setCurrentUser(p);
         };
         fetchMetadata();
-
-        // Solo generar automáticamente si no hay un estado guardado previo
-        if (!savedState) {
-            handleGenerate();
-        }
     }, [mode]);
 
     useEffect(() => {

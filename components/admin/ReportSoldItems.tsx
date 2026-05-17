@@ -693,7 +693,7 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
 
             {/* Print / Export Modal */}
             {showPrintModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 animate-in fade-in duration-200">
                     <div className="bg-[#f0f0f0] border-2 border-[#106ebe] shadow-2xl w-[950px] h-[90%] flex flex-col scale-in-center overflow-hidden">
                         <div className="bg-[#106ebe] text-white p-2 flex justify-between items-center shrink-0">
                             <span className="text-xs font-black uppercase tracking-widest flex items-center gap-2">

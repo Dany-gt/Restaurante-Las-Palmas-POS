@@ -137,7 +137,7 @@ export const SoldDishesModal: React.FC<SoldDishesModalProps> = ({ onClose }) => 
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-fade-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 animate-fade-in">
             <div className="w-full max-w-4xl bg-[#1e232f] rounded-sm shadow-2xl flex flex-col overflow-hidden border border-white/10">
                 {/* Header */}
                 <div className="px-4 py-3 bg-[#2a2f3d] flex justify-between items-center border-b border-white/5">
