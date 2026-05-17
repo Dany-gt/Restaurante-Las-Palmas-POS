@@ -547,6 +547,24 @@ const App: React.FC = () => {
     if (actData) localStorage.setItem('activation_data', actData);
     if (devFinger) localStorage.setItem('device_fingerprint', devFinger);
 
+    // Unregister service worker and clear cache to prevent old version mismatches on Vercel
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const reg of registrations) {
+          await reg.unregister();
+        }
+      }
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        for (const name of cacheNames) {
+          await caches.delete(name);
+        }
+      }
+    } catch (err) {
+      console.error('Error clearing service worker and caches:', err);
+    }
+
     if ((window as any).electronAPI && (window as any).electronAPI.sendLogout) {
       (window as any).electronAPI.sendLogout();
     }
