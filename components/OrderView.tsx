@@ -1008,6 +1008,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         const oTip = oSubtotalAfterDisc * tipRate;
 
                         const orderTotalWithTip = oSubtotalAfterDisc + oTip;
+                        const isCash = paymentMethod === 'EFECTIVO';
+                        const isCard = paymentMethod === 'TARJETA';
+                        const isCredit = paymentMethod.includes('CREDIT') || paymentMethod.includes('CRÉDITO') || paymentMethod.includes('CREDITO');
+                        const isOther = !isCash && !isCard && !isCredit;
+
                         const { error: updateError } = await supabase.from('orders').update({
                             status: 'completed',
                             payment_method: paymentMethod,
@@ -1015,9 +1020,13 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             total: orderTotalWithTip,
                             tip_amount: oTip,
                             subtotal: oSubtotalAfterDisc - oTax,
-                            tax_amount: oTax
-                            // NOTE: Financial breakdown columns (cash_amount, etc.) removed 
-                            // until they are manually added to the Supabase 'orders' table.
+                            tax_amount: oTax,
+                            cash_amount: isCash ? orderTotalWithTip : 0,
+                            card_amount: isCard ? orderTotalWithTip : 0,
+                            credit_amount: isCredit ? orderTotalWithTip : 0,
+                            other_amount: isOther ? orderTotalWithTip : 0,
+                            total_paid: orderTotalWithTip,
+                            change_amount: 0
                         }).eq('id', oid);
 
                         if (updateError) throw updateError;

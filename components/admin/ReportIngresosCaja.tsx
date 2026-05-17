@@ -262,6 +262,7 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
                     id, created_at, order_number, total, payment_method, 
                     tip_amount, discount_amount,
                     branch_id, status,
+                    cash_amount, card_amount, credit_amount, other_amount, total_paid, change_amount,
                     shift:shifts!shift_id(
                         shift_number, 
                         cash_registers(name),
@@ -291,6 +292,25 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
                 const method = (o.payment_method || 'EFECTIVO').toUpperCase();
                 const totalVal = Number(o.total || 0);
 
+                const hasBreakdown = (o.cash_amount !== null && o.cash_amount !== undefined && Number(o.cash_amount) > 0) ||
+                                     (o.card_amount !== null && o.card_amount !== undefined && Number(o.card_amount) > 0) ||
+                                     (o.credit_amount !== null && o.credit_amount !== undefined && Number(o.credit_amount) > 0) ||
+                                     (o.other_amount !== null && o.other_amount !== undefined && Number(o.other_amount) > 0) ||
+                                     (o.total_paid !== null && o.total_paid !== undefined && Number(o.total_paid) > 0) ||
+                                     (o.change_amount !== null && o.change_amount !== undefined && Number(o.change_amount) > 0);
+
+                const isCash = method === 'EFECTIVO';
+                const isCard = method.includes('TARJETA');
+                const isCredit = method.includes('CREDIT') || method.includes('CRÉDITO') || method.includes('CREDITO');
+                const isOther = !isCash && !isCard && !isCredit;
+
+                const efectivoVal = hasBreakdown ? Number(o.cash_amount || 0) : (isCash ? totalVal : 0);
+                const tarjetaVal = hasBreakdown ? Number(o.card_amount || 0) : (isCard ? totalVal : 0);
+                const creditoVal = hasBreakdown ? Number(o.credit_amount || 0) : (isCredit ? totalVal : 0);
+                const otrosVal = hasBreakdown ? Number(o.other_amount || 0) : (isOther ? totalVal : 0);
+                const totalPagadoVal = hasBreakdown ? Number(o.total_paid || 0) : totalVal;
+                const cambioVal = hasBreakdown ? Number(o.change_amount || 0) : 0;
+
                 return {
                     id: o.id,
                     ingreso: dayjs(o.created_at).format('DD/MM/YYYY HH:mm'),
@@ -314,13 +334,13 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
                         const w = Array.isArray(waiterData) ? waiterData[0] : waiterData;
                         return c?.full_name || c?.name || w?.full_name || w?.name || 'USUARIO';
                     })(),
-                    efectivo: method === 'EFECTIVO' ? totalVal : 0,
-                    tarjeta: method.includes('TARJETA') ? totalVal : 0,
-                    credito: (method.includes('CREDITO') || method.includes('CRÉDITO')) ? totalVal : 0,
-                    otros: (!['EFECTIVO'].includes(method) && !method.includes('TARJETA') && !method.includes('CREDIT')) ? totalVal : 0,
+                    efectivo: efectivoVal,
+                    tarjeta: tarjetaVal,
+                    credito: creditoVal,
+                    otros: otrosVal,
                     totalCuenta: totalVal,
-                    totalPagado: totalVal,
-                    cambio: 0
+                    totalPagado: totalPagadoVal,
+                    cambio: cambioVal
                 };
             });
 
@@ -378,13 +398,7 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
                     userId={userId}
                 />
             )}
-            {/* 1. Pestana de Tab */}
-            <div className="flex items-end px-2 bg-white border-b border-gray-300">
-                <div className="flex items-center gap-4 px-4 py-1.5 bg-[#f0f0f0] border-t border-l border-r border-gray-300 rounded-t-lg min-w-[120px]">
-                    <span className="font-bold text-gray-800">{mode === 'REP_CASH_OTHER' ? 'Ingresos Otros' : 'Ingresos a Caja'}</span>
-                    <X size={12} className="text-gray-400 hover:text-red-500 cursor-pointer" />
-                </div>
-            </div>
+
 
             {/* 2. Toolbar de Filtros */}
             <div className="p-2 flex items-center gap-4 bg-[#f0f0f0] border-b border-gray-300 shrink-0">

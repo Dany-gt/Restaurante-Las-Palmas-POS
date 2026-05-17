@@ -87,7 +87,7 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
 
     const fetchMetadata = async () => {
         try {
-            const { data: cats } = await supabase.from('categories').select('*').order('name');
+            const { data: cats } = await supabase.from('menu_categories').select('id, name:nombre, parent_id').order('nombre');
             const { data: brs } = await supabase.from('branches').select('*').order('name');
             setCategories(cats || []);
             setBranches(brs || []);
@@ -104,6 +104,15 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
     const handleGenerate = async () => {
         setLoading(true);
         try {
+            let currentCats = categories;
+            if (categories.length === 0) {
+                const { data: cats } = await supabase.from('menu_categories').select('id, name:nombre, parent_id').order('nombre');
+                if (cats) {
+                    setCategories(cats);
+                    currentCats = cats;
+                }
+            }
+
             const startStr = `${startDate}T${startTime}:00`;
             const endStr = `${endDate}T${endTime}:59`;
 
@@ -119,7 +128,7 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                         updated_at,
                         product_name,
                         status,
-                        products!inner(category_id),
+                        products!inner(menu_category_id),
                         orders!inner(order_number, branch_id, waiter:profiles!waiter_id(name))
                     `)
                     .in('status', ['cancelled', 'voided'])
@@ -133,6 +142,12 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                 const { data: results, error } = await query;
                 if (error) throw error;
 
+                results?.forEach(item => {
+                    if (item.products) {
+                        (item.products as any).category_id = (item.products as any).menu_category_id;
+                    }
+                });
+
                 setData(results || []);
                 return;
             }
@@ -145,12 +160,13 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                     quantity,
                     unit_price,
                     discount_amount,
-                    products!inner(id, name, category_id),
+                    products!inner(id, name, menu_category_id),
                     orders!inner(
                         id, 
                         created_at, 
                         status, 
-                        branch_id
+                        branch_id,
+                        is_contingency
                         ${mode === 'REP_SOLD_USER' ? ', waiter:profiles!waiter_id(name)' : ''}
                         ${mode === 'REP_BILLED' ? ', invoices!inner(status)' : ''}
                     )
@@ -160,7 +176,7 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                 .lte('orders.created_at', endStr);
 
             if (mode === 'REP_BILLED') {
-                query = query.eq('orders.invoices.status', 'ACTIVE');
+                query = query.eq('orders.invoices.status', 'ACTIVE').not('orders.is_contingency', 'eq', true);
             }
 
             if (selectedBranch !== 'all') {
@@ -174,12 +190,17 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
 
             results?.forEach(item => {
                 const products = item.products as any;
+                if (!products) return;
+
+                // Map database menu_category_id to category_id
+                products.category_id = products.menu_category_id;
+
                 const netAmount = (item.unit_price * item.quantity) - (item.discount_amount || 0);
 
                 if (mode === 'REP_SOLD_USER') {
                     const waiterName = (item.orders as any)?.waiter?.name || 'DESCONOCIDO';
                     const prodId = products.id;
-                    const catName = categories.find(c => c.id === products.category_id)?.name || 'Sin Categoría';
+                    const catName = currentCats.find(c => c.id === products.category_id)?.name || 'Sin Categoría';
 
                     if (!grouped[waiterName]) {
                         grouped[waiterName] = {
@@ -214,7 +235,7 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                     if (!grouped[catId]) {
                         grouped[catId] = {
                             id: catId,
-                            name: categories.find(c => c.id === catId)?.name || 'Sin Categoría',
+                            name: currentCats.find(c => c.id === catId)?.name || 'Sin Categoría',
                             totalQty: 0,
                             totalAmount: 0,
                             items: {}
@@ -263,12 +284,22 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
     const toggleParent = (parent: any) => {
         const next = new Set(selectedCategories);
         const childIds = parent.children.map((c: any) => c.id);
-        const allSelected = childIds.every((id: string) => next.has(id));
-
-        if (allSelected) {
-            childIds.forEach((id: string) => next.delete(id));
+        
+        if (childIds.length > 0) {
+            const allSelected = childIds.every((id: string) => next.has(id));
+            if (allSelected) {
+                childIds.forEach((id: string) => next.delete(id));
+                if (parent.id !== 'others') next.delete(parent.id);
+            } else {
+                childIds.forEach((id: string) => next.add(id));
+                if (parent.id !== 'others') next.add(parent.id);
+            }
         } else {
-            childIds.forEach((id: string) => next.add(id));
+            if (next.has(parent.id)) {
+                next.delete(parent.id);
+            } else {
+                next.add(parent.id);
+            }
         }
         setSelectedCategories(next);
     };
@@ -468,61 +499,63 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
             {/* Main Content Area */}
             <div className="flex-1 flex overflow-hidden">
                 {/* Sidebar: Categories */}
-                <div className="w-64 border-r border-gray-300 bg-white flex flex-col shrink-0 shadow-lg z-10">
-                    <div className="bg-gray-100 border-b border-gray-300 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-gray-600 flex justify-between items-center">
-                        <span>Categoría</span>
-                        {selectedCategories.size > 0 && (
-                            <button
-                                onClick={() => setSelectedCategories(new Set())}
-                                className="text-[9px] text-blue-600 hover:text-blue-800 lowercase font-bold"
-                            >
-                                (Limpiar)
-                            </button>
-                        )}
-                    </div>
-                    <div className="flex-1 overflow-auto bg-[#fafafa]">
-                        <div className="flex flex-col">
-                            {groupedCategories.map(parent => (
-                                <div key={parent.id} className="border-b border-gray-200">
-                                    <div
-                                        onClick={(e) => toggleParentExpand(parent.id, e)}
-                                        className="flex items-center gap-2 p-2 px-3 hover:bg-gray-100 cursor-pointer bg-gray-50/80 group"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            className="rounded border-gray-400 text-blue-800"
-                                            checked={parent.children.length > 0 && parent.children.every((c: any) => selectedCategories.has(c.id))}
-                                            onChange={(e) => {
-                                                e.stopPropagation();
-                                                toggleParent(parent);
-                                            }}
-                                            onClick={(e) => e.stopPropagation()}
-                                        />
-                                        <div className="flex-1 flex items-center gap-2">
-                                            {expandedParents.has(parent.id) ? <ChevronDown size={12} className="text-blue-600" /> : <ChevronRight size={12} className="text-gray-400" />}
-                                            <span className="text-[11px] font-black text-gray-800 uppercase tracking-tight">{parent.name}</span>
+                {mode !== 'REP_DELETED' && (
+                    <div className="w-64 border-r border-gray-300 bg-white flex flex-col shrink-0 shadow-lg z-10">
+                        <div className="bg-gray-100 border-b border-gray-300 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-gray-600 flex justify-between items-center">
+                            <span>Categoría</span>
+                            {selectedCategories.size > 0 && (
+                                <button
+                                    onClick={() => setSelectedCategories(new Set())}
+                                    className="text-[9px] text-blue-600 hover:text-blue-800 lowercase font-bold"
+                                >
+                                    (Limpiar)
+                                </button>
+                            )}
+                        </div>
+                        <div className="flex-1 overflow-auto bg-[#fafafa]">
+                            <div className="flex flex-col">
+                                {groupedCategories.map(parent => (
+                                    <div key={parent.id} className="border-b border-gray-200">
+                                        <div
+                                            onClick={(e) => toggleParentExpand(parent.id, e)}
+                                            className="flex items-center gap-2 p-2 px-3 hover:bg-gray-100 cursor-pointer bg-gray-50/80 group"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                className="rounded border-gray-400 text-blue-800"
+                                                checked={parent.children.length > 0 ? parent.children.every((c: any) => selectedCategories.has(c.id)) : selectedCategories.has(parent.id)}
+                                                onChange={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleParent(parent);
+                                                }}
+                                                onClick={(e) => e.stopPropagation()}
+                                            />
+                                            <div className="flex-1 flex items-center gap-2">
+                                                {expandedParents.has(parent.id) ? <ChevronDown size={12} className="text-blue-600" /> : <ChevronRight size={12} className="text-gray-400" />}
+                                                <span className="text-[11px] font-black text-gray-800 uppercase tracking-tight">{parent.name}</span>
+                                            </div>
                                         </div>
+                                        {expandedParents.has(parent.id) && (
+                                            <div className="flex flex-col bg-white animate-in slide-in-from-top-1 duration-200">
+                                                {parent.children.map((child: any) => (
+                                                    <label key={child.id} className="flex items-center gap-2 py-1.5 px-8 hover:bg-blue-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0 grow">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedCategories.has(child.id)}
+                                                            onChange={() => toggleCategory(child.id)}
+                                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                        />
+                                                        <span className="text-[10px] font-bold text-gray-700 uppercase truncate">{child.name}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
-                                    {expandedParents.has(parent.id) && (
-                                        <div className="flex flex-col bg-white animate-in slide-in-from-top-1 duration-200">
-                                            {parent.children.map((child: any) => (
-                                                <label key={child.id} className="flex items-center gap-2 py-1.5 px-8 hover:bg-blue-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0 grow">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedCategories.has(child.id)}
-                                                        onChange={() => toggleCategory(child.id)}
-                                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                                    />
-                                                    <span className="text-[10px] font-bold text-gray-700 uppercase truncate">{child.name}</span>
-                                                </label>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 {/* Grid: Results */}
                 <div className="flex-1 flex flex-col overflow-hidden bg-white">

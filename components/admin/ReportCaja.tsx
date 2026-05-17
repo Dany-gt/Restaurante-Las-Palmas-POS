@@ -381,13 +381,7 @@ export const ReportCaja: React.FC = () => {
 
     return (
         <div className="flex flex-col h-full w-full bg-[#f0f0f0] font-sans text-[11px] overflow-hidden">
-            {/* 1. Pestraña de Tab (Cortes de Caja) */}
-            <div className="flex items-end px-2 bg-white border-b border-gray-300">
-                <div className="flex items-center gap-4 px-4 py-1.5 bg-[#f0f0f0] border-t border-l border-r border-gray-300 rounded-t-lg min-w-[120px]">
-                    <span className="font-bold text-gray-800">Cortes de Caja</span>
-                    <X size={12} className="text-gray-400 hover:text-red-500 cursor-pointer" />
-                </div>
-            </div>
+
 
             {/* 2. Toolbar de Filtros (Sucursal) */}
             <div className="p-2 flex items-center gap-4 bg-[#f0f0f0] border-b border-gray-300">

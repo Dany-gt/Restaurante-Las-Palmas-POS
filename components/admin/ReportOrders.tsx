@@ -148,6 +148,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                     customer_phone,
                     delivery_address,
                     table_id,
+                    cash_amount, card_amount, credit_amount, other_amount, total_paid, change_amount,
                     tables:table_id (number, section),
                     waiter:profiles!waiter_id (name),
                     cancelled_by_user:profiles!cancelled_by (name),
@@ -231,10 +232,74 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                         delivery_address: o.delivery_address || '---',
                         cliente: o.customer_name || '-',
                         metodo: o.payment_method || '-',
-                        efectivo: o.payment_method === 'EFECTIVO' ? Number(o.total) : 0,
-                        tarjeta: (o.payment_method || '').includes('TARJETA') ? Number(o.total) : 0,
-                        credito: (o.payment_method === 'CREDITO' || o.payment_method === 'CRÉDITO') ? Number(o.total) : 0,
-                        otros: !['EFECTIVO', 'TARJETA', 'CREDITO', 'CRÉDITO'].includes((o.payment_method || '').toUpperCase()) ? Number(o.total) : 0
+                        efectivo: (() => {
+                            const hasBreakdown = (o.cash_amount !== null && o.cash_amount !== undefined && Number(o.cash_amount) > 0) ||
+                                                 (o.card_amount !== null && o.card_amount !== undefined && Number(o.card_amount) > 0) ||
+                                                 (o.credit_amount !== null && o.credit_amount !== undefined && Number(o.credit_amount) > 0) ||
+                                                 (o.other_amount !== null && o.other_amount !== undefined && Number(o.other_amount) > 0) ||
+                                                 (o.total_paid !== null && o.total_paid !== undefined && Number(o.total_paid) > 0) ||
+                                                 (o.change_amount !== null && o.change_amount !== undefined && Number(o.change_amount) > 0);
+                            
+                            const totalVal = Number(o.total || 0);
+                            const method = (o.payment_method || 'EFECTIVO').toUpperCase();
+                            const isCash = method === 'EFECTIVO';
+                            const isCard = method.includes('TARJETA');
+                            const isCredit = method.includes('CREDIT') || method.includes('CRÉDITO') || method.includes('CREDITO');
+                            const isOther = !isCash && !isCard && !isCredit;
+
+                            return hasBreakdown ? Number(o.cash_amount || 0) : (isCash ? totalVal : 0);
+                        })(),
+                        tarjeta: (() => {
+                            const hasBreakdown = (o.cash_amount !== null && o.cash_amount !== undefined && Number(o.cash_amount) > 0) ||
+                                                 (o.card_amount !== null && o.card_amount !== undefined && Number(o.card_amount) > 0) ||
+                                                 (o.credit_amount !== null && o.credit_amount !== undefined && Number(o.credit_amount) > 0) ||
+                                                 (o.other_amount !== null && o.other_amount !== undefined && Number(o.other_amount) > 0) ||
+                                                 (o.total_paid !== null && o.total_paid !== undefined && Number(o.total_paid) > 0) ||
+                                                 (o.change_amount !== null && o.change_amount !== undefined && Number(o.change_amount) > 0);
+
+                            const totalVal = Number(o.total || 0);
+                            const method = (o.payment_method || 'EFECTIVO').toUpperCase();
+                            const isCash = method === 'EFECTIVO';
+                            const isCard = method.includes('TARJETA');
+                            const isCredit = method.includes('CREDIT') || method.includes('CRÉDITO') || method.includes('CREDITO');
+                            const isOther = !isCash && !isCard && !isCredit;
+
+                            return hasBreakdown ? Number(o.card_amount || 0) : (isCard ? totalVal : 0);
+                        })(),
+                        credito: (() => {
+                            const hasBreakdown = (o.cash_amount !== null && o.cash_amount !== undefined && Number(o.cash_amount) > 0) ||
+                                                 (o.card_amount !== null && o.card_amount !== undefined && Number(o.card_amount) > 0) ||
+                                                 (o.credit_amount !== null && o.credit_amount !== undefined && Number(o.credit_amount) > 0) ||
+                                                 (o.other_amount !== null && o.other_amount !== undefined && Number(o.other_amount) > 0) ||
+                                                 (o.total_paid !== null && o.total_paid !== undefined && Number(o.total_paid) > 0) ||
+                                                 (o.change_amount !== null && o.change_amount !== undefined && Number(o.change_amount) > 0);
+
+                            const totalVal = Number(o.total || 0);
+                            const method = (o.payment_method || 'EFECTIVO').toUpperCase();
+                            const isCash = method === 'EFECTIVO';
+                            const isCard = method.includes('TARJETA');
+                            const isCredit = method.includes('CREDIT') || method.includes('CRÉDITO') || method.includes('CREDITO');
+                            const isOther = !isCash && !isCard && !isCredit;
+
+                            return hasBreakdown ? Number(o.credit_amount || 0) : (isCredit ? totalVal : 0);
+                        })(),
+                        otros: (() => {
+                            const hasBreakdown = (o.cash_amount !== null && o.cash_amount !== undefined && Number(o.cash_amount) > 0) ||
+                                                 (o.card_amount !== null && o.card_amount !== undefined && Number(o.card_amount) > 0) ||
+                                                 (o.credit_amount !== null && o.credit_amount !== undefined && Number(o.credit_amount) > 0) ||
+                                                 (o.other_amount !== null && o.other_amount !== undefined && Number(o.other_amount) > 0) ||
+                                                 (o.total_paid !== null && o.total_paid !== undefined && Number(o.total_paid) > 0) ||
+                                                 (o.change_amount !== null && o.change_amount !== undefined && Number(o.change_amount) > 0);
+
+                            const totalVal = Number(o.total || 0);
+                            const method = (o.payment_method || 'EFECTIVO').toUpperCase();
+                            const isCash = method === 'EFECTIVO';
+                            const isCard = method.includes('TARJETA');
+                            const isCredit = method.includes('CREDIT') || method.includes('CRÉDITO') || method.includes('CREDITO');
+                            const isOther = !isCash && !isCard && !isCredit;
+
+                            return hasBreakdown ? Number(o.other_amount || 0) : (isOther ? totalVal : 0);
+                        })()
                     };
                 }));
             }
@@ -787,7 +852,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                     }}
                                                     onContextMenu={(e) => handleContextMenu(e, row)}
                                                     className={`border-b border-gray-200 font-medium cursor-default select-none ${selectedOrderId === row.id
-                                                        ? 'bg-blue-600 text-white'
+                                                        ? 'selected-row-custom text-white'
                                                         : 'hover:bg-[#e1e5eb] text-slate-700 odd:bg-white even:bg-[#f6f8fa]'
                                                         }`}
                                                 >
@@ -896,7 +961,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                         }}
                                         onContextMenu={(e) => handleContextMenu(e, row)}
                                         className={`border-b border-gray-200 font-medium cursor-default select-none ${selectedOrderId === row.id
-                                            ? 'bg-[#106ebe] text-white'
+                                            ? 'selected-row-custom text-white'
                                             : 'hover:bg-[#e1e5eb] text-slate-700 odd:bg-white even:bg-[#f6f8fa]'
                                             }`}
                                     >
@@ -1519,6 +1584,28 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
             <style>{`
                 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
                 .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+                
+                /* Selected Row Premium Contrast Styles */
+                .selected-row-custom {
+                    background-color: #106ebe !important;
+                }
+                .selected-row-custom td {
+                    color: #ffffff !important;
+                    background-color: transparent !important;
+                }
+                .selected-row-custom td span,
+                .selected-row-custom td div,
+                .selected-row-custom td font {
+                    color: #ffffff !important;
+                    background-color: transparent !important;
+                }
+                .selected-row-custom td svg {
+                    color: #ffffff !important;
+                    opacity: 0.95 !important;
+                }
+                tr.selected-row-custom:hover {
+                    background-color: #106ebe !important;
+                }
             `}</style>
         </div >
     );

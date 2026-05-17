@@ -39,7 +39,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
     const [pendingCreditAmount, setPendingCreditAmount] = useState<number | null>(null);
     const [pendingOtherAmount, setPendingOtherAmount] = useState<number | null>(null);
     const [pendingTipAmount, setPendingTipAmount] = useState<number | null>(null);
-    const [tipMethod, setTipMethod] = useState<'EFECTIVO' | 'TARJETA' | 'OTROS' | null>(null);
+    // v1.7.1: Inicializar desde la DB para no perder el método si el cajero entra/sale sin cambiar la propina
+    const [tipMethod, setTipMethod] = useState<'EFECTIVO' | 'TARJETA' | 'OTROS' | null>(
+        ((order as any).tip_method as 'EFECTIVO' | 'TARJETA' | 'OTROS' | null) || null
+    );
     const [currentTip, setCurrentTip] = useState(order.tip_amount || 0);
     const [discount, setDiscount] = useState(0); // Nuevo estado para el descuento
     const [processing, setProcessing] = useState(false);
@@ -302,12 +305,14 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
     const executeTipAction = (type: 'CONFIRM' | 'SIN_PROPINA', method?: 'EFECTIVO' | 'TARJETA' | 'OTROS', amount?: number) => {
         if (type === 'CONFIRM') {
             setCurrentTip(amount || 0);
+            // v1.7.1: Siempre requerir un método explícito; fallback a EFECTIVO solo si se confirmó con monto
             setTipMethod(method || 'EFECTIVO');
             setShowTipModal(false);
             setAmount('0');
         } else if (type === 'SIN_PROPINA') {
             setCurrentTip(0);
-            setTipMethod('EFECTIVO');
+            // v1.7.1: Sin propina = sin método. null es correcto y ShiftService lo ignorará (tip > 0 es el guard).
+            setTipMethod(null);
             setAmount('0');
         }
     };
@@ -403,6 +408,39 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 const mainPaymentMethod = payments.length > 0 ? payments[0].method : 'EFECTIVO';
                 const hasCashPayment = payments.some(p => p.method === 'EFECTIVO');
 
+                const getBreakdownValues = () => {
+                    if (payments.length > 0) {
+                        const cashAmount = payments.filter(p => p.method === 'EFECTIVO').reduce((acc, p) => acc + p.amount, 0);
+                        const cardAmount = payments.filter(p => p.method === 'TARJETA').reduce((acc, p) => acc + p.amount, 0);
+                        const creditAmount = payments.filter(p => p.method === 'AL CRÉDITO').reduce((acc, p) => acc + p.amount, 0);
+                        const otherAmount = payments.filter(p => p.method === 'OTROS').reduce((acc, p) => acc + p.amount, 0);
+                        return {
+                            cash_amount: cashAmount,
+                            card_amount: cardAmount,
+                            credit_amount: creditAmount,
+                            other_amount: otherAmount,
+                            total_paid: totalPaid,
+                            change_amount: change
+                        };
+                    } else {
+                        const method = (mainPaymentMethod || 'EFECTIVO').toUpperCase();
+                        const isCash = method === 'EFECTIVO';
+                        const isCard = method === 'TARJETA';
+                        const isCredit = method.includes('CREDIT') || method.includes('CRÉDITO') || method.includes('CREDITO');
+                        const isOther = !isCash && !isCard && !isCredit;
+
+                        return {
+                            cash_amount: isCash ? total : 0,
+                            card_amount: isCard ? total : 0,
+                            credit_amount: isCredit ? total : 0,
+                            other_amount: isOther ? total : 0,
+                            total_paid: total,
+                            change_amount: 0
+                        };
+                    }
+                };
+                const breakdown = getBreakdownValues();
+
                 const { error: updateError } = await supabase.from('orders').update({
                     status: 'completed',
                     payment_method: mainPaymentMethod,
@@ -413,7 +451,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     tip_method: tipMethod,
                     subtotal: subtotal - tax,
                     tax_amount: tax,
-                    cashier_id: currentUser?.id
+                    cashier_id: currentUser?.id,
+                    cash_amount: breakdown.cash_amount,
+                    card_amount: breakdown.card_amount,
+                    credit_amount: breakdown.credit_amount,
+                    other_amount: breakdown.other_amount,
+                    total_paid: breakdown.total_paid,
+                    change_amount: breakdown.change_amount
                 }).eq('id', order.id);
 
                 if (updateError) throw updateError;
@@ -530,6 +574,39 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
 
         setProcessing(true);
         try {
+            const getBreakdownValues = () => {
+                if (payments.length > 0) {
+                    const cashAmount = payments.filter(p => p.method === 'EFECTIVO').reduce((acc, p) => acc + p.amount, 0);
+                    const cardAmount = payments.filter(p => p.method === 'TARJETA').reduce((acc, p) => acc + p.amount, 0);
+                    const creditAmount = payments.filter(p => p.method === 'AL CRÉDITO').reduce((acc, p) => acc + p.amount, 0);
+                    const otherAmount = payments.filter(p => p.method === 'OTROS').reduce((acc, p) => acc + p.amount, 0);
+                    return {
+                        cash_amount: cashAmount,
+                        card_amount: cardAmount,
+                        credit_amount: creditAmount,
+                        other_amount: otherAmount,
+                        total_paid: totalPaid,
+                        change_amount: change
+                    };
+                } else {
+                    const method = (paymentMethod || 'EFECTIVO').toUpperCase();
+                    const isCash = method === 'EFECTIVO';
+                    const isCard = method === 'TARJETA';
+                    const isCredit = method.includes('CREDIT') || method.includes('CRÉDITO') || method.includes('CREDITO');
+                    const isOther = !isCash && !isCard && !isCredit;
+
+                    return {
+                        cash_amount: isCash ? total : 0,
+                        card_amount: isCard ? total : 0,
+                        credit_amount: isCredit ? total : 0,
+                        other_amount: isOther ? total : 0,
+                        total_paid: total,
+                        change_amount: 0
+                    };
+                }
+            };
+            const breakdown = getBreakdownValues();
+
             const invoiceItems = billingService.buildInvoiceItems(
                 (order as any).order_items?.map((i: any) => ({
                     name: i.products?.name || 'Producto',
@@ -599,7 +676,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         tax_amount: tax,
                         is_contingency: true,
                         cashier_id: currentUser?.id,
-                        branch_id: order.branch_id || currentUser?.branch_id
+                        branch_id: order.branch_id || currentUser?.branch_id,
+                        cash_amount: breakdown.cash_amount,
+                        card_amount: breakdown.card_amount,
+                        credit_amount: breakdown.credit_amount,
+                        other_amount: breakdown.other_amount,
+                        total_paid: breakdown.total_paid,
+                        change_amount: breakdown.change_amount
                     },
                     items: (order as any).order_items?.map((i: any) => ({
                         product_id: i.product_id,
@@ -702,9 +785,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     subtotal: subtotal - tax,
                     tax_amount: tax,
                     is_contingency: customer.is_contingency || false,
-                    cashier_id: currentUser?.id
-                    // NOTE: Financial breakdown columns (cash_amount, etc.) removed 
-                    // until they are manually added to the Supabase 'orders' table.
+                    cashier_id: currentUser?.id,
+                    cash_amount: breakdown.cash_amount,
+                    card_amount: breakdown.card_amount,
+                    credit_amount: breakdown.credit_amount,
+                    other_amount: breakdown.other_amount,
+                    total_paid: breakdown.total_paid,
+                    change_amount: breakdown.change_amount
                 }).eq('id', order.id);
 
                 if (updateError) throw updateError;
