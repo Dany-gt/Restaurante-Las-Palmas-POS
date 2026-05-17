@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { supabase } from '../supabase';
 import { printService } from '../services/PrintService';
+import { DateUtils } from '../utils/DateUtils';
 
 interface SoldDishesModalProps {
     onClose: () => void;
@@ -9,15 +10,17 @@ interface SoldDishesModalProps {
 
 export const SoldDishesModal: React.FC<SoldDishesModalProps> = ({ onClose }) => {
     // Current date for default values
-    const now = new Date();
-    const formattedDate = now.toISOString().split('T')[0];
-    const formattedTime = now.toTimeString().split(' ')[0].substring(0, 5);
+    // Current date for default values in Guatemala time
+    const nowLocal = new Date(Date.now());
+    const formattedDate = nowLocal.toLocaleDateString('en-CA'); // YYYY-MM-DD
+    const formattedTime = nowLocal.toLocaleTimeString('es-GT', { hour12: false, hour: '2-digit', minute: '2-digit' });
 
     const [selectedCategory, setSelectedCategory] = useState('ALL');
     const [startDate, setStartDate] = useState(formattedDate);
     const [startTime, setStartTime] = useState('00:00');
     const [endDate, setEndDate] = useState(formattedDate);
     const [endTime, setEndTime] = useState(formattedTime);
+    const printService = PrintService.getInstance();
 
     // Hardcoded categories based on the user's reference image
     const categories = [
@@ -30,9 +33,10 @@ export const SoldDishesModal: React.FC<SoldDishesModalProps> = ({ onClose }) => 
 
     const handlePrint = async () => {
         try {
-            // 1. Calculate full Timestamps
-            const startTimestamp = `${startDate}T${startTime}:00`;
-            const endTimestamp = `${endDate}T${endTime}:59`;
+            // 1. Calculate full ISO Timestamps (UTC) for the query
+            // We append the Guatemala offset (-06:00) so Supabase knows it's local time
+            const startTimestamp = `${startDate}T${startTime}:00-06:00`;
+            const endTimestamp = `${endDate}T${endTime}:59-06:00`;
 
             // 2. Fetch data from Supabase
             // We join with products and categories to filter by area
@@ -52,16 +56,26 @@ export const SoldDishesModal: React.FC<SoldDishesModalProps> = ({ onClose }) => 
                 .neq('status', 'voided'); // Exclude voided items
 
             if (error) throw error;
+            
+            console.log('DEBUG KITCHEN REPORT:', {
+                startTimestamp,
+                endTimestamp,
+                count: data?.length || 0,
+                firstItem: data?.[0]
+            });
+
             if (!data || data.length === 0) {
-                alert('No se encontraron platos vendidos en este rango.');
+                alert(`No se encontraron platos vendidos. (Rango: ${startTime} - ${endTime})`);
                 return;
             }
 
             // 3. Define STATION_CATEGORY_MAP (Synced with KitchenView)
             const STATION_CATEGORY_MAP: Record<string, string[]> = {
+                'COCINA CALIENTE': ['HAMBURGUESAS', 'CALDOS', 'CARNES', 'DESAYUNOS', 'ALMUERZOS', 'EXTRAS', 'GUARNICIONES', 'MENU INFANTIL', 'SOPAS', 'PLATOS FUERTES', 'GUARNICIONES CALIENTES', 'TACOS', 'REFACCIONES'],
                 'COCINA': ['HAMBURGUESAS', 'CALDOS', 'CARNES', 'DESAYUNOS', 'ALMUERZOS', 'EXTRAS', 'GUARNICIONES', 'MENU INFANTIL', 'SOPAS', 'PLATOS FUERTES', 'GUARNICIONES CALIENTES', 'TACOS', 'REFACCIONES'],
                 'CEVICHERIA': ['CEVICHES', 'COCTELES', 'CRUDOS', 'MARISCOS', 'ENTRADAS', 'AGUACHILES', 'TOSTADAS', 'ENTRADAS FRIAS', 'TIKAS', 'CEVICHE TIPO COCTEL (SALSA DULCE)'],
-                'BEBIDAS': ['BEBIDAS', 'CERVEZAS', 'SODAS', 'LICUADOS', 'CAFÉ', 'COCTELERIA', 'BEBIDAS CALIENTES', 'JUGOS', 'MICHELADAS', 'LICORES', 'VINOS', 'TRAGOS', 'AGUA PURA'],
+                'BARRA': ['BEBIDAS', 'CERVEZAS', 'SODAS', 'LICUADOS', 'CAFÉ', 'COCTELERIA', 'BEBIDAS CALIENTES', 'JUGOS', 'MICHELADAS', 'LICORES', 'VINOS', 'TRAGOS', 'AGUA PURA'],
+                'BEBIDAS': ['BEBIDAS', 'CERVEZAS', 'SODAS', 'LICUADOS', 'CAFÉ', 'COCTELERIA', 'BEBIDAS CALIENTES', 'JUGOS', 'MICHELADAS', 'LICORES', 'VINOS', 'TRAGOS', 'AGUA PURA', 'LICUADO'],
                 'POSTRES': ['POSTRES', 'HELADOS', 'PASTELES', 'MILKSHAKES']
             };
 
@@ -72,14 +86,17 @@ export const SoldDishesModal: React.FC<SoldDishesModalProps> = ({ onClose }) => 
 
                 if (selectedCategory === 'GENERAL') {
                     // GENERAL shows anything NOT in the other specific maps
-                    const allMappedCategories = Object.values(STATION_CATEGORY_MAP).flat();
+                    const allMappedKeywords = Object.values(STATION_CATEGORY_MAP).flat();
                     filteredData = data.filter((item: any) => {
-                        const catName = item.products?.categories?.name?.toUpperCase();
-                        return !catName || !allMappedCategories.includes(catName);
+                        const catName = item.products?.categories?.name?.toUpperCase() || '';
+                        if (!catName) return true; // No category -> General
+                        // If the category name contains ANY of the keywords from other stations, EXCLUDE it from General
+                        const isMapped = allMappedKeywords.some(keyword => catName.includes(keyword));
+                        return !isMapped;
                     });
                 } else if (allowedCategories) {
                     filteredData = data.filter((item: any) => {
-                        const catName = item.products?.categories?.name?.toUpperCase();
+                        const catName = item.products?.categories?.name?.toUpperCase() || '';
                         return catName && allowedCategories.some(allowed => catName.includes(allowed));
                     });
                 }

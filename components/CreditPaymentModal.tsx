@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Search, User, CreditCard, Loader2, Save, Banknote, CreditCard as CardIcon, Wallet, ArrowLeft, Check } from 'lucide-react';
 import { supabase } from '../supabase';
 import { generateUUID } from '../utils/uuid';
+import { printService } from '../services/PrintService';
 
 interface CreditPaymentModalProps {
     onClose: () => void;
@@ -24,7 +25,10 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
     const [loading, setLoading] = useState(false);
     const [amount, setAmount] = useState('0.00');
     const [paymentMethod, setPaymentMethod] = useState('EFECTIVO');
+    const [selectedProcessor, setSelectedProcessor] = useState<string | null>(null);
     const [processing, setProcessing] = useState(false);
+    const [terminals, setTerminals] = useState<any[]>([]);
+    const [showPosSelector, setShowPosSelector] = useState(false);
 
     // Buscar clientes con deuda
     useEffect(() => {
@@ -49,6 +53,12 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                 setLoading(false);
             }
         };
+
+        const fetchTerminals = async () => {
+            const { data } = await supabase.from('pos_terminals').select('*').order('name');
+            if (data) setTerminals(data);
+        };
+        fetchTerminals();
 
         const timer = setTimeout(() => {
             searchCustomers();
@@ -80,7 +90,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
             customer_id: selectedCustomer.id,
             amount: paymentAmount,
             payment_method: paymentMethod,
-            description: `Abono a Crédito - ${paymentMethod}`,
+            description: `Abono a Crédito - ${paymentMethod}${selectedProcessor ? ` (${selectedProcessor})` : ''}`,
             created_by: currentUserId,
             created_at: new Date().toISOString()
         };
@@ -95,6 +105,21 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                 p_created_by: currentUserId
             });
             if (error) throw error;
+
+            // Imprimir Recibo de Abono
+            try {
+                await printService.printCreditPaymentReceipt({
+                    customerName: selectedCustomer.customer_name,
+                    previousBalance: selectedCustomer.saldo,
+                    amountPaid: paymentAmount,
+                    paymentMethod: paymentMethod,
+                    newBalance: selectedCustomer.saldo - paymentAmount,
+                    receivedBy: 'ADMINISTRACIÓN' // O podrías usar el nombre del usuario si lo tienes
+                });
+            } catch (printErr) {
+                console.error('Error imprimiendo recibo:', printErr);
+            }
+
             onClose();
         } catch (error: any) {
             console.error(error);
@@ -231,7 +256,13 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                         {/* Métodos Íconos */}
                         <div className="flex flex-col gap-1 w-[70px]">
                             <button 
-                                onClick={() => setPaymentMethod('EFECTIVO')}
+                                onClick={() => {
+                                    setPaymentMethod('EFECTIVO');
+                                    setSelectedProcessor(null); // Limpiar procesador
+                                    if (selectedCustomer && (amount === '0.00' || amount === '0')) {
+                                        setAmount(selectedCustomer.saldo.toFixed(2));
+                                    }
+                                }}
                                 className={`flex-1 flex flex-col items-center justify-center rounded-sm border transition-all gap-1 ${
                                     paymentMethod === 'EFECTIVO' ? 'bg-[#383a59] border-blue-500/50 text-white' : 'bg-[#282a36]/80 border-white/5 text-gray-500'
                                 }`}
@@ -239,17 +270,30 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                                 <Banknote size={16} />
                                 <span className="text-[8px] font-bold uppercase">Efectivo</span>
                             </button>
-                            <button 
-                                onClick={() => setPaymentMethod('TARJETA')}
+                             <button 
+                                onClick={() => {
+                                    setPaymentMethod('TARJETA');
+                                    if (selectedCustomer && (amount === '0.00' || amount === '0')) {
+                                        setAmount(selectedCustomer.saldo.toFixed(2));
+                                    }
+                                    setShowPosSelector(true);
+                                }}
                                 className={`flex-1 flex flex-col items-center justify-center rounded-sm border transition-all gap-1 ${
                                     paymentMethod === 'TARJETA' ? 'bg-[#383a59] border-blue-500/50 text-white' : 'bg-[#282a36]/80 border-white/5 text-gray-500'
                                 }`}
                             >
                                 <CardIcon size={16} />
                                 <span className="text-[8px] font-bold uppercase">Tarjeta</span>
+                                {selectedProcessor && <span className="text-[7px] text-blue-400 font-black">{selectedProcessor}</span>}
                             </button>
-                            <button 
-                                onClick={() => setPaymentMethod('OTROS')}
+                             <button 
+                                onClick={() => {
+                                    setPaymentMethod('OTROS');
+                                    setSelectedProcessor(null); // Limpiar procesador
+                                    if (selectedCustomer && (amount === '0.00' || amount === '0')) {
+                                        setAmount(selectedCustomer.saldo.toFixed(2));
+                                    }
+                                }}
                                 className={`flex-1 flex flex-col items-center justify-center rounded-sm border transition-all gap-1 ${
                                     paymentMethod === 'OTROS' ? 'bg-[#383a59] border-blue-500/50 text-white' : 'bg-[#282a36]/80 border-white/5 text-gray-500'
                                 }`}
@@ -274,6 +318,56 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                 </div>
 
             </div>
+
+            {/* Selector de POS Modal */}
+            {showPosSelector && (
+                <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
+                    <div className="bg-[#1e212b] w-full max-w-2xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+                        <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                            <h3 className="text-lg font-black text-white uppercase tracking-tighter">Seleccione POS</h3>
+                            <button onClick={() => setShowPosSelector(false)} className="p-2 bg-white/5 rounded-full text-white">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="p-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {terminals.map(pos => (
+                                <button
+                                    key={pos.id}
+                                    onClick={() => {
+                                        setSelectedProcessor(pos.name);
+                                        setShowPosSelector(false);
+                                    }}
+                                    className={`p-6 bg-white rounded-2xl flex flex-col items-center justify-center gap-3 transition-all active:scale-95 border-4 ${selectedProcessor === pos.name ? 'border-blue-500 shadow-xl' : 'border-transparent shadow-md'}`}
+                                >
+                                    {pos.logo_url ? (
+                                        <img src={pos.logo_url} alt={pos.name} className="h-12 object-contain" />
+                                    ) : (
+                                        <CreditCard size={32} className="text-gray-400" />
+                                    )}
+                                    <span className="text-[10px] font-black text-black uppercase tracking-widest">{pos.name}</span>
+                                </button>
+                            ))}
+                        </div>
+                        <div className="p-6 bg-[#0d0f13] border-t border-white/5">
+                            <button
+                                onClick={() => setShowPosSelector(false)}
+                                className="w-full h-14 rounded-2xl border border-white/10 bg-white/5 font-black uppercase text-[11px] text-gray-500 hover:text-white"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {processing && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+                        <span className="text-xs font-black uppercase tracking-widest text-white/40">Procesando Pago...</span>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

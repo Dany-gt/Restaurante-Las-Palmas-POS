@@ -4,6 +4,7 @@ import { Search, User, Phone, ChevronLeft, CreditCard, Plus, Check, Loader2, X }
 import { supabase } from '../supabase';
 import { Customer, Order, POSTerminal } from '../types';
 import { NewCustomerModal } from './NewCustomerModal';
+import { printService } from '../services/PrintService';
 
 interface CreditSelectorProps {
     order: Order;
@@ -20,7 +21,18 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
     const [showNewCustomerModal, setShowNewCustomerModal] = useState(false);
 
     const currency = settings?.currency || 'Q';
-    const orderTotal = order.total || 0;
+    
+    // Cálculos de Descuento Autorizado
+    const discountPercent = selectedCustomer?.authorized_discount || 0;
+    const subtotal = order.subtotal || 0;
+    const discountAmount = (subtotal * discountPercent) / 100;
+    const tipAmount = (order as any).tip_amount || 0;
+    
+    // El total real para el crédito es solo (Subtotal - Descuento), excluyendo la propina
+    const orderTotal = (subtotal - discountAmount);
+
+    const newBalance = selectedCustomer ? selectedCustomer.current_balance + orderTotal : 0;
+    const isOverLimit = selectedCustomer && selectedCustomer.credit_limit > 0 ? newBalance > selectedCustomer.credit_limit : false;
 
     const fetchCustomers = async () => {
         setLoading(true);
@@ -38,9 +50,6 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
         c.phone?.includes(search) ||
         c.nit?.includes(search)
     );
-
-    const newBalance = selectedCustomer ? selectedCustomer.current_balance + orderTotal : 0;
-    const isOverLimit = selectedCustomer && selectedCustomer.credit_limit > 0 ? newBalance > selectedCustomer.credit_limit : false;
 
     return (
         <div className="fixed inset-0 bg-[#0f1115] text-white flex flex-col font-sans z-[60] animate-fade-in">
@@ -183,7 +192,7 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
                                 </div>
                                 <div className="flex justify-between text-xs font-bold text-gray-500">
                                     <span>DESCUENTO (-)</span>
-                                    <span>{currency}0.00</span>
+                                    <span className={discountAmount > 0 ? "text-emerald-400" : ""}>{currency}{discountAmount.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-xs font-bold text-gray-500">
                                     <span>PROPINA (+)</span>
@@ -225,7 +234,30 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
                     <div className="p-6 pt-0">
                         <button
                             disabled={!selectedCustomer || isOverLimit}
-                            onClick={() => selectedCustomer && onSelect(selectedCustomer, orderTotal)}
+                            onClick={async () => {
+                                if (selectedCustomer) {
+                                    // Imprimir Vale de Crédito antes de finalizar
+                                    try {
+                                        await printService.printCreditVoucher({
+                                            orderNumber: (order as any).order_number || order.id.slice(0, 8),
+                                            tableNumber: (order as any).table_number || '--',
+                                            waiterName: (order as any).waiter_name || 'Caja',
+                                            customerName: selectedCustomer.name,
+                                            items: order.items || [],
+                                            subtotal: subtotal,
+                                            tipAmount: tipAmount,
+                                            total: orderTotal + tipAmount, // El total de la orden con propina
+                                            discountAmount: discountAmount,
+                                            newBalance: newBalance,
+                                            otherPaymentsAmount: 0
+                                        });
+                                    } catch (err) {
+                                        console.error('Error imprimiendo vale:', err);
+                                    }
+                                    
+                                    onSelect(selectedCustomer, orderTotal);
+                                }
+                            }}
                             className={`w-full h-16 rounded-2xl flex items-center justify-center text-lg font-black uppercase tracking-[0.2em] transition-all active:scale-95 shadow-2xl ${selectedCustomer && !isOverLimit
                                 ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-600/20'
                                 : 'bg-white/5 text-gray-700 border border-white/10 cursor-not-allowed opacity-50'

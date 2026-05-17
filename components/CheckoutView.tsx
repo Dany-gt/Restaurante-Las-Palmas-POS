@@ -41,6 +41,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
     const [pendingTipAmount, setPendingTipAmount] = useState<number | null>(null);
     const [tipMethod, setTipMethod] = useState<'EFECTIVO' | 'TARJETA' | 'OTROS' | null>(null);
     const [currentTip, setCurrentTip] = useState(order.tip_amount || 0);
+    const [discount, setDiscount] = useState(0); // Nuevo estado para el descuento
     const [processing, setProcessing] = useState(false);
     const [terminals, setTerminals] = useState<POSTerminal[]>([]);
     const [invoiceSuccess, setInvoiceSuccess] = useState(false);
@@ -107,7 +108,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
     const currency = (settings?.currency === 'GTQ' || settings?.currency === 'Q') ? 'Q.' : (settings?.currency || 'Q.');
     const subtotal = order.subtotal || 0;
     const tax = order.tax_amount || 0;
-    const total = subtotal + currentTip;
+    const total = subtotal - discount + currentTip; // El total ahora considera el descuento aplicado
 
     const totalPaid = payments.reduce((acc, p) => acc + p.amount, 0);
     const balance = total - totalPaid;
@@ -341,6 +342,16 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
     const handleCreditConfirm = async (customer: Customer, creditAmount: number) => {
         setProcessing(true);
         try {
+            // Aplicar el descuento del cliente a la orden global si no se ha aplicado uno mayor
+            const discPercent = customer.authorized_discount || 0;
+            const discAmount = (order.subtotal * discPercent) / 100;
+            if (discAmount > discount) {
+                setDiscount(discAmount);
+            }
+
+            // Si se paga al crédito y se pidió excluir la propina, la ponemos en 0 para evitar saldo pendiente
+            setCurrentTip(0);
+
             // 1. Add locally
             setPayments(prev => [...prev, {
                 method: 'AL CRÉDITO',
@@ -540,8 +551,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     items: invoiceItems,
                     subtotal: subtotal - tax,
                     tax_total: tax,
-                    discount_total: 0,
-                    grand_total: billingMethod === 'CARD' ? subtotal + currentTip : subtotal,
+                    discount_total: discount,
+                    grand_total: billingMethod === 'CARD' ? (subtotal - discount) + currentTip : (subtotal - discount),
                     tip_amount: currentTip,
                     payment_method: billingMethod,
                     order_id: order.id
@@ -563,8 +574,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     items: invoiceItems,
                     subtotal: subtotal - tax,
                     tax_total: tax,
-                    discount_total: 0,
-                    grand_total: billingMethod === 'CARD' ? subtotal + currentTip : subtotal,
+                    discount_total: discount,
+                    grand_total: billingMethod === 'CARD' ? (subtotal - discount) + currentTip : (subtotal - discount),
                     tip_amount: currentTip,
                     payment_method: billingMethod,
                     order_id: order.id
@@ -601,9 +612,9 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         customer_name: customer.name,
                         series: 'CONT',
                         document_number: `OFF-${(order as any).order_number || order.id.slice(0, 5)}`,
-                        subtotal: subtotal - tax + (billingMethod === 'CARD' ? (currentTip - (currentTip - (currentTip / 1.12))) : 0),
+                        subtotal: (subtotal - discount) - tax + (billingMethod === 'CARD' ? (currentTip - (currentTip - (currentTip / 1.12))) : 0),
                         tax_total: tax + (billingMethod === 'CARD' ? (currentTip - (currentTip / 1.12)) : 0),
-                        grand_total: billingMethod === 'CARD' ? subtotal + currentTip : subtotal,
+                        grand_total: billingMethod === 'CARD' ? (subtotal - discount) + currentTip : (subtotal - discount),
                         status: 'ACTIVE'
                     }
                 };
@@ -652,7 +663,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                             subtotal: subtotal - tax,
                             taxAmount: tax,
                             tipAmount: currentTip,
-                            discountAmount: 0,
+                            discountAmount: discount,
                             total: total,
                             createdAt: order.created_at || DateUtils.nowISO(),
                             dteInfo: !customer.is_contingency ? {
@@ -790,7 +801,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         subtotal: subtotal - tax,
                         taxAmount: tax,
                         tipAmount: currentTip,
-                        discountAmount: 0,
+                        discountAmount: discount,
                         total: total,
                         createdAt: order.created_at || DateUtils.nowISO(),
                         // DTE Info from certifier
@@ -858,7 +869,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         </div>
                         <div className="flex justify-between text-gray-400 text-sm font-black uppercase leading-tight">
                             <span>DESCUENTO</span>
-                            <span>{currency}0.00</span>
+                            <span className={discount > 0 ? "text-emerald-400" : ""}>{currency}{discount.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-gray-400 text-sm font-black uppercase leading-tight">
                             <div className="flex flex-col">

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { X, Check, Save, Trash2, Plus, ShoppingCart, CornerDownLeft } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Trash2, ShoppingCart } from 'lucide-react';
 import { supabase } from '../supabase';
 import { User } from '../types';
 import { printService } from '../services/PrintService';
@@ -20,102 +20,72 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
     const [categories, setCategories] = useState<any[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState('');
-    const [description, setDescription] = useState('');
-    const nameInputRef = useRef<HTMLInputElement>(null);
-
-    // Item Entry State
+    const [itemPrice, setItemPrice] = useState('0.00');
     const [itemName, setItemName] = useState('');
-    const [itemPrice, setItemPrice] = useState('0.00'); // Controlled by keypad
     const [items, setItems] = useState<ExpenseItem[]>([]);
-    const [recentItems, setRecentItems] = useState<string[]>([]);
-
     const [loading, setLoading] = useState(false);
+    const [now, setNow] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => setNow(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
 
     useEffect(() => {
         const fetchCats = async () => {
-            const { data } = await supabase.from('expense_categories').select('*').eq('is_active', true).order('name');
+            const { data } = await supabase
+                .from('expense_categories')
+                .select('*')
+                .eq('is_active', true)
+                .order('name');
             if (data) setCategories(data);
         };
-
-        const fetchRecentItems = async () => {
-            const { data } = await supabase.from('expenses').select('items').order('created_at', { ascending: false }).limit(20);
-            if (data) {
-                const names = new Set<string>();
-                data.forEach(exp => {
-                    const items = exp.items as any[];
-                    if (Array.isArray(items)) {
-                        items.forEach(it => {
-                            if (it.name) names.add(it.name.toUpperCase());
-                        });
-                    }
-                });
-                setRecentItems(Array.from(names));
-            }
-        };
-
         fetchCats();
-        fetchRecentItems();
     }, []);
 
     const handleKeyPad = (key: string) => {
         setItemPrice(prev => {
-            if (key === 'BACKSPACE') return prev.length > 1 ? prev.slice(0, -1) : '0';
-            if (key === '.' || key === 'DOT') {
-                return prev.includes('.') ? prev : prev + '.';
+            if (key === 'BACKSPACE') {
+                if (prev === '0.00') return '0.00';
+                const stripped = prev.replace('.', '');
+                const newVal = stripped.slice(0, -1);
+                if (!newVal) return '0.00';
+                return (parseInt(newVal) / 100).toFixed(2);
             }
-            const newVal = prev === '0.00' || prev === '0' ? key : prev + key;
-            return newVal;
+            if (key === '.') return prev;
+            const stripped = prev.replace('.', '');
+            const newVal = (stripped === '000' || stripped === '0') ? key : stripped + key;
+            return (parseInt(newVal) / 100).toFixed(2);
         });
     };
 
+    // ✓ AGREGAR: solo agrega a la lista, sin guardar ni imprimir
     const handleAddItem = () => {
         const price = parseFloat(itemPrice);
-        if (!itemName.trim()) {
-            if (!selectedCategory) return;
-            return;
-        }
-
-        const newItem: ExpenseItem = {
+        if (price <= 0 || !selectedCategory) return;
+        setItems(prev => [...prev, {
             id: Date.now().toString(),
-            name: itemName,
-            price: price
-        };
-
-        setItems([...items, newItem]);
-        setItemName('');
+            name: itemName.trim() || selectedCategory,
+            price,
+        }]);
         setItemPrice('0.00');
-
-        // Keep focus for next item
-        setTimeout(() => nameInputRef.current?.focus(), 0);
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            handleAddItem();
-        }
+        setItemName('');
     };
 
     const handleRemoveItem = (id: string) => {
-        setItems(items.filter(i => i.id !== id));
+        setItems(prev => prev.filter(i => i.id !== id));
     };
 
-    const calculateTotal = () => items.reduce((acc, curr) => acc + curr.price, 0);
+    const total = items.reduce((acc, i) => acc + i.price, 0);
 
-
+    // ACEPTAR: guarda todo e imprime el ticket
     const handleSaveExpense = async () => {
-        const total = calculateTotal();
-        if (total <= 0) return;
-        if (!selectedCategory) return;
-
+        if (items.length === 0 || !selectedCategory) return;
         setLoading(true);
         try {
-            // Find open shift to link register? Not strictly required by schema but good practice.
-            // Using last known logic or just storing without shift_id if not in schema yet.
-            // Schema has cash_register_id. We need that.
-
-            // Get user's open shift to find the register
-            const { data: shift } = await supabase.from('shifts')
-                .select('id, cash_register_id')
+            const { data: shift } = await supabase
+                .from('shifts')
+                .select('id, cash_register_id, shift_number, cash_registers(branch_id)')
                 .eq('cashier_id', currentUser.id)
                 .eq('status', 'OPEN')
                 .single();
@@ -123,45 +93,83 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
             const expenseData = {
                 amount: total,
                 category: selectedCategory,
-                description: description || `Gasto en ${selectedCategory} (${items.length} items)`,
-                items: items, // JSONB
+                description: items.map(i => i.name).join(', '),
+                items: items.map(i => ({ name: i.name, price: i.price })),
                 cashier_id: currentUser.id,
                 cash_register_id: shift?.cash_register_id,
-                shift_id: shift?.id
+                shift_id: shift?.id,
+                branch_id: (shift?.cash_registers as any)?.branch_id,
             };
 
-            const { error } = await supabase.from('expenses').insert(expenseData);
+            const { data: insertedExpense, error } = await supabase
+                .from('expenses')
+                .insert(expenseData)
+                .select('id')
+                .single();
             if (error) throw error;
 
-            // Also UPDATE register balance?
-            // Usually expenses DEDUCT from cash drawer.
+            let registerName = 'PRINCIPAL';
             if (shift?.cash_register_id) {
-                // We need to decrement the balance
-                // RPC is safer for atomic updates, but for now read-update-write
-                const { data: reg } = await supabase.from('cash_registers').select('current_balance').eq('id', shift.cash_register_id).single();
+                const { data: reg } = await supabase
+                    .from('cash_registers')
+                    .select('current_balance, name')
+                    .eq('id', shift.cash_register_id)
+                    .single();
                 if (reg) {
+                    if (reg.name) registerName = reg.name;
                     await supabase.from('cash_registers').update({
-                        current_balance: (reg.current_balance || 0) - total
+                        current_balance: (reg.current_balance || 0) - total,
                     }).eq('id', shift.cash_register_id);
                 }
             }
 
-            // Print Receipt Silently & Open Cash Drawer
+            // Obtener el número correlativo contando los gastos de este turno
+            let expenseCorrelative = 1;
+            if (shift?.id) {
+                const { count } = await supabase
+                    .from('expenses')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('shift_id', shift.id);
+                if (count !== null) {
+                    expenseCorrelative = count;
+                }
+            }
+
+            // Calcular número de turno del día (1, 2, 3...)
+            let dailyShiftNumber = 1;
+            if (shift?.cash_register_id) {
+                const todayStr = new Date().toISOString().split('T')[0]; // Fecha actual YYYY-MM-DD
+                const { count } = await supabase
+                    .from('shifts')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('cash_register_id', shift.cash_register_id)
+                    .gte('start_time', `${todayStr}T00:00:00.000Z`)
+                    .lte('start_time', `${todayStr}T23:59:59.999Z`);
+                
+                if (count !== null && count > 0) {
+                    dailyShiftNumber = count;
+                }
+            }
+
             try {
                 await printService.printDetailedExpense({
+                    id: insertedExpense?.id,
+                    expenseNumber: expenseCorrelative,
+                    registerName: registerName,
+                    shiftNumber: dailyShiftNumber,
                     amount: total,
                     category: selectedCategory,
                     description: expenseData.description,
-                    items: items,
-                    cashierName: currentUser.name
+                    items: expenseData.items,
+                    cashierName: currentUser.name,
+                    date: now.toLocaleDateString('es-GT'),
+                    time: now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' }),
                 });
-                
-                // Open cash drawer after printing expense
                 printService.openCashDrawer({
                     userId: currentUser?.id,
                     userName: currentUser?.name,
                     amount: total,
-                    reason: `Gasto: ${expenseData.description || selectedCategory}`
+                    reason: `Gasto: ${selectedCategory}`,
                 }).catch(console.error);
             } catch (printErr) {
                 console.error('Error printing expense:', printErr);
@@ -170,42 +178,85 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
             onSaveSuccess();
         } catch (err: any) {
             console.error(err);
+            alert('Error al guardar el gasto.');
         } finally {
             setLoading(false);
         }
     };
 
+    const filteredCategories = categories.filter(c =>
+        c.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-[#16191f] w-full max-w-5xl h-[85vh] rounded-2xl border border-white/10 shadow-2xl flex overflow-hidden">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 font-sans">
+            <div className="bg-[#2d3244] w-full max-w-[950px] rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 overflow-hidden flex flex-col">
 
-                {/* LEFT: Category & List */}
-                <div className="flex-1 flex flex-col border-r border-white/5 bg-[#0f1115]">
-                    <div className="p-6 border-b border-white/5 flex justify-between items-center">
-                        <h2 className="text-xl font-black text-white tracking-tight uppercase">Nuevo Gasto</h2>
-                        <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white"><X size={20} /></button>
-                    </div>
+                {/* Header */}
+                <div className="bg-[#3a4159] p-2 flex items-center justify-center border-b border-black/20">
+                    <span className="text-white font-bold text-sm uppercase tracking-wider">Categorías de Gastos</span>
+                </div>
 
-                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                        {/* 1. Items List (TOP) */}
-                        <div className="bg-[#1e212b] rounded-2xl border border-white/5 overflow-hidden flex flex-col h-[280px] shrink-0">
-                            <div className="p-3 bg-white/5 border-b border-white/5 flex justify-between items-center">
-                                <span className="text-xs font-bold text-indigo-400 uppercase tracking-widest">Detalle del Gasto</span>
-                                <span className="text-xs font-black text-white tabular-nums">Total: Q{calculateTotal().toFixed(2)}</span>
+                <div className="flex" style={{ height: '520px' }}>
+
+                    {/* ══════════ LEFT PANEL ══════════ */}
+                    <div className="flex-1 p-4 flex flex-col gap-3 bg-[#33394d] border-r border-black/30">
+
+                        {/* Search */}
+                        <div className="relative shrink-0">
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                <Search size={16} />
                             </div>
-                            <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin scrollbar-thumb-white/10">
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Buscar categoría..."
+                                className="w-full bg-[#242938] border border-black/20 rounded px-9 py-2 text-white text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 uppercase"
+                            />
+                        </div>
+
+                        {/* Category Grid */}
+                        <div className="grid grid-cols-3 gap-2 shrink-0 overflow-y-auto" style={{ maxHeight: '160px' }}>
+                            {filteredCategories.map(cat => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => setSelectedCategory(cat.name)}
+                                    className={`px-2 py-2 rounded text-[10px] font-bold uppercase tracking-tight transition-all h-12 flex items-center justify-center text-center leading-tight ${
+                                        selectedCategory === cat.name
+                                            ? 'bg-[#6366f1] text-white shadow-inner'
+                                            : 'bg-[#474f68] text-gray-200 hover:bg-[#525b7a] border border-black/20'
+                                    }`}
+                                >
+                                    {cat.name}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Items List */}
+                        <div className="flex-1 flex flex-col min-h-0 bg-[#242938] rounded border border-black/20 overflow-hidden">
+                            <div className="px-3 py-1.5 bg-black/20 border-b border-black/20 shrink-0 flex items-center gap-1.5">
+                                <ShoppingCart size={12} className="text-indigo-400" />
+                                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Detalle del Gasto</span>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-2 space-y-1">
                                 {items.length === 0 ? (
-                                    <div className="h-full flex flex-col items-center justify-center text-gray-600 py-10 opacity-50">
-                                        <ShoppingCart size={32} className="mb-2" />
-                                        <span className="text-[10px] uppercase font-bold">Agregue items al gasto</span>
+                                    <div className="h-full flex flex-col items-center justify-center text-gray-600 opacity-40 py-6">
+                                        <ShoppingCart size={22} className="mb-1" />
+                                        <span className="text-[9px] uppercase font-bold">Presiona AGREGAR para añadir ítems</span>
                                     </div>
                                 ) : (
                                     items.map(item => (
-                                        <div key={item.id} className="flex justify-between items-center p-3 bg-black/20 rounded-2xl hover:bg-black/30 group">
-                                            <span className="text-sm font-bold text-gray-300">{item.name}</span>
-                                            <div className="flex items-center gap-4">
-                                                <span className="text-sm font-black text-white tabular-nums">Q{item.price.toFixed(2)}</span>
-                                                <button onClick={() => handleRemoveItem(item.id)} className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={14} /></button>
+                                        <div key={item.id} className="flex justify-between items-center px-3 py-2 bg-black/20 rounded group hover:bg-black/30">
+                                            <span className="text-xs font-bold text-gray-300 uppercase truncate flex-1">{item.name}</span>
+                                            <div className="flex items-center gap-3 shrink-0">
+                                                <span className="text-xs font-black text-white tabular-nums">Q{item.price.toFixed(2)}</span>
+                                                <button
+                                                    onClick={() => handleRemoveItem(item.id)}
+                                                    className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    <Trash2 size={13} />
+                                                </button>
                                             </div>
                                         </div>
                                     ))
@@ -213,144 +264,107 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                             </div>
                         </div>
 
-                        {/* 2. Category Grid (BOTTOM) */}
-                        <div className="mb-6 flex flex-col flex-1 min-h-0">
-                            <div className="flex justify-between items-center mb-3">
-                                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest block">Categorías</label>
-                                <div className="relative w-1/2">
-                                    <input
-                                        type="text"
-                                        placeholder="Buscar..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="w-full bg-[#1e212b] border border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-indigo-500 uppercase"
-                                    />
-                                </div>
+                        {/* Item name input */}
+                        <input
+                            type="text"
+                            value={itemName}
+                            onChange={(e) => setItemName(e.target.value.toUpperCase())}
+                            onKeyDown={(e) => { if (e.key === 'Enter') handleAddItem(); }}
+                            placeholder="Nombre del producto (ej: AGUACATE)..."
+                            className="w-full bg-[#242938] border border-black/20 rounded px-3 py-2.5 text-white text-xs focus:outline-none uppercase placeholder-gray-600 shrink-0"
+                        />
+
+                        {/* Category + Total row */}
+                        <div className="flex gap-2 shrink-0">
+                            <div className="flex-1 bg-[#242938] border border-black/20 rounded px-3 py-2 flex items-center gap-2">
+                                <span className="text-gray-500 text-xs">📁</span>
+                                <span className="text-gray-200 text-xs font-bold uppercase truncate">
+                                    {selectedCategory || 'Seleccione Categoría'}
+                                </span>
                             </div>
-                            <div className="grid grid-cols-3 gap-3 overflow-y-auto pr-2 content-start min-h-0 bg-[#0f1115]">
-                                {categories.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase())).map(cat => (
-                                    <button
-                                        key={cat.id}
-                                        onClick={() => setSelectedCategory(cat.name)}
-                                        className={`p-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all border h-14 flex items-center justify-center text-center ${selectedCategory === cat.name
-                                            ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-500/20 scale-[1.02]'
-                                            : 'bg-[#1e212b] text-gray-400 border-white/5 hover:bg-[#2b2f3a] hover:border-white/10'
-                                            }`}
-                                    >
-                                        {cat.name}
-                                    </button>
-                                ))}
-                                {categories.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 && (
-                                    <div className="col-span-3 text-center py-8 text-gray-600 text-[10px] uppercase font-bold">
-                                        Sin resultados
-                                    </div>
-                                )}
+                            <div className="w-28 bg-[#242938] border border-indigo-500/30 rounded px-3 py-2 flex items-center gap-1">
+                                <span className="text-indigo-400 font-bold text-xs">Q</span>
+                                <span className="text-white text-xs font-black tabular-nums">{total.toFixed(2)}</span>
                             </div>
                         </div>
+
+
+
+                        <div className="grid grid-cols-2 gap-3 shrink-0">
+                            <button
+                                onClick={onClose}
+                                className="bg-[#3a4159] hover:bg-[#474f68] text-white py-3 rounded font-bold uppercase text-xs transition-colors border border-black/20"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleSaveExpense}
+                                disabled={items.length === 0 || !selectedCategory || loading}
+                                className={`py-3 rounded font-bold uppercase text-xs transition-all border border-black/20 ${
+                                    items.length > 0 && selectedCategory && !loading
+                                        ? 'bg-[#6366f1] hover:bg-[#4f46e5] text-white'
+                                        : 'bg-[#242938] text-gray-500 cursor-not-allowed opacity-50'
+                                }`}
+                            >
+                                {loading ? '...' : 'ACEPTAR'}
+                            </button>
+                        </div>
+
                     </div>
-                </div>
+                    {/* ══════════ END LEFT PANEL ══════════ */}
 
-                {/* RIGHT: Input & Keypad */}
-                <div className="w-[380px] bg-[#16191f] flex flex-col h-full border-l border-white/5">
-                    <div className="p-5 flex-1 flex flex-col gap-4 h-full">
+                    {/* ══════════ RIGHT PANEL: Numpad ══════════ */}
+                    <div className="w-[300px] bg-[#3a4159] p-4 flex flex-col gap-3 shadow-[-10px_0_20px_rgba(0,0,0,0.1)]">
 
-                        {/* Selected Cat & Name Input */}
-                        <div className="flex flex-col gap-3 shrink-0">
-                            <div className="text-center">
-                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Registrando en</span>
-                                <div className="text-lg font-black text-indigo-400 uppercase tracking-tight truncate">{selectedCategory || 'Seleccione Categoría'}</div>
-                            </div>
-
-                            <div>
-                                <input
-                                    type="text"
-                                    value={itemName}
-                                    onChange={(e) => setItemName(e.target.value)}
-                                    onKeyDown={handleKeyDown}
-                                    ref={nameInputRef}
-                                    placeholder="Descripción..."
-                                    className="w-full bg-[#0f1115] border border-white/10 rounded-2xl px-4 py-3 text-white text-base font-bold focus:outline-none focus:border-indigo-500 transition-colors"
-                                />
-
-                                {/* Suggestions */}
-                                {itemName.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mt-2">
-                                        {recentItems
-                                            .filter(name => name.includes(itemName.toUpperCase()) && name !== itemName.toUpperCase())
-                                            .slice(0, 5)
-                                            .map(name => (
-                                                <button
-                                                    key={name}
-                                                    onClick={() => setItemName(name)}
-                                                    className="px-3 py-1.5 bg-[#2b2f3a] hover:bg-indigo-600 rounded-lg text-[10px] font-black text-white transition-all uppercase"
-                                                >
-                                                    {name}
-                                                </button>
-                                            ))
-                                        }
-                                    </div>
-                                )}
-                            </div>
+                        {/* Amount display — shows what you are typing */}
+                        <div className="bg-[#242938] rounded p-4 text-right border-b-2 border-indigo-500/50 shadow-inner shrink-0">
+                            <span className="text-3xl font-black text-white tabular-nums tracking-tighter">Q{itemPrice}</span>
                         </div>
 
-                        {/* Amount Display */}
-                        <div className="shrink-0">
-                            <div className="bg-[#222630] rounded-2xl px-5 py-4 text-right border border-white/5 flex flex-col justify-center h-20">
-                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Monto</span>
-                                <span className="text-4xl font-black tracking-tighter text-white">Q{itemPrice}</span>
-                            </div>
-                        </div>
-
-                        {/* Keypad - Takes remaining space */}
-                        <div className="grid grid-cols-3 gap-2 flex-1 min-h-0">
-                            {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(k => (
-                                <button key={k} onClick={() => handleKeyPad(k)} className="rounded-2xl bg-[#363b49] text-xl font-bold text-white border border-white/5 active:scale-95 transition-all">
+                        {/* Number keys */}
+                        <div className="grid grid-cols-3 gap-2 flex-1">
+                            {['7','8','9','4','5','6','1','2','3'].map(k => (
+                                <button
+                                    key={k}
+                                    onClick={() => handleKeyPad(k)}
+                                    className="bg-[#474f68] hover:bg-[#525b7a] active:bg-[#6366f1] text-2xl font-bold text-white rounded transition-colors shadow-md border-b-2 border-black/20"
+                                >
                                     {k}
                                 </button>
                             ))}
-                            <button onClick={() => handleKeyPad('.')} className="rounded-2xl bg-[#363b49] text-2xl font-bold text-white border border-white/5 active:scale-95 transition-all">.</button>
-                            <button onClick={() => handleKeyPad('0')} className="rounded-2xl bg-[#363b49] text-xl font-bold text-white border border-white/5 active:scale-95 transition-all">0</button>
-                            <button onClick={() => handleKeyPad('BACKSPACE')} className="rounded-2xl bg-[#363b49] text-xl font-bold text-white border border-white/5 active:scale-95 transition-all flex items-center justify-center">
-                                <Delete size={20} />
+                            <button onClick={() => handleKeyPad('0')} className="bg-[#474f68] hover:bg-[#525b7a] text-2xl font-bold text-white rounded shadow-md border-b-2 border-black/20">0</button>
+                            <button onClick={() => handleKeyPad('.')} className="bg-[#474f68] hover:bg-[#525b7a] text-2xl font-bold text-white rounded shadow-md border-b-2 border-black/20">.</button>
+                            <button onClick={() => handleKeyPad('BACKSPACE')} className="bg-[#474f68] hover:bg-rose-500 text-white rounded flex items-center justify-center shadow-md border-b-2 border-black/20">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/>
+                                    <line x1="18" y1="9" x2="12" y2="15"/>
+                                    <line x1="12" y1="9" x2="18" y2="15"/>
+                                </svg>
                             </button>
                         </div>
 
-                        {/* Actions Row - Fixed Height */}
-                        <div className="grid grid-cols-[1fr_1.5fr] gap-2 shrink-0 h-16">
-                            {/* ENTER / ADD ITEM BUTTON */}
-                            <button
-                                onClick={handleAddItem}
-                                className="bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs flex flex-col items-center justify-center gap-1 active:scale-95"
-                            >
-                                <CornerDownLeft size={20} />
-                                <span>Agregar</span>
-                            </button>
-
-                            {/* SAVE & PRINT BUTTON */}
-                            <button
-                                onClick={handleSaveExpense}
-                                disabled={items.length === 0 || loading}
-                                className={`rounded-2xl font-black uppercase tracking-widest text-xs flex flex-col items-center justify-center gap-1 active:scale-95 transition-all ${items.length > 0 ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                                    }`}
-                            >
-                                <Save size={20} />
-                                <span>{loading ? '...' : 'Terminar'}</span>
-                            </button>
-                        </div>
+                        {/* AGREGAR button */}
+                        <button
+                            onClick={handleAddItem}
+                            disabled={parseFloat(itemPrice) <= 0 || !selectedCategory}
+                            className={`w-full h-14 rounded flex items-center justify-center gap-2 transition-all shadow-md font-black uppercase text-sm tracking-widest border-b-2 shrink-0 ${
+                                parseFloat(itemPrice) > 0 && selectedCategory
+                                    ? 'bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white border-emerald-700'
+                                    : 'bg-[#242938] text-gray-600 cursor-not-allowed border-black/20'
+                            }`}
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            AGREGAR
+                        </button>
 
                     </div>
+                    {/* ══════════ END RIGHT PANEL ══════════ */}
+
                 </div>
 
             </div>
         </div>
     );
 };
-
-// Helper for Delete icon
-const Delete = ({ size }: { size: number }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
-        <line x1="18" y1="9" x2="12" y2="15"></line>
-        <line x1="12" y1="9" x2="18" y2="15"></line>
-    </svg>
-);

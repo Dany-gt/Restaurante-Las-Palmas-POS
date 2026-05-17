@@ -87,35 +87,30 @@ ipcMain.handle('print-html', async (event, { html, printerName, silent }) => {
         printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
         
         printWindow.webContents.on('did-finish-load', () => {
-            console.log('📄 [Electron] Contenido HTML cargado. Iniciando impresión inmediata...');
+            console.log('📄 [Electron] Contenido HTML cargado. Esperando renderizado (500ms)...');
             
-            // Reducimos el delay a 100ms para tickets simples, es suficiente para renderizar texto
+            // Un pequeño delay ayuda a que fuentes y estilos se apliquen bien antes de imprimir
             setTimeout(() => {
                 if (printWindow.isDestroyed()) return;
                 
-                const printOptions = {
-                    silent: !!silent,
+                printWindow.webContents.print({
+                    silent: silent || false,
                     printBackground: true,
                     deviceName: printerName || '',
-                    color: false,
-                    margins: { marginType: 'none' }
-                };
-
-                // REFUERZO DE SEGURIDAD: Si no hay nombre de impresora y es silent, 
-                // Electron a veces falla. Aseguramos un deviceName vacío o válido.
-                printWindow.webContents.print(printOptions, (success, failureReason) => {
+                    margins: { marginType: 'none' } // Importante para térmicas
+                }, (success, failureReason) => {
                     clearTimeout(timeout);
-                    console.log(`🏁 [Electron] Impresión finalizada. Éxito: ${success}`);
+                    console.log(`🏁 [Electron] Impresión finalizada. Éxito: ${success}${failureReason ? `. Motivo: ${failureReason}` : ''}`);
                     
                     if (!printWindow.isDestroyed()) {
-                        // Cerramos rápido pero dejando un margen para que el driver reciba la info
+                        // Delay crucial: Evita que el spooler cancele o pierda el pulso de la gaveta por cerrar muy rápido
                         setTimeout(() => {
                             if (!printWindow.isDestroyed()) printWindow.close();
-                        }, 500);
+                        }, 1500);
                     }
                     resolve({ success, error: failureReason });
                 });
-            }, 100);
+            }, 500);
         });
 
         printWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {

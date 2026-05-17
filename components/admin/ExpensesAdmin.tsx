@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Plus, Calendar, FileText, Trash2, Loader2, X, Tag, List, Eye, Printer, Ban, Clock, Check, User as UserIcon, Edit3 } from 'lucide-react';
 import { supabase } from '../../supabase';
 import { DraggableWindow } from './AdminPortal';
@@ -46,7 +47,7 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, expense: any } | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = async (overrideSearch?: string) => {
     setLoading(true);
 
     // Fetch Branches for filter
@@ -69,9 +70,11 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
       query = query.eq('branch_id', selectedBranch);
     }
 
-    if (searchTerm.trim()) {
+    const currentSearchTerm = overrideSearch !== undefined ? overrideSearch : searchTerm;
+
+    if (currentSearchTerm.trim()) {
       // Direct filtering by ilike for better performance
-      query = query.or(`description.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%`);
+      query = query.or(`description.ilike.%${currentSearchTerm}%,category.ilike.%${currentSearchTerm}%`);
     }
 
     const { data: expData, error: expError } = await query.order('created_at', { ascending: false });
@@ -81,7 +84,7 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
     } else if (expData) {
       // Advanced local search filtering
       const filtered = expData.filter(e => {
-        const term = searchTerm.toLowerCase();
+        const term = currentSearchTerm.toLowerCase();
         const inMain = (e.description?.toLowerCase().includes(term) || e.category?.toLowerCase().includes(term));
         const inItems = e.items?.some((item: any) => item.name?.toLowerCase().includes(term));
         return inMain || inItems;
@@ -198,7 +201,7 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
   const handleContextMenu = (e: React.MouseEvent, expense: any) => {
     e.preventDefault();
     e.stopPropagation();
-    setContextMenu({ x: e.pageX, y: e.pageY, expense });
+    setContextMenu({ x: e.clientX, y: e.clientY, expense });
   };
 
   const closeContextMenu = () => setContextMenu(null);
@@ -383,7 +386,7 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
           className="w-64 shrink-0 flex flex-col bg-white border border-gray-300 shadow-sm"
           onContextMenu={(e) => {
             e.preventDefault();
-            setCategoryContextMenu({ x: e.pageX, y: e.pageY, category: null });
+            setCategoryContextMenu({ x: e.clientX, y: e.clientY, category: null });
           }}
         >
           <div className="bg-[#e8ecef] px-3 py-1.5 border-b border-gray-300">
@@ -393,7 +396,7 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
           <div className="flex-1 overflow-y-auto custom-scrollbar pt-1 font-medium bg-[#fcfdfe]">
             <div className="px-1 space-y-[1px]">
               <button
-                onClick={() => { setSearchTerm(''); fetchData(); }}
+                onClick={() => { setSearchTerm(''); fetchData(''); }}
                 className={`w-full flex items-center px-3 py-1.5 text-[10px] font-bold uppercase tracking-tight text-left transition-colors ${!searchTerm ? 'bg-[#106ebe] text-white shadow-sm' : 'text-slate-600 hover:bg-[#cce8ff]'}`}
                 title="Ver todos los gastos"
               >
@@ -402,11 +405,11 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
               {categories.map(cat => (
                 <div
                   key={cat.id}
-                  onClick={() => { setSearchTerm(cat.name); fetchData(); }}
+                  onClick={() => { setSearchTerm(cat.name); fetchData(cat.name); }}
                   onContextMenu={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    setCategoryContextMenu({ x: e.pageX, y: e.pageY, category: cat });
+                    setCategoryContextMenu({ x: e.clientX, y: e.clientY, category: cat });
                   }}
                   className={`w-full flex items-center justify-between px-3 py-1.5 transition-all cursor-default group border-b border-transparent ${searchTerm === cat.name ? 'bg-[#106ebe] text-white shadow-sm' : 'hover:bg-[#cce8ff] text-slate-600'}`}
                   title={`${cat.name} (Clic derecho para opciones)`}
@@ -570,7 +573,7 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
       </div>
 
       {/* Right-Click Context Menu Area */}
-      {contextMenu && contextMenu.expense && (
+      {contextMenu && contextMenu.expense && createPortal(
         <div
           className="fixed z-[1000] bg-white border border-gray-400 shadow-[2px_2px_5px_rgba(0,0,0,0.2)] py-1 w-48 animate-fade-in"
           style={{ top: contextMenu.y, left: contextMenu.x }}
@@ -617,11 +620,12 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
               <Plus size={12} /> Nuevo Gasto
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Global Add Item Context Menu (when clicking empty area) */}
-      {contextMenu && !contextMenu.expense && (
+      {contextMenu && !contextMenu.expense && createPortal(
         <div
           className="fixed z-[1000] bg-white border border-gray-400 shadow-[2px_2px_5px_rgba(0,0,0,0.2)] py-1 w-48 animate-fade-in"
           style={{ top: contextMenu.y, left: contextMenu.x }}
@@ -642,7 +646,8 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
           >
             <Clock size={12} /> Actualizar Vista
           </button>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Maintenance Modals */}
@@ -825,9 +830,9 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
       />
 
       {/* Category Context Menu */}
-      {categoryContextMenu && (
+      {categoryContextMenu && createPortal(
         <div
-          className="absolute z-[1000] bg-white border border-gray-300 shadow-[4px_4px_10px_rgba(0,0,0,0.2)] py-1 min-w-[140px] animate-zoom-in"
+          className="fixed z-[1000] bg-white border border-gray-300 shadow-[4px_4px_10px_rgba(0,0,0,0.2)] py-1 min-w-[140px] animate-zoom-in"
           style={{ top: categoryContextMenu.y, left: categoryContextMenu.x }}
         >
           <button
@@ -859,7 +864,8 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
           >
             <Clock size={12} /> Refrescar
           </button>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Category Maintenance Modal */}
