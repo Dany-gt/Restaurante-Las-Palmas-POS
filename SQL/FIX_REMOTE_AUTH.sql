@@ -67,6 +67,9 @@ BEGIN
 
     UPDATE orders 
     SET status = 'cancelled', 
+        cancellation_reason = p_reason,
+        cancelled_at = p_cancelled_at,
+        cancelled_by = v_admin_id,
         updated_at = p_cancelled_at
     WHERE id = p_order_id;
 
