@@ -61,6 +61,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
     const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number, order: any } | null>(null);
     const [selectedAccount, setSelectedAccount] = useState<string>('ALL');
+    const [relatedOrders, setRelatedOrders] = useState<any[]>([]);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 640);
@@ -501,61 +502,90 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
         setViewingOrder(order);
         setShowOrderModal(true);
         setOrderItems([]);
+        setRelatedOrders([]);
+        setSelectedAccount('ALL');
 
         try {
-            // Fetch Order Header Freshly to get the latest discount_reason, etc.
+            // Fetch Order Header (include table_id for sibling lookup)
             const { data: orderData, error: orderError } = await supabase
                 .from('orders')
                 .select(`
-                    id, 
-                    created_at, 
-                    order_type, 
-                    order_number, 
-                    tip_amount, 
-                    discount_amount, 
-                    total, 
-                    status,
-                    discount_reason,
+                    id, created_at, order_type, order_number, tip_amount,
+                    discount_amount, total, status, discount_reason, table_id, customer_name,
                     tables (number, section),
                     waiter:profiles!waiter_id (name)
                 `)
                 .eq('id', order.id)
                 .single();
 
+            let resolvedTableId: string | null = null;
+            let resolvedStatus = 'completed';
+            let resolvedCreatedAt = order.created_at || new Date().toISOString();
+
             if (!orderError && orderData) {
-                const order = orderData as any;
-                const tables = order.tables;
-                const waiter = order.waiter;
+                const o = orderData as any;
+                resolvedTableId = o.table_id;
+                resolvedStatus = o.status;
+                resolvedCreatedAt = o.created_at;
+
                 const mappedOrder = {
-                    id: order.id,
-                    noOrden: order.noOrden || order.order_number || order.id.split('-')[0],
-                    fecha_full: new Date(order.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-                    apertura: new Date(order.created_at).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
-                    seccion: tables?.section || 'SALA',
-                    mesa: tables?.number || '0',
-                    atendio: waiter?.name || '-',
-                    tipo: order.order_type === 'DINE_IN' ? 'MESA' :
-                        order.order_type === 'TAKEOUT' ? 'LLEVAR' :
-                            order.order_type === 'DELIVERY' ? 'DOMICILIO' : order.order_type,
-                    subtotal: (Number(order.total) || 0) + (Number(order.discount_amount) || 0) - (Number(order.tip_amount) || 0),
-                    propina: Number(order.tip_amount) || 0,
-                    descuento: Number(order.discount_amount) || 0,
-                    discount_reason: order.discount_reason || '',
-                    total: Number(order.total) || 0,
-                    status: order.status
+                    id: o.id,
+                    noOrden: o.order_number || o.id.split('-')[0],
+                    fecha_full: new Date(o.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+                    apertura: new Date(o.created_at).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+                    seccion: o.tables?.section || 'SALA',
+                    mesa: o.tables?.number || '0',
+                    atendio: o.waiter?.name || '-',
+                    tipo: o.order_type === 'DINE_IN' ? 'MESA' :
+                        o.order_type === 'TAKEOUT' ? 'LLEVAR' :
+                            o.order_type === 'DELIVERY' ? 'DOMICILIO' : o.order_type,
+                    subtotal: (Number(o.total) || 0) + (Number(o.discount_amount) || 0) - (Number(o.tip_amount) || 0),
+                    propina: Number(o.tip_amount) || 0,
+                    descuento: Number(o.discount_amount) || 0,
+                    discount_reason: o.discount_reason || '',
+                    total: Number(o.total) || 0,
+                    status: o.status,
+                    table_id: o.table_id,
+                    customer_name: o.customer_name
                 };
                 setViewingOrder(mappedOrder);
             }
 
-            const { data, error } = await supabase
+            // Determinar qué IDs de orden necesitamos para los items
+            let itemOrderIds: string[] = [order.id];
+
+            // Si la orden es de mesa, buscar cuentas hermanas en misma mesa mismo estado ±3h
+            if (resolvedTableId) {
+                const refDate = new Date(resolvedCreatedAt);
+                const windowStart = new Date(refDate.getTime() - 3 * 60 * 60 * 1000).toISOString();
+                const windowEnd   = new Date(refDate.getTime() + 3 * 60 * 60 * 1000).toISOString();
+
+                const { data: siblings } = await supabase
+                    .from('orders')
+                    .select('id, customer_name, order_number, total, tip_amount, discount_amount, discount_reason, status, created_at')
+                    .eq('table_id', resolvedTableId)
+                    .eq('status', resolvedStatus)
+                    .gte('created_at', windowStart)
+                    .lte('created_at', windowEnd)
+                    .order('created_at', { ascending: true });
+
+                if (siblings && siblings.length > 1) {
+                    setRelatedOrders(siblings);
+                    itemOrderIds = siblings.map((s: any) => s.id);
+                } else {
+                    setRelatedOrders([]);
+                }
+            }
+
+            // Fetch items de todos los IDs relevantes
+            const { data: items, error: itemsErr } = await supabase
                 .from('order_items')
                 .select('*, products(name)')
-                .eq('order_id', order.id)
+                .in('order_id', itemOrderIds)
                 .order('created_at', { ascending: true });
 
-            if (!error && data) {
-                setOrderItems(data);
-                setSelectedAccount('ALL');
+            if (!itemsErr && items) {
+                setOrderItems(items);
             }
         } catch (e) {
             console.error(e);
@@ -578,18 +608,36 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
         }
     };
 
-    // Derived values for the modal
-    const subtotalWithTax = viewingOrder?.subtotal || 0;
-    const discount = viewingOrder?.descuento || 0;
-    const tip = viewingOrder?.propina || 0;
-    const total = viewingOrder?.total || 0;
+    // Cuenta actualmente seleccionada en el dropdown
+    const selectedOrderData = React.useMemo(() => {
+        if (selectedAccount === 'ALL' || relatedOrders.length === 0) return null;
+        return relatedOrders.find((o: any) => o.id === selectedAccount) || null;
+    }, [selectedAccount, relatedOrders]);
+
+    // Derived values for the modal — usa la cuenta seleccionada si existe, si no la orden principal
+    const subtotalWithTax = selectedOrderData
+        ? (Number(selectedOrderData.total) || 0) + (Number(selectedOrderData.discount_amount) || 0) - (Number(selectedOrderData.tip_amount) || 0)
+        : (viewingOrder?.subtotal || 0);
+    const discount = selectedOrderData ? (Number(selectedOrderData.discount_amount) || 0) : (viewingOrder?.descuento || 0);
+    const tip      = selectedOrderData ? (Number(selectedOrderData.tip_amount) || 0)      : (viewingOrder?.propina || 0);
+    const total    = selectedOrderData ? (Number(selectedOrderData.total) || 0)            : (viewingOrder?.total || 0);
     const subtotalWithoutTax = subtotalWithTax / 1.12;
     const tax = subtotalWithTax - subtotalWithoutTax;
 
-    const uniqueAccounts = Array.from(new Set(orderItems.map(item => item.account_name).filter(Boolean))) as string[];
+    // Cuentas únicas: órdenes hermanas cuando hay varias, si no lista vacía
+    const uniqueAccounts: { id: string; name: string }[] = relatedOrders.length > 1
+        ? relatedOrders.map((o: any, idx: number) => ({
+            id: o.id,
+            name: (o.customer_name && o.customer_name.toUpperCase() !== 'CUENTA PRINCIPAL')
+                ? o.customer_name.toUpperCase()
+                : `CUENTA ${idx + 1}`
+          }))
+        : [];
+
+    // Filtrar items según la cuenta seleccionada (por order_id)
     const filteredOrderItems = selectedAccount === 'ALL'
         ? orderItems
-        : orderItems.filter(item => item.account_name === selectedAccount);
+        : orderItems.filter((item: any) => item.order_id === selectedAccount);
 
     return (
         <div
@@ -1208,7 +1256,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                             >
                                                 <option value="ALL">TODAS LAS CUENTAS</option>
                                                 {uniqueAccounts.map(acc => (
-                                                    <option key={acc} value={acc}>{acc}</option>
+                                                    <option key={acc.id} value={acc.id}>{acc.name}</option>
                                                 ))}
                                             </select>
                                         </div>
