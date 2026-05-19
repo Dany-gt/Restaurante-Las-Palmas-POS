@@ -220,12 +220,53 @@ export const useDataSync = () => {
                                 console.log(`✅ [Electron] ${Object.keys(localMapping).length} imágenes guardadas localmente.`);
                             }
                         } else {
-                            // ── WEB: Precarga en memoria (best-effort) ────────────────────
-                            console.log(`📥 [Web] Precargando ${validUrls.length} imágenes en memoria...`);
-                            validUrls.forEach(url => {
-                                const img = new Image();
-                                img.src = getDirectUrl(url);
-                            });
+                            // ── WEB / TABLETA (PWA): Cache API del navegador ──────────────
+                            // Descarga activamente las imágenes y las almacena en la Cache API
+                            // del navegador. El service worker las sirve en modo "Cache First"
+                            // en solicitudes futuras → funciona offline y sin parpadeo.
+                            console.log(`📥 [PWA] Cacheando ${validUrls.length} imágenes en Cache API...`);
+
+                            const MEDIA_CACHE = 'app-media-cache';
+                            const cache = 'caches' in window ? await caches.open(MEDIA_CACHE) : null;
+
+                            let cached = 0;
+                            let skipped = 0;
+
+                            await Promise.allSettled(validUrls.map(async (url) => {
+                                try {
+                                    const directUrl = getDirectUrl(url);
+                                    if (!directUrl) return;
+
+                                    if (cache) {
+                                        // Check if already cached to avoid re-downloading
+                                        const existing = await cache.match(directUrl);
+                                        if (existing) { skipped++; return; }
+
+                                        // Fetch and store. Use no-cors for cross-origin images
+                                        // (Supabase Storage, Google Drive direct links, etc.)
+                                        // Note: no-cors produces opaque responses (status 0) which
+                                        // cannot be inspected but CAN be stored and served back.
+                                        const response = await fetch(directUrl, {
+                                            mode: directUrl.includes(window.location.hostname) ? 'cors' : 'no-cors',
+                                            cache: 'force-cache'
+                                        });
+                                        // Only cache non-error responses
+                                        if (response.status === 0 || response.ok) {
+                                            await cache.put(directUrl, response);
+                                            cached++;
+                                        }
+                                    } else {
+                                        // Fallback: at least preload into browser memory for this session
+                                        const img = new Image();
+                                        img.src = directUrl;
+                                        cached++;
+                                    }
+                                } catch {
+                                    // Individual image error — skip silently
+                                }
+                            }));
+
+                            console.log(`✅ [PWA] ${cached} imágenes cacheadas, ${skipped} ya estaban en caché.`);
                         }
                     }
                 } catch (e) {

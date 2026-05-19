@@ -70,20 +70,36 @@ self.addEventListener('fetch', (event) => {
     if (url.href.includes('supabase.co/rest/v1')) {
         event.respondWith(
             fetch(request).then((networkRes) => {
-                bgCache(request, networkRes.clone()); // clone sync, cache async
+                bgCache(request, networkRes.clone());
                 return networkRes;
             }).catch(() => caches.match(request))
         );
         return;
     }
 
-    // ── Supabase Storage ─ Cache First, Network Fallback ───────────────────
-    if (url.href.includes('supabase.co/storage/v1')) {
+    // ── Images (Supabase Storage + Google Drive + general images) ───────────
+    // Cache First using BOTH the dynamic cache and the app-media-cache that
+    // useDataSync fills when the user presses "ACTUALIZAR IMÁGENES".
+    const isImage =
+        url.href.includes('supabase.co/storage/v1') ||
+        url.href.includes('drive.google.com') ||
+        url.href.includes('googleusercontent.com') ||
+        /\.(jpe?g|png|webp|gif|svg|avif)(\?|$)/i.test(url.pathname);
+
+    if (isImage) {
         event.respondWith(
-            caches.match(request).then((cached) => {
-                if (cached) return cached;
+            // 1. Check app-media-cache first (filled by "ACTUALIZAR IMÁGENES")
+            caches.open('app-media-cache').then(async (mediaCache) => {
+                const mediaCached = await mediaCache.match(request);
+                if (mediaCached) return mediaCached;
+
+                // 2. Check dynamic cache
+                const dynCached = await caches.match(request);
+                if (dynCached) return dynCached;
+
+                // 3. Fetch from network and cache for next time
                 return fetch(request).then((networkRes) => {
-                    bgCache(request, networkRes.clone()); // clone sync, cache async
+                    bgCache(request, networkRes.clone());
                     return networkRes;
                 });
             })
@@ -96,7 +112,7 @@ self.addEventListener('fetch', (event) => {
         caches.match(request).then((cached) => {
             if (cached) return cached;
             return fetch(request).then((networkRes) => {
-                bgCache(request, networkRes.clone()); // clone sync, cache async
+                bgCache(request, networkRes.clone());
                 return networkRes;
             }).catch(() => undefined);
         })
