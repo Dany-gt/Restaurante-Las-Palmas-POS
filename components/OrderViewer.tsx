@@ -19,6 +19,64 @@ const parseDBDate = (dateStr: string) => {
     return new Date(hasTZ ? dateStr : `${dateStr}Z`);
 };
 
+const getComputedTotals = (order: any) => {
+    if (!order) return { subtotal: 0, discount: 0, tip: 0, total: 0 };
+    
+    const hasItems = order.order_items && order.order_items.length > 0;
+    
+    const dbSubtotal = parseFloat(order.subtotal || 0);
+    const dbTotal = parseFloat(order.total || 0);
+    
+    if (dbSubtotal > 0 && dbTotal > 0) {
+        return {
+            subtotal: dbSubtotal,
+            discount: parseFloat(order.discount || 0),
+            tip: parseFloat(order.tip_amount || order.tip || 0),
+            total: dbTotal
+        };
+    }
+    
+    if (!hasItems) {
+        return {
+            subtotal: dbSubtotal,
+            discount: parseFloat(order.discount || 0),
+            tip: parseFloat(order.tip_amount || order.tip || 0),
+            total: dbTotal
+        };
+    }
+    
+    // Calculate dynamically from order_items
+    const calculatedSubtotal = order.order_items
+        .filter((i: any) => i.status !== 'voided' && i.status !== 'cancelled')
+        .reduce((acc: number, i: any) => acc + ((i.unit_price || 0) * (i.quantity || 0)), 0);
+        
+    const calculatedItemDiscounts = order.order_items
+        .filter((i: any) => i.status !== 'voided' && i.status !== 'cancelled')
+        .reduce((acc: number, i: any) => acc + (i.discount_amount || 0), 0);
+        
+    let globalDiscount = 0;
+    if (order.discount_percentage > 0) {
+        globalDiscount = (calculatedSubtotal * order.discount_percentage / 100);
+    } else if (order.discount_amount > 0) {
+        globalDiscount = order.discount_amount;
+    } else if (order.discount > 0) {
+        globalDiscount = order.discount;
+    }
+    
+    const totalDiscount = calculatedItemDiscounts + globalDiscount;
+    const subtotalAfterDiscount = Math.max(0, calculatedSubtotal - totalDiscount);
+    
+    const tip = parseFloat(order.tip_amount || order.tip || 0);
+    const total = subtotalAfterDiscount + tip;
+    
+    return {
+        subtotal: calculatedSubtotal,
+        discount: totalDiscount,
+        tip,
+        total
+    };
+};
+
 export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, currentUser }) => {
     const [activeTab, setActiveTab] = useState<'OPEN' | 'CLOSED' | 'CANCELLED'>('OPEN');
     const [searchTerm, setSearchTerm] = useState('');
@@ -45,7 +103,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
 
             let query = supabase
                 .from('orders')
-                .select('*, order_items(status)')
+                .select('*, order_items(status, unit_price, quantity, discount_amount)')
                 .order('created_at', { ascending: false });
 
             if (branchId) {
@@ -98,8 +156,40 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                     preparing: rawItems.filter(i => i.status === 'preparing').length,
                     ready:     rawItems.filter(i => ['ready', 'delivered'].includes(i.status)).length,
                 };
+
+                let total = parseFloat(order.total || 0);
+                let subtotal = parseFloat(order.subtotal || 0);
+                let discount = parseFloat(order.discount || 0);
+                const tip = parseFloat(order.tip_amount || order.tip || 0);
+
+                if ((total === 0 || subtotal === 0) && rawItems.length > 0) {
+                    const calcSubtotal = rawItems
+                        .filter(i => i.status !== 'voided' && i.status !== 'cancelled')
+                        .reduce((acc, i) => acc + ((i.unit_price || 0) * (i.quantity || 0)), 0);
+
+                    const calcItemDiscounts = rawItems
+                        .filter(i => i.status !== 'voided' && i.status !== 'cancelled')
+                        .reduce((acc, i) => acc + (i.discount_amount || 0), 0);
+
+                    let globalDiscount = 0;
+                    if (order.discount_percentage > 0) {
+                        globalDiscount = (calcSubtotal * order.discount_percentage / 100);
+                    } else if (order.discount_amount > 0) {
+                        globalDiscount = order.discount_amount;
+                    } else if (order.discount > 0) {
+                        globalDiscount = order.discount;
+                    }
+
+                    discount = calcItemDiscounts + globalDiscount;
+                    subtotal = calcSubtotal;
+                    total = Math.max(0, calcSubtotal - discount) + tip;
+                }
+
                 return {
                     ...order,
+                    subtotal,
+                    discount,
+                    total,
                     order_items: undefined,   // reset → fetchOrderItems se dispara al seleccionar
                     item_counts,
                     profiles: {
@@ -332,28 +422,31 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                     </div>
 
                     {/* Integrated Totals Section - FIXED AT BOTTOM */}
-                    {selectedOrder && (
-                        <div className="p-4 shrink-0 border-t border-white/5 bg-[#2d2e3d] shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.3)]">
-                            <div className="ml-auto w-full max-w-[220px] space-y-1">
-                                <div className="flex justify-between text-[10px]">
-                                    <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Sub-Total</span>
-                                    <span className="font-black tabular-nums text-white/80">Q{parseFloat(selectedOrder.subtotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                                </div>
-                                <div className="flex justify-between text-[10px]">
-                                    <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Descuento</span>
-                                    <span className="font-black tabular-nums text-white/80">-Q{parseFloat(selectedOrder.discount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                                </div>
-                                <div className="flex justify-between text-[10px]">
-                                    <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Propina</span>
-                                    <span className="font-black tabular-nums text-white/80">Q{parseFloat(selectedOrder.tip_amount || selectedOrder.tip || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                                </div>
-                                <div className="mt-3 pt-3 border-t border-white/10 flex justify-between items-baseline">
-                                    <span className="text-[11px] font-black text-white/40 uppercase tracking-widest leading-none">Total</span>
-                                    <span className="text-2xl font-black tabular-nums text-white leading-none">Q{parseFloat(selectedOrder.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                    {selectedOrder && (() => {
+                        const computed = getComputedTotals(selectedOrder);
+                        return (
+                            <div className="p-4 shrink-0 border-t border-white/5 bg-[#2d2e3d] shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.3)]">
+                                <div className="ml-auto w-full max-w-[220px] space-y-1">
+                                    <div className="flex justify-between text-[10px]">
+                                        <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Sub-Total</span>
+                                        <span className="font-black tabular-nums text-white/80">Q{computed.subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                    <div className="flex justify-between text-[10px]">
+                                        <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Descuento</span>
+                                        <span className="font-black tabular-nums text-white/80">-Q{computed.discount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                    <div className="flex justify-between text-[10px]">
+                                        <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Propina</span>
+                                        <span className="font-black tabular-nums text-white/80">Q{computed.tip.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                    <div className="mt-3 pt-3 border-t border-white/10 flex justify-between items-baseline">
+                                        <span className="text-[11px] font-black text-white/40 uppercase tracking-widest leading-none">Total</span>
+                                        <span className="text-2xl font-black tabular-nums text-white leading-none">Q{computed.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        );
+                    })()}
 
                     {/* Footer for Detail Panel */}
                     <div className="p-4 shrink-0 border-t border-white/5 bg-black/40">
@@ -369,10 +462,11 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                             .eq('status', 'ACTIVE')
                                             .maybeSingle();
 
+                                        const computed = getComputedTotals(selectedOrder);
                                         const ticketData = {
                                             orderId: selectedOrder.id,
                                             orderNumber: selectedOrder.order_number,
-                                            orderType: selectedOrder.order_type, // ¡Crucial para que diga PARA LLEVAR!
+                                            orderType: selectedOrder.order_type,
                                             tableNumber: selectedOrder.tables?.number,
                                             tableName: selectedOrder.tables?.section,
                                             waiterName: selectedOrder.profiles?.name,
@@ -383,10 +477,10 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                                 price: i.unit_price,
                                                 notes: i.notes
                                             })),
-                                            subtotal: selectedOrder.subtotal,
-                                            discount: selectedOrder.discount || 0,
-                                            tipAmount: selectedOrder.tip_amount || selectedOrder.tip || 0,
-                                            total: selectedOrder.total,
+                                            subtotal: computed.subtotal,
+                                            discount: computed.discount || 0,
+                                            tipAmount: computed.tip || 0,
+                                            total: computed.total,
                                             createdAt: selectedOrder.created_at
                                         };
                                         // Usamos printPreCheck para órdenes abiertas en el visor y forzamos silencio
