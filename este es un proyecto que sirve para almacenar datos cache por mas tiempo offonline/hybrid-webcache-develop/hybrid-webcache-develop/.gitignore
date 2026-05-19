@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+.env
+.qodo
+.docs/.vitepress/cache
+.docs/app
+test/__snapshots__

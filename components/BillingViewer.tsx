@@ -140,23 +140,39 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
             }));
         }
 
-        if (record.uuid) {
+        const isCancelled = record.status?.toUpperCase() === 'CANCELLED';
+        const cancellationReason = record.cancellation_reason || 'Anulado';
+
+        if (isCancelled && !record.uuid && record.series !== 'CONT') {
+            await printService.printCancelledTicket({
+                orderId: record.order_id || record.id,
+                orderNumber: record.orders?.order_number || record.order_number || '---',
+                items: finalItems,
+                createdAt: record.created_at
+            }, cancellationReason);
+            return;
+        }
+
+        if (record.uuid || record.series === 'CONT') {
             const ticketData = {
-                orderId: record.order_id,
-                orderNumber: record.orders?.order_number,
+                orderId: record.order_id || record.id,
+                orderNumber: record.orders?.order_number || record.order_number,
                 customerNit: record.customer_nit,
                 customerName: record.customer_name,
                 subtotal: record.subtotal,
                 taxAmount: record.tax_total,
                 grand_total: record.grand_total,
-                total: record.grand_total,
+                total: record.grand_total || record.total,
                 createdAt: record.created_at,
-                dteInfo: {
+                isCancelled,
+                cancellationReason,
+                isReprint: true,
+                dteInfo: record.uuid ? {
                     serie: record.series,
                     numero: record.document_number,
                     fechaCertificacion: record.certification_date,
                     autorizacion: record.uuid
-                },
+                } : undefined,
                 items: finalItems
             };
             printService.printInvoiceTicket(ticketData as any);

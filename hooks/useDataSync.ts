@@ -110,29 +110,29 @@ export const useDataSync = () => {
                 await masterDataDB.saveData('sections', sections);
                 localStorage.setItem('cached_sections', JSON.stringify(sections.map(s => s.name)));
             }
-            if (categories) {
-                // Combined categories from all 3 tables to bridge legacy, maintenance and menu systems
-                const finalCombined = [
-                    ...(menuCats || []).map(c => ({
-                        ...c,
-                        name: c.nombre || c.name,
-                        image_url: c.imagen_url || c.image_url,
-                        section: c.section || 'MENU',
-                        order_index: c.sort_order ?? c.order_index ?? 999
-                    })),
-                    ...(prodCats || []).map(c => ({ 
-                        ...c, 
-                        name: c.nombre || c.name, 
-                        image_url: c.imagen_url || c.image_url,
-                        section: c.section || 'INVENTARIO',
-                        order_index: c.sort_order ?? c.order_index ?? 999
-                    })),
-                    ...(categories || []).map(c => ({ 
-                        ...c, 
-                        order_index: c.order_index ?? c.sort_order ?? 999 
-                    }))
-                ];
+            // Combined categories from all 3 tables - declared at outer scope so image caching can access it
+            const finalCombined = [
+                ...(menuCats || []).map(c => ({
+                    ...c,
+                    name: c.nombre || c.name,
+                    image_url: c.imagen_url || c.image_url,
+                    section: c.section || 'MENU',
+                    order_index: c.sort_order ?? c.order_index ?? 999
+                })),
+                ...(prodCats || []).map(c => ({ 
+                    ...c, 
+                    name: c.nombre || c.name, 
+                    image_url: c.imagen_url || c.image_url,
+                    section: c.section || 'INVENTARIO',
+                    order_index: c.sort_order ?? c.order_index ?? 999
+                })),
+                ...(categories || []).map(c => ({ 
+                    ...c, 
+                    order_index: c.order_index ?? c.sort_order ?? 999 
+                }))
+            ];
 
+            if (categories) {
                 await masterDataDB.saveData('categories', finalCombined);
                 localStorage.setItem('cached_categories', JSON.stringify(finalCombined));
             }
@@ -163,6 +163,75 @@ export const useDataSync = () => {
             
             // Sync orders in background
             await syncOrders(true);
+
+            // ── Image caching logic ───────────────────────────────────────────────
+            if (type === 'images' || type === 'all') {
+                try {
+                    const imageUrls: string[] = [];
+
+                    if (settings) {
+                        if (settings.logo_url) imageUrls.push(settings.logo_url);
+                        if (settings.login_background_url) imageUrls.push(settings.login_background_url);
+                    }
+                    if (products) {
+                        products.forEach((p: any) => {
+                            if (p.image_url) imageUrls.push(p.image_url);
+                            if (p.imagen_url) imageUrls.push(p.imagen_url);
+                        });
+                    }
+                    finalCombined.forEach((c: any) => {
+                        if (c.image_url) imageUrls.push(c.image_url);
+                        if (c.imagen_url) imageUrls.push(c.imagen_url);
+                    });
+
+                    // POS terminals logos
+                    const { data: posData } = await supabase.from('pos_terminals').select('logo_url').not('logo_url', 'is', null);
+                    if (posData) {
+                        posData.forEach((p: any) => { if (p.logo_url) imageUrls.push(p.logo_url); });
+                    }
+
+                    const validUrls = Array.from(new Set(
+                        imageUrls.filter(u => u && typeof u === 'string' && u.startsWith('http'))
+                    ));
+
+                    const getDirectUrl = (url: string): string => {
+                        if (!url) return '';
+                        if (url.includes('drive.google.com')) {
+                            const idMatch = url.match(/[-\w]{25,}/);
+                            if (idMatch) return `https://drive.google.com/uc?export=view&id=${idMatch[0]}`;
+                        }
+                        return url;
+                    };
+
+                    if (validUrls.length > 0) {
+                        const electronAPI = (window as any).electronAPI;
+
+                        if (electronAPI?.downloadImages) {
+                            // ── ELECTRON: Descarga imágenes al disco duro ─────────────────
+                            console.log(`📁 [Electron] Descargando ${validUrls.length} imágenes al disco...`);
+                            const imageList = validUrls.map(url => ({
+                                originalUrl: url,
+                                directUrl: getDirectUrl(url)
+                            }));
+                            const localMapping: Record<string, string> = await electronAPI.downloadImages(imageList);
+                            if (Object.keys(localMapping).length > 0) {
+                                const existing: Record<string, string> = JSON.parse(localStorage.getItem('electron_image_cache') || '{}');
+                                localStorage.setItem('electron_image_cache', JSON.stringify({ ...existing, ...localMapping }));
+                                console.log(`✅ [Electron] ${Object.keys(localMapping).length} imágenes guardadas localmente.`);
+                            }
+                        } else {
+                            // ── WEB: Precarga en memoria (best-effort) ────────────────────
+                            console.log(`📥 [Web] Precargando ${validUrls.length} imágenes en memoria...`);
+                            validUrls.forEach(url => {
+                                const img = new Image();
+                                img.src = getDirectUrl(url);
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error cacheando imágenes:', e);
+                }
+            }
 
             // Only notify for manual syncs, not automatic inventory refreshes
             if (type !== 'inventory') {

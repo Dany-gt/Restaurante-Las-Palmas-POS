@@ -1,6 +1,10 @@
-const { app, BrowserWindow, ipcMain, session } = require('electron');
+const { app, BrowserWindow, ipcMain, session, protocol } = require('electron');
 const path = require('path');
 const net = require('net');
+const fs = require('fs');
+const https = require('https');
+const http = require('http');
+const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
 let mainWindow = null;
@@ -416,7 +420,90 @@ ipcMain.handle('sat-sync', async (event, params) => {
     });
 });
 
+// ─── Image filesystem cache (Electron-native) ────────────────────────────────
+// Generates a stable filename from a URL using a short SHA-1 hash + extension
+function urlToFilename(url) {
+    const hash = crypto.createHash('sha1').update(url).digest('hex').slice(0, 16);
+    const ext = url.split('?')[0].split('.').pop().toLowerCase();
+    const safeExt = ['jpg','jpeg','png','webp','gif','svg','avif'].includes(ext) ? ext : 'jpg';
+    return `${hash}.${safeExt}`;
+}
+
+// Downloads a single file from a URL to a local path
+function downloadFile(url, destPath) {
+    return new Promise((resolve, reject) => {
+        const proto = url.startsWith('https') ? https : http;
+        const file = fs.createWriteStream(destPath);
+        proto.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (res) => {
+            if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                file.close();
+                fs.unlink(destPath, () => {});
+                return downloadFile(res.headers.location, destPath).then(resolve).catch(reject);
+            }
+            if (res.statusCode !== 200) {
+                file.close();
+                fs.unlink(destPath, () => {});
+                return reject(new Error(`HTTP ${res.statusCode} for ${url}`));
+            }
+            res.pipe(file);
+            file.on('finish', () => file.close(resolve));
+            file.on('error', (e) => { fs.unlink(destPath, () => {}); reject(e); });
+        }).on('error', (e) => { fs.unlink(destPath, () => {}); reject(e); });
+    });
+}
+
+// IPC: Download a list of images to userData/images/ and return url→local mapping
+ipcMain.handle('download-images', async (event, imageList) => {
+    const imagesDir = path.join(app.getPath('userData'), 'images');
+    if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir, { recursive: true });
+
+    const results = {};
+    const errors = [];
+
+    await Promise.allSettled(
+        imageList.map(async ({ originalUrl, directUrl }) => {
+            try {
+                const filename = urlToFilename(directUrl);
+                const localPath = path.join(imagesDir, filename);
+                const localProtocolUrl = `app-image:///${filename}`;
+
+                // Skip download if file already exists and has content
+                const exists = fs.existsSync(localPath) && fs.statSync(localPath).size > 0;
+                if (!exists) {
+                    await downloadFile(directUrl, localPath);
+                }
+                results[originalUrl] = localProtocolUrl;
+            } catch (e) {
+                errors.push({ url: directUrl, error: e.message });
+            }
+        })
+    );
+
+    console.log(`📁 [Electron] Images cached: ${Object.keys(results).length} OK, ${errors.length} failed`);
+    if (errors.length > 0) console.warn('⚠️ [Electron] Failed images:', errors);
+    return results;
+});
+
+// IPC: Get the images directory path
+ipcMain.handle('get-images-dir', () => {
+    return path.join(app.getPath('userData'), 'images');
+});
+
 app.whenReady().then(async () => {
+    // Register app-image:// protocol to serve files from userData/images/
+    protocol.registerFileProtocol('app-image', (request, callback) => {
+        try {
+            const imagesDir = path.join(app.getPath('userData'), 'images');
+            // URL format: app-image:///filename.jpg
+            const filename = decodeURIComponent(request.url.replace(/^app-image:\/+/, ''));
+            const filePath = path.join(imagesDir, path.basename(filename)); // basename for security
+            callback({ path: filePath });
+        } catch (e) {
+            console.error('[app-image protocol] Error:', e.message);
+            callback({ error: -2 }); // net::ERR_FAILED
+        }
+    });
+
     try { await session.defaultSession.clearCache(); } catch (e) { }
     createMainWindow();
 });

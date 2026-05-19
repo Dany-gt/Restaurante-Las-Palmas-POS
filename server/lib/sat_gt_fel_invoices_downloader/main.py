@@ -3,7 +3,22 @@ import os.path
 import base64
 import codecs
 import logging
-import requests
+try:
+    from curl_cffi import requests
+    def create_session():
+        s = requests.Session(impersonate="chrome124")
+        s.headers.update({
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+        })
+        return s
+except ImportError:
+    import requests
+    def create_session():
+        s = requests.Session()
+        s.headers.update({
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+        })
+        return s
 from bs4 import BeautifulSoup, CData
 from urllib.parse import urlencode
 from datetime import datetime
@@ -31,9 +46,9 @@ TIMEOUT = 20
 
 
 class SatFelDownloader:
-    def __init__(self, credentials, url_get_fel, request_session=requests.Session()):
+    def __init__(self, credentials, url_get_fel, request_session=None):
         self._credentials = credentials
-        self._session = request_session
+        self._session = request_session or create_session()
         self._view_state = None
         self._url_get_fel = url_get_fel
 
@@ -365,9 +380,9 @@ Main entrance of the SAT Downloader.
 
 
 class SATDownloader:
-    def __init__(self, request_session=requests.Session()):
+    def __init__(self, request_session=None):
         self.credentials = None
-        self.session = request_session
+        self.session = request_session or create_session()
         self.url_get_fel = None
         self.its_initialized = False
         self.view_state = None

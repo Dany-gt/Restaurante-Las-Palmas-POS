@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head id="j_idt2"><link type="text/css" rel="stylesheet" href="/menu/javax.faces.resource/theme.css.jsf?ln=primefaces-saga" /><link type="text/css" rel="stylesheet" href="/menu/javax.faces.resource/primeicons/primeicons.css.jsf?ln=primefaces" /><link type="text/css" rel="stylesheet" href="/menu/javax.faces.resource/components.css.jsf?ln=primefaces" /><script type="text/javascript" src="/menu/javax.faces.resource/jquery/jquery.js.jsf?ln=primefaces"></script><script type="text/javascript" src="/menu/javax.faces.resource/jquery/jquery-plugins.js.jsf?ln=primefaces"></script><script type="text/javascript" src="/menu/javax.faces.resource/core.js.jsf?ln=primefaces"></script><script type="text/javascript" src="/menu/javax.faces.resource/components.js.jsf?ln=primefaces"></script><script type="text/javascript" src="/menu/javax.faces.resource/keyfilter/keyfilter.js.jsf?ln=primefaces"></script><script type="text/javascript" src="/menu/javax.faces.resource/inputmask/inputmask.js.jsf?ln=primefaces"></script><link type="text/css" rel="stylesheet" href="/menu/javax.faces.resource/primeicons/primeicons.css.jsf?ln=primefaces" /><script type="text/javascript">if(window.PrimeFaces){PrimeFaces.settings.locale='es';PrimeFaces.settings.viewId='/login.xhtml';PrimeFaces.settings.contextPath='/menu';PrimeFaces.settings.cookiesSecure=false;}</script>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" locale="es" />
+        <meta http-equiv="Content-Language" content="es" />
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <link rel="icon" type="image/x-icon" href="resources/iconos/av-96x96.png" />
+        <link rel="stylesheet" type="text/css" href="resources/css/theme.css?v=1.3" />
+		<link rel="stylesheet" type="text/css" href="resources/css/primeflex.css?v=1.2" />
+		<link rel="stylesheet" type="text/css" href="resources/css/themeLAV.css?v=1.2" />
+        <script name="jquery/query.js" library="primefaces"></script>
+        <title>Agencia Virtual</title></head><body onload="history.go(1)" onunload="history.go(1);"> 
+    	<script language="javascript">
+            document.oncontextmenu = function () {
+                return false
+            };
+            document.ondragstart = function () {
+                return false
+            };
+        </script>
+    	<div>
+    	
+    		<div id="content" class="ui-grid-responsive">
+<form id="formContent" name="formContent" method="post" action="/menu/login.jsf" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="formContent" value="formContent" />
+<div id="formContent:j_idt8" class="ui-messages ui-widget" aria-live="polite"></div><script id="formContent:j_idt8_s" type="text/javascript">$(function(){PrimeFaces.cw("Messages","widget_formContent_j_idt8",{id:"formContent:j_idt8"});});</script><div id="formContent:j_idt9"></div><script id="formContent:j_idt9_s" type="text/javascript">$(function(){PrimeFaces.cw("AjaxStatus","widget_formContent_j_idt9",{id:"formContent:j_idt9",delay:0,start:function(){PF('statusDialog').show()},success:function(){PF('statusDialog').hide()}});});</script><body class="body-login">
+
+                        <div class="contenedor-principal">
+                            
+                            <div class="grid login-card-container">
+                                
+                                <div class="col-12 md:col-12 lg:col-6 xl:col-6 login-card-col col-logos"><div id="formContent:cardLogo" class="ui-card ui-widget ui-widget-content ui-corner-all login-card-logos"><div class="ui-card-body"><div class="ui-card-content">
+                                        <div class="logos-container"> 
+                                            <div class="logo-av-container fadein animation-duration-1000"><img id="formContent:logoAvLarge" src="/menu/javax.faces.resource/images/logAV.png.jsf" alt="" class="logo-large" ismap="false" /><img id="formContent:logoAvSmall" src="/menu/javax.faces.resource/images/Logo AV-1_2x.png.jsf" alt="" class="logo-small" ismap="false" />
+                                            </div>
+                                            <div class="logo-sat-footer">
+                                                <div class="login-field flex-row">
+                                                    <i class="pi pi-video mr-2 text-white"></i><a href="https://www.youtube.com/watch?v=r_owJiLgMIA" class="ui-link ui-widget login-enlaces-conoce-av" target="_blank">Conoce más acerca de Agencia Virtual</a>
+                                                </div>
+                                                <div><img id="formContent:j_idt16" src="/menu/javax.faces.resource/images/logo_sat.png.jsf" alt="" class="px-3 footer-sat-logo" ismap="false" />
+                                                </div>
+                                            </div>
+                                        </div></div></div></div>
+                                </div>
+                                
+                                <div class="col-12 md:col-12 lg:col-6 xl:col-6 login-card-col col-forms"><div id="formContent:cardLogin" class="ui-card ui-widget ui-widget-content ui-corner-all login-card-forms" style="display:block"><div class="ui-card-body"><div class="ui-card-content">
+
+                                        <div id="loginEncabezado" class="text-center py-2"><label id="formContent:j_idt20" class="ui-outputlabel ui-widget login-encabezado">Accede a tu Agencia Virtual</label>
+                                        </div>
+                                        
+                                        <div id="loginMsgError" class="text-center py-2"><span id="formContent:otMensaje" class="white-error error" style="display:inline">Credenciales inválidas</span>
+                                        </div>
+                                        
+                                        <div id="loginFormulario" class="login-formulario">
+                                            
+                                            <div class="login-field">
+                                                <span class="ui-input-icon-left login-input-group">
+                                                    <i class="pi pi-user" style="color: var(--sat-color-active);"></i><script id="formContent:j_idt23_s" type="text/javascript">$(function(){PrimeFaces.cw("KeyFilter","widget_formContent_j_idt23",{id:"formContent:j_idt23",target:"formContent:username",regEx:/[a-z0-9_]/i,preventPaste:true});});</script><input id="formContent:username" name="formContent:username" type="text" value="12345678" class="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all border-txt login-input-text" autocomplete="off" maxlength="13" placeholder="Usuario" tabindex="1" /><script id="formContent:username_s" type="text/javascript">$(function(){PrimeFaces.cw("InputText","dUserName",{id:"formContent:username",maxlength:13});});</script><span id="formContent:j_idt24"></span><script type="text/javascript">$(function(){PrimeFaces.focus('formContent:username');});</script><button id="formContent:btnAgenciaVirtual" name="formContent:btnAgenciaVirtual" type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only round-buttoncont" style="display:block" onclick="PF('vntAgenciaVirtual').show();;window.open('\/menu\/login.jsf','_self')"><span class="ui-button-icon-left ui-icon ui-c pi pi-info-circle"></span><span class="ui-button-text ui-c">ui-button</span></button><script id="formContent:btnAgenciaVirtual_s" type="text/javascript">$(function(){PrimeFaces.cw("Button","widget_formContent_btnAgenciaVirtual",{id:"formContent:btnAgenciaVirtual"});});</script>
+                                                </span>
+                                            </div>
+
+                                            <div class="login-field">
+                                                <span class="ui-input-icon-left login-input-group">
+                                                    <i class="pi pi-lock" style="color: var(--sat-color-active);"></i><input id="formContent:password" name="formContent:password" type="password" value="ClaveMala123" class="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all border-txt login-input-text" maxlength="50" placeholder="Contraseña" tabindex="2" /><script id="formContent:password_s" type="text/javascript">$(function(){PrimeFaces.cw("InputText","widget_formContent_password",{id:"formContent:password",maxlength:50});});</script><button id="formContent:btnRecuperarContrasenia" name="formContent:btnRecuperarContrasenia" type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only round-buttoncont" style="display:block" onclick="PF('vntRecuperarContrasenia').show();;window.open('\/menu\/login.jsf','_self')"><span class="ui-button-icon-left ui-icon ui-c pi pi-info-circle"></span><span class="ui-button-text ui-c">ui-button</span></button><script id="formContent:btnRecuperarContrasenia_s" type="text/javascript">$(function(){PrimeFaces.cw("Button","widget_formContent_btnRecuperarContrasenia",{id:"formContent:btnRecuperarContrasenia"});});</script>                                        
+                                                </span>
+                                            </div>
+
+                                            <div class="login-field"><div id="formContent:j_idt27" class="ui-selectbooleancheckbox ui-chkbox ui-widget round-checkbox"><div class="ui-helper-hidden-accessible"><input id="formContent:j_idt27_input" name="formContent:j_idt27_input" type="checkbox" aria-label="Permisos delegados" tabindex="3" /></div><div class="ui-chkbox-box ui-widget ui-corner-all ui-state-default"><span class="ui-chkbox-icon ui-icon ui-icon-blank ui-c"></span></div><span class="ui-chkbox-label">Permisos delegados</span></div><script id="formContent:j_idt27_s" type="text/javascript">$(function(){PrimeFaces.cw("SelectBooleanCheckbox","widget_formContent_j_idt27",{id:"formContent:j_idt27"});});</script>
+                                            </div>
+
+                                            <div class="login-field"><button id="formContent:cmdbtnIngresar" name="formContent:cmdbtnIngresar" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only btn-iniciar-sesion" onclick="PrimeFaces.ab({s:&quot;formContent:cmdbtnIngresar&quot;,f:&quot;formContent&quot;,u:&quot;formContent:otMensaje&quot;});return false;" tabindex="4" type="submit"><span class="ui-button-text ui-c">Iniciar Sesión</span></button><script id="formContent:cmdbtnIngresar_s" type="text/javascript">$(function(){PrimeFaces.cw("CommandButton","widget_formContent_cmdbtnIngresar",{id:"formContent:cmdbtnIngresar"});});</script>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style="display:block">
+                                            <div class="login-enlaces">    
+                                                <div class="login-field"><a href="https://portal.sat.gob.gt/portal/recuperacion-contrasena/" class="ui-link ui-widget login-enlaces-forms" target="_blank">¿Olvidaste tu contraseña?</a>
+                                                </div>
+
+                                                <div class="login-field"><a href="https://portal.sat.gob.gt/portal/solicitud-usuario-agencia-virtual/" class="ui-link ui-widget login-enlaces-forms" target="_blank">¿No tienes Agencia Virtual?</a>
+                                                </div>
+
+                                                <div class="login-field"><a href="https://portal.sat.gob.gt/portal/cambio-de-correo-electronico-de-agencia-virtual/" class="ui-link ui-widget login-enlaces-forms" target="_blank">¿Olvidaste tu correo electrónico de Agencia Virtual?</a>
+                                                </div>  
+                                            </div>    
+                                        </div></div><div class="ui-card-footer"><div id="formContent:j_idt36" role="separator" class="ui-divider ui-widget separador-logos ui-divider-horizontal ui-divider-solid ui-divider-center"><div class="ui-divider-content"><button id="formContent:j_idt37" name="formContent:j_idt37" type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only ui-button button-conoce-mas-mobile" onclick="window.open('https:\/\/www.youtube.com\/watch?v=r_owJiLgMIA','_blank')"><span class="ui-button-text ui-c">Conoce más acerca de Agencia Virtual</span></button><script id="formContent:j_idt37_s" type="text/javascript">$(function(){PrimeFaces.cw("Button","widget_formContent_j_idt37",{id:"formContent:j_idt37"});});</script></div></div>
+
+                                            <div class="login-field"><img id="formContent:j_idt39" src="/menu/javax.faces.resource/images/satazul.png.jsf" alt="" class="px-3 footer-sat-logo" ismap="false" style="height:60px;width: auto;" />
+                                            </div></div></div></div><div id="formContent:cardCode" class="ui-card ui-widget ui-widget-content ui-corner-all login-card-forms" style="display:none"><div class="ui-card-body"><div class="ui-card-content">
+                                        
+                                        <div id="loginEncabezadoAuth" class="text-center py-2"><label id="formContent:j_idt42" class="ui-outputlabel ui-widget login-encabezado">Accede a tu Agencia Virtual</label>
+                                        </div>
+                                        
+                                        <div id="loginMsgAuth" class="login-auth">
+                                            <img src="resources/iconos/phone.png" alt="Icono" class="px-2" /><label id="formContent:j_idt44" class="ui-outputlabel ui-widget">Abre la aplicación Authenticator e ingresa el código de un solo uso</label>
+                                        </div>
+                                        
+                                        <div class="login-field">
+                                            <span class="ui-input-icon-left login-input-group">
+                                                    <i class="pi pi-key" style="color: #146498;"></i><input id="formContent:inMaskVerifyCode" name="formContent:inMaskVerifyCode" type="text" value="" autocomplete="off" tabindex="1" class="ui-inputfield ui-inputmask ui-widget ui-state-default ui-corner-all border-txt login-input-auth-text" /><script id="formContent:inMaskVerifyCode_s" type="text/javascript">$(function(){PrimeFaces.cw("InputMask","widget_formContent_inMaskVerifyCode",{id:"formContent:inMaskVerifyCode",mask:"999 999"});});</script><span id="formContent:j_idt47"></span><script type="text/javascript">$(function(){PrimeFaces.focus('formContent:inMaskVerifyCode');});</script>
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="login-field"><button id="formContent:cmdbtnVerifyCode" name="formContent:cmdbtnVerifyCode" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only btn-iniciar-sesion" onclick="PrimeFaces.ab({s:&quot;formContent:cmdbtnVerifyCode&quot;,f:&quot;formContent&quot;,u:&quot;formContent&quot;});return false;" tabindex="2" type="submit"><span class="ui-button-text ui-c">Comprobar</span></button><script id="formContent:cmdbtnVerifyCode_s" type="text/javascript">$(function(){PrimeFaces.cw("CommandButton","widget_formContent_cmdbtnVerifyCode",{id:"formContent:cmdbtnVerifyCode"});});</script>
+                                        </div></div><div class="ui-card-footer"><div id="formContent:j_idt50" role="separator" class="ui-divider ui-widget separador-logos ui-divider-horizontal ui-divider-solid ui-divider-center"><div class="ui-divider-content"><button id="formContent:j_idt51" name="formContent:j_idt51" type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only ui-button button-conoce-mas-mobile" onclick="window.open('https:\/\/www.youtube.com\/watch?v=r_owJiLgMIA','_blank')"><span class="ui-button-text ui-c">Conoce más acerca de Agencia Virtual</span></button><script id="formContent:j_idt51_s" type="text/javascript">$(function(){PrimeFaces.cw("Button","widget_formContent_j_idt51",{id:"formContent:j_idt51"});});</script></div></div>
+
+                                            <div class="login-field"><img id="formContent:j_idt53" src="/menu/javax.faces.resource/images/satazul.png.jsf" alt="" class="px-3 footer-sat-logo" ismap="false" style="height:60px;width: auto;" />
+                                            </div></div></div></div>
+                                      
+                                </div>
+                                
+                            </div>
+                            
+                        </div><script id="formContent:j_idt56_s" type="text/javascript">$(function(){PrimeFaces.cw("DefaultCommand","widget_formContent_j_idt56",{id:"formContent:j_idt56",target:"formContent:cmdbtnIngresar",scope:"formContent:cardLogin"});});</script><script id="formContent:j_idt57_s" type="text/javascript">$(function(){PrimeFaces.cw("DefaultCommand","widget_formContent_j_idt57",{id:"formContent:j_idt57",target:"formContent:cmdbtnVerifyCode",scope:"formContent:cardCode"});});</script><div id="formContent:vntAgenciaVirtual" class="ui-overlaypanel ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container overlay-style"><div class="ui-overlaypanel-content"><table>
+<tbody>
+<tr>
+<td><span class="overlay-title">¿Cómo ingreso a mi Agencia Virtual?</span></td>
+</tr>
+<tr>
+<td>
+						<br /></td>
+</tr>
+<tr>
+<td><span class="overlay-text" style="text-align: justify;">Para ingresar a la Agencia Virtual puedes ingresar tu NIT o CUI en el campo usuario e ingresar tu contraseña</span></td>
+</tr>
+<tr>
+<td>
+						<br /></td>
+</tr>
+<tr>
+<td><span class="overlay-text" style="text-align: justify;">Si no cuentas con tu NIT solicitalo</span></td>
+</tr>
+<tr>
+<td>
+						<div style="text-align: center"></td>
+</tr>
+<tr>
+<td><a href="https://portal.sat.gob.gt/portal/solicitud-usuario-agencia-virtual/" class="ui-link ui-widget" target="_blank">aquí</a></td>
+</tr>
+<tr>
+<td>
+						</div>
+						<br /></td>
+</tr>
+<tr>
+<td><span class="overlay-text" style="text-align: justify;">Si te asignaron algún permiso de alguna aplicación, debes ingresar: usuario, contraseña y marcar el cuadro de texto "Permisos delegados"</span></td>
+</tr>
+<tr>
+<td>
+						<br /></td>
+</tr>
+<tr>
+<td><button id="formContent:j_idt69" name="formContent:j_idt69" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only btn-cerrar" onclick="PrimeFaces.bcn(this,event,[function(event){PF('vntAgenciaVirtual').hide();},function(event){PrimeFaces.ab({s:&quot;formContent:j_idt69&quot;,f:&quot;formContent&quot;});return false;}]);" type="submit"><span class="ui-button-text ui-c">Cerrar</span></button><script id="formContent:j_idt69_s" type="text/javascript">$(function(){PrimeFaces.cw("CommandButton","widget_formContent_j_idt69",{id:"formContent:j_idt69"});});</script></td>
+</tr>
+</tbody>
+</table>
+</div><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9fd66fe5fc7f3495',t:'MTc3OTA2MDkxMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></div><script id="formContent:vntAgenciaVirtual_s" type="text/javascript">$(function(){PrimeFaces.cw("OverlayPanel","overlayPanelWidget1",{id:"formContent:vntAgenciaVirtual",target:"formContent:btnAgenciaVirtual"});});</script><div id="formContent:vntRecuperarContrasenia" class="ui-overlaypanel ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container overlay-style"><div class="ui-overlaypanel-content"><table>
+<tbody>
+<tr>
+<td><span class="overlay-title">Seguridad para tu Agencia Virtual</span></td>
+</tr>
+<tr>
+<td>
+						<br />
+						<label for="password" class="label-with-icon overlay-text">
+							<i class="pi pi-lock"></i>Contraseña segura
+						</label></td>
+</tr>
+<tr>
+<td><span class="overlay-text" style="text-align: justify;">Una contraseña debe ser larga con al menos 8 caracteres, la cual debe contener: mayúsculas, minúsculas, números y símbolos.</span></td>
+</tr>
+<tr>
+<td>
+						<br /></td>
+</tr>
+<tr>
+<td><span class="overlay-text" style="text-align: justify;">Al tener tu contraseña no la debes compartir con otra persona</span></td>
+</tr>
+<tr>
+<td>
+						<br />
+						<div style="align-content: center"></td>
+</tr>
+<tr>
+<td><button id="formContent:j_idt77" name="formContent:j_idt77" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only btn-cerrar" onclick="PrimeFaces.bcn(this,event,[function(event){PF('overlayPanelWidget').hide();},function(event){PrimeFaces.ab({s:&quot;formContent:j_idt77&quot;,f:&quot;formContent&quot;});return false;}]);" type="submit"><span class="ui-button-text ui-c">Cerrar</span></button><script id="formContent:j_idt77_s" type="text/javascript">$(function(){PrimeFaces.cw("CommandButton","widget_formContent_j_idt77",{id:"formContent:j_idt77"});});</script></td>
+</tr>
+<tr>
+<td>
+						</div></td>
+</tr>
+</tbody>
+</table>
+</div></div><script id="formContent:vntRecuperarContrasenia_s" type="text/javascript">$(function(){PrimeFaces.cw("OverlayPanel","overlayPanelWidget",{id:"formContent:vntRecuperarContrasenia",target:"formContent:btnRecuperarContrasenia"});});</script></body><input type="hidden" name="javax.faces.ViewState" id="j_id1:javax.faces.ViewState:0" value="stateless" autocomplete="off" />
+</form>
+    		</div><div id="j_idt80" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="j_idt80_title" class="ui-dialog-title"></span></div><div class="ui-dialog-content ui-widget-content" id="j_idt80_content"><table style="margin-left:auto; margin-right: auto;">
+<tbody>
+<tr>
+<td><img id="j_idt82" src="resources/images/cargando.gif?pfdrid_c=true" alt="" class="loading-img" ismap="false" /></td>
+</tr>
+</tbody>
+</table>
+</div></div><script id="j_idt80_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","statusDialog",{id:"j_idt80",draggable:false,resizable:false,modal:true,width:"330",minWidth:330});});</script>
+    	</div></body>
+</html>

@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { Search, User, Phone, ChevronLeft, CreditCard, Plus, Check, Loader2, X } from 'lucide-react';
+import { Search, User, Phone, ChevronLeft, CreditCard, Plus, Check, Loader2, X, UserPlus } from 'lucide-react';
 import { supabase } from '../supabase';
 import { Customer, Order, POSTerminal } from '../types';
-import { NewCustomerModal } from './NewCustomerModal';
+import { NewCreditCustomerModal } from './NewCreditCustomerModal';
 import { printService } from '../services/PrintService';
 
 interface CreditSelectorProps {
@@ -142,12 +142,13 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
                         </div>
                     </div>
 
-                    <div className="p-4 bg-white/[0.02] border-t border-white/5 backdrop-blur-md">
+                    <div className="p-4 flex justify-center pb-8">
                         <button
                             onClick={() => setShowNewCustomerModal(true)}
-                            className="w-full h-12 bg-white/5 hover:bg-white/10 rounded-xl border border-dashed border-white/10 flex items-center justify-center gap-2 text-gray-400 text-[11px] font-black uppercase tracking-[0.2em] transition-all hover:text-white hover:border-indigo-500/50"
+                            className="w-12 h-12 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 flex items-center justify-center text-gray-400 transition-all hover:text-white hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10 active:scale-95"
+                            title="Nuevo Cliente"
                         >
-                            <Plus size={16} /> Nuevo Cliente
+                            <UserPlus size={20} />
                         </button>
                     </div>
                 </div>
@@ -270,9 +271,10 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
             </div>
 
             {showNewCustomerModal && (
-                <NewCustomerModal
+                <NewCreditCustomerModal
                     onClose={() => setShowNewCustomerModal(false)}
                     onCustomerAdded={fetchCustomers}
+                    settings={settings}
                 />
             )}
         </div>

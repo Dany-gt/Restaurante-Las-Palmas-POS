@@ -104,11 +104,24 @@ class SatFelDownloader:
         return False
 
     def _get_invoices_headers(self, filter: SATFELFilters):
+        import sys
         logging.info("CALL URL GET FEL (ESTABLISHING SESSION)")
         
         # Debemos visitar la URL de redirección para que se activen las cookies ACCESS_TOKEN / felTokc
         # Esta URL es la que el menú generó dinámicamente
+        print(f"[DIAG] Visitando url_get_fel: {self._url_get_fel}", file=sys.stderr)
         r_fel = self._session.get(self._url_get_fel, timeout=TIMEOUT, allow_redirects=True)
+        print(f"[DIAG] r_fel status: {r_fel.status_code}", file=sys.stderr)
+        print(f"[DIAG] r_fel url: {r_fel.url}", file=sys.stderr)
+        print(f"[DIAG] r_fel text length: {len(r_fel.text)} bytes", file=sys.stderr)
+        print(f"[DIAG] r_fel body:\n{r_fel.text}\n", file=sys.stderr)
+        try:
+            cookie_dict = self._session.cookies.get_dict()
+        except:
+            cookie_dict = {str(c): 'val' for c in self._session.cookies}
+        print(f"[DIAG] Session cookies before checking: {cookie_dict}", file=sys.stderr)
+        if "challenge" in r_fel.text or "Cloudflare" in r_fel.text:
+            print("[DIAG] WAF/Cloudflare detectado en redirección DTE!", file=sys.stderr)
         
         operation_param = filter.tipo
         cookie = self._session.cookies.get("ACCESS_TOKEN") or self._session.cookies.get("felTokc")
@@ -134,8 +147,18 @@ class SatFelDownloader:
             "https://felcons.c.sat.gob.gt/dte-agencia-virtual/api/consulta-dte?"
             + urlencode(dict_query)
         )
-        header = {"authtoken": "token " + cookie}
+        header = {
+            "Authorization": cookie,
+            "Accept": "application/json, text/plain, */*",
+            "Origin": "https://felcons.c.sat.gob.gt",
+            "Referer": self._url_get_fel if hasattr(self, '_url_get_fel') and self._url_get_fel else "https://felcons.c.sat.gob.gt/dte-agencia-virtual/"
+        }
+        print(f"[DIAG] Haciendo GET API a: {url}", file=sys.stderr)
+        print(f"[DIAG] headers: {header}", file=sys.stderr)
         r = self._session.get(url, headers=header, timeout=TIMEOUT)
+        print(f"[DIAG] API status: {r.status_code}", file=sys.stderr)
+        if r.status_code != 200:
+            print(f"[DIAG] API error response: {r.text}", file=sys.stderr)
         r.raise_for_status()
         
         json_res = r.json()
@@ -190,7 +213,12 @@ class SatFelDownloader:
         }
         url += urlencode(dict_query)
         cookie = self._session.cookies.get("ACCESS_TOKEN") or self._session.cookies.get("felTokc")
-        header = {"authtoken": "token " + cookie}
+        header = {
+            "Authorization": cookie,
+            "Accept": "application/json, text/plain, */*",
+            "Origin": "https://felcons.c.sat.gob.gt",
+            "Referer": self._url_get_fel if hasattr(self, '_url_get_fel') and self._url_get_fel else "https://felcons.c.sat.gob.gt/dte-agencia-virtual/"
+        }
         r = self._session.post(url, headers=header, json=[invoice], timeout=TIMEOUT)
         if r.status_code == 500:
             logging.warn("Did get 500 error trying pdf contingency")

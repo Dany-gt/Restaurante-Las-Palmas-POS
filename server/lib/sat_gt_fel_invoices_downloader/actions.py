@@ -1,7 +1,10 @@
 import re
 import datetime
 import logging
-import requests
+try:
+    from curl_cffi import requests
+except ImportError:
+    import requests
 from bs4 import BeautifulSoup, CData
 from urllib.parse import urlencode
 
@@ -37,21 +40,34 @@ class SATDoLogin:
             login_url, data=login_dict, timeout=TIMEOUT
         )
         r.raise_for_status()
-        logging.info("Did make loging")
+        logging.info("Did make login")
         
         # Guardar para poder inspeccionarlo
         with open(r"C:\Users\CyR Las Palmas\Documents\Restaurante Las Palmas POS\server\login_response.html", "w", encoding="utf-8") as f:
             f.write(r.text)
             
         bs = BeautifulSoup(r.text, features="html.parser")
+        
+        # 1. Verificar si hay un mensaje de error explícito de JSF/PrimeFaces
+        err_msg = bs.find("span", {"id": "formContent:otMensaje"}) or bs.find(class_="white-error") or bs.find(class_="ui-messages-error")
+        if err_msg and err_msg.text.strip():
+            logging.error(f"Error de credenciales en login SAT: {err_msg.text.strip()}")
+            return (False, None)
+            
+        # 2. Verificar si contiene el enlace al DTE o si no hay indicador de error en el texto
+        if "Consultar DTE" not in r.text and ("inválidas" in r.text or "incorrecto" in r.text or "incorrecta" in r.text):
+            logging.error("Error de autenticación: Credenciales incorrectas o portal bloqueado.")
+            return (False, None)
+            
         view_state = bs.find("input", {"name": "javax.faces.ViewState"})
         if view_state and "value" in view_state.attrs.keys():
             self._view_state = view_state["value"]
             logging.info(self._view_state)
             logging.info("Did get view state")
             return (True, self._view_state)
+            
         logging.warning("Didn't get view state")
-        return (True, self._view_state)
+        return (False, None)
 
 
 class SATDoLogout:

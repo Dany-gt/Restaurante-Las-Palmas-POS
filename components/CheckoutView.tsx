@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Order, User, Table, OrderItem, POSTerminal, Customer } from '../types';
-import { ChevronLeft, Delete, Check, CreditCard, Banknote, Landmark, Wallet, Percent, User as UserIcon, Printer, FileText, ShoppingCart, X, RotateCcw } from 'lucide-react';
+import { ChevronLeft, Delete, Check, CreditCard, Banknote, Landmark, Wallet, Percent, User as UserIcon, Printer, FileText, ShoppingCart, X, RotateCcw, Trash2 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { InvoiceModal } from './InvoiceModal';
 import { CreditSelector } from './CreditSelector';
@@ -27,7 +27,7 @@ interface CheckoutViewProps {
 
 export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, currentUser, settings, onBack, onComplete }) => {
     const [amount, setAmount] = useState('0');
-    const [payments, setPayments] = useState<{ method: string, amount: number, processor?: string, customer_id?: string, customer_name?: string }[]>([]);
+    const [payments, setPayments] = useState<{ method: string, amount: number, processor?: string, customer_id?: string, customer_name?: string, notes?: string }[]>([]);
     const [selectedMethod, setSelectedMethod] = useState('EFECTIVO');
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [showPosSelector, setShowPosSelector] = useState(false);
@@ -129,6 +129,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
             const { data } = await query;
             if (data) {
                 setTerminals(data);
+                // Preload images for faster rendering when modal opens
+                data.forEach(pos => {
+                    if (pos.logo_url) {
+                        const img = new Image();
+                        img.src = pos.logo_url;
+                    }
+                });
             }
         };
         fetchTerminals();
@@ -322,7 +329,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
             method: 'OTROS',
             amount: data.amount,
             processor: data.subType, // We'll re-use 'processor' for subType
-            customer_name: data.documentNo // We'll re-use 'customer_name' for doc no
+            customer_name: data.documentNo, // We'll re-use 'customer_name' for doc no
+            notes: data.description
         }]);
         setShowOtherModal(false);
         setAmount('0');
@@ -834,7 +842,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                 metodo: p.method,
                                 monto: p.amount,
                                 procesador: p.processor,
-                                cliente_credito: p.customer_name
+                                cliente_credito: p.customer_name,
+                                notas: p.notes
                             })),
                             cajero: currentUser.name
                         },
@@ -995,9 +1004,14 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                             </div>
                                         ))}
                                         {method === 'OTROS' && methodPayments.map((p, i) => (
-                                            <div key={i} className="flex justify-between text-[10px] text-gray-500 font-bold uppercase tracking-widest pl-4 leading-tight">
-                                                <span>• {p.processor} {p.customer_name ? `(${p.customer_name})` : ''}</span>
-                                                <span>{currency}{p.amount.toFixed(2)}</span>
+                                            <div key={i} className="flex flex-col gap-1 pl-4 mb-2">
+                                                <div className="flex justify-between text-[10px] text-gray-500 font-bold uppercase tracking-widest leading-tight">
+                                                    <span>• {p.processor} {p.customer_name ? `(${p.customer_name})` : ''}</span>
+                                                    <span>{currency}{p.amount.toFixed(2)}</span>
+                                                </div>
+                                                {p.notes && (
+                                                    <span className="text-[9px] text-gray-600 font-medium italic pr-2">Nota: {p.notes}</span>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -1036,48 +1050,38 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     )}
                 </div>
 
-                {/* MIDDLE PANEL: ITEMS LIST */}
-                <div className="flex-1 bg-[#1e212b] rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col">
-                    <div className="p-2 sm:p-3 border-b border-white/5 bg-white/5 flex items-center justify-between text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-wider text-gray-300 relative">
-                        {/* Left spacer to help center the middle content */}
-                        <div className="w-1 sm:w-6 hidden lg:block"></div>
-
-                        <div className="flex-1 flex flex-nowrap justify-center items-center gap-x-1 sm:gap-x-2 overflow-hidden whitespace-nowrap">
-                            <span className="text-white shrink-0">ORDEN: #{(order as any).order_number || '...'}</span>
-                            <span className="text-gray-600 shrink-0">|</span>
-                            <span className="text-white font-black shrink-0 uppercase tracking-widest">
-                                {!order.customer_name || order.customer_name.toUpperCase() === 'CUENTA PRINCIPAL' ? 'CUENTA 1' : order.customer_name}
-                            </span>
-                            <span className="text-gray-600 shrink-0">|</span>
-                            <span className="text-white shrink-0">{table?.section || 'SALA'}</span>
-                            <span className="text-gray-600 shrink-0">|</span>
-                            <span className="text-white shrink-0">MESA: {table?.number || '?'}</span>
-                            <span className="text-gray-600 shrink-0">|</span>
-                            <span className="text-gray-400 shrink-0">ATIENDE: {(order as any).profiles?.name || currentUser?.name || 'Mesero'}</span>
-                            <span className="text-gray-600 shrink-0">|</span>
-                            <span className="text-white font-black shrink-0 uppercase tracking-widest">
-                                {order.items?.length || 0} PLATILLOS
-                            </span>
-                        </div>
-
-                        <div className="w-2 sm:w-12 hidden lg:block"></div>
-                    </div>
+                {/* MIDDLE PANEL: PAYMENTS LIST */}
+                <div className="flex-1 bg-[#1e212b] rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col relative">
                     <div className="flex-1 overflow-y-auto p-6 space-y-2">
-                        {order.items?.map((item, idx) => (
-                            <div key={idx} className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white font-black">
-                                        {item.quantity}
-                                    </div>
+                        {payments.length === 0 ? (
+                            <div className="h-full flex items-center justify-center text-white/20 font-black uppercase tracking-widest text-sm">
+                                Sin pagos
+                            </div>
+                        ) : (
+                            payments.map((p, idx) => (
+                                <div key={idx} className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
                                     <div className="flex flex-col">
-                                        <span className="text-sm font-bold text-gray-200">{item.product_name}</span>
-                                        <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{currency}{(item.unit_price || 0).toFixed(2)} c/u</span>
+                                        <span className="text-sm font-bold text-gray-200 capitalize">{p.method.toLowerCase()}</span>
+                                        <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{p.processor || p.customer_name || p.method}</span>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <span className="text-sm font-black text-white">{currency}{p.amount.toFixed(2)}</span>
                                     </div>
                                 </div>
-                                <span className="text-sm font-black text-white">{currency}{((item.unit_price || 0) * (item.quantity || 0)).toFixed(2)}</span>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
+                    {payments.length > 0 && (
+                        <div className="absolute bottom-6 right-6">
+                            <button
+                                onClick={handleReset}
+                                className="w-12 h-12 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 border border-white/10 rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-lg"
+                                title="Limpiar pagos"
+                            >
+                                <Trash2 size={20} />
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* RIGHT PANEL: KEYPAD & METHODS */}
@@ -1178,36 +1182,30 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
 
             {/* POS SELECTOR MODAL */}
             {showPosSelector && (
-                <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[120] flex items-center justify-center p-6 animate-in fade-in duration-300">
-                    <div className="bg-[#14171c] w-full max-w-4xl rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col">
-                        <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">Selección de Procesador</span>
-                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">SELECCIONE POS</h3>
-                            </div>
-                            <button onClick={() => { setShowPosSelector(false); setSelectedTerminal(null); }} className="p-3 bg-white/5 rounded-full text-white transition-all">
-                                <X size={24} />
-                            </button>
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[120] flex items-center justify-center p-6 animate-in fade-in duration-200">
+                    <div className="bg-[#2d2f3d] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col">
+                        <div className="pt-8 pb-6 flex justify-center items-center">
+                            <h3 className="text-sm font-bold text-white uppercase tracking-wider">SELECCIONE POS</h3>
                         </div>
 
-                        <div className="p-10 md:p-14 mb-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                        <div className="px-10 pb-8">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                                 {terminals.map(pos => (
                                     <button
                                         key={pos.id}
                                         onClick={() => setSelectedTerminal(pos)}
-                                        className={`group relative aspect-[1.4/1] bg-white rounded-3xl flex flex-col items-center justify-center p-6 transition-all active:scale-95 border-4 ${selectedTerminal?.id === pos.id ? 'border-black ring-8 ring-white/10 shadow-2xl' : 'border-transparent shadow-xl'}`}
+                                        className={`relative flex flex-col rounded-lg overflow-hidden transition-all active:scale-95 ${selectedTerminal?.id === pos.id ? 'ring-2 ring-white shadow-lg' : 'ring-1 ring-white/10 hover:ring-white/30 shadow'}`}
                                     >
-                                        <div className="flex-1 w-full flex items-center justify-center p-2">
+                                        <div className="w-full bg-white h-24 flex items-center justify-center p-4">
                                             {pos.logo_url ? (
-                                                <img src={pos.logo_url} alt={pos.name} className="max-w-full max-h-[80%] object-contain transition-all group-hover:scale-110" />
+                                                <img src={pos.logo_url} alt={pos.name} className="max-w-full max-h-full object-contain" loading="eager" fetchPriority="high" />
                                             ) : (
-                                                <div className="flex flex-col items-center gap-3 text-gray-300">
-                                                    <CreditCard size={48} />
+                                                <div className="flex flex-col items-center gap-2 text-gray-800">
+                                                    <CreditCard size={32} strokeWidth={1.5} />
                                                 </div>
                                             )}
                                         </div>
-                                        <div className={`w-full h-10 flex items-center justify-center text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-xl mt-2 ${selectedTerminal?.id === pos.id ? 'bg-black text-white' : 'bg-black/5 text-gray-400 group-hover:bg-black/10 group-hover:text-black'}`}>
+                                        <div className={`w-full h-9 flex items-center justify-center text-[11px] font-bold uppercase transition-all ${selectedTerminal?.id === pos.id ? 'bg-[#43465b] text-white' : 'bg-[#353746] text-white/80'}`}>
                                             {pos.name}
                                         </div>
                                     </button>
@@ -1215,17 +1213,17 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                             </div>
                         </div>
 
-                        <div className="p-10 bg-[#0d0f13] border-t border-white/5 flex gap-6">
+                        <div className="pb-8 flex justify-center gap-4">
                             <button
                                 onClick={() => { setShowPosSelector(false); setSelectedTerminal(null); }}
-                                className="flex-1 h-16 rounded-[1.5rem] border border-white/10 bg-white/5 font-black uppercase tracking-[0.2em] text-[11px] text-gray-500 hover:text-white transition-all active:scale-95"
+                                className="px-8 py-2.5 rounded-md border border-white/20 text-white text-xs font-bold uppercase tracking-wide hover:bg-white/5 transition-all active:scale-95 min-w-[120px]"
                             >
                                 CANCELAR
                             </button>
                             <button
                                 onClick={() => selectedTerminal && handlePosSelect(selectedTerminal.name)}
                                 disabled={!selectedTerminal}
-                                className={`flex-1 h-16 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all flex items-center justify-center gap-3 active:scale-95 ${selectedTerminal ? 'bg-white text-black hover:bg-white/90 shadow-xl' : 'bg-white/5 text-white/20 cursor-not-allowed opacity-50'}`}
+                                className={`px-8 py-2.5 rounded-md text-white text-xs font-bold uppercase tracking-wide transition-all active:scale-95 min-w-[120px] ${selectedTerminal ? 'bg-[#7a73ff] hover:bg-[#6861ff] shadow-lg' : 'bg-[#7a73ff]/50 cursor-not-allowed opacity-70'}`}
                             >
                                 ACEPTAR
                             </button>

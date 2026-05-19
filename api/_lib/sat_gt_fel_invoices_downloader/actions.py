@@ -49,6 +49,18 @@ class SATDoLogin:
         self._last_html = r.text # Guardamos para diagnóstico interno
         
         bs = BeautifulSoup(r.text, features="html.parser")
+        
+        # 1. Verificar si hay un mensaje de error explícito de JSF/PrimeFaces
+        err_msg = bs.find("span", {"id": "formContent:otMensaje"}) or bs.find(class_="white-error") or bs.find(class_="ui-messages-error")
+        if err_msg and err_msg.text.strip():
+            logging.error(f"Error de credenciales en login SAT: {err_msg.text.strip()}")
+            return (False, None)
+            
+        # 2. Verificar si contiene el enlace al DTE o si no hay indicador de error en el texto
+        if "Consultar DTE" not in r.text and ("inválidas" in r.text or "incorrecto" in r.text or "incorrecta" in r.text):
+            logging.error("Error de autenticación: Credenciales incorrectas o portal bloqueado.")
+            return (False, None)
+            
         view_state = bs.find("input", {"name": "javax.faces.ViewState"})
         if view_state and "value" in view_state.attrs.keys():
             self._view_state = view_state["value"]
@@ -183,6 +195,11 @@ class SATGetStablisments:
     def execute(self):
         url = "https://felcons.c.sat.gob.gt/dte-agencia-virtual/api/catalogo/establecimientos"
         cookie = self._session.cookies.get("ACCESS_TOKEN") or self._session.cookies.get("felTokc")
-        header = {"authtoken": "token " + cookie}
+        header = {
+            "Authorization": cookie,
+            "Accept": "application/json, text/plain, */*",
+            "Origin": "https://felcons.c.sat.gob.gt",
+            "Referer": "https://felcons.c.sat.gob.gt/dte-agencia-virtual/"
+        }
         r = self._session.get(url, headers=header, timeout=TIMEOUT)
-        return r.json
+        return r.json()

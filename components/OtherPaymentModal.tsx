@@ -44,87 +44,82 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[110] flex items-center justify-center p-6 animate-fade-in">
-            <div className="bg-[#1e212b] w-full max-w-2xl rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col">
-                <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
-                    <h3 className="text-sm font-black uppercase tracking-[0.3em] text-white">TIPO DE PAGO</h3>
-                    <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full text-gray-500 transition-colors">
-                        <X size={20} />
-                    </button>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] flex items-center justify-center p-6 animate-in fade-in duration-200">
+            <div className="bg-[#2d2f3d] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col">
+                <div className="pt-8 pb-6 flex justify-center items-center">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">TIPO DE PAGO</h3>
                 </div>
 
-                <div className="flex flex-1 p-8 gap-8">
+                <div className="flex flex-1 px-10 pb-8 gap-8">
                     {/* LEFT SIDE: TYPES */}
-                    <div className="flex flex-col gap-3 w-1/2">
+                    <div className="grid grid-cols-2 gap-3 w-1/2 content-start">
                         {paymentTypes.map(type => (
                             <button
                                 key={type.id}
                                 onClick={() => setSelectedType(type.id)}
-                                className={`flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${selectedType === type.id
-                                        ? 'bg-white border-white text-black shadow-lg'
-                                        : 'bg-white/5 border-white/5 text-white hover:bg-white/10'
+                                className={`flex items-center justify-between p-3.5 rounded-lg border transition-all text-left ${selectedType === type.id
+                                        ? 'bg-[#43465b] border-white/30 text-white shadow-lg ring-1 ring-white/10'
+                                        : 'bg-[#353746] border-white/5 text-white/80 hover:bg-[#3e4153]'
                                     }`}
                             >
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedType === type.id ? 'bg-white/20' : 'bg-white/5'}`}>
-                                    <type.icon size={20} />
-                                </div>
-                                <span className="text-[10px] font-black uppercase tracking-widest leading-tight">
+                                <span className="text-[10px] font-bold tracking-wide leading-tight flex-1 pr-2">
                                     {type.label}
                                 </span>
+                                <div className="text-white/60">
+                                    <type.icon size={20} strokeWidth={1.5} />
+                                </div>
                             </button>
                         ))}
                     </div>
 
                     {/* RIGHT SIDE: INPUTS */}
-                    <div className="flex flex-col gap-6 w-1/2">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Monto</label>
-                            <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">{currency}</span>
+                    <div className="flex flex-col gap-4 w-1/2">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold text-white/80 uppercase tracking-wider">Monto</label>
+                            <div className="relative flex items-center bg-transparent border border-white/20 rounded-md focus-within:border-white/40 transition-all overflow-hidden">
+                                <span className="pl-3 text-white/60 text-sm font-bold">{currency}</span>
                                 <input
                                     type="number"
                                     value={amount}
                                     onChange={e => setAmount(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm font-bold focus:border-white/30 outline-none transition-all text-right"
+                                    className="w-full bg-transparent py-2 px-3 text-sm font-bold text-white outline-none text-right"
+                                    step="0.01"
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Documento No.</label>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold text-white/80 uppercase tracking-wider">Documento No.</label>
                             <input
                                 type="text"
                                 value={documentNo}
                                 onChange={e => setDocumentNo(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold focus:border-white/30 outline-none transition-all"
-                                placeholder="Referencia / No. Cheque"
+                                className="w-full bg-transparent border border-white/20 rounded-md py-2 px-3 text-sm text-white focus:border-white/40 outline-none transition-all"
                             />
                         </div>
 
-                        <div className="space-y-2 flex-1 flex flex-col">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Descripción</label>
+                        <div className="space-y-1.5 flex-1 flex flex-col">
+                            <label className="text-[10px] font-bold text-white/80 uppercase tracking-wider">Descripción</label>
                             <textarea
                                 value={description}
                                 onChange={e => setDescription(e.target.value)}
-                                className="w-full flex-1 bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm font-bold focus:border-white/30 outline-none transition-all resize-none"
-                                placeholder="Notas adicionales..."
+                                className="w-full flex-1 bg-transparent border border-white/20 rounded-md py-2 px-3 text-sm text-white focus:border-white/40 outline-none transition-all resize-none"
                             />
                         </div>
                     </div>
                 </div>
 
-                <div className="p-6 bg-white/5 border-t border-white/5 flex gap-4">
+                <div className="pb-8 flex justify-center gap-4">
                     <button
                         onClick={onClose}
-                        className="flex-1 h-14 rounded-2xl border border-white/10 font-black uppercase tracking-widest text-gray-400 hover:bg-white/5 transition-all"
+                        className="px-8 py-2.5 rounded-md border border-white/20 text-white text-xs font-bold uppercase tracking-wide hover:bg-white/5 transition-all active:scale-95 min-w-[120px]"
                     >
                         CANCELAR
                     </button>
                     <button
                         onClick={handleConfirm}
-                        className="flex-1 h-14 rounded-2xl bg-white text-black font-black uppercase tracking-widest hover:bg-white/90 transition-all shadow-lg flex items-center justify-center gap-2"
+                        className="px-8 py-2.5 rounded-md bg-[#7a73ff] text-white text-xs font-bold uppercase tracking-wide hover:bg-[#6861ff] transition-all shadow-lg active:scale-95 min-w-[120px]"
                     >
-                        <Check size={20} />
                         ACEPTAR
                     </button>
                 </div>

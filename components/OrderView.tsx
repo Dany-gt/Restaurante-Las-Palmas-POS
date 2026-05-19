@@ -2983,16 +2983,15 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
                                         await handleOrderSubmission();
                                     }}
-                                    className={`flex-1 rounded-xl flex flex-col items-center justify-center gap-1 shadow-none active:scale-95 transition-all ${(!activeOrderId && tableOrders.length > 0)
-                                        ? 'bg-[#2b2f3a] border border-white/10 opacity-50 cursor-not-allowed text-white'
-                                        : (activeOrderId ? (checkoutItems.filter(i => !i.is_sent).length > 0 ? 'bg-white text-black' : 'bg-[#2b2f3a] border border-white/10 opacity-50 cursor-not-allowed text-white') : 'bg-white text-black')
-                                        }`}
+                                    className={`flex-1 rounded-xl flex flex-col items-center justify-center gap-1 shadow-none active:scale-95 transition-all ${
+                                        (checkoutItems.filter(i => !i.is_sent).length > 0) 
+                                            ? 'bg-white text-black' 
+                                            : 'bg-[#2b2f3a] border border-white/10 opacity-50 cursor-not-allowed text-white'
+                                    }`}
                                 >
                                     <FileText size={20} />
                                     <span className="text-[10px] font-black uppercase tracking-widest leading-none">
-                                        {(!activeOrderId && tableOrders.length > 0)
-                                            ? 'SELECCIONAR CUENTA PARA COBRAR'
-                                            : ((activeOrderId && checkoutItems.some(i => i.is_sent)) ? 'ENVIAR' : 'CREAR')}
+                                        {checkoutItems.some(i => i.is_sent) ? 'ENVIAR' : 'CREAR'}
                                     </span>
                                 </button>
                                 {currentUser?.role?.toUpperCase() !== 'MESERO' && (
@@ -3052,7 +3051,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     >
                                         <Banknote size={20} />
                                         <span className="text-[10px] font-black uppercase tracking-widest leading-none">
-                                            {!activeOrderId ? 'COBRAR MESA' : 'COBRAR'}
+                                            COBRAR
                                         </span>
                                     </button>
                                 )}
