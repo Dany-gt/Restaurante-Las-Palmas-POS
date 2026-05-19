@@ -1085,12 +1085,124 @@ class PrintService {
     await this.executePrint('RESUMEN DE GASTOS', (pw) => this.generateTicketHTML('RESUMEN DE GASTOS', content, 'RESUMEN DE GASTOS', pw, false), { silent: true });
   }
 
+  // ─── POS CARD RECONCILIATION REPORT ───────────────────────────────
+
+  async printPOSTarjetasReport(data: any): Promise<void> {
+    if (!this.settings) await this.loadSettings();
+    const fmt = (val: number) => 'Q' + Number(val || 0).toFixed(2);
+    const dateStr = (d: string) => { try { return new Date(d).toLocaleString('es-GT', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return d; } };
+    
+    const cardTerminals = data.posCardDetail || [];
+    const totalCards = cardTerminals.reduce((acc: number, item: any) => acc + (Number(item.total) || 0), 0);
+
+    const content = `
+      <div class="info-grid">
+        <div class="info-line"><span>Caj:</span> ${data.cashierName?.toUpperCase()}</div>
+        <div class="info-line" style="text-align: right;"><span>Turno:</span> ${data.shiftNumber || '---'}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>Fecha:</span> ${dateStr(data.endTime)}</div>
+      </div>
+      
+      <div class="divider"></div>
+      
+      <table>
+        <tr class="item-row" style="font-weight:bold; border-bottom:1px solid #000;">
+          <td class="col-desc description" style="font-weight:bold;">POS</td>
+          <td class="col-price price" style="font-weight:bold; text-align:right;">Total</td>
+        </tr>
+        ${cardTerminals.map((item: any) => `
+          <tr class="item-row">
+            <td class="col-desc description">${item.name.toUpperCase()}</td>
+            <td class="col-price price" style="text-align:right;">${fmt(item.total)}</td>
+          </tr>
+        `).join('')}
+      </table>
+      
+      <div class="divider"></div>
+      
+      <div class="total-line grand-total">
+        <span class="total-label">Total</span>
+        <span class="total-value">${fmt(totalCards)}</span>
+      </div>
+    `;
+
+    await this.executePrint('CUADRE POS TARJETAS', (pw) => this.generateTicketHTML('Cuadre POS Tarjetas', content, undefined, pw), { silent: true, openDrawer: false });
+  }
+
   // ─── Z REPORT ─────────────────────────────────────────────────────
 
   async printZReport(data: any): Promise<void> {
     if (!this.settings) await this.loadSettings();
     const fmt = (val: number) => 'Q' + Number(val || 0).toFixed(2);
     const dateStr = (d: string) => { try { return new Date(d).toLocaleString('es-GT', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return d; } };
+
+    const getSalesByMethod = (method: string) => {
+      return Number(data.salesByMethod?.find((s: any) => s.method === method)?.amount || 0);
+    };
+    const getAbonosByMethod = (method: string) => {
+      return Number(data.abonosByMethod?.find((s: any) => s.method === method)?.amount || 0);
+    };
+    const getTipsByMethod = (method: string) => {
+      return Number(data.tipsByMethod?.find((s: any) => s.method === method)?.amount || 0);
+    };
+
+    const salesEfectivo = getSalesByMethod('EFECTIVO');
+    const salesTarjeta = getSalesByMethod('TARJETA');
+    const salesCredito = getSalesByMethod('CRÉDITO');
+    const salesOtros = getSalesByMethod('OTROS');
+    const salesTotalVal = salesEfectivo + salesTarjeta + salesCredito + salesOtros;
+
+    const abonosEfectivo = getAbonosByMethod('EFECTIVO');
+    const abonosTarjeta = getAbonosByMethod('TARJETA');
+    const abonosOtros = (data.abonosByMethod || []).reduce((acc: number, s: any) => s.method !== 'EFECTIVO' && s.method !== 'TARJETA' ? acc + s.amount : acc, 0);
+    const abonosTotal = abonosEfectivo + abonosTarjeta + abonosOtros;
+
+    const tipsEfectivo = getTipsByMethod('EFECTIVO');
+    const tipsTarjeta = getTipsByMethod('TARJETA');
+    const tipsOtros = getTipsByMethod('OTROS');
+    const tipsTotal = tipsEfectivo + tipsTarjeta + tipsOtros;
+
+    const ingresoEfectivo = salesEfectivo + abonosEfectivo + tipsEfectivo;
+    const ingresoTarjeta = salesTarjeta + abonosTarjeta + tipsTarjeta;
+    const ingresoCredito = salesCredito;
+    const ingresoOtros = salesOtros + abonosOtros + tipsOtros;
+    const ingresoTotalVal = ingresoEfectivo + ingresoTarjeta + ingresoCredito + ingresoOtros;
+
+    const getChannelAmount = (channelKey: string) => {
+      return data.salesByChannel?.find((c: any) => c.channel === channelKey)?.amount || 0;
+    };
+    const channelRestaurante = getChannelAmount('SERVICIO MESAS');
+    const channelLlevar = getChannelAmount('PARA LLEVAR');
+    const channelDomicilio = getChannelAmount('A DOMICILIO');
+    const channelPlataformas = getChannelAmount('PLATAFORMAS');
+    const channelVentaRapida = getChannelAmount('VENTA RÁPIDA');
+    const channelTotal = channelRestaurante + channelLlevar + channelDomicilio + channelPlataformas + channelVentaRapida;
+
+    const monedas = [
+      { label: 'Q0.01', val: 0.01 },
+      { label: 'Q0.05', val: 0.05 },
+      { label: 'Q0.10', val: 0.10 },
+      { label: 'Q0.25', val: 0.25 },
+      { label: 'Q0.50', val: 0.50 },
+      { label: 'Q1.00', val: 1.00 },
+    ];
+    const billetes = [
+      { label: 'Q1.00', val: 1.00 },
+      { label: 'Q5.00', val: 5.00 },
+      { label: 'Q10.00', val: 10.00 },
+      { label: 'Q20.00', val: 20.00 },
+      { label: 'Q50.00', val: 50.00 },
+      { label: 'Q100.00', val: 100.00 },
+      { label: 'Q200.00', val: 200.00 },
+    ];
+
+    const getCount = (label: string) => {
+      if (!data.denominations) return 0;
+      if (typeof data.denominations === 'object' && !Array.isArray(data.denominations)) {
+        return Number(data.denominations[label] || 0);
+      }
+      return 0;
+    };
+
     const content = `
       <div class="info-grid">
         <div class="info-line"><span>CAJA:</span> ${(this.restaurantInfo?.name || 'PRINCIPAL').split(' ')[0]}</div>
@@ -1108,37 +1220,59 @@ class PrintService {
       </div>
       <div class="thick-divider"></div>
       
+      <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">VENTAS</div>
       <table>
-        ${data.salesByMethod.map((s: any) => `
-          <tr class="item-row">
-            <td class="col-desc description">${s.method}:</td>
-            <td class="col-price price">${fmt(s.amount)}</td>
-          </tr>
-        `).join('')}
+        <tr class="item-row"><td class="description">EFECTIVO:</td><td class="price">${fmt(salesEfectivo)}</td></tr>
+        <tr class="item-row"><td class="description">TARJETA:</td><td class="price">${fmt(salesTarjeta)}</td></tr>
+        <tr class="item-row"><td class="description">AL CRÉDITO:</td><td class="price">${fmt(salesCredito)}</td></tr>
+        <tr class="item-row"><td class="description">OTROS:</td><td class="price">${fmt(salesOtros)}</td></tr>
       </table>
-      
-      <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">RESUMEN PROPINAS</div>
-      <table>
-        ${(data.tipsByMethod || []).filter((t: any) => t.amount > 0).length > 0
-        ? data.tipsByMethod.filter((t: any) => t.amount > 0).map((t: any) => `
-            <tr class="item-row">
-              <td class="col-desc description">${t.method}:</td>
-              <td class="col-price price">${fmt(t.amount)}</td>
-            </tr>
-          `).join('')
-        : '<tr><td colspan="2" style="text-align:center;font-size:10px;">SIN PROPINAS REGISTRADAS</td></tr>'
-      }
-      </table>
+      <div class="total-line">
+        <span class="total-label">Total:</span> <span class="total-value">${fmt(salesTotalVal)}</span>
+      </div>
 
-      <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">VENTAS POR CANAL</div>
+      <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">ABONOS A CRÉDITOS</div>
       <table>
-        ${(data.salesByChannel || []).map((c: any) => `
-          <tr class="item-row">
-            <td class="col-desc description">${c.channel}:</td>
-            <td class="col-price price">${fmt(c.amount)}</td>
-          </tr>
-        `).join('')}
+        <tr class="item-row"><td class="description">EFECTIVO:</td><td class="price">${fmt(abonosEfectivo)}</td></tr>
+        <tr class="item-row"><td class="description">TARJETA:</td><td class="price">${fmt(abonosTarjeta)}</td></tr>
+        <tr class="item-row"><td class="description">OTROS:</td><td class="price">${fmt(abonosOtros)}</td></tr>
       </table>
+      <div class="total-line">
+        <span class="total-label">Total:</span> <span class="total-value">${fmt(abonosTotal)}</span>
+      </div>
+
+      <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">PROPINAS</div>
+      <table>
+        <tr class="item-row"><td class="description">EFECTIVO:</td><td class="price">${fmt(tipsEfectivo)}</td></tr>
+        <tr class="item-row"><td class="description">TARJETA:</td><td class="price">${fmt(tipsTarjeta)}</td></tr>
+        <tr class="item-row"><td class="description">OTROS:</td><td class="price">${fmt(tipsOtros)}</td></tr>
+      </table>
+      <div class="total-line">
+        <span class="total-label">Total:</span> <span class="total-value">${fmt(tipsTotal)}</span>
+      </div>
+
+      <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">INGRESO TOTAL</div>
+      <table>
+        <tr class="item-row"><td class="description">EFECTIVO:</td><td class="price">${fmt(ingresoEfectivo)}</td></tr>
+        <tr class="item-row"><td class="description">TARJETA:</td><td class="price">${fmt(ingresoTarjeta)}</td></tr>
+        <tr class="item-row"><td class="description">AL CRÉDITO:</td><td class="price">${fmt(ingresoCredito)}</td></tr>
+        <tr class="item-row"><td class="description">OTROS:</td><td class="price">${fmt(ingresoOtros)}</td></tr>
+      </table>
+      <div class="total-line">
+        <span class="total-label">Total:</span> <span class="total-value">${fmt(ingresoTotalVal)}</span>
+      </div>
+
+      <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">RESUMEN VENTAS POR CANAL</div>
+      <table>
+        <tr class="item-row"><td class="description">Restaurante:</td><td class="price">${fmt(channelRestaurante)}</td></tr>
+        <tr class="item-row"><td class="description">Para Llevar:</td><td class="price">${fmt(channelLlevar)}</td></tr>
+        <tr class="item-row"><td class="description">A Domicilio:</td><td class="price">${fmt(channelDomicilio)}</td></tr>
+        <tr class="item-row"><td class="description">Plataformas:</td><td class="price">${fmt(channelPlataformas)}</td></tr>
+        ${channelVentaRapida > 0 ? `<tr class="item-row"><td class="description">Venta Rápida:</td><td class="price">${fmt(channelVentaRapida)}</td></tr>` : ''}
+      </table>
+      <div class="total-line">
+        <span class="total-label">Total:</span> <span class="total-value">${fmt(channelTotal)}</span>
+      </div>
       
       <div class="divider"></div>
 
@@ -1151,15 +1285,55 @@ class PrintService {
         <tr class="item-row"><td class="description">(-) GASTOS:</td><td class="price">${fmt(data.cashDetail.expenses)}</td></tr>
       </table>
       
-      <div class="thick-divider"></div>
+      <div class="divider"></div>
       <div class="total-line">
-        <span class="total-label">ESPERADO:</span> <span class="total-value">${fmt(data.cashDetail.total)}</span>
+        <span class="total-label">Total Efectivo:</span> <span class="total-value">${fmt(data.cashDetail.total)}</span>
+      </div>
+
+      <div style="text-align:center;font-weight:bold;margin:15px 0 5px 0;border-top:1.5px solid #000;padding-top:5px;">CONTEO DE EFECTIVO</div>
+      <div style="font-size: 8.5px; margin-bottom: 5px;">
+        <table style="width: 100%; table-layout: fixed;">
+          <thead>
+            <tr style="border-bottom: 1px solid #000; font-weight: bold;">
+              <th style="text-align: left; width: 50%; font-size: 8.5px; font-weight: 900;">MONEDAS</th>
+              <th style="text-align: left; width: 50%; font-size: 8.5px; font-weight: 900;">BILLETES</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Array.from({ length: Math.max(monedas.length, billetes.length) }).map((_, idx) => {
+              const m = monedas[idx];
+              const b = billetes[idx];
+              
+              const mQty = m ? getCount(m.label) : 0;
+              const mTotal = m ? mQty * m.val : 0;
+              
+              const bQty = b ? getCount(b.label) : 0;
+              const bTotal = b ? bQty * b.val : 0;
+
+              return `
+                <tr>
+                  <td style="font-size: 8.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 1px 0;">
+                    ${m ? `${m.label} x${mQty} = Q${mTotal.toFixed(2)}` : ''}
+                  </td>
+                  <td style="font-size: 8.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 1px 0;">
+                    ${b ? `${b.label} x${bQty} = Q${bTotal.toFixed(2)}` : ''}
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="divider"></div>
+      <div class="total-line">
+        <span class="total-label">Efec. (Sistema):</span> <span class="total-value">${fmt(data.cashDetail.total)}</span>
       </div>
       <div class="total-line">
-        <span class="total-label">CONTADO:</span> <span class="total-value">${fmt(data.countedCash)}</span>
+        <span class="total-label">Efec. (Caja):</span> <span class="total-value">${fmt(data.countedCash)}</span>
       </div>
       <div class="total-line" style="${data.difference !== 0 ? 'color:red;' : ''}">
-        <span class="total-label">DIFERENCIA:</span> <span class="total-value">${data.difference === 0 ? 'CUADRADO' : fmt(data.difference)}</span>
+        <span class="total-label">Diferencia:</span> <span class="total-value">${data.difference === 0 ? 'CUADRADO' : fmt(data.difference)}</span>
       </div>
       <div style="margin-top:40px;border-top:1px solid #000;text-align:center;font-size:11px;">FIRMA CAJERO: ${data.cashierName}</div>
       ${data.notes ? '<div style="margin-top:20px;border-top:1px dashed #000;padding-top:5px;"><strong>OBSERVACIONES:</strong><br>' + data.notes + '</div>' : ''}

@@ -322,21 +322,33 @@ export const shiftService = {
 
                     // Group card sales by actual terminal used
                     const terminalSales: Record<string, number> = {};
+                    let unassignedTotal = 0;
 
                     shiftOrders?.forEach((o: any) => {
                         if (o.status === 'completed' && o.payment_method === 'TARJETA') {
                             const terminalId = o.pos_terminal_id;
                             if (terminalId) {
                                 terminalSales[terminalId] = (terminalSales[terminalId] || 0) + Number(o.total || 0);
+                            } else {
+                                unassignedTotal += Number(o.total || 0);
                             }
                         }
                     });
 
                     // Build result array with terminal names and totals
-                    return terminals.map(t => ({
+                    const result = terminals.map(t => ({
                         name: t.name,
                         total: terminalSales[t.id] || 0
                     }));
+
+                    if (unassignedTotal > 0) {
+                        result.push({
+                            name: 'SIN TERMINAL ASIGNADA',
+                            total: unassignedTotal
+                        });
+                    }
+
+                    return result;
                 })(),
                 expenses: shiftExpenses || [],
                 notes: shift.observaciones || '',

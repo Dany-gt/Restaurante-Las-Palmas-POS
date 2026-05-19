@@ -260,7 +260,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
     // Corte Ciego (Refined logic)
     // Law of the user: No confirmation dialogues for closure.
     const isBlind = currentUser.role?.toUpperCase() === 'CAJERO' && normalizedPerms.some(p => p.includes('corte ciego'));
-    
+
     // CHECK FOR OPEN ORDERS before Z closure
     if (type === 'Z') {
       const { allowed, reason } = await canCloseCashRegister();
@@ -363,10 +363,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
       reportData.type = cutType as 'X' | 'Z';
       reportData.countedCash = countedTotal;
       reportData.difference = difference;
-      reportData.denominations = {
-        monedas: cashDetail?.monedas || [],
-        billetes: cashDetail?.billetes || []
-      };
+      reportData.denominations = cashDetail;
       if (notes) reportData.notes = notes;
 
       // Only Close if Z
@@ -494,10 +491,10 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
           onArqueo={async () => {
             // Law of the user: Open drawer when arqueo starts
             const { printService } = await import('../services/PrintService');
-            printService.openCashDrawer({ 
-                userId: currentUser.id, 
-                userName: currentUser.name,
-                reason: 'Arqueo de Caja'
+            printService.openCashDrawer({
+              userId: currentUser.id,
+              userName: currentUser.name,
+              reason: 'Arqueo de Caja'
             });
 
             // Open Arqueo modal, but conceptualize it as part of X
@@ -534,10 +531,15 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
           data={closureData}
           onPrint={async () => {
             const { printService } = await import('../services/PrintService');
-            // Print main Z-Report
+            // 1. Print card terminal checkout first if cards details exist
+            if (closureData.posCardDetail && closureData.posCardDetail.length > 0) {
+              await printService.printPOSTarjetasReport(closureData);
+            }
+
+            // 2. Print main Z-Report
             await printService.printZReport(closureData);
-            
-            // If there are expenses, print the summary ticket too
+
+            // 3. If there are expenses, print the summary ticket too
             if (closureData.expenses && closureData.expenses.length > 0) {
               await printService.printExpensesSummary(closureData);
             }
@@ -763,7 +765,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
         />
       )}
 
-      </div>
+    </div>
   );
 };
 
