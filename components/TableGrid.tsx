@@ -160,8 +160,12 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
             for (const tableId in offlineTables) {
               const entry = offlineTables[tableId];
               const age = now24 - new Date(entry.created_at || 0).getTime();
-              // Conservar solo si: no se sincronizó AÚN y tiene menos de 24h
-              if (!ordersMap[tableId] && age < MAX_OFFLINE_AGE_MS) {
+              
+              // Si estamos online y la mesa en base de datos ya está 'available', la limpiamos.
+              const dbTable = fetchedTables?.find((t: any) => t.id === tableId);
+              const isAvailableOnline = navigator.onLine && dbTable && dbTable.status === 'available';
+
+              if (!ordersMap[tableId] && age < MAX_OFFLINE_AGE_MS && !isAvailableOnline) {
                 cleaned[tableId] = entry;
               }
             }

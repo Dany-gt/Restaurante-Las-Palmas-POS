@@ -260,6 +260,7 @@ export const VirtualKeyboard: React.FC = () => {
 
         // NEW: Listen for physical keyboard input to keep virtual keyboard state in sync
         const handlePhysicalInput = (e: Event) => {
+            if (!e.isTrusted) return;
             const target = e.target as HTMLInputElement;
             if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
                 const val = target.value;

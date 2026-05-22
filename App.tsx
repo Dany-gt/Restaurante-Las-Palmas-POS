@@ -534,35 +534,39 @@ const App: React.FC = () => {
   };
 
   const handleLogout = async (isSoftLogout: boolean = false) => {
-    // SECURITY: FORCE FULL LOGOUT ON EVERY EXIT
-    await supabase.auth.signOut();
-    
-    // Preserve device registration
-    const actData = localStorage.getItem('activation_data');
-    const devFinger = localStorage.getItem('device_fingerprint');
+    if (!isSoftLogout) {
+      // SECURITY: FORCE FULL LOGOUT ON EVERY EXIT
+      await supabase.auth.signOut();
+      
+      // Preserve device registration
+      const actData = localStorage.getItem('activation_data');
+      const devFinger = localStorage.getItem('device_fingerprint');
+      
+      localStorage.clear();
+      sessionStorage.clear();
 
-    localStorage.clear();
-    sessionStorage.clear();
+      if (actData) localStorage.setItem('activation_data', actData);
+      if (devFinger) localStorage.setItem('device_fingerprint', devFinger);
+    }
 
-    if (actData) localStorage.setItem('activation_data', actData);
-    if (devFinger) localStorage.setItem('device_fingerprint', devFinger);
-
-    // Unregister service worker and clear cache to prevent old version mismatches on Vercel
-    try {
-      if ('serviceWorker' in navigator) {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        for (const reg of registrations) {
-          await reg.unregister();
+    if (!isSoftLogout) {
+      // Unregister service worker and clear cache to prevent old version mismatches on Vercel
+      try {
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const reg of registrations) {
+            await reg.unregister();
+          }
         }
-      }
-      if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        for (const name of cacheNames) {
-          await caches.delete(name);
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          for (const name of cacheNames) {
+            await caches.delete(name);
+          }
         }
+      } catch (err) {
+        console.error('Error clearing service worker and caches:', err);
       }
-    } catch (err) {
-      console.error('Error clearing service worker and caches:', err);
     }
 
     if ((window as any).electronAPI && (window as any).electronAPI.sendLogout) {
@@ -571,19 +575,29 @@ const App: React.FC = () => {
 
     // Reset all React states
     setCurrentUser(null);
-    setOperatorDashboardLead(null);
-    setCurrentView('LOGIN'); // Main Login Form
-    setSelectedTable(null);
-    setActiveOrder(null);
-    setWaiterVoiceEnabled(false);
-    setAdminTab(null);
-    setPendingTableSelection(null);
-    setShowLimitPin(false);
-    
-    // Forzar recarga ligera para limpiar cualquier estado residual en memoria (Evita que entre directo sin abrir caja)
-    setTimeout(() => {
-      window.location.reload();
-    }, 300);
+    localStorage.removeItem('currentUser');
+
+    if (isSoftLogout) {
+      // SOFT LOGOUT: Volver al selector de cajas.
+      // Preservamos operatorDashboardLead en localStorage para que Login
+      // lo detecte al remontar y muestre el panel de cajas automáticamente.
+      setCurrentView('LOGIN');
+    } else {
+      // FULL LOGOUT: Limpieza completa.
+      setOperatorDashboardLead(null);
+      localStorage.removeItem('operatorDashboardLead');
+      setCurrentView('LOGIN');
+      setSelectedTable(null);
+      setActiveOrder(null);
+      setWaiterVoiceEnabled(false);
+      setAdminTab(null);
+      setPendingTableSelection(null);
+      setShowLimitPin(false);
+      // Forzar recarga para limpiar estado residual en memoria
+      setTimeout(() => {
+        window.location.reload();
+      }, 300);
+    }
   };
 
   const [settings, setSettings] = useState<any>({});
@@ -1260,14 +1274,23 @@ const App: React.FC = () => {
           {currentView !== 'OPEN_SHIFT' && (
             <div className={`relative h-12 flex items-center justify-between px-4 z-20 transition-colors ${currentView === 'ADMIN_PORTAL' ? 'bg-[#106ebe]' : 'bg-[#3a3b4d] border-b border-white/5 shadow-xl'} ${(currentView === 'DELIVERY' || currentView === 'DELIVERY_LIST' || currentView === 'KDS_STATION_SELECT') ? 'hidden' : ''}`}>
               <div className="flex items-center gap-6">
-                {currentView !== 'DASHBOARD' && currentView !== 'ADMIN_PORTAL' && currentView !== 'ADMIN_AUTH_PANEL' && currentView !== 'CHECKOUT' && currentView !== 'DELIVERY' && currentView !== 'DELIVERY_LIST' && currentView !== 'KITCHEN' && (
-                  <button onClick={navigateBack} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all pos-button">
+                {((currentView !== 'DASHBOARD' && currentView !== 'ADMIN_PORTAL' && currentView !== 'ADMIN_AUTH_PANEL' && currentView !== 'CHECKOUT' && currentView !== 'DELIVERY' && currentView !== 'DELIVERY_LIST' && currentView !== 'KITCHEN') || (currentView === 'DASHBOARD' && currentUser?.role?.toUpperCase() === 'CAJERO')) && (
+                  <button 
+                    onClick={() => {
+                      if (currentView === 'DASHBOARD' && currentUser?.role?.toUpperCase() === 'CAJERO') {
+                        handleLogout(true);
+                      } else {
+                        navigateBack();
+                      }
+                    }} 
+                    className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all pos-button"
+                  >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                   </button>
                 )}
-                <div className="flex flex-col">
+                <div className={`flex flex-col ${(currentView === 'DASHBOARD' && currentUser?.role?.toUpperCase() === 'CAJERO') ? 'ml-2' : ''}`}>
                   <span className={`text-sm font-black tracking-tighter ${currentView === 'ADMIN_PORTAL' ? 'text-white' : 'text-indigo-400'}`}>{settings?.restaurant_name?.split(' ')[0] || 'LAS PALMAS'}</span>
                   <span className={`text-[10px] font-bold tracking-[0.3em] uppercase leading-none ${currentView === 'ADMIN_PORTAL' ? 'text-blue-200/60' : 'text-gray-500'}`}>{settings?.restaurant_name?.split(' ').slice(1).join(' ') || 'RESTAURANTE POS'}</span>
                 </div>

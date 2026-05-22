@@ -671,12 +671,20 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         // FETCH LATEST ORDER DATA to ensure payment_method is up to date
         // Sometimes the local state 'tableOrders' might be slightly stale if we just updated it.
         let orderToPrint: any = tableOrders.find(o => o.id === activeOrderId);
+        const effectivePrintOrderId = activeOrderId || (tableOrders.length === 1 ? tableOrders[0]?.id : null);
 
-        if (activeOrderId) {
-            const { data: latestOrder } = await supabase.from('orders').select('*').eq('id', activeOrderId).single();
+        if (effectivePrintOrderId) {
+            const { data: latestOrder } = await supabase.from('orders').select('*').eq('id', effectivePrintOrderId).single();
             if (latestOrder) {
                 orderToPrint = latestOrder;
+            } else if (tableOrders.length === 1) {
+                orderToPrint = tableOrders[0];
             }
+        } else if (tableOrders.length === 0) {
+            orderToPrint = {
+                ...initialOrder,
+                customer_name: 'CUENTA 1'
+            };
         } else {
             // Aggregate mode: Create a virtual order for the ticket
             orderToPrint = {
@@ -1164,7 +1172,16 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     };
 
     const getOrderDisplayName = (orderId: string | null): string => {
-        if (orderId === null) return 'CUENTA COMPLETA';
+        if (tableOrders.length <= 1) {
+            const singleOrder = tableOrders[0] || (orderId === initialOrder?.id ? initialOrder : null) || initialOrder;
+            const name = singleOrder?.customer_name?.trim();
+            if (!name || name.toUpperCase() === 'CUENTA PRINCIPAL' || name.toUpperCase() === 'CUENTA COMPLETA' || name.toUpperCase() === 'TODAS LAS CUENTAS') {
+                return 'CUENTA 1';
+            }
+            return name.toUpperCase();
+        }
+
+        if (orderId === null) return 'TODAS LAS CUENTAS';
         
         const currentOrder = tableOrders.find(o => o.id === orderId) || (orderId === initialOrder?.id ? initialOrder : null);
         if (!currentOrder) return 'CUENTA 1';
@@ -2831,18 +2848,15 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         <div className="pt-1 space-y-1">
                             <button
                                 onClick={() => setShowAccountsOverviewModal(true)}
-                                className="w-full bg-[#1e212b] border border-white/10 rounded-xl px-4 py-3 text-[11px] font-black text-white uppercase tracking-widest flex items-center justify-between group hover:border-white/20 transition-all shadow-none active:scale-95"
+                                className="w-full bg-[#1e212b] border border-white/10 rounded-xl px-4 py-3 text-[11px] font-black text-white uppercase tracking-widest flex items-center justify-center relative group hover:border-white/20 transition-all shadow-none active:scale-95"
                             >
-                                <div className="flex items-center gap-2">
-                                    <LayoutGrid size={14} className="text-white/60" />
-                                    <span>
-                                        {activeOrderId === null 
-                                            ? '📋 CUENTA COMPLETA' 
-                                            : getOrderDisplayName(activeOrderId)
-                                        }
-                                    </span>
-                                </div>
-                                <ChevronDown size={14} className="text-gray-600 group-hover:text-white transition-colors" />
+                                <span>
+                                    {activeOrderId === null && tableOrders.length > 1
+                                        ? 'TODAS LAS CUENTAS' 
+                                        : getOrderDisplayName(activeOrderId)
+                                    }
+                                </span>
+                                <ChevronDown size={14} className="absolute right-4 text-gray-600 group-hover:text-white transition-colors" />
                             </button>
                         </div>
                     </div>
@@ -2981,7 +2995,28 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             return;
                                         }
 
-                                        await handleOrderSubmission();
+                                        const finalId = await handleOrderSubmission();
+                                        const isCashierOrAdmin = currentUser?.role?.toUpperCase() === 'CAJERO' || currentUser?.role?.toUpperCase() === 'ADMIN';
+                                        if (isCashierOrAdmin && currentOrderType === 'TAKEOUT' && finalId) {
+                                            const updatedOrder = {
+                                                ...initialOrder,
+                                                id: finalId,
+                                                customer_name: initialOrder.customer_name || 'PARA LLEVAR',
+                                                customer_phone: initialOrder.customer_phone,
+                                                subtotal,
+                                                tax_amount: taxAmount,
+                                                tip_amount: tipAmount,
+                                                total: total + tipAmount,
+                                                items: checkoutItems.map(i => ({
+                                                    ...i,
+                                                    product_name: i.product_name,
+                                                    unit_price: (i as any).unit_price || i.price || 0,
+                                                    quantity: i.quantity,
+                                                    is_sent: true
+                                                }))
+                                            };
+                                            onCheckout?.(updatedOrder as any);
+                                        }
                                     }}
                                     className={`flex-1 rounded-xl flex flex-col items-center justify-center gap-1 shadow-none active:scale-95 transition-all ${
                                         (checkoutItems.filter(i => !i.is_sent).length > 0) 
@@ -3013,10 +3048,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 ? (tableOrders.find(o => o.id === activeOrderId) || initialOrder)
                                                 : initialOrder;
 
-                                            // In aggregate mode, we simulate an order object to open the modal
-                                            const updatedOrder = activeOrderId ? {
+                                            const isAggregate = activeOrderId === null && tableOrders.length > 1;
+                                            const updatedOrder = !isAggregate ? {
                                                 ...currentOrderData,
-                                                id: finalOrderId,
+                                                id: finalOrderId || 'VIRTUAL',
                                                 customer_name: getOrderDisplayName(activeOrderId),
                                                 subtotal,
                                                 tax_amount: taxAmount,
@@ -3032,7 +3067,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             } : {
                                                 ...initialOrder,
                                                 id: 'VIRTUAL',
-                                                customer_name: 'CUENTA COMPLETA',
+                                                customer_name: 'TODAS LAS CUENTAS',
                                                 subtotal: subtotal,
                                                 tax_amount: taxAmount,
                                                 total: total + tipAmount,
@@ -3166,7 +3201,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         orderNumber: cancelledOrder.order_number,
                                         createdAt: cancelledOrder.created_at,
                                         items: items,
-                                        tableNumber: table?.number
+                                        tableNumber: table?.number,
+                                        orderType: cancelledOrder.order_type,
+                                        customerName: cancelledOrder.customer_name,
+                                        customerPhone: cancelledOrder.customer_phone,
+                                        deliveryAddress: cancelledOrder.delivery_address
                                     }, voidReason || 'Sin motivo especificado');
                                 }
 
@@ -3287,10 +3326,31 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         Cancelar
                                     </button>
                                     <button
-                                        onClick={() => {
+                                        onClick={async () => {
                                             if (!takeoutData.name.trim()) return;
                                             setShowTakeoutClientModal(false);
-                                            handleOrderSubmission(undefined, takeoutData);
+                                            const finalId = await handleOrderSubmission(undefined, takeoutData);
+                                            const isCashierOrAdmin = currentUser?.role?.toUpperCase() === 'CAJERO' || currentUser?.role?.toUpperCase() === 'ADMIN';
+                                            if (isCashierOrAdmin && finalId) {
+                                                const updatedOrder = {
+                                                    ...initialOrder,
+                                                    id: finalId,
+                                                    customer_name: takeoutData.name,
+                                                    customer_phone: takeoutData.phone,
+                                                    subtotal,
+                                                    tax_amount: taxAmount,
+                                                    tip_amount: tipAmount,
+                                                    total: total + tipAmount,
+                                                    items: checkoutItems.map(i => ({
+                                                        ...i,
+                                                        product_name: i.product_name,
+                                                        unit_price: (i as any).unit_price || i.price || 0,
+                                                        quantity: i.quantity,
+                                                        is_sent: true
+                                                    }))
+                                                };
+                                                onCheckout?.(updatedOrder as any);
+                                            }
                                         }}
                                         disabled={!takeoutData.name.trim() || processing}
                                         className="flex-1 py-4 bg-white hover:bg-white/90 disabled:opacity-50 text-black rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-none active:scale-95 transition-all"

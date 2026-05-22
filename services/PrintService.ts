@@ -542,7 +542,7 @@ class PrintService {
         <div class="info-line" style="text-align: right;"><span>MESA:</span> ${data.tableNumber || '---'}</div>
         
         <div class="info-line" style="grid-column: span 2;"><span>MESERO:</span> ${data.waiterName || '---'}</div>
-        <div class="info-line" style="grid-column: span 2;"><span>CUENTA:</span> ${data.customerName || 'Cuenta 1'}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>CUENTA:</span> ${data.customerName?.toUpperCase() === 'TODAS LAS CUENTAS' ? 'CUENTA COMPLETA' : (data.customerName || 'Cuenta 1')}</div>
       </div>
 
       <div class="divider"></div>
@@ -799,6 +799,12 @@ class PrintService {
 
   async printCancelledTicket(data: any, reason: string): Promise<void> {
     if (!this.settings) await this.loadSettings();
+
+    let serviceType = 'MESA';
+    if (data.orderType === 'TAKEOUT') serviceType = 'PARA LLEVAR';
+    else if (data.orderType === 'DELIVERY') serviceType = 'A DOMICILIO';
+    else if (data.orderType === 'FAST_FOOD') serviceType = 'VENTA RÁPIDA';
+
     const content = `
       <div style="text-align:center; border:2px solid #000; padding:8px; margin-bottom:15px;">
         <div style="font-size:16px; font-weight:900; letter-spacing: 1px;">ORDEN ANULADA</div>
@@ -806,9 +812,14 @@ class PrintService {
       </div>
       
       <div class="info-grid">
-        <div class="info-line"><span>HORA:</span> ${new Date(data.createdAt).toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}</div>
+        <div class="info-line"><span>SERVICIO:</span> ${serviceType}</div>
         <div class="info-line" style="text-align: right;"><span>MESA:</span> ${data.tableNumber || '---'}</div>
-        <div class="info-line" style="grid-column: span 2;"><span>FECHA:</span> ${new Date().toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'short' })}</div>
+        <div class="info-line"><span>HORA:</span> ${new Date(data.createdAt).toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}</div>
+        <div class="info-line" style="text-align: right;"><span>FECHA:</span> ${new Date().toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'short' })}</div>
+        
+        ${data.customerName ? `<div class="info-line" style="grid-column: span 2;"><span>CLIENTE:</span> ${data.customerName.toUpperCase() === 'TODAS LAS CUENTAS' ? 'CUENTA COMPLETA' : data.customerName.toUpperCase()}</div>` : ''}
+        ${data.customerPhone ? `<div class="info-line" style="grid-column: span 2;"><span>TELÉFONO:</span> ${data.customerPhone}</div>` : ''}
+        ${data.deliveryAddress ? `<div class="info-line" style="grid-column: span 2; font-weight: bold; border: 1px solid #000; padding: 4px; margin-top: 5px;"><span>DIRECCIÓN:</span> ${data.deliveryAddress.toUpperCase()}</div>` : ''}
       </div>
 
       <div class="thick-divider"></div>
@@ -1097,7 +1108,7 @@ class PrintService {
 
     const content = `
       <div class="info-grid">
-        <div class="info-line"><span>Caj:</span> ${data.cashierName?.toUpperCase()}</div>
+        <div class="info-line"><span>Caja:</span> ${data.cashierName?.toUpperCase()}</div>
         <div class="info-line" style="text-align: right;"><span>Turno:</span> ${data.shiftNumber || '---'}</div>
         <div class="info-line" style="grid-column: span 2;"><span>Fecha:</span> ${dateStr(data.endTime)}</div>
       </div>
@@ -1106,12 +1117,12 @@ class PrintService {
       
       <table>
         <tr class="item-row" style="font-weight:bold; border-bottom:1px solid #000;">
-          <td class="col-desc description" style="font-weight:bold;">POS</td>
+          <td class="col-desc description" style="font-weight:bold; text-align:center;">POS</td>
           <td class="col-price price" style="font-weight:bold; text-align:right;">Total</td>
         </tr>
         ${cardTerminals.map((item: any) => `
           <tr class="item-row">
-            <td class="col-desc description">${item.name.toUpperCase()}</td>
+            <td class="col-desc description" style="text-align:center;">${item.name.toUpperCase()}</td>
             <td class="col-price price" style="text-align:right;">${fmt(item.total)}</td>
           </tr>
         `).join('')}

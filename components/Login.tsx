@@ -88,16 +88,31 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
           if (branchData && branchData.length > 0) {
             setBranches(branchData);
 
-            // Lógica de Autoselección
-            const cachedActivation = localStorage.getItem('activation_data');
-            if (cachedActivation) {
-              const activation = JSON.parse(cachedActivation);
-              if (activation.branch_id) {
-                console.log('📦 Sucursal activada:', activation.branch_name);
-                setSelectedBranchId(activation.branch_id);
+            // Lógica de Autoselección (prioriza la sucursal del operador logueado)
+            const cachedLead = localStorage.getItem('operatorDashboardLead');
+            let initialBranchId = '';
+            if (cachedLead) {
+              try {
+                const user = JSON.parse(cachedLead);
+                if (user.branch_id) {
+                  initialBranchId = user.branch_id;
+                }
+              } catch (e) {}
+            }
+
+            if (initialBranchId) {
+              setSelectedBranchId(initialBranchId);
+            } else {
+              const cachedActivation = localStorage.getItem('activation_data');
+              if (cachedActivation) {
+                const activation = JSON.parse(cachedActivation);
+                if (activation.branch_id) {
+                  console.log('📦 Sucursal activada:', activation.branch_name);
+                  setSelectedBranchId(activation.branch_id);
+                }
+              } else if (brandData.sucursal_id) {
+                setSelectedBranchId(brandData.sucursal_id);
               }
-            } else if (brandData.sucursal_id) {
-              setSelectedBranchId(brandData.sucursal_id);
             }
           }
         }
@@ -184,25 +199,73 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
   };
 
   const fetchAuthorizedProfiles = useCallback(async (branchId: string) => {
-    const rolesToFetch = ['CAJERO', 'ADMIN', 'ADMINISTRADOR', 'MESERO'];
-    const { data: registers } = await supabase
-      .from('profiles')
+    if (!branchId) {
+      console.warn('[Login] fetchAuthorizedProfiles: branchId vacío, abortando.');
+      return;
+    }
+
+    console.log('[Login] Obteniendo cajas para sucursal:', branchId);
+
+    // Asegurar que la sesión de Supabase esté activa antes de consultar
+    // (el cliente puede no haberla restaurado aún tras un remount)
+    let { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      console.warn('[Login] Sin sesión activa, intentando refrescar...');
+      try {
+        const { data } = await supabase.auth.refreshSession();
+        session = data.session;
+      } catch (e) {
+        console.error('[Login] No se pudo refrescar la sesión:', e);
+      }
+    }
+    console.log('[Login] Estado de sesión:', session ? '✅ Activa' : '❌ Sin sesión');
+
+    // Fetch active cash registers for the branch
+    const { data: registers, error: regError } = await supabase
+      .from('cash_registers')
       .select('*')
       .eq('branch_id', branchId)
-      .in('role', rolesToFetch)
+      .eq('is_active', true)
       .order('name');
 
-    setRegisterList(registers || []);
+    console.log('[Login] Cajas encontradas:', registers?.length ?? 0, regError ? `Error: ${regError.message}` : '');
 
+    if (registers && registers.length > 0) {
+      // Cachear en localStorage para restauración inmediata en el próximo remount
+      localStorage.setItem('cached_register_list', JSON.stringify(registers));
+      setRegisterList(registers);
+    }
+    // NOTA: Si la consulta devuelve vacío, NO limpiamos la lista
+    // para preservar los datos cacheados que ya se restauraron.
+
+    // Si no hay cajas pero hay sesión activa, reintenta una vez después de 800ms
+    if ((!registers || registers.length === 0) && session) {
+      console.warn('[Login] Lista vacía con sesión activa — reintentando en 800ms...');
+      setTimeout(async () => {
+        const { data: retryRegisters } = await supabase
+          .from('cash_registers')
+          .select('*')
+          .eq('branch_id', branchId)
+          .eq('is_active', true)
+          .order('name');
+        console.log('[Login] Reintento — Cajas encontradas:', retryRegisters?.length ?? 0);
+        if (retryRegisters && retryRegisters.length > 0) {
+          setRegisterList(retryRegisters);
+        }
+      }, 800);
+    }
+
+    // Track which registers have an open shift (by cash_register_id)
     const { data: openShifts } = await supabase
       .from('shifts')
-      .select('cashier_id')
-      .is('end_time', null); // Shift is still active if NO closure time exists
+      .select('cash_register_id')
+      .is('end_time', null);
 
     if (openShifts) {
-      setOpenShiftUserIds(openShifts.map(s => s.cashier_id));
+      setOpenShiftUserIds(openShifts.map(s => s.cash_register_id).filter(Boolean));
     }
   }, []);
+
 
   const handleLoginSuccess = async (user: any) => {
     setAuthenticatedUser(user);
@@ -212,8 +275,41 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
     await fetchAuthorizedProfiles(selectedBranchId);
   };
 
-  // AUTO-SHOW REMOVED FOR SECURITY (USER REQUEST)
+  // AUTO-SHOW: Restaura el panel de cajas tras un soft logout / remount
+  useEffect(() => {
+    const cachedLead = localStorage.getItem('operatorDashboardLead');
+    if (!cachedLead) return;
 
+    try {
+      const user = JSON.parse(cachedLead);
+      setAuthenticatedUser(user);
+      setShowRegisterSelection(true);
+
+      // Si el usuario tiene una sucursal asignada, nos aseguramos de usarla
+      if (user.branch_id && selectedBranchId !== user.branch_id) {
+        console.log('[Login] Ajustando selectedBranchId al del operador:', user.branch_id);
+        setSelectedBranchId(user.branch_id);
+        return;
+      }
+
+      // 1. Mostrar cajas desde localStorage inmediatamente (sin esperar a Supabase)
+      const cachedRegs = localStorage.getItem('cached_register_list');
+      if (cachedRegs) {
+        const regs = JSON.parse(cachedRegs);
+        if (regs.length > 0) {
+          console.log('[Login] ✅ Cajas restauradas desde caché:', regs.length);
+          setRegisterList(regs);
+        }
+      }
+
+      // 2. Re-fetch en background cuando tengamos el branchId para datos frescos
+      if (selectedBranchId) {
+        fetchAuthorizedProfiles(selectedBranchId);
+      }
+    } catch (e) {
+      console.error('[Login] Error restaurando sesión de operador:', e);
+    }
+  }, [selectedBranchId, fetchAuthorizedProfiles]);
 
   const handleLogin = async (e?: React.FormEvent, pinFromPad?: string) => {
     if (e) e.preventDefault();
@@ -224,7 +320,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
       setError('Datos incompletos');
       return;
     }
-    if (!selectedRole) {
+    if (!selectedRole && !selectedProfileForPin) {
       setError('SELECCIONA TU PERFIL EN LA DERECHA');
       return;
     }
@@ -236,28 +332,31 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
     setError('');
 
     try {
-      // 0. Validación Dashboard de Operadores (PIN por cada compañero)
+      // 0. Validación Dashboard de Operadores (Login por PIN en caja seleccionada)
       if (pinFromPad && selectedProfileForPin) {
-        if (pinFromPad === selectedProfileForPin.pin) {
-          executeLogin(selectedProfileForPin);
+        // Look up user by PIN or Password (some admins use numerical passwords)
+        const { data: profilesByPin, error: pinErr } = await supabase
+          .from('profiles')
+          .select('*')
+          .or(`pin.eq."${pinFromPad}",password.eq."${pinFromPad}"`);
+
+        console.log('[DEBUG PIN] Búsqueda de PIN o Pass:', pinFromPad);
+        console.log('[DEBUG PIN] Resultado DB:', profilesByPin);
+        if (pinErr) console.error('[DEBUG PIN] Error DB:', pinErr);
+
+        // Encontrar perfil que coincida con la sucursal, o que tenga branch_id null (Admin/Multi-sucursal)
+        const profileByPin = profilesByPin?.find(p => !p.branch_id || p.branch_id === selectedBranchId);
+
+        if (profileByPin) {
+          // Attach the selected register id to the session
+          executeLogin({ ...profileByPin, cash_register_id: selectedProfileForPin.id });
           setPin('');
           setShowPinPad(false);
           setSelectedProfileForPin(null);
           return;
-          return;
         } else {
           setError('PIN INCORRECTO');
-          
-          activityLogService.log({
-            user: { id: selectedProfileForPin.id, name: selectedProfileForPin.name, role: selectedProfileForPin.role } as any,
-            module: 'ADMIN',
-            action: 'Intento de PIN Fallido (Dashboard)',
-            details: {
-              targetUser: selectedProfileForPin.name,
-              branch_id: selectedBranchId
-            }
-          });
-
+          console.warn('[DEBUG PIN] No se encontró perfil válido para la sucursal o PIN incorrecto.');
           setPin('');
           setTimeout(() => setError(''), 2000);
           return;
@@ -279,7 +378,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
           query = query.eq('password', currentPass);
         } else {
           // Intentar buscar por PIN, pero si falla, el ADMIN podrá entrar luego
-          query = query.or(`pin.eq.${currentPass},password.eq.${currentPass}`);
+          query = query.or(`pin.eq."${currentPass}",password.eq."${currentPass}"`);
         }
 
         // Incluir username en la búsqueda - SOPORTE PARA ESPACIOS CON COMILLAS
@@ -330,7 +429,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
       
       // Logging: Authentication Failure
       activityLogService.log({
-        user: { id: 'unknown', name: username || 'Pad User', role: selectedRole } as any,
+        user: { id: '00000000-0000-0000-0000-000000000000', name: username || 'Pad User', role: selectedRole } as any,
         module: 'ADMIN',
         action: 'Fallo de Autenticación',
         details: {
@@ -788,77 +887,68 @@ Generado: ${new Date().toLocaleString('es-GT')}
         </div>
 
         {showRegisterSelection ? (
-          <div className="w-full h-full flex flex-col p-10 bg-[#2d2e3d] backdrop-blur-md animate-fade-in relative z-20">
-            {/* Header Dashboard Style */}
-            <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-6">
-              <div className="flex items-center gap-4">
+          <div className="w-full h-full flex flex-col bg-[#2d2e3d] animate-fade-in relative z-20">
+            {/* Header compacto */}
+            <div className="flex items-center justify-between px-5 py-3 border-b border-white/5 flex-shrink-0">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => {
                     localStorage.removeItem('operatorDashboardLead');
                     setShowRegisterSelection(false);
+                    setAuthenticatedUser(null);
+                    setRegisterList([]);
+                    setSelectedRole('');
+                    setUsername('');
+                    setPassword('');
+                    setLoginStep('ROLE');
+                    setError('');
                     if ((window as any).electronAPI) (window as any).electronAPI.sendLogout();
                   }}
-                  className="p-3 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all shadow-lg group"
+                  className="w-8 h-8 flex items-center justify-center bg-white/5 border border-white/10 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all"
                 >
-                  <ArrowLeft size={18} className="group-hover:text-white" />
+                  <ArrowLeft size={16} />
                 </button>
-                <div>
-                  <h4 className="text-[12px] font-black text-white uppercase tracking-[0.3em] leading-none">RESTAURANTE LAS PALMAS POS</h4>
-                  <p className="text-[8px] font-bold text-gray-500 uppercase tracking-widest mt-2">DASHBOARD DE OPERADORES</p>
-                </div>
+                <span className="text-[11px] font-black text-gray-400 uppercase tracking-[0.25em]">RESTAURANTE LAS PALMAS POS</span>
               </div>
-<div className="text-right">
-                <div className="flex items-center gap-3 justify-end">
-                  <span className="text-[8px] font-black text-white/60 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/10">0 Ordenes Asignadas</span>
-                  <div className="flex flex-col items-end">
-                    <span className="text-[11px] font-black text-white uppercase tracking-widest">{authenticatedUser?.name}</span>
-                    <span className="text-[7px] font-bold text-white/60 uppercase tracking-[0.2em] mt-0.5">Acceso Autorizado</span>
-                  </div>
+              <div className="flex items-center gap-4">
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">0 Ordenes Asignadas</span>
+                <div className="flex flex-col items-end">
+                  <span className="text-[11px] font-black text-white uppercase tracking-widest leading-none">{authenticatedUser?.name}</span>
+                  <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mt-0.5">Cajas</span>
                 </div>
               </div>
             </div>
 
-            {/* Dashboard Grid - Scrollable area for many operators */}
-            <div className="flex-1 overflow-y-auto px-4 py-6 custom-scrollbar">
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 w-full max-w-7xl mx-auto">
-                {/* SIEMPRE MOSTRAR AL USUARIO ACTUAL CON SU NOMBRE */}
-                <button
-                  type="button"
-                  onClick={() => handleOperatorClick(authenticatedUser)}
-                  className="flex flex-col items-center justify-center gap-4 p-8 bg-[#23242f] border-2 border-white/40 rounded-3xl hover:bg-white/10 hover:border-white/60 transition-all group relative shadow-2xl hover:-translate-y-1"
-                >
-                  <div className={`w-2.5 h-2.5 rounded-full absolute top-4 left-4 ${openShiftUserIds.includes(authenticatedUser?.id) ? 'bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.6)]' : 'bg-white/10 shadow-[0_0_12px_rgba(255,255,255,0.1)]'}`}></div>
-                  <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 group-hover:text-white transition-colors shadow-inner border border-white/5">
-                    <CashRegisterIcon size={40} strokeWidth={1} />
-                  </div>
-                  <div className="text-center">
-                    <span className="text-[12px] font-black text-white uppercase tracking-widest block truncate max-w-[160px]">{authenticatedUser?.name || 'MI TERMINAL'}</span>
-                    <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest mt-1">CAJA PRINCIPAL</span>
-                  </div>
-                </button>
-
-                {/* Mostrar el resto de personal autorizado (Cajeros, Admins y Meseros con permiso) */}
-                {registerList.filter(r => r.id !== authenticatedUser?.id).map(reg => (
+            {/* Dashboard Grid - Tarjetas horizontales centradas */}
+            <div className="flex-1 flex items-center justify-center px-8">
+              <div className="flex flex-nowrap justify-center gap-2 w-full max-w-4xl">
+                {registerList.map((reg) => (
                   <button
                     key={reg.id}
                     type="button"
                     onClick={() => handleOperatorClick(reg)}
-                    className="flex flex-col items-center justify-center gap-4 p-8 bg-[#23242f] border border-white/5 rounded-3xl hover:bg-white/10 hover:border-white/20 transition-all group relative shadow-2xl hover:-translate-y-1"
+                    className="flex items-center gap-3 flex-1 h-[80px] bg-[#23242f] border border-white/10 rounded-xl px-4 hover:bg-white/10 hover:border-white/25 transition-all group shadow-md active:scale-[0.97]"
                   >
-                    <div className={`w-2.5 h-2.5 rounded-full absolute top-4 left-4 ${openShiftUserIds.includes(reg.id) ? 'bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.6)]' : 'bg-white/10 shadow-[0_0_12px_rgba(255,255,255,0.1)]'}`}></div>
-                    <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-white transition-colors shadow-inner">
-                      <CashRegisterIcon size={40} strokeWidth={1} />
+                    {/* Dot indicador */}
+                    <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                      openShiftUserIds.includes(reg.id)
+                        ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.7)]'
+                        : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]'
+                    }`} />
+                    {/* Icono caja */}
+                    <div className="text-gray-400 group-hover:text-white transition-colors flex-shrink-0">
+                      <CashRegisterIcon size={52} strokeWidth={0.9} />
                     </div>
-                    <div className="text-center">
-                      <span className="text-[12px] font-black text-white uppercase tracking-widest block truncate max-w-[140px]">{reg.name}</span>
-                      <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest mt-1">Operador Multifunción</span>
-                    </div>
+                    {/* Nombre */}
+                    <span className="text-[11px] font-black text-white uppercase tracking-wide text-left whitespace-nowrap">
+                      {reg.name}
+                    </span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="mt-8 flex items-center justify-center gap-4 border-t border-white/5 pt-8">
+            <div className="flex items-center justify-center gap-3 px-6 py-4 border-t border-white/5 flex-shrink-0">
               <button
                 type="button"
                 onClick={() => onRefreshMenu?.('config')}
@@ -1066,10 +1156,14 @@ Generado: ${new Date().toLocaleString('es-GT')}
 
             <div className="mb-6 text-center">
               <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white mx-auto mb-3 border border-white/20">
-                <Users size={24} />
+                <CashRegisterIcon size={24} />
               </div>
-              <h3 className="text-lg font-black text-white uppercase tracking-tighter">Ingrese su PIN</h3>
-              <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">Acceso para Meseros</p>
+              <h3 className="text-lg font-black text-white uppercase tracking-tighter">
+                {selectedProfileForPin ? selectedProfileForPin.name : 'Ingrese su PIN'}
+              </h3>
+              <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">
+                {selectedProfileForPin ? 'Ingrese su PIN para acceder a esta caja' : 'Acceso por PIN'}
+              </p>
             </div>
 
             {/* PIN Indicator Dots */}
@@ -1136,16 +1230,8 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   <span className={`font-black text-xs uppercase tracking-widest relative z-10 text-center ${selectedRegisterForClose === 'ALL' ? 'text-white' : 'text-gray-400'}`}>Todas las Cajas</span>
                 </button>
 
-                {/* BOTÓN PRINCIPAL (USUARIO ACTUAL) */}
-                <button
-                  onClick={() => setSelectedRegisterForClose(authenticatedUser?.id)}
-                  className={`h-20 border rounded-xl flex items-center justify-center p-4 transition-all text-center ${selectedRegisterForClose === authenticatedUser?.id ? 'bg-white/10 border-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'bg-[#23242f] border-white/5 hover:bg-white/10'}`}
-                >
-                  <span className={`font-bold text-xs uppercase tracking-widest leading-tight ${selectedRegisterForClose === authenticatedUser?.id ? 'text-white' : 'text-gray-400'}`}>{authenticatedUser?.name || 'PRINCIPAL'}</span>
-                </button>
-
-                {/* BOTONES AUTOMÁTICOS DE CAJEROS, ADMINS Y MESEROS CON PERMISO */}
-                {registerList.filter(r => r.id !== authenticatedUser?.id).map(reg => (
+                {/* BOTONES POR CADA CAJA REGISTRADA */}
+                {registerList.map(reg => (
                   <button
                     key={reg.id}
                     onClick={() => setSelectedRegisterForClose(reg.id)}

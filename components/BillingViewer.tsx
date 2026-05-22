@@ -4,7 +4,7 @@ import {
     ArrowLeft, Search, Calendar, Filter, Printer, Eye,
     FileText, CheckCircle, XCircle, AlertCircle, Loader2,
     ChevronRight, Hash, User, MapPin, Receipt, Download, Trash2, Key, MessageSquare,
-    Delete as Backspace
+    Delete as Backspace, CreditCard
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { printService } from '../services/PrintService';
@@ -33,6 +33,11 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
     const [voidNit, setVoidNit] = useState('');
     const [voidReason, setVoidReason] = useState('Error en los datos de la descripción');
     const [voiding, setVoiding] = useState(false);
+    const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
+    const [whatsAppPhone, setWhatsAppPhone] = useState('');
+    const [whatsAppRecord, setWhatsAppRecord] = useState<any | null>(null);
+    const [whatsAppError, setWhatsAppError] = useState('');
+    const [sendingWhatsApp, setSendingWhatsApp] = useState(false);
 
     useEffect(() => {
         fetchRecords();
@@ -144,11 +149,17 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
         const cancellationReason = record.cancellation_reason || 'Anulado';
 
         if (isCancelled && !record.uuid && record.series !== 'CONT') {
+            const orderObj = record.orders || record;
             await printService.printCancelledTicket({
                 orderId: record.order_id || record.id,
-                orderNumber: record.orders?.order_number || record.order_number || '---',
+                orderNumber: orderObj?.order_number || '---',
                 items: finalItems,
-                createdAt: record.created_at
+                createdAt: record.created_at,
+                orderType: orderObj?.order_type,
+                customerName: orderObj?.customer_name,
+                customerPhone: orderObj?.customer_phone,
+                deliveryAddress: orderObj?.delivery_address,
+                tableNumber: orderObj?.tables?.number || orderObj?.table_number
             }, cancellationReason);
             return;
         }
@@ -235,6 +246,97 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
         };
 
         onCheckout(formattedOrder);
+    };
+
+    const getPaymentMethodDisplay = (record: any) => {
+        const orderObj = record.orders || record;
+        if (!orderObj) return 'N/A';
+
+        const activeMethods: string[] = [];
+        if (orderObj.cash_amount > 0) activeMethods.push('Efectivo');
+        if (orderObj.card_amount > 0) {
+            const processor = orderObj.card_processor 
+                ? ` - ${orderObj.card_processor}` 
+                : '';
+            activeMethods.push(`Tarjeta${processor}`);
+        }
+        if (orderObj.credit_amount > 0) activeMethods.push('Crédito');
+        if (orderObj.other_amount > 0) activeMethods.push('Otros');
+
+        if (activeMethods.length > 0) {
+            if (activeMethods.length === 2 && activeMethods.includes('Efectivo') && activeMethods.some(m => m.startsWith('Tarjeta'))) {
+                const tarjetaPart = activeMethods.find(m => m.startsWith('Tarjeta'));
+                return `${tarjetaPart} y Efectivo`;
+            }
+            return activeMethods.join(' y ');
+        }
+
+        return orderObj.payment_method || 'N/A';
+    };
+
+    const handleWhatsApp = async (record: any) => {
+        if (!record) return;
+
+        setWhatsAppRecord(record);
+        setWhatsAppError('');
+        setSendingWhatsApp(true);
+        let phone = '';
+        try {
+            if (record.customer_nit && record.customer_nit !== 'CF') {
+                const { data: cust } = await supabase
+                    .from('customers')
+                    .select('phone')
+                    .eq('nit', record.customer_nit)
+                    .maybeSingle();
+                if (cust?.phone) {
+                    phone = cust.phone;
+                }
+            }
+        } catch (err) {
+            console.error('Error fetching customer phone:', err);
+        } finally {
+            setSendingWhatsApp(false);
+        }
+
+        setWhatsAppPhone(phone || '');
+        setShowWhatsAppModal(true);
+    };
+
+    const confirmWhatsApp = async () => {
+        if (!whatsAppRecord) return;
+        
+        const cleanPhone = whatsAppPhone.replace(/\D/g, '');
+        if (cleanPhone.length !== 8) {
+            setWhatsAppError("El número de teléfono debe tener exactamente 8 dígitos.");
+            return;
+        }
+
+        setSendingWhatsApp(true);
+        // Save phone back to customers if NIT is not CF and it changed
+        try {
+            if (whatsAppRecord.customer_nit && whatsAppRecord.customer_nit !== 'CF') {
+                await supabase.from('customers').update({ phone: cleanPhone }).eq('nit', whatsAppRecord.customer_nit);
+            }
+        } catch (err) {
+            console.error('Error updating customer phone:', err);
+        } finally {
+            setSendingWhatsApp(false);
+        }
+
+        const totalVal = whatsAppRecord.grand_total || whatsAppRecord.total || 0;
+        const pdfUrl = whatsAppRecord.pdf_url;
+        let message = '';
+        if (pdfUrl) {
+            message = `¡Hola! Le saludamos de Restaurante Las Palmas.\nAgradecemos su preferencia y le compartimos el enlace para descargar su factura digital por un monto de Q${totalVal.toFixed(2)}: ${pdfUrl}.\n¡Feliz día y buen provecho!`;
+        } else {
+            message = `¡Hola! Le saludamos de Restaurante Las Palmas.\nAgradecemos su preferencia y le compartimos los detalles de su consumo por un monto de Q${totalVal.toFixed(2)}.\n¡Feliz día y buen provecho!`;
+        }
+        const url = `https://wa.me/502${cleanPhone}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+        
+        setShowWhatsAppModal(false);
+        setWhatsAppRecord(null);
+        setWhatsAppPhone('');
     };
 
     const handleVoid = async () => {
@@ -339,14 +441,20 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
             }
 
             // 5. Print Cancellation Voucher
+            const orderObj = selectedRecord.orders || selectedRecord;
             await printService.printCancelledTicket({
                 orderId: orderId,
-                orderNumber: selectedRecord.order_number || selectedRecord.orders?.order_number || '---',
+                orderNumber: orderObj?.order_number || '---',
                 items: selectedOrderItems.map(i => ({
                     name: i.products?.name || 'Item',
                     quantity: i.quantity
                 })),
-                createdAt: selectedRecord.created_at
+                createdAt: selectedRecord.created_at,
+                orderType: orderObj?.order_type,
+                customerName: orderObj?.customer_name,
+                customerPhone: orderObj?.customer_phone,
+                deliveryAddress: orderObj?.delivery_address,
+                tableNumber: orderObj?.tables?.number || orderObj?.table_number
             }, voidReason);
 
             alert(`✅ ${result?.error || 'Registro anulado correctamente'}`);
@@ -487,7 +595,11 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                         </div>
                                         <div className="text-right">
                                             <span className={`text-sm font-black tracking-tighter tabular-nums ${selectedRecord?.id === record.id ? 'text-white' : 'text-white'}`}>
-                                                Q{(record.grand_total || record.total || 0).toFixed(2)}
+                                                Q{(
+                                                    record.grand_total !== undefined
+                                                        ? (parseFloat((record.grand_total || 0).toString()) + parseFloat((record.tip_amount || record.tip_total || record.orders?.tip_amount || 0).toString()))
+                                                        : parseFloat((record.total || 0).toString())
+                                                ).toFixed(2)}
                                             </span>
                                             <div className={`flex items-center gap-1 justify-end mt-1 text-[9px] font-bold uppercase ${selectedRecord?.id === record.id ? 'text-white/60' : 'text-gray-500'}`}>
                                                 <Hash size={10} />
@@ -564,6 +676,17 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                             <span>Anular</span>
                                         </button>
                                     )}
+                                    {selectedRecord.status?.toUpperCase() !== 'CANCELLED' && (
+                                        <button
+                                            onClick={() => handleWhatsApp(selectedRecord)}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-sm transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 text-white"
+                                        >
+                                            <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 fill-current">
+                                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                                            </svg>
+                                            <span>WhatsApp</span>
+                                        </button>
+                                    )}
                                     {activeTab === 'CONTINGENCIA' && onCheckout ? (
                                         <button
                                             onClick={() => handleFacturar(selectedRecord)}
@@ -585,7 +708,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                             </div>
 
                             {/* Info Area */}
-                            <div className="grid grid-cols-3 gap-3 p-3 bg-black/5 border-b border-white/5 shrink-0">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 bg-black/5 border-b border-white/5 shrink-0">
                                 <div className="bg-white/[0.03] p-2.5 rounded-sm border border-white/5 flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400">
                                         <User size={16} />
@@ -604,7 +727,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                     <div className="min-w-0 flex-1">
                                         <p className="text-[7px] font-black text-gray-600 uppercase tracking-widest leading-none mb-1">Orden / Fecha</p>
                                         <p className="text-[10px] font-black text-white">#{selectedRecord.order_number || selectedRecord.orders?.order_number || '---'}</p>
-                                        <p className="text-[8px] font-bold text-gray-500 tracking-tighter uppercase">{new Date(selectedRecord.created_at).toLocaleString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
+                                        <p className="text-[9px] font-bold text-gray-400 tracking-tight mt-0.5">{new Date(selectedRecord.created_at).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}</p>
                                     </div>
                                 </div>
 
@@ -627,6 +750,23 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                         <p className="text-[8px] font-bold text-indigo-400/80 tracking-widest uppercase">
                                             {selectedRecord.orders?.order_type || selectedRecord.order_type || 'GENERAL'}
                                         </p>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white/[0.03] p-2.5 rounded-sm border border-white/5 flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                                        <CreditCard size={16} />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-[7px] font-black text-gray-600 uppercase tracking-widest leading-none mb-1">Forma de Pago</p>
+                                        <p className="text-[10px] font-black text-white uppercase truncate">
+                                            {getPaymentMethodDisplay(selectedRecord)}
+                                        </p>
+                                        {(selectedRecord.orders?.card_processor || selectedRecord.card_processor) && (
+                                            <p className="text-[8px] font-bold text-indigo-400/80 tracking-widest uppercase truncate">
+                                                {selectedRecord.orders?.card_processor || selectedRecord.card_processor}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -669,27 +809,33 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                                 {/* Integrated Totals Section - CLEAN TEXT NO BORDER */}
                                                 <div className="mt-6 pt-4 border-t border-white/5">
                                                     <div className="ml-auto w-full max-w-[220px] space-y-1">
-                                                        <div className="flex justify-between text-[10px]">
-                                                            <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Sub-Total</span>
-                                                            <span className="font-black tabular-nums text-white/80">Q{parseFloat(
-                                                                ((selectedRecord.grand_total || selectedRecord.total || 0) 
-                                                                - (selectedRecord.tip_amount || selectedRecord.tip_total || selectedRecord.orders?.tip_amount || 0) 
-                                                                + (selectedRecord.discount || selectedRecord.discount_amount || selectedRecord.orders?.discount || selectedRecord.orders?.discount_amount || 0))
-                                                                .toString()
-                                                            ).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                                                        </div>
-                                                        <div className="flex justify-between text-[10px]">
-                                                            <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Descuento</span>
-                                                            <span className="font-black tabular-nums text-white/80">-Q{parseFloat((selectedRecord.discount || selectedRecord.discount_amount || selectedRecord.orders?.discount || selectedRecord.orders?.discount_amount || 0).toString()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                                                        </div>
-                                                        <div className="flex justify-between text-[10px]">
-                                                            <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Propina</span>
-                                                            <span className="font-black tabular-nums text-white/80">Q{parseFloat((selectedRecord.tip_amount || selectedRecord.tip_total || selectedRecord.orders?.tip_amount || 0).toString()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                                                        </div>
-                                                        <div className="mt-3 pt-3 border-t border-white/10 flex justify-between items-baseline">
-                                                            <span className="text-[11px] font-black text-white/40 uppercase tracking-widest leading-none">Total</span>
-                                                            <span className="text-2xl font-black tabular-nums text-white leading-none">Q{parseFloat(selectedRecord.grand_total || selectedRecord.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                                                        </div>
+                                                        {(() => {
+                                                            const isInvoice = selectedRecord.grand_total !== undefined;
+                                                            const tip = parseFloat((selectedRecord.tip_amount || selectedRecord.tip_total || selectedRecord.orders?.tip_amount || 0).toString());
+                                                            const discount = parseFloat((selectedRecord.discount || selectedRecord.discount_amount || selectedRecord.orders?.discount || selectedRecord.orders?.discount_amount || 0).toString());
+                                                            const totalPaid = isInvoice ? (parseFloat((selectedRecord.grand_total || 0).toString()) + tip) : parseFloat((selectedRecord.total || 0).toString());
+                                                            const subTotalVal = totalPaid - tip + discount;
+                                                            return (
+                                                                <>
+                                                                    <div className="flex justify-between text-[12px] items-center">
+                                                                        <span className="text-gray-400 font-bold uppercase tracking-widest leading-none">Sub-Total</span>
+                                                                        <span className="font-black tabular-nums text-white/95">Q{subTotalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                                    </div>
+                                                                    <div className="flex justify-between text-[12px] items-center mt-1">
+                                                                        <span className="text-gray-400 font-bold uppercase tracking-widest leading-none">Descuento</span>
+                                                                        <span className="font-black tabular-nums text-white/95">-Q{discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                                    </div>
+                                                                    <div className="flex justify-between text-[12px] items-center mt-1">
+                                                                        <span className="text-gray-400 font-bold uppercase tracking-widest leading-none">Propina</span>
+                                                                        <span className="font-black tabular-nums text-white/95">Q{tip.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                                    </div>
+                                                                    <div className="mt-3 pt-3 border-t border-white/10 flex justify-between items-baseline">
+                                                                        <span className="text-[11px] font-black text-white/45 uppercase tracking-widest leading-none">Total</span>
+                                                                        <span className="text-2xl font-black tabular-nums text-white leading-none">Q{totalPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                                    </div>
+                                                                </>
+                                                            );
+                                                        })()}
                                                     </div>
                                                 </div>
                                             </div>
@@ -887,6 +1033,123 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                     </div>
                 )
             }
+
+            {/* WhatsApp Modal */}
+            {/* WhatsApp Modal */}
+            {showWhatsAppModal && (
+                <div className="fixed inset-0 bg-transparent z-[100] flex items-center justify-center p-4 animate-in fade-in duration-150">
+                    <div className="bg-[#2d2e3d] w-full max-w-sm rounded-none border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col pointer-events-auto">
+                        {/* Dashboard Header */}
+                        <div className="bg-[#3a3b4d] h-10 px-3 flex justify-between items-center shrink-0 select-none rounded-none border-b border-white/5">
+                            <span className="text-white text-[11px] font-black uppercase tracking-wider">Compartir por WhatsApp</span>
+                            <button 
+                                onClick={() => { setShowWhatsAppModal(false); setWhatsAppPhone(''); setWhatsAppRecord(null); setWhatsAppError(''); }}
+                                className="w-8 h-8 flex items-center justify-center hover:bg-white/5 text-gray-400 hover:text-white transition-all rounded-none"
+                                title="Cerrar"
+                            >
+                                <XCircle size={18} strokeWidth={2.5} />
+                            </button>
+                        </div>
+
+                        {/* Dashboard Form Body */}
+                        <div className="p-4 bg-[#2d2e3d] flex flex-col gap-4 border-b border-white/5">
+                            {/* Input Display */}
+                            <div className="space-y-1.5">
+                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block">
+                                    Número de Teléfono (Guatemala)
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-500 tracking-wider">
+                                        +502
+                                    </span>
+                                    <input
+                                        type="text"
+                                        readOnly
+                                        placeholder="Ingrese 8 dígitos"
+                                        value={whatsAppPhone}
+                                        className="w-full bg-black/40 border border-white/10 rounded-none p-2.5 pl-12 text-sm font-bold text-white outline-none tracking-[0.2em] placeholder:text-gray-700 focus:border-white/30"
+                                    />
+                                </div>
+                                {whatsAppError && (
+                                    <p className="text-[9px] font-bold text-rose-500 uppercase tracking-wide">
+                                        {whatsAppError}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Touch Numeric Grid Keyboard */}
+                            <div className="grid grid-cols-3 gap-2 w-60 mx-auto mt-1">
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                                    <button
+                                        key={num}
+                                        onClick={() => {
+                                            setWhatsAppError('');
+                                            if (whatsAppPhone.length < 8) {
+                                                setWhatsAppPhone(p => p + num);
+                                            }
+                                        }}
+                                        className="h-9 rounded-none bg-white/5 hover:bg-white/10 border border-white/5 text-white text-sm font-bold transition-all active:scale-95 shadow-sm"
+                                    >
+                                        {num}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => { setWhatsAppPhone(''); setWhatsAppError(''); }}
+                                    className="h-9 rounded-none bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-[10px] font-bold uppercase transition-all active:scale-95 shadow-sm"
+                                >
+                                    Limpiar
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setWhatsAppError('');
+                                        if (whatsAppPhone.length < 8) {
+                                            setWhatsAppPhone(p => p + '0');
+                                        }
+                                    }}
+                                    className="h-9 rounded-none bg-white/5 hover:bg-white/10 border border-white/5 text-white text-base font-bold transition-all active:scale-95 shadow-sm"
+                                >
+                                    0
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setWhatsAppError('');
+                                        setWhatsAppPhone(p => p.slice(0, -1));
+                                    }}
+                                    className="h-9 rounded-none bg-white/5 hover:bg-white/10 border border-white/5 text-white flex items-center justify-center transition-all active:scale-95 shadow-sm"
+                                >
+                                    <Backspace size={16} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Dashboard Footer */}
+                        <div className="p-4 bg-[#3a3b4d]/30 flex flex-col gap-2 rounded-none">
+                            <button
+                                onClick={confirmWhatsApp}
+                                disabled={sendingWhatsApp || whatsAppPhone.length !== 8}
+                                className={`w-full h-10 rounded-none font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 text-xs text-white border
+                                ${whatsAppPhone.length === 8 && !sendingWhatsApp
+                                        ? 'bg-emerald-600 hover:bg-emerald-500 border-emerald-700 active:scale-95 shadow-md'
+                                        : 'bg-white/5 text-gray-500 border-white/5 cursor-not-allowed'}`}
+                            >
+                                {sendingWhatsApp ? (
+                                    <>
+                                        <Loader2 size={16} className="animate-spin" />
+                                        <span>Procesando...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 fill-current">
+                                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                                        </svg>
+                                        <span>Aceptar</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
     );
 };

@@ -311,9 +311,14 @@ class BillingService {
     }
 
     private buildAnnulmentXML(invoice: any, reason: string, settings: BillingSettings): string {
-        const date = new Date().toISOString();
-        const formattedAnnulDate = this.formatFELDate(date);
-        const formattedCertDate = this.formatFELDate(invoice.certification_date || date);
+        const now = new Date();
+        const certDate = new Date(invoice.certification_date || now);
+        
+        // Ensure annulment time is at least equal to certification time plus 10 seconds to avoid clock desync/same-second issues
+        const annulDate = now > certDate ? now : new Date(certDate.getTime() + 10000);
+        
+        const formattedAnnulDate = this.formatFELDate(annulDate);
+        const formattedCertDate = this.formatFELDate(invoice.certification_date || now);
         const esc = (s: string) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 
         return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>

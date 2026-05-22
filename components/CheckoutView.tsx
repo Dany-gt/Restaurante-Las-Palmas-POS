@@ -44,15 +44,45 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
         ((order as any).tip_method as 'EFECTIVO' | 'TARJETA' | 'OTROS' | null) || null
     );
     const [currentTip, setCurrentTip] = useState(order.tip_amount || 0);
-    const [discount, setDiscount] = useState(0); // Nuevo estado para el descuento
+    // v1.8.0: Inicializar y sincronizar el descuento acumulado (de platillo o global) de la orden o subcuenta
+    const [discount, setDiscount] = useState(() => {
+        const items = order.items || (order as any).order_items || [];
+        const accumulatedItemDiscounts = items
+            .filter((i: any) => i.status !== 'voided' && i.status !== 'cancelled')
+            .reduce((acc: number, i: any) => acc + (i.discount_amount || 0), 0);
+
+        if (accumulatedItemDiscounts > 0) {
+            return accumulatedItemDiscounts;
+        }
+        return (order as any).discount_amount || order.discount || 0;
+    });
+
+    useEffect(() => {
+        const items = order.items || (order as any).order_items || [];
+        const accumulatedItemDiscounts = items
+            .filter((i: any) => i.status !== 'voided' && i.status !== 'cancelled')
+            .reduce((acc: number, i: any) => acc + (i.discount_amount || 0), 0);
+
+        if (accumulatedItemDiscounts > 0) {
+            setDiscount(accumulatedItemDiscounts);
+        } else {
+            setDiscount((order as any).discount_amount || order.discount || 0);
+        }
+
+        // Sync tip and tip method from order dynamically
+        setCurrentTip(order.tip_amount || 0);
+        setTipMethod(((order as any).tip_method as 'EFECTIVO' | 'TARJETA' | 'OTROS' | null) || null);
+    }, [order]);
     const [processing, setProcessing] = useState(false);
     const [terminals, setTerminals] = useState<POSTerminal[]>([]);
     const [invoiceSuccess, setInvoiceSuccess] = useState(false);
+    const [invoicePdfUrl, setInvoicePdfUrl] = useState<string | undefined>(undefined);
     const [existingInvoice, setExistingInvoice] = useState<any>(null);
     const [isAnticipatedMode, setIsAnticipatedMode] = useState(false);
     const [showAdminPinForTip, setShowAdminPinForTip] = useState(false);
     const [pendingTipAction, setPendingTipAction] = useState<{ type: 'CONFIRM' | 'SIN_PROPINA', method?: 'EFECTIVO' | 'TARJETA' | 'OTROS', amount?: number } | null>(null);
     const [isAmountSelected, setIsAmountSelected] = useState(false);
+    const [selectedPaymentIdx, setSelectedPaymentIdx] = useState<number | null>(null);
 
     // Security hook
     const { validatePin, canAccessOrder } = useSecurityPolicy(settings);
@@ -109,9 +139,18 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
     const hasTipLock = !isStaff && (currentUser?.role === 'CAJERO' || currentUser?.role === 'MESERO');
 
     const currency = (settings?.currency === 'GTQ' || settings?.currency === 'Q') ? 'Q.' : (settings?.currency || 'Q.');
-    const subtotal = order.subtotal || 0;
-    const tax = order.tax_amount || 0;
-    const total = subtotal - discount + currentTip; // El total ahora considera el descuento aplicado
+    // v1.8.0: Calcular subtotal dinámico considerando sólo ítems activos
+    const computedSubtotal = (order.items || (order as any).order_items || [])
+        .filter((i: any) => i.status !== 'voided' && i.status !== 'cancelled')
+        .reduce((acc: number, i: any) => acc + ((i.unit_price || i.price || 0) * i.quantity), 0);
+    const subtotal = order.subtotal && order.subtotal > 0 ? order.subtotal : computedSubtotal;
+
+    // Calcular IVA dinámico basado en subtotal después de descuento
+    const taxRate = parseFloat(settings?.tax_percentage || '12') / 100;
+    const subtotalAfterDiscount = Math.max(0, subtotal - discount);
+    const tax = subtotalAfterDiscount - (subtotalAfterDiscount / (1 + taxRate));
+
+    const total = subtotalAfterDiscount + currentTip; // El total ahora considera el descuento aplicado
 
     const totalPaid = payments.reduce((acc, p) => acc + p.amount, 0);
     const balance = total - totalPaid;
@@ -242,7 +281,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
     const handlePropinaAction = () => {
         const val = parseFloat(amount);
         const tipPercentage = (settings?.suggested_tip || 10) / 100;
-        const rawTip = val > 0 ? val : (subtotal * tipPercentage);
+        const rawTip = val > 0 ? val : (subtotalAfterDiscount * tipPercentage);
 
         // Respect the 'round_tip' setting from admin panel
         const finalTip = settings?.round_tip
@@ -289,7 +328,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
     const handleTipConfirm = (method: 'EFECTIVO' | 'TARJETA' | 'OTROS', tipAmount: number) => {
         // Calculate the suggested 10% tip using SAME LOGIC as handlePropinaAction
         const suggestedTipRate = (settings?.suggested_tip || 10) / 100;
-        const rawSuggested = subtotal * suggestedTipRate;
+        const rawSuggested = subtotalAfterDiscount * suggestedTipRate;
         const suggestedAmount = settings?.round_tip
             ? Math.round(rawSuggested)
             : parseFloat(rawSuggested.toFixed(2));
@@ -357,7 +396,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
         try {
             // Aplicar el descuento del cliente a la orden global si no se ha aplicado uno mayor
             const discPercent = customer.authorized_discount || 0;
-            const discAmount = (order.subtotal * discPercent) / 100;
+            const discAmount = (subtotal * discPercent) / 100;
             if (discAmount > discount) {
                 setDiscount(discAmount);
             }
@@ -403,8 +442,33 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
     };
 
     const handleFinalize = async () => {
-        if (totalPaid < total) {
-            return;
+        let activePayments = [...payments];
+        let activeTotalPaid = totalPaid;
+        let activeChange = change;
+        let activeBalance = balance;
+
+        if (activeTotalPaid < total) {
+            const remaining = total - activeTotalPaid;
+            if (selectedMethod === 'EFECTIVO') {
+                const newPayment = { method: 'EFECTIVO', amount: remaining };
+                activePayments.push(newPayment);
+                activeTotalPaid += remaining;
+                activeBalance = 0;
+                activeChange = 0;
+                setPayments(activePayments);
+            } else if (selectedMethod === 'TARJETA') {
+                setPendingAmount(remaining);
+                setShowPosSelector(true);
+                return;
+            } else if (selectedMethod === 'AL CRÉDITO') {
+                setPendingCreditAmount(remaining);
+                setShowCreditSelector(true);
+                return;
+            } else if (selectedMethod === 'OTROS') {
+                setPendingOtherAmount(remaining);
+                setShowOtherModal(true);
+                return;
+            }
         }
 
         if (existingInvoice) {
@@ -412,23 +476,23 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
             setProcessing(true);
             try {
                 // Determine payment method and processor
-                const cardPayment = payments.find(p => p.method === 'TARJETA');
-                const mainPaymentMethod = payments.length > 0 ? payments[0].method : 'EFECTIVO';
-                const hasCashPayment = payments.some(p => p.method === 'EFECTIVO');
+                const cardPayment = activePayments.find(p => p.method === 'TARJETA');
+                const mainPaymentMethod = activePayments.length > 0 ? activePayments[0].method : 'EFECTIVO';
+                const hasCashPayment = activePayments.some(p => p.method === 'EFECTIVO');
 
                 const getBreakdownValues = () => {
-                    if (payments.length > 0) {
-                        const cashAmount = payments.filter(p => p.method === 'EFECTIVO').reduce((acc, p) => acc + p.amount, 0);
-                        const cardAmount = payments.filter(p => p.method === 'TARJETA').reduce((acc, p) => acc + p.amount, 0);
-                        const creditAmount = payments.filter(p => p.method === 'AL CRÉDITO').reduce((acc, p) => acc + p.amount, 0);
-                        const otherAmount = payments.filter(p => p.method === 'OTROS').reduce((acc, p) => acc + p.amount, 0);
+                    if (activePayments.length > 0) {
+                        const cashAmount = activePayments.filter(p => p.method === 'EFECTIVO').reduce((acc, p) => acc + p.amount, 0);
+                        const cardAmount = activePayments.filter(p => p.method === 'TARJETA').reduce((acc, p) => acc + p.amount, 0);
+                        const creditAmount = activePayments.filter(p => p.method === 'AL CRÉDITO').reduce((acc, p) => acc + p.amount, 0);
+                        const otherAmount = activePayments.filter(p => p.method === 'OTROS').reduce((acc, p) => acc + p.amount, 0);
                         return {
                             cash_amount: cashAmount,
                             card_amount: cardAmount,
                             credit_amount: creditAmount,
                             other_amount: otherAmount,
-                            total_paid: totalPaid,
-                            change_amount: change
+                            total_paid: activeTotalPaid,
+                            change_amount: activeChange
                         };
                     } else {
                         const method = (mainPaymentMethod || 'EFECTIVO').toUpperCase();
@@ -457,8 +521,9 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     total: total,
                     tip_amount: currentTip,
                     tip_method: tipMethod,
-                    subtotal: subtotal - tax,
+                    subtotal: subtotalAfterDiscount - tax,
                     tax_amount: tax,
+                    discount_amount: discount,
                     cashier_id: currentUser?.id,
                     cash_amount: breakdown.cash_amount,
                     card_amount: breakdown.card_amount,
@@ -469,13 +534,23 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 }).eq('id', order.id);
 
                 if (updateError) throw updateError;
-                if (table?.id) await supabase.from('tables').update({ status: 'available' }).eq('id', table.id);
+                if (table?.id) {
+                    await supabase.from('tables').update({ status: 'available' }).eq('id', table.id);
+                    try {
+                        const offlineTablesStr = localStorage.getItem('offline_occupied_tables');
+                        if (offlineTablesStr) {
+                            const offlineTables = JSON.parse(offlineTablesStr);
+                            delete offlineTables[table.id];
+                            localStorage.setItem('offline_occupied_tables', JSON.stringify(offlineTables));
+                        }
+                    } catch (e) { console.warn(e); }
+                }
 
                 printService.openCashDrawer({
                     orderId: order.id,
                     userId: currentUser?.id || '',
                     userName: currentUser?.name || 'Cajero',
-                    amount: hasCashPayment ? (payments.find(p => p.method === 'EFECTIVO')?.amount || total) : 0,
+                    amount: hasCashPayment ? (activePayments.find(p => p.method === 'EFECTIVO')?.amount || total) : 0,
                     reason: 'Cobro de Orden (Contingencia/Facturado)'
                 }).catch(console.error);
 
@@ -500,7 +575,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                             factura_preexistente: true,
                             factura_serie: existingInvoice?.series,
                             factura_numero: existingInvoice?.document_number,
-                            pagos: payments.map(p => ({ metodo: p.method, monto: p.amount, procesador: p.processor })),
+                            pagos: activePayments.map(p => ({ metodo: p.method, monto: p.amount, procesador: p.processor })),
                             cajero: currentUser.name
                         },
                         branchId: order.branch_id
@@ -511,10 +586,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         tax_amount: tax,
                         tip_amount: currentTip,
                         payment_breakdown: {
-                            efectivo: payments.filter(p => p.method === 'EFECTIVO').reduce((a, p) => a + p.amount, 0),
-                            tarjeta: payments.filter(p => p.method === 'TARJETA').reduce((a, p) => a + p.amount, 0),
-                            credito: payments.filter(p => p.method === 'AL CRÉDITO').reduce((a, p) => a + p.amount, 0),
-                            otros: payments.filter(p => p.method === 'OTROS').reduce((a, p) => a + p.amount, 0)
+                            efectivo: activePayments.filter(p => p.method === 'EFECTIVO').reduce((a, p) => a + p.amount, 0),
+                            tarjeta: activePayments.filter(p => p.method === 'TARJETA').reduce((a, p) => a + p.amount, 0),
+                            credito: activePayments.filter(p => p.method === 'AL CRÉDITO').reduce((a, p) => a + p.amount, 0),
+                            otros: activePayments.filter(p => p.method === 'OTROS').reduce((a, p) => a + p.amount, 0)
                         }
                     });
                 }
@@ -529,16 +604,16 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     items: (existingInvoice.is_por_consumo) ? [{ // Basic check, better if we fetch items
                         name: 'CONSUMO DE ALIMENTOS',
                         quantity: 1,
-                        price: subtotal
-                    }] : ((order as any).order_items || []).map((i: any) => ({
-                        name: i.products?.name || 'Producto',
+                        price: subtotalAfterDiscount
+                    }] : (order.items || (order as any).order_items || []).map((i: any) => ({
+                        name: i.products?.name || i.product_name || i.name || 'Producto',
                         quantity: i.quantity,
-                        price: i.unit_price
+                        price: i.unit_price || i.price
                     })),
-                    subtotal: subtotal - tax,
+                    subtotal: subtotalAfterDiscount - tax,
                     taxAmount: tax,
                     tipAmount: currentTip,
-                    discountAmount: 0,
+                    discountAmount: discount,
                     total: total,
                     createdAt: order.created_at || DateUtils.nowISO(),
                     dteInfo: {
@@ -615,12 +690,26 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
             };
             const breakdown = getBreakdownValues();
 
+            const checkoutItems = (order.items || (order as any).order_items || [])
+                .filter((i: any) => i.status !== 'voided' && i.status !== 'cancelled');
+
+            const accumulatedItemDiscounts = checkoutItems.reduce((acc: number, i: any) => acc + (i.discount_amount || 0), 0);
+            const globalDiscount = accumulatedItemDiscounts > 0 ? 0 : discount;
+
             const invoiceItems = billingService.buildInvoiceItems(
-                (order as any).order_items?.map((i: any) => ({
-                    name: i.products?.name || 'Producto',
-                    quantity: i.quantity,
-                    unit_price: i.unit_price
-                })) || []
+                checkoutItems.map((i: any) => {
+                    const linePrice = i.unit_price || i.price || 0;
+                    const lineTotal = linePrice * i.quantity;
+                    const itemDiscountShare = i.discount_amount || 0;
+                    const globalDiscountShare = subtotal > 0 ? (lineTotal / subtotal) * globalDiscount : 0;
+                    const finalLineTotal = Math.max(0, lineTotal - itemDiscountShare - globalDiscountShare);
+                    const name = i.products?.name || i.product_name || i.name || 'Producto';
+                    return {
+                        name,
+                        quantity: i.quantity,
+                        unit_price: finalLineTotal / i.quantity
+                    };
+                })
             );
 
             const billingMethod: 'CASH' | 'CARD' | 'TRANSFER' | 'CREDIT' =
@@ -634,10 +723,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 result = await billingService.processInvoice({
                     customer,
                     items: invoiceItems,
-                    subtotal: subtotal - tax,
+                    subtotal: subtotalAfterDiscount - tax,
                     tax_total: tax,
-                    discount_total: discount,
-                    grand_total: billingMethod === 'CARD' ? (subtotal - discount) + currentTip : (subtotal - discount),
+                    discount_total: 0, // 0 to avoid double discounting since unit_price is already discounted
+                    grand_total: billingMethod === 'CARD' ? subtotalAfterDiscount + currentTip : subtotalAfterDiscount,
                     tip_amount: currentTip,
                     payment_method: billingMethod,
                     order_id: order.id
@@ -657,10 +746,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 await billingService.saveContingencyInvoice({
                     customer,
                     items: invoiceItems,
-                    subtotal: subtotal - tax,
+                    subtotal: subtotalAfterDiscount - tax,
                     tax_total: tax,
-                    discount_total: discount,
-                    grand_total: billingMethod === 'CARD' ? (subtotal - discount) + currentTip : (subtotal - discount),
+                    discount_total: 0, // already applied to items
+                    grand_total: billingMethod === 'CARD' ? subtotalAfterDiscount + currentTip : subtotalAfterDiscount,
                     tip_amount: currentTip,
                     payment_method: billingMethod,
                     order_id: order.id
@@ -680,8 +769,9 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         total: total,
                         tip_amount: currentTip,
                         tip_method: tipMethod,
-                        subtotal: subtotal - tax,
+                        subtotal: subtotalAfterDiscount - tax,
                         tax_amount: tax,
+                        discount_amount: discount,
                         is_contingency: true,
                         cashier_id: currentUser?.id,
                         branch_id: order.branch_id || currentUser?.branch_id,
@@ -692,20 +782,20 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         total_paid: breakdown.total_paid,
                         change_amount: breakdown.change_amount
                     },
-                    items: (order as any).order_items?.map((i: any) => ({
+                    items: (order.items || (order as any).order_items || []).map((i: any) => ({
                         product_id: i.product_id,
                         quantity: i.quantity,
-                        unit_price: i.unit_price,
+                        unit_price: i.unit_price || i.price,
                         notes: i.notes
-                    })) || [],
+                    })),
                     invoice: {
                         customer_nit: customer.nit,
                         customer_name: customer.name,
                         series: 'CONT',
                         document_number: `OFF-${(order as any).order_number || order.id.slice(0, 5)}`,
-                        subtotal: (subtotal - discount) - tax + (billingMethod === 'CARD' ? (currentTip - (currentTip - (currentTip / 1.12))) : 0),
-                        tax_total: tax + (billingMethod === 'CARD' ? (currentTip - (currentTip / 1.12)) : 0),
-                        grand_total: billingMethod === 'CARD' ? (subtotal - discount) + currentTip : (subtotal - discount),
+                        subtotal: subtotalAfterDiscount - tax,
+                        tax_total: tax,
+                        grand_total: billingMethod === 'CARD' ? subtotalAfterDiscount + currentTip : subtotalAfterDiscount,
                         status: 'ACTIVE'
                     }
                 };
@@ -745,13 +835,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                             items: (customer.is_por_consumo || customer.is_por_almuerzo) ? [{
                                 name: customer.is_por_almuerzo ? 'POR ALMUERZO' : 'CONSUMO DE ALIMENTOS',
                                 quantity: 1,
-                                price: subtotal
-                            }] : ((order as any).order_items || []).map((i: any) => ({
-                                name: i.products?.name || 'Producto',
+                                price: subtotalAfterDiscount
+                            }] : (order.items || (order as any).order_items || []).map((i: any) => ({
+                                name: i.products?.name || i.product_name || i.name || 'Producto',
                                 quantity: i.quantity,
-                                price: i.unit_price
+                                price: i.unit_price || i.price
                             })),
-                            subtotal: subtotal - tax,
+                            subtotal: subtotalAfterDiscount - tax,
                             taxAmount: tax,
                             tipAmount: currentTip,
                             discountAmount: discount,
@@ -803,7 +893,17 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 }).eq('id', order.id);
 
                 if (updateError) throw updateError;
-                if (table?.id) await supabase.from('tables').update({ status: 'available' }).eq('id', table.id);
+                if (table?.id) {
+                    await supabase.from('tables').update({ status: 'available' }).eq('id', table.id);
+                    try {
+                        const offlineTablesStr = localStorage.getItem('offline_occupied_tables');
+                        if (offlineTablesStr) {
+                            const offlineTables = JSON.parse(offlineTablesStr);
+                            delete offlineTables[table.id];
+                            localStorage.setItem('offline_occupied_tables', JSON.stringify(offlineTables));
+                        }
+                    } catch (e) { console.warn(e); }
+                }
 
                 // Logging action
                 if (currentUser) {
@@ -888,13 +988,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         items: (customer.is_por_consumo || customer.is_por_almuerzo) ? [{
                             name: customer.is_por_almuerzo ? 'POR ALMUERZO' : 'CONSUMO DE ALIMENTOS',
                             quantity: 1,
-                            price: subtotal
-                        }] : ((order as any).order_items || []).map((i: any) => ({
-                            name: i.products?.name || 'Producto',
+                            price: subtotalAfterDiscount
+                        }] : (order.items || (order as any).order_items || []).map((i: any) => ({
+                            name: i.products?.name || i.product_name || i.name || 'Producto',
                             quantity: i.quantity,
-                            price: i.unit_price
+                            price: i.unit_price || i.price
                         })),
-                        subtotal: subtotal - tax,
+                        subtotal: subtotalAfterDiscount - tax,
                         taxAmount: tax,
                         tipAmount: currentTip,
                         discountAmount: discount,
@@ -917,6 +1017,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     alert('Venta procesada pero falló la impresión: ' + (printError.message || 'Error de driver'));
                 }
 
+                if (result.pdf_url) {
+                    setInvoicePdfUrl(result.pdf_url);
+                } else {
+                    setInvoicePdfUrl(undefined);
+                }
                 setInvoiceSuccess(true);
             } else {
                 console.error(`❌ Error al facturar: ${result.error}`);
@@ -958,7 +1063,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
 
                 {/* LEFT PANEL: TOTALS & SUMMARY */}
                 <div className="w-[300px] flex flex-col gap-4">
-                    <div className="bg-[#1e212b] rounded-3xl p-6 flex flex-col gap-3 border border-white/5 shadow-2xl">
+                    <div className="bg-[#1e212b] p-6 flex flex-col gap-3 border border-white/5 shadow-2xl">
                         <div className="flex justify-between text-gray-400 text-sm font-black uppercase leading-tight">
                             <span>SUB-TOTAL</span>
                             <span>{currency}{subtotal.toFixed(2)}</span>
@@ -984,36 +1089,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                             {['EFECTIVO', 'TARJETA', 'AL CRÉDITO', 'OTROS'].map(method => {
                                 const methodPayments = payments.filter(p => p.method === method);
                                 const mAmount = methodPayments.reduce((acc, p) => acc + p.amount, 0);
-                                if (mAmount === 0) return null;
                                 return (
-                                    <div key={method} className="flex flex-col gap-0.5">
-                                        <div className="flex justify-between text-white text-xs font-bold uppercase tracking-wider">
-                                            <span>{method}</span>
-                                            <span>{currency}{mAmount.toFixed(2)}</span>
-                                        </div>
-                                        {method === 'TARJETA' && methodPayments.map((p, i) => (
-                                            <div key={i} className="flex justify-between text-[10px] text-gray-500 font-bold uppercase tracking-widest pl-4">
-                                                <span>• {p.processor || 'S/E'}</span>
-                                                <span>{currency}{p.amount.toFixed(2)}</span>
-                                            </div>
-                                        ))}
-                                        {method === 'AL CRÉDITO' && methodPayments.map((p, i) => (
-                                            <div key={i} className="flex justify-between text-[10px] text-gray-500 font-bold uppercase tracking-widest pl-4">
-                                                <span>• {p.customer_name || 'S/E'}</span>
-                                                <span>{currency}{p.amount.toFixed(2)}</span>
-                                            </div>
-                                        ))}
-                                        {method === 'OTROS' && methodPayments.map((p, i) => (
-                                            <div key={i} className="flex flex-col gap-1 pl-4 mb-2">
-                                                <div className="flex justify-between text-[10px] text-gray-500 font-bold uppercase tracking-widest leading-tight">
-                                                    <span>• {p.processor} {p.customer_name ? `(${p.customer_name})` : ''}</span>
-                                                    <span>{currency}{p.amount.toFixed(2)}</span>
-                                                </div>
-                                                {p.notes && (
-                                                    <span className="text-[9px] text-gray-600 font-medium italic pr-2">Nota: {p.notes}</span>
-                                                )}
-                                            </div>
-                                        ))}
+                                    <div key={method} className="flex justify-between text-white text-xs font-bold uppercase tracking-wider">
+                                        <span>{method}</span>
+                                        <span>{currency}{mAmount.toFixed(2)}</span>
                                     </div>
                                 );
                             })}
@@ -1031,19 +1110,17 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                 <span>RESTANTE</span>
                                 <span>{currency}{Math.max(0, balance).toFixed(2)}</span>
                             </div>
-                            {change > 0 && (
-                                <div className="flex justify-between text-white text-sm font-black uppercase leading-tight tracking-tighter">
-                                    <span>CAMBIO</span>
-                                    <span>{currency}{change.toFixed(2)}</span>
-                                </div>
-                            )}
+                            <div className="flex justify-between text-white text-sm font-black uppercase leading-tight tracking-tighter">
+                                <span>CAMBIO</span>
+                                <span>{currency}{change.toFixed(2)}</span>
+                            </div>
                         </div>
                     </div>
 
-                    {!existingInvoice && totalPaid < total && (
+                    {!existingInvoice && !invoiceSuccess && (
                         <button
                             onClick={handleAnticipatedInvoice}
-                            className="w-full py-5 rounded-3xl bg-white/5 hover:bg-white/10 text-white border border-white/10 font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-95 flex items-center justify-center gap-3 shadow-2xl group"
+                            className="w-full py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-95 flex items-center justify-center gap-3 shadow-2xl group"
                         >
                             <FileText size={22} className="group-hover:scale-110 transition-transform" /> Factura Anticipada
                         </button>
@@ -1051,7 +1128,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 </div>
 
                 {/* MIDDLE PANEL: PAYMENTS LIST */}
-                <div className="flex-1 bg-[#1e212b] rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col relative">
+                <div className="flex-1 h-[430px] self-start bg-[#1e212b] border border-white/5 shadow-2xl overflow-hidden flex flex-col relative">
                     <div className="flex-1 overflow-y-auto p-6 space-y-2">
                         {payments.length === 0 ? (
                             <div className="h-full flex items-center justify-center text-white/20 font-black uppercase tracking-widest text-sm">
@@ -1059,7 +1136,14 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                             </div>
                         ) : (
                             payments.map((p, idx) => (
-                                <div key={idx} className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                                <div
+                                    key={idx}
+                                    onClick={() => setSelectedPaymentIdx(prev => prev === idx ? null : idx)}
+                                    className={`flex justify-between items-center p-4 rounded-none border cursor-pointer transition-all active:scale-95 ${selectedPaymentIdx === idx
+                                        ? 'bg-indigo-500/30 border-indigo-400/60'
+                                        : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                        }`}
+                                >
                                     <div className="flex flex-col">
                                         <span className="text-sm font-bold text-gray-200 capitalize">{p.method.toLowerCase()}</span>
                                         <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{p.processor || p.customer_name || p.method}</span>
@@ -1071,62 +1155,141 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                             ))
                         )}
                     </div>
-                    {payments.length > 0 && (
-                        <div className="absolute bottom-6 right-6">
-                            <button
-                                onClick={handleReset}
-                                className="w-12 h-12 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 border border-white/10 rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-lg"
-                                title="Limpiar pagos"
-                            >
-                                <Trash2 size={20} />
-                            </button>
-                        </div>
-                    )}
+                    <div className="absolute bottom-4 right-4">
+                        <button
+                            onClick={() => {
+                                if (selectedPaymentIdx !== null) {
+                                    setPayments(prev => prev.filter((_, i) => i !== selectedPaymentIdx));
+                                    setSelectedPaymentIdx(null);
+                                } else {
+                                    handleReset();
+                                }
+                            }}
+                            className="w-12 h-12 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 border border-white/10 rounded-2xl flex items-center justify-center transition-all active:scale-95"
+                            title={selectedPaymentIdx !== null ? 'Eliminar pago seleccionado' : 'Limpiar todos los pagos'}
+                        >
+                            <Trash2 size={22} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* RIGHT PANEL: KEYPAD & METHODS */}
-                <div className="w-[380px] flex flex-col gap-3 shrink-0">
-                    <div className="bg-[#1e212b] rounded-3xl p-4 border border-white/5 shadow-2xl flex flex-col gap-4">
+                <div className="w-[420px] flex flex-col gap-3 shrink-0">
+                    <div className="bg-[#1e212b] p-4 border border-white/5 shadow-2xl flex flex-col gap-4">
                         {/* AMOUNT DISPLAY */}
-                        <div className={`bg-black/40 rounded-2xl h-16 flex items-center justify-end px-6 text-3xl font-black tabular-nums tracking-tighter border transition-all duration-300 shadow-inner relative overflow-hidden ${isAmountSelected ? 'text-white border-white/30 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)]' : 'text-white/30 border-white/10'}`}>
-                            {isAmountSelected && (
-                                <div className="absolute inset-x-0 bottom-0 top-0 bg-white/5 animate-pulse pointer-events-none" />
-                            )}
-                            <span className={`mr-2 text-xl ${isAmountSelected ? 'text-white/50' : 'text-white/20'}`}>{currency}</span>
-                            {amount}
+                        <div className="bg-black/40 rounded-2xl h-16 flex items-center justify-center text-3xl font-bold text-white border border-white/20 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)] relative overflow-hidden">
+                            <span className="tabular-nums">
+                                {currency === 'Q.' ? 'Q' : currency}
+                                {parseFloat(amount || '0').toFixed(2)}
+                            </span>
                         </div>
 
                         {/* MAIN INTERACTION AREA: KEYPAD + METHODS */}
-                        <div className="flex gap-4 items-stretch">
-                            {/* LEFT COLUMN: NUMBERS & CONTROLS (approx 70%) */}
-                            <div className="flex gap-2">
-                                {/* NUMBERS */}
-                                <div className="grid grid-cols-3 gap-2">
-                                    {[7, 8, 9, 4, 5, 6, 1, 2, 3, 0, '.'].map(n => (
-                                        <button
-                                            key={n.toString()}
-                                            onClick={() => handleNumberClick(n.toString())}
-                                            className={`w-14 h-14 rounded-2xl bg-[#262b36] border border-white/5 flex items-center justify-center text-xl font-black transition-all active:scale-95 hover:bg-[#2d3340] hover:border-white/20 ${n === 0 ? 'col-span-2 w-auto' : ''}`}
-                                        >
-                                            {n}
-                                        </button>
-                                    ))}
-                                </div>
+                        <div className="flex gap-2 items-stretch">
+                            {/* KEYPAD GRID */}
+                            <div className="grid grid-cols-4 bg-[#1a1c24] border border-white/5 rounded-md overflow-hidden gap-[1px] w-[291px] shrink-0">
+                                {/* Row 1 */}
+                                <button
+                                    onClick={() => handleNumberClick('7')}
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                >
+                                    7
+                                </button>
+                                <button
+                                    onClick={() => handleNumberClick('8')}
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                >
+                                    8
+                                </button>
+                                <button
+                                    onClick={() => handleNumberClick('9')}
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                >
+                                    9
+                                </button>
+                                <button
+                                    onClick={handleBackspace}
+                                    className="w-full h-[72px] bg-[#262b36]/60 hover:bg-[#2d3340] active:bg-[#343b4a] flex items-center justify-center text-white/80 transition-all border-0 outline-none"
+                                >
+                                    <Delete size={24} />
+                                </button>
 
-                                {/* CONTROLS */}
-                                <div className="flex flex-col gap-2 w-14">
-                                    <button onClick={handleBackspace} className="w-14 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-white/80 transition-all active:scale-95 hover:bg-white/10"><Delete size={20} /></button>
-                                    <button onClick={handleReset} className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 transition-all active:scale-95 hover:bg-white/10" title="Resetear Pagos"><RotateCcw size={18} /></button>
-                                    <button onClick={handleAddPayment} className="w-14 flex-1 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/20"><Check size={24} /></button>
-                                </div>
+                                {/* Row 2 */}
+                                <button
+                                    onClick={() => handleNumberClick('4')}
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                >
+                                    4
+                                </button>
+                                <button
+                                    onClick={() => handleNumberClick('5')}
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                >
+                                    5
+                                </button>
+                                <button
+                                    onClick={() => handleNumberClick('6')}
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                >
+                                    6
+                                </button>
+                                <button
+                                    onClick={handleReset}
+                                    className="w-full h-[72px] bg-[#262b36]/60 hover:bg-[#2d3340] active:bg-[#343b4a] flex items-center justify-center text-white/50 transition-all border-0 outline-none"
+                                    title="Resetear Pagos"
+                                >
+                                    <RotateCcw size={22} />
+                                </button>
+
+                                {/* Row 3 */}
+                                <button
+                                    onClick={() => handleNumberClick('1')}
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                >
+                                    1
+                                </button>
+                                <button
+                                    onClick={() => handleNumberClick('2')}
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                >
+                                    2
+                                </button>
+                                <button
+                                    onClick={() => handleNumberClick('3')}
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                >
+                                    3
+                                </button>
+                                <button
+                                    onClick={handleAddPayment}
+                                    className="row-span-2 w-full bg-[#262b36]/60 hover:bg-indigo-500/20 active:bg-indigo-500/30 text-white flex items-center justify-center transition-all border-0 outline-none"
+                                >
+                                    <div className="rounded-full border border-white/20 p-2.5 flex items-center justify-center hover:border-white transition-colors">
+                                        <Check size={24} strokeWidth={3} />
+                                    </div>
+                                </button>
+
+                                {/* Row 4 */}
+                                <button
+                                    onClick={() => handleNumberClick('0')}
+                                    className="col-span-2 w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                >
+                                    0
+                                </button>
+                                <button
+                                    onClick={() => handleNumberClick('.')}
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                >
+                                    .
+                                </button>
                             </div>
 
-                            {/* RIGHT COLUMN: PAYMENT METHODS (approx 30%) */}
-                            <div className="flex-1 flex flex-col gap-2">
+                            {/* RIGHT COLUMN: PAYMENT METHODS */}
+                            <div className="flex-1 flex flex-col bg-[#1a1c24] border border-white/5 rounded-md overflow-hidden gap-[1px]">
                                 {[
                                     { id: 'EFECTIVO', icon: Banknote, label: 'Efectivo' },
                                     { id: 'TARJETA', icon: CreditCard, label: 'Tarjeta' },
-                                    { id: 'AL CRÉDITO', icon: Wallet, label: 'Crédito' },
+                                    { id: 'AL CRÉDITO', icon: Wallet, label: 'Al Crédito' },
                                     { id: 'OTROS', icon: Landmark, label: 'Otros' },
                                     { id: 'PROPINA', icon: Percent, label: 'Propina' },
                                 ].map(m => (
@@ -1154,29 +1317,32 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                                 setSelectedMethod(m.id);
                                             }
                                         }}
-                                        className={`flex-1 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all border font-black uppercase tracking-[0.1em] transition-all duration-200 ${selectedMethod === m.id
-                                            ? 'bg-white text-black border-white'
-                                            : 'bg-[#262b36] border-white/5 text-gray-400 hover:border-white/20 hover:bg-[#2d3340]'
+                                        className={`flex-1 flex flex-col items-center justify-center gap-1 transition-all border-0 font-semibold tracking-wide transition-all duration-200 relative ${selectedMethod === m.id
+                                            ? 'bg-indigo-500/10 text-white'
+                                            : 'bg-[#262b36] text-gray-400 hover:bg-[#2d3340]'
                                             }`}
-                                        style={{ fontSize: '9px' }}
+                                        style={{ fontSize: '10px' }}
                                     >
-                                        <m.icon size={18} className="opacity-80" />
+                                        <m.icon size={18} className={selectedMethod === m.id ? "text-indigo-400" : "opacity-80"} />
                                         <span className="leading-none text-center">{m.label}</span>
+                                        {selectedMethod === m.id && (
+                                            <div className="absolute top-1 right-1 bg-indigo-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center shadow-md">
+                                                <Check size={8} strokeWidth={4} />
+                                            </div>
+                                        )}
                                     </button>
                                 ))}
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                        <button
-                            onClick={handleFinalize}
-                            disabled={totalPaid < total}
-                            className={`h-16 rounded-2xl flex items-center justify-center text-lg font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 ${totalPaid >= total ? 'bg-white text-black shadow-white/10' : 'bg-white/5 text-white/30 cursor-not-allowed border border-white/5'}`}
-                        >
-                            {existingInvoice && totalPaid >= total ? 'FINALIZAR' : 'PAGAR'}
-                        </button>
-                    </div>
+                    {/* PAGAR BUTTON */}
+                    <button
+                        onClick={handleFinalize}
+                        className="w-[291px] ml-4 h-16 rounded-none flex items-center justify-center text-lg font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 bg-blue-600 text-white hover:bg-blue-500 shadow-blue-500/20"
+                    >
+                        {existingInvoice && totalPaid >= total ? 'FINALIZAR' : 'PAGAR'}
+                    </button>
                 </div>
             </div>
 
@@ -1266,6 +1432,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 isOpen={showInvoiceModal}
                 onClose={() => {
                     setShowInvoiceModal(false);
+                    setInvoicePdfUrl(undefined);
                     if (invoiceSuccess) {
                         if (!isAnticipatedMode) {
                             onComplete();
@@ -1279,6 +1446,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 onSubmit={handleInvoiceSubmit}
                 total={total}
                 isSuccess={invoiceSuccess}
+                pdfUrl={invoicePdfUrl}
             />
 
             {processing && (
