@@ -55,6 +55,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
   const [selectedProfileForPin, setSelectedProfileForPin] = useState<any | null>(null);
   const [openShiftUserIds, setOpenShiftUserIds] = useState<string[]>([]);
   const [authenticatedUser, setAuthenticatedUser] = useState<any>(null);
+  const [boxLockedError, setBoxLockedError] = useState<string | null>(null);
 
   // --- NUEVOS ESTADOS PARA REDISEÑO MÓVIL (PWA/SMARTPHONE) ---
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
@@ -97,7 +98,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
                 if (user.branch_id) {
                   initialBranchId = user.branch_id;
                 }
-              } catch (e) {}
+              } catch (e) { }
             }
 
             if (initialBranchId) {
@@ -191,11 +192,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
   }, [showPinPad, pin]);
 
   const handlePinInput = (num: string) => {
-    if (pin.length < 4) {
-      const newPin = pin + num;
-      setPin(newPin);
-      if (newPin.length === 4) handleLogin(undefined, newPin);
-    }
+    setPin(prev => prev + num);
   };
 
   const fetchAuthorizedProfiles = useCallback(async (branchId: string) => {
@@ -348,6 +345,34 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
         const profileByPin = profilesByPin?.find(p => !p.branch_id || p.branch_id === selectedBranchId);
 
         if (profileByPin) {
+          // --- VALIDAR SI LA CAJA YA TIENE UN TURNO ABIERTO POR OTRO USUARIO ---
+          const { data: activeShifts, error: shiftErr } = await supabase
+            .from('shifts')
+            .select(`
+              cashier_id,
+              profiles (name)
+            `)
+            .eq('cash_register_id', selectedProfileForPin.id)
+            .is('end_time', null)
+            .limit(1);
+
+          if (shiftErr) {
+            console.error('[DEBUG PIN] Error al verificar turnos activos:', shiftErr);
+          }
+
+          if (activeShifts && activeShifts.length > 0) {
+            const activeShift = activeShifts[0];
+            if (activeShift.cashier_id !== profileByPin.id) {
+              // El cajero activo es diferente. Bloquear y mostrar error.
+              const profilesArray = activeShift.profiles as any;
+              const activeCashierName = (Array.isArray(profilesArray) ? profilesArray[0]?.name : profilesArray?.name) || 'otro usuario';
+              setBoxLockedError(`Esta caja fue aperturada por el usuario ${activeCashierName.toUpperCase()}. No tiene permisos para operarla`);
+              setPin('');
+              setLoading(false);
+              return;
+            }
+          }
+
           // Attach the selected register id to the session
           executeLogin({ ...profileByPin, cash_register_id: selectedProfileForPin.id });
           setPin('');
@@ -426,7 +451,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
       }
     } catch (err: any) {
       setError(err.message);
-      
+
       // Logging: Authentication Failure
       activityLogService.log({
         user: { id: '00000000-0000-0000-0000-000000000000', name: username || 'Pad User', role: selectedRole } as any,
@@ -591,7 +616,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
     };
 
     localStorage.setItem('currentUser', JSON.stringify(userWithPerms));
-    
+
     // Logging: Successful Login
     activityLogService.log({
       user: userWithPerms,
@@ -642,21 +667,21 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   { id: 'ADMIN', icon: <ShieldCheck size={24} />, label: 'Admin' },
                   { id: 'PRODUCCION', icon: <Layers size={24} />, label: 'Producción', fullWidth: true }
                 ].map(role => (
-                    <button
-                      key={role.id}
-                      onClick={() => handleRoleSelect(role.id as UserRole)}
-                      className={`flex flex-col items-center justify-center p-5 rounded-[24px] transition-all active:scale-95 border shadow-2xl backdrop-blur-md
+                  <button
+                    key={role.id}
+                    onClick={() => handleRoleSelect(role.id as UserRole)}
+                    className={`flex flex-col items-center justify-center p-5 rounded-[24px] transition-all active:scale-95 border shadow-2xl backdrop-blur-md
                         ${role.fullWidth ? 'col-span-2 aspect-[2.2/1]' : 'aspect-square'}
-                        ${selectedRole === role.id 
-                          ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20 scale-[1.02]' 
-                          : 'bg-white/5 border-white/10 text-white hover:bg-white/10'}
+                        ${selectedRole === role.id
+                        ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20 scale-[1.02]'
+                        : 'bg-white/5 border-white/10 text-white hover:bg-white/10'}
                       `}
-                    >
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-2 transition-colors ${selectedRole === role.id ? 'bg-white/10 text-white' : 'bg-white/5 text-white/40'}`}>
-                        {role.icon}
-                      </div>
-                      <span className={`text-[11px] font-black uppercase tracking-widest ${selectedRole === role.id ? 'text-white' : 'text-white/60'}`}>{role.label}</span>
-                    </button>
+                  >
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-2 transition-colors ${selectedRole === role.id ? 'bg-white/10 text-white' : 'bg-white/5 text-white/40'}`}>
+                      {role.icon}
+                    </div>
+                    <span className={`text-[11px] font-black uppercase tracking-widest ${selectedRole === role.id ? 'text-white' : 'text-white/60'}`}>{role.label}</span>
+                  </button>
                 ))}
               </div>
             </div>
@@ -792,7 +817,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
 
         {/* PIN PAD MODAL (MOBILE INTEGRATION) */}
         {showPinPad && (
-          <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black p-4 animate-fade-in touch-none">
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/85 p-4 animate-fade-in touch-none">
             <div className="w-full h-full max-w-sm bg-gradient-to-br from-[#2d2e3d] to-[#3a3b4d] rounded-[32px] border border-white/10 p-6 flex flex-col items-center justify-center shadow-2xl relative">
               <button
                 onClick={() => {
@@ -866,7 +891,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
 
       {/* Main Container updated width for Dashboard */}
       {/* Main Container updated width for Dashboard */}
-      <div className={`relative z-10 w-full ${showRegisterSelection ? 'w-screen h-screen rounded-none' : 'max-w-3xl h-[480px] rounded-[40px]'} bg-gradient-to-br from-[#2d2e3d] to-[#3a3b4d] border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] flex overflow-hidden transition-all duration-300 login-card animate-fade-in`}>
+      <div className={`relative z-10 w-full ${showRegisterSelection ? 'w-screen h-screen rounded-none' : 'max-w-3xl h-[480px] rounded-[4px]'} bg-gradient-to-br from-[#2d2e3d] to-[#3a3b4d] border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.6)] flex overflow-hidden login-card animate-fade-in`}>
 
         {/* CONTROLES NATIVOS (SOLO VISIBLE SI ELECTRON ESTÁ PRESENTE) */}
         <div className="absolute top-4 right-6 z-[100] flex items-center gap-2">
@@ -904,9 +929,9 @@ Generado: ${new Date().toLocaleString('es-GT')}
                     setError('');
                     if ((window as any).electronAPI) (window as any).electronAPI.sendLogout();
                   }}
-                  className="w-8 h-8 flex items-center justify-center bg-white/5 border border-white/10 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+                  className="w-14 h-14 flex items-center justify-center bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
                 >
-                  <ArrowLeft size={16} />
+                  <ArrowLeft size={26} strokeWidth={2.5} />
                 </button>
                 <span className="text-[11px] font-black text-gray-400 uppercase tracking-[0.25em]">RESTAURANTE LAS PALMAS POS</span>
               </div>
@@ -921,26 +946,25 @@ Generado: ${new Date().toLocaleString('es-GT')}
 
             {/* Dashboard Grid - Tarjetas horizontales centradas */}
             <div className="flex-1 flex items-center justify-center px-8">
-              <div className="flex flex-nowrap justify-center gap-2 w-full max-w-4xl">
+              <div className="flex flex-wrap justify-center gap-3 w-full max-w-7xl">
                 {registerList.map((reg) => (
                   <button
                     key={reg.id}
                     type="button"
                     onClick={() => handleOperatorClick(reg)}
-                    className="flex items-center gap-3 flex-1 h-[80px] bg-[#23242f] border border-white/10 rounded-xl px-4 hover:bg-white/10 hover:border-white/25 transition-all group shadow-md active:scale-[0.97]"
+                    className="flex items-center gap-3 w-[283px] h-[90px] flex-shrink-0 bg-[#23242f] border border-white/10 rounded-xl px-4 hover:bg-white/10 hover:border-white/25 transition-all group shadow-md active:scale-[0.97]"
                   >
                     {/* Dot indicador */}
-                    <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                      openShiftUserIds.includes(reg.id)
+                    <div className={`w-3 h-3 rounded-full flex-shrink-0 ${openShiftUserIds.includes(reg.id)
                         ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.7)]'
                         : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]'
-                    }`} />
+                      }`} />
                     {/* Icono caja */}
                     <div className="text-gray-400 group-hover:text-white transition-colors flex-shrink-0">
-                      <CashRegisterIcon size={52} strokeWidth={0.9} />
+                      <CashRegisterIcon size={50} strokeWidth={0.9} />
                     </div>
                     {/* Nombre */}
-                    <span className="text-[11px] font-black text-white uppercase tracking-wide text-left whitespace-nowrap">
+                    <span className="text-[14px] font-black text-white uppercase tracking-wider text-left whitespace-nowrap">
                       {reg.name}
                     </span>
                   </button>
@@ -948,43 +972,56 @@ Generado: ${new Date().toLocaleString('es-GT')}
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-3 px-6 py-4 border-t border-white/5 flex-shrink-0">
-              <button
-                type="button"
-                onClick={() => onRefreshMenu?.('config')}
-                disabled={isSyncing}
-                className={`w-52 py-3 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 hover:text-white hover:bg-white/10 ${isSyncing ? 'opacity-50' : ''}`}
-              >
-                {syncType === 'config' ? 'ACTUALIZANDO...' : 'ACTUALIZAR CONFIGURACIÓN'}
-              </button>
-              <button
-                type="button"
-                onClick={() => onRefreshMenu?.('images')}
-                disabled={isSyncing}
-                className={`w-52 py-3 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 hover:text-white hover:bg-white/10 ${isSyncing ? 'opacity-50' : ''}`}
-              >
-                {syncType === 'images' ? 'ACTUALIZANDO...' : 'ACTUALIZAR IMÁGENES'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowCloseDayModal(true)}
-                className={`w-52 py-3 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 hover:text-red-500 hover:border-red-500/30 hover:bg-white/10`}
-              >
-                CIERRE DEL DÍA
-              </button>
+            <div className="flex items-center justify-center px-8 py-4 border-t border-white/5 flex-shrink-0">
+              <div className="flex flex-wrap justify-center gap-4 w-full max-w-5xl">
+                <button
+                  type="button"
+                  onClick={() => onRefreshMenu?.('config')}
+                  disabled={isSyncing}
+                  className={`w-[150px] h-[56px] bg-[#23242f] border border-white/10 rounded-none px-3 transition-all group shadow-md active:scale-[0.97] flex items-center justify-center relative overflow-hidden ${isSyncing ? 'opacity-50' : 'hover:bg-white/10 hover:border-white/25'}`}
+                >
+                  {/* Pestañita azul en la esquina superior derecha */}
+                  <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-blue-500 border-l-[10px] border-l-transparent pointer-events-none" />
+
+                  <span className="text-[9.5px] font-black text-gray-400 group-hover:text-white uppercase tracking-wider text-center transition-colors leading-tight">
+                    {syncType === 'config' ? 'ACTUALIZANDO...' : 'ACTUALIZAR CONFIGURACIÓN'}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onRefreshMenu?.('images')}
+                  disabled={isSyncing}
+                  className={`w-[150px] h-[56px] bg-[#23242f] border border-white/10 rounded-none px-3 transition-all group shadow-md active:scale-[0.97] flex items-center justify-center relative overflow-hidden ${isSyncing ? 'opacity-50' : 'hover:bg-white/10 hover:border-white/25'}`}
+                >
+                  {/* Pestañita azul en la esquina superior derecha */}
+                  <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-blue-500 border-l-[10px] border-l-transparent pointer-events-none" />
+
+                  <span className="text-[9.5px] font-black text-gray-400 group-hover:text-white uppercase tracking-wider text-center transition-colors leading-tight">
+                    {syncType === 'images' ? 'ACTUALIZANDO...' : 'ACTUALIZAR IMÁGENES DE MENÚ'}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCloseDayModal(true)}
+                  className="w-[150px] h-[56px] bg-[#23242f] border border-white/10 rounded-none px-3 hover:bg-red-500/10 hover:border-red-500/20 transition-all group shadow-md active:scale-[0.97] flex items-center justify-center relative overflow-hidden"
+                >
+                  {/* Pestañita azul en la esquina superior derecha */}
+                  <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-blue-500 border-l-[10px] border-l-transparent pointer-events-none" />
+
+                  <span className="text-[9.5px] font-black text-gray-400 group-hover:text-red-400 uppercase tracking-wider text-center transition-colors leading-tight">
+                    CIERRE DEL DÍA
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         ) : (
           <>
             {/* LEFT PANEL: FORM - ANCHO REDUCIDO (380px) Y COLOR PERSONALIZADO */}
-            <div className="w-[380px] flex-shrink-0 flex flex-col p-10 relative z-20 bg-gradient-to-br from-[#2d2e3d]/80 to-[#3a3b4d]/80 backdrop-blur-md border-r border-white/5 shadow-2xl transition-all duration-500 overflow-hidden">
-              {/* Reflejos de Luz para el Gradiente */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 blur-3xl -mr-32 -mt-32 rounded-full pointer-events-none"></div>
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 blur-3xl -ml-32 -mb-32 rounded-full pointer-events-none"></div>
+            <div className="w-[380px] flex-shrink-0 flex flex-col p-10 relative z-20 bg-[#23242f] border-r border-white/5 shadow-2xl transition-all duration-500 overflow-hidden rounded-l-[4px]">
               {/* Logo Section */}
               <div className="mb-2 flex flex-col items-center -mt-4">
                 <div className="relative group mb-1">
-                  <div className="absolute -inset-6 bg-indigo-500/20 blur-2xl rounded-full opacity-40"></div>
                   <div className="relative w-24 h-24 rounded-full bg-white flex items-center justify-center shadow-2xl overflow-hidden shadow-indigo-500/20">
                     {branding?.logo_url && (
                       <img
@@ -1081,7 +1118,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
             </div>
 
             {/* RIGHT PANEL: IMAGE & ROLES GRID - TAMAÑO COMPLETO Y CENTRADO EN BASE AZUL CORPORATIVO CON ESQUINAS REDONDEADAS */}
-            <div className="flex-1 relative overflow-hidden bg-[#2d2e3d] flex flex-col z-20 items-center justify-center rounded-r-[40px]">
+            <div className="flex-1 relative overflow-hidden bg-[#2d2e3d] flex flex-col z-20 items-center justify-center rounded-r-[4px]">
               {/* IMAGEN DE FONDO SOLO PARA ESTE PANEL - TAMAÑO COMPLETO */}
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                 {branding?.login_background_url && (
@@ -1145,67 +1182,174 @@ Generado: ${new Date().toLocaleString('es-GT')}
 
       {/* PIN PAD MODAL (SOLO PARA MESEROS) */}
       {showPinPad && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black p-4 animate-fade-in touch-none">
-          <div className="w-full max-w-sm bg-gradient-to-br from-[#2d2e3d] to-[#3a3b4d] rounded-[32px] border border-white/10 p-6 flex flex-col items-center shadow-2xl relative">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 animate-fade-in touch-none">
+          <div className="w-full max-w-[737px] h-[453px] bg-[#2e303f] rounded-[4px] border border-white/10 flex flex-col md:flex-row relative shadow-lg overflow-hidden">
+            {/* Close Button inside top-right (classic Windows style) */}
             <button
-              onClick={() => setShowPinPad(false)}
-              className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors"
+              onClick={() => {
+                setShowPinPad(false);
+                setPin('');
+                setError('');
+              }}
+              className="absolute top-2 right-2 w-8 h-8 rounded-[4px] bg-transparent hover:bg-red-600 flex items-center justify-center text-white/60 hover:text-white transition-all z-[110]"
             >
-              <X size={24} />
+              <X size={16} strokeWidth={2.5} />
             </button>
 
-            <div className="mb-6 text-center">
-              <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white mx-auto mb-3 border border-white/20">
-                <CashRegisterIcon size={24} />
+            {/* IZQUIERDA: LOGO Y FONDO DE RESTAURANTE */}
+            <div className="relative w-full md:w-[45%] h-full bg-[#23242f] rounded-l-[4px] flex flex-col items-center justify-center p-8 overflow-hidden flex-shrink-0">
+              {/* Background Image with Dark Overlay */}
+              {branding?.login_background_url && (
+                <img
+                  src={getDirectUrl(branding.login_background_url)}
+                  className="absolute inset-0 w-full h-full object-cover opacity-20 grayscale"
+                  alt="Background"
+                />
+              )}
+              {/* Center Logo Content */}
+              <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
+                <span className="text-white text-[13px] font-bold uppercase tracking-[0.15em] font-sans text-white/60">Restaurante</span>
+                <span className="text-white text-2xl font-bold tracking-wide font-serif mt-1 mb-2 leading-none">Las Palmas</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-[2px] bg-red-500"></div>
+                  <span className="text-white text-xs font-bold uppercase tracking-[0.2em]">POS</span>
+                  <div className="w-6 h-[2px] bg-red-500"></div>
+                </div>
               </div>
-              <h3 className="text-lg font-black text-white uppercase tracking-tighter">
-                {selectedProfileForPin ? selectedProfileForPin.name : 'Ingrese su PIN'}
-              </h3>
-              <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">
-                {selectedProfileForPin ? 'Ingrese su PIN para acceder a esta caja' : 'Acceso por PIN'}
+              {/* Bottom Text */}
+              <p className="absolute bottom-4 left-0 right-0 text-[10px] text-white/40 text-center font-normal tracking-wide">
+                Lector de huella no encontrado...
               </p>
             </div>
 
-            {/* PIN Indicator Dots */}
-            <div className="flex gap-3 mb-8">
-              {[...Array(4)].map((_, i) => (
-                <div
-                  key={i}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${pin.length > i ? 'bg-indigo-500 scale-125 shadow-[0_0_15px_rgba(99,102,241,0.6)]' : 'bg-white/10 border border-white/5'}`}
-                ></div>
-              ))}
-            </div>
+            {/* DERECHA: TÍTULO, CAMPO PIN Y TECLADO */}
+            <div className="flex-1 h-full bg-[#2e303f] rounded-r-[4px] p-6 flex flex-col items-center justify-center gap-4 md:border-l border-white/5">
+              <div className="w-[321px]">
+                <h3 className="text-xs font-bold text-white uppercase tracking-[0.15em] text-center mb-3">
+                  Ingrese Su PIN
+                </h3>
 
-            {error && (
-              <div className="mb-6 py-2 px-4 rounded-full bg-red-500/10 text-[9px] font-black text-red-400 uppercase tracking-widest animate-shake">
-                {error}
+                {/* PIN DISPLAY */}
+                <div className="relative w-full">
+                  <div className="w-full h-11 bg-[#212330] border border-white/10 rounded-[4px] flex items-center justify-center relative overflow-hidden">
+                    <div className="flex items-center gap-3 overflow-x-auto max-w-full px-4 scrollbar-none">
+                      {[...Array(pin.length)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="w-3.5 h-3.5 rounded-full bg-white flex-shrink-0 transition-all duration-150"
+                        />
+                      ))}
+                      <span className="fast-blink text-white/60 font-light ml-1 text-xl flex-shrink-0">|</span>
+                    </div>
+                  </div>
+                  {error && (
+                    <div className="absolute left-0 right-0 -bottom-5 text-center text-[9px] font-bold text-red-400 uppercase tracking-wider animate-shake">
+                      {error}
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
 
-            {/* Keypad Grid */}
-            <div className="grid grid-cols-3 gap-2 w-full">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+              {/* KEYPAD GRID */}
+              <div className="w-[321px] h-[313px] mx-auto border-t border-l border-white/10 grid grid-cols-4 grid-rows-4 bg-[#23242f] rounded-[4px] overflow-hidden">
+                {/* Row 1 */}
                 <button
-                  key={num}
-                  onClick={() => handlePinInput(num.toString())}
-                  className="h-12 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center justify-center text-lg font-bold text-white transition-all active:scale-90"
+                  onClick={() => handlePinInput('7')}
+                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
                 >
-                  {num}
+                  7
                 </button>
-              ))}
-              <div />
-              <button
-                onClick={() => handlePinInput('0')}
-                className="h-12 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center justify-center text-lg font-bold text-white transition-all active:scale-90"
-              >
-                0
-              </button>
-              <button
-                onClick={() => setPin(prev => prev.slice(0, -1))}
-                className="h-12 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl flex items-center justify-center text-red-500 transition-all active:scale-90"
-              >
-                <Delete size={20} />
-              </button>
+                <button
+                  onClick={() => handlePinInput('8')}
+                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                >
+                  8
+                </button>
+                <button
+                  onClick={() => handlePinInput('9')}
+                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                >
+                  9
+                </button>
+                {/* Backspace spans 2 rows */}
+                <button
+                  onClick={() => setPin(prev => prev.slice(0, -1))}
+                  className="row-span-2 h-full flex items-center justify-center border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                >
+                  <svg className="w-5 h-5 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414A2 2 0 0010.828 19H20a2 2 0 002-2V7a2 2 0 00-2-2h-9.172a2 2 0 00-1.414.586L3 12z" />
+                  </svg>
+                </button>
+
+                {/* Row 2 */}
+                <button
+                  onClick={() => handlePinInput('4')}
+                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                >
+                  4
+                </button>
+                <button
+                  onClick={() => handlePinInput('5')}
+                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                >
+                  5
+                </button>
+                <button
+                  onClick={() => handlePinInput('6')}
+                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                >
+                  6
+                </button>
+
+                {/* Row 3 */}
+                <button
+                  onClick={() => handlePinInput('1')}
+                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                >
+                  1
+                </button>
+                <button
+                  onClick={() => handlePinInput('2')}
+                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                >
+                  2
+                </button>
+                <button
+                  onClick={() => handlePinInput('3')}
+                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                >
+                  3
+                </button>
+                {/* Checkmark spans 2 rows */}
+                <button
+                  onClick={() => {
+                    if (pin.length > 0) handleLogin(undefined, pin);
+                    else {
+                      setError('INGRESE SU PIN');
+                      setTimeout(() => setError(''), 2000);
+                    }
+                  }}
+                  className="row-span-2 h-full flex items-center justify-center border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                >
+                  <svg className="w-5 h-5 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </button>
+
+                {/* Row 4 */}
+                <button
+                  onClick={() => handlePinInput('0')}
+                  className="col-span-2 h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                >
+                  0
+                </button>
+                <button
+                  onClick={() => handlePinInput('.')}
+                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                >
+                  .
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1213,21 +1357,23 @@ Generado: ${new Date().toLocaleString('es-GT')}
       {/* MODAL DE CIERRE DEL DÍA (IMPLEMENTACIÓN BASADA EN REFERENCIA) */}
       {showCloseDayModal && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="w-full max-w-4xl bg-[#2d2e3d] rounded-2xl border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col md:flex-row">
+          <div className="w-full max-w-3xl bg-[#2e303f] rounded-[4px] border border-white/10 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col md:flex-row">
             {/* IZQUIERDA: GRILLA DE CAJAS */}
-            <div className="flex-[1.5] p-8 border-r border-white/5">
-              <div className="bg-[#1a1b23] p-3 rounded-lg text-center mb-8 border border-white/5 shadow-inner">
-                <span className="text-white font-black text-sm uppercase tracking-[0.3em]">Cajas</span>
+            <div className="flex-[1.5] p-8 border-r border-white/10">
+              <div className="bg-[#383b4d] p-2.5 rounded-[4px] text-center mb-6 border border-white/5">
+                <span className="text-white font-bold text-sm tracking-wider">Cajas</span>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 {/* BOTÓN TODAS LAS CAJAS */}
                 <button
                   onClick={() => setSelectedRegisterForClose('ALL')}
-                  className={`h-20 border rounded-xl flex items-center justify-center p-4 transition-all group overflow-hidden relative ${selectedRegisterForClose === 'ALL' ? 'bg-white/10 border-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'bg-[#23242f] border-white/5 hover:bg-white/10'}`}
+                  className={`h-14 border rounded-[4px] flex items-center justify-center p-4 transition-all ${selectedRegisterForClose === 'ALL'
+                      ? 'bg-white/10 border-white/20'
+                      : 'bg-[#383b4d] border-white/5 hover:bg-white/5'
+                    }`}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-r from-white/10 to-transparent transition-opacity ${selectedRegisterForClose === 'ALL' ? 'opacity-100' : 'opacity-0'}`}></div>
-                  <span className={`font-black text-xs uppercase tracking-widest relative z-10 text-center ${selectedRegisterForClose === 'ALL' ? 'text-white' : 'text-gray-400'}`}>Todas las Cajas</span>
+                  <span className="font-bold text-xs text-white tracking-wide text-center">Todas las Cajas</span>
                 </button>
 
                 {/* BOTONES POR CADA CAJA REGISTRADA */}
@@ -1235,47 +1381,59 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   <button
                     key={reg.id}
                     onClick={() => setSelectedRegisterForClose(reg.id)}
-                    className={`h-20 border rounded-xl flex items-center justify-center p-4 transition-all text-center ${selectedRegisterForClose === reg.id ? 'bg-indigo-600/30 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.3)]' : 'bg-[#23242f] border-white/5 hover:bg-white/10'}`}
+                    className={`h-14 border rounded-[4px] flex items-center justify-center p-4 transition-all text-center ${selectedRegisterForClose === reg.id
+                        ? 'bg-white/10 border-white/20'
+                        : 'bg-[#383b4d] border-white/5 hover:bg-white/5'
+                      }`}
                   >
-                    <span className={`font-bold text-xs uppercase tracking-widest leading-tight ${selectedRegisterForClose === reg.id ? 'text-white' : 'text-gray-400'}`}>{reg.name}</span>
+                    <span className="font-bold text-xs text-white tracking-wide leading-tight">{reg.name}</span>
                   </button>
                 ))}
               </div>
 
-              <p className="mt-8 text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">
+              <p className="mt-6 text-[10px] font-normal text-white/50 tracking-normal italic">
                 *En el reporte aparecerán únicamente los Turnos ya cerrados.
               </p>
             </div>
 
             {/* DERECHA: ACCIONES Y FECHA */}
-            <div className="flex-1 p-8 bg-[#1a1b23]/30 flex flex-col justify-center items-center gap-8">
+            <div className="flex-1 p-8 flex flex-col justify-center items-center gap-6">
               {/* SELECTOR DE FECHA */}
               <div className="w-full text-center">
-                <label className="block text-[10px] font-black text-orange-400 uppercase tracking-[0.4em] mb-4">FECHA</label>
-                <div className="relative group mx-auto max-w-[200px]">
+                <label className="block text-[10px] font-bold text-[#ebd69b] uppercase tracking-[0.2em] mb-2">FECHA</label>
+                <div className="relative mx-auto max-w-[200px]">
                   <input
                     type="date"
                     value={selectedCloseDate}
                     onChange={(e) => setSelectedCloseDate(e.target.value)}
-                    className="w-full h-12 bg-[#23242f] border border-white/10 rounded-lg px-4 text-white font-black text-sm uppercase tracking-widest outline-none focus:border-indigo-500/50 transition-all text-center custom-calendar-picker"
+                    onClick={(e) => {
+                      try {
+                        e.currentTarget.showPicker();
+                      } catch (err) {
+                        console.error('showPicker error:', err);
+                      }
+                    }}
+                    className="w-full h-10 bg-[#212330] border border-white/10 rounded-[4px] px-4 text-white font-bold text-xs tracking-wider outline-none focus:border-white/20 transition-all text-center custom-calendar-picker cursor-pointer"
                   />
                 </div>
               </div>
 
               {/* BOTONES DE ACCIÓN */}
-              <div className="w-full space-y-4 max-w-[240px]">
+              <div className="w-full space-y-4 max-w-[200px]">
                 <button
                   onClick={handlePrintReport}
-                  className="w-full h-14 bg-[#23242f] border-r-4 border-yellow-500 rounded-xl flex items-center justify-center text-white font-black text-[11px] uppercase tracking-[0.3em] hover:bg-white/5 transition-all shadow-xl active:scale-95"
+                  className="relative w-full h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-bold text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all shadow-md active:scale-95 overflow-hidden"
                 >
                   IMPRIMIR
+                  <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-yellow-500 border-l-[10px] border-l-transparent pointer-events-none" />
                 </button>
 
                 <button
                   onClick={handleSendEmailReport}
-                  className="w-full h-14 bg-[#23242f] border-r-4 border-blue-500 rounded-xl flex items-center justify-center text-white font-black text-[11px] uppercase tracking-[0.3em] hover:bg-white/5 transition-all shadow-xl active:scale-95"
+                  className="relative w-full h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-bold text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all shadow-md active:scale-95 overflow-hidden"
                 >
                   ENVIAR CORREO
+                  <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-blue-500 border-l-[10px] border-l-transparent pointer-events-none" />
                 </button>
 
                 <button
@@ -1283,11 +1441,39 @@ Generado: ${new Date().toLocaleString('es-GT')}
                     setShowCloseDayModal(false);
                     setSelectedRegisterForClose('ALL');
                   }}
-                  className="w-full h-14 bg-[#23242f] border-r-4 border-red-500 rounded-xl flex items-center justify-center text-white font-black text-[11px] uppercase tracking-[0.3em] hover:bg-white/5 transition-all shadow-xl active:scale-95"
+                  className="relative w-full h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-bold text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all shadow-md active:scale-95 overflow-hidden"
                 >
                   CERRAR
+                  <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-red-500 border-l-[10px] border-l-transparent pointer-events-none" />
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {boxLockedError && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-4 animate-fade-in">
+          <div className="w-full max-w-[450px] bg-[#2e303f] border border-white/10 rounded-xl overflow-hidden shadow-2xl flex flex-col">
+            {/* Header */}
+            <div className="bg-[#212330] py-3.5 px-4 flex justify-center border-b border-white/5">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">
+                Restaurante Las Palmas POS
+              </span>
+            </div>
+            
+            {/* Body */}
+            <div className="p-6 flex flex-col items-center gap-6">
+              <p className="text-white text-[13px] font-semibold text-center leading-relaxed px-2">
+                {boxLockedError}
+              </p>
+              
+              <button
+                onClick={() => setBoxLockedError(null)}
+                className="w-[150px] h-[38px] bg-[#5c6bc0] hover:bg-[#4c5bb0] text-white font-bold text-[11px] uppercase tracking-[0.2em] rounded-[6px] transition-all active:scale-[0.97] shadow-lg flex items-center justify-center"
+              >
+                ACEPTAR
+              </button>
             </div>
           </div>
         </div>

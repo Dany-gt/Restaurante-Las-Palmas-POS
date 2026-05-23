@@ -1272,7 +1272,7 @@ const App: React.FC = () => {
       ) : (
         <>
           {currentView !== 'OPEN_SHIFT' && (
-            <div className={`relative h-12 flex items-center justify-between px-4 z-20 transition-colors ${currentView === 'ADMIN_PORTAL' ? 'bg-[#106ebe]' : 'bg-[#3a3b4d] border-b border-white/5 shadow-xl'} ${(currentView === 'DELIVERY' || currentView === 'DELIVERY_LIST' || currentView === 'KDS_STATION_SELECT') ? 'hidden' : ''}`}>
+            <div className={`relative h-16 flex items-center justify-between px-4 z-20 transition-colors ${currentView === 'ADMIN_PORTAL' ? 'bg-[#106ebe]' : 'bg-[#3a3b4d] border-b border-white/5 shadow-xl'} ${(currentView === 'DELIVERY' || currentView === 'DELIVERY_LIST' || currentView === 'KDS_STATION_SELECT') ? 'hidden' : ''}`}>
               <div className="flex items-center gap-6">
                 {((currentView !== 'DASHBOARD' && currentView !== 'ADMIN_PORTAL' && currentView !== 'ADMIN_AUTH_PANEL' && currentView !== 'CHECKOUT' && currentView !== 'DELIVERY' && currentView !== 'DELIVERY_LIST' && currentView !== 'KITCHEN') || (currentView === 'DASHBOARD' && currentUser?.role?.toUpperCase() === 'CAJERO')) && (
                   <button 
@@ -1283,10 +1283,10 @@ const App: React.FC = () => {
                         navigateBack();
                       }
                     }} 
-                    className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all pos-button"
+                    className="p-3.5 bg-white/5 hover:bg-white/10 active:scale-95 rounded-xl transition-all pos-button"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                   </button>
                 )}

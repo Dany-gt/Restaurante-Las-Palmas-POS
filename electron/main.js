@@ -21,6 +21,7 @@ function createMainWindow() {
         title: 'Restaurante Las Palmas POS',
         frame: false,
         transparent: true,
+        hasShadow: false,
         autoHideMenuBar: true,
         show: false,
         icon: path.join(__dirname, '../build/icon.png'),

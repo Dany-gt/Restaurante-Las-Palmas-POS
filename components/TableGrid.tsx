@@ -294,15 +294,18 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
 
   return (
     <>
-      <div className="h-full flex flex-col p-8 animate-fade-in relative z-10 bg-[#2d2e3d]">
+      <div className="h-full flex flex-col p-4 sm:p-6 lg:p-8 animate-fade-in relative z-10 bg-[#2d2e3d]">
         {/* Tab Navigation */}
-        <div className="flex gap-4 mb-10 overflow-x-auto pb-4 no-scrollbar areas-container">
+        <div className="flex flex-nowrap lg:flex-wrap justify-start lg:justify-center gap-2 sm:gap-4 lg:gap-6 mb-6 sm:mb-8 lg:mb-10 overflow-x-auto pb-4 no-scrollbar areas-container w-full">
           {sections.map(s => (
             <button
               key={s}
               onClick={() => setActiveSection(s)}
-              className={`px-10 py-5 lg:px-8 lg:py-4 rounded-2xl font-black text-sm lg:text-xs tracking-[0.2em] uppercase transition-all border area-button ${activeSection === s ? 'bg-white text-black border-white shadow-xl' : 'bg-[#3a3b4d] border-white/5 text-gray-400'
-                }`}
+              className={`w-[145px] h-[58px] sm:w-[165px] sm:h-[66px] lg:w-[189px] lg:h-[76px] flex-shrink-0 flex items-center justify-center rounded-lg font-black text-[12px] sm:text-[13px] lg:text-[14px] tracking-wider uppercase transition-all border px-3 text-center leading-snug area-button ${
+                activeSection === s
+                  ? 'bg-[#6366f1] text-white border-[#6366f1] shadow-xl'
+                  : 'bg-white border-white/10 text-black shadow-sm hover:bg-gray-100'
+              }`}
             >
               {s}
             </button>
@@ -332,7 +335,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
             </div>
           )
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-6 mesas-grid">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8 xl:gap-10 mesas-grid">
             {filtered.map(t => {
               const access = checkAccess(t);
               // Calculate effective status based on live orders AND offline-saved orders
@@ -344,32 +347,31 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
                   key={t.id}
                   onClick={() => handleClick(t)}
                   disabled={!access.allowed && (isOccupied || (t.locked_by && !access.allowed))}
-                  className={`relative h-60 lg:h-52 rounded-[2rem] bg-[#3a3b4d] p-6 flex flex-col items-center justify-center transition-all active:scale-95 group shadow-2xl border border-white/5 mesa-card ${(!access.allowed && (isOccupied || t.locked_by)) ? '!cursor-not-allowed opacity-50 grayscale hover:bg-[#3a3b4d]' : ''}`}
+                  className={`relative w-[120px] h-[120px] sm:w-[130px] sm:h-[130px] md:w-[135px] md:h-[135px] lg:w-[145px] lg:h-[145px] xl:w-[145px] xl:h-[145px] 2xl:w-[170px] 2xl:h-[170px] rounded-2xl bg-[#23242f] border border-white/5 p-3 py-4 sm:p-4 sm:py-5 lg:p-5 lg:py-6 flex flex-col items-center justify-between transition-all active:scale-95 group shadow-xl mesa-card ${(!access.allowed && (isOccupied || t.locked_by)) ? '!cursor-not-allowed opacity-50 grayscale hover:bg-[#23242f]' : ''}`}
                 >
                   {(!access.allowed && (isOccupied || t.locked_by)) && (
-                    <div className="absolute top-4 right-4 text-rose-500 animate-pulse">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                    <div className="absolute top-3 right-3 text-rose-500 animate-pulse">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
                     </div>
                   )}
                   {/* Badge: Pendiente de sincronizar (Offline) */}
                   {isOfflineOnly && (
-                    <div className="absolute top-4 left-4 flex items-center gap-1 bg-amber-500/20 border border-amber-500/40 rounded-full px-2 py-0.5" title="Orden guardada sin internet - pendiente de sincronizar">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                      <span className="text-[8px] font-black text-amber-400 uppercase tracking-widest">Local</span>
+                    <div className="absolute top-2 left-2 flex items-center gap-0.5 bg-amber-500/20 border border-amber-500/40 rounded-full px-1 py-0.5" title="Orden guardada sin internet - pendiente de sincronizar">
+                      <span className="text-[6px] sm:text-[7px] font-black text-amber-400 uppercase tracking-widest">Local</span>
                     </div>
                   )}
-                  <span className="text-6xl lg:text-5xl font-black text-white mb-1 tracking-tighter">{t.number}</span>
-                  <span className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4">
+                  <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mt-1">{t.number}</span>
+                  <span className="text-[10px] sm:text-[11px] lg:text-[12px] font-bold text-gray-400 uppercase tracking-[0.12em] sm:tracking-[0.15em] text-center w-full truncate">
                     {isOccupied ? 'Ocupada' : t.locked_by ? 'Reservada' : 'Disponible'}
                   </span>
-                  <div className={`w-2.5 h-2.5 rounded-full ${
+                  <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 lg:w-3 lg:h-3 rounded-full mb-1 ${
                     isOfflineOnly
-                      ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse'
+                      ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)] animate-pulse'
                       : isOccupied
-                        ? 'bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]'
+                        ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'
                         : t.locked_by
-                          ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse'
-                          : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]'
+                          ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)] animate-pulse'
+                          : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
                   }`} />
                 </button>
               )
