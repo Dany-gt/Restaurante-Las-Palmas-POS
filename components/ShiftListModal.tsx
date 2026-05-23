@@ -16,6 +16,7 @@ interface Shift {
     difference_amount: number;
     cash_detail: any;
     closing_notes: string | null;
+    shift_number?: number;
     cash_registers?: {
         name: string;
     };
@@ -31,6 +32,7 @@ interface ShiftListModalProps {
 
 export const ShiftListModal: React.FC<ShiftListModalProps> = ({ isOpen, onClose }) => {
     const [shifts, setShifts] = useState<Shift[]>([]);
+    const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
     const [loading, setLoading] = useState(true);
     const [processingShiftId, setProcessingShiftId] = useState<string | null>(null);
 
@@ -64,7 +66,13 @@ export const ShiftListModal: React.FC<ShiftListModalProps> = ({ isOpen, onClose 
             const { data, error } = await query;
 
             if (error) throw error;
-            setShifts(data || []);
+            const fetchedShifts = data || [];
+            setShifts(fetchedShifts);
+            if (fetchedShifts.length > 0) {
+                setSelectedShift(fetchedShifts[0]);
+            } else {
+                setSelectedShift(null);
+            }
         } catch (e: any) {
             console.error('Error fetching shifts:', e);
         }
@@ -347,106 +355,102 @@ Generado: ${new Date().toLocaleString('es-GT')}
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4 md:p-6 animate-in fade-in duration-300">
-            <div className="bg-[#14171c] w-full max-w-[95vw] lg:max-w-7xl max-h-[92vh] rounded-[2.5rem] border border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4 animate-fade-in">
+            <div className="w-full max-w-3xl bg-[#2e303f] rounded-[4px] border border-white/10 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col">
                 {/* HEADER */}
-                <div className="p-6 md:p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-                    <div className="flex flex-col">
-                        <span className="text-[9px] font-black uppercase tracking-[0.4em] text-emerald-400 mb-0.5">Historial de Turnos</span>
-                        <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter">LISTADO DE CIERRES</h3>
-                    </div>
+                <div className="bg-[#212330] py-3.5 px-4 flex justify-between items-center border-b border-white/5 relative">
+                    <span className="text-[10px] font-black text-white uppercase tracking-[0.25em] mx-auto">
+                        LISTADO DE CIERRES
+                    </span>
                     <button
                         onClick={onClose}
-                        className="p-3 hover:bg-white/5 rounded-full text-gray-600 hover:text-white transition-all"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                     >
-                        <X size={24} />
+                        <X size={16} />
                     </button>
                 </div>
 
                 {/* CONTENT */}
-                <div className="flex-1 overflow-y-auto p-8">
+                <div className="flex-1 overflow-y-auto p-6 min-h-[300px] max-h-[400px]">
                     {loading ? (
                         <div className="flex items-center justify-center h-64">
-                            <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
                         </div>
                     ) : shifts.length === 0 ? (
                         <div className="flex items-center justify-center h-64">
-                            <p className="text-gray-500 text-lg font-bold">No hay cierres registrados</p>
+                            <p className="text-gray-400 text-sm font-bold">No hay cierres registrados</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                            {shifts.map((shift) => (
-                                <div
-                                    key={shift.id}
-                                    className="bg-[#1e212b] rounded-2xl border border-white/5 p-4 flex flex-col transition-all hover:bg-[#2b2f3a] hover:border-emerald-500/20 group shadow-lg"
-                                >
-                                    {/* Cabecera Tarjeta: Caja y Cajero */}
-                                    <div className="flex items-start gap-3 mb-4">
-                                        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                                            <Printer size={18} className="text-emerald-400" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            {shifts.map((shift) => {
+                                const isSelected = selectedShift?.id === shift.id;
+                                return (
+                                    <div
+                                        key={shift.id}
+                                        onClick={() => setSelectedShift(shift)}
+                                        className={`border rounded-[4px] px-3 py-1.5 flex flex-col justify-between h-[76px] transition-all cursor-pointer ${
+                                            isSelected
+                                                ? 'bg-[#5c6bc0] border-white/20 shadow-lg scale-[1.02]'
+                                                : 'bg-[#383b4d] border-white/5 hover:bg-white/5'
+                                        }`}
+                                    >
+                                        <div className="flex justify-between items-center text-[10px] leading-tight">
+                                            <span className={isSelected ? 'text-white/70' : 'text-white/50'}>Caja</span>
+                                            <span className="font-bold text-white text-right">{shift.cash_registers?.name || 'Caja'}</span>
                                         </div>
-                                        <div className="flex flex-col min-w-0">
-                                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{shift.cash_registers?.name || 'Caja'}</span>
-                                            <span className="text-xs font-bold text-white truncate leading-tight mt-0.5">{shift.profiles?.name || 'Sin nombre'}</span>
+                                        <div className="flex justify-between items-center text-[10px] leading-tight">
+                                            <span className={isSelected ? 'text-white/70' : 'text-white/50'}>Turno</span>
+                                            <span className="font-bold text-white text-right">{shift.shift_number || 1}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-[10px] leading-tight">
+                                            <span className={isSelected ? 'text-white/70' : 'text-white/50'}>Apertura</span>
+                                            <span className="font-bold text-white text-right">{formatDate(shift.start_time)}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-[10px] leading-tight">
+                                            <span className={isSelected ? 'text-white/70' : 'text-white/50'}>Cierre</span>
+                                            <span className="font-bold text-white text-right">{formatDate(shift.end_time)}</span>
                                         </div>
                                     </div>
-
-                                    {/* Fechas Compactas */}
-                                    <div className="space-y-2 mb-6">
-                                        <div className="flex justify-between items-center bg-black/20 p-2 rounded-lg">
-                                            <span className="text-[9px] font-bold text-gray-500 uppercase">Inicio</span>
-                                            <span className="text-[10px] font-black text-gray-300">{formatDateTime(shift.start_time).split(',')[0]}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center bg-black/20 p-2 rounded-lg">
-                                            <span className="text-[9px] font-bold text-gray-500 uppercase">Fin</span>
-                                            <span className="text-[10px] font-black text-emerald-400">{formatDateTime(shift.end_time).split(',')[0]}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Actions */}
-                                    <div className="mt-auto grid grid-cols-2 gap-2 pt-3 border-t border-white/5">
-                                        <button
-                                            onClick={() => handlePrint(shift)}
-                                            disabled={processingShiftId === shift.id}
-                                            className="h-9 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center gap-2 text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-wider disabled:opacity-50"
-                                        >
-                                            {processingShiftId === shift.id ? (
-                                                <div className="w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
-                                            ) : (
-                                                <>
-                                                    <Printer size={12} />
-                                                    Print
-                                                </>
-                                            )}
-                                        </button>
-                                        <button
-                                            onClick={() => handleEmail(shift)}
-                                            disabled={processingShiftId === shift.id}
-                                            className="h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center gap-2 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-wider disabled:opacity-50"
-                                        >
-                                            {processingShiftId === shift.id ? (
-                                                <div className="w-3 h-3 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
-                                            ) : (
-                                                <>
-                                                    <Mail size={12} />
-                                                    Enviar
-                                                </>
-                                            )}
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>
 
-                {/* FOOTER */}
-                <div className="p-6 md:p-8 bg-[#0d0f13] border-t border-white/5 flex justify-end">
+                {/* FOOTER ACTION BUTTONS */}
+                <div className="p-6 bg-[#212330]/30 border-t border-white/5 flex justify-center gap-4">
+                    <button
+                        onClick={() => selectedShift && handlePrint(selectedShift)}
+                        disabled={!selectedShift || processingShiftId !== null}
+                        className="relative w-[150px] h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-bold text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all shadow-md active:scale-95 overflow-hidden disabled:opacity-50"
+                    >
+                        {processingShiftId === selectedShift?.id ? (
+                            <div className="w-4 h-4 border-2 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                            'IMPRIMIR'
+                        )}
+                        <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-yellow-500 border-l-[10px] border-l-transparent pointer-events-none" />
+                    </button>
+
+                    <button
+                        onClick={() => selectedShift && handleEmail(selectedShift)}
+                        disabled={!selectedShift || processingShiftId !== null}
+                        className="relative w-[150px] h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-bold text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all shadow-md active:scale-95 overflow-hidden disabled:opacity-50"
+                    >
+                        {processingShiftId === selectedShift?.id ? (
+                            <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                            'ENVIAR CORREO'
+                        )}
+                        <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-blue-500 border-l-[10px] border-l-transparent pointer-events-none" />
+                    </button>
+
                     <button
                         onClick={onClose}
-                        className="h-12 px-8 rounded-xl border border-white/10 bg-white/5 font-black uppercase tracking-[0.2em] text-[10px] text-gray-500 hover:text-white transition-all active:scale-95"
+                        className="relative w-[150px] h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-bold text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all shadow-md active:scale-95 overflow-hidden"
                     >
                         CERRAR
+                        <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-red-500 border-l-[10px] border-l-transparent pointer-events-none" />
                     </button>
                 </div>
             </div>

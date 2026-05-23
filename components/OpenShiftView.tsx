@@ -28,21 +28,28 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
                 setCashRegisters(registers);
                 setSelectedRegisterId(registers[0].id);
             }
+        };
+        loadData();
+    }, []);
 
-            // Calculate shift number (daily sequence for this user)
+    useEffect(() => {
+        if (!selectedRegisterId) return;
+
+        const calculateShiftCount = async () => {
+            // Calculate shift number (daily sequence for this register today)
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
             const { count } = await supabase
                 .from('shifts')
                 .select('*', { count: 'exact', head: true })
-                .eq('cashier_id', currentUser.id)
+                .eq('cash_register_id', selectedRegisterId)
                 .gte('start_time', today.toISOString());
 
-            if (count !== null) setShiftCount(count + 1);
+            setShiftCount((count || 0) + 1);
         };
-        loadData();
-    }, [currentUser.id]);
+        calculateShiftCount();
+    }, [selectedRegisterId]);
 
     const handleKeyPad = (key: string) => {
         setAmount(prev => {
@@ -66,6 +73,8 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
         const numericAmount = parseFloat(amount);
         if (isNaN(numericAmount)) return;
 
+        setLoading(true);
+
         const shiftId = generateUUID();
         const shiftData = {
             id: shiftId,
@@ -73,23 +82,31 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
             cashier_id: currentUser.id,
             start_amount: numericAmount,
             status: 'OPEN',
-            start_time: new Date().toISOString()
+            start_time: new Date().toISOString(),
+            shift_number: shiftCount
         };
 
-        if (!navigator.onLine) {
-            try {
+        try {
+            // Recalculate shift number immediately before inserting to avoid race conditions (online)
+            if (navigator.onLine) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const { count } = await supabase
+                    .from('shifts')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('cash_register_id', selectedRegisterId)
+                    .gte('start_time', today.toISOString());
+
+                shiftData.shift_number = (count || 0) + 1;
+            } else {
                 await import('../services/OfflineDB').then(m => m.offlineDB.saveRecord('CASH_INIT', shiftData));
                 console.log('📦 Turno abierto offline (IndexedDB):', shiftId);
                 setShowSuccessModal(true);
                 window.dispatchEvent(new CustomEvent('offline-sync-trigger'));
                 return;
-            } catch (e) {
-                console.error('Error opening shift offline:', e);
             }
-        }
 
-        setLoading(true);
-        try {
             const { error } = await supabase.from('shifts').insert(shiftData);
             if (error) throw error;
 
