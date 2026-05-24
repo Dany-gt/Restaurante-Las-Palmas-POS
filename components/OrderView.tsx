@@ -224,6 +224,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const [takeoutData, setTakeoutData] = useState({ name: '', phone: '' });
     const [showDeliveryPaymentModal, setShowDeliveryPaymentModal] = useState(false);
     const [showVoidModal, setShowVoidModal] = useState(false);
+    const [swipedItemId, setSwipedItemId] = useState<string | null>(null);
     const [itemToVoid, setItemToVoid] = useState<OrderItem | null>(null);
     const [voidReason, setVoidReason] = useState('');
     const [discountingItem, setDiscountingItem] = useState<OrderItem | null>(null);
@@ -2883,36 +2884,61 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 .map(item => {
                                     const itemOrderNum = tableOrders.findIndex(o => o.id === (item as any).order_id) + 1;
                                     return (
-                                        <div
-                                            key={item.id}
-                                            onDoubleClick={() => handleEditItem(item)}
-                                            onTouchStart={(e) => {
-                                                (e.currentTarget as any).touchStartX = e.touches[0].clientX;
-                                                (e.currentTarget as any).touchStartY = e.touches[0].clientY;
-                                            }}
-                                            onTouchEnd={(e) => {
-                                                const startX = (e.currentTarget as any).touchStartX;
-                                                const startY = (e.currentTarget as any).touchStartY;
-                                                if (!startX || !startY) return;
-                                                const endX = e.changedTouches[0].clientX;
-                                                const endY = e.changedTouches[0].clientY;
-                                                const deltaX = endX - startX;
-                                                const deltaY = endY - startY;
-                                                // Swipe de Izquierda a Derecha
-                                                if (deltaX > 50 && Math.abs(deltaY) < 40) {
-                                                    handleEditItem(item);
-                                                }
-                                                (e.currentTarget as any).touchStartX = 0;
-                                                (e.currentTarget as any).touchStartY = 0;
-                                            }}
-                                            onClick={() => {
-                                                const canDiscount = currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos');
-                                                if (!canDiscount) return;
-                                                setDiscountingItem(item);
-                                                setShowDiscountModal(true);
-                                            }}
-                                            className={`bg-white/5 rounded-lg flex justify-between group transition-colors border border-white/5 select-none relative hover:bg-white/10 cursor-pointer ${isTablet ? 'p-1.5' : 'p-3'}`}
-                                        >
+                                        <div key={item.id} className="relative overflow-hidden rounded-lg group">
+                                            {/* Trash button behind */}
+                                            <div className={`absolute right-0 top-0 bottom-0 w-[80px] bg-red-500/90 flex items-center justify-center transition-opacity duration-300 ${swipedItemId === item.id ? 'opacity-100 z-10' : 'opacity-0 -z-10'}`}>
+                                                <button onClick={(e) => { e.stopPropagation(); removeItem(item.id); setSwipedItemId(null); }} className="w-full h-full flex items-center justify-center text-white active:scale-95 transition-transform">
+                                                    <Trash2 size={24} />
+                                                </button>
+                                            </div>
+                                            <div
+                                                onDoubleClick={() => handleEditItem(item)}
+                                                onTouchStart={(e) => {
+                                                    if (swipedItemId && swipedItemId !== item.id) {
+                                                        setSwipedItemId(null);
+                                                    }
+                                                    (e.currentTarget as any).touchStartX = e.touches[0].clientX;
+                                                    (e.currentTarget as any).touchStartY = e.touches[0].clientY;
+                                                }}
+                                                onTouchEnd={(e) => {
+                                                    const startX = (e.currentTarget as any).touchStartX;
+                                                    const startY = (e.currentTarget as any).touchStartY;
+                                                    if (!startX || !startY) return;
+                                                    const endX = e.changedTouches[0].clientX;
+                                                    const endY = e.changedTouches[0].clientY;
+                                                    const deltaX = endX - startX;
+                                                    const deltaY = endY - startY;
+                                                    
+                                                    // Swipe de Derecha a Izquierda para Eliminar
+                                                    if (deltaX < -50 && Math.abs(deltaY) < 40) {
+                                                        const canDelete = !item.is_sent || currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO';
+                                                        if (canDelete) {
+                                                            setSwipedItemId(item.id);
+                                                        }
+                                                    }
+                                                    // Swipe de Izquierda a Derecha para Editar o esconder eliminar
+                                                    else if (deltaX > 50 && Math.abs(deltaY) < 40) {
+                                                        if (swipedItemId === item.id) {
+                                                            setSwipedItemId(null);
+                                                        } else {
+                                                            handleEditItem(item);
+                                                        }
+                                                    }
+                                                    (e.currentTarget as any).touchStartX = 0;
+                                                    (e.currentTarget as any).touchStartY = 0;
+                                                }}
+                                                onClick={() => {
+                                                    if (swipedItemId === item.id) {
+                                                        setSwipedItemId(null);
+                                                        return;
+                                                    }
+                                                    const canDiscount = currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos');
+                                                    if (!canDiscount) return;
+                                                    setDiscountingItem(item);
+                                                    setShowDiscountModal(true);
+                                                }}
+                                                className={`bg-[#2a2d37] flex justify-between transition-transform duration-300 border border-white/5 select-none relative cursor-pointer ${isTablet ? 'p-1.5' : 'p-3'} ${swipedItemId === item.id ? 'translate-x-[-80px]' : 'translate-x-0'}`}
+                                            >
                                             {/* Account Badge for Unified View */}
                                             {!activeOrderId && (item as any).order_id && tableOrders.length > 1 && (
                                                 <span className="absolute top-1 right-1 px-1 bg-white/10 text-white/60 text-[8px] font-black rounded uppercase">C{itemOrderNum}</span>
@@ -2959,6 +2985,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                         </button>
                                                     )
                                                 )}
+                                            </div>
                                             </div>
                                         </div>
                                     );
