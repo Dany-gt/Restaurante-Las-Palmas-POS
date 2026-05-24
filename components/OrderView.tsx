@@ -2514,7 +2514,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         ) : (
                             <div className="bg-[#2d2e3d]">
                                 {!selectedCat && (
-                                    <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(130px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(145px,1fr))] justify-items-center max-w-[1250px] mx-auto gap-[0.6cm] w-full no-scrollbar content-start">
+                                    <div className="grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(120px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(130px,1fr))] justify-start max-w-[1250px] mx-auto gap-3 sm:gap-4 w-full no-scrollbar content-start">
                                         {(() => {
                                             const seen = new Set();
                                             return categories
@@ -2559,7 +2559,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </div>
                                 )}
                                 {selectedCat && !selectedSubCat && (
-                                    <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(130px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(145px,1fr))] justify-items-center max-w-[1250px] mx-auto gap-[0.6cm] w-full content-start">
+                                    <div className="grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(120px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(130px,1fr))] justify-start max-w-[1250px] mx-auto gap-3 sm:gap-4 w-full content-start">
                                         {categories
                                             .filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO')
                                             .sort((a, b) => {
@@ -2698,7 +2698,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </div>
                                 )}
                                 {selectedSubCat && (
-                                    <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(130px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(145px,1fr))] justify-items-center max-w-[1250px] mx-auto gap-[0.6cm] w-full content-start">
+                                    <div className="grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(120px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(130px,1fr))] justify-start max-w-[1250px] mx-auto gap-3 sm:gap-4 w-full content-start">
                                         {(() => {
                                             const relatedSubCatIds = categories
                                                 .filter(c => c.name?.toUpperCase() === selectedSubCat.name?.toUpperCase())
