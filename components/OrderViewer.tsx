@@ -270,7 +270,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                 {/* Left Side: Orders List */}
                 <div className="flex-1 flex flex-col min-w-0 border-r border-[#1e1f2b]">
                     {/* Header with Search */}
-                    <div className="bg-[#3a3b4d] h-10 flex items-center justify-center px-3 shrink-0 shadow-md">
+                    <div className="bg-[#3a3b4d] h-10 flex items-center justify-center px-3 shrink-0 ">
                         <button onClick={onBack} className="absolute left-3 p-1.5 hover:bg-white/5 rounded-sm text-gray-400">
                             <ArrowRight className="rotate-180" size={18} />
                         </button>
@@ -285,7 +285,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                 placeholder="BUSCAR ORDEN / MESA..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-black/40 border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-black placeholder:text-gray-500 outline-none focus:border-white/50 focus:bg-black/60 transition-all uppercase tracking-widest text-white shadow-inner"
+                                className="w-full bg-black/40 border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-black placeholder:text-gray-500 outline-none focus:border-white/50 focus:bg-black/60 transition-all uppercase tracking-widest text-white "
                             />
                         </div>
                     </div>
@@ -375,7 +375,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
 
                 {/* Right Side: Order Detail */}
                 <div className="w-[400px] flex flex-col bg-[#2d2e3d] shrink-0 h-full border-l border-[#1e1f2b]">
-                    <div className="bg-[#3a3b4d] h-10 flex items-center justify-center shrink-0 shadow-md gap-2">
+                    <div className="bg-[#3a3b4d] h-10 flex items-center justify-center shrink-0  gap-2">
                         <FileText size={14} className="text-white/30" />
                         <h2 className="text-[11px] font-bold tracking-widest uppercase">INFORMACIÓN</h2>
                     </div>
@@ -386,7 +386,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                 <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 mb-4 text-center">Artículos en la Orden</h4>
                                 <div className="space-y-3">
                                     {selectedOrder.order_items?.map((item: any) => (
-                                        <div key={item.id} className="bg-[#3a3b4d] rounded-sm p-3 text-sm shadow-sm border border-white/[0.03]">
+                                        <div key={item.id} className="bg-[#3a3b4d] rounded-sm p-3 text-sm  border border-white/[0.03]">
                                             <div className="flex justify-between items-start">
                                                 <div className="flex gap-3">
                                                     <span className="font-bold text-white/50">{item.quantity}</span>
@@ -410,7 +410,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                             </>
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center p-12 opacity-50">
-                                <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10 shadow-2xl">
+                                <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10 ">
                                     <FileText size={48} className="text-white/30" strokeWidth={1} />
                                 </div>
                                 <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white/60 text-center mb-2">SIN SELECCIÓN</h3>
@@ -425,7 +425,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                     {selectedOrder && (() => {
                         const computed = getComputedTotals(selectedOrder);
                         return (
-                            <div className="p-4 shrink-0 border-t border-white/5 bg-[#2d2e3d] shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.3)]">
+                            <div className="p-4 shrink-0 border-t border-white/5 bg-[#2d2e3d] ">
                                 <div className="ml-auto w-full max-w-[220px] space-y-1">
                                     <div className="flex justify-between text-[10px]">
                                         <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Sub-Total</span>
@@ -492,7 +492,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                 </button>
                                 <button
                                     onClick={() => onOpenOrder && onOpenOrder(selectedOrder.id)}
-                                    className="flex-1 bg-white hover:bg-gray-100 text-black py-3 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-[0.98] transition-all"
+                                    className="flex-1 bg-white hover:bg-gray-100 text-black py-3 rounded-sm text-[10px] font-black uppercase tracking-widest  active:scale-[0.98] transition-all"
                                 >
                                     ABRIR ORDEN
                                 </button>
@@ -508,7 +508,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
 const TabButton = ({ active, onClick, label, color }: any) => (
     <button
         onClick={onClick}
-        className={`px-6 py-4 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg ${color} ${active ? 'opacity-100 scale-105 ring-1 ring-white/10' : 'opacity-60 grayscale-[0.5] hover:opacity-80'}`}
+        className={`px-6 py-4 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all  ${color} ${active ? 'opacity-100 scale-105 ring-1 ring-white/10' : 'opacity-60 grayscale-[0.5] hover:opacity-80'}`}
     >
         {label}
     </button>
@@ -521,7 +521,7 @@ const OrderCard = ({ order, isSelected, onClick }: any) => {
             className={`
                 relative p-3 rounded-sm text-left border transition-all group
                 ${isSelected
-                    ? 'bg-white/10 border-white shadow-xl'
+                    ? 'bg-white/10 border-white '
                     : 'bg-[#3a3b4d] border-transparent hover:bg-[#45465a]'
                 }
             `}

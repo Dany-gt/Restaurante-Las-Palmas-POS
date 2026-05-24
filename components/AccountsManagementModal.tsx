@@ -230,7 +230,7 @@ export const AccountsManagementModal: React.FC<AccountsManagementModalProps> = (
 
                 <button
                     onClick={() => onConfirm(accounts)}
-                    className="w-40 h-12 bg-[#7c7ffb] hover:bg-[#6b6edb] text-[10px] font-black uppercase tracking-widest text-white transition-all rounded shadow-lg shadow-[#7c7ffb]/20"
+                    className="w-40 h-12 bg-[#7c7ffb] hover:bg-[#6b6edb] text-[10px] font-black uppercase tracking-widest text-white transition-all rounded  /20"
                 >
                     ACEPTAR
                 </button>

@@ -44,8 +44,8 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] flex items-center justify-center p-6 animate-in fade-in duration-200">
-            <div className="bg-[#2d2f3d] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-black/80  z-[110] flex items-center justify-center p-6 animate-in fade-in duration-200">
+            <div className="bg-[#2d2f3d] w-full max-w-2xl rounded-xl  /50 overflow-hidden flex flex-col">
                 <div className="pt-8 pb-6 flex justify-center items-center">
                     <h3 className="text-sm font-bold text-white uppercase tracking-wider">TIPO DE PAGO</h3>
                 </div>
@@ -58,7 +58,7 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
                                 key={type.id}
                                 onClick={() => setSelectedType(type.id)}
                                 className={`flex items-center justify-between p-3.5 rounded-lg border transition-all text-left ${selectedType === type.id
-                                        ? 'bg-[#43465b] border-white/30 text-white shadow-lg ring-1 ring-white/10'
+                                        ? 'bg-[#43465b] border-white/30 text-white  ring-1 ring-white/10'
                                         : 'bg-[#353746] border-white/5 text-white/80 hover:bg-[#3e4153]'
                                     }`}
                             >
@@ -118,7 +118,7 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
                     </button>
                     <button
                         onClick={handleConfirm}
-                        className="px-8 py-2.5 rounded-md bg-[#7a73ff] text-white text-xs font-bold uppercase tracking-wide hover:bg-[#6861ff] transition-all shadow-lg active:scale-95 min-w-[120px]"
+                        className="px-8 py-2.5 rounded-md bg-[#7a73ff] text-white text-xs font-bold uppercase tracking-wide hover:bg-[#6861ff] transition-all  active:scale-95 min-w-[120px]"
                     >
                         ACEPTAR
                     </button>

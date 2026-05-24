@@ -40,7 +40,7 @@ const CustomSelect = ({ value, onChange, options, placeholder = "Seleccionar..."
             {isOpen && (
                 <>
                     <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
-                    <div className="absolute top-full left-0 right-0 mt-[1px] max-h-[140px] overflow-y-auto bg-white border border-gray-400 shadow-lg z-50 drop-shadow-md custom-scrollbar">
+                    <div className="absolute top-full left-0 right-0 mt-[1px] max-h-[140px] overflow-y-auto bg-white border border-gray-400  z-50 drop- custom-scrollbar">
                         <div 
                             className="px-2 py-1 text-[11px] hover:bg-[#106ebe] hover:text-white cursor-pointer text-gray-500"
                             onClick={() => { onChange(''); setIsOpen(false); }}
@@ -85,7 +85,7 @@ const SmartPriceInput = ({ value, onChange, className = "" }: any) => {
 
     return (
         <div 
-            className={`flex-1 flex items-center border border-gray-400 bg-white h-6 shadow-sm relative cursor-text px-2 ${className}`}
+            className={`flex-1 flex items-center border border-gray-400 bg-white h-6  relative cursor-text px-2 ${className}`}
             onClick={() => inputRef.current?.focus()}
         >
             <input
@@ -242,7 +242,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
             <div className="absolute inset-0 pointer-events-auto" onClick={onClose}></div>
             <div className="pointer-events-auto">
                 <DraggableWindow>
-                    <div className="bg-white border border-[#106ebe] w-[750px] shadow-[0_25px_80px_rgba(0,0,0,0.35)] flex flex-col font-sans animate-in zoom-in-95 duration-100">
+                    <div className="bg-white border border-[#106ebe] w-[750px]  flex flex-col font-sans animate-in zoom-in-95 duration-100">
                         {/* Windows Title Bar */}
                         <div className="modal-header bg-[#106ebe] h-[34px] flex justify-between items-center pl-3 pr-1 shrink-0 cursor-move active:cursor-grabbing">
                             <span className="text-white text-[12px] font-bold tracking-wide">Mantenimiento de Productos</span>
@@ -256,7 +256,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                 <button 
                                     onClick={onClose}
                                     title="Cerrar"
-                                    className="w-[34px] h-[26px] bg-[#e81123] hover:bg-[#f1707a] flex items-center justify-center transition-colors shadow-sm ml-1"
+                                    className="w-[34px] h-[26px] bg-[#e81123] hover:bg-[#f1707a] flex items-center justify-center transition-colors  ml-1"
                                 >
                                     <X className="text-white" size={16} strokeWidth={2.5} />
                                 </button>
@@ -414,11 +414,11 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                 <table className="w-full border-collapse">
                                                     <thead className="sticky top-0 z-10 select-none">
                                                         <tr className="bg-[#f0f0f0] h-[22px]">
-                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center">Sucursal</th>
-                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-28">Existencia</th>
-                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-36">Punto de Reorden</th>
-                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-24">Habilitado</th>
-                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0] shadow-[inset_1px_1px_0_white] text-center w-32">Asignado</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0]  text-center">Sucursal</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0]  text-center w-28">Existencia</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0]  text-center w-36">Punto de Reorden</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0]  text-center w-24">Habilitado</th>
+                                                            <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-b border-gray-400 border-t-white border-l-white bg-[#f0f0f0]  text-center w-32">Asignado</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -504,7 +504,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                                         </div>
                                                                         <button 
                                                                             onClick={() => setShowFichaModal(true)}
-                                                                            className="bg-white border border-gray-400 text-slate-700 px-3 h-5 text-[9px] font-bold uppercase tracking-tight flex items-center gap-2 rounded-sm shadow-sm hover:bg-gray-50"
+                                                                            className="bg-white border border-gray-400 text-slate-700 px-3 h-5 text-[9px] font-bold uppercase tracking-tight flex items-center gap-2 rounded-sm  hover:bg-gray-50"
                                                                         >
                                                                             <FileText size={12} className="text-[#106ebe]" /> Ficha Técnica Pro
                                                                         </button>
@@ -512,11 +512,11 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                                 </th>
                                                             </tr>
                                                             <tr className="h-[22px]">
-                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center">Producto</th>
-                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Cantidad</th>
-                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Medida</th>
-                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-24">Precio Costo</th>
-                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-b border-gray-400 border-t-white border-l-white shadow-[inset_1px_1px_0_white] text-center w-4 invisible"></th>
+                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white  text-center">Producto</th>
+                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white  text-center w-24">Cantidad</th>
+                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white  text-center w-24">Medida</th>
+                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-r border-b border-gray-400 border-t-white border-l-white  text-center w-24">Precio Costo</th>
+                                                                <th className="font-[Arial] text-[11px] text-[#202020] px-2 border-b border-gray-400 border-t-white border-l-white  text-center w-4 invisible"></th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -635,7 +635,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                     </table>
                                                 </div>
                                                 {/* Total fijo al fondo */}
-                                                <div className="bg-[#f5f5f5] border-t-2 border-gray-400 h-[26px] flex items-center justify-end px-2 select-none shadow-[0_-1px_3px_rgba(0,0,0,0.1)]">
+                                                <div className="bg-[#f5f5f5] border-t-2 border-gray-400 h-[26px] flex items-center justify-end px-2 select-none ">
                                                     <span className="text-[10px] font-black uppercase text-gray-600 mr-4">Total Receta Estimado:</span>
                                                     <span className="text-[12px] font-black text-[#106ebe] min-w-[120px] text-right">
                                                         Q {totalReceta.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -652,9 +652,9 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                         {showFichaModal && createPortal(
                             <div className="fixed inset-0 z-[3000000] flex items-center justify-center p-4 bg-black/5">
                                 <DraggableWindow>
-                                    <div className="bg-white border border-[#106ebe] shadow-[0_0_40px_rgba(0,0,0,0.5)] w-[900px] h-[85vh] flex flex-col overflow-hidden rounded-sm animate-in zoom-in-95 duration-200">
+                                    <div className="bg-white border border-[#106ebe]  w-[900px] h-[85vh] flex flex-col overflow-hidden rounded-sm animate-in zoom-in-95 duration-200">
                                         {/* Header Style Dish Modal */}
-                                        <div className="bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 modal-header cursor-move shadow-md">
+                                        <div className="bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 modal-header cursor-move ">
                                             <div className="flex items-center gap-2">
                                                 <ChefHat size={14} className="text-white" />
                                                 <span className="text-[11px] font-bold uppercase tracking-tight">Ficha Técnica: {newProduct.name || 'NUEVA'}</span>
@@ -758,7 +758,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                         <button
                                                             onClick={() => handleImproveText('prep_procedure')}
                                                             disabled={isImproving}
-                                                            className="flex items-center gap-2 px-4 py-1.5 bg-[#f0f9ff] text-[#106ebe] border border-blue-200 rounded-full text-[10px] font-black uppercase hover:bg-[#106ebe] hover:text-white transition-all disabled:opacity-50 shadow-sm"
+                                                            className="flex items-center gap-2 px-4 py-1.5 bg-[#f0f9ff] text-[#106ebe] border border-blue-200 rounded-full text-[10px] font-black uppercase hover:bg-[#106ebe] hover:text-white transition-all disabled:opacity-50 "
                                                         >
                                                             {isImproving ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />} IA
                                                         </button>
@@ -766,7 +766,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                     <textarea
                                                         value={newProduct.prep_procedure || ''}
                                                         onChange={(e) => setNewProduct({ ...newProduct, prep_procedure: e.target.value.toUpperCase() })}
-                                                        className="w-full h-[200px] p-6 text-[12px] leading-relaxed font-bold text-slate-700 bg-slate-50 border border-slate-200 outline-none focus:border-[#106ebe] focus:shadow-xl transition-all rounded-xl uppercase custom-scrollbar"
+                                                        className="w-full h-[200px] p-6 text-[12px] leading-relaxed font-bold text-slate-700 bg-slate-50 border border-slate-200 outline-none focus:border-[#106ebe] focus: transition-all rounded-xl uppercase custom-scrollbar"
                                                         placeholder="DESCRIPCIÓN DE PASOS..."
                                                     />
                                                 </div>
@@ -791,7 +791,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                             <div className="flex items-center gap-3">
                                                 <button
                                                     onClick={() => setShowFichaModal(false)}
-                                                    className="px-12 py-3 bg-[#106ebe] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#002244] transition-all shadow-lg active:scale-95 flex items-center gap-3"
+                                                    className="px-12 py-3 bg-[#106ebe] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#002244] transition-all  active:scale-95 flex items-center gap-3"
                                                 >
                                                     <Save size={16} /> Guardar Ficha
                                                 </button>

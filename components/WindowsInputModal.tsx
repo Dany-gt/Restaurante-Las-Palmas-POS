@@ -31,9 +31,9 @@ export const WindowsInputModal: React.FC<Props> = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/20 flex justify-center items-center z-[999999] backdrop-blur-[1px]">
+        <div className="fixed inset-0 bg-black/20 flex justify-center items-center z-[999999] ">
             <div
-                className="bg-[#f0f0f0] border border-[#333] shadow-[0_10px_25px_rgba(0,0,0,0.3)] flex flex-col animate-in zoom-in-95 duration-100"
+                className="bg-[#f0f0f0] border border-[#333]  flex flex-col animate-in zoom-in-95 duration-100"
                 style={{ width: '400px', fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}
             >
                 {/* Title Bar */}
@@ -61,7 +61,7 @@ export const WindowsInputModal: React.FC<Props> = ({
                         onChange={(e) => setValue(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder={placeholder}
-                        className="w-full h-9 bg-white border border-[#adadad] px-3 text-[13px] text-black outline-none focus:border-[#0078d7] transition-colors shadow-inner placeholder:text-gray-400"
+                        className="w-full h-9 bg-white border border-[#adadad] px-3 text-[13px] text-black outline-none focus:border-[#0078d7] transition-colors  placeholder:text-gray-400"
                     />
                 </div>
 
@@ -69,13 +69,13 @@ export const WindowsInputModal: React.FC<Props> = ({
                 <div className="bg-[#f0f0f0] px-4 pb-4 pt-2 flex justify-end gap-2.5">
                     <button
                         onClick={() => onConfirm(value)}
-                        className="min-w-[90px] h-[28px] bg-[#333] hover:bg-[#444] border border-[#000] text-white text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-sm"
+                        className="min-w-[90px] h-[28px] bg-[#333] hover:bg-[#444] border border-[#000] text-white text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 "
                     >
                         ACEPTAR
                     </button>
                     <button
                         onClick={onCancel}
-                        className="min-w-[90px] h-[28px] bg-[#e1e1e1] hover:bg-[#d5d5d5] border border-[#adadad] text-black text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-sm"
+                        className="min-w-[90px] h-[28px] bg-[#e1e1e1] hover:bg-[#d5d5d5] border border-[#adadad] text-black text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 "
                     >
                         CANCELAR
                     </button>

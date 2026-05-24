@@ -262,8 +262,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
 
         {/* Dynamic Notes Overlay */}
         {showNotes && (
-          <div className="absolute inset-0 z-[110] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 animate-fade-in">
-            <div className="w-full max-w-xl bg-[#1c1f26] rounded-3xl border border-white/10 shadow-2xl p-6 sm:p-8 relative overflow-hidden">
+          <div className="absolute inset-0 z-[110] bg-black/80  flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+            <div className="w-full max-w-xl bg-[#1c1f26] rounded-xl border border-white/10  /50 p-6 sm:p-8 relative overflow-hidden">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 bg-white/20 text-white/60 rounded-xl flex items-center justify-center border border-white/10">
                   <MessageSquare size={20} />
@@ -283,7 +283,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
               <div className="mt-6 flex gap-3">
                 <button
                   onClick={() => setShowNotes(false)}
-                  className="flex-1 bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest py-4 rounded-xl transition-all active:scale-95 shadow-lg shadow-white/5"
+                  className="flex-1 bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest py-4 rounded-xl transition-all active:scale-95  /5"
                 >
                   Confirmar Nota
                 </button>
@@ -331,8 +331,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                                 setSelectedGroupId(grp.id);
                                 setView('DETAIL');
                               }}
-                              className={`group w-64 h-24 rounded-2xl border transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
-                                ? 'bg-white/5 border-white/20 shadow-xl shadow-white/5'
+                              className={`group w-64 h-24 rounded-lg border transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
+                                ? 'bg-white/5 border-white/20  /5'
                                 : 'bg-white/[0.03] border-white/5 hover:bg-white/[0.08] hover:border-white/10'
                                 }`}
                             >
@@ -340,7 +340,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                                 {grp.group_prompt || grp.name}
                               </span>
                               {qtyInGroup > 0 && (
-                                <div className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shadow-lg ${hasRequired ? 'bg-white/20 text-white border border-white/20' : 'bg-white/20 text-white/60'}`}>
+                                <div className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black  ${hasRequired ? 'bg-white/20 text-white border border-white/20' : 'bg-white/20 text-white/60'}`}>
                                   {qtyInGroup}
                                 </div>
                               )}
@@ -372,8 +372,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                             <button
                               key={grp.id}
                               onClick={() => { setSelectedGroupId(grp.id); setView('DETAIL'); }}
-                              className={`group w-64 h-24 rounded-2xl border transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
-                                ? 'bg-white/5 border-white/20 shadow-xl shadow-white/5'
+                              className={`group w-64 h-24 rounded-lg border transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
+                                ? 'bg-white/5 border-white/20  /5'
                                 : 'bg-white/[0.03] border-white/5 hover:bg-white/[0.08] hover:border-white/10'
                                 }`}
                             >
@@ -381,7 +381,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                                 {grp.group_prompt || grp.name}
                               </span>
                               {qtyInGroup > 0 && (
-                                <div className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shadow-lg ${hasRequired ? 'bg-white/20 text-white border border-white/20' : 'bg-white/20 text-white/60'}`}>
+                                <div className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black  ${hasRequired ? 'bg-white/20 text-white border border-white/20' : 'bg-white/20 text-white/60'}`}>
                                   {qtyInGroup}
                                 </div>
                               )}
@@ -433,8 +433,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                           onClick={() => incrementItem(item)}
                           onDoubleClick={() => handleDoubleClick(item)}
                           onContextMenu={(e) => handleContextMenu(e, item)}
-                          className={`w-full h-32 px-5 rounded-2xl border transition-all duration-300 flex flex-col items-center justify-center gap-1.5 overflow-hidden ${qty > 0
-                            ? 'bg-white/5 border-white/20 shadow-xl shadow-white/5'
+                          className={`w-full h-32 px-5 rounded-lg border transition-all duration-300 flex flex-col items-center justify-center gap-1.5 overflow-hidden ${qty > 0
+                            ? 'bg-white/5 border-white/20  /5'
                             : isDisabled
                               ? 'bg-transparent border-white/5 opacity-10 pointer-events-none'
                               : 'bg-white/[0.03] border-white/5 hover:border-white/20 hover:bg-white/[0.06]'
@@ -515,7 +515,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                       </div>
                       <button onClick={() => setNotes('')} className="text-[9px] font-bold text-white/40 uppercase tracking-widest hover:text-white Transition-all">Limpiar</button>
                     </div>
-                    <p className="text-sm text-gray-300 leading-relaxed bg-white/10 p-6 rounded-2xl border border-white/10">
+                    <p className="text-sm text-gray-300 leading-relaxed bg-white/10 p-6 rounded-lg border border-white/10">
                       "{notes}"
                     </p>
                   </div>
@@ -567,7 +567,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                         onConfirm(product, transformedModifiers, notes, itemQuantity);
                         onClose();
                       }}
-                      className="flex flex-col items-center justify-center gap-2 w-28 h-28 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 disabled:opacity-20 transition-all active:scale-95 group"
+                      className="flex flex-col items-center justify-center gap-2 w-28 h-28 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 disabled:opacity-20 transition-all active:scale-95 group"
                     >
                       <Utensils size={32} className="text-white group-hover:scale-110 transition-transform" />
                       <span className="text-[9px] font-black text-white uppercase tracking-widest text-center leading-tight px-1">

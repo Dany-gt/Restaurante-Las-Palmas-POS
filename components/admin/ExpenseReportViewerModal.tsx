@@ -28,7 +28,7 @@ export const ExpenseReportViewerModal: React.FC<ExpenseReportViewerModalProps> =
         <div className="fixed inset-0 z-[100000] flex items-center justify-center animate-fade-in pointer-events-none">
             <div className="absolute inset-0 pointer-events-auto bg-black/20" onClick={onClose} />
             <DraggableWindow id="expense-report-viewer" title="Visor de Reporte">
-                <div className="bg-[#f0f0f0] w-full max-w-[95vw] h-[95vh] border border-[#707070] shadow-2xl flex flex-col overflow-hidden pointer-events-auto relative">
+                <div className="bg-[#f0f0f0] w-full max-w-[95vw] h-[95vh] border border-[#707070]  /50 flex flex-col overflow-hidden pointer-events-auto relative">
 
                     {/* Title Bar */}
                     <div className="h-7 bg-[#106ebe] flex items-center justify-between px-2 shrink-0 select-none modal-header">
@@ -139,8 +139,8 @@ export const ExpenseReportViewerModal: React.FC<ExpenseReportViewerModalProps> =
                     </div>
 
                     {/* Viewer Body: Classic Blue Background */}
-                    <div className="flex-1 bg-[#3a6ea5] p-10 overflow-auto flex justify-center custom-scrollbar shadow-[inset_0_2px_10px_rgba(0,0,0,0.3)]">
-                        <div className="w-full max-w-[21cm] min-h-[29.7cm] bg-white shadow-[10px_10px_30px_rgba(0,0,0,0.4)] overflow-hidden rounded-sm ring-1 ring-black/10 transition-all flex flex-col">
+                    <div className="flex-1 bg-[#3a6ea5] p-10 overflow-auto flex justify-center custom-scrollbar ">
+                        <div className="w-full max-w-[21cm] min-h-[29.7cm] bg-white  overflow-hidden rounded-sm ring-1 ring-black/10 transition-all flex flex-col">
                             <iframe
                                 ref={iframeRef}
                                 srcDoc={reportHtml}
@@ -157,7 +157,7 @@ export const ExpenseReportViewerModal: React.FC<ExpenseReportViewerModalProps> =
                             <div className="flex items-center gap-2">
                                 <ZoomOut size={12} />
                                 <div className="w-24 h-1 bg-gray-300 rounded-full relative">
-                                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-[#106ebe] rounded-full shadow-sm"></div>
+                                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-[#106ebe] rounded-full "></div>
                                 </div>
                                 <ZoomIn size={12} />
                             </div>

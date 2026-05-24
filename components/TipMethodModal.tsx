@@ -31,8 +31,8 @@ export const TipMethodModal: React.FC<TipMethodModalProps> = ({
     const currentVal = parseFloat(localAmount) || 0;
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[120] flex items-center justify-center p-6 animate-fade-in">
-            <div className="bg-[#1e212b] w-full max-w-md rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-black/80  z-[120] flex items-center justify-center p-6 animate-fade-in">
+            <div className="bg-[#1e212b] w-full max-w-md rounded-xl border border-white/10  /50 overflow-hidden flex flex-col">
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white">
@@ -70,9 +70,9 @@ export const TipMethodModal: React.FC<TipMethodModalProps> = ({
                     <div className="grid grid-cols-3 gap-3 w-full">
                         <button
                             onClick={() => onConfirm('EFECTIVO', currentVal)}
-                            className="flex flex-col items-center justify-center gap-3 p-6 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/20 transition-all group"
+                            className="flex flex-col items-center justify-center gap-3 p-6 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/20 transition-all group"
                         >
-                            <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-white group-hover:bg-white/10 transition-all">
+                            <div className="w-14 h-14 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-white group-hover:bg-white/10 transition-all">
                                 <Banknote size={28} />
                             </div>
                             <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:text-white">Efectivo</span>
@@ -80,9 +80,9 @@ export const TipMethodModal: React.FC<TipMethodModalProps> = ({
 
                         <button
                             onClick={() => onConfirm('TARJETA', currentVal)}
-                            className="flex flex-col items-center justify-center gap-3 p-6 rounded-3xl bg-white/5 border border-white/5 hover:bg-indigo-500/10 hover:border-indigo-500/30 transition-all group"
+                            className="flex flex-col items-center justify-center gap-3 p-6 rounded-xl bg-white/5 border border-white/5 hover:bg-indigo-500/10 hover:border-indigo-500/30 transition-all group"
                         >
-                            <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-indigo-400 group-hover:bg-indigo-400/20 transition-all">
+                            <div className="w-14 h-14 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-indigo-400 group-hover:bg-indigo-400/20 transition-all">
                                 <CreditCard size={28} />
                             </div>
                             <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:text-white">Tarjeta</span>
@@ -90,9 +90,9 @@ export const TipMethodModal: React.FC<TipMethodModalProps> = ({
 
                         <button
                             onClick={() => onConfirm('OTROS', currentVal)}
-                            className="flex flex-col items-center justify-center gap-3 p-6 rounded-3xl bg-white/5 border border-white/5 hover:bg-amber-500/10 hover:border-amber-500/30 transition-all group"
+                            className="flex flex-col items-center justify-center gap-3 p-6 rounded-xl bg-white/5 border border-white/5 hover:bg-amber-500/10 hover:border-amber-500/30 transition-all group"
                         >
-                            <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-amber-400 group-hover:bg-amber-400/20 transition-all">
+                            <div className="w-14 h-14 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-amber-400 group-hover:bg-amber-400/20 transition-all">
                                 <Landmark size={28} />
                             </div>
                             <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:text-white">Otros</span>
@@ -101,7 +101,7 @@ export const TipMethodModal: React.FC<TipMethodModalProps> = ({
 
                     <button
                         onClick={() => onConfirm('EFECTIVO', 0)}
-                        className={`w-full py-4 mt-6 rounded-2xl border border-dashed transition-all font-black text-[10px] uppercase tracking-[0.2em] ${isLocked ? 'border-white/20 text-white/60 hover:text-white hover:border-white/30 hover:bg-white/5' : 'border-white/10 text-gray-500 hover:text-white hover:border-white/30 hover:bg-white/5'}`}
+                        className={`w-full py-4 mt-6 rounded-lg border border-dashed transition-all font-black text-[10px] uppercase tracking-[0.2em] ${isLocked ? 'border-white/20 text-white/60 hover:text-white hover:border-white/30 hover:bg-white/5' : 'border-white/10 text-gray-500 hover:text-white hover:border-white/30 hover:bg-white/5'}`}
                     >
                         {isLocked ? 'QUITAR PROPINA (PIDE PIN)' : 'QUITAR / SIN PROPINA'}
                     </button>
@@ -110,7 +110,7 @@ export const TipMethodModal: React.FC<TipMethodModalProps> = ({
                 <div className="p-6 bg-white/5 border-t border-white/5">
                     <button
                         onClick={onClose}
-                        className="w-full h-14 rounded-2xl border border-white/10 font-black uppercase tracking-widest text-gray-400 hover:bg-white/5 transition-all"
+                        className="w-full h-14 rounded-lg border border-white/10 font-black uppercase tracking-widest text-gray-400 hover:bg-white/5 transition-all"
                     >
                         CANCELAR
                     </button>

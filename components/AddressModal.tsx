@@ -85,7 +85,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, onS
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 animate-fade-in">
-            <div className="w-full max-w-[400px] bg-[#2d2e3d] rounded-sm border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+            <div className="w-full max-w-[400px] bg-[#2d2e3d] rounded-sm border border-white/10  /50 overflow-hidden flex flex-col">
                 <div className="bg-[#3a3b4d] h-10 flex items-center justify-center relative shrink-0 border-b border-white/5">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-white">
                         DATOS DIRECCIÓN
@@ -113,7 +113,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, onS
                             autoFocus
                             value={address}
                             onChange={e => setAddress(e.target.value)}
-                            className="w-full bg-black/40 border border-white/20 rounded-sm py-2 pl-9 pr-3 text-[10px] font-black placeholder:text-white/40 outline-none focus:border-white tracking-widest text-white shadow-inner"
+                            className="w-full bg-black/40 border border-white/20 rounded-sm py-2 pl-9 pr-3 text-[10px] font-black placeholder:text-white/40 outline-none focus:border-white tracking-widest text-white "
                             placeholder="DIRECCIÓN"
                         />
                     </div>
@@ -123,7 +123,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, onS
                         <input
                             value={reference}
                             onChange={e => setReference(e.target.value)}
-                            className="w-full bg-black/40 border border-white/20 rounded-sm py-2 pl-9 pr-3 text-[10px] font-black placeholder:text-white/40 outline-none focus:border-white tracking-widest text-white shadow-inner"
+                            className="w-full bg-black/40 border border-white/20 rounded-sm py-2 pl-9 pr-3 text-[10px] font-black placeholder:text-white/40 outline-none focus:border-white tracking-widest text-white "
                             placeholder="REFERENCIA"
                         />
                     </div>
@@ -139,7 +139,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, onS
                     <button
                         onClick={handleSave}
                         disabled={loading || !address}
-                        className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-white/10 disabled:text-white/20 rounded-sm font-black uppercase tracking-[0.2em] text-[9px] text-white shadow-lg transition-all"
+                        className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-white/10 disabled:text-white/20 rounded-sm font-black uppercase tracking-[0.2em] text-[9px] text-white  transition-all"
                     >
                         {loading ? '...' : 'ACEPTAR'}
                     </button>

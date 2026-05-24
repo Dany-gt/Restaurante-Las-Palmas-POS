@@ -874,7 +874,7 @@ export const KitchenView: React.FC = () => {
   return (
     <div className="h-full flex flex-col bg-[#2d2e3d] overflow-hidden">
       {/* HEADER KDS */}
-      <header className="p-8 border-b border-white/5 bg-[#2d2e3d] flex justify-between items-center shadow-2xl">
+      <header className="p-8 border-b border-white/5 bg-[#2d2e3d] flex justify-between items-center ">
         <div className="flex items-center gap-6">
           <div className="w-14 h-14 bg-indigo-600/20 rounded-2xl flex items-center justify-center border border-indigo-500/20">
             <ChefHat size={32} className="text-indigo-400" />
@@ -922,7 +922,7 @@ export const KitchenView: React.FC = () => {
             onClick={unlockAudio}
             className={`flex items-center gap-3 px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${audioUnlocked
               ? 'bg-indigo-600/10 border-indigo-500/20 text-indigo-400'
-              : 'bg-red-600 border-red-400 text-white shadow-lg shadow-red-600/40 animate-pulse'
+              : 'bg-red-600 border-red-400 text-white  -600/40 animate-pulse'
               }`}
           >
             {audioUnlocked ? <Volume2 size={14} /> : <VolumeX size={14} />}
@@ -957,7 +957,7 @@ export const KitchenView: React.FC = () => {
           {processedBatches
             .slice(currentPage * ordersPerPage, (currentPage + 1) * ordersPerPage)
             .map(order => (
-              <div key={order.id} className="flex flex-col bg-[#16191f] rounded-[1.5rem] border border-white/10 shadow-2xl relative overflow-hidden group h-full">
+              <div key={order.id} className="flex flex-col bg-[#16191f] rounded-[1.5rem] border border-white/10  relative overflow-hidden group h-full">
                 {/* CABECERA DE COMANDA */}
                 <div className="p-3 border-b border-white/10 flex justify-between items-start transition-colors bg-white/[0.03]">
                   <div>
@@ -1020,7 +1020,7 @@ export const KitchenView: React.FC = () => {
                 {/* LISTA DE ITEMS */}
                 <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-hide">
                   {(order as any).stationItems.map((item: any) => (
-                    <div key={item.id} className={`p-2.5 rounded-xl border transition-all ${item.status === 'ready' ? 'bg-white/5 border-white/20 opacity-90 shadow-inner shadow-black/20' :
+                    <div key={item.id} className={`p-2.5 rounded-xl border transition-all ${item.status === 'ready' ? 'bg-white/5 border-white/20 opacity-90  /20' :
                       item.status === 'preparing' ? 'bg-indigo-500/20 border-indigo-500/40' :
                         'bg-[#1e293b] border-white/10'
                       }`}>
@@ -1056,19 +1056,19 @@ export const KitchenView: React.FC = () => {
                               {item.status === 'pending' ? (
                                 <button
                                   onClick={(e) => { e.stopPropagation(); updateItemStatus(item.id, 'preparing'); }}
-                                  className="w-16 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-[7px] font-black uppercase tracking-tighter flex items-center justify-center gap-1 border border-indigo-400/50 transition-all active:scale-95 shadow-lg shadow-indigo-900/30"
+                                  className="w-16 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-[7px] font-black uppercase tracking-tighter flex items-center justify-center gap-1 border border-indigo-400/50 transition-all active:scale-95  -900/30"
                                 >
                                   <Play size={8} /> INICIAR
                                 </button>
                               ) : item.status === 'preparing' ? (
                                 <button
                                   onClick={(e) => { e.stopPropagation(); updateItemStatus(item.id, 'ready'); }}
-                                  className="w-16 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-[7px] font-black uppercase tracking-tighter flex items-center justify-center gap-1 border border-emerald-400/50 transition-all active:scale-95 shadow-lg shadow-emerald-900/30"
+                                  className="w-16 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-[7px] font-black uppercase tracking-tighter flex items-center justify-center gap-1 border border-emerald-400/50 transition-all active:scale-95  -900/30"
                                 >
                                   <Check size={8} /> LISTO
                                 </button>
                               ) : (
-                                <div className="w-16 py-1 bg-white/10 text-white rounded-md text-[7px] font-black uppercase tracking-tighter flex items-center justify-center border border-white/20 shadow-sm">
+                                <div className="w-16 py-1 bg-white/10 text-white rounded-md text-[7px] font-black uppercase tracking-tighter flex items-center justify-center border border-white/20 ">
                                   <CheckCircle2 size={8} className="mr-1 text-emerald-400" /> LISTO
                                 </div>
                               )}
@@ -1117,7 +1117,7 @@ export const KitchenView: React.FC = () => {
                             if (error) console.error("Error batch delivering:", error);
                             fetchKDSData(true);
                           }}
-                          className="w-full py-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-indigo-900/10"
+                          className="w-full py-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 active:scale-95  -900/10"
                         >
                           <CheckCircle2 size={12} /> ENTREGAR
                         </button>
@@ -1186,7 +1186,7 @@ export const KitchenView: React.FC = () => {
       {
         selectedOrder && (
           <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 lg:p-12 animate-fade-in">
-            <div className="bg-[#16191f] w-full max-w-4xl rounded-[3rem] border border-white/10 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+            <div className="bg-[#16191f] w-full max-w-4xl rounded-[3rem] border border-white/10  flex flex-col max-h-[90vh] overflow-hidden">
               <div className="p-8 border-b border-white/5 flex justify-between items-center bg-black/20">
                 <div className="flex items-center gap-6">
                   <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center border border-indigo-500/20">
@@ -1231,7 +1231,7 @@ export const KitchenView: React.FC = () => {
               <div className="flex-1 overflow-y-auto p-8 space-y-4 scrollbar-hide">
                 {selectedOrder.items.map(item => (
                   <div key={item.id} className={`p-6 rounded-[2rem] border transition-all ${item.status === 'ready' ? 'bg-white/5 border-white/20 opacity-40' :
-                    item.status === 'preparing' ? 'bg-indigo-500/10 border-indigo-500/30 shadow-lg shadow-indigo-600/10' :
+                    item.status === 'preparing' ? 'bg-indigo-500/10 border-indigo-500/30  -600/10' :
                       'bg-white/5 border-white/5'
                     }`}>
                     <div className="flex justify-between items-center gap-6">
@@ -1287,7 +1287,7 @@ export const KitchenView: React.FC = () => {
                     fetchKDSData();
                     setSelectedOrder(null);
                   }}
-                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-20 disabled:grayscale text-white rounded-[1.5rem] font-black text-sm uppercase tracking-[0.3em] shadow-2xl transition-all flex items-center justify-center gap-4"
+                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-20 disabled:grayscale text-white rounded-[1.5rem] font-black text-sm uppercase tracking-[0.3em]  transition-all flex items-center justify-center gap-4"
                 >
                   <CheckCircle2 size={24} /> ENTREGAR COMANDA COMPLETA
                 </button>
@@ -1304,7 +1304,7 @@ const FilterButton = ({ label, active, onClick, icon: Icon }: { label: string, a
   <button
     onClick={onClick}
     className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border flex items-center gap-2 ${active
-      ? 'bg-indigo-500/30 border-indigo-400 text-white shadow-[0_0_20px_rgba(99,102,241,0.2)] scale-105'
+      ? 'bg-indigo-500/30 border-indigo-400 text-white  scale-105'
       : 'bg-white/5 border-white/5 text-gray-500 hover:bg-white/10 hover:text-gray-300'
       }`}
   >

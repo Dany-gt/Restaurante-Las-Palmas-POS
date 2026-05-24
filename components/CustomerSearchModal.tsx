@@ -55,8 +55,8 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({ isOpen
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
-            <div className="w-full max-w-2xl bg-[#14171c] rounded-3xl border border-white/10 shadow-2xl flex flex-col max-h-[80vh] overflow-hidden">
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/80  p-4 animate-in fade-in">
+            <div className="w-full max-w-2xl bg-[#14171c] rounded-xl border border-white/10  /50 flex flex-col max-h-[80vh] overflow-hidden">
 
                 {/* Header */}
                 <div className="p-6 border-b border-white/5 flex items-center justify-between bg-[#1e212b]">
@@ -79,7 +79,7 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({ isOpen
                             onChange={e => setSearchTerm(e.target.value)}
                             placeholder="Buscar por Nombre, NIT o Teléfono..."
                             autoFocus
-                            className="w-full h-14 bg-[#0a0c10] border border-white/10 rounded-2xl pl-12 pr-4 text-white font-bold outline-none focus:border-indigo-500 transition-all placeholder:text-gray-600"
+                            className="w-full h-14 bg-[#0a0c10] border border-white/10 rounded-lg pl-12 pr-4 text-white font-bold outline-none focus:border-indigo-500 transition-all placeholder:text-gray-600"
                         />
                     </div>
                 </div>
@@ -100,7 +100,7 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({ isOpen
                             <button
                                 key={customer.id}
                                 onClick={() => onSelect(customer)}
-                                className="w-full p-4 bg-[#1e212b] border border-white/5 rounded-2xl flex items-center justify-between group hover:bg-white/5 hover:border-indigo-500/30 transition-all text-left"
+                                className="w-full p-4 bg-[#1e212b] border border-white/5 rounded-lg flex items-center justify-between group hover:bg-white/5 hover:border-indigo-500/30 transition-all text-left"
                             >
                                 <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-colors">

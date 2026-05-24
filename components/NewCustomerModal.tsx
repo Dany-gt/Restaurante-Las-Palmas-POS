@@ -59,8 +59,8 @@ export const NewCustomerModal: React.FC<NewCustomerModalProps> = ({ onClose, onC
     };
 
     return (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-            <div className="w-full max-w-md bg-[#232632] rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60  p-4 animate-fade-in">
+            <div className="w-full max-w-md bg-[#232632] rounded-xl border border-white/10  /50 overflow-hidden flex flex-col">
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-black/20">
                     <h3 className="text-sm font-black uppercase tracking-widest text-white">Nuevo Cliente</h3>
                     <button onClick={onClose} className="text-gray-500 hover:text-white"><X size={20} /></button>
@@ -126,7 +126,7 @@ export const NewCustomerModal: React.FC<NewCustomerModalProps> = ({ onClose, onC
                     <button
                         onClick={handleSave}
                         disabled={loading || !name}
-                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 rounded-xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-lg"
+                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 rounded-xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 "
                     >
                         {loading ? 'Guardando...' : <><Save size={16} /> Guardar Cliente</>}
                     </button>

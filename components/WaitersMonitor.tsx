@@ -134,7 +134,7 @@ export const WaitersMonitor: React.FC = () => {
     if (loading) return <div className="p-8 text-center text-gray-500 animate-pulse font-black text-[10px] tracking-widest uppercase">Sincronizando monitoreo...</div>;
 
     if (stats.length === 0) return (
-        <div className="p-12 rounded-[2.5rem] border border-white/5 bg-white/2 backdrop-blur-md text-center flex flex-col items-center justify-center gap-4 animate-fade-in">
+        <div className="p-12 rounded-xl border border-white/5 bg-[#2a2d3a] text-center flex flex-col items-center justify-center gap-4 animate-fade-in">
             <User size={40} className="text-gray-700" />
             <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.4em]">Sin actividad activa</p>
         </div>
@@ -143,30 +143,30 @@ export const WaitersMonitor: React.FC = () => {
     return (
         <div className="animate-fade-in space-y-6">
             <div className="flex items-center gap-3 px-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-slate-500 animate-pulse shadow-[0_0_15px_rgba(148,163,184,0.6)]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-slate-500 animate-pulse" />
                 <h3 className="text-xs font-black tracking-[0.5em] uppercase text-slate-400/80">Monitor de Servicio</h3>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {stats.map(waiter => (
-                    <div key={waiter.id} className="group bg-[#2a2d3a]/60 backdrop-blur-2xl border border-white/5 rounded-[2.2rem] p-6 flex flex-col gap-5 hover:border-slate-500/40 hover:bg-[#323544]/80 transition-all duration-500 transform hover:-translate-y-1.5 shadow-2xl">
+                    <div key={waiter.id} className="group bg-[#2a2d3a] border border-white/5 rounded-xl p-6 flex flex-col gap-5 hover:border-slate-500/40 hover:bg-[#323544] transition-all duration-500 transform hover:-translate-y-1.5 shadow-md shadow-black/20">
                         <div className="flex justify-between items-start">
                             <div className="min-w-0 flex-1">
                                 <h4 className="font-black text-sm text-white truncate group-hover:text-slate-400 transition-colors uppercase tracking-tight leading-tight">
                                     {waiter.name}
                                 </h4>
                                 <div className="flex items-center gap-2 mt-2">
-                                    <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
                                     <span className="text-[9px] text-emerald-400/80 font-black uppercase tracking-[0.2em]">En Turno</span>
                                 </div>
                             </div>
-                            <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-xs font-black text-white border border-white/10 group-hover:bg-slate-500/20 transition-all shadow-inner">
+                            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-xs font-black text-white border border-white/10 group-hover:bg-slate-500/20 transition-all">
                                 {waiter.totalOrders}
                             </div>
                         </div>
 
                         <div className="grid grid-cols-3 gap-2.5">
-                            <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex flex-col items-center gap-2 min-h-[110px]">
+                            <div className="bg-white/5 rounded-lg p-4 border border-white/5 flex flex-col items-center gap-2 min-h-[110px]">
                                 <Utensils size={24} className="text-gray-400" />
                                 <span className="text-lg font-black text-white leading-none">{waiter.dineInCount}</span>
                                 <div className="w-full text-center mt-1">
@@ -179,13 +179,13 @@ export const WaitersMonitor: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center gap-2 min-h-[110px]">
+                            <div className="bg-white/5 rounded-lg p-4 border border-white/5 flex flex-col items-center justify-center gap-2 min-h-[110px]">
                                 <Package size={24} className="text-gray-400" />
                                 <span className="text-lg font-black text-white leading-none">{waiter.takeoutCount}</span>
                                 <span className="text-[8px] font-black text-gray-400/50 uppercase tracking-widest mt-1">Llevar</span>
                             </div>
 
-                            <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex flex-col items-center justify-center gap-2 min-h-[110px]">
+                            <div className="bg-white/5 rounded-lg p-4 border border-white/5 flex flex-col items-center justify-center gap-2 min-h-[110px]">
                                 <Bike size={24} className="text-gray-400" />
                                 <span className="text-lg font-black text-white leading-none">{waiter.deliveryCount}</span>
                                 <span className="text-[8px] font-black text-gray-400/50 uppercase tracking-widest mt-1">Domic</span>

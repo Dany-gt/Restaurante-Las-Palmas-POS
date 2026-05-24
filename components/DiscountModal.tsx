@@ -62,7 +62,7 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({ isOpen, onClose, s
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none p-6">
-            <div className="w-full max-w-4xl h-auto max-h-[85vh] bg-[#3a3b4d] rounded-none border border-white/5 shadow-2xl flex overflow-hidden pointer-events-auto">
+            <div className="w-full max-w-4xl h-auto max-h-[85vh] bg-[#3a3b4d] rounded-none border border-white/5  /50 flex overflow-hidden pointer-events-auto">
 
                 {/* Lado Izquierdo: Lista de Descuentos — Color fondo tarjetas mesa #3a3b4d */}
                 <div className="flex-1 flex flex-col border-r border-white/5 p-6 md:p-8">

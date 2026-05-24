@@ -28,8 +28,8 @@ export const TransferTableModal: React.FC<TransferTableModalProps> = ({ isOpen, 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-[6px] p-4 animate-fade-in">
-            <div className="w-full max-w-xl bg-[#16191f] rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[70vh]">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90  p-4 animate-fade-in">
+            <div className="w-full max-w-xl bg-[#16191f] rounded-[2rem] border border-white/10  /50 overflow-hidden flex flex-col max-h-[70vh]">
 
                 {/* Header */}
                 <div className="px-6 py-5 border-b border-white/5 flex justify-between items-center bg-black/20 shrink-0">
@@ -55,7 +55,7 @@ export const TransferTableModal: React.FC<TransferTableModalProps> = ({ isOpen, 
                                     key={table.id}
                                     onClick={() => setSelectedTableId(table.id)}
                                     className={`group relative h-20 rounded-xl border flex flex-col items-center justify-center transition-all overflow-hidden ${selectedTableId === table.id
-                                        ? 'bg-white border-white shadow-xl shadow-black/50 translate-y-[-2px]'
+                                        ? 'bg-white border-white  /50 translate-y-[-2px]'
                                         : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10 active:scale-95'
                                         }`}
                                 >
@@ -86,7 +86,7 @@ export const TransferTableModal: React.FC<TransferTableModalProps> = ({ isOpen, 
                     <button
                         disabled={!selectedTableId}
                         onClick={() => selectedTableId && onTransfer(selectedTableId)}
-                        className="w-full py-4 bg-white hover:bg-white/90 disabled:bg-white/5 disabled:text-gray-600 disabled:border-white/5 text-black rounded-xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-black/40 transition-all active:scale-95 flex items-center justify-center gap-2 group"
+                        className="w-full py-4 bg-white hover:bg-white/90 disabled:bg-white/5 disabled:text-gray-600 disabled:border-white/5 text-black rounded-xl font-black uppercase tracking-[0.2em] text-[10px]  /40 transition-all active:scale-95 flex items-center justify-center gap-2 group"
                     >
                         <span>Confirmar Traslado</span>
                         <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />

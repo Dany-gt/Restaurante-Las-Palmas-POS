@@ -104,12 +104,12 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
     };
 
     return (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4 animate-fade-in">
-            <div className="bg-[#16191f] w-full max-w-6xl rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 bg-black/90  z-[200] flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-[#16191f] w-full max-w-6xl rounded-[2rem] border border-white/10  /50 overflow-hidden flex flex-col max-h-[90vh]">
                 {/* Header */}
                 <header className="px-8 py-5 border-b border-white/5 flex items-center justify-between bg-[#1c1f26]">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-white/60">
+                        <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center text-white/60">
                             <Save size={24} />
                         </div>
                         <div>
@@ -117,7 +117,7 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
                             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Conteo físico de efectivo para cierre</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-3 hover:bg-white/5 rounded-2xl text-gray-400 transition-colors">
+                    <button onClick={onClose} className="p-3 hover:bg-white/5 rounded-lg text-gray-400 transition-colors">
                         <X size={20} />
                     </button>
                 </header>
@@ -142,7 +142,7 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
                                             <button
                                                 onClick={() => handleInputClick(d.label)}
                                                 className={`flex-1 py-3 px-4 rounded-xl text-center font-black transition-all border text-sm active:scale-95 ${activeInput === d.label
-                                                    ? 'bg-white border-white text-black shadow-lg shadow-white/20'
+                                                    ? 'bg-white border-white text-black  /20'
                                                     : 'bg-[#1e222b] border-white/5 text-gray-300 hover:border-white/20 hover:bg-[#252a35]'
                                                     }`}
                                             >
@@ -170,7 +170,7 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
                                             <button
                                                 onClick={() => handleInputClick(d.label)}
                                                 className={`flex-1 py-3 px-4 rounded-xl text-center font-black transition-all border text-sm active:scale-95 ${activeInput === d.label
-                                                    ? 'bg-white border-white text-black shadow-lg shadow-white/20'
+                                                    ? 'bg-white border-white text-black  /20'
                                                     : 'bg-[#1e222b] border-white/5 text-gray-300 hover:border-white/20 hover:bg-[#252a35]'
                                                     }`}
                                             >
@@ -189,9 +189,9 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
                     </div>
 
                     {/* Keypad Section (Span 4) */}
-                    <div className="lg:col-span-4 bg-[#1c1f26] border-l border-white/5 p-6 flex flex-col gap-4 relative shadow-2xl overflow-y-auto">
+                    <div className="lg:col-span-4 bg-[#1c1f26] border-l border-white/5 p-6 flex flex-col gap-4 relative  /50 overflow-y-auto">
                         {/* Display */}
-                        <div className="bg-black/40 rounded-2xl p-6 text-right border border-white/5 h-24 flex flex-col justify-center relative overflow-hidden group">
+                        <div className="bg-black/40 rounded-lg p-6 text-right border border-white/5 h-24 flex flex-col justify-center relative overflow-hidden group">
                             <div className="absolute inset-0 bg-white/5 group-hover:bg-white/10 transition-colors"></div>
                             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest relative z-10 mb-1">
                                 {activeInput === 'MANUAL' ? 'MONTO MANUAL' : (activeInput ? `CANTIDAD DE ${activeInput}` : 'SELECCIONE DENOMINACIÓN')}
@@ -214,7 +214,7 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
                             <button onClick={() => handleKeyPad('0')} className="h-16 bg-[#252830] hover:bg-[#2e323b] rounded-xl text-xl font-bold transition-all active:scale-95 border border-white/5 text-gray-200">
                                 0
                             </button>
-                            <button onClick={confirmValue} className="h-16 bg-white hover:bg-white/90 rounded-xl flex items-center justify-center transition-all active:scale-95 text-black shadow-lg shadow-white/20">
+                            <button onClick={confirmValue} className="h-16 bg-white hover:bg-white/90 rounded-xl flex items-center justify-center transition-all active:scale-95 text-black  /20">
                                 <Check size={28} />
                             </button>
                         </div>
@@ -232,7 +232,7 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
                             </div>
                             <button
                                 onClick={() => onSave(totalArqueo, counts)}
-                                className="w-full bg-white hover:bg-white/90 text-black py-4 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-white/10 active:scale-[0.98] transition-all text-xs flex items-center justify-center gap-2"
+                                className="w-full bg-white hover:bg-white/90 text-black py-4 rounded-lg font-black uppercase tracking-[0.2em]  /10 active:scale-[0.98] transition-all text-xs flex items-center justify-center gap-2"
                             >
                                 <Save size={18} /> Guardar Arqueo
                             </button>

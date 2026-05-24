@@ -169,7 +169,7 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({ isOpen, onClose, o
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 animate-fade-in"
             style={{ alignItems: isRaised ? 'flex-start' : 'center', paddingTop: isRaised ? '12px' : undefined }}
         >
-            <div className="w-full max-w-lg bg-[#2d2e3d] rounded-2xl border border-white/5 shadow-2xl flex flex-col max-h-[85vh] overflow-hidden transition-all duration-300">
+            <div className="w-full max-w-lg bg-[#2d2e3d] rounded-lg border border-white/5  /50 flex flex-col max-h-[85vh] overflow-hidden transition-all duration-300">
                 {/* Header */}
                 <div className="p-4 border-b border-white/5 flex items-center justify-between shrink-0 bg-[#3a3b4d] z-10">
                     <h3 className="text-sm font-bold uppercase tracking-widest text-gray-200">
@@ -353,7 +353,7 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({ isOpen, onClose, o
                     <button
                         onClick={handleSave}
                         disabled={saving}
-                        className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold text-xs uppercase tracking-widest text-white transition-all active:scale-95 shadow-lg shadow-indigo-600/20"
+                        className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold text-xs uppercase tracking-widest text-white transition-all active:scale-95  -600/20"
                     >
                         {saving ? 'Guardando...' : 'Aceptar'}
                     </button>

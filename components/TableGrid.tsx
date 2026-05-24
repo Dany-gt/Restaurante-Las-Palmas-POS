@@ -296,12 +296,12 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
     <>
       <div className="h-full flex flex-col p-4 sm:p-6 lg:p-8 animate-fade-in relative z-10 bg-[#2d2e3d]">
         {/* Tab Navigation */}
-        <div className="flex flex-nowrap lg:flex-wrap justify-start lg:justify-center gap-2 sm:gap-4 lg:gap-6 mb-6 sm:mb-8 lg:mb-10 overflow-x-auto pb-4 no-scrollbar areas-container w-full">
+        <div className="flex flex-nowrap justify-start md:justify-center gap-2 sm:gap-3 lg:gap-4 mb-6 sm:mb-8 lg:mb-10 overflow-x-auto pb-4 no-scrollbar areas-container w-full">
           {sections.map(s => (
             <button
               key={s}
               onClick={() => setActiveSection(s)}
-              className={`w-[145px] h-[58px] sm:w-[165px] sm:h-[66px] lg:w-[189px] lg:h-[76px] flex-shrink-0 flex items-center justify-center rounded-lg font-black text-[12px] sm:text-[13px] lg:text-[14px] tracking-wider uppercase transition-all border px-3 text-center leading-snug area-button ${
+              className={`w-[135px] h-[55px] sm:w-[145px] sm:h-[60px] lg:w-[160px] lg:h-[65px] flex-shrink-0 flex items-center justify-center rounded-lg font-black text-[11px] sm:text-[12px] lg:text-[13px] tracking-wider uppercase transition-all border px-2 text-center leading-snug area-button ${
                 activeSection === s
                   ? 'bg-[#6366f1] text-white border-[#6366f1] shadow-xl'
                   : 'bg-white border-white/10 text-black shadow-sm hover:bg-gray-100'

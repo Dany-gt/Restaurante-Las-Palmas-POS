@@ -230,7 +230,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
     const portal = createPortal(
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/5 pointer-events-none">
             <DraggableWindow id="production-order-modal" title="Orden de Producción">
-                <div className="w-[900px] bg-[#f0f0f0] shadow-[0_0_30px_rgba(0,0,0,0.3)] overflow-hidden border border-[#106ebe] flex flex-col animate-in fade-in zoom-in duration-150 pointer-events-auto">
+                <div className="w-[900px] bg-[#f0f0f0]  overflow-hidden border border-[#106ebe] flex flex-col animate-in fade-in zoom-in duration-150 pointer-events-auto">
 
                     {/* Header (Mover Modal) */}
                     <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
@@ -258,7 +258,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
 
                         {/* Section: Datos Compra */}
                         {/* Section: Datos Generales y Producto Resultante */}
-                        <fieldset className="border border-gray-400 p-4 pt-2 bg-white relative rounded-sm shadow-sm shrink-0">
+                        <fieldset className="border border-gray-400 p-4 pt-2 bg-white relative rounded-sm  shrink-0">
                             <legend className="px-2 text-[11px] font-bold text-slate-950 ml-2 uppercase tracking-tighter">Información de la Orden de Producción</legend>
 
                             <div className="grid grid-cols-2 gap-x-8 gap-y-3">
@@ -334,7 +334,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                         {/* Section: Detalle de Producción */}
                         <div
                             ref={containerRef}
-                            className="border border-gray-400 flex flex-col bg-white rounded-sm overflow-hidden flex-1 min-h-[350px] shadow-sm relative"
+                            className="border border-gray-400 flex flex-col bg-white rounded-sm overflow-hidden flex-1 min-h-[350px]  relative"
                             onContextMenu={(e) => handleContextMenu(e, null)}
                             onClick={() => setTableContextMenu(null)}
                         >
@@ -344,7 +344,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                                     {formData.producedItemId && (
                                         <div className="flex items-center gap-2 ml-4">
                                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">PRODUCIENDO:</span>
-                                            <span className="bg-[#106ebe] text-white px-3 py-0.5 text-[10px] font-black rounded-sm shadow-sm animate-in fade-in slide-in-from-left-2 duration-300">
+                                            <span className="bg-[#106ebe] text-white px-3 py-0.5 text-[10px] font-black rounded-sm  animate-in fade-in slide-in-from-left-2 duration-300">
                                                 {formData.producedQuantity} {formData.producedItemName}
                                             </span>
                                             <button 
@@ -391,7 +391,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                                 {/* Table Context Menu */}
                                 {tableContextMenu && (
                                     <div
-                                        className="absolute z-[9999] bg-white border border-gray-400 shadow-[4px_4px_30px_rgba(0,0,0,0.3)] py-0.5 min-w-[140px] animate-in fade-in zoom-in duration-75 select-none"
+                                        className="absolute z-[9999] bg-white border border-gray-400  py-0.5 min-w-[140px] animate-in fade-in zoom-in duration-75 select-none"
                                         style={{ left: tableContextMenu.x, top: tableContextMenu.y }}
                                         onClick={(e) => e.stopPropagation()}
                                     >
@@ -447,7 +447,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                 <div className="fixed inset-0 z-[110000] flex items-center justify-center pointer-events-none">
                     <DraggableWindow id="production-product-search" title="Buscador de Insumos / Productos - (Categoría: Producción)">
                         <div
-                            className="w-[840px] h-[550px] shadow-[0_30px_90px_-15px_rgba(0,0,0,0.6)] rounded-sm overflow-hidden pointer-events-auto border-2 border-[#106ebe] bg-[#f0f0f0] flex flex-col relative"
+                            className="w-[840px] h-[550px]  rounded-sm overflow-hidden pointer-events-auto border-2 border-[#106ebe] bg-[#f0f0f0] flex flex-col relative"
                             onContextMenu={(e) => e.preventDefault()}
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -459,7 +459,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                                 <span className="text-[11px] font-black tracking-widest uppercase flex items-center gap-2">
                                     <Search size={14} strokeWidth={3} /> PANEL DE SELECCIÓN DE INSUMOS
                                 </span>
-                                <button onClick={() => setShowProductSearchModal(false)} className="w-6 h-6 flex items-center justify-center bg-red-600 hover:bg-red-700 transition-colors shadow-inner">
+                                <button onClick={() => setShowProductSearchModal(false)} className="w-6 h-6 flex items-center justify-center bg-red-600 hover:bg-red-700 transition-colors ">
                                     <X size={16} strokeWidth={3} />
                                 </button>
                             </div>
@@ -472,9 +472,9 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                                     placeholder="INTRODUZCA EL TEXTO A BUSCAR..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="flex-1 h-9 border border-gray-400 px-4 text-[12px] outline-none focus:border-[#106ebe] bg-white font-black uppercase text-black shadow-inner"
+                                    className="flex-1 h-9 border border-gray-400 px-4 text-[12px] outline-none focus:border-[#106ebe] bg-white font-black uppercase text-black "
                                 />
-                                <button className="bg-[#106ebe] text-white px-12 h-9 text-[11px] font-black uppercase hover:bg-[#002244] shadow-md transition-all active:scale-[0.98]">
+                                <button className="bg-[#106ebe] text-white px-12 h-9 text-[11px] font-black uppercase hover:bg-[#002244]  transition-all active:scale-[0.98]">
                                     Buscar
                                 </button>
                             </div>
@@ -482,7 +482,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                             {/* Table Area */}
                             <div className="flex-1 overflow-auto bg-white relative">
                                 <table className="w-full text-center border-collapse table-fixed">
-                                    <thead className="bg-[#e8ebf0] sticky top-0 z-10 border-b-2 border-slate-300 select-none shadow-sm">
+                                    <thead className="bg-[#e8ebf0] sticky top-0 z-10 border-b-2 border-slate-300 select-none ">
                                         <tr className="h-9 text-slate-800">
                                             <th className="px-4 text-[10px] font-black border-r border-slate-200 w-32 uppercase tracking-tighter">Código</th>
                                             <th className="px-4 text-[10px] font-black border-r border-slate-200 uppercase tracking-tighter text-left">Producto / Insumo</th>
@@ -528,7 +528,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                             {/* Footer */}
                             <div className="bg-[#e8ebf0] border-t border-slate-400 px-5 py-2 flex justify-between items-center shrink-0">
                                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">* Doble clic para agregar</span>
-                                <span className="text-[11px] font-black text-[#106ebe] uppercase bg-white border border-slate-300 px-4 py-1.5 shadow-sm rounded-sm tabular-nums">
+                                <span className="text-[11px] font-black text-[#106ebe] uppercase bg-white border border-slate-300 px-4 py-1.5  rounded-sm tabular-nums">
                                     {inventoryItems.length} Encontrados
                                 </span>
                             </div>
@@ -542,7 +542,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
             const configModalPortal = selectedProduct && createPortal(
                 <div className="fixed inset-0 z-[120000] flex items-center justify-center pointer-events-none animate-in fade-in duration-100">
                     <DraggableWindow id="production-config-win-v4">
-                        <div className="bg-white border-2 border-[#106ebe] shadow-[0_20px_60px_rgba(0,0,0,0.6)] w-[580px] relative rounded-sm overflow-hidden pointer-events-auto flex flex-col">
+                        <div className="bg-white border-2 border-[#106ebe]  w-[580px] relative rounded-sm overflow-hidden pointer-events-auto flex flex-col">
                             {/* Skill Header */}
                             <div className="modal-header bg-[#106ebe] px-4 py-2 flex items-center justify-between cursor-move select-none border-b border-[#002244]">
                                 <div className="flex items-center gap-2">
@@ -559,7 +559,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                             {/* Body */}
                             <div className="p-4 bg-white space-y-4">
                                 {/* Product Name Box */}
-                                <div className="bg-slate-100 border border-slate-300 py-3 px-5 text-center shadow-inner rounded-sm">
+                                <div className="bg-slate-100 border border-slate-300 py-3 px-5 text-center  rounded-sm">
                                     <span className="text-[17px] font-black text-slate-800 uppercase tracking-tight font-sans block truncate">
                                         {selectedProduct.name}
                                     </span>
@@ -576,7 +576,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                                             value={configQty}
                                             onChange={(e) => setConfigQty(e.target.value)}
                                             onFocus={(e) => e.target.select()}
-                                            className="w-full h-10 border-2 border-slate-400 bg-white px-3 text-[15px] font-black text-[#106ebe] outline-none text-center tabular-nums focus:border-[#106ebe] shadow-sm rounded-sm"
+                                            className="w-full h-10 border-2 border-slate-400 bg-white px-3 text-[15px] font-black text-[#106ebe] outline-none text-center tabular-nums focus:border-[#106ebe]  rounded-sm"
                                             onKeyDown={(e) => {
                                                 if (e.key === 'Enter') handleAddItem(selectedProduct, parseFloat(configQty) || 0);
                                             }}
@@ -585,14 +585,14 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                                     {/* Presentación */}
                                     <div className="col-span-3 space-y-1 text-center">
                                         <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest font-sans">Presentación</label>
-                                        <div className="w-full h-10 border-2 border-slate-200 bg-slate-50 flex items-center justify-center text-[13px] font-black text-slate-800 whitespace-nowrap overflow-hidden px-4 shadow-sm rounded-sm uppercase tracking-tighter leading-tight text-center">
+                                        <div className="w-full h-10 border-2 border-slate-200 bg-slate-50 flex items-center justify-center text-[13px] font-black text-slate-800 whitespace-nowrap overflow-hidden px-4  rounded-sm uppercase tracking-tighter leading-tight text-center">
                                             {selectedProduct.presentation || 'UNIDAD'}
                                         </div>
                                     </div>
                                     {/* Precio Costo */}
                                     <div className="col-span-2 space-y-1 text-center">
                                         <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest font-sans">Precio Costo</label>
-                                        <div className="w-full h-10 border-2 border-slate-200 bg-slate-50 flex items-center justify-center text-[14px] font-black text-slate-900 tabular-nums shadow-sm rounded-sm">
+                                        <div className="w-full h-10 border-2 border-slate-200 bg-slate-50 flex items-center justify-center text-[14px] font-black text-slate-900 tabular-nums  rounded-sm">
                                             Q{selectedProduct.cost?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                         </div>
                                     </div>
@@ -602,7 +602,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
                                 <div className="flex justify-center pt-1">
                                     <button
                                         onClick={() => handleAddItem(selectedProduct, parseFloat(configQty) || 0)}
-                                        className="px-16 py-3 bg-[#106ebe] text-white text-[15px] font-black uppercase tracking-[0.2em] flex items-center justify-center rounded-sm shadow-md"
+                                        className="px-16 py-3 bg-[#106ebe] text-white text-[15px] font-black uppercase tracking-[0.2em] flex items-center justify-center rounded-sm "
                                     >
                                         Agregar
                                     </button>
@@ -617,7 +617,7 @@ export const ProductionOrderModal: React.FC<ProductionOrderModalProps> = ({
             {/* CONTEXT MENU PORTAL */}
             const contextMenuPortal = searchContextMenu && createPortal(
                 <div
-                    className="fixed z-[999999] bg-white border border-gray-400 shadow-2xl py-0.5 min-w-[240px] animate-in fade-in zoom-in duration-75 pointer-events-auto"
+                    className="fixed z-[999999] bg-white border border-gray-400  /50 py-0.5 min-w-[240px] animate-in fade-in zoom-in duration-75 pointer-events-auto"
                     style={{ left: searchContextMenu.x, top: searchContextMenu.y }}
                 >
                     {searchContextMenu.product && (

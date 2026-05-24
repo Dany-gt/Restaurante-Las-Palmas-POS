@@ -44,10 +44,10 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
 
     const modalContent = (
         <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-6 animate-fade-in"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80  p-6 animate-fade-in"
             style={{ alignItems: isRaised ? 'flex-start' : 'center', paddingTop: isRaised ? '12px' : undefined }}
         >
-            <div className="w-full max-w-sm bg-[#16191f] rounded-3xl border border-white/10 shadow-2xl p-8 transform transition-all">
+            <div className="w-full max-w-sm bg-[#16191f] rounded-xl border border-white/10  /50 p-8 transform transition-all">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8">
                     <div>
@@ -84,7 +84,7 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
                                 placeholder="Ej. Juan Pérez"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-11 pr-4 text-xs font-bold text-white focus:outline-none focus:border-indigo-500/50 transition-all uppercase tracking-wide"
+                                className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-11 pr-4 text-xs font-bold text-white focus:outline-none focus:border-indigo-500/50 transition-all uppercase tracking-wide"
                             />
                         </div>
                     </div>
@@ -98,7 +98,7 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
                                 placeholder="Ej. 5555-5555"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-11 pr-4 text-xs font-bold text-white focus:outline-none focus:border-indigo-500/50 transition-all tracking-wide"
+                                className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-11 pr-4 text-xs font-bold text-white focus:outline-none focus:border-indigo-500/50 transition-all tracking-wide"
                             />
                         </div>
                     </div>
@@ -112,7 +112,7 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
                                     placeholder="Dirección exacta..."
                                     value={address}
                                     onChange={(e) => setAddress(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-11 pr-4 text-xs font-bold text-white focus:outline-none focus:border-indigo-500/50 transition-all min-h-[80px] resize-none uppercase tracking-wide"
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-11 pr-4 text-xs font-bold text-white focus:outline-none focus:border-indigo-500/50 transition-all min-h-[80px] resize-none uppercase tracking-wide"
                                 />
                             </div>
                         </div>
@@ -130,7 +130,7 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
                                             setPlatformId(e.target.value);
                                             if (!e.target.value) setIsPlatformDriver(false);
                                         }}
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-11 pr-4 text-xs font-bold text-white focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer"
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-11 pr-4 text-xs font-bold text-white focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer"
                                     >
                                         <option value="" className="bg-[#1a1d24]">Venta Directa (Sin Plataforma)</option>
                                         {platforms.map(p => (
@@ -141,18 +141,18 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
                             </div>
 
                             {platformId && (
-                                <div className="p-4 bg-white/5 border border-white/10 rounded-2xl space-y-3">
+                                <div className="p-4 bg-white/5 border border-white/10 rounded-lg space-y-3">
                                     <label className="text-[9px] font-black text-indigo-400 uppercase tracking-wider block">¿Quién entrega el pedido?</label>
                                     <div className="grid grid-cols-2 gap-2">
                                         <button
                                             onClick={() => setIsPlatformDriver(false)}
-                                            className={`py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${!isPlatformDriver ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white/5 text-gray-500 hover:bg-white/10'}`}
+                                            className={`py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${!isPlatformDriver ? 'bg-indigo-600 text-white ' : 'bg-white/5 text-gray-500 hover:bg-white/10'}`}
                                         >
                                             REPARTIDOR PROPIO
                                         </button>
                                         <button
                                             onClick={() => setIsPlatformDriver(true)}
-                                            className={`py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${isPlatformDriver ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white/5 text-gray-500 hover:bg-white/10'}`}
+                                            className={`py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${isPlatformDriver ? 'bg-indigo-600 text-white ' : 'bg-white/5 text-gray-500 hover:bg-white/10'}`}
                                         >
                                             REPARTIDOR {platforms.find(p => p.id === platformId)?.name.toUpperCase() || 'PLATAFORMA'}
                                         </button>
@@ -167,7 +167,7 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
                 <button
                     disabled={!isComplete}
                     onClick={() => onConfirm({ name, phone, address, type, platform_id: platformId || undefined, is_platform_driver: isPlatformDriver })}
-                    className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-white/5 disabled:text-gray-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-indigo-600/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                    className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-white/5 disabled:text-gray-500 text-white rounded-lg font-black uppercase tracking-[0.2em] text-xs  -600/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                 >
                     Continuar <ArrowRight size={16} />
                 </button>

@@ -20,7 +20,6 @@ export const SoldDishesModal: React.FC<SoldDishesModalProps> = ({ onClose }) => 
     const [startTime, setStartTime] = useState('00:00');
     const [endDate, setEndDate] = useState(formattedDate);
     const [endTime, setEndTime] = useState(formattedTime);
-    const printService = PrintService.getInstance();
 
     // Hardcoded categories based on the user's reference image
     const categories = [
@@ -56,7 +55,7 @@ export const SoldDishesModal: React.FC<SoldDishesModalProps> = ({ onClose }) => 
                 .neq('status', 'voided'); // Exclude voided items
 
             if (error) throw error;
-            
+
             console.log('DEBUG KITCHEN REPORT:', {
                 startTimestamp,
                 endTimestamp,
@@ -137,103 +136,101 @@ export const SoldDishesModal: React.FC<SoldDishesModalProps> = ({ onClose }) => 
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 animate-fade-in">
-            <div className="w-full max-w-4xl bg-[#1e232f] rounded-sm shadow-2xl flex flex-col overflow-hidden border border-white/10">
-                {/* Header */}
-                <div className="px-4 py-3 bg-[#2a2f3d] flex justify-between items-center border-b border-white/5">
-                    <span className="text-gray-200 font-medium text-sm">Cocinas</span>
-                    <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
-                        <X size={18} />
-                    </button>
-                </div>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 animate-fade-in pointer-events-auto">
+            <div className="w-[750px] bg-[#2a2d3e] rounded-md  /50 flex flex-col overflow-hidden border border-white/5">
 
-                <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 bg-[#222733]">
-                    {/* Left Column: Categories Buttons */}
-                    <div className="flex flex-col gap-3">
-                        {categories.map(cat => (
-                            <button
-                                key={cat.id}
-                                onClick={() => setSelectedCategory(cat.id)}
-                                className={`py-4 px-6 rounded-md font-bold text-left transition-all text-xs uppercase tracking-wide
-                                    ${selectedCategory === cat.id
-                                        ? 'bg-[#373d4d] text-white shadow-md'
-                                        : 'bg-[#2b303d] text-gray-400 hover:bg-[#323746] hover:text-gray-300'
-                                    }`}
-                            >
-                                {cat.label}
-                            </button>
-                        ))}
+                <div className="p-6 flex gap-6">
+                    {/* Left Column: Categories */}
+                    <div className="flex-1 flex flex-col">
+                        {/* Title bar for Cocinas */}
+                        <div className="w-full bg-[#383b4d] py-2 mb-3 rounded-sm flex items-center justify-center">
+                            <span className="text-white font-medium text-sm tracking-wide">Cocinas</span>
+                        </div>
+                        
+                        {/* Categories Buttons in 2-col grid */}
+                        <div className="grid grid-cols-2 gap-3 content-start">
+                            {categories.map(cat => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => setSelectedCategory(cat.id)}
+                                    className={`h-[60px] flex items-center justify-center rounded-sm font-bold text-center transition-all text-xs text-white
+                                        ${selectedCategory === cat.id
+                                            ? 'bg-[#4a4e69] '
+                                            : 'bg-[#383b4d] hover:bg-[#42465c]'
+                                        }`}
+                                >
+                                    {cat.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Right Column: Date Range & Actions */}
-                    <div className="flex flex-col h-full">
+                    <div className="flex flex-col w-[260px] flex-shrink-0 justify-between">
                         {/* Date Pickers */}
-                        <div className="flex flex-col gap-6 mb-8">
-                            <div className="flex gap-4 items-center">
-                                <div className="w-full">
-                                    <label className="block text-gray-400 text-xs font-bold mb-1 text-center">Del</label>
-                                    <div className="flex rounded border border-gray-600 overflow-hidden bg-[#1a1d26]">
-                                        <input
-                                            type="date"
-                                            value={startDate}
-                                            onChange={(e) => setStartDate(e.target.value)}
-                                            className="bg-transparent text-white p-2 w-full outline-none text-center text-xs uppercase"
-                                        />
-                                        <div className="w-[1px] bg-gray-600"></div>
-                                        <input
-                                            type="time"
-                                            value={startTime}
-                                            onChange={(e) => setStartTime(e.target.value)}
-                                            className="bg-transparent text-white p-2 w-24 outline-none text-center text-xs"
-                                        />
-                                    </div>
+                        <div className="flex flex-col gap-4 mb-6">
+                            <div>
+                                <label className="block text-gray-300 text-xs text-center mb-1">Del</label>
+                                <div className="flex rounded-sm bg-transparent border border-[#414558] overflow-hidden">
+                                    <input
+                                        type="date"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        className="bg-transparent text-white p-2 w-full outline-none text-center text-xs border-r border-[#414558]"
+                                        style={{ colorScheme: 'dark' }}
+                                    />
+                                    <input
+                                        type="time"
+                                        value={startTime}
+                                        onChange={(e) => setStartTime(e.target.value)}
+                                        className="bg-transparent text-white p-2 w-[80px] outline-none text-center text-xs"
+                                        style={{ colorScheme: 'dark' }}
+                                    />
                                 </div>
                             </div>
 
-                            <div className="flex gap-4 items-center">
-                                <div className="w-full">
-                                    <label className="block text-gray-400 text-xs font-bold mb-1 text-center">Al</label>
-                                    <div className="flex rounded border border-gray-600 overflow-hidden bg-[#1a1d26]">
-                                        <input
-                                            type="date"
-                                            value={endDate}
-                                            onChange={(e) => setEndDate(e.target.value)}
-                                            className="bg-transparent text-white p-2 w-full outline-none text-center text-xs uppercase"
-                                        />
-                                        <div className="w-[1px] bg-gray-600"></div>
-                                        <input
-                                            type="time"
-                                            value={endTime}
-                                            onChange={(e) => setEndTime(e.target.value)}
-                                            className="bg-transparent text-white p-2 w-24 outline-none text-center text-xs"
-                                        />
-                                    </div>
+                            <div>
+                                <label className="block text-gray-300 text-xs text-center mb-1 mt-2">Al</label>
+                                <div className="flex rounded-sm bg-transparent border border-[#414558] overflow-hidden">
+                                    <input
+                                        type="date"
+                                        value={endDate}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        className="bg-transparent text-white p-2 w-full outline-none text-center text-xs border-r border-[#414558]"
+                                        style={{ colorScheme: 'dark' }}
+                                    />
+                                    <input
+                                        type="time"
+                                        value={endTime}
+                                        onChange={(e) => setEndTime(e.target.value)}
+                                        className="bg-transparent text-white p-2 w-[80px] outline-none text-center text-xs"
+                                        style={{ colorScheme: 'dark' }}
+                                    />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Spacer */}
-                        <div className="flex-1"></div>
-
                         {/* Action Buttons */}
-                        <div className="flex flex-col gap-3 mt-4">
+                        <div className="flex flex-col gap-3 mt-6">
                             <button
                                 onClick={handlePrint}
-                                className="w-full py-3 bg-[#333947] hover:bg-[#3e4556] text-white rounded-md font-bold uppercase tracking-widest text-[10px] transition-all shadow-lg border-b-2 border-[#20242e] active:scale-[0.99]"
+                                className="w-full py-3 bg-[#383b4d] hover:bg-[#42465c] text-white rounded-sm font-bold uppercase tracking-widest text-[10px] transition-all relative overflow-hidden"
                             >
                                 IMPRIMIR
+                                <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-yellow-500 border-l-[8px] border-l-transparent pointer-events-none" />
                             </button>
                             <button
                                 onClick={onClose}
-                                className="w-full py-3 bg-[#333947] hover:bg-[#3e4556] text-white rounded-md font-bold uppercase tracking-widest text-[10px] transition-all shadow-lg border-b-2 border-rose-500/50 active:scale-[0.99]"
+                                className="w-full py-3 bg-[#383b4d] hover:bg-[#42465c] text-white rounded-sm font-bold uppercase tracking-widest text-[10px] transition-all relative overflow-hidden"
                             >
                                 CERRAR
+                                <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-red-500 border-l-[8px] border-l-transparent pointer-events-none" />
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div className="px-6 py-2 bg-[#2a2f3d] border-t border-white/5 text-[10px] text-gray-500">
+                <div className="px-6 pb-4 bg-transparent text-[10px] text-gray-300 font-medium">
                     *En el reporte aparecerán Platillos de órdenes Abiertas y Cerradas.
                 </div>
             </div>

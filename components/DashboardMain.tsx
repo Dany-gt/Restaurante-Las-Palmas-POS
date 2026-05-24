@@ -564,11 +564,11 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
         {showOperational && (
           <div className="flex flex-col gap-8">
             <div className="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto w-full">
-              {filteredModules.map((mod) => (
+              {filteredModules.map((mod: any) => (
                 <button
                   key={mod.id}
                   onClick={() => onNavigate(mod.id)}
-                  className={`group relative w-64 h-24 rounded-xl flex items-center justify-center gap-6 bg-[#3a3b4d] border border-white/5 shadow-xl transition-all hover:bg-[#45465a] active:scale-95 animate-fade-in`}
+                  className={`group relative w-64 h-24 rounded-lg flex items-center justify-center gap-6 bg-[#3a3b4d] border border-white/5 shadow-md shadow-black/20 transition-all hover:bg-[#45465a] active:scale-95 animate-fade-in`}
                 >
                   <div className="opacity-80 group-hover:opacity-100 transition-opacity">
                     {mod.iconify ? (
@@ -593,8 +593,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
                 {/* Sales Goal Card */}
                 {waiterGoalEnabled && monthlyGoal > 0 && (
                   <div className="max-w-md flex-1 min-w-[280px] animate-in fade-in slide-in-from-top-4 duration-500">
-                    <div className="bg-[#3a3b4d]/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-2xl relative overflow-hidden group">
-                      <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] -mr-32 -mt-32"></div>
+                    <div className="bg-[#3a3b4d] border border-white/5 rounded-lg p-4 shadow-md shadow-black/20 relative overflow-hidden group">
                       <div className="flex flex-col gap-4 relative z-10">
                         <div className="flex justify-between items-end">
                           <div className="flex flex-col">
@@ -634,8 +633,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
                 {/* Units Goal Card */}
                 {waiterUnitsGoalEnabled && monthlyUnitsGoal > 0 && (
                   <div className="max-w-md flex-1 min-w-[280px] animate-in fade-in slide-in-from-top-4 duration-500">
-                    <div className="bg-[#3a3b4d]/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-2xl relative overflow-hidden group">
-                      <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] -mr-32 -mt-32"></div>
+                    <div className="bg-[#3a3b4d] border border-white/5 rounded-lg p-4 shadow-md shadow-black/20 relative overflow-hidden group">
                       <div className="flex flex-col gap-4 relative z-10">
                         <div className="flex justify-between items-end">
                           <div className="flex flex-col">
@@ -686,7 +684,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
             <button
               type="button"
               onClick={() => onNavigate('HISTORY')}
-              className="w-52 py-3 bg-blue-600/20 backdrop-blur-md border border-blue-500/30 rounded-xl text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] transition-all shadow-2xl active:scale-95 hover:bg-blue-600/40 hover:text-white"
+              className="w-52 py-3 bg-blue-600/40 border border-blue-500/30 rounded-lg text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] transition-all shadow-md shadow-black/20 active:scale-95 hover:bg-blue-600/60 hover:text-white"
             >
               VISOR DE ORDENES
             </button>
@@ -694,7 +692,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
               type="button"
               onClick={() => onRefreshMenu?.('config')}
               disabled={isSyncing}
-              className={`w-52 py-3 bg-[#1a1b23]/80 backdrop-blur-md border border-white/10 rounded-xl text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] transition-all shadow-2xl active:scale-95 hover:text-white hover:bg-[#1a1b23] ${isSyncing ? 'opacity-50' : ''}`}
+              className={`w-52 py-3 bg-[#1a1b23] border border-white/10 rounded-lg text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] transition-all shadow-md shadow-black/20 active:scale-95 hover:text-white hover:bg-[#22232e] ${isSyncing ? 'opacity-50' : ''}`}
             >
               {syncType === 'config' ? 'ACTUALIZANDO...' : 'ACTUALIZAR CONFIGURACION'}
             </button>
@@ -702,7 +700,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
               type="button"
               onClick={() => onRefreshMenu?.('images')}
               disabled={isSyncing}
-              className={`w-52 py-3 bg-[#1a1b23]/80 backdrop-blur-md border border-white/10 rounded-xl text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] transition-all shadow-2xl active:scale-95 hover:text-white hover:bg-[#1a1b23] ${isSyncing ? 'opacity-50' : ''}`}
+              className={`w-52 py-3 bg-[#1a1b23] border border-white/10 rounded-lg text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] transition-all shadow-md shadow-black/20 active:scale-95 hover:text-white hover:bg-[#22232e] ${isSyncing ? 'opacity-50' : ''}`}
             >
               {syncType === 'images' ? 'ACTUALIZANDO...' : 'ACTUALIZAR IMAGENES'}
             </button>
@@ -718,7 +716,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
           const lp = p.toLowerCase();
           return lp.includes('caja') || lp.includes('corte') || lp.includes('gasto') || lp.includes('abono') || lp.includes('financ');
         })) && (
-          <div className={`fixed bottom-0 left-0 right-0 border-t border-white/5 px-6 py-4 z-30 shadow-2xl transition-colors bg-[#3a3b4d]`}>
+          <div className={`fixed bottom-0 left-0 right-0 border-t border-white/5 px-6 py-4 z-30 shadow-md transition-colors bg-[#3a3b4d]`}>
             <div className="max-w-7xl mx-auto flex flex-col gap-3">
 
               {/* Row 1: Actions (Left) and Monitoring (Right) */}
@@ -773,15 +771,15 @@ const DashboardButton = ({ label, color, onClick, disabled }: { label: string, c
   <button
     onClick={onClick}
     disabled={disabled}
-    className={`relative w-40 h-16 bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg transition-all active:scale-95 group focus:outline-none flex items-center justify-center p-2 overflow-hidden shadow-lg shadow-black/40 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+    className={`relative w-40 h-16 bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg transition-all active:scale-95 group focus:outline-none flex items-center justify-center p-2 overflow-hidden shadow-none ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
   >
     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-300 group-hover:text-white text-center leading-[1.1]">{label}</span>
   </button>
 );
 
 const ShiftClosureSummary = ({ data, onPrint, onFinish }: { data: any, onPrint: () => void, onFinish: () => void }) => (
-  <div className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[120] flex items-center justify-center p-6">
-    <div className="w-full max-w-2xl bg-[#16191f] rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden animate-slide-up">
+  <div className="fixed inset-0 bg-black/90 z-[120] flex items-center justify-center p-6">
+    <div className="w-full max-w-2xl bg-[#16191f] rounded-xl border border-white/10 shadow-xl shadow-black/50 overflow-hidden animate-slide-up">
       <div className="p-10 text-center">
         <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-400">
           <CheckCircle size={48} className="animate-bounce-slow" />
@@ -790,11 +788,11 @@ const ShiftClosureSummary = ({ data, onPrint, onFinish }: { data: any, onPrint: 
         <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">{data.type === 'X' ? 'El reporte parcial se ha generado correctamente' : 'El reporte de cierre ha sido generado correctamente'}</p>
 
         <div className="grid grid-cols-2 gap-4 mt-12 mb-12">
-          <div className="bg-white/5 p-6 rounded-3xl border border-white/5">
+          <div className="bg-white/5 p-6 rounded-lg border border-white/5">
             <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2">Efectivo Contado</span>
             <span className="text-2xl font-black">Q{data.countedCash.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span>
           </div>
-          <div className={`p-6 rounded-3xl border ${data.difference === 0 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
+          <div className={`p-6 rounded-lg border ${data.difference === 0 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
             <span className="text-[10px] font-black uppercase tracking-widest block mb-2 opacity-60">Diferencia</span>
             <span className="text-2xl font-black">{data.difference === 0 ? 'CUADRADO' : `Q${data.difference.toFixed(2)}`}</span>
           </div>
@@ -803,13 +801,13 @@ const ShiftClosureSummary = ({ data, onPrint, onFinish }: { data: any, onPrint: 
         <div className="flex flex-col gap-4">
           <button
             onClick={onPrint}
-            className="w-full py-5 bg-white/5 hover:bg-white/10 rounded-2xl font-black uppercase tracking-[0.2em] text-xs transition-all flex items-center justify-center gap-3 border border-white/10"
+            className="w-full py-5 bg-white/5 hover:bg-white/10 rounded-lg font-black uppercase tracking-[0.2em] text-xs transition-all flex items-center justify-center gap-3 border border-white/10"
           >
             <Printer size={20} /> Imprimir {data.type === 'X' ? 'Corte X' : 'Reporte Z'}
           </button>
           <button
             onClick={onFinish}
-            className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-indigo-600/20 transition-all"
+            className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-black uppercase tracking-[0.2em] text-xs shadow-md transition-all"
           >
             {data.type === 'X' ? 'Continuar Operación' : 'Finalizar y Salir'}
           </button>

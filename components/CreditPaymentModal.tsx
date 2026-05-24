@@ -188,7 +188,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                                     onClick={() => setSelectedCustomer(c)}
                                     className={`w-full p-3 rounded-sm border transition-all text-left ${
                                         selectedCustomer?.id === c.id 
-                                        ? 'bg-[#383a59] border-[#6272a4] shadow-lg' 
+                                        ? 'bg-[#383a59] border-[#6272a4] ' 
                                         : 'bg-[#282a36]/50 border-transparent hover:bg-[#383a59]/30'
                                     }`}
                                 >
@@ -200,7 +200,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                 </div>
 
                 {/* COL 2: El Ticket */}
-                <div className="w-[320px] h-[480px] bg-[#44475a] shadow-2xl relative flex flex-col">
+                <div className="w-[320px] h-[480px] bg-[#44475a]  /50 relative flex flex-col">
                     <div className="p-8 flex-1 space-y-4">
                         <div className="flex justify-between items-center text-[11px] font-bold">
                             <span className="text-gray-200 uppercase tracking-wider">Saldo Actual</span>
@@ -310,7 +310,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                         className={`w-full h-12 rounded-sm font-black uppercase text-xs tracking-widest transition-all ${
                             !selectedCustomer || parseFloat(amount) <= 0 
                             ? 'bg-[#44475a] text-gray-600' 
-                            : 'bg-[#6272a4] hover:bg-[#7282b4] text-white shadow-lg'
+                            : 'bg-[#6272a4] hover:bg-[#7282b4] text-white '
                         }`}
                     >
                         {processing ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'PAGAR'}
@@ -321,8 +321,8 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
 
             {/* Selector de POS Modal */}
             {showPosSelector && (
-                <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
-                    <div className="bg-[#1e212b] w-full max-w-2xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+                <div className="fixed inset-0 z-[100] bg-black/80  flex items-center justify-center p-6">
+                    <div className="bg-[#1e212b] w-full max-w-2xl rounded-xl border border-white/10  /50 overflow-hidden flex flex-col">
                         <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
                             <h3 className="text-lg font-black text-white uppercase tracking-tighter">Seleccione POS</h3>
                             <button onClick={() => setShowPosSelector(false)} className="p-2 bg-white/5 rounded-full text-white">
@@ -337,7 +337,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                                         setSelectedProcessor(pos.name);
                                         setShowPosSelector(false);
                                     }}
-                                    className={`p-6 bg-white rounded-2xl flex flex-col items-center justify-center gap-3 transition-all active:scale-95 border-4 ${selectedProcessor === pos.name ? 'border-blue-500 shadow-xl' : 'border-transparent shadow-md'}`}
+                                    className={`p-6 bg-white rounded-lg flex flex-col items-center justify-center gap-3 transition-all active:scale-95 border-4 ${selectedProcessor === pos.name ? 'border-blue-500 ' : 'border-transparent '}`}
                                 >
                                     {pos.logo_url ? (
                                         <img src={pos.logo_url} alt={pos.name} className="h-12 object-contain" />
@@ -351,7 +351,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                         <div className="p-6 bg-[#0d0f13] border-t border-white/5">
                             <button
                                 onClick={() => setShowPosSelector(false)}
-                                className="w-full h-14 rounded-2xl border border-white/10 bg-white/5 font-black uppercase text-[11px] text-gray-500 hover:text-white"
+                                className="w-full h-14 rounded-lg border border-white/10 bg-white/5 font-black uppercase text-[11px] text-gray-500 hover:text-white"
                             >
                                 Cancelar
                             </button>
@@ -361,7 +361,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
             )}
 
             {processing && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center">
+                <div className="fixed inset-0 bg-black/60  z-[200] flex items-center justify-center">
                     <div className="flex flex-col items-center gap-4">
                         <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
                         <span className="text-xs font-black uppercase tracking-widest text-white/40">Procesando Pago...</span>

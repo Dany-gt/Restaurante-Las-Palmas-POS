@@ -336,7 +336,7 @@ export const ShiftMonitorModal: React.FC<ShiftMonitorModalProps> = ({ currentUse
                                             : cardOrders.filter((_, i) => i % 2 !== 0); // Odd indices for second terminal
 
                                         return (
-                                            <div key={terminal.name} className="bg-white/5 rounded-2xl border border-white/5 overflow-hidden">
+                                            <div key={terminal.name} className="bg-white/5 rounded-lg border border-white/5 overflow-hidden">
                                                 <div className="p-4 bg-white/5 border-b border-white/5 flex justify-between items-center">
                                                     <span className="text-sm font-black uppercase tracking-widest text-white">{terminal.name}</span>
                                                     <span className="text-lg font-black text-sky-400">{formatCurrency(terminal.total)}</span>
@@ -406,7 +406,7 @@ export const ShiftMonitorModal: React.FC<ShiftMonitorModalProps> = ({ currentUse
                         ].map(btn => (
                             <button
                                 key={btn.id}
-                                className={`flex-1 h-14 border rounded-lg flex items-center justify-center text-xs font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-black/20 ${activeView === btn.id ? 'bg-indigo-600 border-indigo-500 text-white shadow-indigo-500/20' : 'bg-[#1e212b] border-white/5 text-gray-400 hover:text-white hover:bg-[#2b2f3a]'}`}
+                                className={`flex-1 h-14 border rounded-lg flex items-center justify-center text-xs font-black uppercase tracking-widest transition-all active:scale-95  /20 ${activeView === btn.id ? 'bg-indigo-600 border-indigo-500 text-white -500/20' : 'bg-[#1e212b] border-white/5 text-gray-400 hover:text-white hover:bg-[#2b2f3a]'}`}
                                 onClick={() => setActiveView(btn.id)}
                             >
                                 {btn.label}
@@ -451,7 +451,7 @@ export const ShiftMonitorModal: React.FC<ShiftMonitorModalProps> = ({ currentUse
 
                         {/* 3. Ventas Totales */}
                         {!isBlind && (
-                            <div className="mt-0.5 p-3 bg-[#2b2f3a] rounded-xl border border-white/5 shadow-xl relative overflow-hidden group">
+                            <div className="mt-0.5 p-3 bg-[#2b2f3a] rounded-xl border border-white/5  relative overflow-hidden group">
                                 <div className="flex justify-between items-center mb-0.5 relative z-10">
                                     <span className="text-xs text-gray-500 font-black uppercase tracking-widest">Ventas Totales</span>
                                 </div>
@@ -530,13 +530,13 @@ export const ShiftMonitorModal: React.FC<ShiftMonitorModalProps> = ({ currentUse
                     <div className="mt-6 flex flex-col gap-3">
                         <button
                             onClick={onArqueo}
-                            className="h-14 bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20 active:scale-95 rounded-lg font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2"
+                            className="h-14 bg-indigo-600 hover:bg-indigo-500 text-white  -600/20 active:scale-95 rounded-lg font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2"
                         >
                             <Calculator size={18} /> Arqueo de Caja
                         </button>
                         <button
                             onClick={onCloseShift}
-                            className="h-14 bg-[#5c6bff] hover:bg-[#4b59eb] text-white rounded-lg font-black uppercase tracking-widest text-xs shadow-lg shadow-indigo-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                            className="h-14 bg-[#5c6bff] hover:bg-[#4b59eb] text-white rounded-lg font-black uppercase tracking-widest text-xs  -500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
                         >
                             <LogOut size={18} /> Cerrar Turno
                         </button>

@@ -144,7 +144,7 @@ export const ManualTipDistributionModal: React.FC<Props> = ({
     return createPortal(
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/40 select-none">
             <DraggableWindow id="manual-tip-distribution" title="Liquidación de Propinas">
-                <div className="w-[1100px] bg-[#fdfdfd] border-2 border-[#106ebe] shadow-[0_30px_90px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
+                <div className="w-[1100px] bg-[#fdfdfd] border-2 border-[#106ebe]  flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
 
                     <div className="modal-header bg-[#106ebe] h-9 px-4 flex justify-between items-center cursor-move border-b border-black">
                         <div className="flex items-center gap-2 pointer-events-none">
@@ -169,7 +169,7 @@ export const ManualTipDistributionModal: React.FC<Props> = ({
 
                         <div className="grid grid-cols-12 gap-5">
                             <div className="col-span-12 lg:col-span-3 flex flex-col gap-4">
-                                <div className="bg-white border-2 border-slate-200 p-4 shadow-sm">
+                                <div className="bg-white border-2 border-slate-200 p-4 ">
                                     <h3 className="text-[10px] font-black uppercase text-slate-800 border-b-2 border-slate-100 pb-2 mb-3">Balance Global</h3>
                                     <div className="space-y-4">
                                         <div className="flex flex-col items-center p-2 bg-slate-50">
@@ -189,7 +189,7 @@ export const ManualTipDistributionModal: React.FC<Props> = ({
                             </div>
 
                             <div className="col-span-12 lg:col-span-9 flex flex-col gap-5">
-                                <div className="bg-white border-2 border-slate-300 shadow-sm flex flex-col">
+                                <div className="bg-white border-2 border-slate-300  flex flex-col">
                                     <div className="bg-[#106ebe] p-2.5 flex items-center gap-2">
                                         <Users size={14} className="text-blue-400" />
                                         <span className="text-[10px] font-black uppercase text-white tracking-widest">Detalle Fiscal de Meseros</span>

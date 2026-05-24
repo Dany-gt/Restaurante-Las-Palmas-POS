@@ -181,7 +181,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
 
                 <div className="flex items-center gap-6">
                     {/* Clock & Date Bar Right */}
-                    <div className="hidden lg:flex flex-col items-end leading-none bg-black/30 px-3 py-1.5 rounded-xl border border-white/5 shadow-inner">
+                    <div className="hidden lg:flex flex-col items-end leading-none bg-black/30 px-3 py-1.5 rounded-xl border border-white/5 ">
                         <span className="text-[12px] font-black tracking-widest text-indigo-400 tabular-nums">{timeDisplay}</span>
                         <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter mt-0.5">{dateDisplay}</span>
                     </div>
@@ -199,7 +199,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                 {/* LEFT PANEL: CLIENTS GRID */}
                 <div className="flex-1 flex flex-col border-r border-white/5 bg-[#2d2e3d] min-h-0">
                     {/* Header 'Clientes' */}
-                    <div className="bg-[#3a3b4d] h-10 flex items-center justify-center shrink-0 shadow-md">
+                    <div className="bg-[#3a3b4d] h-10 flex items-center justify-center shrink-0 ">
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">Clientes</span>
                     </div>
 
@@ -213,7 +213,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                 placeholder="BUSCAR..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-black/40 border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-black placeholder:text-gray-500 outline-none focus:border-white/50 focus:bg-black/60 transition-all uppercase tracking-widest text-white shadow-inner"
+                                className="w-full bg-black/40 border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-black placeholder:text-gray-500 outline-none focus:border-white/50 focus:bg-black/60 transition-all uppercase tracking-widest text-white "
                             />
                         </div>
                     </div>
@@ -228,7 +228,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                     className={`
                                         h-20 rounded-lg flex flex-col justify-center px-4 relative group transition-all text-left border
                                         ${selectedCustomer?.id === customer.id
-                                            ? 'bg-indigo-600/20 border-indigo-500/50 shadow-lg'
+                                            ? 'bg-indigo-600/20 border-indigo-500/50 '
                                             : 'bg-[#3a3b4d] border-transparent hover:bg-[#45465a]'
                                         }
                                     `}
@@ -246,7 +246,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                         </span>
                                     </div>
                                     {selectedCustomer?.id === customer.id && (
-                                        <div className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
+                                        <div className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full "></div>
                                     )}
                                 </button>
                             ))}
@@ -311,7 +311,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                 {/* RIGHT PANEL: ADDRESSES & DETAILS */}
                 <div className="w-[400px] bg-[#2d2e3d] flex flex-col shrink-0 border-l border-white/5 min-h-0">
                     {/* Header: Dynamic content based on selection */}
-                    <div className="bg-[#3a3b4d] h-10 flex items-center px-4 justify-between shrink-0 shadow-md">
+                    <div className="bg-[#3a3b4d] h-10 flex items-center px-4 justify-between shrink-0 ">
                         {selectedCustomer ? (
                             <>
                                 <span className="text-[10px] font-black uppercase tracking-wider text-white truncate flex-1">
@@ -365,7 +365,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             )
                         ) : (
                             <div className="flex flex-col items-center justify-center h-full opacity-50 p-10 text-center">
-                                <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-8 border border-white/10 shadow-2xl">
+                                <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-8 border border-white/10 ">
                                     <User size={56} className="text-white/30" strokeWidth={1} />
                                 </div>
                                 <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white/60 mb-2 whitespace-nowrap">Seleccione un Cliente</h3>
@@ -408,8 +408,8 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                         <button
                             onClick={handleCreateOrder}
                             disabled={!selectedCustomer}
-                            className={`w-full py-3.5 rounded-sm font-black uppercase tracking-[0.2em] text-[10px] shadow-lg flex items-center justify-center gap-3 transition-all active:scale-95 ${selectedCustomer
-                                ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/20'
+                            className={`w-full py-3.5 rounded-sm font-black uppercase tracking-[0.2em] text-[10px]  flex items-center justify-center gap-3 transition-all active:scale-95 ${selectedCustomer
+                                ? 'bg-indigo-600 hover:bg-indigo-500 text-white -600/20'
                                 : 'bg-white/5 text-white/10 border border-white/5 cursor-not-allowed uppercase'
                                 }`}
                         >
@@ -423,7 +423,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
             {/* CONFIRMATION MODALS */}
             {customerToDelete && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-                    <div className="w-full max-w-md bg-[#1e232f] rounded-3xl border border-red-500/20 shadow-2xl shadow-red-500/10 overflow-hidden flex flex-col">
+                    <div className="w-full max-w-md bg-[#1e232f] rounded-3xl border border-red-500/20  -500/10 overflow-hidden flex flex-col">
                         <div className="p-6 bg-red-500/10 flex flex-col items-center justify-center text-center">
                             <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center text-red-500 mb-4 animate-bounce">
                                 <AlertTriangle size={32} />
@@ -442,7 +442,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             </button>
                             <button
                                 onClick={confirmDeleteCustomer}
-                                className="flex-1 py-3 rounded-xl font-black uppercase tracking-wider text-xs bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-600/30 transition-all active:scale-95 flex items-center justify-center"
+                                className="flex-1 py-3 rounded-xl font-black uppercase tracking-wider text-xs bg-red-600 hover:bg-red-500 text-white  -600/30 transition-all active:scale-95 flex items-center justify-center"
                             >
                                 <Trash2 size={16} className="mr-2" /> Eliminar
                             </button>
@@ -453,7 +453,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
 
             {addressToDelete && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-                    <div className="w-full max-w-md bg-[#1e232f] rounded-3xl border border-rose-500/20 shadow-2xl shadow-rose-500/10 overflow-hidden flex flex-col">
+                    <div className="w-full max-w-md bg-[#1e232f] rounded-3xl border border-rose-500/20  -500/10 overflow-hidden flex flex-col">
                         <div className="p-6 bg-rose-500/10 flex flex-col items-center justify-center text-center">
                             <div className="w-16 h-16 bg-rose-500/20 rounded-full flex items-center justify-center text-rose-500 mb-4">
                                 <Trash2 size={32} />
@@ -472,7 +472,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             </button>
                             <button
                                 onClick={confirmDeleteAddress}
-                                className="flex-1 py-3 rounded-xl font-black uppercase tracking-wider text-xs bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/30 transition-all active:scale-95"
+                                className="flex-1 py-3 rounded-xl font-black uppercase tracking-wider text-xs bg-rose-600 hover:bg-rose-500 text-white  -600/30 transition-all active:scale-95"
                             >
                                 Eliminar
                             </button>

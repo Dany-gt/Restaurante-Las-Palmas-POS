@@ -198,7 +198,7 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
                     <button
                         onClick={handleOpenShift}
                         disabled={loading}
-                        className="mt-4 bg-[#5c6bff] hover:bg-[#4b59eb] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20 active:scale-95 transition-all text-sm"
+                        className="mt-4 bg-[#5c6bff] hover:bg-[#4b59eb] text-white py-4 rounded-xl font-black uppercase tracking-widest  -500/20 active:scale-95 transition-all text-sm"
                     >
                         {loading ? 'Abriendo...' : 'Abrir Turno'}
                     </button>
@@ -251,7 +251,7 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
             {/* MODAL DE ÉXITO ESTILO LAS PALMAS */}
             {showSuccessModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 animate-fade-in p-4">
-                    <div className="w-full max-w-[380px] bg-[#2d2e3d] rounded-2xl border border-white/10 shadow-2xl p-8 flex flex-col items-center text-center animate-zoom-in">
+                    <div className="w-full max-w-[380px] bg-[#2d2e3d] rounded-2xl border border-white/10  p-8 flex flex-col items-center text-center animate-zoom-in">
                         <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center text-indigo-400 mb-6 border border-indigo-500/20">
                             <Check size={32} strokeWidth={3} />
                         </div>
@@ -260,7 +260,7 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
 
                         <button
                             onClick={() => onShiftOpened()}
-                            className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-[0.3em] rounded-xl shadow-xl shadow-indigo-500/20 active:scale-95 transition-all text-xs"
+                            className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-[0.3em] rounded-xl  -500/20 active:scale-95 transition-all text-xs"
                         >
                             ACEPTAR
                         </button>

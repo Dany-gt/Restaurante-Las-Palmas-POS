@@ -264,7 +264,7 @@ export const MenuEngineeringModal: React.FC<MenuEngineeringModalProps> = ({ onCl
     };
 
     const content = (
-        <div className={`${isStandalone ? 'w-full h-full border-none shadow-none rounded-none' : 'bg-[#f0f0f0] w-[95vw] max-w-5xl h-[85vh] border-2 border-[#106ebe] shadow-2xl rounded-lg'} flex flex-col overflow-hidden`}>
+        <div className={`${isStandalone ? 'w-full h-full border-none  rounded-none' : 'bg-[#f0f0f0] w-[95vw] max-w-5xl h-[85vh] border-2 border-[#106ebe]  /50 rounded-lg'} flex flex-col overflow-hidden`}>
             {/* Header */}
             {!isStandalone && (
                 <div className="modal-header bg-[#106ebe] p-3 flex items-center justify-between cursor-move select-none">
@@ -426,7 +426,7 @@ export const MenuEngineeringModal: React.FC<MenuEngineeringModalProps> = ({ onCl
     if (isStandalone) return content;
 
     return (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/40  z-[1000] flex items-center justify-center p-4">
             <DraggableWindow id="menu-engineering-modal" title="Ingeniería de Menú (Consultor IA)">
                 {content}
             </DraggableWindow>

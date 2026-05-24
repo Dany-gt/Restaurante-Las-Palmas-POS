@@ -112,7 +112,7 @@ const DriverLocationModal = ({ driver, onClose }: { driver: Driver, onClose: () 
 
     return (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-            <div className="w-full max-w-2xl bg-[#1e232f] rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+            <div className="w-full max-w-2xl bg-[#1e232f] rounded-[2rem] border border-white/10  overflow-hidden flex flex-col">
                 <div className="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-black/20">
                     <div>
                         <h3 className="text-lg font-black uppercase text-white tracking-tight">Ubicación en Tiempo Real</h3>
@@ -134,7 +134,7 @@ const DriverLocationModal = ({ driver, onClose }: { driver: Driver, onClose: () 
                                 href={driver.google_location_link}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-8 py-4 bg-[#4285F4] hover:bg-[#3367D6] text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-900/20 transition-all hover:scale-105 flex items-center justify-center gap-3"
+                                className="px-8 py-4 bg-[#4285F4] hover:bg-[#3367D6] text-white rounded-2xl font-black uppercase tracking-widest text-xs  -900/20 transition-all hover:scale-105 flex items-center justify-center gap-3"
                             >
                                 <MapPin size={18} /> Ver Ubicación en Tiempo Real
                             </a>
@@ -151,7 +151,7 @@ const DriverLocationModal = ({ driver, onClose }: { driver: Driver, onClose: () 
                                 src={`https://maps.google.com/maps?q=${location.latitude},${location.longitude}&z=15&output=embed`}
                                 allowFullScreen
                             ></iframe>
-                            <div className="absolute bottom-4 left-4 bg-[#1e232f] p-3 rounded-xl border border-white/10 shadow-xl max-w-xs">
+                            <div className="absolute bottom-4 left-4 bg-[#1e232f] p-3 rounded-xl border border-white/10  max-w-xs">
                                 <div className="flex items-center gap-2 mb-1">
                                     <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                                     <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Señal Recibida</span>
@@ -176,7 +176,7 @@ const DriverLocationModal = ({ driver, onClose }: { driver: Driver, onClose: () 
                             href={`https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg flex items-center gap-2"
+                            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px]  flex items-center gap-2"
                         >
                             <MapPin size={14} /> Abrir en Google Maps Externo
                         </a>
@@ -529,7 +529,7 @@ export const DispatchView: React.FC<{
                 <div className="flex items-center gap-4">
 
                     {/* Clock & Date Header Right */}
-                    <div className="hidden md:flex flex-col items-end leading-none bg-black/40 px-3 py-1.5 rounded-2xl border border-white/5 shadow-inner">
+                    <div className="hidden md:flex flex-col items-end leading-none bg-black/40 px-3 py-1.5 rounded-2xl border border-white/5 ">
                         <span className="text-[13px] font-black tracking-widest text-indigo-400 tabular-nums">{timeDisplay}</span>
                         <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter mt-0.5">{dateDisplay}</span>
                     </div>
@@ -569,7 +569,7 @@ export const DispatchView: React.FC<{
 
             {showClientSelector && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8 animate-fade-in">
-                    <div className="w-full max-w-7xl h-full max-h-[90vh] rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 relative">
+                    <div className="w-full max-w-7xl h-full max-h-[90vh] rounded-[2rem] overflow-hidden  border border-white/10 relative">
                         <DeliveryClientsView
                             onBack={() => {
                                 if (initialMode === 'LIST') {
@@ -598,7 +598,7 @@ export const DispatchView: React.FC<{
                         return (
                             <div key={driverId || 'unassigned'} className="mb-12">
                                 <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 mb-8 flex flex-col items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full ${driverId ? 'bg-indigo-500 shadow-lg shadow-indigo-500/50' : 'bg-rose-500 shadow-lg shadow-rose-500/50'}`} />
+                                    <div className={`w-2 h-2 rounded-full ${driverId ? 'bg-indigo-500  -500/50' : 'bg-rose-500  -500/50'}`} />
                                     <div className="flex items-center gap-2">
                                         <span className="text-white/60">{driverName}</span>
                                         <span className="bg-white/5 px-2 py-0.5 rounded text-[8px] border border-white/5 font-bold tracking-normal">{driverOrders.length}</span>
@@ -693,7 +693,7 @@ export const DispatchView: React.FC<{
                 </div>
 
                 {/* Fixed Right Side Panel */}
-                <div className="w-[380px] bg-[#3a3b4d] border-l border-white/10 flex flex-col shadow-2xl overflow-hidden">
+                <div className="w-[380px] bg-[#3a3b4d] border-l border-white/10 flex flex-col  overflow-hidden">
                     <div className="flex-1 flex flex-col overflow-hidden">
                         {selectedOrder ? (
                             <>
@@ -789,7 +789,7 @@ export const DispatchView: React.FC<{
                                     }
                                     setShowDriverModal(true);
                                 }}
-                                className="flex-1 flex items-center justify-center h-14 rounded-xl bg-[#3a3b4d] text-white border border-white/5 hover:bg-[#4a4b5d] transition-all group shadow-sm"
+                                className="flex-1 flex items-center justify-center h-14 rounded-xl bg-[#3a3b4d] text-white border border-white/5 hover:bg-[#4a4b5d] transition-all group "
                             >
                                 <div className="group-hover:scale-110 transition-transform text-white/90">
                                     <VerifiedScooterIcon size={34} />
@@ -805,7 +805,7 @@ export const DispatchView: React.FC<{
                                     }
                                     assignDriver(selectedOrder.id, null);
                                 }}
-                                className="flex-1 flex items-center justify-center h-14 rounded-xl bg-[#3a3b4d] text-white border border-white/5 hover:bg-[#4a4b5d] transition-all group relative shadow-sm"
+                                className="flex-1 flex items-center justify-center h-14 rounded-xl bg-[#3a3b4d] text-white border border-white/5 hover:bg-[#4a4b5d] transition-all group relative "
                             >
                                 <div className="group-hover:scale-110 transition-transform text-white/90">
                                     <UnverifiedScooterIcon size={34} />
@@ -821,7 +821,7 @@ export const DispatchView: React.FC<{
                                     }
                                     handlePrintDriverTicket(selectedOrder);
                                 }}
-                                className="flex-1 flex items-center justify-center h-14 rounded-xl bg-[#3a3b4d] text-white border border-white/5 hover:bg-[#4a4b5d] transition-all group shadow-sm"
+                                className="flex-1 flex items-center justify-center h-14 rounded-xl bg-[#3a3b4d] text-white border border-white/5 hover:bg-[#4a4b5d] transition-all group "
                             >
                                 <div className="group-hover:scale-110 transition-transform">
                                     <Printer size={28} className="text-white/90" />
@@ -856,7 +856,7 @@ export const DispatchView: React.FC<{
                                     onEditOrder?.(selectedOrder.id);
                                 }
                             }}
-                            className="w-full flex items-center justify-center h-12 rounded-xl bg-[#6366f1] text-white shadow-lg shadow-indigo-500/20 hover:bg-[#5558e3] transition-all font-sans"
+                            className="w-full flex items-center justify-center h-12 rounded-xl bg-[#6366f1] text-white  -500/20 hover:bg-[#5558e3] transition-all font-sans"
                         >
                             {(!selectedOrder?.dispatched_at && selectedOrder?.driver_id) ? (
                                 <div className="flex items-center gap-2">
@@ -886,7 +886,7 @@ export const DispatchView: React.FC<{
             {/* Success Toast */}
             {showSuccessToast && (
                 <div className="fixed top-12 right-4 z-[999999] animate-in slide-in-from-right fade-in duration-300">
-                    <div className="bg-white rounded-xl shadow-2xl border border-white/10 p-4 flex items-center gap-4 min-w-[320px] backdrop-blur-md">
+                    <div className="bg-white rounded-xl  border border-white/10 p-4 flex items-center gap-4 min-w-[320px] backdrop-blur-md">
                         <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
                             <Check size={20} className="text-emerald-500" strokeWidth={3} />
                         </div>
@@ -921,7 +921,7 @@ const DriverSelectorModal: React.FC<{
 
     return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
-            <div className="bg-[#2a2b3d] w-full max-w-2xl rounded-lg shadow-2xl border border-white/10 overflow-hidden flex flex-col">
+            <div className="bg-[#2a2b3d] w-full max-w-2xl rounded-lg  border border-white/10 overflow-hidden flex flex-col">
                 <div className="p-6 border-b border-white/5 flex flex-col items-center justify-center">
                     <h2 className="text-white text-[12px] font-black uppercase tracking-[0.2em]">Repartidores</h2>
                 </div>
@@ -933,7 +933,7 @@ const DriverSelectorModal: React.FC<{
                                 key={driver.id}
                                 onClick={() => setLocalSelectedId(driver.id)}
                                 className={`h-16 rounded-xl flex items-center gap-3 px-4 transition-all border ${localSelectedId === driver.id
-                                    ? 'bg-[#6366f1] border-indigo-400 text-white shadow-lg shadow-indigo-500/20'
+                                    ? 'bg-[#6366f1] border-indigo-400 text-white  -500/20'
                                     : 'bg-white/5 border-white/5 text-gray-300 hover:bg-white/10'
                                     }`}
                             >
@@ -961,7 +961,7 @@ const DriverSelectorModal: React.FC<{
                     </button>
                     <button
                         onClick={() => onSelect(localSelectedId)}
-                        className="px-10 py-3 rounded bg-[#6366f1] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#5558e3] transition-all shadow-lg"
+                        className="px-10 py-3 rounded bg-[#6366f1] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#5558e3] transition-all "
                     >
                         Aceptar
                     </button>

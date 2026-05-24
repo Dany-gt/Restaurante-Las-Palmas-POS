@@ -60,7 +60,7 @@ export const TipDistributionHistoryModal: React.FC<Props> = ({ onClose }) => {
     return createPortal(
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/40 select-none">
             <DraggableWindow id="tip-distribution-history" title="Historial de Liquidación de Propinas">
-                <div className="w-[1000px] h-[650px] bg-[#fdfdfd] border-2 border-[#106ebe] shadow-[0_30px_90px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
+                <div className="w-[1000px] h-[650px] bg-[#fdfdfd] border-2 border-[#106ebe]  flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
                     <div className="modal-header bg-[#106ebe] h-9 px-4 flex justify-between items-center cursor-move border-b border-black">
                         <div className="flex items-center gap-2 pointer-events-none">
                             <History size={16} className="text-blue-400" />

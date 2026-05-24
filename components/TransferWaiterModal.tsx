@@ -37,8 +37,8 @@ export const TransferWaiterModal: React.FC<TransferWaiterModalProps> = ({ isOpen
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-[6px] p-4 animate-fade-in">
-            <div className="w-full max-w-2xl bg-[#16191f] rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90  p-4 animate-fade-in">
+            <div className="w-full max-w-2xl bg-[#16191f] rounded-[2rem] border border-white/10  /50 overflow-hidden flex flex-col max-h-[85vh]">
 
                 {/* Header */}
                 <div className="px-8 py-5 border-b border-white/5 flex flex-col items-center justify-center shrink-0 bg-black/20">
@@ -57,7 +57,7 @@ export const TransferWaiterModal: React.FC<TransferWaiterModalProps> = ({ isOpen
                                     key={waiter.id}
                                     onClick={() => setSelectedWaiterId(waiter.id)}
                                     className={`relative p-3 rounded-xl border flex flex-col items-start justify-center transition-all active:scale-95 group ${selectedWaiterId === waiter.id
-                                        ? 'bg-white border-white shadow-xl shadow-black/50'
+                                        ? 'bg-white border-white  /50'
                                         : 'bg-white/5 border-white/5 hover:bg-white/10'
                                         }`}
                                 >
@@ -93,7 +93,7 @@ export const TransferWaiterModal: React.FC<TransferWaiterModalProps> = ({ isOpen
                     <button
                         disabled={!selectedWaiterId}
                         onClick={() => selectedWaiterId && onTransfer(selectedWaiterId)}
-                        className="flex-1 py-3.5 bg-white text-black disabled:bg-white/5 disabled:text-gray-600 disabled:border-white/5 rounded-xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-black/40 transition-all active:scale-95"
+                        className="flex-1 py-3.5 bg-white text-black disabled:bg-white/5 disabled:text-gray-600 disabled:border-white/5 rounded-xl font-black uppercase tracking-[0.2em] text-[10px]  /40 transition-all active:scale-95"
                     >
                         ACEPTAR
                     </button>

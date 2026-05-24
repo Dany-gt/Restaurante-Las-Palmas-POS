@@ -474,7 +474,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
     return (
         <div className="fixed inset-0 flex flex-col bg-[#2d2e3d] text-white overflow-hidden animate-fade-in z-50">
             {/* Top Navigation Bar */}
-            <div className="bg-[#3a3b4d] h-10 px-4 flex items-center justify-between shrink-0 shadow-lg border-b border-white/5">
+            <div className="bg-[#3a3b4d] h-10 px-4 flex items-center justify-between shrink-0  border-b border-white/5">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={onBack}
@@ -503,7 +503,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
 
             <main className="flex-1 flex overflow-hidden">
                 {/* Left Panel: Search & List */}
-                <div className="w-full lg:w-[320px] xl:w-[360px] flex flex-col border-r border-white/5 bg-[#2d2e3d] shadow-2xl z-10">
+                <div className="w-full lg:w-[320px] xl:w-[360px] flex flex-col border-r border-white/5 bg-[#2d2e3d]  z-10">
                     {/* Header */}
                     <div className="p-3 border-b border-white/5 bg-[#3a3b4d]/30">
                         <h3 className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Facturas</h3>
@@ -542,7 +542,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                 placeholder="BUSCAR NOMBRE / NIT..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-black/40 border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-black placeholder:text-gray-500 outline-none focus:border-white/50 focus:bg-black/60 transition-all uppercase tracking-widest text-white shadow-inner"
+                                className="w-full bg-black/40 border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-black placeholder:text-gray-500 outline-none focus:border-white/50 focus:bg-black/60 transition-all uppercase tracking-widest text-white "
                             />
                         </div>
                         {activeTab === 'CONTINGENCIA' && (
@@ -570,7 +570,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                     onClick={() => handleSelectRecord(record)}
                                     className={`w-full p-2.5 rounded-sm border transition-all flex flex-col gap-1 text-left group shrink-0
                                     ${selectedRecord?.id === record.id
-                                            ? 'bg-white/10 border-white shadow-xl'
+                                            ? 'bg-white/10 border-white '
                                             : 'bg-[#3a3b4d] border-white/5 hover:border-white/10 hover:bg-[#45465a]'
                                         }`}
                                 >
@@ -629,14 +629,14 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                         <button
                             onClick={() => setActiveTab('FACTURADAS')}
                             className={`flex-1 py-2 rounded-sm text-[9px] font-black uppercase tracking-wider transition-all
-                                ${activeTab === 'FACTURADAS' ? 'bg-white text-black shadow-lg font-black' : 'bg-white/5 text-gray-500 hover:text-white'}`}
+                                ${activeTab === 'FACTURADAS' ? 'bg-white text-black  font-black' : 'bg-white/5 text-gray-500 hover:text-white'}`}
                         >
                             Facturadas
                         </button>
                         <button
                             onClick={() => setActiveTab('CONTINGENCIA')}
                             className={`flex-1 py-2 rounded-sm text-[9px] font-black uppercase tracking-wider transition-all
-                                ${activeTab === 'CONTINGENCIA' ? 'bg-white text-black shadow-lg font-black' : 'bg-white/5 text-gray-500 hover:text-white'}`}
+                                ${activeTab === 'CONTINGENCIA' ? 'bg-white text-black  font-black' : 'bg-white/5 text-gray-500 hover:text-white'}`}
                         >
                             Contingencia
                         </button>
@@ -650,7 +650,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                             {/* Detail Header */}
                             <div className="p-3 border-b border-white/5 flex justify-between items-center shrink-0 bg-[#3a3b4d]/50 backdrop-blur-md">
                                 <div className="flex items-center gap-3">
-                                    <div className={`p-1.5 rounded-sm ${selectedRecord.status?.toUpperCase() === 'CANCELLED' ? 'bg-rose-500/10 text-rose-400' : selectedRecord.uuid ? 'bg-emerald-500/10 text-emerald-400' : 'bg-white/5 text-white/50'} border border-white/10 shadow-inner`}>
+                                    <div className={`p-1.5 rounded-sm ${selectedRecord.status?.toUpperCase() === 'CANCELLED' ? 'bg-rose-500/10 text-rose-400' : selectedRecord.uuid ? 'bg-emerald-500/10 text-emerald-400' : 'bg-white/5 text-white/50'} border border-white/10 `}>
                                         <FileText size={18} />
                                     </div>
                                     <div>
@@ -670,7 +670,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                     ) : (
                                         <button
                                             onClick={() => setShowVoidModal(true)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 rounded-sm transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest shadow-lg shadow-rose-600/20"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 rounded-sm transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest  -600/20"
                                         >
                                             <Trash2 size={12} />
                                             <span>Anular</span>
@@ -679,7 +679,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                     {selectedRecord.status?.toUpperCase() !== 'CANCELLED' && (
                                         <button
                                             onClick={() => handleWhatsApp(selectedRecord)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-sm transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 text-white"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-sm transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest  -600/20 text-white"
                                         >
                                             <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 fill-current">
                                                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
@@ -690,7 +690,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                     {activeTab === 'CONTINGENCIA' && onCheckout ? (
                                         <button
                                             onClick={() => handleFacturar(selectedRecord)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-sm transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-sm transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest  -600/20"
                                         >
                                             <Receipt size={12} />
                                             <span>Facturar</span>
@@ -698,7 +698,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                     ) : (
                                         <button
                                             onClick={() => handlePrint(selectedRecord)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-sm transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-sm transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest  -600/20"
                                         >
                                             <Printer size={12} />
                                             <span>Imprimir</span>
@@ -773,7 +773,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
 
                             {/* Table Area: Flexible and Scrollable */}
                             <div className="flex-1 flex flex-col p-3 overflow-hidden">
-                                <div className="flex-1 flex flex-col bg-[#3a3b4d] border border-white/5 rounded-sm overflow-hidden shadow-2xl">
+                                <div className="flex-1 flex flex-col bg-[#3a3b4d] border border-white/5 rounded-sm overflow-hidden ">
                                     <div className="grid grid-cols-12 px-4 py-2 bg-black/40 border-b border-white/5 text-[8px] font-black text-gray-500 uppercase tracking-[0.2em]">
                                         <div className="col-span-1">Ct.</div>
                                         <div className="col-span-7">Descripción</div>
@@ -851,7 +851,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                         </div>
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center text-center p-20 opacity-50">
-                            <div className="w-32 h-32 bg-white/5 rounded-full flex items-center justify-center mb-8 border border-white/10 shadow-2xl">
+                            <div className="w-32 h-32 bg-white/5 rounded-full flex items-center justify-center mb-8 border border-white/10 ">
                                 <FileText size={64} className="text-white/40" strokeWidth={1} />
                             </div>
                             <h3 className="text-2xl font-black uppercase tracking-[0.4em] text-white/60 mb-3">Visor de Detalles</h3>
@@ -867,7 +867,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
             {
                 showVoidModal && (
                     <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
-                        <div className="bg-[#14171c] w-full max-w-4xl h-auto max-h-[90vh] sm:h-[540px] rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden flex">
+                        <div className="bg-[#14171c] w-full max-w-4xl h-auto max-h-[90vh] sm:h-[540px] rounded-[2rem] border border-white/10  overflow-hidden flex">
                             {/* Left Side: Info & Keypad */}
                             <div className="w-1/2 flex flex-col border-r border-white/5 bg-black/20 shrink-0">
                                 <div className="p-4 sm:p-6 border-b border-white/5 bg-white/[0.02]">
@@ -887,7 +887,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                             <div
                                                 key={i}
                                                 className={`w-3.5 h-3.5 rounded-full transition-all duration-300 border ${voidPin.length > i
-                                                    ? 'bg-rose-500 border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.5)]'
+                                                    ? 'bg-rose-500 border-rose-500 '
                                                     : 'bg-white/5 border-white/10'
                                                     }`}
                                             />
@@ -1012,7 +1012,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                         disabled={voiding || voidPin.length < 4}
                                         className={`w-full h-12 rounded-sm font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 text-xs
                                         ${voidPin.length === 4 && !voiding
-                                                ? 'bg-rose-600 text-white hover:bg-rose-500 shadow-xl shadow-rose-600/30 active:scale-95'
+                                                ? 'bg-rose-600 text-white hover:bg-rose-500  -600/30 active:scale-95'
                                                 : 'bg-white/5 text-gray-700 cursor-not-allowed border border-white/5'}`}
                                     >
                                         {voiding ? (
@@ -1038,7 +1038,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
             {/* WhatsApp Modal */}
             {showWhatsAppModal && (
                 <div className="fixed inset-0 bg-transparent z-[100] flex items-center justify-center p-4 animate-in fade-in duration-150">
-                    <div className="bg-[#2d2e3d] w-full max-w-sm rounded-none border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col pointer-events-auto">
+                    <div className="bg-[#2d2e3d] w-full max-w-sm rounded-none border border-white/10  overflow-hidden flex flex-col pointer-events-auto">
                         {/* Dashboard Header */}
                         <div className="bg-[#3a3b4d] h-10 px-3 flex justify-between items-center shrink-0 select-none rounded-none border-b border-white/5">
                             <span className="text-white text-[11px] font-black uppercase tracking-wider">Compartir por WhatsApp</span>
@@ -1088,14 +1088,14 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                                 setWhatsAppPhone(p => p + num);
                                             }
                                         }}
-                                        className="h-9 rounded-none bg-white/5 hover:bg-white/10 border border-white/5 text-white text-sm font-bold transition-all active:scale-95 shadow-sm"
+                                        className="h-9 rounded-none bg-white/5 hover:bg-white/10 border border-white/5 text-white text-sm font-bold transition-all active:scale-95 "
                                     >
                                         {num}
                                     </button>
                                 ))}
                                 <button
                                     onClick={() => { setWhatsAppPhone(''); setWhatsAppError(''); }}
-                                    className="h-9 rounded-none bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-[10px] font-bold uppercase transition-all active:scale-95 shadow-sm"
+                                    className="h-9 rounded-none bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-[10px] font-bold uppercase transition-all active:scale-95 "
                                 >
                                     Limpiar
                                 </button>
@@ -1106,7 +1106,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                             setWhatsAppPhone(p => p + '0');
                                         }
                                     }}
-                                    className="h-9 rounded-none bg-white/5 hover:bg-white/10 border border-white/5 text-white text-base font-bold transition-all active:scale-95 shadow-sm"
+                                    className="h-9 rounded-none bg-white/5 hover:bg-white/10 border border-white/5 text-white text-base font-bold transition-all active:scale-95 "
                                 >
                                     0
                                 </button>
@@ -1115,7 +1115,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                         setWhatsAppError('');
                                         setWhatsAppPhone(p => p.slice(0, -1));
                                     }}
-                                    className="h-9 rounded-none bg-white/5 hover:bg-white/10 border border-white/5 text-white flex items-center justify-center transition-all active:scale-95 shadow-sm"
+                                    className="h-9 rounded-none bg-white/5 hover:bg-white/10 border border-white/5 text-white flex items-center justify-center transition-all active:scale-95 "
                                 >
                                     <Backspace size={16} />
                                 </button>
@@ -1129,7 +1129,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                 disabled={sendingWhatsApp || whatsAppPhone.length !== 8}
                                 className={`w-full h-10 rounded-none font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 text-xs text-white border
                                 ${whatsAppPhone.length === 8 && !sendingWhatsApp
-                                        ? 'bg-emerald-600 hover:bg-emerald-500 border-emerald-700 active:scale-95 shadow-md'
+                                        ? 'bg-emerald-600 hover:bg-emerald-500 border-emerald-700 active:scale-95 '
                                         : 'bg-white/5 text-gray-500 border-white/5 cursor-not-allowed'}`}
                             >
                                 {sendingWhatsApp ? (

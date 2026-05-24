@@ -10,8 +10,8 @@ export const ClosingNotesModal: React.FC<ClosingNotesModalProps> = ({ onClose, o
     const [notes, setNotes] = useState('');
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4 animate-fade-in">
-            <div className="bg-[#1e212b] w-full max-w-lg rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-black/80  z-[200] flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-[#1e212b] w-full max-w-lg rounded-xl border border-white/10  /50 overflow-hidden flex flex-col">
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
                     <div className="flex items-center gap-3">
                         <MessageSquare size={20} className="text-indigo-400" />
@@ -47,7 +47,7 @@ export const ClosingNotesModal: React.FC<ClosingNotesModalProps> = ({ onClose, o
                     </button>
                     <button
                         onClick={() => onConfirm(notes)}
-                        className="flex-1 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold uppercase tracking-widest text-xs text-white shadow-lg shadow-indigo-600/20 transition-all"
+                        className="flex-1 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold uppercase tracking-widest text-xs text-white  -600/20 transition-all"
                     >
                         Aceptar
                     </button>

@@ -191,7 +191,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-6 touch-none">
-            <div className="w-full max-w-[300px] bg-[#1e1f2b] rounded-lg p-6 border border-white/10 shadow-2xl relative overflow-hidden">
+            <div className="w-full max-w-[300px] bg-[#1e1f2b] rounded-lg p-6 border border-white/10  /50 relative overflow-hidden">
                 <div className="flex justify-end mb-2">
                     <button onClick={onClose} className="p-1.5 text-white/30 hover:text-white transition-colors bg-white/5 rounded-md hover:bg-white/10">
                         <X size={14} />
@@ -204,7 +204,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
 
                     {error && (
                         <div className="absolute top-0 translate-y-16 w-full flex justify-center z-50">
-                            <span className="text-[9px] font-black text-white bg-black/80 px-3 py-1.5 rounded-md shadow-lg border border-white/10">
+                            <span className="text-[9px] font-black text-white bg-black/80 px-3 py-1.5 rounded-md  border border-white/10">
                                 {error}
                             </span>
                         </div>
@@ -217,7 +217,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                                 className={`
                                     w-3 h-3 border border-gray-700 transition-all duration-200
                                     ${pin.length > i
-                                        ? 'bg-gray-400 border-gray-400 shadow-[0_0_8px_rgba(255,255,255,0.2)]'
+                                        ? 'bg-gray-400 border-gray-400 '
                                         : 'bg-black/40'
                                     }
                                 `}
@@ -262,7 +262,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                                 group relative w-16 h-14 rounded-md text-xl font-bold text-white/90 
                                 transition-all duration-100 active:scale-95 flex items-center justify-center 
                                 bg-white/5 hover:bg-white/10 border border-white/5
-                                shadow-lg disabled:opacity-50 disabled:pointer-events-none
+                                 disabled:opacity-50 disabled:pointer-events-none
                             "
                         >
                             <span className="relative z-10">{key}</span>
@@ -289,7 +289,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                             group relative w-16 h-14 rounded-md text-xl font-bold text-white/90 
                             transition-all duration-100 active:scale-95 flex items-center justify-center 
                             bg-white/5 hover:bg-white/10 border border-white/5
-                            shadow-lg disabled:opacity-50 disabled:pointer-events-none
+                             disabled:opacity-50 disabled:pointer-events-none
                         "
                     >
                         0
@@ -302,7 +302,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                             group relative w-16 h-14 rounded-md text-sm font-black text-white 
                             transition-all duration-100 active:scale-95 flex items-center justify-center 
                             bg-white hover:bg-white/90 border border-white 
-                            shadow-lg disabled:opacity-50 disabled:pointer-events-none
+                             disabled:opacity-50 disabled:pointer-events-none
                         "
                     >
                         {loading ? <Loader2 className="animate-spin text-black" size={20} /> : <span className="text-black">OK</span>}

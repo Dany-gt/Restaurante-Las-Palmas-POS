@@ -1046,7 +1046,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 </div>
                 <div className="flex items-center gap-6">
                     {/* Clock & Date */}
-                    <div className="hidden md:flex flex-col items-center leading-none bg-black/40 px-3 py-1.5 rounded-2xl border border-white/5 shadow-inner">
+                    <div className="hidden md:flex flex-col items-center leading-none bg-black/40 px-3 py-1.5 rounded-2xl border border-white/5 ">
                         <span className="text-[13px] font-black tracking-widest text-white/40 tabular-nums">{timeDisplay}</span>
                         <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter mt-0.5">{dateDisplay}</span>
                     </div>
@@ -1063,7 +1063,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
 
                 {/* LEFT PANEL: TOTALS & SUMMARY */}
                 <div className="w-[300px] flex flex-col gap-4">
-                    <div className="bg-[#1e212b] p-6 flex flex-col gap-3 border border-white/5 shadow-2xl">
+                    <div className="bg-[#1e212b] p-6 flex flex-col gap-3 border border-white/5 ">
                         <div className="flex justify-between text-gray-400 text-sm font-black uppercase leading-tight">
                             <span>SUB-TOTAL</span>
                             <span>{currency}{subtotal.toFixed(2)}</span>
@@ -1120,7 +1120,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     {!existingInvoice && !invoiceSuccess && (
                         <button
                             onClick={handleAnticipatedInvoice}
-                            className="w-full py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-95 flex items-center justify-center gap-3 shadow-2xl group"
+                            className="w-full py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-95 flex items-center justify-center gap-3  group"
                         >
                             <FileText size={22} className="group-hover:scale-110 transition-transform" /> Factura Anticipada
                         </button>
@@ -1128,7 +1128,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 </div>
 
                 {/* MIDDLE PANEL: PAYMENTS LIST */}
-                <div className="flex-1 h-[430px] self-start bg-[#1e212b] border border-white/5 shadow-2xl overflow-hidden flex flex-col relative">
+                <div className="flex-1 h-[430px] self-start bg-[#1e212b] border border-white/5  overflow-hidden flex flex-col relative">
                     <div className="flex-1 overflow-y-auto p-6 space-y-2">
                         {payments.length === 0 ? (
                             <div className="h-full flex items-center justify-center text-white/20 font-black uppercase tracking-widest text-sm">
@@ -1175,9 +1175,9 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
 
                 {/* RIGHT PANEL: KEYPAD & METHODS */}
                 <div className="w-[420px] flex flex-col gap-3 shrink-0">
-                    <div className="bg-[#1e212b] p-4 border border-white/5 shadow-2xl flex flex-col gap-4">
+                    <div className="bg-[#1e212b] p-4 border border-white/5  flex flex-col gap-4">
                         {/* AMOUNT DISPLAY */}
-                        <div className="bg-black/40 rounded-2xl h-16 flex items-center justify-center text-3xl font-bold text-white border border-white/20 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)] relative overflow-hidden">
+                        <div className="bg-black/40 rounded-2xl h-16 flex items-center justify-center text-3xl font-bold text-white border border-white/20  relative overflow-hidden">
                             <span className="tabular-nums">
                                 {currency === 'Q.' ? 'Q' : currency}
                                 {parseFloat(amount || '0').toFixed(2)}
@@ -1326,7 +1326,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                         <m.icon size={18} className={selectedMethod === m.id ? "text-indigo-400" : "opacity-80"} />
                                         <span className="leading-none text-center">{m.label}</span>
                                         {selectedMethod === m.id && (
-                                            <div className="absolute top-1 right-1 bg-indigo-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center shadow-md">
+                                            <div className="absolute top-1 right-1 bg-indigo-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center ">
                                                 <Check size={8} strokeWidth={4} />
                                             </div>
                                         )}
@@ -1339,7 +1339,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     {/* PAGAR BUTTON */}
                     <button
                         onClick={handleFinalize}
-                        className="w-[291px] ml-4 h-16 rounded-none flex items-center justify-center text-lg font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 bg-blue-600 text-white hover:bg-blue-500 shadow-blue-500/20"
+                        className="w-[291px] ml-4 h-16 rounded-none flex items-center justify-center text-lg font-black uppercase tracking-[0.2em]  transition-all active:scale-95 bg-blue-600 text-white hover:bg-blue-500 -500/20"
                     >
                         {existingInvoice && totalPaid >= total ? 'FINALIZAR' : 'PAGAR'}
                     </button>
@@ -1349,7 +1349,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
             {/* POS SELECTOR MODAL */}
             {showPosSelector && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[120] flex items-center justify-center p-6 animate-in fade-in duration-200">
-                    <div className="bg-[#2d2f3d] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col">
+                    <div className="bg-[#2d2f3d] w-full max-w-2xl rounded-xl  overflow-hidden flex flex-col">
                         <div className="pt-8 pb-6 flex justify-center items-center">
                             <h3 className="text-sm font-bold text-white uppercase tracking-wider">SELECCIONE POS</h3>
                         </div>
@@ -1360,7 +1360,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                     <button
                                         key={pos.id}
                                         onClick={() => setSelectedTerminal(pos)}
-                                        className={`relative flex flex-col rounded-lg overflow-hidden transition-all active:scale-95 ${selectedTerminal?.id === pos.id ? 'ring-2 ring-white shadow-lg' : 'ring-1 ring-white/10 hover:ring-white/30 shadow'}`}
+                                        className={`relative flex flex-col rounded-lg overflow-hidden transition-all active:scale-95 ${selectedTerminal?.id === pos.id ? 'ring-2 ring-white ' : 'ring-1 ring-white/10 hover:ring-white/30 shadow'}`}
                                     >
                                         <div className="w-full bg-white h-24 flex items-center justify-center p-4">
                                             {pos.logo_url ? (
@@ -1389,7 +1389,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                             <button
                                 onClick={() => selectedTerminal && handlePosSelect(selectedTerminal.name)}
                                 disabled={!selectedTerminal}
-                                className={`px-8 py-2.5 rounded-md text-white text-xs font-bold uppercase tracking-wide transition-all active:scale-95 min-w-[120px] ${selectedTerminal ? 'bg-[#7a73ff] hover:bg-[#6861ff] shadow-lg' : 'bg-[#7a73ff]/50 cursor-not-allowed opacity-70'}`}
+                                className={`px-8 py-2.5 rounded-md text-white text-xs font-bold uppercase tracking-wide transition-all active:scale-95 min-w-[120px] ${selectedTerminal ? 'bg-[#7a73ff] hover:bg-[#6861ff] ' : 'bg-[#7a73ff]/50 cursor-not-allowed opacity-70'}`}
                             >
                                 ACEPTAR
                             </button>

@@ -66,8 +66,8 @@ export const NewCreditCustomerModal: React.FC<NewCreditCustomerModalProps> = ({ 
     };
 
     return (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-            <div className="w-full max-w-lg bg-[#232632] rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-white/10">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60  p-4 animate-fade-in">
+            <div className="w-full max-w-lg bg-[#232632] rounded-lg  /50 overflow-hidden flex flex-col border border-white/10">
                 <div className="p-6 border-b border-white/5 text-center bg-[#232632]">
                     <h3 className="text-sm font-black uppercase tracking-widest text-white">DATOS CUENTA AL CRÉDITO</h3>
                 </div>
@@ -169,7 +169,7 @@ export const NewCreditCustomerModal: React.FC<NewCreditCustomerModalProps> = ({ 
                     <button
                         onClick={handleSave}
                         disabled={loading || !name}
-                        className="py-4 rounded-xl font-black uppercase tracking-widest text-[11px] bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50 transition-colors shadow-lg"
+                        className="py-4 rounded-xl font-black uppercase tracking-widest text-[11px] bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50 transition-colors "
                     >
                         {loading ? 'Guardando...' : 'Aceptar'}
                     </button>

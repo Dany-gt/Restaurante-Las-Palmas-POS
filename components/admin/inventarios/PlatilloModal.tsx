@@ -46,7 +46,7 @@ const CustomSelect = ({ value, onChange, options, placeholder = "SELECCIONAR..."
        <div className="relative flex-1">
             <div 
                 onClick={() => setIsOpen(!isOpen)} 
-                className="h-[26px] bg-white border border-[#e2e8f0] px-2 flex items-center justify-between cursor-pointer hover:border-[#106ebe] transition-colors shadow-sm"
+                className="h-[26px] bg-white border border-[#e2e8f0] px-2 flex items-center justify-between cursor-pointer hover:border-[#106ebe] transition-colors "
             >
                 <span className="text-[11px] text-slate-700 uppercase truncate">
                     {options.find((o: any) => o.value === value)?.label || placeholder}
@@ -56,7 +56,7 @@ const CustomSelect = ({ value, onChange, options, placeholder = "SELECCIONAR..."
            {isOpen && (
                <>
                    <div className="fixed inset-0 z-[2000001]" onClick={() => setIsOpen(false)} />
-                   <div className="absolute top-[calc(100%+2px)] left-0 w-full bg-white border border-[#106ebe] shadow-xl z-[2000002] max-h-[140px] overflow-y-auto custom-scrollbar">
+                   <div className="absolute top-[calc(100%+2px)] left-0 w-full bg-white border border-[#106ebe]  z-[2000002] max-h-[140px] overflow-y-auto custom-scrollbar">
                        <div 
                            onClick={() => { onChange(''); setIsOpen(false); }} 
                            className="px-2 py-2 text-[10px] text-gray-400 hover:bg-[#106ebe] hover:text-white cursor-pointer uppercase border-b border-[#f1f5f9] font-bold"
@@ -100,7 +100,7 @@ const SmartPriceInput = ({ value, onChange, className = "" }: any) => {
 
     return (
         <div 
-            className={`flex-1 flex items-center border border-gray-300 bg-white h-[28px] shadow-sm relative cursor-text px-2 ${className}`}
+            className={`flex-1 flex items-center border border-gray-300 bg-white h-[28px]  relative cursor-text px-2 ${className}`}
             onClick={() => inputRef.current?.focus()}
         >
             <input
@@ -217,7 +217,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
             <div className="absolute inset-0 pointer-events-auto" onClick={onClose}></div>
             <div className="pointer-events-auto">
                 <DraggableWindow>
-                    <div className="bg-white border border-[#106ebe] w-[950px] overflow-hidden flex flex-col shadow-[0_30px_90px_rgba(0,0,0,0.3)] animate-in fade-in duration-200">
+                    <div className="bg-white border border-[#106ebe] w-[950px] overflow-hidden flex flex-col  animate-in fade-in duration-200">
                         {/* HEADER EXTREMO CLONE */}
                         <div className="modal-header bg-[#106ebe] h-8 px-2 flex justify-between items-center text-white shrink-0 cursor-move transition-colors">
                             <div className="flex items-center gap-2">
@@ -260,7 +260,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                         {/* APLICANDO EL TAMAÑO DEL ALTO QUE LE GUSTÓ AL USUARIO PERO COMPACTADO */}
                         <div className="p-4 space-y-4 bg-white overflow-y-auto max-h-[85vh] custom-scrollbar">
                             {/* SECCIÓN 1 */}
-                            <fieldset className="border border-[#ced4da] p-4 pt-2 bg-white relative shadow-sm">
+                            <fieldset className="border border-[#ced4da] p-4 pt-2 bg-white relative ">
                                 <legend className="px-1.5 text-[10px] font-semibold text-[#106ebe] uppercase">Datos de Platillo</legend>
                                 <div className="flex gap-6 mt-1">
                                     <div className="flex-1 space-y-3">
@@ -272,7 +272,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                         ].map((f) => (
                                             <div key={f.key} className="flex items-center">
                                                 <label className="text-[11px] text-gray-400 w-[110px] shrink-0 uppercase tracking-tighter">{f.label}</label>
-                                                 <div className="flex-1 h-[28px] bg-white border border-[#e2e8f0] flex items-center px-3 shadow-sm focus-within:border-gray-400 transition-colors">
+                                                 <div className="flex-1 h-[28px] bg-white border border-[#e2e8f0] flex items-center px-3  focus-within:border-gray-400 transition-colors">
                                                      <input 
                                                          type="text" 
                                                          className="w-full h-5 bg-transparent text-[11px] text-slate-700 outline-none uppercase"
@@ -297,7 +297,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                             {/* Prioridad - 50% */}
                                             <div className="w-1/2 flex items-center pl-3">
                                                 <label className="text-[11px] text-gray-400 w-[110px] shrink-0 uppercase tracking-tighter text-right pr-6">Prioridad</label>
-                                                 <div className="flex-1 h-[28px] border border-gray-400 bg-white flex items-center justify-center shadow-sm">
+                                                 <div className="flex-1 h-[28px] border border-gray-400 bg-white flex items-center justify-center ">
                                                      <input
                                                          type="text"
                                                          className="w-full h-5 bg-transparent text-[11px] font-bold text-slate-800 outline-none text-center"
@@ -339,7 +339,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                     </div>
                                     
                                     <div className="w-[140px] flex flex-col items-center">
-                                        <div className="w-full aspect-square border border-[#e2e8f0] bg-[#f8fafc] flex items-center justify-center text-gray-300 relative shadow-inner overflow-hidden group p-4">
+                                        <div className="w-full aspect-square border border-[#e2e8f0] bg-[#f8fafc] flex items-center justify-center text-gray-300 relative  overflow-hidden group p-4">
                                             {newProduct.image_url ? (
                                                 <img src={newProduct.image_url} className="w-full h-full object-contain" alt="Plato" />
                                             ) : (
@@ -354,7 +354,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                         <button 
                                             onClick={() => { if (newProduct.image_url) setNewProduct({...newProduct, image_url: ''}); }}
                                             disabled={uploadingImage}
-                                            className="mt-3 w-full h-[28px] bg-[#106ebe] text-white text-[10px] font-bold uppercase hover:bg-[#0d5aa0] transition-colors shadow-sm flex items-center justify-center gap-2"
+                                            className="mt-3 w-full h-[28px] bg-[#106ebe] text-white text-[10px] font-bold uppercase hover:bg-[#0d5aa0] transition-colors  flex items-center justify-center gap-2"
                                         >
                                             <Trash2 size={12} />
                                             Quitar Imagen
@@ -381,7 +381,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                         </div>
                                     ))}
                                     <button 
-                                        className="h-[28px] bg-[#106ebe] text-white text-[10px] font-bold uppercase hover:bg-[#0d5aa0] transition-colors shadow-sm"
+                                        className="h-[28px] bg-[#106ebe] text-white text-[10px] font-bold uppercase hover:bg-[#0d5aa0] transition-colors "
                                         onClick={() => {
                                             setBranchPrices(branchPrices.map(bp => ({ 
                                                 ...bp, 
@@ -398,7 +398,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                             </fieldset>
 
                             {/* TABS Y TABLA */}
-                            <div className="flex-1 border border-[#ced4da] bg-white shadow-sm overflow-hidden flex flex-col min-h-[220px]">
+                            <div className="flex-1 border border-[#ced4da] bg-white  overflow-hidden flex flex-col min-h-[220px]">
                                 <div className="h-8 bg-[#f1f5f9] border-b border-[#ced4da] flex justify-between items-center px-1">
                                     <div className="flex h-full items-center">
                                         <button 
@@ -415,7 +415,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                         </button>
                                     </div>
                                     <button 
-                                        className="h-[24px] px-4 bg-[#106ebe] text-white text-[10px] font-black uppercase flex items-center gap-1.5 hover:bg-[#0d5aa0] shadow-sm transition-all active:scale-95"
+                                        className="h-[24px] px-4 bg-[#106ebe] text-white text-[10px] font-black uppercase flex items-center gap-1.5 hover:bg-[#0d5aa0]  transition-all active:scale-95"
                                         onClick={() => setShowTechnicalModal(true)}
                                     >
                                         <FileText size={13} /> Ficha Técnica
@@ -425,7 +425,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                 <div className="flex-1 flex flex-col overflow-hidden bg-white">
                                     {activeTab === 'sucursales' ? (
                                         <div className="p-2">
-                                            <div className="border border-gray-300 rounded-sm overflow-hidden w-full bg-white shadow-sm overflow-x-hidden">
+                                            <div className="border border-gray-300 rounded-sm overflow-hidden w-full bg-white  overflow-x-hidden">
                                                 <table className="w-full border-collapse">
                                                     <thead>
                                                         <tr className="h-8 text-[9.5px] text-slate-700 font-extrabold uppercase border-b border-gray-300 bg-[#f1f5f9]">

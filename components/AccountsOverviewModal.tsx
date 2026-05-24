@@ -110,7 +110,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none p-4">
             {/* Modal Principal */}
-            <div className="w-full max-w-6xl h-[85vh] bg-[#3a3b4d] flex flex-col overflow-hidden rounded-none pointer-events-auto border border-white/5 shadow-2xl relative">
+            <div className="w-full max-w-6xl h-[85vh] bg-[#3a3b4d] flex flex-col overflow-hidden rounded-none pointer-events-auto border border-white/5  /50 relative">
                 
                 {/* Header */}
                 <div className="px-6 py-4 bg-[#2d2e3d] border-b border-white/5 flex items-center justify-between shrink-0">
@@ -128,7 +128,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                         onClick={() => { setLocalSelectedId(null); onSelectAccount(null); }}
                         className={`px-8 py-2.5 rounded text-[10px] font-black uppercase tracking-widest transition-all ${
                             localSelectedId === null
-                            ? 'bg-[#7c7ffb] text-white shadow-lg shadow-[#7c7ffb]/20'
+                            ? 'bg-[#7c7ffb] text-white  /20'
                             : 'bg-[#3a3b4d] text-white/20 hover:bg-[#45465e]'
                         }`}
                     >
@@ -138,7 +138,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
 
                 {/* Mensaje de Error (Feedback Visual) */}
                 {errorMessage && (
-                    <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[120] bg-red-500 text-white px-6 py-3 rounded shadow-2xl flex items-center gap-3 animate-bounce">
+                    <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[120] bg-red-500 text-white px-6 py-3 rounded  /50 flex items-center gap-3 animate-bounce">
                         <AlertTriangle size={20} />
                         <span className="text-[10px] font-black uppercase tracking-widest">{errorMessage}</span>
                     </div>
@@ -153,7 +153,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                                 onClick={() => setLocalSelectedId(summary.id)}
                                 className={`relative cursor-pointer overflow-hidden flex flex-col transition-all border-2 ${
                                     localSelectedId === summary.id 
-                                    ? 'bg-[#2d2e3d] border-[#7c7ffb] shadow-2xl' 
+                                    ? 'bg-[#2d2e3d] border-[#7c7ffb]  /50' 
                                     : 'bg-[#2d2e3d]/40 border-white/5 hover:bg-[#2d2e3d]/60'
                                 }`}
                             >
@@ -193,23 +193,23 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                 {/* Footer */}
                 <div className="px-10 py-8 bg-[#2d2e3d] border-t border-white/5 shrink-0 flex items-center justify-center gap-12">
                     <div className="flex items-center gap-5">
-                        <button onClick={onAddAccount} className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all shadow-lg active:scale-95">
+                        <button onClick={onAddAccount} className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all  active:scale-95">
                             <UserPlus size={24} />
                         </button>
 
-                        <button onClick={() => localSelectedId && onEditAccount(localSelectedId)} disabled={!localSelectedId} className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 disabled:opacity-10 transition-all shadow-lg active:scale-95">
+                        <button onClick={() => localSelectedId && onEditAccount(localSelectedId)} disabled={!localSelectedId} className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 disabled:opacity-10 transition-all  active:scale-95">
                             <UserRoundPen size={24} />
                         </button>
 
                         <button 
                             onClick={handleDeleteClick} 
                             disabled={!localSelectedId} 
-                            className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-red-400 rounded flex items-center justify-center border border-white/10 disabled:opacity-10 transition-all shadow-lg active:scale-95"
+                            className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-red-400 rounded flex items-center justify-center border border-white/10 disabled:opacity-10 transition-all  active:scale-95"
                         >
                             <UserMinus size={24} />
                         </button>
 
-                        <button onClick={() => onPrintAccount(localSelectedId)} className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all shadow-lg active:scale-95">
+                        <button onClick={() => onPrintAccount(localSelectedId)} className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all  active:scale-95">
                             <Printer size={24} />
                         </button>
                     </div>
@@ -218,7 +218,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
 
                     <button 
                         onClick={() => onSelectAccount(localSelectedId)}
-                        className="h-14 px-16 bg-[#7c7ffb] text-white hover:bg-[#6b6edb] rounded flex items-center justify-center transition-all text-[11px] font-black uppercase tracking-widest shadow-xl shadow-[#7c7ffb]/20 active:scale-95"
+                        className="h-14 px-16 bg-[#7c7ffb] text-white hover:bg-[#6b6edb] rounded flex items-center justify-center transition-all text-[11px] font-black uppercase tracking-widest  /20 active:scale-95"
                     >
                         Aceptar
                     </button>
@@ -226,8 +226,8 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
 
                 {/* OVERLAY DE COMENTARIO OBLIGATORIO PARA ELIMINACIÓN */}
                 {showDeletePrompt && (
-                    <div className="absolute inset-0 z-[150] bg-black/80 flex items-center justify-center p-6 backdrop-blur-sm">
-                        <div className="bg-[#2d2e3d] w-full max-w-md p-8 rounded-none border border-white/10 shadow-3xl">
+                    <div className="absolute inset-0 z-[150] bg-black/80 flex items-center justify-center p-6 ">
+                        <div className="bg-[#2d2e3d] w-full max-w-md p-8 rounded-none border border-white/10 ">
                             <div className="flex items-center gap-3 mb-6 text-red-400">
                                 <MessageSquare size={24} />
                                 <h3 className="text-sm font-black uppercase tracking-[0.2em]">Motivo de Eliminación</h3>

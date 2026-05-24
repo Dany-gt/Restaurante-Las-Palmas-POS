@@ -189,8 +189,8 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
     );
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 font-sans">
-            <div className="bg-[#2d3244] w-full max-w-[950px] rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-black/60  z-50 flex items-center justify-center p-4 font-sans">
+            <div className="bg-[#2d3244] w-full max-w-[950px] rounded-lg  border border-white/10 overflow-hidden flex flex-col">
 
                 {/* Header */}
                 <div className="bg-[#3a4159] p-2 flex items-center justify-center border-b border-black/20">
@@ -224,7 +224,7 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                                     onClick={() => setSelectedCategory(cat.name)}
                                     className={`px-2 py-2 rounded text-[10px] font-bold uppercase tracking-tight transition-all h-12 flex items-center justify-center text-center leading-tight ${
                                         selectedCategory === cat.name
-                                            ? 'bg-[#6366f1] text-white shadow-inner'
+                                            ? 'bg-[#6366f1] text-white '
                                             : 'bg-[#474f68] text-gray-200 hover:bg-[#525b7a] border border-black/20'
                                     }`}
                                 >
@@ -314,10 +314,10 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                     {/* ══════════ END LEFT PANEL ══════════ */}
 
                     {/* ══════════ RIGHT PANEL: Numpad ══════════ */}
-                    <div className="w-[300px] bg-[#3a4159] p-4 flex flex-col gap-3 shadow-[-10px_0_20px_rgba(0,0,0,0.1)]">
+                    <div className="w-[300px] bg-[#3a4159] p-4 flex flex-col gap-3 ">
 
                         {/* Amount display — shows what you are typing */}
-                        <div className="bg-[#242938] rounded p-4 text-right border-b-2 border-indigo-500/50 shadow-inner shrink-0">
+                        <div className="bg-[#242938] rounded p-4 text-right border-b-2 border-indigo-500/50  shrink-0">
                             <span className="text-3xl font-black text-white tabular-nums tracking-tighter">Q{itemPrice}</span>
                         </div>
 
@@ -327,14 +327,14 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                                 <button
                                     key={k}
                                     onClick={() => handleKeyPad(k)}
-                                    className="bg-[#474f68] hover:bg-[#525b7a] active:bg-[#6366f1] text-2xl font-bold text-white rounded transition-colors shadow-md border-b-2 border-black/20"
+                                    className="bg-[#474f68] hover:bg-[#525b7a] active:bg-[#6366f1] text-2xl font-bold text-white rounded transition-colors  border-b-2 border-black/20"
                                 >
                                     {k}
                                 </button>
                             ))}
-                            <button onClick={() => handleKeyPad('0')} className="bg-[#474f68] hover:bg-[#525b7a] text-2xl font-bold text-white rounded shadow-md border-b-2 border-black/20">0</button>
-                            <button onClick={() => handleKeyPad('.')} className="bg-[#474f68] hover:bg-[#525b7a] text-2xl font-bold text-white rounded shadow-md border-b-2 border-black/20">.</button>
-                            <button onClick={() => handleKeyPad('BACKSPACE')} className="bg-[#474f68] hover:bg-rose-500 text-white rounded flex items-center justify-center shadow-md border-b-2 border-black/20">
+                            <button onClick={() => handleKeyPad('0')} className="bg-[#474f68] hover:bg-[#525b7a] text-2xl font-bold text-white rounded  border-b-2 border-black/20">0</button>
+                            <button onClick={() => handleKeyPad('.')} className="bg-[#474f68] hover:bg-[#525b7a] text-2xl font-bold text-white rounded  border-b-2 border-black/20">.</button>
+                            <button onClick={() => handleKeyPad('BACKSPACE')} className="bg-[#474f68] hover:bg-rose-500 text-white rounded flex items-center justify-center  border-b-2 border-black/20">
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/>
                                     <line x1="18" y1="9" x2="12" y2="15"/>
@@ -347,7 +347,7 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                         <button
                             onClick={handleAddItem}
                             disabled={parseFloat(itemPrice) <= 0 || !selectedCategory}
-                            className={`w-full h-14 rounded flex items-center justify-center gap-2 transition-all shadow-md font-black uppercase text-sm tracking-widest border-b-2 shrink-0 ${
+                            className={`w-full h-14 rounded flex items-center justify-center gap-2 transition-all  font-black uppercase text-sm tracking-widest border-b-2 shrink-0 ${
                                 parseFloat(itemPrice) > 0 && selectedCategory
                                     ? 'bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white border-emerald-700'
                                     : 'bg-[#242938] text-gray-600 cursor-not-allowed border-black/20'

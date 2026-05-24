@@ -58,11 +58,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
   const [boxLockedError, setBoxLockedError] = useState<string | null>(null);
 
   // --- NUEVOS ESTADOS PARA REDISEÑO MÓVIL (PWA/SMARTPHONE) ---
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1150);
   const [loginStep, setLoginStep] = useState<'ROLE' | 'CREDENTIALS'>('ROLE');
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    const handleResize = () => setIsMobile(window.innerWidth < 1150);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);

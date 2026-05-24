@@ -317,7 +317,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
     if (isSuccess) {
         return (
             <div className="fixed inset-0 z-[120] flex items-center justify-center bg-[#0a0c10]/95 p-4 animate-in fade-in duration-300">
-                <div className="w-full max-w-md bg-[#1e232f] border border-white/10 shadow-2xl flex flex-col items-center p-10 text-center animate-in zoom-in duration-300">
+                <div className="w-full max-w-md bg-[#1e232f] border border-white/10  /50 flex flex-col items-center p-10 text-center animate-in zoom-in duration-300">
                     <div className="w-24 h-24 bg-white/10 flex items-center justify-center mb-6 text-white">
                         <Check size={48} />
                     </div>
@@ -329,7 +329,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                             href={pdfUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full py-5 bg-indigo-600 text-white font-black uppercase tracking-[0.2em] text-xs shadow-xl transition-all flex items-center justify-center gap-3 mb-4 active:scale-95 hover:bg-indigo-500"
+                            className="w-full py-5 bg-indigo-600 text-white font-black uppercase tracking-[0.2em] text-xs  transition-all flex items-center justify-center gap-3 mb-4 active:scale-95 hover:bg-indigo-500"
                         >
                             <ExternalLink size={20} /> Ver Factura (PDF)
                         </a>
@@ -337,7 +337,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 
                     <button
                         onClick={handleWhatsApp}
-                        className="w-full py-5 bg-white/10 text-white font-black uppercase tracking-[0.2em] text-xs shadow-xl transition-all flex items-center justify-center gap-3 mb-4 active:scale-95 hover:bg-white/20"
+                        className="w-full py-5 bg-white/10 text-white font-black uppercase tracking-[0.2em] text-xs  transition-all flex items-center justify-center gap-3 mb-4 active:scale-95 hover:bg-white/20"
                     >
                         <Smartphone size={20} /> Enviar WhatsApp
                     </button>
@@ -364,7 +364,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                     animation: fast-blink 0.8s step-end infinite;
                 }
             `}</style>
-            <div className="bg-[#1e2330] shadow-2xl border border-white/10 flex flex-col overflow-hidden relative" style={{ width: '20.5cm', height: '13cm' }}>
+            <div className="bg-[#1e2330]  /50 border border-white/10 flex flex-col overflow-hidden relative" style={{ width: '20.5cm', height: '13cm' }}>
 
                 {/* Header */}
                 <div className="bg-white/5 border-b border-white/5 p-6 flex justify-center items-center">
@@ -458,7 +458,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 onClick={handleContingency} 
                                 className={`h-9 px-2 border text-[10px] font-bold uppercase tracking-wider transition-all flex-1 ${
                                     customer.is_contingency
-                                        ? 'bg-orange-600 border-orange-400 text-white shadow-[0_0_12px_rgba(249,115,22,0.4)]'
+                                        ? 'bg-orange-600 border-orange-400 text-white '
                                         : 'bg-[#181b25] border-gray-700 text-gray-400 hover:bg-[#252a36] hover:text-white'
                                 }`}
                             >
@@ -468,7 +468,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 onClick={handlePorConsumo} 
                                 className={`h-9 px-2 border text-[10px] font-bold uppercase tracking-wider transition-all flex-1 ${
                                     customer.is_por_consumo
-                                        ? 'bg-indigo-600 border-indigo-400 text-white shadow-[0_0_12px_rgba(99,102,241,0.4)]'
+                                        ? 'bg-indigo-600 border-indigo-400 text-white '
                                         : 'bg-[#181b25] border-gray-700 text-gray-400 hover:bg-[#252a36] hover:text-white'
                                 }`}
                             >
@@ -478,7 +478,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 onClick={handlePorAlmuerzo} 
                                 className={`h-9 px-2 border text-[10px] font-bold uppercase tracking-wider transition-all flex-1 ${
                                     customer.is_por_almuerzo
-                                        ? 'bg-indigo-600 border-indigo-400 text-white shadow-[0_0_12px_rgba(99,102,241,0.4)]'
+                                        ? 'bg-indigo-600 border-indigo-400 text-white '
                                         : 'bg-[#181b25] border-gray-700 text-gray-400 hover:bg-[#252a36] hover:text-white'
                                 }`}
                             >
@@ -489,7 +489,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                     </div>
 
                     {/* Right Column: Compact Keypad */}
-                    <div className="w-full md:w-[300px] bg-[#1a1e29] p-3 border border-gray-800 flex flex-col shadow-inner">
+                    <div className="w-full md:w-[300px] bg-[#1a1e29] p-3 border border-gray-800 flex flex-col ">
 
                         {/* Display - Small - STRICTLY NIT */}
                         <div className="bg-black/40 border border-white/5 text-center h-12 flex flex-col justify-center px-4 mb-3 relative overflow-hidden">
@@ -510,25 +510,25 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                             {/* Num Pad */}
                             {/* Row 1 */}
                             {['7', '8', '9'].map(num => (
-                                <button key={num} onClick={() => handleKeypadClick(num)} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all shadow-sm border border-gray-700/30">
+                                <button key={num} onClick={() => handleKeypadClick(num)} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all  border border-gray-700/30">
                                     {num}
                                 </button>
                             ))}
                             {/* Delete Button - Row 1 & 2, Col 4 */}
-                            <button onClick={handleBackspace} className="row-span-2 h-full bg-white/5 hover:bg-white/10 active:scale-95 text-white/50 transition-all shadow-sm border border-white/5 flex items-center justify-center">
+                            <button onClick={handleBackspace} className="row-span-2 h-full bg-white/5 hover:bg-white/10 active:scale-95 text-white/50 transition-all  border border-white/5 flex items-center justify-center">
                                 <Delete size={24} />
                             </button>
 
                             {/* Row 2 */}
                             {['4', '5', '6'].map(num => (
-                                <button key={num} onClick={() => handleKeypadClick(num)} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all shadow-sm border border-gray-700/30">
+                                <button key={num} onClick={() => handleKeypadClick(num)} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all  border border-gray-700/30">
                                     {num}
                                 </button>
                             ))}
 
                             {/* Row 3 */}
                             {['1', '2', '3'].map(num => (
-                                <button key={num} onClick={() => handleKeypadClick(num)} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all shadow-sm border border-gray-700/30">
+                                <button key={num} onClick={() => handleKeypadClick(num)} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all  border border-gray-700/30">
                                     {num}
                                 </button>
                             ))}
@@ -537,7 +537,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                             <button
                                 onClick={() => handleNitLookup(keypadNit)}
                                 disabled={!keypadNit || loading}
-                                className="row-span-2 h-full bg-white text-black hover:bg-white/90 disabled:opacity-50 disabled:bg-white/10 disabled:text-white/20 font-black shadow-lg transition-all flex items-center justify-center active:scale-95"
+                                className="row-span-2 h-full bg-white text-black hover:bg-white/90 disabled:opacity-50 disabled:bg-white/10 disabled:text-white/20 font-black  transition-all flex items-center justify-center active:scale-95"
                                 title="Buscar NIT"
                             >
                                 {loading ? (
@@ -547,10 +547,10 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 )}
                             </button>
 
-                            <button onClick={() => handleKeypadClick('0')} className="col-span-2 h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all shadow-sm border border-gray-700/30">
+                            <button onClick={() => handleKeypadClick('0')} className="col-span-2 h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all  border border-gray-700/30">
                                 0
                             </button>
-                            <button onClick={() => handleKeypadClick('K')} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all shadow-sm border border-gray-700/30">
+                            <button onClick={() => handleKeypadClick('K')} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all  border border-gray-700/30">
                                 K
                             </button>
                         </div>
@@ -569,7 +569,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                     <button
                         onClick={handleSubmit}
                         disabled={loading || (!!customer.nit && customer.nit !== 'CF' && !customer.name)}
-                        className="px-10 h-10 bg-white text-black font-black uppercase shadow-xl transition-all active:scale-95 text-xs tracking-[0.2em] flex items-center gap-2 disabled:opacity-50 disabled:bg-white/10 disabled:text-white/20"
+                        className="px-10 h-10 bg-white text-black font-black uppercase  transition-all active:scale-95 text-xs tracking-[0.2em] flex items-center gap-2 disabled:opacity-50 disabled:bg-white/10 disabled:text-white/20"
                     >
                         {!loading ? <CheckCircle size={18} /> : <Loader2 className="animate-spin" size={18} />}
                         {loading ? 'PROCESANDO' : 'ACEPTAR'}

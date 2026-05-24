@@ -221,7 +221,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
     return (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center pointer-events-none">
             <DraggableWindow id="inventory-transfer-modal" title="Traslado de Inventario">
-                <div className="bg-[#f0f0f0] w-[900px] shadow-2xl relative flex flex-col rounded-sm border border-gray-400 font-sans text-black overflow-hidden pointer-events-auto">
+                <div className="bg-[#f0f0f0] w-[900px]  /50 relative flex flex-col rounded-sm border border-gray-400 font-sans text-black overflow-hidden pointer-events-auto">
                     {/* Header */}
                     <div className="modal-header bg-[#106ebe] px-3 py-1.5 flex items-center justify-between text-white shrink-0 cursor-default select-none">
                         <div className="flex items-center gap-2">
@@ -361,7 +361,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                                         />
                                                     </div>
                                                     {showProductSearch === idx && searchResults.length > 0 && (
-                                                        <div className="absolute left-0 right-0 top-full bg-white border border-gray-300 shadow-xl z-[50] max-h-48 overflow-y-auto">
+                                                        <div className="absolute left-0 right-0 top-full bg-white border border-gray-300  z-[50] max-h-48 overflow-y-auto">
                                                             {searchResults.map(p => (
                                                                 <div
                                                                     key={p.id}
@@ -424,7 +424,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                     onContextMenu={(e) => { e.preventDefault(); setDetailContextMenu(null); }}
                 >
                     <div
-                        className="absolute bg-[#f0f0f0] border border-gray-400 shadow-xl py-1 min-w-[280px] animate-in fade-in duration-75"
+                        className="absolute bg-[#f0f0f0] border border-gray-400  py-1 min-w-[280px] animate-in fade-in duration-75"
                         style={{ left: detailContextMenu.x, top: detailContextMenu.y }}
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -461,7 +461,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
             {showProductListModal && createPortal(
                 <div className="fixed inset-0 z-[110000] flex items-center justify-center pointer-events-none">
                     <div
-                        className="bg-[#f0f0f0] border border-gray-400 shadow-[0_20px_70px_-15px_rgba(0,0,0,0.5)] flex flex-col w-[760px] h-[520px] relative rounded-sm overflow-hidden animate-in zoom-in-95 duration-200 pointer-events-auto"
+                        className="bg-[#f0f0f0] border border-gray-400  flex flex-col w-[760px] h-[520px] relative rounded-sm overflow-hidden animate-in zoom-in-95 duration-200 pointer-events-auto"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header */}
@@ -484,7 +484,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                 onChange={(e) => setProductListSearch(e.target.value)}
                                 className="flex-1 h-8 border border-gray-400 px-3 text-[11px] outline-none focus:border-[#106ebe] bg-white font-bold uppercase"
                             />
-                            <button className="bg-[#106ebe] text-white px-8 h-8 text-[11px] font-bold uppercase hover:bg-[#002244] shadow-sm">
+                            <button className="bg-[#106ebe] text-white px-8 h-8 text-[11px] font-bold uppercase hover:bg-[#002244] ">
                                 Buscar
                             </button>
                         </div>
@@ -540,7 +540,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                         <div className="bg-[#f0f0f0] border-t border-gray-400 p-3 flex justify-end shrink-0">
                             <button
                                 onClick={() => setShowProductListModal(false)}
-                                className="bg-[#106ebe] text-white px-10 h-9 text-[11px] font-bold uppercase hover:bg-[#002244] shadow-md flex items-center justify-center"
+                                className="bg-[#106ebe] text-white px-10 h-9 text-[11px] font-bold uppercase hover:bg-[#002244]  flex items-center justify-center"
                             >
                                 Salir / Cancelar
                             </button>
@@ -549,8 +549,8 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                         {/* CONFIGURATION POPUP - EXACT REPLICA */}
                         {selectedProductForConfig && (
                             <div className="absolute inset-0 z-50 flex items-center justify-center animate-in fade-in duration-200 pointer-events-none">
-                                <div className="bg-[#f0f0f0] border border-gray-400 shadow-2xl w-[420px] relative rounded-sm overflow-hidden animate-in zoom-in-95 pointer-events-auto">
-                                    <div className="bg-[#106ebe] px-3 py-1.5 flex items-center justify-between text-white shadow-sm shrink-0">
+                                <div className="bg-[#f0f0f0] border border-gray-400  /50 w-[420px] relative rounded-sm overflow-hidden animate-in zoom-in-95 pointer-events-auto">
+                                    <div className="bg-[#106ebe] px-3 py-1.5 flex items-center justify-between text-white  shrink-0">
                                         <span className="text-[11px] font-bold uppercase tracking-wider">
                                             Configuración - ESC (Cerrar)
                                         </span>
@@ -631,7 +631,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                                     setSelectedProductForConfig(null);
                                                     setShowProductListModal(false);
                                                 }}
-                                                className="w-36 h-9 bg-[#106ebe] text-white text-[11px] font-black hover:bg-[#002244] uppercase shadow-md active:scale-95 transition-all"
+                                                className="w-36 h-9 bg-[#106ebe] text-white text-[11px] font-black hover:bg-[#002244] uppercase  active:scale-95 transition-all"
                                             >
                                                 Agregar
                                             </button>

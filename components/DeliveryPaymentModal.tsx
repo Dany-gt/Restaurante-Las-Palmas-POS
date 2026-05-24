@@ -77,7 +77,7 @@ export const DeliveryPaymentModal: React.FC<DeliveryPaymentModalProps> = ({
     // ── Shared button styles ──────────────────────────────────────────────────
     const methodCls = (id: PaymentMethod) =>
         `w-full py-3 rounded-sm text-[10px] font-black uppercase tracking-widest border transition-all active:scale-95 ${selectedMethod === id
-            ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg'
+            ? 'bg-indigo-600 border-indigo-400 text-white '
             : 'bg-[#3a3d50] border-[#4c4f69] text-gray-300 hover:bg-[#44475e] hover:text-white'
         }`;
 
@@ -93,8 +93,8 @@ export const DeliveryPaymentModal: React.FC<DeliveryPaymentModalProps> = ({
     const confirmH = halfH;
 
     const modal = (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-            <div className="bg-[#2d2f3e] rounded-2xl shadow-2xl border border-white/10" style={{ width: 640, maxWidth: '95vw' }}>
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/70 ">
+            <div className="bg-[#2d2f3e] rounded-lg  /50 border border-white/10" style={{ width: 640, maxWidth: '95vw' }}>
 
                 {/* ── Title ── */}
                 <div className="text-center py-4 border-b border-white/10">
@@ -233,7 +233,7 @@ export const DeliveryPaymentModal: React.FC<DeliveryPaymentModalProps> = ({
                         disabled={!canConfirm || isLoading}
                         className={`flex-1 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all active:scale-95
                             ${canConfirm
-                                ? 'bg-indigo-600 border border-indigo-400/40 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-600/20'
+                                ? 'bg-indigo-600 border border-indigo-400/40 text-white hover:bg-indigo-500  -600/20'
                                 : 'bg-[#3a3d50] border border-[#4c4f69] text-gray-600 cursor-not-allowed'
                             }`}
                     >

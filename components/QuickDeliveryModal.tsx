@@ -90,7 +90,7 @@ export const QuickDeliveryModal: React.FC<QuickDeliveryModalProps> = ({ isOpen, 
             style={{ alignItems: isRaised ? 'flex-start' : 'center', paddingTop: isRaised ? '12px' : undefined }}
         >
             <div
-                className="w-full max-w-lg bg-[#1f2937] rounded-2xl border border-gray-700 shadow-2xl flex flex-col max-h-[85vh] overflow-hidden transition-all duration-300"
+                className="w-full max-w-lg bg-[#1f2937] rounded-lg border border-gray-700  /50 flex flex-col max-h-[85vh] overflow-hidden transition-all duration-300"
             >
                 {/* Header */}
                 <div className="p-4 border-b border-gray-700 flex items-center justify-between shrink-0 bg-[#1f2937] z-10">
@@ -259,14 +259,14 @@ export const QuickDeliveryModal: React.FC<QuickDeliveryModalProps> = ({ isOpen, 
                                         <button
                                             type="button"
                                             onClick={() => setIsPlatformDriver(false)}
-                                            className={`py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${!isPlatformDriver ? 'bg-indigo-600 text-white shadow-lg' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}`}
+                                            className={`py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${!isPlatformDriver ? 'bg-indigo-600 text-white ' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}`}
                                         >
                                             REPARTIDOR PROPIO
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setIsPlatformDriver(true)}
-                                            className={`py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${isPlatformDriver ? 'bg-indigo-600 text-white shadow-lg' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}`}
+                                            className={`py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${isPlatformDriver ? 'bg-indigo-600 text-white ' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}`}
                                         >
                                             REPARTIDOR EXTERNO
                                         </button>
@@ -288,7 +288,7 @@ export const QuickDeliveryModal: React.FC<QuickDeliveryModalProps> = ({ isOpen, 
                     <button
                         onClick={handleSubmit}
                         disabled={saving}
-                        className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold text-xs uppercase tracking-widest text-white transition-all active:scale-95 shadow-lg shadow-indigo-600/20"
+                        className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold text-xs uppercase tracking-widest text-white transition-all active:scale-95  -600/20"
                     >
                         {saving ? 'Guardando...' : 'Aceptar'}
                     </button>

@@ -76,7 +76,7 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
 
     return (
         <DraggableWindow>
-            <div className="bg-white border border-[#106ebe] shadow-[0_20px_50px_rgba(0,0,0,0.3)] w-full flex flex-col overflow-hidden animate-fade-in rounded-sm">
+            <div className="bg-white border border-[#106ebe]  w-full flex flex-col overflow-hidden animate-fade-in rounded-sm">
                 {/* Title Bar - Classic Windows Style */}
                 <div className="bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 modal-header cursor-move select-none">
                     <div className="flex items-center gap-2">
@@ -144,7 +144,7 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
                                     <button
                                         key={cat.id}
                                         onClick={() => setSelectedCat(cat)}
-                                        className="group relative aspect-square bg-[#2b2f3a] rounded-lg p-3 flex flex-col items-center justify-between border-2 border-transparent hover:border-[#106ebe] transition-all shadow-md overflow-hidden"
+                                        className="group relative aspect-square bg-[#2b2f3a] rounded-lg p-3 flex flex-col items-center justify-between border-2 border-transparent hover:border-[#106ebe] transition-all  overflow-hidden"
                                     >
                                         <div className="flex-1 flex flex-col items-center justify-center w-full mb-2 p-5 overflow-hidden">
                                             {cat.imagen_url ? (
@@ -167,7 +167,7 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
                                             <button
                                                 key={sub.id}
                                                 onClick={() => setSelectedSubCat(sub)}
-                                                className="group relative aspect-square bg-[#2b2f3a] rounded-lg p-3 flex flex-col items-center justify-between border-2 border-transparent hover:border-[#106ebe] transition-all shadow-md overflow-hidden"
+                                                className="group relative aspect-square bg-[#2b2f3a] rounded-lg p-3 flex flex-col items-center justify-between border-2 border-transparent hover:border-[#106ebe] transition-all  overflow-hidden"
                                             >
                                                 <div className="flex-1 flex flex-col items-center justify-center w-full mb-2 p-5 overflow-hidden">
                                                     {sub.imagen_url ? (
