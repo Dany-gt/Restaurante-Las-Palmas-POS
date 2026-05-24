@@ -58,11 +58,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
   const [boxLockedError, setBoxLockedError] = useState<string | null>(null);
 
   // --- NUEVOS ESTADOS PARA REDISEÑO MÓVIL (PWA/SMARTPHONE) ---
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1150);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
   const [loginStep, setLoginStep] = useState<'ROLE' | 'CREDENTIALS'>('ROLE');
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1150);
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -886,12 +886,11 @@ Generado: ${new Date().toLocaleString('es-GT')}
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-transparent font-sans relative overflow-hidden">
+    <div className="min-h-screen flex sm:items-center justify-center items-start pt-8 sm:pt-0 bg-transparent font-sans relative overflow-hidden">
 
 
       {/* Main Container updated width for Dashboard */}
-      {/* Main Container updated width for Dashboard */}
-      <div className={`relative z-10 w-full ${showRegisterSelection ? 'w-screen h-screen rounded-none' : 'max-w-3xl h-[480px] rounded-[4px]'} bg-gradient-to-br from-[#2d2e3d] to-[#3a3b4d] border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.6)] flex overflow-hidden login-card animate-fade-in`}>
+      <div className={`relative z-10 w-full ${showRegisterSelection ? 'w-screen h-screen rounded-none' : 'max-w-3xl min-h-[480px] sm:h-[480px] rounded-[4px]'} bg-gradient-to-br from-[#2d2e3d] to-[#3a3b4d] border border-white/10 shadow-2xl flex flex-col sm:flex-row overflow-hidden login-card animate-fade-in mx-4 sm:mx-0`}>
 
         {/* CONTROLES NATIVOS (SOLO VISIBLE SI ELECTRON ESTÁ PRESENTE) */}
         <div className="absolute top-4 right-6 z-[100] flex items-center gap-2">
@@ -1018,7 +1017,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
         ) : (
           <>
             {/* LEFT PANEL: FORM - ANCHO REDUCIDO (380px) Y COLOR PERSONALIZADO */}
-            <div className="w-[380px] flex-shrink-0 flex flex-col p-10 relative z-20 bg-[#23242f] border-r border-white/5 shadow-2xl transition-all duration-500 overflow-hidden rounded-l-[4px]">
+            <div className="w-full sm:w-[380px] flex-shrink-0 flex flex-col p-6 sm:p-10 relative z-20 bg-[#23242f] border-b sm:border-b-0 sm:border-r border-white/5 transition-colors duration-500 rounded-t-[4px] sm:rounded-t-none sm:rounded-l-[4px]">
               {/* Logo Section */}
               <div className="mb-2 flex flex-col items-center -mt-4">
                 <div className="relative group mb-1">
