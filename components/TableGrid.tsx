@@ -301,7 +301,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
             <button
               key={s}
               onClick={() => setActiveSection(s)}
-              className={`w-[135px] h-[55px] sm:w-[145px] sm:h-[60px] lg:w-[160px] lg:h-[65px] flex-shrink-0 flex items-center justify-center rounded-lg font-black text-[11px] sm:text-[12px] lg:text-[13px] tracking-wider uppercase transition-all border px-2 text-center leading-snug area-button ${
+              className={`w-auto min-w-[120px] sm:min-w-[145px] lg:min-w-[160px] max-w-[180px] sm:max-w-[200px] h-auto min-h-[55px] sm:min-h-[60px] lg:min-h-[65px] flex-shrink-0 flex items-center justify-center rounded-lg font-black text-[11px] sm:text-[12px] lg:text-[13px] tracking-wider uppercase transition-all border px-3 py-2 text-center leading-snug whitespace-normal break-words area-button ${
                 activeSection === s
                   ? 'bg-[#6366f1] text-white border-[#6366f1] shadow-xl'
                   : 'bg-white border-white/10 text-black shadow-sm hover:bg-gray-100'
