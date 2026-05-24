@@ -2886,6 +2886,25 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         <div
                                             key={item.id}
                                             onDoubleClick={() => handleEditItem(item)}
+                                            onTouchStart={(e) => {
+                                                (e.currentTarget as any).touchStartX = e.touches[0].clientX;
+                                                (e.currentTarget as any).touchStartY = e.touches[0].clientY;
+                                            }}
+                                            onTouchEnd={(e) => {
+                                                const startX = (e.currentTarget as any).touchStartX;
+                                                const startY = (e.currentTarget as any).touchStartY;
+                                                if (!startX || !startY) return;
+                                                const endX = e.changedTouches[0].clientX;
+                                                const endY = e.changedTouches[0].clientY;
+                                                const deltaX = endX - startX;
+                                                const deltaY = endY - startY;
+                                                // Swipe de Izquierda a Derecha
+                                                if (deltaX > 50 && Math.abs(deltaY) < 40) {
+                                                    handleEditItem(item);
+                                                }
+                                                (e.currentTarget as any).touchStartX = 0;
+                                                (e.currentTarget as any).touchStartY = 0;
+                                            }}
                                             onClick={() => {
                                                 const canDiscount = currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos');
                                                 if (!canDiscount) return;
@@ -2916,7 +2935,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                     {item.notes && <span className={`text-gray-500 truncate ${isTablet ? 'text-[9px] max-w-[100px]' : 'text-xs lg:text-[10px] max-w-[150px]'}`}>{item.notes}</span>}
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-1 ml-2">
+                                            <div className={`flex items-center gap-1 ml-2 ${isTablet ? 'hidden' : ''}`}>
                                                 {!item.is_sent ? (
                                                     <>
                                                         <button onClick={(e) => { e.stopPropagation(); handleEditItem(item); }} className="p-1.5 bg-white/10 text-white/60 rounded hover:bg-white/20 hover:text-white transition-colors"><Edit3 size={12} /></button>
