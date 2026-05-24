@@ -60,7 +60,7 @@ const ProductCard = React.memo<{
         <button
             onClick={onClick}
             disabled={isChecking}
-            className={`aspect-[1/1.05] rounded-t-none rounded-b-2xl p-2 flex flex-col items-center gap-1 border transition-all group active:scale-95 text-center overflow-hidden relative bg-[#3a3b4d] mx-auto ${isTablet ? 'w-full' : 'w-[170px] h-[178px] max-w-[170px]'} ${isChecking ? 'opacity-50 border-white/10 scale-[0.98]' : 'border-white/5'
+            className={`rounded-t-none rounded-b-2xl p-2 flex flex-col items-center gap-1 border transition-all group active:scale-95 text-center overflow-hidden relative bg-[#3a3b4d] mx-auto ${isTablet ? 'w-full h-full' : 'w-[170px] h-[178px] max-w-[170px] aspect-[1/1.05]'} ${isChecking ? 'opacity-50 border-white/10 scale-[0.98]' : 'border-white/5'
                 }`}
         >
             {/* Checking/Loading Overlay */}
@@ -2464,10 +2464,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             <span>Mesa: {table.number}</span>
                         </>
                     )}
-                    <span className="text-gray-600 mx-3">|</span>
-                    <span className="text-amber-400">
-                        {getOrderDisplayName(activeOrderId)}
-                    </span>
                     <span className="text-gray-600 mx-1">|</span>
                     <span className="hidden sm:inline">Atiende: {tableOrders.find(o => o.id === activeOrderId)?.waiter?.name || currentUser?.name || 'Mesero'}</span>
                 </div>
@@ -2524,7 +2520,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         ) : (
                             <div className="bg-[#2d2e3d]">
                                 {!selectedCat && (
-                                    <div className={`grid gap-[0.6cm] w-full no-scrollbar content-start ${isTablet ? 'grid-cols-[repeat(auto-fill,minmax(110px,1fr))]' : 'grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto'}`}>
+                                    <div className={`grid gap-3 w-full no-scrollbar content-start ${isTablet ? 'grid-cols-4 auto-rows-[155px]' : 'grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm]'}`}>
                                         {(() => {
                                             const seen = new Set();
                                             return categories
@@ -2554,7 +2550,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                     return true;
                                                 })
                                                 .map(cat => (
-                                                    <button key={cat.id} onClick={() => setSelectedCat(cat)} className={`aspect-[1/1.05] mx-auto bg-[#3a3b4d] rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-white/5 hover:border-white/20 hover:bg-[#45465e] active:scale-95 transition-all group ${isTablet ? 'w-full' : 'w-[170px] h-[178px] max-w-[170px]'}`}>
+                                                    <button key={cat.id} onClick={() => setSelectedCat(cat)} className={`overflow-hidden mx-auto bg-[#3a3b4d] rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-white/5 hover:border-white/20 hover:bg-[#45465e] active:scale-95 transition-all group ${isTablet ? 'w-full h-full' : 'w-[170px] h-[178px] max-w-[170px] aspect-[1/1.05]'}`}>
                                                         <div className="flex-1 flex flex-col items-center justify-center w-full mb-3">
                                                             {cat.image_url ? (
                                                                 <img src={cat.image_url} alt={cat.name} className="w-full h-full object-contain rounded-xl opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
@@ -2569,14 +2565,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </div>
                                 )}
                                 {selectedCat && !selectedSubCat && (
-                                    <div className={`grid gap-[0.6cm] w-full content-start ${isTablet ? 'grid-cols-[repeat(auto-fill,minmax(110px,1fr))]' : 'grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto'}`}>
+                                    <div className={`grid gap-3 w-full content-start ${isTablet ? 'grid-cols-4 auto-rows-[155px]' : 'grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm]'}`}>
                                         {categories
                                             .filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO')
                                             .sort((a, b) => {
                                                 return (a.name || '').localeCompare(b.name || '');
                                             })
                                             .map(sub => (
-                                                <button key={sub.id} onClick={() => setSelectedSubCat(sub)} className={`aspect-[1/1.05] mx-auto bg-white/10 rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-transparent hover:border-white/10 active:scale-95 transition-all group ${isTablet ? 'w-full' : 'w-[170px] h-[178px] max-w-[170px]'}`}>
+                                                <button key={sub.id} onClick={() => setSelectedSubCat(sub)} className={`overflow-hidden mx-auto bg-white/10 rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-transparent hover:border-white/10 active:scale-95 transition-all group ${isTablet ? 'w-full h-full' : 'w-[170px] h-[178px] max-w-[170px] aspect-[1/1.05]'}`}>
                                                     <div className="flex-1 flex flex-col items-center justify-center w-full">
                                                         {sub.image_url ? (
                                                             <img src={sub.image_url} alt={sub.name} className="w-full h-full object-cover rounded-md opacity-50 group-hover:opacity-100 transition-opacity" />
@@ -2709,7 +2705,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </div>
                                 )}
                                 {selectedSubCat && (
-                                    <div className={`grid gap-[0.6cm] w-full content-start ${isTablet ? 'grid-cols-[repeat(auto-fill,minmax(110px,1fr))]' : 'grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto'}`}>
+                                    <div className={`grid gap-3 w-full content-start ${isTablet ? 'grid-cols-4 auto-rows-[155px]' : 'grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm]'}`}>
                                         {(() => {
                                             const relatedSubCatIds = categories
                                                 .filter(c => c.name?.toUpperCase() === selectedSubCat.name?.toUpperCase())
