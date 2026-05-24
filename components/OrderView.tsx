@@ -59,7 +59,7 @@ const ProductCard = React.memo<{
         <button
             onClick={onClick}
             disabled={isChecking}
-            className={`w-full xl:w-[170px] h-auto aspect-[1/1.05] xl:h-[178px] max-w-[170px] rounded-t-none rounded-b-2xl p-2 flex flex-col items-center gap-1 border transition-all group active:scale-95 text-center overflow-hidden relative bg-[#3a3b4d] mx-auto ${isChecking ? 'opacity-50 border-white/10 scale-[0.98]' : 'border-white/5'
+            className={`w-full aspect-[1/1.05] max-w-[170px] rounded-t-none rounded-b-2xl p-2 flex flex-col items-center gap-1 border transition-all group active:scale-95 text-center overflow-hidden relative bg-[#3a3b4d] mx-auto ${isChecking ? 'opacity-50 border-white/10 scale-[0.98]' : 'border-white/5'
                 }`}
         >
             {/* Checking/Loading Overlay */}
@@ -2514,7 +2514,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         ) : (
                             <div className="bg-[#2d2e3d]">
                                 {!selectedCat && (
-                                    <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,165px))] xl:grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm] w-full no-scrollbar content-start">
+                                    <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(130px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(145px,1fr))] justify-items-center max-w-[1250px] mx-auto gap-[0.6cm] w-full no-scrollbar content-start">
                                         {(() => {
                                             const seen = new Set();
                                             return categories
@@ -2544,7 +2544,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                     return true;
                                                 })
                                                 .map(cat => (
-                                                    <button key={cat.id} onClick={() => setSelectedCat(cat)} className="w-full xl:w-[170px] h-auto aspect-[1/1.05] xl:h-[178px] max-w-[170px] mx-auto bg-[#3a3b4d] rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-white/5 hover:border-white/20 hover:bg-[#45465e] active:scale-95 transition-all group">
+                                                    <button key={cat.id} onClick={() => setSelectedCat(cat)} className="w-full aspect-[1/1.05] max-w-[170px] mx-auto bg-[#3a3b4d] rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-white/5 hover:border-white/20 hover:bg-[#45465e] active:scale-95 transition-all group">
                                                         <div className="flex-1 flex flex-col items-center justify-center w-full mb-3">
                                                             {cat.image_url ? (
                                                                 <img src={cat.image_url} alt={cat.name} className="w-full h-full object-contain rounded-xl opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
@@ -2559,14 +2559,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </div>
                                 )}
                                 {selectedCat && !selectedSubCat && (
-                                    <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,165px))] xl:grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm] w-full content-start">
+                                    <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(130px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(145px,1fr))] justify-items-center max-w-[1250px] mx-auto gap-[0.6cm] w-full content-start">
                                         {categories
                                             .filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO')
                                             .sort((a, b) => {
                                                 return (a.name || '').localeCompare(b.name || '');
                                             })
                                             .map(sub => (
-                                                <button key={sub.id} onClick={() => setSelectedSubCat(sub)} className="w-full xl:w-[170px] h-auto aspect-[1/1.05] xl:h-[178px] max-w-[170px] mx-auto bg-white/10 rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-transparent hover:border-white/10 active:scale-95 transition-all group">
+                                                <button key={sub.id} onClick={() => setSelectedSubCat(sub)} className="w-full aspect-[1/1.05] max-w-[170px] mx-auto bg-white/10 rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-transparent hover:border-white/10 active:scale-95 transition-all group">
                                                     <div className="flex-1 flex flex-col items-center justify-center w-full">
                                                         {sub.image_url ? (
                                                             <img src={sub.image_url} alt={sub.name} className="w-full h-full object-cover rounded-md opacity-50 group-hover:opacity-100 transition-opacity" />
@@ -2698,7 +2698,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </div>
                                 )}
                                 {selectedSubCat && (
-                                    <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,165px))] xl:grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm] w-full content-start">
+                                    <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(130px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(145px,1fr))] justify-items-center max-w-[1250px] mx-auto gap-[0.6cm] w-full content-start">
                                         {(() => {
                                             const relatedSubCatIds = categories
                                                 .filter(c => c.name?.toUpperCase() === selectedSubCat.name?.toUpperCase())
