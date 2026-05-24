@@ -2892,7 +2892,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 setDiscountingItem(item);
                                                 setShowDiscountModal(true);
                                             }}
-                                            className="bg-white/5 rounded-lg p-3 flex justify-between group transition-colors border border-white/5 select-none relative hover:bg-white/10 cursor-pointer"
+                                            className={`bg-white/5 rounded-lg flex justify-between group transition-colors border border-white/5 select-none relative hover:bg-white/10 cursor-pointer ${isTablet ? 'p-1.5' : 'p-3'}`}
                                         >
                                             {/* Account Badge for Unified View */}
                                             {!activeOrderId && (item as any).order_id && tableOrders.length > 1 && (
@@ -2901,7 +2901,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             <div className="flex-1">
                                                 <div className="flex justify-between items-start">
                                                     <div className="flex flex-col items-start gap-1">
-                                                        <span className="text-sm lg:text-xs font-bold text-gray-200 leading-tight">{item.product_name}</span>
+                                                        <span className={`font-bold text-gray-200 leading-tight truncate max-w-[120px] ${isTablet ? 'text-[10px]' : 'text-sm lg:text-xs'}`}>{item.product_name}</span>
                                                         {item.is_sent && <ItemStatusBadge item={item} serverOffset={serverOffset} tick={tick} />}
                                                         {((item.discount_percentage || 0) > 0 || (item.discount_amount || 0) > 0) && (
                                                             <span className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mt-0.5">
@@ -2909,11 +2909,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <span className="text-sm lg:text-xs font-bold tabular-nums text-white">{currency}{((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
+                                                    <span className={`font-bold tabular-nums text-white shrink-0 ml-1 ${isTablet ? 'text-[10px]' : 'text-sm lg:text-xs'}`}>{currency}{((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                                                 </div>
-                                                <div className="flex items-center gap-2 mt-1.5 lg:mt-1">
-                                                    <span className="text-xs lg:text-[10px] bg-white/10 text-white/60 px-2 py-0.5 rounded font-black">x{item.quantity}</span>
-                                                    {item.notes && <span className="text-xs lg:text-[10px] text-gray-500 truncate max-w-[150px]">{item.notes}</span>}
+                                                <div className={`flex items-center gap-1 ${isTablet ? 'mt-0.5' : 'mt-1.5 lg:mt-1'}`}>
+                                                    <span className={`bg-white/10 text-white/60 px-1.5 py-0.5 rounded font-black ${isTablet ? 'text-[9px]' : 'text-xs lg:text-[10px]'}`}>x{item.quantity}</span>
+                                                    {item.notes && <span className={`text-gray-500 truncate max-w-[80px] ${isTablet ? 'text-[9px]' : 'text-xs lg:text-[10px]'}`}>{item.notes}</span>}
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1 ml-2">
