@@ -892,17 +892,28 @@ Generado: ${new Date().toLocaleString('es-GT')}
       {/* Main Container updated width for Dashboard */}
       <div className={`relative z-10 w-full ${showRegisterSelection ? 'w-screen h-screen rounded-none' : 'max-w-3xl min-h-[480px] sm:h-[480px] rounded-[4px]'} bg-gradient-to-br from-[#2d2e3d] to-[#3a3b4d] border border-white/10 shadow-2xl flex flex-col sm:flex-row overflow-hidden login-card animate-fade-in mx-4 sm:mx-0`}>
 
-        {/* CONTROLES NATIVOS (SOLO VISIBLE SI ELECTRON ESTÁ PRESENTE) */}
+        {/* CONTROLES NATIVOS (SOLO VISIBLE SI ELECTRON ESTÁ PRESENTE O PWA) */}
         <div className="absolute top-4 right-6 z-[100] flex items-center gap-2">
           <button
-            onClick={() => (window as any).electronAPI?.minimizeWindow()}
+            onClick={() => {
+              if ((window as any).electronAPI) {
+                (window as any).electronAPI.minimizeWindow();
+              }
+            }}
             className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-all active:scale-95"
             title="Minimizar"
           >
             <Minus size={16} />
           </button>
           <button
-            onClick={() => (window as any).electronAPI?.closeWindow()}
+            onClick={() => {
+              if ((window as any).electronAPI) {
+                (window as any).electronAPI.closeWindow();
+              } else {
+                // Intento de cerrar la PWA en Android o navegador
+                window.close();
+              }
+            }}
             className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-500/20 text-gray-400 hover:text-red-500 transition-all active:scale-95 group"
             title="Cerrar"
           >
@@ -1116,9 +1127,6 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 <div className="flex flex-col">
                   <span className="text-[8px] font-black text-gray-500 tracking-widest uppercase">Versión 1.3.1</span>
                 </div>
-                <button className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-500 hover:text-white transition-all">
-                  <LogOut size={12} />
-                </button>
               </div>
             </div>
 
