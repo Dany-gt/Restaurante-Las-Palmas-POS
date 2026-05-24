@@ -1016,8 +1016,11 @@ Generado: ${new Date().toLocaleString('es-GT')}
           </div>
         ) : (
           <>
-            {/* LEFT PANEL: FORM - ANCHO REDUCIDO (380px) Y COLOR PERSONALIZADO */}
-            <div className="w-full sm:w-[380px] flex-shrink-0 flex flex-col p-6 sm:p-10 relative z-20 bg-[#23242f] border-b sm:border-b-0 sm:border-r border-white/5 transition-colors duration-500 rounded-t-[4px] sm:rounded-t-none sm:rounded-l-[4px]">
+            {/* LEFT PANEL: LOGIN FORM (Sin transición y con forced GPU comp para evitar glitch de estática) */}
+            <div 
+              className="w-full sm:w-[380px] flex-shrink-0 flex flex-col p-6 sm:p-10 relative z-20 bg-[#23242f] border-b sm:border-b-0 sm:border-r border-white/5 rounded-t-[4px] sm:rounded-t-none sm:rounded-l-[4px]"
+              style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden', willChange: 'transform' }}
+            >
               {/* Logo Section */}
               <div className="mb-2 flex flex-col items-center -mt-4">
                 <div className="relative group mb-1">
@@ -1049,7 +1052,8 @@ Generado: ${new Date().toLocaleString('es-GT')}
                     <select
                       value={selectedBranchId}
                       onChange={(e) => setSelectedBranchId(e.target.value)}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl py-2.5 pl-8 pr-4 text-[8px] font-black text-white outline-none focus:border-indigo-500 focus:bg-black/60 transition-all uppercase tracking-normal"
+                      className="w-full bg-[#15161d] border border-white/10 rounded-xl py-2.5 pl-8 pr-4 text-[8px] font-black text-white outline-none focus:border-indigo-500 uppercase tracking-normal"
+                      style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
                       required
                     >
                       <option value="" className="bg-[#2d2e3d]">--- SELECCIONAR SUCURSAL ---</option>
@@ -1069,7 +1073,8 @@ Generado: ${new Date().toLocaleString('es-GT')}
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-[11px] font-bold text-white placeholder:text-gray-500 outline-none focus:border-white focus:bg-black/60 transition-all tracking-widest"
+                      className="w-full bg-[#15161d] border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-[11px] font-bold text-white placeholder:text-gray-500 outline-none focus:border-white tracking-widest"
+                      style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
                       placeholder="USUARIO"
                       required
                     />
@@ -1083,7 +1088,8 @@ Generado: ${new Date().toLocaleString('es-GT')}
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-[11px] font-bold text-white placeholder:text-gray-500 outline-none focus:border-indigo-500 focus:bg-black/60 transition-all tracking-widest"
+                      className="w-full bg-[#15161d] border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-[11px] font-bold text-white placeholder:text-gray-500 outline-none focus:border-indigo-500 tracking-widest"
+                      style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
                       placeholder="••••••••"
                       required
                     />

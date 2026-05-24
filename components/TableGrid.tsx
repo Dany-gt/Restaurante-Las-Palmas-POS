@@ -335,7 +335,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
             </div>
           )
         ) : (
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8 xl:gap-10 mesas-grid">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(130px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(145px,1fr))] gap-4 sm:gap-6 lg:gap-8 xl:gap-10 mesas-grid justify-items-center w-full max-w-7xl mx-auto">
             {filtered.map(t => {
               const access = checkAccess(t);
               // Calculate effective status based on live orders AND offline-saved orders
@@ -347,7 +347,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
                   key={t.id}
                   onClick={() => handleClick(t)}
                   disabled={!access.allowed && (isOccupied || (t.locked_by && !access.allowed))}
-                  className={`relative w-[120px] h-[120px] sm:w-[130px] sm:h-[130px] md:w-[135px] md:h-[135px] lg:w-[145px] lg:h-[145px] xl:w-[145px] xl:h-[145px] 2xl:w-[170px] 2xl:h-[170px] rounded-2xl bg-[#23242f] border border-white/5 p-3 py-4 sm:p-4 sm:py-5 lg:p-5 lg:py-6 flex flex-col items-center justify-between transition-all active:scale-95 group shadow-xl mesa-card ${(!access.allowed && (isOccupied || t.locked_by)) ? '!cursor-not-allowed opacity-50 grayscale hover:bg-[#23242f]' : ''}`}
+                  className={`relative w-full aspect-square max-w-[170px] min-h-[120px] rounded-2xl bg-[#23242f] border border-white/5 p-3 py-4 flex flex-col items-center justify-between active:scale-95 group shadow-xl mesa-card ${(!access.allowed && (isOccupied || t.locked_by)) ? '!cursor-not-allowed opacity-50 grayscale hover:bg-[#23242f]' : ''}`}
                 >
                   {(!access.allowed && (isOccupied || t.locked_by)) && (
                     <div className="absolute top-3 right-3 text-rose-500 animate-pulse">
