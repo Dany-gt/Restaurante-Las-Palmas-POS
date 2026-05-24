@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DateUtils } from '../utils/DateUtils';
 import { Order, Table, Product, Category, OrderItem, User } from '../types';
-import { Bell, BellOff, ChevronLeft, Trash2, Printer, CheckCircle, Search, Plus, Minus, Info, Loader2, ShoppingCart as ShoppingCartIcon, CreditCard, FileText, Receipt, Ban, Users, Percent, Settings2, Utensils, Truck, Package, MapPin, Edit3, Banknote, Split, Image, ArrowRightLeft, Mic, MicOff, UserPlus, Grid, UsersRound, ChevronDown, LayoutGrid } from 'lucide-react';
+import { Bell, BellOff, ChevronLeft, ArrowLeft, CornerUpLeft, Trash2, Printer, CheckCircle, Search, Plus, Minus, Info, Loader2, ShoppingCart as ShoppingCartIcon, CreditCard, FileText, Receipt, Ban, Users, Percent, Settings2, Utensils, Truck, Package, MapPin, Edit3, Banknote, Split, Image, ArrowRightLeft, Mic, MicOff, UserPlus, Grid, UsersRound, ChevronDown, LayoutGrid } from 'lucide-react';
 import { supabase } from '../supabase';
 import { printService, TicketData } from '../services/PrintService';
 import { billingService } from '../services/BillingService';
@@ -28,12 +28,15 @@ import { generateUUID } from '../utils/uuid';
 
 const PlaceholderLogo = () => (
     <div className="flex flex-col items-center justify-center h-full w-full p-2">
-        <span className="text-[8px] font-bold tracking-[0.2em] text-gray-400 mb-0.5">RESTAURANTE</span>
-        <span className="text-[11px] font-black tracking-tighter text-orange-500 uppercase leading-none">LAS PALMAS</span>
-        <div className="flex items-center gap-1.5 mt-0.5">
-            <div className="h-[1px] w-3 bg-white/20"></div>
-            <span className="text-[8px] font-black text-white/40 tracking-widest">POS</span>
-            <div className="h-[1px] w-3 bg-white/20"></div>
+        <div className="flex items-baseline text-white leading-none">
+            <span className="text-2xl font-black">R</span>
+            <span className="text-xs font-black tracking-[0.1em] ml-[1px]">ESTAURANTE</span>
+        </div>
+        <span className="text-sm font-black tracking-tighter text-orange-500 uppercase leading-none mt-1 mb-1.5">LAS PALMAS</span>
+        <div className="flex items-center gap-2">
+            <div className="h-[2px] w-5 bg-orange-500/80"></div>
+            <span className="text-[10px] font-black text-white tracking-widest">POS</span>
+            <div className="h-[2px] w-5 bg-orange-500/80"></div>
         </div>
     </div>
 );
@@ -45,7 +48,7 @@ const ProductCard = React.memo<{
     newStyle?: boolean,
     isChecking?: boolean,
     // v1.4.1 - Shadow Stock Unification
-    stockOverride?: number 
+    stockOverride?: number
 }>(({ product, currency, onClick, isChecking, stockOverride }) => {
     // Si hay stockOverride (shadow stock), lo usamos. Si no, usamos el del producto.
     const stock = stockOverride !== undefined ? stockOverride : product.stock_quantity;
@@ -56,26 +59,23 @@ const ProductCard = React.memo<{
         <button
             onClick={onClick}
             disabled={isChecking}
-            className={`w-full rounded-xl p-2 flex flex-col items-center gap-1 border transition-all group active:scale-95 text-center overflow-hidden relative bg-[#3a3b4d] ${isChecking ? 'opacity-50 border-white/10 scale-[0.98]' : 'border-white/5'
+            className={`w-[170px] h-[178px] rounded-t-none rounded-b-2xl p-2 flex flex-col items-center gap-1 border transition-all group active:scale-95 text-center overflow-hidden relative bg-[#3a3b4d] ${isChecking ? 'opacity-50 border-white/10 scale-[0.98]' : 'border-white/5'
                 }`}
         >
             {/* Checking/Loading Overlay */}
             {isChecking && (
-                <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center z-20">
+                <div className="absolute inset-0 bg-black/20 flex items-center justify-center z-20">
                     <Loader2 className="animate-spin text-white/20" size={24} />
                 </div>
             )}
             {/* Inventory Badge */}
             {hasStock && (
-                <div className={`absolute top-2 right-2 px-1.5 py-0.5 rounded-md text-[9px] font-black z-10 shadow-lg border ${stock <= 0 ? 'bg-rose-500 text-white border-rose-400' :
-                    isLowStock ? 'bg-amber-500 text-white border-amber-400' :
-                        'bg-emerald-500 text-white border-emerald-400'
-                    }`}>
+                <div className="absolute top-2 right-2 text-[10px] font-black z-10 text-white">
                     {stock}
                 </div>
             )}
 
-            <div className="w-full aspect-square flex items-center justify-center rounded-lg overflow-hidden shrink-0 p-2">
+            <div className="w-full flex-1 flex items-center justify-center rounded-lg overflow-hidden p-2 min-h-0">
                 {product.image_url ? (
                     <img
                         src={product.image_url}
@@ -87,12 +87,12 @@ const ProductCard = React.memo<{
                 )}
             </div>
 
-            <div className="w-full flex flex-col items-center gap-0.5 mt-0.5">
-                <span className="text-[9px] sm:text-[10px] leading-tight font-black text-gray-200 line-clamp-2 uppercase tracking-wide min-h-[2.2rem] flex items-center justify-center px-1">
+            <div className="w-full flex flex-col items-center gap-0.5 mt-0.5 shrink-0">
+                <span className="text-[11px] sm:text-[12px] leading-tight font-black text-white line-clamp-2 uppercase tracking-wide min-h-[2.2rem] flex items-center justify-center px-1">
                     {product.name}
                 </span>
-                <span className="text-white/40 font-black text-[10px] tabular-nums tracking-widest">
-                    {currency}{( (product as any).finalPrice ?? product.price ).toFixed(2)}
+                <span className="text-white font-black text-[10px] tabular-nums tracking-widest">
+                    {currency}{((product as any).finalPrice ?? product.price).toFixed(2)}
                 </span>
             </div>
         </button>
@@ -282,7 +282,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const handleRenameAccount = async (orderId: string) => {
         const order = tableOrders.find(o => o.id === orderId);
         if (!order) return;
-        
+
         setCustomInput({
             title: 'Editar Cuenta',
             message: 'Ingrese el nuevo nombre para la cuenta:',
@@ -292,7 +292,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     const { error } = await supabase.from('orders')
                         .update({ customer_name: newName })
                         .eq('id', orderId);
-                    
+
                     if (error) throw error;
                     await fetchData(false, orderId);
                     notify.success('Nombre actualizado');
@@ -349,10 +349,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         cuenta: order.customer_name,
                         motivo: reason || 'Sin motivo especificado',
                         items_anulados: orderItems.length,
-                        items: orderItems.map((i: any) => ({ 
-                            nombre: i.product_name || i.name || i.producto?.nombre, 
-                            cantidad: i.quantity, 
-                            precio: i.price 
+                        items: orderItems.map((i: any) => ({
+                            nombre: i.product_name || i.name || i.producto?.nombre,
+                            cantidad: i.quantity,
+                            precio: i.price
                         })),
                         total_cuenta: (order.subtotal || 0) + (order.tip_amount || 0)
                     }
@@ -367,12 +367,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
                 const { error } = await supabase.from('orders').delete().eq('id', orderId);
                 if (error) throw error;
-                
+
                 if (activeOrderId === orderId) {
                     const remaining = tableOrders.filter(o => o.id !== orderId);
                     setActiveOrderId(remaining.length > 0 ? remaining[0].id : (initialOrder?.id || null));
                 }
-                
+
                 await fetchData(false);
 
                 // v1.7.2 - Print Cancellation Receipt for Audit if order had items
@@ -750,12 +750,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         const isElectron = !!((window as any).electronAPI || (window as any).electron);
         if (isElectron) {
             try {
-            await printService.printPreAccountTicket(ticketData);
-            notify.success('Pre-cuenta enviada a impresión');
-        } catch (err: any) {
-            console.error('Error printing pre-account:', err);
-            notify.error('Error al imprimir pre-cuenta: ' + (err.message || 'Fallo de driver'));
-        }
+                await printService.printPreAccountTicket(ticketData);
+                notify.success('Pre-cuenta enviada a impresión');
+            } catch (err: any) {
+                console.error('Error printing pre-account:', err);
+                notify.error('Error al imprimir pre-cuenta: ' + (err.message || 'Fallo de driver'));
+            }
         } else {
             // Request Remote Print
             if (ticketData.orderId && ticketData.orderId !== 'NEW') {
@@ -917,7 +917,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             await supabase.from('orders').update({ table_id: targetTableId }).eq('id', activeOrderId);
             await supabase.from('tables').update({ status: 'available' }).eq('id', table.id);
             await supabase.from('tables').update({ status: 'occupied' }).eq('id', targetTableId);
-            
+
             // Logging action
             if (currentUser) {
                 const targetTable = (window as any).allTables?.find((t: any) => t.id === targetTableId);
@@ -1182,7 +1182,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         }
 
         if (orderId === null) return 'TODAS LAS CUENTAS';
-        
+
         const currentOrder = tableOrders.find(o => o.id === orderId) || (orderId === initialOrder?.id ? initialOrder : null);
         if (!currentOrder) return 'CUENTA 1';
 
@@ -1490,7 +1490,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         masterDataDB.getAll('categories'),
                         masterDataDB.getAll('products')
                     ]);
-                    
+
                     if (masterCats?.length > 0) {
                         setCategories(masterCats);
                     } else if (navigator.onLine) {
@@ -1750,8 +1750,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
     const handleVoidItem = async (adminPin?: string) => {
         // v1.6.1 - Si es autorización remota o admin pin, permitimos motivo vacío con fallback
-        const effectiveReason = (voidReason.trim().length < 5 && (adminPin === 'REMOTE' || adminPin)) 
-            ? (voidReason.trim() || 'Autorización Remota') 
+        const effectiveReason = (voidReason.trim().length < 5 && (adminPin === 'REMOTE' || adminPin))
+            ? (voidReason.trim() || 'Autorización Remota')
             : voidReason;
 
         if (!itemToVoid || effectiveReason.trim().length < 5) {
@@ -1775,7 +1775,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             } else {
                 const { data: rpcResult, error: voidError } = await supabase.rpc('void_item_with_pin', {
                     p_item_id: itemToRemove.id,
-                    p_admin_pin: adminPin || '', 
+                    p_admin_pin: adminPin || '',
                     p_void_reason: effectiveReason,
                     p_voided_at: nowGuate
                 });
@@ -1834,7 +1834,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             .eq('item_id', invProduct.id)
                             .eq('branch_id', currentUser?.branch_id)
                             .single();
-                        
+
                         if (currentStock) {
                             await supabase.from('inventory_item_branches')
                                 .update({ quantity: currentStock.quantity + voidQty })
@@ -1914,8 +1914,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             const currentOrder = tableOrders.find(o => o.id === activeOrderId) || initialOrder;
             const currentOrderNumber = currentOrder?.order_number;
             const orderType = currentOrder?.order_type || 'DINE_IN';
-            const displayTable = (orderType === 'TAKEOUT' || orderType === 'DELIVERY') 
-                ? 'PARA LLEVAR' 
+            const displayTable = (orderType === 'TAKEOUT' || orderType === 'DELIVERY')
+                ? 'PARA LLEVAR'
                 : (table?.number || '--');
             const sectionName = table?.section || 'SALA';
             const waiterName = (itemToVoid as any).waiter_name || currentOrder?.waiter?.name || currentOrder?.profiles?.name || currentUser?.name || 'MESERO';
@@ -2224,7 +2224,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             .eq('item_id', invProduct.id)
                                             .eq('branch_id', currentUser?.branch_id)
                                             .single();
-                                        
+
                                         if (currentStock) {
                                             await supabase.from('inventory_item_branches')
                                                 .update({ quantity: currentStock.quantity - item.quantity })
@@ -2267,7 +2267,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             const itemProduct = products.find((p: any) => p.id === inv.item_id || p.id === inv.product_id);
                             const itemName = (itemProduct?.name || '').trim().toUpperCase();
                             const soldItem = unsentItems.find(u => (u.product_name || '').trim().toUpperCase() === itemName);
-                            
+
                             if (soldItem) {
                                 console.log(`📦 Badge update (ItemInv): ${itemName} ${inv.quantity} → ${inv.quantity - soldItem.quantity}`);
                                 return { ...inv, quantity: inv.quantity - soldItem.quantity };
@@ -2286,8 +2286,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 const pName = (p.name || '').trim().toUpperCase();
                                 const soldItem = unsentItems.find(u => (u.product_name || '').trim().toUpperCase() === pName);
                                 if (soldItem) {
-                                    return { 
-                                        ...p, 
+                                    return {
+                                        ...p,
                                         stock_quantity: (p.stock_quantity || 0) - soldItem.quantity,
                                         stock_actual: (p.stock_actual || 0) - soldItem.quantity
                                     };
@@ -2403,10 +2403,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
         } catch (e: any) {
             console.error('Core Submission/Sync Error:', e);
-            
+
             // Fallback to OfflineDB if network fails during the process
             await import('../services/OfflineDB').then(m => m.offlineDB.saveRecord('ORDER', orderData));
-            
+
             // v1.4.4 - Mark items as offline pending so the UI shows the new blue badge
             setItems(current => current.map(item => {
                 if (!item.is_sent) {
@@ -2420,7 +2420,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             } else {
                 notify.offline('⚠️ ORDEN GUARDADA LOCALMENTE: Verifique conexión o permisos en Supabase.');
             }
-            
+
             // Trigger offline sync background process
             window.dispatchEvent(new CustomEvent('offline-sync-trigger'));
             setProcessing(false); // Ensure button unlocks
@@ -2436,17 +2436,17 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     return (
         <div className={`fixed inset-0 w-full h-full text-white font-sans flex flex-col overflow-hidden z-40 animate-fade-in bg-[#2d2e3d]`}>
             {/* TOP HEADER BAR */}
-            <div className="h-12 bg-[#3a3b4d] border-b border-white/5 flex items-center px-4 shrink-0 relative">
-                <button onClick={handleClose} className="p-2 hover:bg-white/5 rounded-lg text-gray-400 hover:text-white transition-colors absolute left-4 z-10">
-                    <ChevronLeft size={20} />
+            <div className="h-12 bg-[#3a3b4d] border-b border-white/5 flex items-center pl-4 pr-[calc(10.5cm+1rem)] shrink-0 relative">
+                <button onClick={handleClose} className="w-[2.5cm] h-[1.3cm] flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/5 rounded-md text-gray-400 hover:text-white transition-colors absolute left-4 z-10">
+                    <ArrowLeft size={20} />
                 </button>
                 <div className="flex-1 flex items-center justify-center gap-3 text-xs md:text-sm lg:text-xs font-bold uppercase tracking-wider text-gray-300">
                     <span>Orden: #{tableOrders.find(o => o.id === activeOrderId)?.order_number || initialOrder.order_number || '...'}</span>
                     <span className="text-gray-600">|</span>
                     <span className="text-white/60">
-                        {initialOrder.order_type === 'TAKEOUT' ? 'PARA LLEVAR' : 
-                         initialOrder.order_type === 'DELIVERY' ? 'DOMICILIO' : 
-                         (table?.section || 'SALA')}
+                        {initialOrder.order_type === 'TAKEOUT' ? 'PARA LLEVAR' :
+                            initialOrder.order_type === 'DELIVERY' ? 'DOMICILIO' :
+                                (table?.section || 'SALA')}
                     </span>
                     {table?.number && (
                         <>
@@ -2461,6 +2461,17 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     <span className="text-gray-600 mx-1">|</span>
                     <span className="hidden sm:inline">Atiende: {tableOrders.find(o => o.id === activeOrderId)?.waiter?.name || currentUser?.name || 'Mesero'}</span>
                 </div>
+
+                {(selectedCat || selectedSubCat) && (
+                    <button 
+                        onClick={() => selectedSubCat ? setSelectedSubCat(null) : setSelectedCat(null)} 
+                        className="w-[2.5cm] h-[1.3cm] flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-md text-emerald-400 hover:text-emerald-300 transition-colors absolute right-[calc(10.5cm+1rem)] z-10 border border-white/5"
+                        title="Regresar al Menú"
+                    >
+                        <CornerUpLeft size={20} />
+                    </button>
+                )}
+
                 <div className="absolute right-4 flex items-center gap-3">
                     {/* Clock & Date */}
                     <div className="hidden lg:flex flex-col items-center leading-none mr-1 bg-black/20 px-2 py-1 rounded-lg border border-white/5">
@@ -2473,19 +2484,18 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     </div>
 
                     {/* Network Status Indicator */}
-                    <div 
-                        className={`w-3 h-3 rounded-full ring-2 transition-all duration-500 ${
-                            isOnline 
-                                ? 'bg-emerald-400 ring-emerald-400/30 shadow-sm shadow-emerald-400/50' 
-                                : 'bg-red-500 ring-red-500/30 animate-pulse shadow-sm shadow-red-500/50'
-                        }`} 
-                        title={isOnline ? "En Línea" : "Sin Conexión al Servidor"} 
+                    <div
+                        className={`w-3 h-3 rounded-full ring-2 transition-all duration-500 ${isOnline
+                                ? 'bg-emerald-400 ring-emerald-400/30  -400/50'
+                                : 'bg-red-500 ring-red-500/30 animate-pulse  -500/50'
+                            }`}
+                        title={isOnline ? "En Línea" : "Sin Conexión al Servidor"}
                     />
 
                     <button
                         onClick={() => onToggleWaiterVoice?.()}
                         className={`p-2 rounded-lg transition-all border ${waiterVoiceEnabled
-                            ? 'bg-white/15 border-white/25 text-white shadow-none'
+                            ? 'bg-white/15 border-white/25 text-white '
                             : 'bg-white/5 border-white/10 text-white/40 hover:text-white hover:bg-white/10'
                             }`}
                         title={waiterVoiceEnabled ? "Desactivar avisos de cocina" : "Activar avisos de cocina"}
@@ -2497,83 +2507,66 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
             <div className="flex-1 flex overflow-hidden">
                 <div className={`flex-[1.5] lg:flex-1 flex flex-col border-r border-white/5 relative bg-[#2d2e3d]`}>
-                    {(selectedCat || selectedSubCat) && (
-                        <div className="p-3 border-b border-white/5 flex items-center gap-2">
-                            <button onClick={() => selectedSubCat ? setSelectedSubCat(null) : setSelectedCat(null)} className="flex items-center gap-1 text-xs font-bold text-white uppercase">
-                                <ChevronLeft size={14} /> Regresar al Menú
-                            </button>
-                            <span className="text-xs text-gray-600">|</span>
-                            <span className="text-xs font-black text-white uppercase tracking-widest">{selectedSubCat ? selectedSubCat.name : selectedCat?.name}</span>
-                        </div>
-                    )}
 
-                    <div className="flex-1 overflow-y-auto p-4 content-start">
+                    <div className="flex-1 overflow-y-auto py-4 px-[2.5cm] content-start">
                         {loading ? (
                             <div className="flex-1 flex items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-white/20" /></div>
                         ) : (
-                                <div className="bg-[#2d2e3d]">
-                                    {!selectedCat && (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-3 sm:gap-4 p-4 no-scrollbar content-start">
-                                            {(() => {
-                                                const seen = new Set();
-                                                return categories
-                                                    .filter(c => !c.parent_id && c.section !== 'INVENTARIO')
-                                                    .sort((a, b) => {
-                                                        // 1. Prioridad por Sección (MENU > otros)
-                                                        const scoreA = a.section === 'MENU' ? 0 : 1;
-                                                        const scoreB = b.section === 'MENU' ? 0 : 1;
-                                                        if (scoreA !== scoreB) return scoreA - scoreB;
+                            <div className="bg-[#2d2e3d]">
+                                {!selectedCat && (
+                                    <div className="grid grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm] no-scrollbar content-start">
+                                        {(() => {
+                                            const seen = new Set();
+                                            return categories
+                                                .filter(c => !c.parent_id && c.section !== 'INVENTARIO')
+                                                .sort((a, b) => {
+                                                    // 1. Prioridad por Sección (MENU > otros)
+                                                    const scoreA = a.section === 'MENU' ? 0 : 1;
+                                                    const scoreB = b.section === 'MENU' ? 0 : 1;
+                                                    if (scoreA !== scoreB) return scoreA - scoreB;
 
-                                                        // 2. Prioridad por Índice de Orden Manual
-                                                        const orderA = a.order_index ?? a.sort_order ?? a.priority ?? 999;
-                                                        const orderB = b.order_index ?? b.sort_order ?? b.priority ?? 999;
-                                                        if (orderA !== orderB) return Number(orderA) - Number(orderB);
+                                                    // 2. Alfabético estricto
+                                                    return (a.name || '').localeCompare(b.name || '');
+                                                })
+                                                .filter(c => {
+                                                    // v1.6.18 - Normalize accents and plurals for better de-duplication
+                                                    const rawName = (c.name || '').trim().toUpperCase();
+                                                    const normalized = rawName.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                                                    const key = normalized
+                                                        .replace(/\bDE\b/g, '')
+                                                        .replace(/\bDEL\b/g, '')
+                                                        .replace(/S\b/g, '') // Singularize
+                                                        .replace(/\s+/g, ' ')
+                                                        .trim();
 
-                                                        // 3. Alfabético
-                                                        return (a.name || '').localeCompare(b.name || '');
-                                                    })
-                                                    .filter(c => {
-                                                        // v1.6.18 - Normalize accents and plurals for better de-duplication
-                                                        const rawName = (c.name || '').trim().toUpperCase();
-                                                        const normalized = rawName.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                                                        const key = normalized
-                                                            .replace(/\bDE\b/g, '')
-                                                            .replace(/\bDEL\b/g, '')
-                                                            .replace(/S\b/g, '') // Singularize
-                                                            .replace(/\s+/g, ' ')
-                                                            .trim();
-                                                        
-                                                        if (!key || seen.has(key)) return false;
-                                                        seen.add(key);
-                                                        return true;
-                                                    })
-                                                    .map(cat => (
-                                                        <button key={cat.id} onClick={() => setSelectedCat(cat)} className="aspect-square bg-[#3a3b4d] rounded-2xl p-2 flex flex-col items-center justify-between border-2 border-white/5 hover:border-white/20 hover:bg-[#45465e] active:scale-95 transition-all shadow-xl group">
-                                                            <div className="flex-1 flex flex-col items-center justify-center w-full mb-3">
-                                                                {cat.image_url ? (
-                                                                    <img src={cat.image_url} alt={cat.name} className="w-full h-full object-contain rounded-xl opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
-                                                                ) : (
-                                                                    <PlaceholderLogo />
-                                                                )}
-                                                            </div>
-                                                            <span className="w-full text-center text-[8px] sm:text-[9px] font-black uppercase tracking-wide text-gray-200 leading-tight pt-1 pb-1">{cat.name}</span>
-                                                        </button>
-                                                    ));
-                                            })()}
-                                        </div>
-                                    )}
+                                                    if (!key || seen.has(key)) return false;
+                                                    seen.add(key);
+                                                    return true;
+                                                })
+                                                .map(cat => (
+                                                    <button key={cat.id} onClick={() => setSelectedCat(cat)} className="w-[170px] h-[178px] bg-[#3a3b4d] rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-white/5 hover:border-white/20 hover:bg-[#45465e] active:scale-95 transition-all  group">
+                                                        <div className="flex-1 flex flex-col items-center justify-center w-full mb-3">
+                                                            {cat.image_url ? (
+                                                                <img src={cat.image_url} alt={cat.name} className="w-full h-full object-contain rounded-xl opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
+                                                            ) : (
+                                                                <PlaceholderLogo />
+                                                            )}
+                                                        </div>
+                                                        <span className="w-full text-center text-[11px] sm:text-[12px] font-black uppercase tracking-wide text-white leading-tight pt-1 pb-1">{cat.name}</span>
+                                                    </button>
+                                                ));
+                                        })()}
+                                    </div>
+                                )}
                                 {selectedCat && !selectedSubCat && (
-                                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-2 sm:gap-3 content-start">
+                                    <div className="grid grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm] content-start">
                                         {categories
                                             .filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO')
                                             .sort((a, b) => {
-                                                const orderA = a.order_index ?? a.sort_order ?? a.priority ?? 999;
-                                                const orderB = b.order_index ?? b.sort_order ?? b.priority ?? 999;
-                                                if (orderA !== orderB) return Number(orderA) - Number(orderB);
                                                 return (a.name || '').localeCompare(b.name || '');
                                             })
                                             .map(sub => (
-                                                <button key={sub.id} onClick={() => setSelectedSubCat(sub)} className="aspect-square bg-white/10 rounded-xl p-2 flex flex-col items-center justify-between border-2 border-transparent hover:border-white/10 active:scale-95 transition-all group">
+                                                <button key={sub.id} onClick={() => setSelectedSubCat(sub)} className="w-[170px] h-[178px] bg-white/10 rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-transparent hover:border-white/10 active:scale-95 transition-all group">
                                                     <div className="flex-1 flex flex-col items-center justify-center w-full">
                                                         {sub.image_url ? (
                                                             <img src={sub.image_url} alt={sub.name} className="w-full h-full object-cover rounded-md opacity-50 group-hover:opacity-100 transition-opacity" />
@@ -2581,30 +2574,30 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                             <PlaceholderLogo />
                                                         )}
                                                     </div>
-                                                    <span className="w-full text-center text-[8px] sm:text-[9px] font-black uppercase tracking-wide text-gray-200 leading-tight pt-1 pb-1">{sub.name}</span>
+                                                    <span className="w-full text-center text-[11px] sm:text-[12px] font-black uppercase tracking-wide text-white leading-tight pt-1 pb-1">{sub.name}</span>
                                                 </button>
                                             ))}
                                         {categories.filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO').length === 0 && (() => {
                                             // SENIOR BRIDGE FIX: Collect all IDs for categories with this NAME to handle duplicates
                                             // v1.6.15 - STRICT SECTION FILTERING: Only match within the same section (MENU vs INVENTORY)
                                             const relatedCatIds = categories
-                                                .filter(c => 
-                                                    c.name?.toUpperCase() === selectedCat.name?.toUpperCase() && 
+                                                .filter(c =>
+                                                    c.name?.toUpperCase() === selectedCat.name?.toUpperCase() &&
                                                     (c.section || 'MENU') === (selectedCat.section || 'MENU')
                                                 )
                                                 .map(c => c.id);
-                                            
+
                                             // v1.4.1 - STRICT CATEGORY FILTERING & GLOBAL SHADOW STOCK
                                             // Determine if we are in an "Inventory" section or "Menu" section
-                                            const isInventorySection = selectedCat.section === 'INVENTARIO' || 
-                                                                    (selectedCat as any).category_type === 'INVENTORY';
+                                            const isInventorySection = selectedCat.section === 'INVENTARIO' ||
+                                                (selectedCat as any).category_type === 'INVENTORY';
 
                                             const filteredProds = products.filter(p => {
                                                 // If we are in the Menu, ONLY show items specifically linked to Menu Categories
                                                 // If we are in Inventory, ONLY show items specifically linked to Product/Inventory Categories
                                                 const matchesMenu = relatedCatIds.includes(p.menu_category_id);
                                                 const matchesInventory = relatedCatIds.includes(p.product_category_id) || relatedCatIds.includes(p.category_id);
-                                                
+
                                                 if (isInventorySection) return matchesInventory;
 
                                                 // v1.6.16 - FIXED: Allow matchesInventory in Menu section too
@@ -2615,7 +2608,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 // v1.6.15 - Extra safety: Don't show technical inventory items in Menu even if IDs match
                                                 const isTechnicalItem = p.classification === 'INSUMO' || (p.name || '').toUpperCase().includes('MERMA');
                                                 const isNotPlatillo = (p as any).es_platillo === false && p.classification !== 'PRODUCTO';
-                                                
+
                                                 return isMatch && !isTechnicalItem && !isNotPlatillo;
                                             });
 
@@ -2624,10 +2617,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             products.forEach(p => {
                                                 const nameKey = (p.name || '').trim().toUpperCase();
                                                 if (!nameKey) return;
-                                                
+
                                                 // a) Search in Product Branch Inventory (Ventas)
                                                 const bInv = branchInventory.find(bi => bi.product_id === p.id && bi.branch_id === currentUser?.branch_id);
-                                                
+
                                                 // b) Search in Item Inventory (Insumos - v1.6.0 Unification)
                                                 // We match by name because a Platillo might not have the same ID as its Insumo equivalent
                                                 const iInv = itemInventory.find(ii => {
@@ -2642,17 +2635,17 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 // We use MAX to ensure if one table says 14 and other says 0, we show 14.
                                                 const invStock = bInv ? bInv.quantity : (p.stock_actual ?? p.stock_quantity ?? 0);
                                                 const itemStock = iInv ? iInv.quantity : -999999; // Sentinel to check if exists
-                                                
+
                                                 const finalStock = itemStock !== -999999 ? Math.max(invStock, itemStock) : invStock;
-                                                
+
                                                 const existing = globalDataMap.get(nameKey);
                                                 if (!existing) {
                                                     globalDataMap.set(nameKey, { stock: finalStock, image: p.image_url });
                                                 } else {
                                                     // v1.5.3: Use MAX stock (not sum) to avoid positive+negative cancel-out
-                                                    globalDataMap.set(nameKey, { 
+                                                    globalDataMap.set(nameKey, {
                                                         stock: Math.max(existing.stock, finalStock),
-                                                        image: existing.image || p.image_url 
+                                                        image: existing.image || p.image_url
                                                     });
                                                 }
                                             });
@@ -2663,7 +2656,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 const bPrice = branchPrices.find(bp => bp.product_id === p.id && bp.branch_id === currentUser?.branch_id);
                                                 const finalPrice = bPrice ? bPrice.price : p.price;
                                                 const key = (p.name || '').trim().toUpperCase();
-                                                
+
                                                 // Initial stock for this specific record (just to be safe)
                                                 const bInv = branchInventory.find(bi => bi.product_id === p.id && bi.branch_id === currentUser?.branch_id);
                                                 const localStock = bInv ? bInv.quantity : (p.stock_actual || p.stock_quantity || 0);
@@ -2687,42 +2680,39 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
                                             return Array.from(prodMap.values())
                                                 .sort((a: any, b: any) => {
-                                                    const prioA = a.priority ?? 999;
-                                                    const prioB = b.priority ?? 999;
-                                                    if (prioA !== prioB) return prioA - prioB;
                                                     return (a.name || '').localeCompare(b.name || '');
                                                 })
                                                 .map(product => {
-                                                return (
-                                                    <ProductCard
-                                                        key={product.id}
-                                                        product={{ ...product, price: product.finalPrice }}
-                                                        stockOverride={product.consolidatedStock}
-                                                        currency={currency}
-                                                        onClick={() => handleProductClick(product)}
-                                                        isChecking={checkingProducts.has(product.id)}
-                                                    />
-                                                );
-                                            });
+                                                    return (
+                                                        <ProductCard
+                                                            key={product.id}
+                                                            product={{ ...product, price: product.finalPrice }}
+                                                            stockOverride={product.consolidatedStock}
+                                                            currency={currency}
+                                                            onClick={() => handleProductClick(product)}
+                                                            isChecking={checkingProducts.has(product.id)}
+                                                        />
+                                                    );
+                                                });
                                         })()}
                                     </div>
                                 )}
                                 {selectedSubCat && (
-                                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-2 sm:gap-3 content-start">
+                                    <div className="grid grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm] content-start">
                                         {(() => {
                                             const relatedSubCatIds = categories
                                                 .filter(c => c.name?.toUpperCase() === selectedSubCat.name?.toUpperCase())
                                                 .map(c => c.id);
 
                                             const filteredSubProds = products.filter(p => {
-                                                const matchesAny = relatedSubCatIds.includes(p.category_id) || 
-                                                                 relatedSubCatIds.includes(p.product_category_id) || 
-                                                                 relatedSubCatIds.includes(p.menu_category_id);
-                                                
+                                                const matchesAny = relatedSubCatIds.includes(p.category_id) ||
+                                                    relatedSubCatIds.includes(p.product_category_id) ||
+                                                    relatedSubCatIds.includes(p.menu_category_id);
+
                                                 // v1.6.17 - STRICT FILTERING for Sub-Categories too
                                                 const isTechnicalItem = p.classification === 'INSUMO' || (p.name || '').toUpperCase().includes('MERMA');
                                                 const isNotPlatillo = (p as any).es_platillo === false && p.classification !== 'PRODUCTO';
-                                                
+
                                                 return matchesAny && !isTechnicalItem && !isNotPlatillo;
                                             });
 
@@ -2740,9 +2730,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                     globalDataMap.set(nameKey, { stock: pStock, image: p.image_url });
                                                 } else {
                                                     // v1.5.3: Use MAX stock (not sum) to avoid positive+negative cancel-out
-                                                    globalDataMap.set(nameKey, { 
+                                                    globalDataMap.set(nameKey, {
                                                         stock: Math.max(existing.stock, pStock),
-                                                        image: existing.image || p.image_url 
+                                                        image: existing.image || p.image_url
                                                     });
                                                 }
                                             });
@@ -2774,23 +2764,20 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
                                             return Array.from(subProdMap.values())
                                                 .sort((a: any, b: any) => {
-                                                    const prioA = a.priority ?? 999;
-                                                    const prioB = b.priority ?? 999;
-                                                    if (prioA !== prioB) return prioA - prioB;
                                                     return (a.name || '').localeCompare(b.name || '');
                                                 })
                                                 .map(product => {
-                                                return (
-                                                    <ProductCard
-                                                        key={product.id}
-                                                        product={{ ...product, price: product.finalPrice }}
-                                                        stockOverride={product.consolidatedStock}
-                                                        currency={currency}
-                                                        onClick={() => handleProductClick(product)}
-                                                        isChecking={checkingProducts.has(product.id)}
-                                                    />
-                                                );
-                                            });
+                                                    return (
+                                                        <ProductCard
+                                                            key={product.id}
+                                                            product={{ ...product, price: product.finalPrice }}
+                                                            stockOverride={product.consolidatedStock}
+                                                            currency={currency}
+                                                            onClick={() => handleProductClick(product)}
+                                                            isChecking={checkingProducts.has(product.id)}
+                                                        />
+                                                    );
+                                                });
                                         })()}
                                     </div>
                                 )}
@@ -2799,14 +2786,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     </div>
 
                     <div className="h-20 lg:h-16 bg-black/20 border-t border-white/5 flex items-center justify-center gap-4 lg:gap-4 px-4 shrink-0 z-10">
-                        <button onClick={() => setShowPaxModal(true)} className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 shadow-none">
+                        <button onClick={() => setShowPaxModal(true)} className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 ">
                             <Users size={18} />
                             <span className="text-[9px] font-bold mt-0.5 uppercase tracking-tighter">Personas</span>
                         </button>
                         {table && (
                             <button
                                 onClick={() => setShowTransferModal(true)}
-                                className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 shadow-none"
+                                className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 "
                                 title="Cambiar a otra Mesa (Trasladar Cuenta)"
                             >
                                 <ArrowRightLeft size={18} />
@@ -2816,7 +2803,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         {currentUser?.role === 'CAJERO' && (
                             <button
                                 onClick={() => setShowTransferWaiterModal(true)}
-                                className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 shadow-none"
+                                className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 "
                                 title="Transferir Responsable"
                             >
                                 <UsersRound size={18} />
@@ -2833,7 +2820,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 }}
                                 disabled={!activeOrderId}
                                 className={`h-[50px] px-8 rounded-lg text-sm font-bold transition-all ${activeOrderId
-                                    ? 'bg-[#3f4251] text-white hover:bg-white/10 active:scale-95 border border-white/5 shadow-none'
+                                    ? 'bg-[#3f4251] text-white hover:bg-white/10 active:scale-95 border border-white/5 '
                                     : 'bg-[#2a2d37] text-gray-500 opacity-40 cursor-not-allowed border border-white/5'}`}
                                 title="Anular Orden Completa"
                             >
@@ -2843,16 +2830,16 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     </div>
                 </div>
 
-                <div className={`w-[280px] sm:w-[300px] lg:w-[350px] shrink-0 border-l border-white/5 flex flex-col relative z-20 ${(currentUser?.role?.toUpperCase() === 'MESERO' || currentUser?.role?.toUpperCase() === 'CAJERO') ? 'bg-transparent' : 'bg-[#222630]'}`}>
+                <div className={`w-[10.5cm] shrink-0 border-l border-white/5 flex flex-col relative z-20 ${(currentUser?.role?.toUpperCase() === 'MESERO' || currentUser?.role?.toUpperCase() === 'CAJERO') ? 'bg-transparent' : 'bg-[#222630]'}`}>
                     <div className="p-3 lg:p-3 border-b border-white/5 flex flex-col gap-3 shrink-0">
                         <div className="pt-1 space-y-1">
                             <button
                                 onClick={() => setShowAccountsOverviewModal(true)}
-                                className="w-full bg-[#1e212b] border border-white/10 rounded-xl px-4 py-3 text-[11px] font-black text-white uppercase tracking-widest flex items-center justify-center relative group hover:border-white/20 transition-all shadow-none active:scale-95"
+                                className="w-full bg-[#1e212b] border border-white/10 rounded-xl px-4 py-3 text-[11px] font-black text-white uppercase tracking-widest flex items-center justify-center relative group hover:border-white/20 transition-all  active:scale-95"
                             >
                                 <span>
                                     {activeOrderId === null && tableOrders.length > 1
-                                        ? 'TODAS LAS CUENTAS' 
+                                        ? 'TODAS LAS CUENTAS'
                                         : getOrderDisplayName(activeOrderId)
                                     }
                                 </span>
@@ -2873,7 +2860,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 <span className="text-[10px] font-bold uppercase tracking-widest mt-2">Sin Productos</span>
                             </div>
                         ) : (
-                                [...checkoutItems]
+                            [...checkoutItems]
                                 .sort((a, b) => {
                                     if (!activeOrderId) {
                                         const aOrderIdx = tableOrders.findIndex(o => o.id === (a as any).order_id);
@@ -2938,7 +2925,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                     (currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO') && (
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                                                            className="p-1.5 bg-white/10 text-white rounded-lg shadow-none active:scale-90 transition-all"
+                                                            className="p-1.5 bg-white/10 text-white rounded-lg  active:scale-90 transition-all"
                                                             title="Anular Producto"
                                                         >
                                                             <Trash2 size={14} />
@@ -3018,11 +3005,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             onCheckout?.(updatedOrder as any);
                                         }
                                     }}
-                                    className={`flex-1 rounded-xl flex flex-col items-center justify-center gap-1 shadow-none active:scale-95 transition-all ${
-                                        (checkoutItems.filter(i => !i.is_sent).length > 0) 
-                                            ? 'bg-white text-black' 
+                                    className={`flex-1 rounded-xl flex flex-col items-center justify-center gap-1  active:scale-95 transition-all ${(checkoutItems.filter(i => !i.is_sent).length > 0)
+                                            ? 'bg-white text-black'
                                             : 'bg-[#2b2f3a] border border-white/10 opacity-50 cursor-not-allowed text-white'
-                                    }`}
+                                        }`}
                                 >
                                     <FileText size={20} />
                                     <span className="text-[10px] font-black uppercase tracking-widest leading-none">
@@ -3044,7 +3030,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             }
 
                                             // Identify the correct base order data (use current account if activeOrderId exists)
-                                            const currentOrderData = activeOrderId 
+                                            const currentOrderData = activeOrderId
                                                 ? (tableOrders.find(o => o.id === activeOrderId) || initialOrder)
                                                 : initialOrder;
 
@@ -3082,7 +3068,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             onCheckout?.(updatedOrder as any);
                                         }}
                                         disabled={checkoutItems.length === 0}
-                                        className="flex-1 bg-white/10 rounded-xl flex flex-col items-center justify-center gap-1 shadow-none active:scale-95 transition-all text-white disabled:opacity-50 disabled:bg-gray-700"
+                                        className="flex-1 bg-white/10 rounded-xl flex flex-col items-center justify-center gap-1  active:scale-95 transition-all text-white disabled:opacity-50 disabled:bg-gray-700"
                                     >
                                         <Banknote size={20} />
                                         <span className="text-[10px] font-black uppercase tracking-widest leading-none">
@@ -3127,8 +3113,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     remoteAuthEnabled={true}
                     authPayload={{
                         action_type: pendingAction === 'cancel' ? 'VOID_ORDER' : (pendingAction === 'edit' ? 'EDIT_ITEM' : 'VOID_ITEM'),
-                        action_details: pendingAction === 'cancel' 
-                            ? `Anular Orden Completa - Mesa ${table?.number || '?'}` 
+                        action_details: pendingAction === 'cancel'
+                            ? `Anular Orden Completa - Mesa ${table?.number || '?'}`
                             : `${pendingAction === 'edit' ? 'Editar' : 'Eliminar'}: ${itemToVoid?.product_name || (itemToVoid as any)?.products?.name || itemToVoid?.name || 'Producto'} (Cant: ${itemToVoid?.quantity || 1}) - Mesa ${table?.number || '?'}`,
                         metadata: {
                             order_id: activeOrderId,
@@ -3152,7 +3138,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             setProcessing(true);
                             try {
                                 const nowGuate = DateUtils.toGuatemalaISO(new Date(Date.now() + serverOffset));
-                                
+
                                 // v1.6.0 - Use RPC to cancel order with PIN validation (bypasses RLS)
                                 const { data: rpcResult, error: rpcError } = await supabase.rpc('cancel_order_with_pin', {
                                     p_order_id: activeOrderId,
@@ -3210,8 +3196,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 }
 
                                 onClose?.();
-                            } catch (error: any) { 
-                                console.error(error); 
+                            } catch (error: any) {
+                                console.error(error);
                                 showAlert(`Error: ${error.message}`, 'Error');
                             }
                             setProcessing(false);
@@ -3233,135 +3219,135 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     itemContext={discountingItem ? "Producto" : "Mesa"}
                 />
                 <InvoiceModal isOpen={showInvoiceModal} onClose={() => setShowInvoiceModal(false)} onSubmit={handleInvoiceSubmit} total={total + tipAmount} />
-                
+
                 {/* Modal para capturar datos de cliente en Para Llevar */}
                 <AnimatePresence>
                     {showTakeoutClientModal && (
-                    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/40 p-6 no-scrollbar overflow-hidden">
-                        <motion.div 
-                            drag
-                            dragMomentum={false}
-                            className="w-full max-w-[400px] bg-[#2b2d3d] rounded-[32px] border border-white/10 shadow-2xl overflow-hidden cursor-default"
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
-                            transition={{ duration: 0.1 }}
-                        >
-                            {/* Drag Handle */}
-                            <div className="h-2 w-12 bg-white/10 rounded-full mx-auto mt-4 mb-2 touch-none cursor-grab active:cursor-grabbing" />
-                            
-                            <div className="bg-[#1e1f2b] p-6 border-b border-white/5 flex flex-col items-center">
-                                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-3">
-                                    <Package className="text-white" size={24} />
-                                </div>
-                                <h3 className="text-lg font-black text-white uppercase tracking-tighter">Datos para Llevar</h3>
-                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Nombre y teléfono requeridos</p>
-                            </div>
+                        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/40 p-6 no-scrollbar overflow-hidden">
+                            <motion.div
+                                drag
+                                dragMomentum={false}
+                                className="w-full max-w-[400px] bg-[#2b2d3d] rounded-[32px] border border-white/10  overflow-hidden cursor-default"
+                                initial={{ scale: 0.95, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.95, opacity: 0 }}
+                                transition={{ duration: 0.1 }}
+                            >
+                                {/* Drag Handle */}
+                                <div className="h-2 w-12 bg-white/10 rounded-full mx-auto mt-4 mb-2 touch-none cursor-grab active:cursor-grabbing" />
 
-                            <div className="p-8 space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nombre del Cliente</label>
-                                    <div className="relative">
-                                        <input
-                                            id="hidden-takeout-name"
-                                            type="text"
-                                            value={takeoutData.name}
-                                            onChange={(e) => setTakeoutData(prev => ({ ...prev, name: e.target.value }))}
-                                            inputMode="none"
-                                            className="absolute inset-0 opacity-0 pointer-events-none z-0"
-                                            data-virtual-input
-                                        />
-                                        <div
-                                            data-virtual-input
-                                            data-keyboard="text"
-                                            tabIndex={0}
-                                            onClick={() => document.getElementById('hidden-takeout-name')?.focus()}
-                                            className={`w-full bg-black/20 border rounded-2xl p-4 text-white outline-none transition-all font-bold text-sm min-h-[56px] flex items-center cursor-text relative z-10 ${focusedField === 'name' ? 'border-white/40 shadow-none virtual-input-focused' : 'border-white/10'}`}
-                                        >
-                                            {takeoutData.name}
+                                <div className="bg-[#1e1f2b] p-6 border-b border-white/5 flex flex-col items-center">
+                                    <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-3">
+                                        <Package className="text-white" size={24} />
+                                    </div>
+                                    <h3 className="text-lg font-black text-white uppercase tracking-tighter">Datos para Llevar</h3>
+                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Nombre y teléfono requeridos</p>
+                                </div>
+
+                                <div className="p-8 space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nombre del Cliente</label>
+                                        <div className="relative">
+                                            <input
+                                                id="hidden-takeout-name"
+                                                type="text"
+                                                value={takeoutData.name}
+                                                onChange={(e) => setTakeoutData(prev => ({ ...prev, name: e.target.value }))}
+                                                inputMode="none"
+                                                className="absolute inset-0 opacity-0 pointer-events-none z-0"
+                                                data-virtual-input
+                                            />
+                                            <div
+                                                data-virtual-input
+                                                data-keyboard="text"
+                                                tabIndex={0}
+                                                onClick={() => document.getElementById('hidden-takeout-name')?.focus()}
+                                                className={`w-full bg-black/20 border rounded-2xl p-4 text-white outline-none transition-all font-bold text-sm min-h-[56px] flex items-center cursor-text relative z-10 ${focusedField === 'name' ? 'border-white/40  virtual-input-focused' : 'border-white/10'}`}
+                                            >
+                                                {takeoutData.name}
+                                            </div>
+                                            {!takeoutData.name && (
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 opacity-50 font-bold text-sm pointer-events-none z-20">
+                                                    EJ: JUAN PEREZ
+                                                </span>
+                                            )}
                                         </div>
-                                        {!takeoutData.name && (
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 opacity-50 font-bold text-sm pointer-events-none z-20">
-                                                EJ: JUAN PEREZ
-                                            </span>
-                                        )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Teléfono</label>
+                                        <div className="relative">
+                                            <input
+                                                id="hidden-takeout-phone"
+                                                type="text"
+                                                value={takeoutData.phone}
+                                                onChange={(e) => setTakeoutData(prev => ({ ...prev, phone: e.target.value }))}
+                                                inputMode="none"
+                                                className="absolute inset-0 opacity-0 pointer-events-none z-0"
+                                                data-virtual-input
+                                                data-keyboard="numeric"
+                                            />
+                                            <div
+                                                data-virtual-input
+                                                data-keyboard="numeric"
+                                                tabIndex={0}
+                                                onClick={() => document.getElementById('hidden-takeout-phone')?.focus()}
+                                                className={`w-full bg-black/20 border rounded-2xl p-4 text-white outline-none transition-all font-bold text-sm min-h-[56px] flex items-center cursor-text relative z-10 ${focusedField === 'phone' ? 'border-white/40  virtual-input-focused' : 'border-white/10'}`}
+                                            >
+                                                {takeoutData.phone}
+                                            </div>
+                                            {!takeoutData.phone && (
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 opacity-50 font-bold text-sm pointer-events-none z-20">
+                                                    0000-0000
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-4 pt-4">
+                                        <button
+                                            onClick={() => setShowTakeoutClientModal(false)}
+                                            className="flex-1 py-4 border border-white/10 rounded-2xl font-black text-[10px] text-gray-400 uppercase tracking-widest hover:bg-white/5 transition-all"
+                                        >
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            onClick={async () => {
+                                                if (!takeoutData.name.trim()) return;
+                                                setShowTakeoutClientModal(false);
+                                                const finalId = await handleOrderSubmission(undefined, takeoutData);
+                                                const isCashierOrAdmin = currentUser?.role?.toUpperCase() === 'CAJERO' || currentUser?.role?.toUpperCase() === 'ADMIN';
+                                                if (isCashierOrAdmin && finalId) {
+                                                    const updatedOrder = {
+                                                        ...initialOrder,
+                                                        id: finalId,
+                                                        customer_name: takeoutData.name,
+                                                        customer_phone: takeoutData.phone,
+                                                        subtotal,
+                                                        tax_amount: taxAmount,
+                                                        tip_amount: tipAmount,
+                                                        total: total + tipAmount,
+                                                        items: checkoutItems.map(i => ({
+                                                            ...i,
+                                                            product_name: i.product_name,
+                                                            unit_price: (i as any).unit_price || i.price || 0,
+                                                            quantity: i.quantity,
+                                                            is_sent: true
+                                                        }))
+                                                    };
+                                                    onCheckout?.(updatedOrder as any);
+                                                }
+                                            }}
+                                            disabled={!takeoutData.name.trim() || processing}
+                                            className="flex-1 py-4 bg-white hover:bg-white/90 disabled:opacity-50 text-black rounded-2xl font-black text-[10px] uppercase tracking-[0.2em]  active:scale-95 transition-all"
+                                        >
+                                            {processing ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'CONFIRMAR ORDEN'}
+                                        </button>
                                     </div>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Teléfono</label>
-                                    <div className="relative">
-                                        <input
-                                            id="hidden-takeout-phone"
-                                            type="text"
-                                            value={takeoutData.phone}
-                                            onChange={(e) => setTakeoutData(prev => ({ ...prev, phone: e.target.value }))}
-                                            inputMode="none"
-                                            className="absolute inset-0 opacity-0 pointer-events-none z-0"
-                                            data-virtual-input
-                                            data-keyboard="numeric"
-                                        />
-                                        <div
-                                            data-virtual-input
-                                            data-keyboard="numeric"
-                                            tabIndex={0}
-                                            onClick={() => document.getElementById('hidden-takeout-phone')?.focus()}
-                                            className={`w-full bg-black/20 border rounded-2xl p-4 text-white outline-none transition-all font-bold text-sm min-h-[56px] flex items-center cursor-text relative z-10 ${focusedField === 'phone' ? 'border-white/40 shadow-none virtual-input-focused' : 'border-white/10'}`}
-                                        >
-                                            {takeoutData.phone}
-                                        </div>
-                                        {!takeoutData.phone && (
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 opacity-50 font-bold text-sm pointer-events-none z-20">
-                                                0000-0000
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-4 pt-4">
-                                    <button
-                                        onClick={() => setShowTakeoutClientModal(false)}
-                                        className="flex-1 py-4 border border-white/10 rounded-2xl font-black text-[10px] text-gray-400 uppercase tracking-widest hover:bg-white/5 transition-all"
-                                    >
-                                        Cancelar
-                                    </button>
-                                    <button
-                                        onClick={async () => {
-                                            if (!takeoutData.name.trim()) return;
-                                            setShowTakeoutClientModal(false);
-                                            const finalId = await handleOrderSubmission(undefined, takeoutData);
-                                            const isCashierOrAdmin = currentUser?.role?.toUpperCase() === 'CAJERO' || currentUser?.role?.toUpperCase() === 'ADMIN';
-                                            if (isCashierOrAdmin && finalId) {
-                                                const updatedOrder = {
-                                                    ...initialOrder,
-                                                    id: finalId,
-                                                    customer_name: takeoutData.name,
-                                                    customer_phone: takeoutData.phone,
-                                                    subtotal,
-                                                    tax_amount: taxAmount,
-                                                    tip_amount: tipAmount,
-                                                    total: total + tipAmount,
-                                                    items: checkoutItems.map(i => ({
-                                                        ...i,
-                                                        product_name: i.product_name,
-                                                        unit_price: (i as any).unit_price || i.price || 0,
-                                                        quantity: i.quantity,
-                                                        is_sent: true
-                                                    }))
-                                                };
-                                                onCheckout?.(updatedOrder as any);
-                                            }
-                                        }}
-                                        disabled={!takeoutData.name.trim() || processing}
-                                        className="flex-1 py-4 bg-white hover:bg-white/90 disabled:opacity-50 text-black rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-none active:scale-95 transition-all"
-                                    >
-                                        {processing ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'CONFIRMAR ORDEN'}
-                                    </button>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
+                            </motion.div>
+                        </div>
+                    )}
                 </AnimatePresence>
 
                 {table && <TransferTableModal isOpen={showTransferModal} onClose={() => setShowTransferModal(false)} currentTable={table} onTransfer={handleTableTransfer} />}
@@ -3429,7 +3415,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
                 {showVoidModal && (
                     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-6 animate-fade-in">
-                        <div className="w-full max-w-[420px] bg-[#2b2d3d] rounded-xl border border-white/10 shadow-2xl overflow-hidden">
+                        <div className="w-full max-w-[420px] bg-[#2b2d3d] rounded-xl border border-white/10  overflow-hidden">
                             {/* HEADER */}
                             <div className="bg-[#1e1f2b] py-3 px-4 border-b border-white/5">
                                 <h3 className="text-sm font-bold text-white text-center">Motivo Anulación</h3>
@@ -3459,7 +3445,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             setShowPinModal(true);
                                         }}
                                         disabled={voidReason.trim().length < 5 || processing}
-                                        className="flex-1 py-3 bg-white disabled:bg-gray-700 disabled:opacity-50 text-black rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg shadow-white/5 active:scale-95 transition-all"
+                                        className="flex-1 py-3 bg-white disabled:bg-gray-700 disabled:opacity-50 text-black rounded-lg font-bold text-xs uppercase tracking-wider  /5 active:scale-95 transition-all"
                                     >
                                         {processing ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'ACEPTAR'}
                                     </button>
