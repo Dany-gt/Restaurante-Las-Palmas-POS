@@ -10,7 +10,7 @@ import { User, Table, Order } from './types';
 import { useGlobalKeyboardNavigation } from './hooks/useGlobalKeyboardNavigation';
 
 import { supabase } from './supabase';
-import { Loader2, AlertTriangle, Trash2, Power } from 'lucide-react';
+import { Loader2, AlertTriangle, Trash2, Power, X } from 'lucide-react';
 import { VirtualKeyboard } from './components/VirtualKeyboard';
 import { PinModalV2 as PinModal } from './components/PinModalV2';
 import { useSecurityPolicy } from './hooks/useSecurityPolicy';
