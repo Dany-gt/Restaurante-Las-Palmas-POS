@@ -4,6 +4,8 @@ import { Search, RotateCcw, Loader2, Baseline, ArrowUpDown, Filter, Plus, Edit3,
 import { supabase } from '../../supabase';
 import { DraggableWindow } from './AdminPortal';
 import { WindowsSaveButton } from '../WindowsSaveButton';
+import { useNotify } from '../../hooks/useNotify';
+import { WindowsConfirmModal } from '../WindowsConfirmModal';
 
 export const DishesModifiersList: React.FC = () => {
     const [items, setItems] = useState<any[]>([]);
@@ -34,6 +36,8 @@ export const DishesModifiersList: React.FC = () => {
         modifier_group_id: ''
     });
     const [saving, setSaving] = useState(false);
+    const notify = useNotify();
+    const [confirmAction, setConfirmAction] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
     useEffect(() => {
         fetchData();
@@ -113,9 +117,18 @@ export const DishesModifiersList: React.FC = () => {
     };
 
     const handleDelete = async (item: any) => {
-        if (!confirm(`¿Está seguro que desea eliminar el modificador "${item.item_name}"?`)) return;
-        const { error } = await supabase.from('group_items').delete().eq('id', item.id);
-        if (!error) fetchData();
+        setConfirmAction({
+            message: `¿Está seguro que desea eliminar el modificador "${item.item_name}"?`,
+            onConfirm: async () => {
+                const { error } = await supabase.from('group_items').delete().eq('id', item.id);
+                if (error) {
+                    notify.error('Error al eliminar modificador: ' + error.message);
+                } else {
+                    fetchData();
+                }
+                setConfirmAction(null);
+            }
+        });
     };
 
     const handleSave = async () => {
@@ -144,7 +157,7 @@ export const DishesModifiersList: React.FC = () => {
         } else if (duplicateData && duplicateData.length > 0) {
             const isDup = isEditing ? duplicateData.some(d => d.id !== form.id) : true;
             if (isDup) {
-                alert('🚫 ERROR: Este modificador ya existe en el grupo seleccionado.');
+                notify.alert('Este modificador ya existe en el grupo seleccionado.');
                 setSaving(false);
                 return;
             }
@@ -279,7 +292,7 @@ export const DishesModifiersList: React.FC = () => {
 
             {/* Footer Bar */}
             <div className="bg-[#f1f5f9] border-t border-gray-300 px-6 py-2 flex items-center justify-between shrink-0">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Páladar POS - Plataforma de Administración</span>
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Las Palmas POS - Plataforma de Administración</span>
                 <div className="flex items-center gap-4">
                     <span className="text-[10px] font-black text-[#106ebe] uppercase">{filteredItems.length} Registros Encontrados</span>
                 </div>
@@ -443,6 +456,13 @@ export const DishesModifiersList: React.FC = () => {
                         </DraggableWindow>
                     </div>
                 </div>
+            )}
+            {confirmAction && (
+                <WindowsConfirmModal
+                    message={confirmAction.message}
+                    onConfirm={confirmAction.onConfirm}
+                    onCancel={() => setConfirmAction(null)}
+                />
             )}
         </div>
     );

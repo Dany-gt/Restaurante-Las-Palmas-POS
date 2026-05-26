@@ -137,7 +137,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                             <ArrowLeft size={18} />
                         </button>
                         <h2 className={`text-[10px] font-black uppercase tracking-widest ${transferMode ? 'text-indigo-400' : 'text-gray-700'}`}>
-                            {transferMode ? `TRASLADAR: ${itemToTransferName}` : 'PÁLADAR POS'}
+                            {transferMode ? `TRASLADAR: ${itemToTransferName}` : 'LAS PALMAS POS'}
                         </h2>
                     </div>
 

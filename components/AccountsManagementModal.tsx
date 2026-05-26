@@ -109,7 +109,7 @@ export const AccountsManagementModal: React.FC<AccountsManagementModalProps> = (
                 <button onClick={onClose} className="w-10 h-10 bg-white/5 rounded flex items-center justify-center text-gray-400 hover:text-white">
                     <ChevronLeft size={20} />
                 </button>
-                <span className="ml-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest">PÁLADAR POS</span>
+                <span className="ml-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest">LAS PALMAS POS</span>
                 
                 <div className="ml-auto flex items-center gap-6">
                     <div className="text-right">

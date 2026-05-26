@@ -472,8 +472,8 @@ export const DishesModifiersAssign: React.FC = () => {
             {/* Status Info Bar */}
             <footer className="h-6 bg-white border border-gray-300 rounded-sm flex items-center px-4 justify-between shrink-0">
                 <div className="flex items-center gap-4">
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic flex items-center gap-1.5">
-                        <Baseline size={10} /> Páladar POS - Asignación Masiva
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                        <Baseline size={10} /> Las Palmas POS - Asignación Masiva
                     </span>
                 </div>
                 <div className="flex items-center gap-4 divide-x divide-gray-200">
