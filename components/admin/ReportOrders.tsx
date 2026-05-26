@@ -1338,7 +1338,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                         </div>
                                     ) : (
                                         filteredOrderItems.map((item) => {
-                                            const noteParts = item.notes ? item.notes.split(' | ') : [];
+                                            const noteParts = item.notes ? item.notes.replace('*NO IMPRIMIR*', '').split(' | ') : [];
                                             return (
                                                 <div key={item.id} className="flex flex-col bg-white border border-gray-400 shadow-[1px_1px_1px_rgba(0,0,0,0.1)]">
                                                     {/* Header dark bar - ultra compact */}

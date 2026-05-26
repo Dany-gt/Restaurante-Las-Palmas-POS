@@ -24,6 +24,10 @@ interface AccountsOverviewModalProps {
     onSplitAccount: () => void;
     onPrintAccount: (orderId: string | null) => void;
     initialOrder: any;
+    transferMode?: boolean;
+    itemToTransferName?: string;
+    sourceOrderId?: string;
+    onTransferConfirm?: (orderId: string) => void;
 }
 
 export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
@@ -37,7 +41,11 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
     onDeleteAccount,
     onSplitAccount,
     onPrintAccount,
-    initialOrder
+    initialOrder,
+    transferMode,
+    itemToTransferName,
+    sourceOrderId,
+    onTransferConfirm
 }) => {
     const [localSelectedId, setLocalSelectedId] = useState<string | null>(activeOrderId);
     const [showDeletePrompt, setShowDeletePrompt] = useState(false);
@@ -48,7 +56,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
 
     const getOrderSummaries = (orders: any[]): OrderSummary[] => {
         const usedNames = new Set<string>();
-        return orders.map((order, index) => {
+        const summaries = orders.map((order, index) => {
             const items = order.items || order.order_items || [];
             const subtotal = items.reduce((sum: number, i: any) => sum + ((i.price ?? i.unit_price ?? 0) * (i.quantity ?? 1)), 0);
             const discount = items.reduce((sum: number, i: any) => sum + (i.discount_amount || 0), 0);
@@ -80,9 +88,16 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                 total
             };
         });
+        
+        // Sort summaries numerically and alphabetically by customer_name
+        summaries.sort((a, b) => a.customer_name.localeCompare(b.customer_name, undefined, { numeric: true }));
+        return summaries;
     };
 
-    const summaries = getOrderSummaries(tableOrders);
+    let summaries = getOrderSummaries(tableOrders);
+    if (transferMode && sourceOrderId) {
+        summaries = summaries.filter(s => s.id !== sourceOrderId);
+    }
 
     const handleDeleteClick = () => {
         if (!localSelectedId) return;
@@ -121,19 +136,23 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                         >
                             <ArrowLeft size={18} />
                         </button>
-                        <h2 className="text-[10px] font-black text-gray-700 uppercase tracking-widest">PÁLADAR POS</h2>
+                        <h2 className={`text-[10px] font-black uppercase tracking-widest ${transferMode ? 'text-indigo-400' : 'text-gray-700'}`}>
+                            {transferMode ? `TRASLADAR: ${itemToTransferName}` : 'PÁLADAR POS'}
+                        </h2>
                     </div>
 
-                    <button 
-                        onClick={() => { setLocalSelectedId(null); onSelectAccount(null); }}
-                        className={`px-8 py-2.5 rounded text-[10px] font-black uppercase tracking-widest transition-all ${
-                            localSelectedId === null
-                            ? 'bg-[#7c7ffb] text-white  /20'
-                            : 'bg-[#3a3b4d] text-white/20 hover:bg-[#45465e]'
-                        }`}
-                    >
-                        Abrir Todas
-                    </button>
+                    {!transferMode && (
+                        <button 
+                            onClick={() => { setLocalSelectedId(null); onSelectAccount(null); }}
+                            className={`px-8 py-2.5 rounded text-[10px] font-black uppercase tracking-widest transition-all ${
+                                localSelectedId === null
+                                ? 'bg-[#7c7ffb] text-white'
+                                : 'bg-[#3a3b4d] text-white/20 hover:bg-[#45465e]'
+                            }`}
+                        >
+                            Abrir Todas
+                        </button>
+                    )}
                 </div>
 
                 {/* Mensaje de Error (Feedback Visual) */}
@@ -147,9 +166,9 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                 {/* Body - Grid de Cuentas */}
                 <div className="flex-1 overflow-y-auto p-10 scrollbar-hide bg-[#3a3b4d]">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {summaries.map((summary) => (
+                        {summaries.map((summary, index) => (
                             <div 
-                                key={summary.id}
+                                key={summary.id || `account-${index}`}
                                 onClick={() => setLocalSelectedId(summary.id)}
                                 className={`relative cursor-pointer overflow-hidden flex flex-col transition-all border-2 ${
                                     localSelectedId === summary.id 
@@ -193,23 +212,23 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                 {/* Footer */}
                 <div className="px-10 py-8 bg-[#2d2e3d] border-t border-white/5 shrink-0 flex items-center justify-center gap-12">
                     <div className="flex items-center gap-5">
-                        <button onClick={onAddAccount} className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all  active:scale-95">
+                        <button onClick={onAddAccount} className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all active:scale-95">
                             <UserPlus size={24} />
                         </button>
 
-                        <button onClick={() => localSelectedId && onEditAccount(localSelectedId)} disabled={!localSelectedId} className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 disabled:opacity-10 transition-all  active:scale-95">
+                        <button onClick={() => localSelectedId && onEditAccount(localSelectedId)} disabled={!localSelectedId} className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 disabled:opacity-10 transition-all active:scale-95">
                             <UserRoundPen size={24} />
                         </button>
 
                         <button 
                             onClick={handleDeleteClick} 
                             disabled={!localSelectedId} 
-                            className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-red-400 rounded flex items-center justify-center border border-white/10 disabled:opacity-10 transition-all  active:scale-95"
+                            className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-red-400 rounded flex items-center justify-center border border-white/10 disabled:opacity-10 transition-all active:scale-95"
                         >
                             <UserMinus size={24} />
                         </button>
 
-                        <button onClick={() => onPrintAccount(localSelectedId)} className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all  active:scale-95">
+                        <button onClick={() => onPrintAccount(localSelectedId)} className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all active:scale-95">
                             <Printer size={24} />
                         </button>
                     </div>
@@ -217,8 +236,15 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                     <div className="w-[1px] h-12 bg-white/5" />
 
                     <button 
-                        onClick={() => onSelectAccount(localSelectedId)}
-                        className="h-14 px-16 bg-[#7c7ffb] text-white hover:bg-[#6b6edb] rounded flex items-center justify-center transition-all text-[11px] font-black uppercase tracking-widest  /20 active:scale-95"
+                        onClick={() => {
+                            if (transferMode && onTransferConfirm && localSelectedId) {
+                                onTransferConfirm(localSelectedId);
+                            } else {
+                                onSelectAccount(localSelectedId);
+                            }
+                        }}
+                        disabled={transferMode && !localSelectedId}
+                        className="h-14 px-16 bg-[#7c7ffb] text-white hover:bg-[#6b6edb] rounded flex items-center justify-center transition-all text-[11px] font-black uppercase tracking-widest disabled:opacity-50 active:scale-95"
                     >
                         Aceptar
                     </button>

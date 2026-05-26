@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DateUtils } from '../utils/DateUtils';
 import { Order, Table, Product, Category, OrderItem, User } from '../types';
-import { Bell, BellOff, ChevronLeft, ArrowLeft, CornerUpLeft, Trash2, Printer, CheckCircle, Search, Plus, Minus, Info, Loader2, ShoppingCart as ShoppingCartIcon, CreditCard, FileText, Receipt, Ban, Users, Percent, Settings2, Utensils, Truck, Package, MapPin, Edit3, Banknote, Split, Image, ArrowRightLeft, Mic, MicOff, UserPlus, Grid, UsersRound, ChevronDown, LayoutGrid } from 'lucide-react';
+import { Bell, BellOff, ChevronLeft, ChevronRight, ArrowLeft, CornerUpLeft, Trash2, Printer, CheckCircle, Search, Plus, Minus, Info, Loader2, ShoppingCart as ShoppingCartIcon, CreditCard, FileText, Receipt, Ban, Users, Percent, Settings2, Utensils, Truck, Package, MapPin, Edit3, Banknote, Split, Image, ArrowRightLeft, Mic, MicOff, UserPlus, Grid, UsersRound, ChevronDown, LayoutGrid } from 'lucide-react';
 import { supabase } from '../supabase';
 import { printService, TicketData } from '../services/PrintService';
 import { billingService } from '../services/BillingService';
@@ -13,6 +13,7 @@ import { PaxModal } from './PaxModal';
 import { DiscountModal } from './DiscountModal';
 import { TransferTableModal } from './TransferTableModal';
 import { TransferWaiterModal } from './TransferWaiterModal';
+import { TabletItemActionModal } from './TabletItemActionModal';
 import { AccountsManagementModal } from './AccountsManagementModal';
 import { AccountsOverviewModal } from './AccountsOverviewModal';
 import { DeliveryPaymentModal } from './DeliveryPaymentModal';
@@ -219,6 +220,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const [showTransferWaiterModal, setShowTransferWaiterModal] = useState(false);
     const [showAccountsModal, setShowAccountsModal] = useState(false);
     const [showAccountsOverviewModal, setShowAccountsOverviewModal] = useState(false);
+    const [singleItemToTransfer, setSingleItemToTransfer] = useState<OrderItem | null>(null);
     const [showTakeoutClientModal, setShowTakeoutClientModal] = useState(false);
     const [focusedField, setFocusedField] = useState<string | null>(null);
     const [takeoutData, setTakeoutData] = useState({ name: '', phone: '' });
@@ -230,11 +232,13 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const [discountingItem, setDiscountingItem] = useState<OrderItem | null>(null);
     const [checkingProductId, setCheckingProductId] = useState<string | null>(null);
     const [checkingProducts, setCheckingProducts] = useState<Set<string>>(new Set());
+    const [selectedItemIds, setSelectedItemIds] = useState<Set<string>>(new Set());
 
     // Security & Editing states
     const [pendingAction, setPendingAction] = useState<'delete' | 'cancel' | 'edit' | null>(null);
     const [itemToDeleteId, setItemToDeleteId] = useState<string | null>(null);
     const [editingItemId, setEditingItemId] = useState<string | null>(null);
+    const [tabletItemActionModal, setTabletItemActionModal] = useState<OrderItem | null>(null);
 
     const [customDialog, setCustomDialog] = useState<{
         title?: string;
@@ -517,7 +521,18 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             }
             return;
         }
-        // Item no enviado: abrir modal de modificadores directamente
+        // Check if item actually has modifiers/options before opening the modal
+        try {
+            const { data: isCustomizable, error } = await supabase.rpc('check_if_customizable', { p_id: item.product_id });
+            if (!error && !isCustomizable) {
+                // "a los que no tengan ninguna de ellas el platillo no traigas la seccion"
+                return; 
+            }
+        } catch (err) {
+            console.error('Error checking customizability in handleEditItem:', err);
+        }
+
+        // Item no enviado y es customizable: abrir modal de modificadores
         const mockProduct: Product = {
             id: item.product_id,
             name: item.product_name,
@@ -670,10 +685,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             tableNumber: table?.number,
             tableName: table?.section,
             waiterName: currentUser?.name || (currentUser as any)?.full_name,
-            items: unsentItems.map(i => ({ name: i.product_name, quantity: i.quantity })),
+            items: unsentItems
+                .filter(i => !(i as any).notes?.includes('*NO IMPRIMIR*'))
+                .map(i => ({ name: i.product_name, quantity: i.quantity, notes: (i as any).notes })),
             createdAt: DateUtils.nowISO()
         };
-        await printService.printKitchenTicket(ticketData);
+        if (ticketData.items.length > 0) {
+            await printService.printKitchenTicket(ticketData);
+        }
     };
 
     const handlePrintPreAccount = async () => {
@@ -2373,28 +2392,34 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     const currentOrder = tableOrders.find(o => o.id === finalOrderId) ||
                         (finalOrderId === initialOrder.id ? initialOrder : null);
 
-                    fetch(`http://${localIp}:3001/api/kds-order`, {
-                        method: 'POST',
-                        mode: 'no-cors', // Allow broadcast across different ports/security contexts
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            orderId: finalOrderId,
-                            orderNumber: currentOrder?.order_number || initialOrder.order_number,
-                            tableName: table?.section || 'SALA',
-                            tableNumber: table?.number,
-                            waiterName: currentUser?.name || currentUser?.full_name,
-                            items: unsentItems.map(i => ({
-                                id: i.id,
-                                product_id: i.product_id,
-                                product_name: i.product_name,
-                                quantity: i.quantity,
-                                notes: (i as any).notes,
-                                price: i.price
-                            })),
-                            createdAt: nowWithOffset.toISOString()
-                        })
-                    }).then(() => console.log('📡 Orden enviada a KDS Local exitosamente'))
-                        .catch(e => console.warn('📡 Falló envío a KDS Local (puede estar apagado o IP incorrecta):', e.message));
+                    const kdsItems = unsentItems
+                        .filter(i => !(i as any).notes?.includes('*NO IMPRIMIR*'))
+                        .map(i => ({
+                            id: i.id,
+                            product_id: i.product_id,
+                            product_name: i.product_name,
+                            quantity: i.quantity,
+                            notes: (i as any).notes,
+                            price: i.price
+                        }));
+
+                    if (kdsItems.length > 0) {
+                        fetch(`http://${localIp}:3001/api/kds-order`, {
+                            method: 'POST',
+                            mode: 'no-cors', // Allow broadcast across different ports/security contexts
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                orderId: finalOrderId,
+                                orderNumber: currentOrder?.order_number || initialOrder.order_number,
+                                tableName: table?.section || 'SALA',
+                                tableNumber: table?.number,
+                                waiterName: currentUser?.name || currentUser?.full_name,
+                                items: kdsItems,
+                                createdAt: nowWithOffset.toISOString()
+                            })
+                        }).then(() => console.log('📡 Orden enviada a KDS Local exitosamente'))
+                            .catch(e => console.warn('📡 Falló envío a KDS Local (puede estar apagado o IP incorrecta):', e.message));
+                    }
                 } catch (e) {
                     console.error('KDS Bridge Error:', e);
                 }
@@ -2481,7 +2506,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
                 <div className="absolute right-4 flex items-center gap-3">
                     {/* Clock & Date */}
-                    <div className="hidden lg:flex flex-col items-center leading-none mr-1 bg-black/20 px-2 py-1 rounded-lg border border-white/5">
+                    <div className="hidden lg:flex flex-col items-center leading-none mr-1 bg-black/20 px-2 py-1 rounded-none border border-white/5">
                         <span className="text-[11px] font-black tracking-widest text-white/40 tabular-nums">{timeDisplay}</span>
                         <span className="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">{dateDisplay}</span>
                     </div>
@@ -2893,12 +2918,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             </div>
                                             {/* Note button behind (left side) */}
                                             <div className={`absolute left-0 top-0 bottom-0 w-[80px] bg-yellow-500/90 flex items-center justify-center transition-opacity duration-300 ${swipedItem?.id === item.id && swipedItem?.action === 'note' ? 'opacity-100 z-10' : 'opacity-0 -z-10'}`}>
-                                                <button onClick={(e) => { e.stopPropagation(); handleEditItem(item); setSwipedItem(null); }} className="w-full h-full flex items-center justify-center text-white active:scale-95 transition-transform">
+                                                <button onClick={(e) => { e.stopPropagation(); setTabletItemActionModal(item); setSwipedItem(null); }} className="w-full h-full flex items-center justify-center text-white active:scale-95 transition-transform">
                                                     <FileText size={24} />
                                                 </button>
                                             </div>
                                             <div
-                                                onDoubleClick={() => handleEditItem(item)}
                                                 onTouchStart={(e) => {
                                                     if (swipedItem?.id && swipedItem?.id !== item.id) {
                                                         setSwipedItem(null);
@@ -2929,17 +2953,34 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                     (e.currentTarget as any).touchStartX = 0;
                                                     (e.currentTarget as any).touchStartY = 0;
                                                 }}
-                                                onClick={() => {
+                                                onClick={(e) => {
                                                     if (swipedItem?.id === item.id) {
                                                         setSwipedItem(null);
                                                         return;
                                                     }
-                                                    const canDiscount = currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos');
-                                                    if (!canDiscount) return;
-                                                    setDiscountingItem(item);
-                                                    setShowDiscountModal(true);
+                                                    
+                                                    if ((e.currentTarget as any).clickTimeout) {
+                                                        clearTimeout((e.currentTarget as any).clickTimeout);
+                                                        (e.currentTarget as any).clickTimeout = null;
+                                                    }
+
+                                                    if (e.detail === 1) {
+                                                        (e.currentTarget as any).clickTimeout = setTimeout(() => {
+                                                            setSelectedItemIds(prev => {
+                                                                const newSet = new Set(prev);
+                                                                if (newSet.has(item.id)) {
+                                                                    newSet.delete(item.id);
+                                                                } else {
+                                                                    newSet.add(item.id);
+                                                                }
+                                                                return newSet;
+                                                            });
+                                                        }, 250);
+                                                    } else if (e.detail === 2) {
+                                                        setTabletItemActionModal(item);
+                                                    }
                                                 }}
-                                                className={`bg-[#2a2d37] flex justify-between transition-transform duration-300 border border-white/5 select-none relative cursor-pointer ${isTablet ? 'p-1.5' : 'p-3'} ${swipedItem?.id === item.id ? (swipedItem.action === 'delete' ? 'translate-x-[-80px]' : 'translate-x-[80px]') : 'translate-x-0'}`}
+                                                className={`flex justify-between transition-all duration-300 border select-none relative cursor-pointer ${isTablet ? 'p-1.5' : 'p-3'} ${swipedItem?.id === item.id ? (swipedItem.action === 'delete' ? 'translate-x-[-80px]' : 'translate-x-[80px]') : 'translate-x-0'} ${selectedItemIds.has(item.id) ? 'border-gray-400 bg-gray-500/20' : 'border-white/5 bg-[#2a2d37]'}`}
                                             >
                                             {/* Account Badge for Unified View */}
                                             {!activeOrderId && (item as any).order_id && tableOrders.length > 1 && (
@@ -2960,34 +3001,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 </div>
                                                 <div className={`flex items-center gap-1 ${isTablet ? 'mt-0.5' : 'mt-1.5 lg:mt-1'}`}>
                                                     <span className={`bg-white/10 text-white/60 px-1.5 py-0.5 rounded font-black ${isTablet ? 'text-[9px]' : 'text-xs lg:text-[10px]'}`}>x{item.quantity}</span>
-                                                    {item.notes && <span className={`text-gray-500 truncate ${isTablet ? 'text-[9px] max-w-[100px]' : 'text-xs lg:text-[10px] max-w-[150px]'}`}>{item.notes}</span>}
+                                                    {item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim() && <span className={`text-gray-500 truncate ${isTablet ? 'text-[9px] max-w-[100px]' : 'text-xs lg:text-[10px] max-w-[150px]'}`}>{item.notes.replace('*NO IMPRIMIR*', '').trim()}</span>}
                                                 </div>
                                             </div>
-                                            <div className={`flex items-center gap-1 ml-2 ${isTablet ? 'hidden' : ''}`}>
-                                                {!item.is_sent ? (
-                                                    <>
-                                                        <button onClick={(e) => { e.stopPropagation(); handleEditItem(item); }} className="p-1.5 bg-white/10 text-white/60 rounded hover:bg-white/20 hover:text-white transition-colors"><Edit3 size={12} /></button>
-                                                        {item.id.startsWith('i-') && (
-                                                            <>
-                                                                <button onClick={(e) => { e.stopPropagation(); updateQty(item.id, -1); }} className="p-1.5 bg-white/5 text-gray-400 rounded hover:bg-white/10 hover:text-white"><Minus size={12} /></button>
-                                                                <button onClick={(e) => { e.stopPropagation(); updateQty(item.id, 1); }} className="p-1.5 bg-white/5 text-gray-400 rounded hover:bg-white/10 hover:text-white"><Plus size={12} /></button>
-                                                            </>
-                                                        )}
-                                                        <button onClick={(e) => { e.stopPropagation(); removeItem(item.id); }} className="p-1.5 bg-white/5 text-white/40 rounded hover:bg-white/20 hover:text-white"><Trash2 size={12} /></button>
-                                                    </>
-                                                ) : (
-                                                    // Botón de ANULAR para items ya enviados (Solo visible para Admin/Caja)
-                                                    (currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO') && (
-                                                        <button
-                                                            onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                                                            className="p-1.5 bg-white/10 text-white rounded-lg  active:scale-90 transition-all"
-                                                            title="Anular Producto"
-                                                        >
-                                                            <Trash2 size={14} />
-                                                        </button>
-                                                    )
-                                                )}
-                                            </div>
+
                                             </div>
                                         </div>
                                     );
@@ -2996,20 +3013,46 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     </div>
 
                     <div className="bg-black/20 p-3 border-t border-white/5">
-                        <div className="grid grid-cols-5 gap-2 mb-4 h-12">
+                        <div className={`grid ${ (currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos')) ? 'grid-cols-5' : 'grid-cols-4' } gap-2 mb-4 h-12`}>
                             <button onClick={handlePrintPreAccount} className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/60 transition-all active:scale-95 hover:bg-white/10">
                                 <Printer size={20} />
                             </button>
-                            <button onClick={() => setShowDiscountModal(true)} disabled={currentUser?.role !== 'ADMIN' && currentUser?.role !== 'CAJERO' && !(currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos'))} className={`rounded-xl flex items-center justify-center transition-all active:scale-95 ${(currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos')) ? 'bg-white/5 border border-white/10 text-white/60 hover:bg-white/10' : 'bg-white/20 border border-white/5 text-gray-600 opacity-50 cursor-not-allowed'}`}>
-                                <Percent size={20} />
-                            </button>
+                            {(currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos')) && (
+                                <button onClick={() => {
+                                    if (selectedItemIds.size === 1) {
+                                        const item = checkoutItems.find(i => i.id === Array.from(selectedItemIds)[0]);
+                                        if (item) setDiscountingItem(item as OrderItem);
+                                    } else {
+                                        setDiscountingItem(null);
+                                    }
+                                    setShowDiscountModal(true);
+                                }} className={`rounded-xl flex items-center justify-center transition-all active:scale-95 ${selectedItemIds.size > 0 ? 'bg-amber-500/20 border border-amber-500/50 text-amber-500 hover:bg-amber-500/30' : 'bg-white/5 border border-white/10 text-white/60 hover:bg-white/10'}`}>
+                                    <Percent size={20} />
+                                </button>
+                            )}
                             <button onClick={() => setShowAccountsModal(true)} className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/60 transition-all active:scale-95 hover:bg-white/10">
                                 <Users size={20} />
                             </button>
-                            <button className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/60 transition-all active:scale-95 hover:bg-white/10">
+                            <button 
+                                onClick={() => {
+                                    selectedItemIds.forEach(id => {
+                                        const item = checkoutItems.find(i => i.id === id);
+                                        if (item && !item.is_sent) updateQty(item.id, -1);
+                                    });
+                                }}
+                                disabled={selectedItemIds.size === 0}
+                                className={`rounded-xl flex items-center justify-center transition-all active:scale-95 ${selectedItemIds.size > 0 ? 'bg-white/10 border border-white/20 text-white hover:bg-white/20' : 'bg-white/5 border border-white/5 text-white/20 opacity-50 cursor-not-allowed'}`}>
                                 <Minus size={18} />
                             </button>
-                            <button className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-gray-500 transition-all active:scale-95">
+                            <button 
+                                onClick={() => {
+                                    selectedItemIds.forEach(id => {
+                                        const item = checkoutItems.find(i => i.id === id);
+                                        if (item && !item.is_sent) updateQty(item.id, 1);
+                                    });
+                                }}
+                                disabled={selectedItemIds.size === 0}
+                                className={`rounded-xl flex items-center justify-center transition-all active:scale-95 ${selectedItemIds.size > 0 ? 'bg-white/10 border border-white/20 text-white hover:bg-white/20' : 'bg-white/5 border border-white/5 text-white/20 opacity-50 cursor-not-allowed'}`}>
                                 <Plus size={18} />
                             </button>
                         </div>
@@ -3061,13 +3104,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             onCheckout?.(updatedOrder as any);
                                         }
                                     }}
+                                    id="main-submit-btn"
                                     className={`flex-1 rounded-xl flex flex-col items-center justify-center gap-1  active:scale-95 transition-all ${(checkoutItems.filter(i => !i.is_sent).length > 0)
                                             ? 'bg-white text-black'
                                             : 'bg-[#2b2f3a] border border-white/10 opacity-50 cursor-not-allowed text-white'
                                         }`}
                                 >
                                     <FileText size={20} />
-                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none">
+                                    <span className="text-[9px] font-black uppercase tracking-wider leading-none">
                                         {checkoutItems.some(i => i.is_sent) ? 'ENVIAR' : 'CREAR'}
                                     </span>
                                 </button>
@@ -3127,7 +3171,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         className="flex-1 bg-white/10 rounded-xl flex flex-col items-center justify-center gap-1  active:scale-95 transition-all text-white disabled:opacity-50 disabled:bg-gray-700"
                                     >
                                         <Banknote size={20} />
-                                        <span className="text-[10px] font-black uppercase tracking-widest leading-none">
+                                        <span className="text-[9px] font-black uppercase tracking-wider leading-none">
                                             COBRAR
                                         </span>
                                     </button>
@@ -3469,6 +3513,53 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     }}
                 />
 
+                <AccountsOverviewModal
+                    isOpen={!!singleItemToTransfer}
+                    onClose={() => setSingleItemToTransfer(null)}
+                    tableOrders={tableOrders.filter(o => o.id !== (singleItemToTransfer as any)?.order_id)}
+                    activeOrderId={activeOrderId}
+                    onSelectAccount={() => {}}
+                    onAddAccount={() => {}}
+                    onEditAccount={() => {}}
+                    onDeleteAccount={() => {}}
+                    onSplitAccount={() => {}}
+                    onPrintAccount={() => {}}
+                    initialOrder={initialOrder}
+                    transferMode={true}
+                    itemToTransferName={singleItemToTransfer?.product_name || 'Platillo'}
+                    onTransferConfirm={async (targetOrderId) => {
+                        if (!singleItemToTransfer) return;
+                        if (singleItemToTransfer.id.startsWith('i-')) {
+                            showAlert('Debe enviar la orden (botón Guardar/Enviar) antes de trasladar el platillo.');
+                            setSingleItemToTransfer(null);
+                            return;
+                        }
+                        
+                        try {
+                            const { error } = await supabase.from('order_items').update({ order_id: targetOrderId }).eq('id', singleItemToTransfer.id);
+                            if (error) throw error;
+                            
+                            if (currentUser) {
+                                activityLogService.log({
+                                    user: currentUser,
+                                    module: 'SALA',
+                                    action: 'TRASLADO_ITEM',
+                                    severity: 'INFO',
+                                    details: {
+                                        item: singleItemToTransfer.product_name,
+                                        from_order: activeOrderId || (singleItemToTransfer as any).order_id,
+                                        to_order: targetOrderId
+                                    }
+                                });
+                            }
+                            notify.success('Platillo trasladado');
+                        } catch(e) {
+                            showAlert('Error al trasladar platillo');
+                        }
+                        setSingleItemToTransfer(null);
+                    }}
+                />
+
                 {showVoidModal && (
                     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-6 animate-fade-in">
                         <div className="w-full max-w-[420px] bg-[#2b2d3d] rounded-xl border border-white/10  overflow-hidden">
@@ -3532,6 +3623,83 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             onCancel={() => setCustomInput(null)}
                         />
                     )}
+                    
+                    <TabletItemActionModal
+                        isOpen={!!tabletItemActionModal}
+                        onClose={() => setTabletItemActionModal(null)}
+                        item={tabletItemActionModal}
+                        onUpdateQuantity={(id, qty) => setItems(prev => prev.map(i => i.id === id ? { ...i, quantity: qty } : i))}
+                        onUpdateNotes={(id, notes) => setItems(prev => prev.map(i => i.id === id ? { ...i, notes } : i))}
+                        onEditItem={(item) => handleEditItem(item)}
+                        onDeleteItem={(item) => removeItem(item.id)}
+                        onTransferItem={(item) => {
+                            if (tableOrders.length <= 1) {
+                                showAlert('Esta mesa solo tiene una cuenta. Cree otra cuenta para poder trasladar platillos.');
+                                return;
+                            }
+                            setSingleItemToTransfer(item);
+                        }}
+                        onSendWithoutPrinting={(item) => {
+                            setItems(prev => prev.map(i => (i.id === item.id || i.cart_id === item.cart_id) ? { ...i, notes: item.notes } : i));
+                            setTabletItemActionModal(null);
+                            setTimeout(() => {
+                                document.getElementById('main-submit-btn')?.click();
+                            }, 100);
+                        }}
+                    />
+
+                    <AccountsOverviewModal
+                        isOpen={!!singleItemToTransfer}
+                        onClose={() => setSingleItemToTransfer(null)}
+                        tableOrders={tableOrders}
+                        activeOrderId={activeOrderId}
+                        onSelectAccount={() => {}}
+                        onAddAccount={handleAddEmptyAccount}
+                        onEditAccount={handleRenameAccount}
+                        onDeleteAccount={handleDeleteEmptyAccount}
+                        onSplitAccount={() => {}}
+                        onPrintAccount={(id) => {
+                            if (id !== activeOrderId) {
+                                setActiveOrderId(id);
+                            }
+                            handlePrintPreAccount();
+                        }}
+                        initialOrder={initialOrder}
+                        transferMode={true}
+                        itemToTransferName={singleItemToTransfer?.product_name || 'Platillo'}
+                        sourceOrderId={(singleItemToTransfer as any)?.order_id || activeOrderId}
+                        onTransferConfirm={async (targetOrderId) => {
+                            if (!singleItemToTransfer) return;
+                            if (singleItemToTransfer.id.startsWith('i-')) {
+                                showAlert('Debe enviar la orden (botón Guardar/Enviar) antes de trasladar el platillo.');
+                                setSingleItemToTransfer(null);
+                                return;
+                            }
+                            
+                            try {
+                                const { error } = await supabase.from('order_items').update({ order_id: targetOrderId }).eq('id', singleItemToTransfer.id);
+                                if (error) throw error;
+                                
+                                if (currentUser) {
+                                    activityLogService.log({
+                                        user: currentUser,
+                                        module: 'SALA',
+                                        action: 'TRASLADO_ITEM',
+                                        severity: 'INFO',
+                                        details: {
+                                            item: singleItemToTransfer.product_name,
+                                            from_order: activeOrderId || (singleItemToTransfer as any).order_id,
+                                            to_order: targetOrderId
+                                        }
+                                    });
+                                }
+                                notify.success('Platillo trasladado');
+                            } catch(e) {
+                                showAlert('Error al trasladar platillo');
+                            }
+                            setSingleItemToTransfer(null);
+                        }}
+                    />
                 </AnimatePresence>
             </div>
         </div >

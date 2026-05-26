@@ -392,9 +392,9 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                                     <span className="font-bold text-white/50">{item.quantity}</span>
                                                     <div className="flex flex-col gap-1">
                                                         <span className="font-bold uppercase tracking-tight leading-tight text-white/80">{item.products?.name}</span>
-                                                        {item.notes && (
+                                                        {(item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim()) && (
                                                             <span className="text-[10px] text-gray-400 uppercase leading-tight italic">
-                                                                {item.notes}
+                                                                {item.notes.replace('*NO IMPRIMIR*', '').trim()}
                                                             </span>
                                                         )}
                                                         {item.status && (

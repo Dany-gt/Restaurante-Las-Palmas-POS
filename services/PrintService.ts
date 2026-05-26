@@ -493,7 +493,7 @@ class PrintService {
           <span class="qty">${item.quantity}</span>
           <span class="description">${item.name.toUpperCase()}</span>
         </div>
-        ${item.notes ? '<div class="note">(' + item.notes + ')</div>' : ''}
+        ${(item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim()) ? '<div class="note">(' + item.notes.replace('*NO IMPRIMIR*', '').trim() + ')</div>' : ''}
       `).join('')}
       <div class="divider"></div>
       <div style="text-align:center; font-size:10px;">ID: ${data.orderId.substring(0, 8)}</div>
@@ -558,7 +558,7 @@ class PrintService {
             <td class="col-qty qty">${item.quantity}</td>
             <td class="col-desc">
               <div class="description">${item.name.toUpperCase()}</div>
-              ${item.notes ? `<div class="note">(${item.notes})</div>` : ''}
+              ${(item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim()) ? `<div class="note">(${item.notes.replace('*NO IMPRIMIR*', '').trim()})</div>` : ''}
             </td>
             <td class="col-price price">Q${((item.price || 0) * item.quantity).toFixed(2)}</td>
           </tr>
@@ -777,7 +777,7 @@ class PrintService {
             <td class="col-qty qty">${item.quantity}</td>
             <td class="col-desc">
               <div class="description">${item.name.toUpperCase()}</div>
-              ${item.notes ? `<div class="note">(${item.notes})</div>` : ''}
+              ${(item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim()) ? `<div class="note">(${item.notes.replace('*NO IMPRIMIR*', '').trim()})</div>` : ''}
             </td>
             <td class="col-price price">Q${((item.price || 0) * item.quantity).toFixed(2)}</td>
           </tr>

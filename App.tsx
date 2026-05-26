@@ -569,8 +569,20 @@ const App: React.FC = () => {
       }
     }
 
-    if ((window as any).electronAPI && (window as any).electronAPI.sendLogout) {
-      (window as any).electronAPI.sendLogout();
+    if (!isSoftLogout) {
+      if ((window as any).electronAPI && (window as any).electronAPI.sendLogout) {
+        (window as any).electronAPI.sendLogout();
+      }
+      
+      // Intentar cerrar la app en Android/Capacitor/Cordova
+      if ((window as any).navigator && (window as any).navigator.app && typeof (window as any).navigator.app.exitApp === 'function') {
+        (window as any).navigator.app.exitApp();
+      }
+      if ((window as any).Capacitor && (window as any).Capacitor.Plugins && (window as any).Capacitor.Plugins.App) {
+        (window as any).Capacitor.Plugins.App.exitApp();
+      }
+      // Fallback a window.close()
+      try { window.close(); } catch(e) {}
     }
 
     // Reset all React states
@@ -1329,7 +1341,7 @@ const App: React.FC = () => {
                 </div>
 
                 {/* Clock & Date Bar Right */}
-                <div className={`hidden lg:flex flex-col items-end leading-none px-3 py-1 rounded-xl border border-white/5 shadow-inner ${currentView === 'ADMIN_PORTAL' ? 'bg-white/10' : 'bg-black/30'}`}>
+                <div className={`hidden lg:flex flex-col items-end leading-none px-3 py-1 rounded-none border border-white/5 shadow-inner ${currentView === 'ADMIN_PORTAL' ? 'bg-white/10' : 'bg-black/30'}`}>
                   <span className={`text-[12px] font-black tracking-widest tabular-nums ${currentView === 'ADMIN_PORTAL' ? 'text-white' : 'text-indigo-400'}`}>{timeDisplay}</span>
                   <span className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter mt-0.5">{dateDisplay}</span>
                 </div>
@@ -1343,20 +1355,29 @@ const App: React.FC = () => {
                 <div className="w-px h-8 bg-white/10 mx-1"></div>
 
                 {/* Logout Button (moved to left of window controls) */}
-                <button
-                  onClick={() => {
-                    // Soft logout for cashiers (back to cards), NO PIN anymore as per step 1632
-                    if (currentUser?.role === 'CAJERO') {
-                      handleLogout(true);
-                    } else {
-                      handleLogout(false); // Full logout for others
-                    }
-                  }}
-                  className="p-2.5 text-white hover:bg-red-500/20 rounded-xl transition-all pos-button mr-2 group"
-                  title="Cerrar Aplicación"
-                >
-                  <Power size={20} className="group-hover:scale-110 transition-transform text-red-200" />
-                </button>
+                {(window as any).electronAPI || currentUser?.role === 'ADMIN' || (window as any).Capacitor || ((window as any).navigator && (window as any).navigator.app) ? (
+                  <button
+                    onClick={() => handleLogout(false)}
+                    className="p-2.5 text-white hover:bg-red-500/20 rounded-xl transition-all pos-button mr-2 group border-l border-white/5"
+                    title="Cerrar Aplicación"
+                  >
+                    <X size={20} className="group-hover:scale-110 transition-transform text-red-200" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      if (currentUser?.role === 'CAJERO') {
+                        handleLogout(true);
+                      } else {
+                        handleLogout(false);
+                      }
+                    }}
+                    className="p-2.5 text-white hover:bg-red-500/20 rounded-xl transition-all pos-button mr-2 group border-l border-white/5"
+                    title="Cambiar Usuario / Salir"
+                  >
+                    <Power size={20} className="group-hover:scale-110 transition-transform text-red-200" />
+                  </button>
+                )}
 
                 {/* Electron Window Controls - Absolute Right (Only Min/Max as requested) */}
                 <div className="hidden md:flex items-center border-l border-white/10 h-10 -mr-6">
