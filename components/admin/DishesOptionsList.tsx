@@ -132,6 +132,24 @@ export const DishesOptionsList: React.FC = () => {
             is_enabled: true
         };
 
+        // Check for duplicates in the same option group
+        const { data: duplicateData, error: duplicateError } = await supabase
+            .from('group_items')
+            .select('id')
+            .eq('item_name', payload.item_name)
+            .eq('option_group_id', payload.option_group_id);
+
+        if (duplicateError) {
+            console.error('Error validation:', duplicateError);
+        } else if (duplicateData && duplicateData.length > 0) {
+            const isDup = isEditing ? duplicateData.some(d => d.id !== form.id) : true;
+            if (isDup) {
+                alert('🚫 ERROR: Esta opción ya existe en el grupo seleccionado.');
+                setSaving(false);
+                return;
+            }
+        }
+
         if (isEditing) {
             await supabase.from('group_items').update(payload).eq('id', form.id);
         } else {
@@ -240,8 +258,8 @@ export const DishesOptionsList: React.FC = () => {
                                     <td className={`px-6 py-2.5 border-r ${selectedId === item.id ? 'border-white/10' : 'border-gray-100 font-bold'}`}>{item.item_name}</td>
                                     <td className={`px-6 py-2.5 border-r ${selectedId === item.id ? 'border-white/10 text-white/80' : 'border-gray-100 text-slate-500 font-bold'}`}>{item.display_name || '--'}</td>
                                     <td className={`px-6 py-2.5 text-center border-r ${selectedId === item.id ? 'border-white/10 text-white' : 'border-gray-100 text-slate-700 font-bold'}`}>Q{parseFloat(item.extra_price).toFixed(2)}</td>
-                                    <td className={`px-6 py-2.5 text-center border-r italic ${selectedId === item.id ? 'border-white/10 text-white' : 'border-gray-100 text-slate-700 font-bold'}`}>Q{parseFloat(item.delivery_price || 0).toFixed(2)}</td>
-                                    <td className={`px-6 py-2.5 text-center italic ${selectedId === item.id ? 'text-white' : 'text-slate-700 font-bold'}`}>Q{parseFloat(item.platform_price || 0).toFixed(2)}</td>
+                                    <td className={`px-6 py-2.5 text-center border-r ${selectedId === item.id ? 'border-white/10 text-white' : 'border-gray-100 text-slate-700 font-bold'}`}>Q{parseFloat(item.delivery_price || 0).toFixed(2)}</td>
+                                    <td className={`px-6 py-2.5 text-center ${selectedId === item.id ? 'text-white' : 'text-slate-700 font-bold'}`}>Q{parseFloat(item.platform_price || 0).toFixed(2)}</td>
                                 </tr>
                             ))}
                             {filteredItems.length === 0 && (
@@ -261,7 +279,7 @@ export const DishesOptionsList: React.FC = () => {
 
             {/* Footer Bar */}
             <div className="bg-[#f1f5f9] border-t border-gray-300 px-6 py-2 flex items-center justify-between shrink-0">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Páladar POS - Plataforma de Administración</span>
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Páladar POS - Plataforma de Administración</span>
                 <div className="flex items-center gap-4">
                     <span className="text-[10px] font-black text-[#106ebe] uppercase">{filteredItems.length} Registros Encontrados</span>
                 </div>

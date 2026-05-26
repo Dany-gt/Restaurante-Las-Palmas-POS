@@ -238,6 +238,13 @@ export const DishesModifiers: React.FC = () => {
 
         if (!currentGroupId) return;
 
+        // Prevent duplicate modifiers within the group (case-insensitive)
+        const exists = modalItems.some(mi => mi.item_name.toUpperCase().trim() === item.item_name.toUpperCase().trim());
+        if (exists) {
+            notify.alert('Este modificador ya está asignado a este grupo.');
+            return;
+        }
+
         const { error } = await supabase.from('group_items').insert([{
             modifier_group_id: currentGroupId,
             item_name: item.item_name,

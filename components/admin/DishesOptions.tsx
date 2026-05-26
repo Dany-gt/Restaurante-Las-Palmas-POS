@@ -238,6 +238,13 @@ export const DishesOptions: React.FC = () => {
 
         if (!currentGroupId) return;
 
+        // Prevent duplicate options within the group (case-insensitive)
+        const exists = modalItems.some(mi => mi.item_name.toUpperCase().trim() === item.item_name.toUpperCase().trim());
+        if (exists) {
+            notify.alert('Esta opción ya está asignada a este grupo.');
+            return;
+        }
+
         const { error } = await supabase.from('group_items').insert([{
             option_group_id: currentGroupId,
             item_name: item.item_name,
