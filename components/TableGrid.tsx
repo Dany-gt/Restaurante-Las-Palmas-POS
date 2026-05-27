@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Table } from '../types';
 import { Users, CheckCircle2, Clock, Loader2 } from 'lucide-react';
 import { supabase } from '../supabase';
+import { PinModalV2 } from './PinModalV2';
 
 interface TableGridProps {
   onSelectTable: (table: Table) => void;
@@ -20,6 +21,8 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
   const [now, setNow] = useState(Date.now());
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [maxOrdersLimit, setMaxOrdersLimit] = useState(0);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pendingTable, setPendingTable] = useState<Table | null>(null);
 
   React.useEffect(() => {
     const handleStatusChange = () => setIsOnline(navigator.onLine);
@@ -299,24 +302,37 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
         if (user.role === 'CAJERO' || user.role === 'MESERO') {
           const myOrdersCount = Object.values(activeOrders).filter(o => o.waiter_id === user.id).length;
           if (myOrdersCount >= maxOrdersLimit) {
-            alert(`⛔ LÍMITE ALCANZADO\n\nYa tienes ${myOrdersCount} órdenes activas (El máximo permitido es ${maxOrdersLimit}). No puedes abrir más mesas hasta cerrar las actuales.`);
+            setPendingTable(t);
+            setShowPinModal(true);
             return;
           }
         }
       }
 
       // 4. IMMEDIATE LOCK: Take the table before even choosing pax
-      const cachedUserStr = localStorage.getItem('currentUser');
-      if (cachedUserStr) {
-        const user = JSON.parse(cachedUserStr);
-        await supabase.from('tables').update({
-          locked_by: user.id,
-          locked_at: new Date().toISOString()
-        }).eq('id', t.id);
-      }
+      takeTableLockAndProceed(t);
+    }
+  };
 
-      setPax(1);
-      setShowCounter(t);
+  const takeTableLockAndProceed = async (t: Table) => {
+    const cachedUserStr = localStorage.getItem('currentUser');
+    if (cachedUserStr) {
+      const user = JSON.parse(cachedUserStr);
+      await supabase.from('tables').update({
+        locked_by: user.id,
+        locked_at: new Date().toISOString()
+      }).eq('id', t.id);
+    }
+
+    setPax(1);
+    setShowCounter(t);
+  };
+
+  const handleBypassLimit = (adminUser: any) => {
+    setShowPinModal(false);
+    if (pendingTable) {
+      takeTableLockAndProceed(pendingTable);
+      setPendingTable(null);
     }
   };
 
@@ -428,6 +444,19 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
           </div>
         </div>
       )}
+
+      {/* Admin Override PIN Modal */}
+      <PinModalV2
+        isOpen={showPinModal}
+        onClose={() => {
+          setShowPinModal(false);
+          setPendingTable(null);
+        }}
+        onSuccess={handleBypassLimit}
+        title="LÍMITE ALCANZADO"
+        subtitle={`Límite de ${maxOrdersLimit} mesas activas superado. PIN de ADMIN requerido para anular.`}
+        requiredRole={['ADMIN']}
+      />
     </>
   );
 };
