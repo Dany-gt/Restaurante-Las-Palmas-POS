@@ -5,10 +5,80 @@ import {
     Clock, Percent, Search, PieChart, ChevronDown, Check,
     Plus, Trash2, ArrowRight, Target, AlertTriangle, ShieldCheck, ToggleLeft, ToggleRight, Printer, X
 } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useNotify } from '../../hooks/useNotify';
 import { Product } from '../../types';
 import { registrarAuditoria, detectarCambios } from '../../services/auditService';
 import { activityLogService } from '../../services/ActivityLogService';
+
+const CONFIG_POR_CATEGORIA: Record<string, any> = {
+  comida: {
+    gif: 0.05,          // Gas, aceite, sal, condimentos
+    costoPrimoObj: 0.35,
+  },
+  bebida_preparada: {
+    gif: 0.05,          // Hielo, pajillas, sal, limón de guarnición
+    costoPrimoObj: 0.22, // Margen más alto porque no hay cocinero ni gas mayor
+  },
+  bebida_reventa: {
+    gif: 0.00,          // Botella cerrada, no hay merma de cocina
+    costoPrimoObj: 0.50, // El mercado fija el precio (cerveza, soda)
+  },
+};
+
+const CONFIG_CONTABLE = {
+    comisionPos: 0.035,
+    iva: 0.12,
+};
+
+function calcularKPIs(costoIngredientes: number, precioVentaActual: number, categoriaBase: string = "comida") {
+    if (!costoIngredientes || costoIngredientes <= 0) return null;
+
+    // Normalizar categorías de la base de datos a los 3 pilares contables
+    let categoria = "comida";
+    const catLower = (categoriaBase || "").toLowerCase();
+    
+    if (CONFIG_POR_CATEGORIA[catLower]) {
+        categoria = catLower; // Si pasa la llave exacta
+    } else if (catLower.includes("preparada") || catLower.includes("licor") || catLower === "cafés") {
+        categoria = "bebida_preparada";
+    } else if (catLower.includes("bebida") || catLower.includes("cerveza") || catLower.includes("embotellada")) {
+        categoria = "bebida_reventa";
+    }
+
+    const cfg = CONFIG_POR_CATEGORIA[categoria] ?? CONFIG_POR_CATEGORIA.comida;
+
+    const costoConGIF = costoIngredientes * (1 + cfg.gif);
+    const precioSugerido = Math.ceil(
+        (costoConGIF / cfg.costoPrimoObj) *
+        (1 + CONFIG_CONTABLE.comisionPos) *
+        (1 + CONFIG_CONTABLE.iva)
+    );
+    
+    const ingresoNeto = precioVentaActual > 0
+        ? precioVentaActual / (1 + CONFIG_CONTABLE.iva) / (1 + CONFIG_CONTABLE.comisionPos)
+        : null;
+        
+    const porcentajeCostoPrimo = precioVentaActual > 0
+        ? (costoConGIF / precioVentaActual) * 100
+        : null;
+        
+    const margenDisponible = ingresoNeto ? ingresoNeto - costoConGIF : null;
+
+    let salud;
+    if (categoria === "bebida_reventa") {
+        salud = (porcentajeCostoPrimo && porcentajeCostoPrimo <= 50) ? "excelente"
+            : (porcentajeCostoPrimo && porcentajeCostoPrimo <= 55) ? "regular" : "alerta";
+    } else if (categoria === "bebida_preparada") {
+        salud = (porcentajeCostoPrimo && porcentajeCostoPrimo <= 22) ? "excelente"
+            : (porcentajeCostoPrimo && porcentajeCostoPrimo <= 30) ? "regular" : "alerta";
+    } else {
+        salud = (porcentajeCostoPrimo && porcentajeCostoPrimo <= 35) ? "excelente"
+            : (porcentajeCostoPrimo && porcentajeCostoPrimo <= 40) ? "regular" : "alerta";
+    }
+
+    return { costoConGIF, precioSugerido, porcentajeCostoPrimo, margenDisponible, salud, categoriaAplicada: categoria };
+}
 
 export const MenuCosting: React.FC = () => {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
@@ -692,6 +762,8 @@ export const MenuCosting: React.FC = () => {
     const realNetMargin = currentPriceNoIva - neonetCommissionVal - totalCost;
     const netMarginPercentage = currentPriceNoIva > 0 ? (realNetMargin / currentPriceNoIva) * 100 : 0;
 
+    const kpis = calcularKPIs(foodCostTotal, currentPriceWithIva, selectedProduct?.category);
+
     // --- MODULE 6: PUNTO DE EQUILIBRIO ---
     // Standard Contribution Margin formula:
     //   PE Units = Fixed Costs / (Avg Sale Price - Variable Cost per Unit)
@@ -920,7 +992,7 @@ export const MenuCosting: React.FC = () => {
                         </table>
                     </section>
 
-                    <div className="grid grid-cols-[0.8fr_1.2fr] gap-4 h-fit">
+                    <div className="grid grid-cols-3 gap-4 h-fit w-full">
                         {/* MOD Detailed - 8 Concepts GT (fully editable) */}
                         <div className="bg-white border border-[#106ebe]/10 rounded-lg p-3 shadow-sm">
                             <h4 className="text-[9px] font-black uppercase tracking-widest text-orange-600 mb-3 flex items-center gap-2">
@@ -1070,10 +1142,9 @@ export const MenuCosting: React.FC = () => {
                                 </span>
                             </div>
                         </div>
-                    </div>
 
-                    {/* MODULE 6: PUNTO DE EQUILIBRIO PANEL */}
-                    <section className="bg-white border border-[#106ebe]/10 rounded-lg p-4 shadow-sm">
+                        {/* MODULE 6: PUNTO DE EQUILIBRIO PANEL */}
+                        <section className="bg-white border border-[#106ebe]/10 rounded-lg p-4 shadow-sm">
                         <div className="flex items-center justify-between mb-3">
                             <h4 className="text-[9px] font-black uppercase tracking-widest text-[#106ebe] flex items-center gap-2">
                                 <Target size={12} className="text-rose-500" /> Punto de Equilibrio del Negocio
@@ -1109,7 +1180,7 @@ export const MenuCosting: React.FC = () => {
                         )}
 
                         {/* KPI Cards Grid */}
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-2 gap-2 mt-4">
                             <div className="bg-gray-50 border border-gray-100 rounded-md p-2 text-center">
                                 <span className="text-[7px] font-black text-gray-400 uppercase block mb-1">Punto de Equilibrio Quetzales</span>
                                 <span className="text-[13px] font-black text-[#106ebe]">Q {peQuetzales.toLocaleString('es-GT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
@@ -1142,8 +1213,9 @@ export const MenuCosting: React.FC = () => {
                         </div>
                     </section>
                 </div>
+            </div>
 
-                {/* Right: Executive Report - Narrow & High Density */}
+            {/* Right: Executive Report - Narrow & High Density */}
                 <div className="w-[360px] shrink-0 flex flex-col gap-6 h-fit pb-10">
                     <div className="bg-white border border-[#106ebe]/20 rounded-xl p-7 shadow-lg shadow-[#106ebe]/5 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-24 h-24 bg-gray-50 -mr-12 -mt-12 rounded-full z-0" />
@@ -1151,8 +1223,8 @@ export const MenuCosting: React.FC = () => {
                         <div className="relative z-10 font-sans space-y-5">
                             <h3 className="text-[14px] font-black text-[#106ebe] mb-4 flex items-center justify-between uppercase tracking-widest">
                                 Resumen Ejecutivo
-                                <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest ${netMarginPercentage > 15 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
-                                    {netMarginPercentage > 15 ? 'Rentable' : 'Alerta'}
+                                <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest ${kpis?.salud === 'excelente' ? 'bg-emerald-100 text-emerald-700' : kpis?.salud === 'regular' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'}`}>
+                                    {kpis?.salud || 'Rentable'}
                                 </span>
                             </h3>
 
@@ -1167,6 +1239,10 @@ export const MenuCosting: React.FC = () => {
                                                 <span className="text-[9px] text-gray-500 font-bold">Costo Neto: Q {foodCostTotal.toFixed(2)}</span>
                                             )}
                                         </div>
+                                    </div>
+                                    <div className="flex justify-between text-[11px]">
+                                        <span className="font-bold text-[#106ebe] uppercase">Costo Real (con GIF)</span>
+                                        <span className="font-black text-[#106ebe]">Q {kpis?.costoConGIF.toFixed(2) || '0.00'}</span>
                                     </div>
                                     <div className="flex justify-between text-[11px]">
                                         <span className="font-bold text-orange-500 uppercase">Mano de Obra Directa ({prepTime} minutos)</span>
@@ -1213,27 +1289,27 @@ export const MenuCosting: React.FC = () => {
                                         <span className="uppercase">(-) Costo Total</span>
                                         <span className="text-[#106ebe] font-sans">Q {totalCost.toFixed(2)}</span>
                                     </div>
+                                    <div className="flex justify-between text-[11px] font-bold text-gray-500">
+                                        <span className="uppercase">% Costo Primo</span>
+                                        <span className="text-[#106ebe] font-sans">{kpis?.porcentajeCostoPrimo ? kpis.porcentajeCostoPrimo.toFixed(1) : '0.0'}%</span>
+                                    </div>
                                 </div>
 
                                 <div className="bg-[#106ebe] text-white p-5 rounded-lg flex flex-col items-center gap-2 shadow-lg border border-white/10 shadow-[#106ebe]/20 mt-4">
-                                    <span className="text-[12px] font-black uppercase tracking-[0.2em] opacity-80">Margen Neto Real Actual</span>
-                                    <span className={`text-[44px] font-black leading-none ${realNetMargin >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                        {netMarginPercentage.toFixed(1)}%
+                                    <span className="text-[12px] font-black uppercase tracking-[0.2em] opacity-80">Margen Disponible</span>
+                                    <span className={`text-[44px] font-black leading-none ${(kpis?.margenDisponible || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                        Q {kpis?.margenDisponible ? kpis.margenDisponible.toFixed(2) : '0.00'}
                                     </span>
                                 </div>
                             </div>
 
                             <div className="mt-6 pt-4 border-t border-gray-100 space-y-2">
                                 <span className="text-[7px] font-black text-gray-400 uppercase tracking-widest block mb-2">Simulador Divisores (Precios Netos)</span>
-                                <div className="flex justify-between items-center text-[9px] font-bold text-gray-600 bg-gray-50 p-2 rounded">
-                                    <span className="uppercase tracking-widest">Estándar (35%)</span>
-                                    <span className="font-black">Q {(totalCost / 0.35).toFixed(2)}</span>
-                                </div>
                                 <div className="flex justify-between items-center text-[9px] font-bold text-gray-100 bg-[#3c7cbc] p-2 rounded shadow-sm shadow-[#3c7cbc]/20">
                                     <span className="uppercase tracking-widest flex items-center gap-1">
-                                        <Target size={10} /> Ideal Aplicado ({activeFoodCostTargetPct}%)
+                                        <Target size={10} /> Precio Sugerido de Venta
                                     </span>
-                                    <span className="font-black uppercase tracking-widest">Q {priceBase.toFixed(2)}</span>
+                                    <span className="font-black uppercase tracking-widest text-[11px] text-amber-300">Q {kpis?.precioSugerido ? kpis.precioSugerido.toFixed(2) : '0.00'}</span>
                                 </div>
                             </div>
                         </div>

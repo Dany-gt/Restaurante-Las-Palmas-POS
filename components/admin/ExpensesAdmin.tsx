@@ -406,13 +406,14 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
                 <div
                   key={cat.id}
                   onClick={() => { setSearchTerm(cat.name); fetchData(cat.name); }}
+                  onDoubleClick={() => { setEditingCategory(cat); setCategoryName(cat.name); setShowCategoryModal(true); }}
                   onContextMenu={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setCategoryContextMenu({ x: e.clientX, y: e.clientY, category: cat });
                   }}
                   className={`w-full flex items-center justify-between px-3 py-1.5 transition-all cursor-default group border-b border-transparent ${searchTerm === cat.name ? 'bg-[#106ebe] text-white shadow-sm' : 'hover:bg-[#cce8ff] text-slate-600'}`}
-                  title={`${cat.name} (Clic derecho para opciones)`}
+                  title={`${cat.name} (Doble clic para editar, Clic derecho para opciones)`}
                 >
                   <span className="text-[10px] uppercase truncate flex-1">{cat.name}</span>
                 </div>
@@ -523,6 +524,7 @@ export const ExpensesAdmin: React.FC<ExpensesAdminProps> = ({ currentUser }) => 
                     {expenses.map((exp) => (
                       <tr
                         key={exp.id}
+                        onDoubleClick={() => setSelectedExpenseForAudit(exp)}
                         onContextMenu={(e) => handleContextMenu(e, exp)}
                         className={`h-6 transition-colors border-b border-gray-100 cursor-default ${exp.is_void ? 'opacity-50 grayscale bg-red-50/20' : 'text-slate-900 even:bg-slate-50/50 hover:bg-[#cce8ff]'}`}
                       >

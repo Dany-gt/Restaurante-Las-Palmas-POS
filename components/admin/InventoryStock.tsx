@@ -691,6 +691,10 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                                 ) : tableRows.map((row, idx) => (
                                     <tr
                                         key={row.id}
+                                        onDoubleClick={() => {
+                                            setSelectedRowForMovement(row);
+                                            setShowMovementModal(true);
+                                        }}
                                         onContextMenu={(e) => handleContextMenu(e, row)}
                                         className={`h-7 border-b border-gray-200 transition-colors cursor-default select-none group relative ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#cce8ff]`}
                                     >

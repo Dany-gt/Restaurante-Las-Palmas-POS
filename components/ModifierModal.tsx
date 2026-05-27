@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Plus, Minus, CheckCircle, ShoppingCart, Loader2, MessageSquare, ChevronRight, Hash, Trash2, Utensils } from 'lucide-react';
+import { X, Plus, Minus, CheckCircle, ShoppingCart, Loader2, MessageSquare, ChevronRight, Hash, Trash2, Utensils, ArrowLeft, FileEdit } from 'lucide-react';
 import { Product } from '../types';
 import { supabase } from '../supabase';
 
@@ -121,23 +121,24 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
       if (assignedOptionGroupIds.length > 0) {
         const { data: optItems, error: optError } = await supabase
           .from('group_items')
-          .select('*')
+          .select('*, option_catalog(*)')
           .in('option_group_id', assignedOptionGroupIds)
           .eq('is_enabled', true)
           .order('sort_order', { ascending: true });
 
         console.log(`[POS Debug] Fetched ${optItems?.length || 0} option items. Error:`, optError);
-        if (optItems) console.log('[POS Debug] Option Items Titles:', optItems.map(i => i.item_name));
+        if (optItems) console.log('[POS Debug] Option Items Titles:', optItems.map(i => i.item_name || i.option_catalog?.item_name));
 
         optItems?.forEach(item => {
+          const cat = item.option_catalog || {};
           const grp = configMap.get(item.option_group_id);
           if (grp) {
             grp.items.push({
               id: item.id,
-              name: item.item_name,
-              display_name: item.display_name,
-              color_code: item.color_code,
-              extra_price: item.extra_price,
+              name: item.item_name || cat.item_name,
+              display_name: item.display_name || cat.display_name,
+              color_code: item.color_code || cat.color_code,
+              extra_price: item.extra_price ?? cat.extra_price ?? 0,
               type: (item.modifier_type?.toUpperCase() || 'ADD') as 'ADD' | 'REMOVE',
               group_id: item.option_group_id,
               group_type: 'OPTION',
@@ -152,23 +153,24 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
       if (assignedModifierGroupIds.length > 0) {
         const { data: modItems, error: modError } = await supabase
           .from('group_items')
-          .select('*')
+          .select('*, modifier_catalog(*)')
           .in('modifier_group_id', assignedModifierGroupIds)
           .eq('is_enabled', true)
           .order('sort_order', { ascending: true });
 
         console.log(`[POS Debug] Fetched ${modItems?.length || 0} modifier items. Error:`, modError);
-        if (modItems) console.log('[POS Debug] Modifier Items Titles:', modItems.map(i => i.item_name));
+        if (modItems) console.log('[POS Debug] Modifier Items Titles:', modItems.map(i => i.item_name || i.modifier_catalog?.item_name));
 
         modItems?.forEach(item => {
+          const cat = item.modifier_catalog || {};
           const grp = configMap.get(item.modifier_group_id);
           if (grp) {
             grp.items.push({
               id: item.id,
-              name: item.item_name,
-              display_name: item.display_name,
-              color_code: item.color_code,
-              extra_price: item.extra_price,
+              name: item.item_name || cat.item_name,
+              display_name: item.display_name || cat.display_name,
+              color_code: item.color_code || cat.color_code,
+              extra_price: item.extra_price ?? cat.extra_price ?? 0,
               type: (item.modifier_type?.toUpperCase() || 'ADD') as 'ADD' | 'REMOVE',
               group_id: item.modifier_group_id,
               group_type: 'MODIFIER',
@@ -219,6 +221,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
   const getValidationErrors = () => {
     const errors: string[] = [];
     groups.forEach(grp => {
+      if (grp.type === 'MODIFIER') return; // Modificadores no tienen límites
       const selectedCount = selectedItems.filter(i => i.group_id === grp.id).reduce((sum, i) => sum + i.quantity, 0);
       if (selectedCount < grp.min_selection) {
         errors.push(`Seleccione al menos ${grp.min_selection} en: ${grp.name}`);
@@ -237,26 +240,37 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
   const currentGroup = groups.find(g => g.id === selectedGroupId);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black animate-fade-in font-['Montserrat']">
-      <div className="w-full h-full bg-[#0f1115] flex flex-col overflow-hidden relative">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#2e303d] animate-fade-in font-['Montserrat']">
+      <div className="w-full h-full bg-[#2e303d] flex overflow-hidden relative">
 
-        {/* Header - Full Width */}
-        <div className="px-10 py-5 bg-[#16191f] border-b border-white/5 flex justify-center items-center shrink-0 relative">
-          <div className="flex items-center gap-5 text-[10px] font-black uppercase tracking-[0.25em]">
-            <div className="flex items-center gap-1.5">
-              <span className="text-white/60 font-bold">ORDEN:</span>
-              <span className="text-white">#{orderNumber || '000'}</span>
-            </div>
-            <div className="w-[1px] h-3 bg-white/10"></div>
-            <span className="text-gray-300">{tableName || 'SIN MESA'}</span>
-            <div className="w-[1px] h-3 bg-white/10"></div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-gray-500 font-bold">ATIENDE:</span>
-              <span className="text-gray-400">{waiterName?.toUpperCase() || 'MESERO'}</span>
-            </div>
+        {/* Left Side (Header + Content) */}
+        <div className="flex-1 flex flex-col overflow-hidden relative">
+
+        {/* Header - Left Area Only */}
+        <div className="px-6 py-4 bg-[#2e303d] flex justify-between items-center shrink-0 border-b border-white/5">
+          <button
+            onClick={() => {
+              if (view === 'DETAIL' && groups.length > 1) setView('CATEGORIES');
+              else onClose();
+            }}
+            className="w-14 h-10 bg-[#3e4153] hover:bg-[#464859] text-gray-400 hover:text-white rounded-md transition-all flex items-center justify-center"
+          >
+            <ArrowLeft size={20} />
+          </button>
+
+          <div className="flex items-center gap-2 text-[10px] font-bold text-white uppercase tracking-wider">
+            <span>Orden: #{orderNumber || '000'}</span>
+            <span className="text-white/40">|</span>
+            <span>{tableName || 'SIN MESA'}</span>
+            <span className="text-white/40">|</span>
+            <span>Atiende: {waiterName?.toUpperCase() || 'MESERO'}</span>
           </div>
-          <button onClick={onClose} className="absolute right-10 w-12 h-12 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-xl transition-all flex items-center justify-center border border-white/5">
-            <X size={24} />
+
+          <button
+            onClick={onClose}
+            className="w-14 h-10 bg-[#3e4153] hover:bg-[#464859] text-green-400 hover:text-green-300 rounded-md transition-all flex items-center justify-center"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11" /></svg>
           </button>
         </div>
 
@@ -266,7 +280,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
             <div className="w-full max-w-xl bg-[#1c1f26] rounded-xl border border-white/10  /50 p-6 sm:p-8 relative overflow-hidden">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 bg-white/20 text-white/60 rounded-xl flex items-center justify-center border border-white/10">
-                  <MessageSquare size={20} />
+                  <FileEdit size={20} />
                 </div>
                 <div>
                   <h4 className="text-lg font-black text-white uppercase tracking-tight">Instrucciones Especiales</h4>
@@ -298,11 +312,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
           </div>
         )}
 
-        {/* Main Content Areas */}
-        <div className="flex-1 flex overflow-hidden">
-
           {/* Center: Layered Content */}
-          <div className="flex-1 overflow-y-auto p-12 custom-scrollbar bg-[#0a0c10]">
+          <div className="flex-1 overflow-y-auto p-12 custom-scrollbar">
 
             {loading ? (
               <div className="h-full flex flex-col items-center justify-center text-gray-500">
@@ -394,37 +405,17 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                 </div>
               </div>
             ) : currentGroup ? (
-              <div className="h-full flex flex-col animate-fade-in-right">
-                <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/5">
-                  <div className="flex items-center gap-6">
-                    <button
-                      onClick={() => setView('CATEGORIES')}
-                      className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-center transition-all text-gray-400 hover:text-white group"
-                    >
-                      <ChevronRight size={20} className="rotate-180 group-hover:-translate-x-1 transition-transform" />
-                    </button>
-                    <div>
-                      <h4 className="text-2xl font-black text-white uppercase tracking-tight">{currentGroup.group_prompt || currentGroup.name}</h4>
-                      <p className="text-[9px] text-gray-500 font-bold uppercase tracking-[0.2em] mt-1">
-                        {currentGroup.max_selection === 0 ? 'Selección Ilimitada' : currentGroup.min_selection > 0 ? `Selección Obligatoria (${currentGroup.min_selection})` : 'Selección Opcional'}
-                        {currentGroup.max_selection > 0 && ` • Máximo ${currentGroup.max_selection}`}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setView('CATEGORIES')}
-                    className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all active:scale-95 border border-white/10"
-                  >
-                    Listo
-                  </button>
-                </div>
+              <div className="h-full flex flex-col animate-fade-in-right pt-6 px-10">
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 xxl:grid-cols-6 gap-4">
+                <div className="max-w-5xl mx-auto w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {currentGroup.items.map(item => {
                     const selection = selectedItems.find(i => i.id === item.id);
                     const qty = selection?.quantity || 0;
                     const grpQty = selectedItems.filter(i => i.group_id === item.group_id).reduce((sum, i) => sum + i.quantity, 0);
                     const isDisabled = qty === 0 && currentGroup.max_selection > 0 && grpQty >= currentGroup.max_selection;
+
+                    const isMod = currentGroup.type === 'MODIFIER';
+                    const bgColor = item.color_code || (isMod ? '#b87541' : '');
 
                     return (
                       <div key={item.id} className="relative group">
@@ -433,34 +424,47 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                           onClick={() => incrementItem(item)}
                           onDoubleClick={() => handleDoubleClick(item)}
                           onContextMenu={(e) => handleContextMenu(e, item)}
-                          className={`w-full h-32 px-5 rounded-lg border transition-all duration-300 flex flex-col items-center justify-center gap-1.5 overflow-hidden ${qty > 0
-                            ? 'bg-white/5 border-white/20  /5'
-                            : isDisabled
-                              ? 'bg-transparent border-white/5 opacity-10 pointer-events-none'
-                              : 'bg-white/[0.03] border-white/5 hover:border-white/20 hover:bg-white/[0.06]'
+                          style={bgColor ? {
+                            backgroundColor: bgColor
+                          } : undefined}
+                          className={`w-full h-16 px-3 rounded-lg transition-all duration-100 flex flex-col items-center justify-center gap-1 overflow-hidden ${bgColor
+                            ? (qty > 0 ? 'brightness-110' : 'hover:brightness-110')
+                            : (qty > 0
+                              ? 'bg-white/10 shadow-md'
+                              : isDisabled
+                                ? 'bg-transparent border border-white/5 opacity-10 pointer-events-none'
+                                : 'bg-white/[0.03] border border-white/5 hover:border-white/20 hover:bg-white/[0.06]')
                             }`}
                         >
-                          <span className={`text-base font-black uppercase tracking-tight text-center leading-tight ${qty > 0 ? 'text-white' : 'text-white'}`}>
+                          <span className="text-[11px] font-bold uppercase tracking-tight text-center leading-tight text-white">
                             {item.display_name || item.name}
                           </span>
-                          {(item.min_quantity > 0 || item.max_quantity > 0) && (
-                            <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">
-                              {item.max_quantity > 0 ? `Min: ${item.min_quantity} / Máx: ${item.max_quantity}` : `Mínimo: ${item.min_quantity}`}
+
+                          {isMod ? (
+                            <span className="text-[10px] font-bold text-white">
+                              Q{(Number(item.extra_price) || 0).toFixed(2)}
                             </span>
+                          ) : (
+                            <>
+                              {(item.min_quantity > 0 || item.max_quantity > 0) && (
+                                <span className="text-[8px] font-bold text-white/50 uppercase tracking-widest">
+                                  {item.max_quantity > 0 ? `Min: ${item.min_quantity} / Máx: ${item.max_quantity}` : `Mínimo: ${item.min_quantity}`}
+                                </span>
+                              )}
+                              {item.extra_price > 0 && (
+                                <span className={`text-[9px] font-bold px-2 py-0.5 mt-1 rounded-full ${qty > 0 ? 'bg-white/30 text-white border border-white/20' : 'bg-black/20 text-white/70 border border-white/10'}`}>
+                                  +Q{(item.extra_price || 0).toFixed(2)}
+                                </span>
+                              )}
+                            </>
                           )}
-                          {item.extra_price > 0 && (
-                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${qty > 0 ? 'bg-white/20 text-white border border-white/10' : 'bg-white/5 text-gray-400 border border-white/5'}`}>
-                              +Q{(item.extra_price || 0).toFixed(2)}
-                            </span>
-                          )}
-                          {qty === 0 && !isDisabled && (item.type === 'ADD' ? <Plus size={16} className="absolute top-4 right-4 text-white/10" /> : <Minus size={16} className="absolute top-4 right-4 text-white/10" />)}
+
                           {qty > 0 && (
-                            <div className="absolute top-2 left-3 px-2 py-0.5 bg-white/10 rounded-full text-[8px] font-black text-white uppercase tracking-tighter border border-white/10">
+                            <div className="absolute top-1.5 left-2 px-1.5 py-0.5 bg-black/40 rounded-sm text-[9px] font-black text-white uppercase tracking-tighter">
                               x{qty}
                             </div>
                           )}
                         </button>
-
                       </div>
                     );
                   })}
@@ -468,135 +472,123 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
               </div>
             ) : null}
           </div>
+        </div>
 
-          {/* Right: Summary Sidebar */}
-          <div className="w-[320px] bg-[#111318] border-l border-white/5 flex flex-col p-5 relative">
-            <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
-
+        {/* Right: Summary Sidebar */}
+        <div className="w-[340px] bg-[#2e303d] border-l border-white/5 flex flex-col p-4 relative shrink-0">
             <div className="relative z-10 flex flex-col h-full">
               {/* Items Detail Area */}
-              <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-4">
-                <div className="bg-white/5 border border-white/5 rounded-xl p-3 mb-3 flex justify-between items-center transition-all">
-                  <div className="flex-1">
-                    <span className="text-xs font-black text-white uppercase block leading-tight">{product.name}</span>
-                    <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Precio Base: Q{(Number(product.price) || 0).toFixed(2)}</span>
-                  </div>
-                  {itemQuantity > 1 && (
-                    <div className="bg-white/10 px-2.5 py-1 rounded-md">
-                      <span className="text-[10px] font-black text-white">{itemQuantity}x</span>
-                    </div>
-                  )}
+              <div className="flex-1 overflow-y-auto custom-scrollbar">
+                <div className="bg-[#9093a2] py-2 px-3 flex justify-between items-center shadow-sm mb-1">
+                  <span className="text-xs font-bold text-white uppercase">
+                    {itemQuantity > 1 ? `${itemQuantity} ` : ''}{product.name}
+                  </span>
+                  <span className="text-xs font-bold text-white">Q{((Number(product.price) || 0) * itemQuantity).toFixed(2)}</span>
                 </div>
 
                 {selectedItems.map(mod => (
-                  <div key={mod.id} className="group relative flex justify-between items-center py-2 px-4 rounded-xl bg-[#16191f] border border-white/5 animate-fade-in-right">
-                    <span className="text-[11px] font-bold text-gray-300 uppercase tracking-wide flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${mod.type === 'ADD' ? 'bg-white/40' : 'bg-white/20'}`}></div>
-                      {mod.quantity > 1 && <span className="text-white/60 font-black">{mod.quantity}x</span>}
-                      {mod.display_name || mod.name}
+                  <div key={mod.id} className="group flex justify-between items-center py-2 px-3 bg-[#3e4153]/40 border-b border-[#3e4153] hover:bg-[#3e4153]/80 transition-colors">
+                    <span className="text-xs font-bold text-white/90 uppercase pl-3 flex items-center gap-2">
+                      <div className={`w-1.5 h-1.5 rounded-full ${mod.type === 'ADD' ? 'bg-white/60' : 'bg-white/30'}`}></div>
+                      {mod.quantity > 1 ? `${mod.quantity}x ` : ''}{mod.display_name || mod.name}
                     </span>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[10px] font-black text-white/40">
-                        {mod.extra_price > 0 ? `+Q${((mod.extra_price || 0) * (mod.quantity || 1)).toFixed(2)}` : '--'}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-white">
+                        Q{((Number(mod.extra_price) || 0) * (mod.quantity || 1)).toFixed(2)}
                       </span>
-                      <button onClick={() => decrementItem(mod)} className="opacity-0 group-hover:opacity-100 p-1 hover:text-white transition-all">
-                        <Trash2 size={12} className="shrink-0" />
+                      <button onClick={() => decrementItem(mod)} className="opacity-0 group-hover:opacity-100 p-1 text-white/50 hover:text-white transition-all">
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
                 ))}
 
                 {notes && (
-                  <div className="mt-4 pt-4 border-t border-white/5">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <MessageSquare size={16} className="text-white/40" />
-                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Notas</span>
-                      </div>
-                      <button onClick={() => setNotes('')} className="text-[9px] font-bold text-white/40 uppercase tracking-widest hover:text-white Transition-all">Limpiar</button>
+                  <div className="mt-3 p-3 bg-white/5 rounded border border-white/10">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[10px] font-bold text-white/50 uppercase">Notas</span>
+                      <button onClick={() => setNotes('')} className="text-[10px] font-bold text-white/40 hover:text-white">Limpiar</button>
                     </div>
-                    <p className="text-sm text-gray-300 leading-relaxed bg-white/10 p-6 rounded-lg border border-white/10">
-                      "{notes}"
-                    </p>
+                    <p className="text-xs text-white/90">"{notes}"</p>
                   </div>
                 )}
               </div>
 
               {/* Footer Actions */}
-              <div className="mt-3 pt-3 border-t border-white/5">
-                <div className="flex flex-col gap-2">
-                  {/* Row 1: Square Action Buttons */}
-                  <div className="flex gap-2 justify-between">
-                    <button
-                      onClick={() => setShowNotes(true)}
-                      className="w-12 h-12 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition-all active:scale-95"
-                    >
-                      <MessageSquare size={18} />
-                    </button>
-                    <button
-                      onClick={() => { setNotes(''); setSelectedItems([]); setItemQuantity(1); }}
-                      className="w-12 h-12 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition-all active:scale-95"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                    <button
-                      onClick={() => setItemQuantity(prev => Math.max(1, prev - 1))}
-                      className="w-12 h-12 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition-all active:scale-95"
-                    >
-                      <Minus size={18} />
-                    </button>
-                    <button
-                      onClick={() => setItemQuantity(prev => prev + 1)}
-                      className="w-12 h-12 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition-all active:scale-95"
-                    >
-                      <Plus size={18} />
-                    </button>
-                  </div>
-
-                  {/* Row 2: Main Confirmation & Price (Flat layout) */}
-                  <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                    <button
-                      disabled={getValidationErrors().length > 0}
-                      onClick={() => {
-                        const transformedModifiers = selectedItems.map(item => ({
-                          ...item,
-                          name: item.name,
-                          price: item.extra_price,
-                          item_quantity: item.quantity
-                        }));
-                        onConfirm(product, transformedModifiers, notes, itemQuantity);
-                        onClose();
-                      }}
-                      className="flex flex-col items-center justify-center gap-2 w-28 h-28 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 disabled:opacity-20 transition-all active:scale-95 group"
-                    >
-                      <Utensils size={32} className="text-white group-hover:scale-110 transition-transform" />
-                      <span className="text-[9px] font-black text-white uppercase tracking-widest text-center leading-tight px-1">
-                        {getValidationErrors().length > 0 ? 'Faltan requeridos' : 'Enviar a Comanda'}
-                      </span>
-                    </button>
-
-                    <div className="text-right flex-1 pl-6">
-                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-1.5 border-b border-white/5 border-dashed pb-1.5">Sub-Total</p>
-                      <p className="text-2xl font-black text-white tabular-nums tracking-tighter">
-                        Q{(calculateTotal() || 0).toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-
-                  {getValidationErrors().length > 0 && (
-                    <div className="space-y-2">
-                      {getValidationErrors().map((err, i) => (
-                        <p key={i} className="text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
-                          <X size={12} /> {err}
-                        </p>
-                      ))}
-                    </div>
-                  )}
+              <div className="mt-4 flex flex-col gap-3">
+                {/* Row 1: Square Action Buttons */}
+                <div className="flex justify-center gap-4 mb-3">
+                  <button
+                    onClick={() => setShowNotes(true)}
+                    className="w-12 h-12 bg-transparent border border-white/20 rounded-sm flex items-center justify-center text-gray-400 hover:bg-[#3e4153] hover:text-white transition-all"
+                  >
+                    <FileEdit size={24} className="scale-x-[-1]" />
+                  </button>
+                  <button
+                    onClick={() => { setNotes(''); setSelectedItems([]); setItemQuantity(1); }}
+                    className="w-12 h-12 bg-transparent border border-white/20 rounded-sm flex items-center justify-center text-gray-400 hover:bg-[#3e4153] hover:text-white transition-all"
+                  >
+                    <Trash2 size={24} />
+                  </button>
+                  <button
+                    onClick={() => setItemQuantity(prev => Math.max(1, prev - 1))}
+                    className="w-12 h-12 bg-transparent border border-white/20 rounded-sm flex items-center justify-center text-gray-400 hover:bg-[#3e4153] hover:text-white transition-all"
+                  >
+                    <Minus size={24} />
+                  </button>
+                  <button
+                    onClick={() => setItemQuantity(prev => prev + 1)}
+                    className="w-12 h-12 bg-transparent border border-white/20 rounded-sm flex items-center justify-center text-gray-400 hover:bg-[#3e4153] hover:text-white transition-all"
+                  >
+                    <Plus size={24} />
+                  </button>
                 </div>
+
+                {/* Row 2: Main Confirmation & Price */}
+                <div className="flex items-center justify-between p-3 bg-[#333543] rounded-md border border-white/5 shadow-sm mt-1">
+                  <button
+                    disabled={getValidationErrors().length > 0}
+                    onClick={() => {
+                      const transformedModifiers = selectedItems.map(item => ({
+                        ...item,
+                        name: item.name,
+                        price: item.extra_price,
+                        item_quantity: item.quantity
+                      }));
+                      onConfirm(product, transformedModifiers, notes, itemQuantity);
+                      onClose();
+                    }}
+                    className="flex flex-col items-center justify-center w-[85px] h-[85px] bg-transparent border border-white/30 rounded-md hover:bg-white/5 disabled:opacity-30 transition-all"
+                  >
+                    <div className="w-12 h-12 border border-white rounded-full flex items-center justify-center mb-1">
+                      <Utensils size={28} className="text-white" />
+                    </div>
+                    <span className="text-[8px] font-bold text-white uppercase text-center px-1 leading-tight">
+                      {getValidationErrors().length > 0 ? 'Faltan' : 'Enviar a\nComanda'}
+                    </span>
+                  </button>
+
+                  <div className="text-right flex-1 pl-4">
+                    <p className="text-[10px] font-bold text-white/50 uppercase mb-2 border-b border-white/10 border-dashed pb-1 inline-block min-w-16">Sub-Total</p>
+                    <p className="text-xl font-bold text-white tabular-nums block">
+                      Q{(calculateTotal() || 0).toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+
+                {getValidationErrors().length > 0 && (
+                  <div className="space-y-1 mt-1">
+                    {getValidationErrors().map((err, i) => (
+                      <p key={i} className="text-[9px] font-bold text-red-400 uppercase flex items-center gap-1">
+                        <X size={10} /> {err}
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        </div>
       </div>
-    </div>);
+    </div>
+  );
 };

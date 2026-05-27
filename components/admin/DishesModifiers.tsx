@@ -51,6 +51,9 @@ export const DishesModifiers: React.FC = () => {
     const [pickerItems, setPickerItems] = useState<any[]>([]);
     const [loadingPicker, setLoadingPicker] = useState(false);
 
+    // Temporary state to hold string input values for pricing during editing
+    const [editingPrices, setEditingPrices] = useState<Record<string, { extra_price: string; delivery_price: string; platform_price: string }>>({});
+
     const fetchData = async () => {
         setLoading(true);
         const { data, error } = await supabase
@@ -66,9 +69,9 @@ export const DishesModifiers: React.FC = () => {
         setLoadingModalItems(true);
         const { data } = await supabase
             .from('group_items')
-            .select('*')
+            .select('*, modifier_catalog(id, item_name, display_name, extra_price, delivery_price, platform_price)')
             .eq('modifier_group_id', groupId)
-            .order('item_name');
+            .order('created_at');
         setModalItems(data || []);
         if (data && data.length > 0) setSelectedModalItemId(data[0].id);
         setLoadingModalItems(false);
@@ -77,17 +80,10 @@ export const DishesModifiers: React.FC = () => {
     const fetchPickerItems = async () => {
         setLoadingPicker(true);
         const { data } = await supabase
-            .from('group_items')
+            .from('modifier_catalog')
             .select('*')
             .order('item_name');
-
-        const unique = new Map();
-        (data || []).forEach(item => {
-            if (!unique.has(item.item_name)) {
-                unique.set(item.item_name, item);
-            }
-        });
-        setPickerItems(Array.from(unique.values()));
+        setPickerItems(data || []);
         setLoadingPicker(false);
     };
 
@@ -227,19 +223,18 @@ export const DishesModifiers: React.FC = () => {
     const handleAddFromPicker = async (item: any) => {
         let currentGroupId = form.id;
 
-        // If it's a new group (no name yet or unsaved), we need to save it first
         if (!currentGroupId) {
             if (!form.name.trim()) {
                 notify.alert('Debe asignar un nombre al grupo antes de agregar modificadores.');
                 return;
             }
-            currentGroupId = await handleSave(false); // Save without closing
+            currentGroupId = await handleSave(false);
         }
 
         if (!currentGroupId) return;
 
-        // Prevent duplicate modifiers within the group (case-insensitive)
-        const exists = modalItems.some(mi => mi.item_name.toUpperCase().trim() === item.item_name.toUpperCase().trim());
+        // Prevent duplicate: check if catalog_item_id already in group
+        const exists = modalItems.some(mi => mi.catalog_item_id === item.id);
         if (exists) {
             notify.alert('Este modificador ya está asignado a este grupo.');
             return;
@@ -247,14 +242,7 @@ export const DishesModifiers: React.FC = () => {
 
         const { error } = await supabase.from('group_items').insert([{
             modifier_group_id: currentGroupId,
-            item_name: item.item_name,
-            display_name: item.display_name,
-            extra_price: item.extra_price || 0,
-            delivery_price: item.delivery_price || 0,
-            platform_price: item.platform_price || 0,
-            modifier_type: item.modifier_type || 'add',
-            min_quantity: item.min_quantity || 0,
-            max_quantity: item.max_quantity || 0,
+            catalog_item_id: item.id,
             is_enabled: true
         }]);
 
@@ -262,7 +250,6 @@ export const DishesModifiers: React.FC = () => {
             notify.error('Error al añadir modificador: ' + error.message);
         } else {
             fetchModalItems(currentGroupId);
-            // setShowPicker(false); // Keep open for multi-selection
         }
     };
 
@@ -281,7 +268,7 @@ export const DishesModifiers: React.FC = () => {
     }, [pickerItems, pickerSearch]);
 
     return (
-        <div className="flex flex-col h-full bg-white font-['Montserrat'] overflow-hidden">
+        <div className="flex flex-col h-full bg-white font-sans overflow-hidden">
             {/* Toolbar Area */}
             <div className="bg-white border-b border-gray-200 shrink-0">
                 {/* Search Bar Group */}
@@ -334,6 +321,7 @@ export const DishesModifiers: React.FC = () => {
                                             handleContextMenu(e, item);
                                         }}
                                         onClick={() => setSelectedId(item.id)}
+                                        onDoubleClick={() => handleEdit(item)}
                                         className={`h-9 border-b border-gray-50 transition-all cursor-pointer select-none text-[11px] ${isSelected
                                             ? 'bg-[#106ebe] text-white'
                                             : 'hover:bg-[#e1e5eb] text-slate-700 odd:bg-white even:bg-[#f6f8fa]'
@@ -366,7 +354,7 @@ export const DishesModifiers: React.FC = () => {
             {/* Group Context Menu */}
             {contextMenu.visible && createPortal(
                 <div
-                    className="fixed z-[999999] bg-white border border-gray-400 shadow-xl py-1 min-w-[160px] font-['Montserrat']"
+                    className="fixed z-[999999] bg-white border border-gray-400 shadow-xl py-1 min-w-[160px] font-sans"
                     style={{ left: contextMenu.x, top: contextMenu.y }}
                 >
                     <button onClick={handleNew} className="w-full flex items-center gap-3 px-4 py-2 text-[10px] font-black text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all text-left uppercase text-left">
@@ -394,11 +382,12 @@ export const DishesModifiers: React.FC = () => {
             {/* Config Table Context Menu */}
             {configContextMenu.visible && createPortal(
                 <div
-                    className="fixed z-[999999] bg-white border border-gray-400 shadow-xl py-1 min-w-[170px] font-['Montserrat']"
+                    className="fixed z-[999999] bg-white border border-gray-400 shadow-xl py-1 min-w-[170px] font-sans"
                     style={{ left: configContextMenu.x, top: configContextMenu.y }}
                 >
                     <button
                         onClick={() => {
+                            setPickerSearch('');
                             fetchPickerItems();
                             setShowPicker(true);
                         }}
@@ -520,7 +509,7 @@ export const DishesModifiers: React.FC = () => {
                                                             onClick={() => setSelectedModalItemId(mi.id)}
                                                             className={`h-7 border-b border-gray-50 text-[10px] font-bold uppercase cursor-default ${selectedModalItemId === mi.id ? 'bg-[#106ebe] text-white' : 'hover:bg-gray-100 text-slate-600'}`}
                                                         >
-                                                            <td className="px-4">{mi.display_name || mi.item_name}</td>
+                                                            <td className="px-4">{mi.modifier_catalog?.display_name || mi.modifier_catalog?.item_name || '—'}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -550,7 +539,7 @@ export const DishesModifiers: React.FC = () => {
 
             {/* Picker Modal - Portaled and with higher z-index to stay on top */}
             {showPicker && createPortal(
-                <div className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-none font-['Montserrat']">
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-none font-sans">
                     <div className="absolute inset-0 bg-black/5 pointer-events-auto" onClick={() => setShowPicker(false)} />
                     <div className="pointer-events-auto">
                         <DraggableWindow>

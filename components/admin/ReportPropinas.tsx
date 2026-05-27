@@ -673,7 +673,12 @@ export const ReportPropinas: React.FC = () => {
                                     {expanded && (
                                         <>
                                             {w.orders.map((o: any) => (
-                                                <tr key={o.id} onContextMenu={e => { e.preventDefault(); setSelectedOrderId(o.id); setContextMenu({ x: e.clientX, y: e.clientY, order: o }) }} className={`divide-x divide-slate-100 font-bold text-slate-600 transition-colors hover:bg-blue-50/30 ${selectedOrderId === o.id ? 'bg-blue-100 ring-1 ring-inset ring-blue-300' : ''}`}>
+                                                <tr
+                                                    key={o.id}
+                                                    onDoubleClick={() => { setEditOrder({ ...o }); setShowEditModal(true); }}
+                                                    onContextMenu={e => { e.preventDefault(); setSelectedOrderId(o.id); setContextMenu({ x: e.clientX, y: e.clientY, order: o }) }}
+                                                    className={`divide-x divide-slate-100 font-bold text-slate-600 transition-colors hover:bg-blue-50/30 ${selectedOrderId === o.id ? 'bg-blue-100 ring-1 ring-inset ring-blue-300' : ''}`}
+                                                >
                                                     <td className="px-6 py-1.5 text-slate-400 font-mono text-[9px]">{dayjs(o.fecha).format('DD/MM/YYYY HH:mm')}</td>
                                                     <td className="px-4 py-1.5 text-center text-slate-800 font-black">{o.no_orden}</td>
                                                     <td className="px-4 py-1.5 truncate text-[10px]">{o.cuenta}</td>

@@ -25,15 +25,13 @@ export const DishesModifiersList: React.FC = () => {
     // Modal State
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [modifierGroups, setModifierGroups] = useState<any[]>([]);
     const [form, setForm] = useState({
         id: '',
         item_name: '',
         display_name: '',
         extra_price: '0.00',
         delivery_price: '0.00',
-        platform_price: '0.00',
-        modifier_group_id: ''
+        platform_price: '0.00'
     });
     const [saving, setSaving] = useState(false);
     const notify = useNotify();
@@ -41,23 +39,13 @@ export const DishesModifiersList: React.FC = () => {
 
     useEffect(() => {
         fetchData();
-        fetchGroups();
     }, []);
-
-    const fetchGroups = async () => {
-        const { data } = await supabase.from('modifier_groups').select('*').order('name');
-        setModifierGroups(data || []);
-    };
 
     const fetchData = async () => {
         setLoading(true);
         const { data, error } = await supabase
-            .from('group_items')
-            .select(`
-                *,
-                modifier_groups (id, name)
-            `)
-            .not('modifier_group_id', 'is', null)
+            .from('modifier_catalog')
+            .select('*')
             .order('item_name');
 
         if (!error) {
@@ -96,8 +84,7 @@ export const DishesModifiersList: React.FC = () => {
             display_name: '',
             extra_price: '0.00',
             delivery_price: '0.00',
-            platform_price: '0.00',
-            modifier_group_id: modifierGroups[0]?.id || ''
+            platform_price: '0.00'
         });
         setShowModal(true);
     };
@@ -108,10 +95,9 @@ export const DishesModifiersList: React.FC = () => {
             id: item.id,
             item_name: item.item_name,
             display_name: item.display_name || '',
-            extra_price: item.extra_price.toString(),
+            extra_price: (item.extra_price || 0).toString(),
             delivery_price: (item.delivery_price || 0).toString(),
-            platform_price: (item.platform_price || 0).toString(),
-            modifier_group_id: item.modifier_group_id
+            platform_price: (item.platform_price || 0).toString()
         });
         setShowModal(true);
     };
@@ -120,7 +106,7 @@ export const DishesModifiersList: React.FC = () => {
         setConfirmAction({
             message: `¿Está seguro que desea eliminar el modificador "${item.item_name}"?`,
             onConfirm: async () => {
-                const { error } = await supabase.from('group_items').delete().eq('id', item.id);
+                const { error } = await supabase.from('modifier_catalog').delete().eq('id', item.id);
                 if (error) {
                     notify.error('Error al eliminar modificador: ' + error.message);
                 } else {
@@ -132,41 +118,38 @@ export const DishesModifiersList: React.FC = () => {
     };
 
     const handleSave = async () => {
-        if (!form.item_name || !form.modifier_group_id) return;
+        if (!form.item_name.trim()) return;
         setSaving(true);
+        const itemNameUpper = form.item_name.trim().toUpperCase();
         const payload = {
-            item_name: form.item_name.toUpperCase(),
-            display_name: form.display_name.toUpperCase() || null,
+            item_name: itemNameUpper,
+            display_name: form.display_name.trim().toUpperCase() || null,
             extra_price: parseFloat(form.extra_price) || 0,
             delivery_price: parseFloat(form.delivery_price) || 0,
             platform_price: parseFloat(form.platform_price) || 0,
-            modifier_group_id: form.modifier_group_id,
             modifier_type: 'add',
             is_enabled: true
         };
 
-        // Check for duplicates in the same modifier group
-        const { data: duplicateData, error: duplicateError } = await supabase
-            .from('group_items')
+        // Verificar duplicado en catálogo (item_name único global)
+        const { data: duplicateData } = await supabase
+            .from('modifier_catalog')
             .select('id')
-            .eq('item_name', payload.item_name)
-            .eq('modifier_group_id', payload.modifier_group_id);
+            .eq('item_name', itemNameUpper);
 
-        if (duplicateError) {
-            console.error('Error validation:', duplicateError);
-        } else if (duplicateData && duplicateData.length > 0) {
+        if (duplicateData && duplicateData.length > 0) {
             const isDup = isEditing ? duplicateData.some(d => d.id !== form.id) : true;
             if (isDup) {
-                notify.alert('Este modificador ya existe en el grupo seleccionado.');
+                notify.alert('Este modificador ya existe en el catálogo.');
                 setSaving(false);
                 return;
             }
         }
 
         if (isEditing) {
-            await supabase.from('group_items').update(payload).eq('id', form.id);
+            await supabase.from('modifier_catalog').update(payload).eq('id', form.id);
         } else {
-            await supabase.from('group_items').insert([payload]);
+            await supabase.from('modifier_catalog').insert([payload]);
         }
 
         setSaving(false);
@@ -203,7 +186,7 @@ export const DishesModifiersList: React.FC = () => {
     );
 
     return (
-        <div className="flex flex-col h-full bg-white font-['Montserrat'] overflow-hidden">
+        <div className="flex flex-col h-full bg-white font-sans overflow-hidden">
             {/* Header Content */}
             <div className="flex flex-col shrink-0 bg-[#f8fafc] border-b border-gray-200">
                 <div className="px-6 py-1.5 flex items-center justify-end">
@@ -254,25 +237,26 @@ export const DishesModifiersList: React.FC = () => {
                                 <th className="px-6 py-1 text-center w-32 uppercase tracking-tighter">Precio Plataformas</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 font-bold">
+                        <tbody className="divide-y divide-gray-100 font-bold text-black">
                             {filteredItems.map((item) => (
                                 <tr
                                     key={item.id}
                                     onClick={() => setSelectedId(item.id)}
+                                    onDoubleClick={() => handleEdit(item)}
                                     onContextMenu={(e) => {
                                         setSelectedId(item.id);
                                         handleContextMenu(e, item);
                                     }}
                                     className={`transition-colors text-[10px] uppercase cursor-default ${selectedId === item.id
                                         ? 'bg-[#106ebe] text-white'
-                                        : 'hover:bg-blue-50/50 text-[#106ebe]'
+                                        : 'hover:bg-[#f2f7fb] text-black'
                                         }`}
                                 >
-                                    <td className={`px-6 py-2.5 border-r ${selectedId === item.id ? 'border-white/10' : 'border-gray-100 font-bold'}`}>{item.item_name}</td>
-                                    <td className={`px-6 py-2.5 border-r ${selectedId === item.id ? 'border-white/10 text-white/80' : 'border-gray-100 text-slate-500 font-bold'}`}>{item.display_name || '--'}</td>
-                                    <td className={`px-6 py-2.5 text-center border-r ${selectedId === item.id ? 'border-white/10 text-white' : 'border-gray-100 text-slate-700 font-bold'}`}>Q{parseFloat(item.extra_price).toFixed(2)}</td>
-                                    <td className={`px-6 py-2.5 text-center border-r ${selectedId === item.id ? 'border-white/10 text-white' : 'border-gray-100 text-slate-700 font-bold'}`}>Q{parseFloat(item.delivery_price || 0).toFixed(2)}</td>
-                                    <td className={`px-6 py-2.5 text-center ${selectedId === item.id ? 'text-white' : 'text-slate-700 font-bold'}`}>Q{parseFloat(item.platform_price || 0).toFixed(2)}</td>
+                                    <td className={`px-6 py-2.5 border-r ${selectedId === item.id ? 'border-white/10' : 'border-gray-100'}`}>{item.item_name}</td>
+                                    <td className={`px-6 py-2.5 border-r ${selectedId === item.id ? 'border-white/10 text-white/80' : 'border-gray-100 text-black/70'}`}>{item.display_name || '--'}</td>
+                                    <td className={`px-6 py-2.5 text-center border-r ${selectedId === item.id ? 'border-white/10 text-white' : 'border-gray-100 text-black'}`}>Q{parseFloat(item.extra_price).toFixed(2)}</td>
+                                    <td className={`px-6 py-2.5 text-center border-r ${selectedId === item.id ? 'border-white/10 text-white' : 'border-gray-100 text-black'}`}>Q{parseFloat(item.delivery_price || 0).toFixed(2)}</td>
+                                    <td className={`px-6 py-2.5 text-center ${selectedId === item.id ? 'text-white' : 'text-black'}`}>Q{parseFloat(item.platform_price || 0).toFixed(2)}</td>
                                 </tr>
                             ))}
                             {filteredItems.length === 0 && (
@@ -306,7 +290,7 @@ export const DishesModifiersList: React.FC = () => {
                     onContextMenu={(e) => { e.preventDefault(); closeContextMenu(); }}
                 />
                 <div
-                    className="fixed z-[100000] w-44 bg-white border border-gray-300 shadow-xl overflow-hidden py-1 select-none font-['Montserrat']"
+                    className="fixed z-[100000] w-44 bg-white border border-gray-300 shadow-xl overflow-hidden py-1 select-none font-sans"
                     style={{ top: contextMenu.y, left: contextMenu.x }}
                 >
                     <button
@@ -391,7 +375,7 @@ export const DishesModifiersList: React.FC = () => {
                                                         type="text"
                                                         value={form.item_name}
                                                         onChange={e => setForm({ ...form, item_name: e.target.value })}
-                                                        className="flex-1 h-6 border border-gray-300 px-2 text-[11px] font-bold text-[#106ebe] uppercase outline-none focus:border-[#106ebe]"
+                                                        className="flex-1 h-6 border border-gray-300 px-2 text-[11px] font-normal text-black uppercase outline-none focus:border-[#106ebe]"
                                                     />
                                                 </div>
                                                 <div className="flex items-center gap-4">
@@ -400,11 +384,12 @@ export const DishesModifiersList: React.FC = () => {
                                                         type="text"
                                                         value={form.display_name}
                                                         onChange={e => setForm({ ...form, display_name: e.target.value })}
-                                                        className="flex-1 h-6 border border-gray-300 px-2 text-[11px] font-bold text-slate-700 uppercase outline-none focus:border-[#106ebe]"
+                                                        className="flex-1 h-6 border border-gray-300 px-2 text-[11px] font-normal text-black uppercase outline-none focus:border-[#106ebe]"
                                                     />
                                                 </div>
                                             </div>
                                         </div>
+
 
                                         {/* Group: Precios */}
                                         <div className="space-y-0.5">
@@ -420,7 +405,7 @@ export const DishesModifiersList: React.FC = () => {
                                                             type="text"
                                                             value={form.extra_price}
                                                             onChange={e => setForm({ ...form, extra_price: e.target.value.replace(/[^0-9.]/g, '') })}
-                                                            className="w-full bg-transparent text-[11px] font-black text-center text-[#106ebe] outline-none"
+                                                            className="w-full bg-transparent text-[11px] font-normal text-center text-black outline-none"
                                                         />
                                                     </div>
                                                 </div>
@@ -432,7 +417,7 @@ export const DishesModifiersList: React.FC = () => {
                                                             type="text"
                                                             value={form.delivery_price}
                                                             onChange={e => setForm({ ...form, delivery_price: e.target.value.replace(/[^0-9.]/g, '') })}
-                                                            className="w-full bg-transparent text-[11px] font-black text-center text-[#106ebe] outline-none"
+                                                            className="w-full bg-transparent text-[11px] font-normal text-center text-black outline-none"
                                                         />
                                                     </div>
                                                 </div>
@@ -444,7 +429,7 @@ export const DishesModifiersList: React.FC = () => {
                                                             type="text"
                                                             value={form.platform_price}
                                                             onChange={e => setForm({ ...form, platform_price: e.target.value.replace(/[^0-9.]/g, '') })}
-                                                            className="w-full bg-transparent text-[11px] font-black text-center text-[#106ebe] outline-none"
+                                                            className="w-full bg-transparent text-[11px] font-normal text-center text-black outline-none"
                                                         />
                                                     </div>
                                                 </div>

@@ -100,6 +100,10 @@ export const UtensilCategorySidebar: React.FC<UtensilCategorySidebarProps> = ({ 
                                 key={cat.id}
                                 className={`flex items-center h-[22px] px-3 cursor-pointer group ${selectedId === cat.id ? 'bg-blue-50 text-[#106ebe] font-black' : 'hover:bg-[#cce8ff] text-slate-800'}`}
                                 onClick={() => onSelect(cat.id)}
+                                onDoubleClick={(e) => {
+                                    e.stopPropagation();
+                                    setForm({ id: cat.id, nombre: cat.nombre });
+                                }}
                                 onContextMenu={(e) => {
                                     e.preventDefault(); e.stopPropagation();
                                     setContextMenu({ x: Math.min(e.clientX, window.innerWidth - 160), y: Math.min(e.clientY, window.innerHeight - 100), id: cat.id, nombre: cat.nombre });

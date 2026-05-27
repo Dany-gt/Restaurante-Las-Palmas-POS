@@ -300,7 +300,14 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
         const user = JSON.parse(cachedUserStr);
         // Only apply to CAJERO and MESERO
         if (user.role === 'CAJERO' || user.role === 'MESERO') {
-          const myOrdersCount = Object.values(activeOrders).filter(o => o.waiter_id === user.id).length;
+          // Check tables that are occupied AND owned by this user
+          const myOrdersCount = tables.filter(tbl => {
+            const isOcc = tbl.status === 'occupied' || !!activeOrders[tbl.id] || !!offlineOccupied[tbl.id];
+            if (!isOcc) return false;
+            const ownerId = tbl.locked_by || activeOrders[tbl.id]?.waiter_id || offlineOccupied[tbl.id]?.locked_by;
+            return ownerId === user.id;
+          }).length;
+
           if (myOrdersCount >= maxOrdersLimit) {
             setPendingTable(t);
             setShowPinModal(true);

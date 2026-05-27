@@ -203,7 +203,7 @@ export const DishesOptionsList: React.FC = () => {
     );
 
     return (
-        <div className="flex flex-col h-full bg-white font-['Montserrat'] overflow-hidden">
+        <div className="flex flex-col h-full bg-white font-sans overflow-hidden">
             {/* Header Content */}
             <div className="flex flex-col shrink-0 bg-[#f8fafc] border-b border-gray-200">
                 <div className="px-6 py-1.5 flex items-center justify-end">
@@ -247,6 +247,9 @@ export const DishesOptionsList: React.FC = () => {
                                 <th onClick={() => handleSort('display_name')} className="px-6 py-1 border-r border-gray-300">
                                     PROMPT
                                 </th>
+                                <th className="px-6 py-1 border-r border-gray-300 min-w-[150px]">
+                                    Grupo
+                                </th>
                                 <th onClick={() => handleSort('extra_price')} className="px-6 py-1 border-r border-gray-300 text-center w-32">
                                     Precio Venta
                                 </th>
@@ -254,25 +257,27 @@ export const DishesOptionsList: React.FC = () => {
                                 <th className="px-6 py-1 text-center w-32 uppercase tracking-tighter">Precio Plataformas</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 font-bold">
+                        <tbody className="divide-y divide-gray-100 font-bold text-black">
                             {filteredItems.map((item) => (
                                 <tr
                                     key={item.id}
                                     onClick={() => setSelectedId(item.id)}
+                                    onDoubleClick={() => handleEdit(item)}
                                     onContextMenu={(e) => {
                                         setSelectedId(item.id);
                                         handleContextMenu(e, item);
                                     }}
                                     className={`transition-colors text-[10px] uppercase cursor-default ${selectedId === item.id
                                         ? 'bg-[#106ebe] text-white'
-                                        : 'hover:bg-blue-50/50 text-[#106ebe]'
+                                        : 'hover:bg-[#f2f7fb] text-black'
                                         }`}
                                 >
-                                    <td className={`px-6 py-2.5 border-r ${selectedId === item.id ? 'border-white/10' : 'border-gray-100 font-bold'}`}>{item.item_name}</td>
-                                    <td className={`px-6 py-2.5 border-r ${selectedId === item.id ? 'border-white/10 text-white/80' : 'border-gray-100 text-slate-500 font-bold'}`}>{item.display_name || '--'}</td>
-                                    <td className={`px-6 py-2.5 text-center border-r ${selectedId === item.id ? 'border-white/10 text-white' : 'border-gray-100 text-slate-700 font-bold'}`}>Q{parseFloat(item.extra_price).toFixed(2)}</td>
-                                    <td className={`px-6 py-2.5 text-center border-r ${selectedId === item.id ? 'border-white/10 text-white' : 'border-gray-100 text-slate-700 font-bold'}`}>Q{parseFloat(item.delivery_price || 0).toFixed(2)}</td>
-                                    <td className={`px-6 py-2.5 text-center ${selectedId === item.id ? 'text-white' : 'text-slate-700 font-bold'}`}>Q{parseFloat(item.platform_price || 0).toFixed(2)}</td>
+                                    <td className={`px-6 py-2.5 border-r ${selectedId === item.id ? 'border-white/10' : 'border-gray-100'}`}>{item.item_name}</td>
+                                    <td className={`px-6 py-2.5 border-r ${selectedId === item.id ? 'border-white/10 text-white/80' : 'border-gray-100 text-black/70'}`}>{item.display_name || '--'}</td>
+                                    <td className={`px-6 py-2.5 border-r ${selectedId === item.id ? 'border-white/10 text-white/80' : 'border-gray-100 text-black/70'}`}>{item.option_groups?.name || 'SIN GRUPO'}</td>
+                                    <td className={`px-6 py-2.5 text-center border-r ${selectedId === item.id ? 'border-white/10 text-white' : 'border-gray-100 text-black'}`}>Q{parseFloat(item.extra_price).toFixed(2)}</td>
+                                    <td className={`px-6 py-2.5 text-center border-r ${selectedId === item.id ? 'border-white/10 text-white' : 'border-gray-100 text-black'}`}>Q{parseFloat(item.delivery_price || 0).toFixed(2)}</td>
+                                    <td className={`px-6 py-2.5 text-center ${selectedId === item.id ? 'text-white' : 'text-black'}`}>Q{parseFloat(item.platform_price || 0).toFixed(2)}</td>
                                 </tr>
                             ))}
                             {filteredItems.length === 0 && (
@@ -307,7 +312,7 @@ export const DishesOptionsList: React.FC = () => {
                     onContextMenu={(e) => { e.preventDefault(); closeContextMenu(); }}
                 />
                 <div
-                    className="fixed z-[100000] w-44 bg-white border border-gray-300 shadow-xl overflow-hidden py-1 select-none font-['Montserrat']"
+                    className="fixed z-[100000] w-44 bg-white border border-gray-300 shadow-xl overflow-hidden py-1 select-none font-sans"
                     style={{ top: contextMenu.y, left: contextMenu.x }}
                 >
                     <button
@@ -392,7 +397,7 @@ export const DishesOptionsList: React.FC = () => {
                                                         type="text"
                                                         value={form.item_name}
                                                         onChange={e => setForm({ ...form, item_name: e.target.value })}
-                                                        className="flex-1 h-6 border border-gray-300 px-2 text-[11px] font-bold text-[#106ebe] uppercase outline-none focus:border-[#106ebe]"
+                                                        className="flex-1 h-6 border border-gray-300 px-2 text-[11px] font-normal text-black uppercase outline-none focus:border-[#106ebe]"
                                                     />
                                                 </div>
                                                 <div className="flex items-center gap-4">
@@ -401,7 +406,7 @@ export const DishesOptionsList: React.FC = () => {
                                                         type="text"
                                                         value={form.display_name}
                                                         onChange={e => setForm({ ...form, display_name: e.target.value })}
-                                                        className="flex-1 h-6 border border-gray-300 px-2 text-[11px] font-bold text-slate-700 uppercase outline-none focus:border-[#106ebe]"
+                                                        className="flex-1 h-6 border border-gray-300 px-2 text-[11px] font-normal text-black uppercase outline-none focus:border-[#106ebe]"
                                                     />
                                                 </div>
                                             </div>
@@ -421,7 +426,7 @@ export const DishesOptionsList: React.FC = () => {
                                                             type="text"
                                                             value={form.extra_price}
                                                             onChange={e => setForm({ ...form, extra_price: e.target.value.replace(/[^0-9.]/g, '') })}
-                                                            className="w-full bg-transparent text-[11px] font-black text-center text-[#106ebe] outline-none"
+                                                            className="w-full bg-transparent text-[11px] font-normal text-center text-black outline-none"
                                                         />
                                                     </div>
                                                 </div>
@@ -433,7 +438,7 @@ export const DishesOptionsList: React.FC = () => {
                                                             type="text"
                                                             value={form.delivery_price}
                                                             onChange={e => setForm({ ...form, delivery_price: e.target.value.replace(/[^0-9.]/g, '') })}
-                                                            className="w-full bg-transparent text-[11px] font-black text-center text-[#106ebe] outline-none"
+                                                            className="w-full bg-transparent text-[11px] font-normal text-center text-black outline-none"
                                                         />
                                                     </div>
                                                 </div>
@@ -445,7 +450,7 @@ export const DishesOptionsList: React.FC = () => {
                                                             type="text"
                                                             value={form.platform_price}
                                                             onChange={e => setForm({ ...form, platform_price: e.target.value.replace(/[^0-9.]/g, '') })}
-                                                            className="w-full bg-transparent text-[11px] font-black text-center text-[#106ebe] outline-none"
+                                                            className="w-full bg-transparent text-[11px] font-normal text-center text-black outline-none"
                                                         />
                                                     </div>
                                                 </div>

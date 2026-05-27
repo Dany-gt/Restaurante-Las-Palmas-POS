@@ -392,8 +392,6 @@ export const DishesModifiersAssign: React.FC = () => {
                                 <thead className="sticky top-0 bg-[#f8f9fa] z-10 shadow-sm">
                                     <tr className="h-7 border-b border-gray-300 text-[9px] font-black uppercase text-slate-500">
                                         <th className="px-4 text-left">Grupo de Modificadores</th>
-                                        <th className="w-16 text-center">Min</th>
-                                        <th className="w-16 text-center">Max</th>
                                         <th className="w-10"></th>
                                     </tr>
                                 </thead>
@@ -401,29 +399,13 @@ export const DishesModifiersAssign: React.FC = () => {
                                     {selectedGroups.map((group, index) => (
                                         <tr key={group.id} className={`h-9 border-b border-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
                                             <td className="px-4 text-[10px] font-bold text-[#106ebe] uppercase">{group.name}</td>
-                                            <td className="px-1 text-center">
-                                                <input
-                                                    type="number"
-                                                    value={group.min_selection}
-                                                    onChange={e => handleUpdateGroupSelections(group.id, 'min_selection', parseInt(e.target.value) || 0)}
-                                                    className="w-10 h-6 border border-gray-200 text-[10px] font-bold text-center outline-none focus:border-[#106ebe]"
-                                                />
-                                            </td>
-                                            <td className="px-1 text-center">
-                                                <input
-                                                    type="number"
-                                                    value={group.max_selection}
-                                                    onChange={e => handleUpdateGroupSelections(group.id, 'max_selection', parseInt(e.target.value) || 0)}
-                                                    className="w-10 h-6 border border-gray-200 text-[10px] font-bold text-center outline-none focus:border-[#106ebe]"
-                                                />
-                                            </td>
                                             <td className="px-2 text-center text-slate-300 hover:text-red-500 cursor-pointer" onClick={() => handleRemoveGroup(group.id)}>
                                                 <Trash2 size={12} />
                                             </td>
                                         </tr>
                                     ))}
                                     {selectedGroups.length === 0 && (
-                                        <tr><td colSpan={4} className="p-8 text-center text-[10px] font-bold text-slate-400 italic uppercase">Añada grupos de modificadores</td></tr>
+                                        <tr><td colSpan={2} className="p-8 text-center text-[10px] font-bold text-slate-400 italic uppercase">Añada grupos de modificadores</td></tr>
                                     )}
                                 </tbody>
                             </table>
@@ -484,48 +466,66 @@ export const DishesModifiersAssign: React.FC = () => {
 
             {/* Picker Modal for Modifiers */}
             {showPicker && createPortal(
-                <div className="fixed inset-0 z-[100000] flex items-center justify-center pointer-events-none p-4">
-                    <div className="absolute inset-0 bg-black/5 pointer-events-auto" onClick={() => setShowPicker(false)}></div>
+                <div className="fixed inset-0 z-[100000] flex items-center justify-center pointer-events-none font-sans">
+                    <div className="absolute inset-0 bg-black/5 pointer-events-auto" onClick={() => setShowPicker(false)} />
                     <div className="pointer-events-auto">
                         <DraggableWindow>
-                            <div className="w-[500px] h-[500px] bg-white border border-[#106ebe] shadow-[0_0_30px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-                                <div className="modal-header bg-[#106ebe] h-8 px-3 flex items-center justify-between text-white shrink-0 cursor-move">
-                                    <div className="flex items-center gap-2 text-[11px] font-bold uppercase">
-                                        <ListFilter size={14} /> Seleccionar Grupo de Modificadores
+                            <div className="w-[600px] bg-[#f0f0f0] border border-[#106ebe] shadow-2xl overflow-hidden flex flex-col">
+                                <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move text-white shrink-0">
+                                    <div className="flex items-center gap-2">
+                                        <ListFilter size={14} />
+                                        <span className="text-[11px] font-bold tracking-tight uppercase text-white">Seleccionar Grupo de Modificadores</span>
                                     </div>
-                                    <button onClick={() => setShowPicker(false)} className="hover:bg-red-500 p-1 transition-colors"><X size={16} /></button>
+                                    <button onClick={() => setShowPicker(false)} className="w-7 h-7 flex items-center justify-center bg-red-600 hover:bg-red-700 transition-all text-white">
+                                        <X size={16} />
+                                    </button>
                                 </div>
-                                <div className="p-2 border-b border-gray-200 bg-[#f8f9fa]">
-                                    <div className="relative">
-                                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" size={12} />
-                                        <input
-                                            autoFocus
-                                            type="text"
-                                            value={pickerSearch}
-                                            onChange={e => setPickerSearch(e.target.value)}
-                                            placeholder="Buscar grupo..."
-                                            className="w-full pl-7 pr-2 py-1.5 text-[10px] border border-gray-300 outline-none focus:border-[#106ebe] uppercase font-bold text-slate-700"
-                                        />
+
+                                <div className="p-4 space-y-4">
+                                    <div className="bg-white border border-gray-300 p-2 flex items-center gap-2">
+                                        <div className="flex-1 relative">
+                                            <input
+                                                autoFocus
+                                                type="text"
+                                                value={pickerSearch}
+                                                onChange={e => setPickerSearch(e.target.value)}
+                                                placeholder="Introduzca el texto a buscar..."
+                                                className="w-full h-8 border border-gray-300 px-3 text-[11px] font-bold text-slate-700 uppercase outline-none focus:border-[#106ebe]"
+                                            />
+                                        </div>
+                                        <button className="px-6 h-8 bg-[#f0f0f0] border border-gray-400 text-[11px] font-bold uppercase text-slate-700 hover:bg-white active:bg-gray-200">Buscar</button>
                                     </div>
-                                </div>
-                                <div className="flex-1 overflow-auto p-1 custom-scrollbar">
-                                    <div className="grid grid-cols-1 gap-1">
-                                        {pickerFilteredGroups.map(group => (
-                                            <button
-                                                key={group.id}
-                                                onClick={() => handleAddGroup(group)}
-                                                className="flex items-center gap-3 w-full p-2 hover:bg-blue-50 text-left border border-transparent hover:border-blue-100 group transition-all"
-                                            >
-                                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[#106ebe] group-hover:bg-white shadow-sm">
-                                                    <Layers size={14} />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-[11px] font-bold text-[#106ebe] uppercase truncate">{group.name}</p>
-                                                    <p className="text-[9px] text-slate-400 font-bold uppercase truncate italic">{group.group_prompt || 'Sin Prompt'}</p>
-                                                </div>
-                                                <ChevronRight size={14} className="text-slate-300" />
-                                            </button>
-                                        ))}
+
+                                    <div className="bg-white border border-gray-300 h-80 overflow-auto">
+                                        <table className="w-full border-collapse text-left">
+                                            <thead className="sticky top-0 bg-[#e8e8e8] z-10 text-[10px] font-black uppercase shadow-sm text-slate-700">
+                                                <tr className="h-8 border-b border-gray-300">
+                                                    <th className="px-4 border-r border-gray-300">Grupo</th>
+                                                    <th className="px-4">Prompt</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="text-[11px] font-bold uppercase text-slate-600">
+                                                {pickerFilteredGroups.map(group => (
+                                                    <tr
+                                                        key={group.id}
+                                                        onDoubleClick={() => handleAddGroup(group)}
+                                                        onClick={() => handleAddGroup(group)}
+                                                        className="h-8 border-b border-gray-50 hover:bg-[#e1e5eb] cursor-pointer"
+                                                    >
+                                                        <td className="px-4 border-r border-gray-200">{group.name}</td>
+                                                        <td className="px-4 text-slate-400">{group.group_prompt || '—'}</td>
+                                                    </tr>
+                                                ))}
+                                                {pickerFilteredGroups.length === 0 && (
+                                                    <tr><td colSpan={2} className="p-8 text-center text-slate-400 italic">No se encontraron grupos</td></tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div className="space-y-0.5">
+                                        <p className="text-[10px] font-bold text-slate-500">* Clic o Doble Clic sobre cualquier grupo para añadirlo.</p>
+                                        <p className="text-[10px] font-bold text-slate-500">* ESC - Para cerrar la ventana.</p>
                                     </div>
                                 </div>
                             </div>

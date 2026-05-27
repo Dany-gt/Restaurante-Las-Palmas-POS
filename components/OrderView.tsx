@@ -204,8 +204,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
     // Tablet detection: Lenovo M9 has CSS viewport < 1350px in landscape
     const [isTablet, setIsTablet] = useState(() => window.innerWidth < 1350);
+    // Caja detection: Elo Touch 1509L is 1366x768
+    const [isCaja, setIsCaja] = useState(() => window.innerWidth >= 1350 && window.innerWidth <= 1400);
+
     useEffect(() => {
-        const check = () => setIsTablet(window.innerWidth < 1350);
+        const check = () => {
+            setIsTablet(window.innerWidth < 1350);
+            setIsCaja(window.innerWidth >= 1350 && window.innerWidth <= 1400);
+        };
         window.addEventListener('resize', check);
         return () => window.removeEventListener('resize', check);
     }, []);
@@ -2547,7 +2553,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         ) : (
                             <div className="bg-[#2d2e3d]">
                                 {!selectedCat && (
-                                    <div className={`grid gap-3 w-full no-scrollbar content-start ${isTablet ? 'grid-cols-4 auto-rows-[155px]' : 'grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm]'}`}>
+                                    <div className={`grid gap-3 w-full no-scrollbar content-start ${isTablet ? 'grid-cols-4 auto-rows-[155px]' : isCaja ? 'grid-cols-4 auto-rows-[155px] max-w-[1000px] mx-auto' : 'grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm]'}`}>
                                         {(() => {
                                             const seen = new Set();
                                             return categories
@@ -2577,7 +2583,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                     return true;
                                                 })
                                                 .map(cat => (
-                                                    <button key={cat.id} onClick={() => setSelectedCat(cat)} className={`overflow-hidden mx-auto bg-[#3a3b4d] rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-white/5 hover:border-white/20 hover:bg-[#45465e] active:scale-95 transition-all group ${isTablet ? 'w-full h-full' : 'w-[170px] h-[178px] max-w-[170px] aspect-[1/1.05]'}`}>
+                                                    <button key={cat.id} onClick={() => setSelectedCat(cat)} className={`overflow-hidden mx-auto bg-[#3a3b4d] rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-white/5 hover:border-white/20 hover:bg-[#45465e] active:scale-95 transition-all group ${(isTablet || isCaja) ? 'w-full h-full' : 'w-[170px] h-[178px] max-w-[170px] aspect-[1/1.05]'}`}>
                                                         <div className="flex-1 flex flex-col items-center justify-center w-full mb-3">
                                                             {cat.image_url ? (
                                                                 <img src={getImageUrl(cat.image_url)} alt={cat.name} className="w-full h-full object-contain rounded-xl opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
@@ -2592,14 +2598,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </div>
                                 )}
                                 {selectedCat && !selectedSubCat && (
-                                    <div className={`grid gap-3 w-full content-start ${isTablet ? 'grid-cols-4 auto-rows-[155px]' : 'grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm]'}`}>
+                                    <div className={`grid gap-3 w-full content-start ${isTablet ? 'grid-cols-4 auto-rows-[155px]' : isCaja ? 'grid-cols-4 auto-rows-[155px] max-w-[1000px] mx-auto' : 'grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm]'}`}>
                                         {categories
                                             .filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO')
                                             .sort((a, b) => {
                                                 return (a.name || '').localeCompare(b.name || '');
                                             })
                                             .map(sub => (
-                                                <button key={sub.id} onClick={() => setSelectedSubCat(sub)} className={`overflow-hidden mx-auto bg-white/10 rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-transparent hover:border-white/10 active:scale-95 transition-all group ${isTablet ? 'w-full h-full' : 'w-[170px] h-[178px] max-w-[170px] aspect-[1/1.05]'}`}>
+                                                <button key={sub.id} onClick={() => setSelectedSubCat(sub)} className={`overflow-hidden mx-auto bg-white/10 rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-transparent hover:border-white/10 active:scale-95 transition-all group ${(isTablet || isCaja) ? 'w-full h-full' : 'w-[170px] h-[178px] max-w-[170px] aspect-[1/1.05]'}`}>
                                                     <div className="flex-1 flex flex-col items-center justify-center w-full">
                                                         {sub.image_url ? (
                                                             <img src={getImageUrl(sub.image_url)} alt={sub.name} className="w-full h-full object-cover rounded-md opacity-50 group-hover:opacity-100 transition-opacity" />
@@ -2724,7 +2730,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                             currency={currency}
                                                             onClick={() => handleProductClick(product)}
                                                             isChecking={checkingProducts.has(product.id)}
-                                                            isTablet={isTablet}
+                                                            isTablet={isTablet || isCaja}
                                                         />
                                                     );
                                                 });
@@ -2732,7 +2738,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </div>
                                 )}
                                 {selectedSubCat && (
-                                    <div className={`grid gap-3 w-full content-start ${isTablet ? 'grid-cols-4 auto-rows-[155px]' : 'grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm]'}`}>
+                                    <div className={`grid gap-3 w-full content-start ${isTablet ? 'grid-cols-4 auto-rows-[155px]' : isCaja ? 'grid-cols-4 auto-rows-[155px] max-w-[1000px] mx-auto' : 'grid-cols-[repeat(auto-fit,170px)] justify-center max-w-[1250px] mx-auto gap-[0.6cm]'}`}>
                                         {(() => {
                                             const relatedSubCatIds = categories
                                                 .filter(c => c.name?.toUpperCase() === selectedSubCat.name?.toUpperCase())
@@ -2809,7 +2815,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                             currency={currency}
                                                             onClick={() => handleProductClick(product)}
                                                             isChecking={checkingProducts.has(product.id)}
-                                                            isTablet={isTablet}
+                                                            isTablet={isTablet || isCaja}
                                                         />
                                                     );
                                                 });

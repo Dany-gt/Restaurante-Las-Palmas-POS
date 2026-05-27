@@ -275,6 +275,10 @@ export const InventoryProduction: React.FC = () => {
                                 <tr
                                     key={order.id}
                                     onClick={() => setSelectedOrderId(order.id)}
+                                    onDoubleClick={() => {
+                                        setModalOrder(order);
+                                        setIsModalOpen(true);
+                                    }}
                                     onContextMenu={(e) => handleContextMenu(e, order)}
                                     className={`h-9 border-b border-gray-100 transition-colors cursor-default select-none group 
                                         ${selectedOrderId === order.id ? 'bg-[#cce5ff]' : (idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]')} 

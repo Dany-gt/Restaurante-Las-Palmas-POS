@@ -199,11 +199,15 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                 {isParent ? (
                     <div
                         className={`flex items-center cursor-pointer transition-none
-                            ${isSelected ? 'bg-transparent' : 'hover:bg-[#f0f0f0] bg-white'}`}
+                            \${isSelected ? 'bg-transparent' : 'hover:bg-[#f0f0f0] bg-white'}`}
                         style={{ height: 26 }}
                         onClick={() => {
                             onToggle(cat.id);
                             if (!isExpanded && hasChildren) setExpandedIds(prev => new Set([...prev, cat.id]));
+                        }}
+                        onDoubleClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenForm(cat.id);
                         }}
                         onContextMenu={(e) => handleContextMenu(e, cat.id, cat.nombre)}
                     >
@@ -235,9 +239,13 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                 ) : (
                     <div
                         className={`flex items-center cursor-pointer transition-none
-                            ${isSelected ? 'bg-transparent' : 'hover:bg-[#f0f0f0] bg-[#fafafa]'}`}
+                            \${isSelected ? 'bg-transparent' : 'hover:bg-[#f0f0f0] bg-[#fafafa]'}`}
                         style={{ height: 22 }}
                         onClick={() => onToggle(cat.id)}
+                        onDoubleClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenForm(cat.id);
+                        }}
                         onContextMenu={(e) => handleContextMenu(e, cat.id, cat.nombre)}
                     >
                         {/* Gutter (Icon Area) - STAYS NEUTRAL */}
