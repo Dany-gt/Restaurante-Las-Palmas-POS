@@ -13,6 +13,7 @@ import { CustomerData } from '../types/billing';
 import { DateUtils } from '../utils/DateUtils';
 import { PinModalV2 } from './PinModalV2';
 import { useSecurityPolicy } from '../hooks/useSecurityPolicy';
+import { getImageUrl } from '../utils/getImageUrl';
 import { activityLogService } from '../services/ActivityLogService';
 import { generateUUID } from '../utils/uuid';
 
@@ -1364,7 +1365,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                     >
                                         <div className="w-full bg-white h-24 flex items-center justify-center p-4">
                                             {pos.logo_url ? (
-                                                <img src={pos.logo_url} alt={pos.name} className="max-w-full max-h-full object-contain" loading="eager" fetchPriority="high" />
+                                                <img src={getImageUrl(pos.logo_url)} alt={pos.name} className="max-w-full max-h-full object-contain" loading="eager" fetchPriority="high" />
                                             ) : (
                                                 <div className="flex flex-col items-center gap-2 text-gray-800">
                                                     <CreditCard size={32} strokeWidth={1.5} />

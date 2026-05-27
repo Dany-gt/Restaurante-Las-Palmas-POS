@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getImageUrl } from '../utils/getImageUrl';
 import { DateUtils } from '../utils/DateUtils';
 import { Order, Table, Product, Category, OrderItem, User } from '../types';
 import { Bell, BellOff, ChevronLeft, ChevronRight, ArrowLeft, CornerUpLeft, Trash2, Printer, CheckCircle, Search, Plus, Minus, Info, Loader2, ShoppingCart as ShoppingCartIcon, CreditCard, FileText, Receipt, Ban, Users, Percent, Settings2, Utensils, Truck, Package, MapPin, Edit3, Banknote, Split, Image, ArrowRightLeft, Mic, MicOff, UserPlus, Grid, UsersRound, ChevronDown, LayoutGrid } from 'lucide-react';
@@ -80,7 +81,7 @@ const ProductCard = React.memo<{
             <div className="w-full flex-1 flex items-center justify-center rounded-lg overflow-hidden p-2 min-h-0">
                 {product.image_url ? (
                     <img
-                        src={product.image_url}
+                        src={getImageUrl(product.image_url)}
                         alt={product.name}
                         className="w-full h-full object-contain transition-transform group-hover:scale-105 duration-300"
                     />
@@ -2579,7 +2580,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                     <button key={cat.id} onClick={() => setSelectedCat(cat)} className={`overflow-hidden mx-auto bg-[#3a3b4d] rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-white/5 hover:border-white/20 hover:bg-[#45465e] active:scale-95 transition-all group ${isTablet ? 'w-full h-full' : 'w-[170px] h-[178px] max-w-[170px] aspect-[1/1.05]'}`}>
                                                         <div className="flex-1 flex flex-col items-center justify-center w-full mb-3">
                                                             {cat.image_url ? (
-                                                                <img src={cat.image_url} alt={cat.name} className="w-full h-full object-contain rounded-xl opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
+                                                                <img src={getImageUrl(cat.image_url)} alt={cat.name} className="w-full h-full object-contain rounded-xl opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
                                                             ) : (
                                                                 <PlaceholderLogo />
                                                             )}
@@ -2601,7 +2602,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 <button key={sub.id} onClick={() => setSelectedSubCat(sub)} className={`overflow-hidden mx-auto bg-white/10 rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-transparent hover:border-white/10 active:scale-95 transition-all group ${isTablet ? 'w-full h-full' : 'w-[170px] h-[178px] max-w-[170px] aspect-[1/1.05]'}`}>
                                                     <div className="flex-1 flex flex-col items-center justify-center w-full">
                                                         {sub.image_url ? (
-                                                            <img src={sub.image_url} alt={sub.name} className="w-full h-full object-cover rounded-md opacity-50 group-hover:opacity-100 transition-opacity" />
+                                                            <img src={getImageUrl(sub.image_url)} alt={sub.name} className="w-full h-full object-cover rounded-md opacity-50 group-hover:opacity-100 transition-opacity" />
                                                         ) : (
                                                             <PlaceholderLogo />
                                                         )}

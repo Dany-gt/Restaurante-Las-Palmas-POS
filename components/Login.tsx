@@ -3,6 +3,7 @@ import { User, UserRole } from '../types';
 import { supabase } from '../supabase';
 import { ArrowLeft, Loader2, User as UserIcon, Building2, Calculator, Users, ChefHat, ShieldCheck, Check, Delete, X, Settings, LogOut, Minus, Layers } from 'lucide-react';
 import { activityLogService } from '../services/ActivityLogService';
+import { getImageUrl } from '../utils/getImageUrl';
 
 const CashRegisterIcon = ({ size = 24, strokeWidth = 1.5, className = "" }) => (
   <svg
@@ -69,11 +70,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
 
   const getDirectUrl = (url: string) => {
     if (!url) return '';
-    if (url.includes('drive.google.com')) {
-      const idMatch = url.match(/[-\w]{25,}/);
-      if (idMatch) return 'https://drive.google.com/uc?export=view&id=' + idMatch[0];
-    }
-    return url;
+    return getImageUrl(url);
   };
 
   useEffect(() => {

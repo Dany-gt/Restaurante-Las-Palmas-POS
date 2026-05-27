@@ -28,11 +28,18 @@ function toDirectUrl(url: string): string {
     return url;
 }
 
-/** Returns the best available URL for an image (local if cached, remote otherwise) */
 export function getImageUrl(remoteUrl: string | null | undefined): string {
     if (!remoteUrl) return '';
 
-    // Try Electron local cache first
+    const directUrl = toDirectUrl(remoteUrl);
+
+    // If running inside Electron, route through our custom protocol
+    // that downloads on the fly and caches locally
+    if (typeof window !== 'undefined' && ((window as any).electron || (window as any).electronAPI)) {
+        return `app-image:///${encodeURIComponent(directUrl)}`;
+    }
+
+    // Try Electron local cache first (legacy fallback just in case)
     try {
         const cacheRaw = localStorage.getItem(ELECTRON_CACHE_KEY);
         if (cacheRaw) {
@@ -44,7 +51,7 @@ export function getImageUrl(remoteUrl: string | null | undefined): string {
     }
 
     // Fallback: return direct remote URL
-    return toDirectUrl(remoteUrl);
+    return directUrl;
 }
 
 /** Clear the local image cache (useful after reinstall or when images change) */

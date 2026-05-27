@@ -491,13 +491,38 @@ ipcMain.handle('get-images-dir', () => {
 });
 
 app.whenReady().then(async () => {
-    // Register app-image:// protocol to serve files from userData/images/
-    protocol.registerFileProtocol('app-image', (request, callback) => {
+    // Register app-image:// protocol to serve files from userData/images/ and download on the fly
+    protocol.registerFileProtocol('app-image', async (request, callback) => {
         try {
             const imagesDir = path.join(app.getPath('userData'), 'images');
-            // URL format: app-image:///filename.jpg
-            const filename = decodeURIComponent(request.url.replace(/^app-image:\/+/, ''));
-            const filePath = path.join(imagesDir, path.basename(filename)); // basename for security
+            
+            // Allow full URL in the format: app-image:///<remote_url>
+            let remoteUrl = decodeURIComponent(request.url.replace(/^app-image:\/+/, ''));
+            
+            if (remoteUrl.startsWith('http')) {
+                // Keep it as is
+            } else if (remoteUrl.includes('supabase.co')) {
+                remoteUrl = 'https://' + remoteUrl;
+            } else {
+                // If it's just a filename (the old behavior), serve it
+                const filePath = path.join(imagesDir, path.basename(remoteUrl));
+                return callback({ path: filePath });
+            }
+
+            // Convert remoteUrl to filename
+            const hash = crypto.createHash('sha1').update(remoteUrl).digest('hex').slice(0, 16);
+            const ext = remoteUrl.split('?')[0].split('.').pop().toLowerCase();
+            const safeExt = ['jpg','jpeg','png','webp','gif','svg','avif'].includes(ext) ? ext : 'jpg';
+            const filename = `${hash}.${safeExt}`;
+            const filePath = path.join(imagesDir, filename);
+
+            if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir, { recursive: true });
+
+            if (!fs.existsSync(filePath) || fs.statSync(filePath).size === 0) {
+                // Download on the fly
+                await downloadFile(remoteUrl, filePath);
+            }
+            
             callback({ path: filePath });
         } catch (e) {
             console.error('[app-image protocol] Error:', e.message);
