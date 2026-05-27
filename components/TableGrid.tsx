@@ -19,6 +19,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
   const [offlineOccupied, setOfflineOccupied] = useState<Record<string, any>>({});
   const [now, setNow] = useState(Date.now());
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [maxOrdersLimit, setMaxOrdersLimit] = useState(0);
 
   React.useEffect(() => {
     const handleStatusChange = () => setIsOnline(navigator.onLine);
@@ -81,6 +82,14 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
           } catch (e) {
             console.warn("Online fetch failed, falling back to offline", e);
           }
+
+          try {
+            const { data: settings } = await supabase.from('system_settings').select('max_active_orders_per_waiter').eq('id', 1).single();
+            if (settings?.max_active_orders_per_waiter) {
+              setMaxOrdersLimit(settings.max_active_orders_per_waiter);
+              localStorage.setItem('cached_max_orders', settings.max_active_orders_per_waiter.toString());
+            }
+          } catch (e) { }
         }
 
         // 2. OFFLINE FALLBACK
@@ -95,6 +104,11 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
               const map = JSON.parse(cachedOrdersStr);
               fetchedOrders = Object.values(map);
             } catch (e) { }
+          }
+          
+          const cachedMaxOrders = localStorage.getItem('cached_max_orders');
+          if (cachedMaxOrders) {
+            setMaxOrdersLimit(parseInt(cachedMaxOrders) || 0);
           }
         }
 
@@ -277,7 +291,21 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
       onSelectTable(t, 1);
     }
     else {
-      // 3. IMMEDIATE LOCK: Take the table before even choosing pax
+      // 3. Check max active orders limit for NEW tables
+      const cachedUserStr = localStorage.getItem('currentUser');
+      if (cachedUserStr && maxOrdersLimit > 0) {
+        const user = JSON.parse(cachedUserStr);
+        // Only apply to CAJERO and MESERO
+        if (user.role === 'CAJERO' || user.role === 'MESERO') {
+          const myOrdersCount = Object.values(activeOrders).filter(o => o.waiter_id === user.id).length;
+          if (myOrdersCount >= maxOrdersLimit) {
+            alert(`⛔ LÍMITE ALCANZADO\n\nYa tienes ${myOrdersCount} órdenes activas (El máximo permitido es ${maxOrdersLimit}). No puedes abrir más mesas hasta cerrar las actuales.`);
+            return;
+          }
+        }
+      }
+
+      // 4. IMMEDIATE LOCK: Take the table before even choosing pax
       const cachedUserStr = localStorage.getItem('currentUser');
       if (cachedUserStr) {
         const user = JSON.parse(cachedUserStr);
