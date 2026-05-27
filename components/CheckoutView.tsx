@@ -29,7 +29,7 @@ interface CheckoutViewProps {
 export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, currentUser, settings, onBack, onComplete }) => {
     const [amount, setAmount] = useState('0');
     const [payments, setPayments] = useState<{ method: string, amount: number, processor?: string, customer_id?: string, customer_name?: string, notes?: string }[]>([]);
-    const [selectedMethod, setSelectedMethod] = useState('EFECTIVO');
+    const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [showPosSelector, setShowPosSelector] = useState(false);
     const [selectedTerminal, setSelectedTerminal] = useState<POSTerminal | null>(null);
@@ -1071,7 +1071,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         </div>
                         <div className="flex justify-between text-gray-400 text-sm font-black uppercase leading-tight">
                             <span>DESCUENTO</span>
-                            <span className={discount > 0 ? "text-emerald-400" : ""}>{currency}{discount.toFixed(2)}</span>
+                            <span className={discount > 0 ? "text-white" : ""}>{currency}{discount.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-gray-400 text-sm font-black uppercase leading-tight">
                             <div className="flex flex-col">
@@ -1318,10 +1318,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                                 setSelectedMethod(m.id);
                                             }
                                         }}
-                                        className={`flex-1 flex flex-col items-center justify-center gap-1 transition-all border-0 font-semibold tracking-wide transition-all duration-200 relative ${selectedMethod === m.id
-                                            ? 'bg-indigo-500/10 text-white'
-                                            : 'bg-[#262b36] text-gray-400 hover:bg-[#2d3340]'
-                                            }`}
+                                        className={`flex-1 flex flex-col items-center justify-center gap-1 transition-all border-0 font-semibold tracking-wide transition-all duration-200 relative bg-[#262b36] hover:bg-[#2d3340] ${selectedMethod === m.id ? 'text-white' : 'text-gray-400'}`}
                                         style={{ fontSize: '10px' }}
                                     >
                                         <m.icon size={18} className={selectedMethod === m.id ? "text-indigo-400" : "opacity-80"} />
@@ -1340,7 +1337,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     {/* PAGAR BUTTON */}
                     <button
                         onClick={handleFinalize}
-                        className="w-[291px] ml-4 h-16 rounded-none flex items-center justify-center text-lg font-black uppercase tracking-[0.2em]  transition-all active:scale-95 bg-blue-600 text-white hover:bg-blue-500 -500/20"
+                        className="w-[291px] ml-4 h-12 rounded-none flex items-center justify-center text-lg font-black uppercase tracking-[0.2em] transition-all active:scale-95 bg-blue-600 text-white hover:bg-blue-500"
                     >
                         {existingInvoice && totalPaid >= total ? 'FINALIZAR' : 'PAGAR'}
                     </button>

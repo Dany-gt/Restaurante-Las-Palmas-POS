@@ -58,9 +58,13 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                 handleContingency();
                 return;
             }
-            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+            if (e.key === 'Enter') {
                 e.preventDefault();
-                handleSubmit();
+                if (currentActiveInput === 'nit' && currentKeypadNit.length > 0) {
+                    handleNitLookup(currentKeypadNit);
+                } else {
+                    handleSubmit();
+                }
                 return;
             }
 
@@ -80,15 +84,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                     e.preventDefault();
                     if (currentKeypadNit.length > 0) {
                         setKeypadNit(prev => prev.slice(0, -1));
-                    } else {
-                        setCustomer(prev => ({ ...prev, nit: '' }));
                     }
-                    return;
-                }
-
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleNitLookup(currentKeypadNit);
                     return;
                 }
 
@@ -193,8 +189,6 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
         if (activeInput === 'nit') {
             if (keypadNit.length > 0) {
                 setKeypadNit(prev => prev.slice(0, -1));
-            } else {
-                setCustomer(prev => ({ ...prev, nit: '' }));
             }
         } else {
             if (isVerified && activeInput === 'name') return;
@@ -388,7 +382,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 onFocus={() => setActiveInput('nit')}
                                 onChange={handleChange}
                                 onKeyDown={(e) => e.key === 'Enter' && handleNitLookup(customer.nit)}
-                                className="flex-1 bg-transparent px-3 text-base font-medium text-white outline-none placeholder:text-gray-600 font-mono"
+                                className="flex-1 bg-transparent px-3 text-base font-medium text-white outline-none placeholder:text-gray-600 font-mono text-center tracking-widest caret-transparent"
                                 placeholder=""
                                 data-no-keyboard
                             />
@@ -414,7 +408,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 value={customer.name}
                                 onFocus={() => setActiveInput('name')}
                                 onChange={handleChange}
-                                className="flex-1 bg-transparent px-3 text-[10px] font-bold outline-none text-white placeholder:text-gray-600 tracking-tight"
+                                className="flex-1 bg-transparent px-3 text-[10px] font-bold outline-none text-white placeholder:text-gray-600 tracking-tight caret-transparent"
                                 placeholder="NOMBRE DEL CLIENTE"
                                 data-no-keyboard
                             />
@@ -430,7 +424,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 value={customer.address}
                                 onFocus={() => setActiveInput('address')}
                                 onChange={handleChange}
-                                className="flex-1 bg-transparent px-3 text-[10px] font-bold outline-none text-white placeholder:text-gray-600 tracking-tight"
+                                className="flex-1 bg-transparent px-3 text-[10px] font-bold outline-none text-white placeholder:text-gray-600 tracking-tight caret-transparent"
                                 placeholder="DIRECCIÓN"
                                 data-no-keyboard
                             />
@@ -446,7 +440,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 value={customer.phone}
                                 onFocus={() => setActiveInput('phone')}
                                 onChange={handleChange}
-                                className="flex-1 bg-transparent px-3 text-base font-medium text-white outline-none placeholder:text-gray-600"
+                                className="flex-1 bg-transparent px-3 text-base font-medium text-white outline-none placeholder:text-gray-600 caret-transparent"
                                 placeholder="TELÉFONO"
                                 data-no-keyboard
                             />

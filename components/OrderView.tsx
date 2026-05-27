@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getImageUrl } from '../utils/getImageUrl';
 import { DateUtils } from '../utils/DateUtils';
 import { Order, Table, Product, Category, OrderItem, User } from '../types';
-import { Bell, BellOff, ChevronLeft, ChevronRight, ArrowLeft, CornerUpLeft, Trash2, Printer, CheckCircle, Search, Plus, Minus, Info, Loader2, ShoppingCart as ShoppingCartIcon, CreditCard, FileText, Receipt, Ban, Users, Percent, Settings2, Utensils, Truck, Package, MapPin, Edit3, Banknote, Split, Image, ArrowRightLeft, Mic, MicOff, UserPlus, Grid, UsersRound, ChevronDown, LayoutGrid } from 'lucide-react';
+import { Bell, BellOff, ChevronLeft, ChevronRight, ArrowLeft, CornerUpLeft, Trash2, Printer, CheckCircle, Search, Plus, Minus, Info, Loader2, ShoppingCart as ShoppingCartIcon, CreditCard, FileText, FilePlus, Receipt, Ban, Users, Percent, Settings2, Utensils, Truck, Package, MapPin, Edit3, Banknote, Split, Image, ArrowRightLeft, Mic, MicOff, UserPlus, Grid, UsersRound, ChevronDown, LayoutGrid } from 'lucide-react';
 import { supabase } from '../supabase';
 import { printService, TicketData } from '../services/PrintService';
 import { billingService } from '../services/BillingService';
@@ -29,16 +29,16 @@ import { WindowsInputModal } from './WindowsInputModal';
 import { generateUUID } from '../utils/uuid';
 
 const PlaceholderLogo = () => (
-    <div className="flex flex-col items-center justify-center h-full w-full p-2">
+    <div className="flex flex-col items-center justify-center h-full w-full p-0 scale-100 sm:scale-110">
         <div className="flex items-baseline text-white leading-none">
-            <span className="text-2xl font-black">R</span>
-            <span className="text-xs font-black tracking-[0.1em] ml-[1px]">ESTAURANTE</span>
+            <span className="text-xl sm:text-2xl font-black">R</span>
+            <span className="text-[10px] sm:text-xs font-black tracking-[0.1em] ml-[1px]">ESTAURANTE</span>
         </div>
-        <span className="text-sm font-black tracking-tighter text-orange-500 uppercase leading-none mt-1 mb-1.5">LAS PALMAS</span>
-        <div className="flex items-center gap-2">
-            <div className="h-[2px] w-5 bg-orange-500/80"></div>
-            <span className="text-[10px] font-black text-white tracking-widest">POS</span>
-            <div className="h-[2px] w-5 bg-orange-500/80"></div>
+        <span className="text-xs sm:text-sm font-black tracking-tighter text-orange-500 uppercase leading-none mt-1 mb-1.5">LAS PALMAS</span>
+        <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="h-[2px] w-3 sm:w-5 bg-orange-500/80"></div>
+            <span className="text-[8px] sm:text-[10px] font-black text-white tracking-widest">POS</span>
+            <div className="h-[2px] w-3 sm:w-5 bg-orange-500/80"></div>
         </div>
     </div>
 );
@@ -62,7 +62,7 @@ const ProductCard = React.memo<{
         <button
             onClick={onClick}
             disabled={isChecking}
-            className={`rounded-t-none rounded-b-2xl p-2 flex flex-col items-center gap-1 border transition-all group active:scale-95 text-center overflow-hidden relative bg-[#3a3b4d] mx-auto w-full h-full aspect-[1/1.05] ${isChecking ? 'opacity-50 border-white/10 scale-[0.98]' : 'border-white/5'
+            className={`rounded-t-none rounded-b-2xl p-1.5 flex flex-col items-center gap-1 border transition-all group active:scale-95 text-center overflow-hidden relative bg-[#3a3b4d] mx-auto w-full h-full ${isChecking ? 'opacity-50 border-white/10 scale-[0.98]' : 'border-white/5'
                 }`}
         >
             {/* Checking/Loading Overlay */}
@@ -78,7 +78,7 @@ const ProductCard = React.memo<{
                 </div>
             )}
 
-            <div className="w-full flex-1 flex items-center justify-center rounded-lg overflow-hidden p-2 min-h-0">
+            <div className="w-full flex-1 flex items-center justify-center rounded-lg overflow-hidden p-0 min-h-0">
                 {product.image_url ? (
                     <img
                         src={getImageUrl(product.image_url)}
@@ -90,11 +90,13 @@ const ProductCard = React.memo<{
                 )}
             </div>
 
-            <div className="w-full flex flex-col items-center gap-0.5 mt-0.5 shrink-0">
-                <span className="text-[11px] sm:text-[12px] leading-tight font-black text-white line-clamp-2 uppercase tracking-wide min-h-[2.2rem] flex items-center justify-center px-1">
-                    {product.name}
-                </span>
-                <span className="text-white font-black text-[10px] tabular-nums tracking-widest">
+            <div className="w-full flex flex-col items-center justify-end shrink-0 gap-1 pb-1">
+                <div className="h-[2.5rem] flex items-center justify-center w-full px-1">
+                    <div className="text-[9.5px] sm:text-[10.5px] leading-snug font-black text-white line-clamp-2 uppercase tracking-wide text-center w-full" title={product.name}>
+                        {product.name}
+                    </div>
+                </div>
+                <span className="text-white font-black text-[11px] tabular-nums tracking-widest leading-none">
                     {currency}{((product as any).finalPrice ?? product.price).toFixed(2)}
                 </span>
             </div>
@@ -533,7 +535,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             const { data: isCustomizable, error } = await supabase.rpc('check_if_customizable', { p_id: item.product_id });
             if (!error && !isCustomizable) {
                 // "a los que no tengan ninguna de ellas el platillo no traigas la seccion"
-                return; 
+                return;
             }
         } catch (err) {
             console.error('Error checking customizability in handleEditItem:', err);
@@ -2502,8 +2504,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 </div>
 
                 {(selectedCat || selectedSubCat) && (
-                    <button 
-                        onClick={() => selectedSubCat ? setSelectedSubCat(null) : setSelectedCat(null)} 
+                    <button
+                        onClick={() => selectedSubCat ? setSelectedSubCat(null) : setSelectedCat(null)}
                         className={`w-[2.5cm] h-[1.3cm] flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-md text-emerald-400 hover:text-emerald-300 transition-colors absolute z-10 border border-white/5 ${isTablet ? 'right-[calc(280px+1rem)]' : 'right-[calc(10.5cm+1rem)]'}`}
                         title="Regresar al Menú"
                     >
@@ -2525,8 +2527,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     {/* Network Status Indicator */}
                     <div
                         className={`w-3 h-3 rounded-full ring-2 transition-all duration-500 ${isOnline
-                                ? 'bg-emerald-400 ring-emerald-400/30  -400/50'
-                                : 'bg-red-500 ring-red-500/30 animate-pulse  -500/50'
+                            ? 'bg-emerald-400 ring-emerald-400/30  -400/50'
+                            : 'bg-red-500 ring-red-500/30 animate-pulse  -500/50'
                             }`}
                         title={isOnline ? "En Línea" : "Sin Conexión al Servidor"}
                     />
@@ -2553,7 +2555,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         ) : (
                             <div className="bg-[#2d2e3d]">
                                 {!selectedCat && (
-                                    <div className="grid gap-3 sm:gap-4 w-full no-scrollbar content-start grid-cols-[repeat(auto-fill,minmax(130px,1fr))] auto-rows-[155px]">
+                                    <div className={`grid gap-3 sm:gap-4 w-full no-scrollbar content-start ${isTablet || isCaja ? 'grid-cols-4' : 'grid-cols-7'} auto-rows-[155px]`}>
                                         {(() => {
                                             const seen = new Set();
                                             return categories
@@ -2598,7 +2600,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </div>
                                 )}
                                 {selectedCat && !selectedSubCat && (
-                                    <div className="grid gap-3 sm:gap-4 w-full no-scrollbar content-start grid-cols-[repeat(auto-fill,minmax(130px,1fr))] auto-rows-[155px]">
+                                    <div className={`grid gap-3 sm:gap-4 w-full no-scrollbar content-start ${isTablet || isCaja ? 'grid-cols-4' : 'grid-cols-7'} auto-rows-[155px]`}>
                                         {categories
                                             .filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO')
                                             .sort((a, b) => {
@@ -2738,7 +2740,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </div>
                                 )}
                                 {selectedSubCat && (
-                                    <div className="grid gap-3 sm:gap-4 w-full no-scrollbar content-start grid-cols-[repeat(auto-fill,minmax(130px,1fr))] auto-rows-[155px]">
+                                    <div className={`grid gap-3 sm:gap-4 w-full no-scrollbar content-start ${isTablet || isCaja ? 'grid-cols-4' : 'grid-cols-7'} auto-rows-[155px]`}>
                                         {(() => {
                                             const relatedSubCatIds = categories
                                                 .filter(c => c.name?.toUpperCase() === selectedSubCat.name?.toUpperCase())
@@ -2945,7 +2947,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                     const endY = e.changedTouches[0].clientY;
                                                     const deltaX = endX - startX;
                                                     const deltaY = endY - startY;
-                                                    
+
                                                     // Swipe de Derecha a Izquierda para Eliminar
                                                     if (deltaX < -50 && Math.abs(deltaY) < 40) {
                                                         const canDelete = !item.is_sent || currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO';
@@ -2965,7 +2967,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                         setSwipedItem(null);
                                                         return;
                                                     }
-                                                    
+
                                                     if ((e.currentTarget as any).clickTimeout) {
                                                         clearTimeout((e.currentTarget as any).clickTimeout);
                                                         (e.currentTarget as any).clickTimeout = null;
@@ -2989,28 +2991,32 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 }}
                                                 className={`flex justify-between transition-all duration-300 border select-none relative cursor-pointer ${isTablet ? 'p-1.5' : 'p-3'} ${swipedItem?.id === item.id ? (swipedItem.action === 'delete' ? 'translate-x-[-80px]' : 'translate-x-[80px]') : 'translate-x-0'} ${selectedItemIds.has(item.id) ? 'border-gray-400 bg-gray-500/20' : 'border-white/5 bg-[#2a2d37]'}`}
                                             >
-                                            {/* Account Badge for Unified View */}
-                                            {!activeOrderId && (item as any).order_id && tableOrders.length > 1 && (
-                                                <span className="absolute top-1 right-1 px-1 bg-white/10 text-white/60 text-[8px] font-black rounded uppercase">C{itemOrderNum}</span>
-                                            )}
-                                            <div className="flex-1">
-                                                <div className="flex justify-between items-start">
-                                                    <div className="flex flex-col items-start gap-1">
-                                                        <span className={`font-bold text-gray-200 leading-tight ${isTablet ? 'text-[10px] truncate max-w-[150px]' : 'text-sm lg:text-xs'}`}>{item.product_name}</span>
-                                                        {item.is_sent && <ItemStatusBadge item={item} serverOffset={serverOffset} tick={tick} />}
-                                                        {((item.discount_percentage || 0) > 0 || (item.discount_amount || 0) > 0) && (
-                                                            <span className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mt-0.5">
-                                                                {item.discount_type === 'AMOUNT' ? `-Q${item.discount_amount?.toFixed(2)}` : `-${item.discount_percentage}%`} Desc.
+                                                {/* Account Badge for Unified View */}
+                                                {!activeOrderId && (item as any).order_id && tableOrders.length > 1 && (
+                                                    <span className="absolute top-1 right-1 px-1 bg-white/10 text-white/60 text-[8px] font-black rounded uppercase">C{itemOrderNum}</span>
+                                                )}
+                                                <div className="flex-1">
+                                                    <div className="flex justify-between items-start">
+                                                        <div className="flex flex-col items-start gap-1">
+                                                            <span className={`font-bold text-gray-200 leading-tight flex items-start gap-1.5 ${isTablet ? 'text-[10px] truncate max-w-[150px]' : 'text-sm lg:text-xs'}`}>
+                                                                <span className="text-white font-black">{item.quantity}</span>
+                                                                <span>{item.product_name}</span>
                                                             </span>
-                                                        )}
+                                                            {item.is_sent && <ItemStatusBadge item={item} serverOffset={serverOffset} tick={tick} />}
+                                                            {((item.discount_percentage || 0) > 0 || (item.discount_amount || 0) > 0) && (
+                                                                <span className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mt-0.5">
+                                                                    {item.discount_type === 'AMOUNT' ? `-Q${item.discount_amount?.toFixed(2)}` : `-${item.discount_percentage}%`} Desc.
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <span className={`font-bold tabular-nums text-white shrink-0 ml-1 ${isTablet ? 'text-[10px]' : 'text-sm lg:text-xs'}`}>{currency}{((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                                                     </div>
-                                                    <span className={`font-bold tabular-nums text-white shrink-0 ml-1 ${isTablet ? 'text-[10px]' : 'text-sm lg:text-xs'}`}>{currency}{((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
+                                                    {item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim() && (
+                                                        <div className={`flex items-center gap-1 ${isTablet ? 'mt-0.5' : 'mt-1.5 lg:mt-1'}`}>
+                                                            <span className={`text-gray-500 truncate ${isTablet ? 'text-[9px] max-w-[100px]' : 'text-xs lg:text-[10px] max-w-[150px]'}`}>{item.notes.replace('*NO IMPRIMIR*', '').trim()}</span>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <div className={`flex items-center gap-1 ${isTablet ? 'mt-0.5' : 'mt-1.5 lg:mt-1'}`}>
-                                                    <span className={`bg-white/10 text-white/60 px-1.5 py-0.5 rounded font-black ${isTablet ? 'text-[9px]' : 'text-xs lg:text-[10px]'}`}>x{item.quantity}</span>
-                                                    {item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim() && <span className={`text-gray-500 truncate ${isTablet ? 'text-[9px] max-w-[100px]' : 'text-xs lg:text-[10px] max-w-[150px]'}`}>{item.notes.replace('*NO IMPRIMIR*', '').trim()}</span>}
-                                                </div>
-                                            </div>
 
                                             </div>
                                         </div>
@@ -3020,7 +3026,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     </div>
 
                     <div className="bg-black/20 p-3 border-t border-white/5">
-                        <div className={`grid ${ (currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos')) ? 'grid-cols-5' : 'grid-cols-4' } gap-2 mb-4 h-12`}>
+                        <div className={`grid ${(currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos')) ? 'grid-cols-5' : 'grid-cols-4'} gap-2 mb-4 h-12`}>
                             <button onClick={handlePrintPreAccount} className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/60 transition-all active:scale-95 hover:bg-white/10">
                                 <Printer size={20} />
                             </button>
@@ -3040,34 +3046,44 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             <button onClick={() => setShowAccountsModal(true)} className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/60 transition-all active:scale-95 hover:bg-white/10">
                                 <Users size={20} />
                             </button>
-                            <button 
+                            <button
                                 onClick={() => {
-                                    selectedItemIds.forEach(id => {
-                                        const item = checkoutItems.find(i => i.id === id);
-                                        if (item && !item.is_sent) updateQty(item.id, -1);
-                                    });
+                                    if (selectedItemIds.size > 0) {
+                                        selectedItemIds.forEach(id => {
+                                            const item = checkoutItems.find(i => i.id === id);
+                                            if (item && !item.is_sent) updateQty(item.id, -1);
+                                        });
+                                    } else {
+                                        const unsentItems = checkoutItems.filter(i => !i.is_sent);
+                                        if (unsentItems.length > 0) {
+                                            updateQty(unsentItems[unsentItems.length - 1].id, -1);
+                                        }
+                                    }
                                 }}
-                                disabled={selectedItemIds.size === 0}
-                                className={`rounded-xl flex items-center justify-center transition-all active:scale-95 ${selectedItemIds.size > 0 ? 'bg-white/10 border border-white/20 text-white hover:bg-white/20' : 'bg-white/5 border border-white/5 text-white/20 opacity-50 cursor-not-allowed'}`}>
+                                className="rounded-xl flex items-center justify-center transition-all active:scale-95 bg-white/10 border border-white/20 text-white hover:bg-white/20">
                                 <Minus size={18} />
                             </button>
-                            <button 
+                            <button
                                 onClick={() => {
-                                    selectedItemIds.forEach(id => {
-                                        const item = checkoutItems.find(i => i.id === id);
-                                        if (item && !item.is_sent) updateQty(item.id, 1);
-                                    });
+                                    if (selectedItemIds.size > 0) {
+                                        selectedItemIds.forEach(id => {
+                                            const item = checkoutItems.find(i => i.id === id);
+                                            if (item && !item.is_sent) updateQty(item.id, 1);
+                                        });
+                                    } else {
+                                        const unsentItems = checkoutItems.filter(i => !i.is_sent);
+                                        if (unsentItems.length > 0) {
+                                            updateQty(unsentItems[unsentItems.length - 1].id, 1);
+                                        }
+                                    }
                                 }}
-                                disabled={selectedItemIds.size === 0}
-                                className={`rounded-xl flex items-center justify-center transition-all active:scale-95 ${selectedItemIds.size > 0 ? 'bg-white/10 border border-white/20 text-white hover:bg-white/20' : 'bg-white/5 border border-white/5 text-white/20 opacity-50 cursor-not-allowed'}`}>
+                                className="rounded-xl flex items-center justify-center transition-all active:scale-95 bg-white/10 border border-white/20 text-white hover:bg-white/20">
                                 <Plus size={18} />
                             </button>
                         </div>
 
-
-
-                        <div className="flex gap-3 h-20">
-                            <div className="flex-1 flex gap-2">
+                        <div className="bg-[#2a2d3a] rounded-xl p-2 flex items-center w-full border border-white/5 shadow-lg mt-1">
+                            <div className="flex-none">
                                 <button
                                     onClick={async () => {
                                         const unsentItems = checkoutItems.filter(i => !i.is_sent);
@@ -3112,91 +3128,104 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         }
                                     }}
                                     id="main-submit-btn"
-                                    className={`flex-1 rounded-xl flex flex-col items-center justify-center gap-1  active:scale-95 transition-all ${(checkoutItems.filter(i => !i.is_sent).length > 0)
-                                            ? 'bg-white text-black'
-                                            : 'bg-[#2b2f3a] border border-white/10 opacity-50 cursor-not-allowed text-white'
-                                        }`}
+                                    className="flex-shrink-0 min-w-[88px] w-[88px] h-[80px] rounded-lg flex flex-col items-center justify-center gap-1 active:scale-95 transition-all bg-[#6366f1] hover:bg-indigo-400 text-white shadow-md"
                                 >
-                                    <FileText size={20} />
-                                    <span className="text-[9px] font-black uppercase tracking-wider leading-none">
-                                        {checkoutItems.some(i => i.is_sent) ? 'ENVIAR' : 'CREAR'}
+                                    {checkoutItems.some(i => i.is_sent) ? (
+                                        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="mb-0.5 relative">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                            <line x1="9" y1="13" x2="15" y2="13"></line>
+                                            <line x1="9" y1="17" x2="12" y2="17"></line>
+                                            <circle cx="18" cy="18" r="5" fill="#6366f1" stroke="currentColor" strokeWidth="1.2" />
+                                            <svg x="14.5" y="14.5" width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                                                <path d="M3 3v5h5" />
+                                            </svg>
+                                        </svg>
+                                    ) : (
+                                        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="mb-0.5 relative">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                            <line x1="9" y1="13" x2="15" y2="13"></line>
+                                            <line x1="9" y1="17" x2="12" y2="17"></line>
+                                            <circle cx="18" cy="18" r="5" fill="#6366f1" stroke="currentColor" strokeWidth="1.2" />
+                                            <line x1="18" y1="15.5" x2="18" y2="20.5" stroke="currentColor" strokeWidth="1.2" />
+                                            <line x1="15.5" y1="18" x2="20.5" y2="18" stroke="currentColor" strokeWidth="1.2" />
+                                        </svg>
+                                    )}
+                                    <span className="text-[9px] font-bold tracking-wide leading-none text-center whitespace-nowrap w-full">
+                                        {checkoutItems.some(i => i.is_sent) ? 'Actualizar Orden' : 'Crear Orden'}
                                     </span>
                                 </button>
-                                {currentUser?.role?.toUpperCase() !== 'MESERO' && (
-                                    <button
-                                        onClick={async () => {
-                                            if (processing) return;
-
-                                            let finalOrderId = activeOrderId;
-                                            const unsentItems = checkoutItems.filter(i => !i.is_sent);
-
-                                            // Ensure any unsent items are saved to the database before checkout
-                                            if (unsentItems.length > 0 || (!activeOrderId && checkoutItems.length === 0)) {
-                                                finalOrderId = await handleOrderSubmission();
-                                                if (!finalOrderId) return;
-                                            }
-
-                                            // Identify the correct base order data (use current account if activeOrderId exists)
-                                            const currentOrderData = activeOrderId
-                                                ? (tableOrders.find(o => o.id === activeOrderId) || initialOrder)
-                                                : initialOrder;
-
-                                            const isAggregate = activeOrderId === null && tableOrders.length > 1;
-                                            const updatedOrder = !isAggregate ? {
-                                                ...currentOrderData,
-                                                id: finalOrderId || 'VIRTUAL',
-                                                customer_name: getOrderDisplayName(activeOrderId),
-                                                subtotal,
-                                                tax_amount: taxAmount,
-                                                tip_amount: tipAmount,
-                                                total: total + tipAmount,
-                                                items: checkoutItems.map(i => ({
-                                                    ...i,
-                                                    product_name: i.product_name,
-                                                    unit_price: (i as any).unit_price || i.price || 0,
-                                                    quantity: i.quantity,
-                                                    is_sent: true
-                                                }))
-                                            } : {
-                                                ...initialOrder,
-                                                id: 'VIRTUAL',
-                                                customer_name: 'TODAS LAS CUENTAS',
-                                                subtotal: subtotal,
-                                                tax_amount: taxAmount,
-                                                total: total + tipAmount,
-                                                items: checkoutItems.map(i => ({
-                                                    ...i,
-                                                    product_name: i.product_name,
-                                                    unit_price: (i as any).unit_price || i.price || 0,
-                                                    quantity: i.quantity,
-                                                    is_sent: true
-                                                }))
-                                            };
-                                            onCheckout?.(updatedOrder as any);
-                                        }}
-                                        disabled={checkoutItems.length === 0}
-                                        className="flex-1 bg-white/10 rounded-xl flex flex-col items-center justify-center gap-1  active:scale-95 transition-all text-white disabled:opacity-50 disabled:bg-gray-700"
-                                    >
-                                        <Banknote size={20} />
-                                        <span className="text-[9px] font-black uppercase tracking-wider leading-none">
-                                            COBRAR
-                                        </span>
-                                    </button>
-                                )}
                             </div>
 
-                            <div className="w-44 lg:w-40 flex flex-col justify-center space-y-1 text-right text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                            <div className="flex-1 flex flex-col justify-center space-y-2 text-left text-[12px] text-gray-200 pl-4 pr-3 font-medium">
                                 <div className="flex justify-between"><span>Sub-Total</span><span className="text-white">{currency}{(subtotal || 0).toFixed(2)}</span></div>
-                                {(totalSavings || 0) > 0 && (
-                                    <div className="flex justify-between text-white/50">
-                                        <span>Ahorro Total</span>
-                                        <span>-{currency}{(totalSavings || 0).toFixed(2)}</span>
-                                    </div>
-                                )}
+                                <div className="flex justify-between">
+                                    <span>Descuento</span>
+                                    <span className="text-white">{currency}{(totalSavings || 0).toFixed(2)}</span>
+                                </div>
                                 <div className="flex justify-between"><span>Propina</span><span className="text-white">{currency}{(tipAmount || 0).toFixed(2)}</span></div>
-                                <div className="border-t border-white/10 pt-1 mt-1 flex justify-between text-xs text-white font-black"><span>Total</span><span>{currency}{((total || 0) + (tipAmount || 0)).toFixed(2)}</span></div>
+                                <div className="border-t border-dashed border-white/20 pt-2 mt-1 flex justify-between text-[13px] text-white font-bold"><span>Total</span><span>{currency}{((total || 0) + (tipAmount || 0)).toFixed(2)}</span></div>
                             </div>
                         </div>
+
+                        {currentUser?.role?.toUpperCase() !== 'MESERO' && activeOrderId && (
+                            <button
+                                onClick={async () => {
+                                    if (processing) return;
+
+                                    let finalOrderId = activeOrderId;
+                                    const unsentItems = checkoutItems.filter(i => !i.is_sent);
+
+                                    if (unsentItems.length > 0 || (!activeOrderId && checkoutItems.length === 0)) {
+                                        finalOrderId = await handleOrderSubmission();
+                                        if (!finalOrderId) return;
+                                    }
+
+                                    const currentOrderData = activeOrderId
+                                        ? (tableOrders.find(o => o.id === activeOrderId) || initialOrder)
+                                        : initialOrder;
+
+                                    const isAggregate = activeOrderId === null && tableOrders.length > 1;
+                                    const updatedOrder = !isAggregate ? {
+                                        ...currentOrderData,
+                                        id: finalOrderId || 'VIRTUAL',
+                                        customer_name: getOrderDisplayName(activeOrderId),
+                                        subtotal,
+                                        tax_amount: taxAmount,
+                                        tip_amount: tipAmount,
+                                        total: total + tipAmount,
+                                        items: checkoutItems.map(i => ({
+                                            ...i,
+                                            product_name: i.product_name,
+                                            unit_price: (i as any).unit_price || i.price || 0,
+                                            quantity: i.quantity,
+                                            is_sent: true
+                                        }))
+                                    } : {
+                                        ...initialOrder,
+                                        id: 'VIRTUAL',
+                                        customer_name: 'TODAS LAS CUENTAS',
+                                        subtotal: subtotal,
+                                        tax_amount: taxAmount,
+                                        total: total + tipAmount,
+                                        items: checkoutItems.map(i => ({
+                                            ...i,
+                                            product_name: i.product_name,
+                                            unit_price: (i as any).unit_price || i.price || 0,
+                                            quantity: i.quantity,
+                                            is_sent: true
+                                        }))
+                                    };
+                                    onCheckout?.(updatedOrder as any);
+                                }}
+                                disabled={checkoutItems.length === 0}
+                                className="w-full bg-[#3b82f6] hover:bg-blue-400 text-white font-bold py-2.5 px-4 rounded-lg shadow-md active:scale-95 transition-all -mt-1"
+                            >
+                                Cobrar Cuenta
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -3525,12 +3554,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     onClose={() => setSingleItemToTransfer(null)}
                     tableOrders={tableOrders.filter(o => o.id !== (singleItemToTransfer as any)?.order_id)}
                     activeOrderId={activeOrderId}
-                    onSelectAccount={() => {}}
-                    onAddAccount={() => {}}
-                    onEditAccount={() => {}}
-                    onDeleteAccount={() => {}}
-                    onSplitAccount={() => {}}
-                    onPrintAccount={() => {}}
+                    onSelectAccount={() => { }}
+                    onAddAccount={() => { }}
+                    onEditAccount={() => { }}
+                    onDeleteAccount={() => { }}
+                    onSplitAccount={() => { }}
+                    onPrintAccount={() => { }}
                     initialOrder={initialOrder}
                     transferMode={true}
                     itemToTransferName={singleItemToTransfer?.product_name || 'Platillo'}
@@ -3541,11 +3570,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             setSingleItemToTransfer(null);
                             return;
                         }
-                        
+
                         try {
                             const { error } = await supabase.from('order_items').update({ order_id: targetOrderId }).eq('id', singleItemToTransfer.id);
                             if (error) throw error;
-                            
+
                             if (currentUser) {
                                 activityLogService.log({
                                     user: currentUser,
@@ -3560,7 +3589,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 });
                             }
                             notify.success('Platillo trasladado');
-                        } catch(e) {
+                        } catch (e) {
                             showAlert('Error al trasladar platillo');
                         }
                         setSingleItemToTransfer(null);
@@ -3630,7 +3659,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             onCancel={() => setCustomInput(null)}
                         />
                     )}
-                    
+
                     <TabletItemActionModal
                         isOpen={!!tabletItemActionModal}
                         onClose={() => setTabletItemActionModal(null)}
@@ -3660,11 +3689,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         onClose={() => setSingleItemToTransfer(null)}
                         tableOrders={tableOrders}
                         activeOrderId={activeOrderId}
-                        onSelectAccount={() => {}}
+                        onSelectAccount={() => { }}
                         onAddAccount={handleAddEmptyAccount}
                         onEditAccount={handleRenameAccount}
                         onDeleteAccount={handleDeleteEmptyAccount}
-                        onSplitAccount={() => {}}
+                        onSplitAccount={() => { }}
                         onPrintAccount={(id) => {
                             if (id !== activeOrderId) {
                                 setActiveOrderId(id);
@@ -3682,11 +3711,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 setSingleItemToTransfer(null);
                                 return;
                             }
-                            
+
                             try {
                                 const { error } = await supabase.from('order_items').update({ order_id: targetOrderId }).eq('id', singleItemToTransfer.id);
                                 if (error) throw error;
-                                
+
                                 if (currentUser) {
                                     activityLogService.log({
                                         user: currentUser,
@@ -3701,7 +3730,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     });
                                 }
                                 notify.success('Platillo trasladado');
-                            } catch(e) {
+                            } catch (e) {
                                 showAlert('Error al trasladar platillo');
                             }
                             setSingleItemToTransfer(null);

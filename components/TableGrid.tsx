@@ -386,7 +386,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
             </div>
           )
         ) : (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,200px))] gap-4 sm:gap-6 lg:gap-8 mesas-grid justify-center w-full max-w-7xl mx-auto">
+          <div className="flex flex-wrap justify-center content-start gap-4 sm:gap-6 lg:gap-8 w-full max-w-7xl mx-auto mt-2 pb-10">
             {filtered.map(t => {
               const access = checkAccess(t);
               // Calculate effective status based on live orders AND offline-saved orders
@@ -398,32 +398,38 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
                   key={t.id}
                   onClick={() => handleClick(t)}
                   disabled={!access.allowed && (isOccupied || (t.locked_by && !access.allowed))}
-                  className={`relative w-full aspect-square max-w-[200px] min-h-[130px] rounded-2xl bg-[#23242f] border border-white/5 p-3 py-4 flex flex-col items-center justify-between active:scale-95 group shadow-xl mesa-card ${(!access.allowed && (isOccupied || t.locked_by)) ? '!cursor-not-allowed opacity-50 grayscale hover:bg-[#23242f]' : ''}`}
+                  className={`relative w-[130px] h-[105px] sm:w-[150px] sm:h-[115px] lg:w-[170px] lg:h-[125px] rounded-xl bg-[#3a3b4d] border border-white/10 flex flex-col items-center justify-between overflow-hidden active:scale-95 group shadow-lg transition-all ${(!access.allowed && (isOccupied || t.locked_by)) ? '!cursor-not-allowed opacity-50 grayscale' : ''}`}
                 >
                   {(!access.allowed && (isOccupied || t.locked_by)) && (
-                    <div className="absolute top-3 right-3 text-rose-500 animate-pulse">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                    <div className="absolute top-2 right-2 text-rose-500 animate-pulse">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
                     </div>
                   )}
                   {/* Badge: Pendiente de sincronizar (Offline) */}
                   {isOfflineOnly && (
-                    <div className="absolute top-2 left-2 flex items-center gap-0.5 bg-amber-500/20 border border-amber-500/40 rounded-full px-1 py-0.5" title="Orden guardada sin internet - pendiente de sincronizar">
-                      <span className="text-[6px] sm:text-[7px] font-black text-amber-400 uppercase tracking-widest">Local</span>
+                    <div className="absolute top-2 left-2 flex items-center gap-0.5 bg-amber-500/20 border border-amber-500/40 rounded-full px-1.5 py-0.5" title="Orden guardada sin internet - pendiente de sincronizar">
+                      <span className="text-[7px] font-black text-amber-400 uppercase tracking-widest">Local</span>
                     </div>
                   )}
-                  <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mt-1">{t.number}</span>
-                  <span className="text-[10px] sm:text-[11px] lg:text-[12px] font-bold text-gray-400 uppercase tracking-[0.12em] sm:tracking-[0.15em] text-center w-full truncate">
-                    {isOccupied ? 'Ocupada' : t.locked_by ? 'Reservada' : 'Disponible'}
-                  </span>
-                  <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 lg:w-3 lg:h-3 rounded-full mb-1 ${
-                    isOfflineOnly
-                      ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)] animate-pulse'
-                      : isOccupied
-                        ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'
-                        : t.locked_by
-                          ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)] animate-pulse'
-                          : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
-                  }`} />
+                  
+                  <div className="flex-1 flex items-center justify-center w-full">
+                    <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-white">{t.number}</span>
+                  </div>
+
+                  <div className="w-full h-[38%] border-t border-white/5 flex flex-col items-center justify-center gap-1.5 pb-1">
+                    <span className="text-[11px] sm:text-[12px] font-semibold text-gray-300 capitalize tracking-wide text-center w-full truncate">
+                      {isOccupied ? 'Ocupada' : t.locked_by ? 'Reservada' : 'Disponible'}
+                    </span>
+                    <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${
+                      isOfflineOnly
+                        ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)] animate-pulse'
+                        : isOccupied
+                          ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'
+                          : t.locked_by
+                            ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)] animate-pulse'
+                            : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
+                    }`} />
+                  </div>
                 </button>
               )
             })}
