@@ -33,3 +33,17 @@ out/
 .capacitor/
 android/app/build/
 ios/App/App/build/
+
+# ⚠️ SEGURIDAD - Archivos con claves y datos sensibles
+.env
+.env.local
+.env.*.local
+.env.production
+scratch/
+scratch backup*/
+tmp/
+archivos_temporales/
+scripts/inspect_schema.js
+scripts/db_precision_fix.js
+scripts/refine_audit_idp.js
+scripts/list_models.js

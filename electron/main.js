@@ -6,6 +6,13 @@ const https = require('https');
 const http = require('http');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const { autoUpdater } = require('electron-updater');
+const log = require('electron-log');
+const { dialog } = require('electron');
+
+// Configuración del log de actualizaciones (crea un archivo de log para diagnosticar errores)
+log.transports.file.level = "info";
+autoUpdater.logger = log;
 
 let mainWindow = null;
 
@@ -532,6 +539,25 @@ app.whenReady().then(async () => {
 
     try { await session.defaultSession.clearCache(); } catch (e) { }
     createMainWindow();
+
+    // Iniciar búsqueda de actualizaciones si estamos en producción (instalados)
+    if (!isDev) {
+        autoUpdater.checkForUpdatesAndNotify();
+    }
+});
+
+// Escuchar cuando la actualización está lista para ser instalada
+autoUpdater.on('update-downloaded', (info) => {
+    dialog.showMessageBox({
+        type: 'info',
+        title: 'Actualización Disponible',
+        message: 'Se ha descargado una nueva versión del POS. ¿Deseas reiniciar para instalarla ahora?',
+        buttons: ['Reiniciar e Instalar', 'Más tarde']
+    }).then((result) => {
+        if (result.response === 0) {
+            autoUpdater.quitAndInstall();
+        }
+    });
 });
 
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
