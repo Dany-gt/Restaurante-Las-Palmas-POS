@@ -23,6 +23,7 @@ import { useDataSync } from './hooks/useDataSync';
 import { initAudio } from './utils/sound';
 import { NotificationContainer } from './components/NotificationContainer';
 import { getSecureSoundUrl } from './utils/supabaseUtils';
+import { AppUpdater } from './components/AppUpdater';
 
 // Static Imports for Critical Path Stability
 import { DashboardMain as Dashboard } from './components/DashboardMain';
@@ -1271,6 +1272,7 @@ const App: React.FC = () => {
     <div className={`h-[100dvh] overflow-hidden text-white flex flex-col transition-colors pos-main-layout ${currentView === 'LOGIN' && !!(window as any).electronAPI ? 'bg-transparent' : 'bg-[#2d2e3d]'}`} style={{ WebkitOverflowScrolling: 'touch' }}>
       <ConnectionBanner />
       <NotificationContainer />
+      <AppUpdater />
       <RemotePrintListener />
       {currentView === 'DRIVER_TRACKER' ? (
         <DriverTracker />

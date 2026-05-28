@@ -546,8 +546,17 @@ app.whenReady().then(async () => {
     }
 });
 
-// Escuchar cuando la actualización está lista para ser instalada
+// Auto Updater Events
+autoUpdater.on('update-available', (info) => {
+    if (mainWindow) mainWindow.webContents.send('update-available', info);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+    if (mainWindow) mainWindow.webContents.send('update-progress', progressObj);
+});
+
 autoUpdater.on('update-downloaded', (info) => {
+    if (mainWindow) mainWindow.webContents.send('update-downloaded', info);
     dialog.showMessageBox({
         type: 'info',
         title: 'Actualización Disponible',
@@ -558,6 +567,24 @@ autoUpdater.on('update-downloaded', (info) => {
             autoUpdater.quitAndInstall();
         }
     });
+});
+
+autoUpdater.on('error', (err) => {
+    log.error('Error in auto-updater.', err);
+    if (mainWindow) mainWindow.webContents.send('update-error', err.message);
+});
+
+ipcMain.handle('check-updates', async () => {
+    if (!isDev) {
+        try {
+            await autoUpdater.checkForUpdatesAndNotify();
+            return { success: true };
+        } catch (error) {
+            log.error('Manual update check failed:', error);
+            return { success: false, error: error.message };
+        }
+    }
+    return { success: false, error: 'Cannot check for updates in development mode.' };
 });
 
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });

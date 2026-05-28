@@ -28,11 +28,16 @@ const api = {
     // PDF
     generatePdf: (html, name) => ipcRenderer.invoke('generate-pdf', { html, name }),
 
-    // ── Image Filesystem Cache (Electron-native) ────────────────────────────
-    // Downloads images to userData/images/ and returns { originalUrl -> app-image:///file.jpg }
+    // Image Cache
     downloadImages: (imageList) => ipcRenderer.invoke('download-images', imageList),
-    // Returns the path of the local images folder (for display/debugging)
     getImagesDir: () => ipcRenderer.invoke('get-images-dir'),
+
+    // Auto Updater
+    checkForUpdates: () => ipcRenderer.invoke('check-updates'),
+    onUpdateAvailable: (callback) => ipcRenderer.on('update-available', callback),
+    onUpdateProgress: (callback) => ipcRenderer.on('update-progress', callback),
+    onUpdateDownloaded: (callback) => ipcRenderer.on('update-downloaded', callback),
+    onUpdateError: (callback) => ipcRenderer.on('update-error', callback),
 };
 
 // Expose with both names for total backwards compatibility
