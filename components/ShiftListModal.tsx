@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Printer, Mail } from 'lucide-react';
 import { supabase } from '../supabase';
 import { printService } from '../services/PrintService';
+import { reportTemplates } from '../services/ReportTemplates';
 
 interface Shift {
     id: string;
@@ -185,7 +186,8 @@ export const ShiftListModal: React.FC<ShiftListModalProps> = ({ isOpen, onClose 
                 abonosByMethod: [],
                 posCardDetail: [],
                 expenses: expenses || [],
-            };
+                orders: []
+            } as any; // Cast as any temporarily to avoid deep typing issues with the orders field
 
             return reportData;
         } catch (error) {
@@ -241,57 +243,41 @@ export const ShiftListModal: React.FC<ShiftListModalProps> = ({ isOpen, onClose 
 
             const reportData = await getShiftReportData(shift);
 
+            // Fetch posCardDetail for Tarjetas report
+            const { data: posPayments } = await supabase
+                .from('orders')
+                .select('payment_method, total, tip_amount, pos_terminals(name)')
+                .eq('shift_id', shift.id)
+                .eq('status', 'completed')
+                .eq('payment_method', 'TARJETA');
+            
+            if (posPayments && posPayments.length > 0) {
+                const posGroups: Record<string, number> = {};
+                posPayments.forEach(p => {
+                    const posName = (p.pos_terminals as any)?.name || 'POS General';
+                    const amount = Number(p.total || 0); // Include tips if they were charged to card, but in POS total is usually grand total
+                    posGroups[posName] = (posGroups[posName] || 0) + amount;
+                });
+                reportData.posCardDetail = Object.entries(posGroups).map(([name, total]) => ({ name, total }));
+            }
+
             // Format email content
-            const emailSubject = `Reporte de Cierre - ${shift.profiles?.name} - ${formatDate(shift.end_time)}`;
+            const emailSubject = `Reporte de Cierre - ${shift.cash_registers?.name || 'Caja'} - ${shift.profiles?.name} - ${formatDate(shift.end_time || new Date().toISOString())}`;
             const emailBody = `
 REPORTE DE CIERRE DE TURNO
 ${settings.restaurant_name || 'RESTAURANTE'}
 ═══════════════════════════════════════
+Adjunto a este correo encontrará los reportes en formato PDF correspondientes al turno:
 
-INFORMACIÓN DEL TURNO
-─────────────────────────────────────
 Caja: ${shift.cash_registers?.name || 'Sin nombre'}
 Cajero: ${shift.profiles?.name || 'Sin nombre'}
 Apertura: ${formatDateTime(shift.start_time)}
-Cierre: ${formatDateTime(shift.end_time)}
+Cierre: ${formatDateTime(shift.end_time || new Date().toISOString())}
 
-ESTADÍSTICAS
-─────────────────────────────────────
-Órdenes Atendidas: ${reportData.stats.ordersAttended}
-Órdenes Anuladas: ${reportData.stats.cancelledOrders}
-Comensales: ${reportData.stats.commensals}
-Órdenes Abiertas: ${reportData.stats.openOrders}
-
-VENTAS POR MÉTODO DE PAGO
-─────────────────────────────────────
-${reportData.salesByMethod.map(s => `${s.method}: Q${s.amount.toFixed(2)}`).join('\n')}
-─────────────────────────────────────
-TOTAL VENTAS: Q${reportData.salesTotal.toFixed(2)}
-
-PROPINAS
-─────────────────────────────────────
-${reportData.tipsByMethod.length > 0
-                    ? reportData.tipsByMethod.map(t => `${t.method}: Q${t.amount.toFixed(2)}`).join('\n')
-                    : 'Sin propinas'}
-─────────────────────────────────────
-TOTAL PROPINAS: Q${reportData.tipsByMethod.reduce((acc, t) => acc + t.amount, 0).toFixed(2)}
-
-VENTAS POR CANAL
-─────────────────────────────────────
-${reportData.salesByChannel.map(c => `${c.channel}: Q${c.amount.toFixed(2)}`).join('\n')}
-
-CUADRE DE EFECTIVO
-─────────────────────────────────────
-(+) Inicial: Q${reportData.cashDetail.initial.toFixed(2)}
-(+) Ventas: Q${reportData.cashDetail.sales.toFixed(2)}
-(+) Propinas: Q${reportData.cashDetail.tips.toFixed(2)}
-(-) Gastos: Q${reportData.cashDetail.expenses.toFixed(2)}
-─────────────────────────────────────
-ESPERADO: Q${reportData.expectedCash.toFixed(2)}
-CONTADO: Q${reportData.countedCash.toFixed(2)}
-DIFERENCIA: Q${reportData.difference.toFixed(2)} ${reportData.difference === 0 ? '✓ CUADRADO' : (reportData.difference > 0 ? '(SOBRANTE)' : '(FALTANTE)')}
-
-${reportData.notes ? `\nNOTAS DE CIERRE:\n${reportData.notes}` : ''}
+Documentos adjuntos:
+1. Cierre_Caja.pdf
+2. Cuadre_Tarjetas.pdf
+3. Resumen_Gastos.pdf
 
 ═══════════════════════════════════════
 Generado: ${new Date().toLocaleString('es-GT')}
@@ -304,10 +290,41 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 return;
             }
 
+            // Generate PDFs
+            const css = `
+                body { font-family: 'Courier New', Courier, monospace; width: 80mm; margin: 0 auto; color: #000; background: #fff; font-size: 12px; } 
+                .header { text-align: center; margin-bottom: 10px; } 
+                .logo-text { font-size: 16px; font-weight: bold; }
+                .title { text-align: center; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 5px 0; margin: 10px 0; font-weight: bold; } 
+                .row { display: flex; justify-content: space-between; margin-bottom: 3px; } 
+                .divider { border-top: 1px dashed #000; margin: 8px 0; }
+                .bold { font-weight: bold; }
+                .section-title { font-weight: bold; margin-top: 10px; margin-bottom: 5px; text-decoration: underline; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th, td { text-align: left; padding: 4px 0; border-bottom: 1px dotted #ccc; }
+                th.text-right, td.text-right { text-align: right; }
+                .total-row { font-weight: bold; font-size: 14px; margin-top: 10px; border-top: 1px solid #000; padding-top: 5px; }
+                .footer-info { text-align: center; margin-top: 20px; font-size: 10px; }
+            `;
+
+            const generatePdf = async (html: string, name: string) => {
+                const fullHtml = reportTemplates.wrap(html, css);
+                const result = await electron.generatePdf(fullHtml, name);
+                return { filename: `${name}.pdf`, content: result.data };
+            };
+
+            const attachments = [
+                await generatePdf(reportTemplates.generateCierreCaja(reportData), 'Cierre_Caja'),
+                await generatePdf(reportTemplates.generateCuadreTarjetas(reportData), 'Cuadre_Tarjetas'),
+                await generatePdf(reportTemplates.generateGastos(reportData), 'Resumen_Gastos')
+            ];
+
             const response = await electron.sendEmail({
                 to: settings.cashier_emails,
                 subject: emailSubject,
                 body: emailBody,
+                isHtml: false, // Sent as plain text with attachments
+                attachments: attachments,
                 smtpConfig: {
                     host: settings.smtp_host,
                     port: settings.smtp_port ? parseInt(settings.smtp_port) : 465,

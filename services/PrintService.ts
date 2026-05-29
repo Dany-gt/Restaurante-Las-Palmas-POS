@@ -532,67 +532,71 @@ class PrintService {
     if (!this.settings) await this.loadSettings();
 
     const content = `
-      <div class="thick-divider"></div>
-      
-      <div class="info-grid">
-        <div class="info-line"><span>FECHA:</span> ${new Date(data.createdAt).toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'short' })}</div>
-        <div class="info-line" style="text-align: right;"><span>ORDEN:</span> #${data.orderNumber || '---'}</div>
+      <div class="info-grid" style="margin-top: 5px;">
+        <div class="info-line"><span style="font-weight: normal;">Fecha:</span> ${new Date(data.createdAt).toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'medium' })}</div>
+        <div class="info-line" style="text-align: right;"><span style="font-weight: normal;">Orden:</span> ${data.orderNumber || '---'}</div>
         
-        <div class="info-line"><span>SECC:</span> ${data.tableName || '---'}</div>
-        <div class="info-line" style="text-align: right;"><span>MESA:</span> ${data.tableNumber || '---'}</div>
+        <div class="info-line"><span style="font-weight: normal;">Sección:</span> ${data.tableName || '---'}</div>
+        <div class="info-line" style="text-align: right;"><span style="font-weight: normal;">Mesa:</span> ${data.tableNumber || '---'}</div>
         
-        <div class="info-line" style="grid-column: span 2;"><span>MESERO:</span> ${data.waiterName || '---'}</div>
-        <div class="info-line" style="grid-column: span 2;"><span>CUENTA:</span> ${data.customerName?.toUpperCase() === 'TODAS LAS CUENTAS' ? 'CUENTA COMPLETA' : (data.customerName || 'Cuenta 1')}</div>
+        <div class="info-line" style="grid-column: span 2;"><span style="font-weight: normal;">Atendió:</span> ${data.waiterName || '---'}</div>
+        <div class="info-line" style="grid-column: span 2;"><span style="font-weight: normal;">Cuenta:</span> ${data.customerName?.toUpperCase() === 'TODAS LAS CUENTAS' ? 'Cuenta Completa' : (data.customerName || 'Cuenta 1')}</div>
       </div>
 
-      <div class="divider"></div>
-
-      <table>
-        <tr class="item-row" style="font-weight:bold; border-bottom:1px solid #000;">
-          <td class="col-qty qty">CANT.</td>
-          <td class="col-desc description">DESCRIPCIÓN</td>
-          <td class="col-price price">TOTAL</td>
+      <table style="margin-top: 10px;">
+        <tr class="item-row" style="font-weight:bold; border-bottom:1px dashed #000;">
+          <td class="col-qty qty" style="padding-bottom: 4px;">Cant.</td>
+          <td class="col-desc description" style="padding-bottom: 4px; text-align: center;">Descripción</td>
+          <td class="col-price price" style="padding-bottom: 4px;">Total</td>
         </tr>
         ${data.items.map(item => `
           <tr class="item-row">
-            <td class="col-qty qty">${item.quantity}</td>
-            <td class="col-desc">
+            <td class="col-qty qty" style="text-align: center; font-weight: normal;">${item.quantity}</td>
+            <td class="col-desc" style="font-weight: normal;">
               <div class="description">${item.name.toUpperCase()}</div>
-              ${(item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim()) ? `<div class="note">(${item.notes.replace('*NO IMPRIMIR*', '').trim()})</div>` : ''}
+              ${(item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim()) ? `<div class="note" style="font-weight: normal;">${item.notes.replace('*NO IMPRIMIR*', '').trim()}</div>` : ''}
             </td>
-            <td class="col-price price">Q${((item.price || 0) * item.quantity).toFixed(2)}</td>
+            <td class="col-price price" style="font-weight: normal;">Q${((item.price || 0) * item.quantity).toFixed(2)}</td>
           </tr>
         `).join('')}
       </table>
 
-      <div class="divider"></div>
+      <div class="dotted-divider"></div>
 
-      <div class="totals-container">
-        <div class="total-line"><span class="total-label">SUB-TOTAL:</span> <span class="total-value">Q${(data.subtotal || 0).toFixed(2)}</span></div>
-        <div class="total-line"><span class="total-label">PROPINA:</span> <span class="total-value">Q${(data.tipAmount || 0).toFixed(2)}</span></div>
-        <div class="total-line grand-total">
-          <span class="total-label">TOTAL:</span> <span class="total-value">Q${(data.total || 0).toFixed(2)}</span>
+      <div class="totals-container" style="width: 100%; text-align: right; font-weight: normal;">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 2px;">
+          <span style="margin-right: 15px;">Sub-Total:</span> <span>Q${(data.subtotal || 0).toFixed(2)}</span>
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 2px;">
+          <span style="margin-right: 15px;">Otros:</span> <span>Q0.00</span>
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 2px;">
+          <span style="margin-right: 15px;">Propina:</span> <span>Q${(data.tipAmount || 0).toFixed(2)}</span>
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 5px; font-weight: bold; font-size: 13px;">
+          <span style="margin-right: 15px;">Total:</span> <span>Q${(data.total || 0).toFixed(2)}</span>
         </div>
       </div>
 
-      <div class="divider"></div>
+      <div class="dotted-divider"></div>
 
-      <div style="margin-top: 5px;">
-        <div style="font-weight: bold; font-size: 11px;">NIT:</div>
-        <div class="data-box" style="height: 25px; border: 1px solid #000;"></div>
+      <div style="display: flex; align-items: center; margin-top: 8px;">
+        <span style="font-weight: normal; margin-right: 5px;">Nit:</span>
+        <div style="flex-grow: 1; border: 1px solid #000; height: 20px;"></div>
       </div>
 
-      <div style="margin-top: 5px;">
-        <div style="font-weight: bold; font-size: 11px;">NOMBRE:</div>
-        <div class="data-box" style="height: 40px; border: 1px solid #000;"></div>
+      <div style="margin-top: 8px;">
+        <div style="font-weight: normal; margin-bottom: 2px;">Nombre / Dirección</div>
+        <div style="border: 1px solid #000; height: 40px;"></div>
       </div>
 
       <div style="text-align:center; font-size:11px; margin-top:20px; font-weight:bold;">
-        *** DOCUMENTO SIN VALOR LEGAL ***
+        *** Esto no es un documento contable. ***
       </div>
     `;
 
-    await this.executePrint('PRE-CUENTA', (pw) => this.generateTicketHTML('PRE-CUENTA', content, 'Gracias por su preferencia.', pw), {
+    // Pasamos un string vacío en el título para que no se genere la caja gruesa ni el título de "PRE-CUENTA", dejando solo el "dotted-divider" superior original.
+    await this.executePrint('', (pw) => this.generateTicketHTML('', content, 'Gracias por preferirnos.', pw), {
       silent: options?.silent ?? true,
       openDrawer: options?.openDrawer ?? false
     });
@@ -1033,10 +1037,10 @@ class PrintService {
 
   // ─── EXPENSES SUMMARY TICKET (SHIFT CLOSURE) ────────────────────
 
-  async printExpensesSummary(data: any): Promise<void> {
+  async printExpensesSummary(data: any, returnHtml: boolean = false): Promise<void | string> {
     if (!this.settings) await this.loadSettings();
     const expenses = data.expenses || [];
-    if (expenses.length === 0) return;
+    if (expenses.length === 0) return returnHtml ? '' : undefined;
 
     const fmt = (val: number) => 'Q' + Number(val || 0).toFixed(2);
     const dateStr = (d: string) => { try { return new Date(d).toLocaleString('es-GT', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return d; } };
@@ -1093,12 +1097,13 @@ class PrintService {
       </div>
     `;
 
+    if (returnHtml) return this.generateTicketHTML('RESUMEN DE GASTOS', content, 'RESUMEN DE GASTOS', '80mm');
     await this.executePrint('RESUMEN DE GASTOS', (pw) => this.generateTicketHTML('RESUMEN DE GASTOS', content, 'RESUMEN DE GASTOS', pw, false), { silent: true });
   }
 
   // ─── POS CARD RECONCILIATION REPORT ───────────────────────────────
 
-  async printPOSTarjetasReport(data: any): Promise<void> {
+  async printPOSTarjetasReport(data: any, returnHtml: boolean = false): Promise<void | string> {
     if (!this.settings) await this.loadSettings();
     const fmt = (val: number) => 'Q' + Number(val || 0).toFixed(2);
     const dateStr = (d: string) => { try { return new Date(d).toLocaleString('es-GT', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return d; } };
@@ -1136,12 +1141,13 @@ class PrintService {
       </div>
     `;
 
+    if (returnHtml) return this.generateTicketHTML('Cuadre POS Tarjetas', content, undefined, '80mm');
     await this.executePrint('CUADRE POS TARJETAS', (pw) => this.generateTicketHTML('Cuadre POS Tarjetas', content, undefined, pw), { silent: true, openDrawer: false });
   }
 
   // ─── Z REPORT ─────────────────────────────────────────────────────
 
-  async printZReport(data: any): Promise<void> {
+  async printZReport(data: any, returnHtml: boolean = false): Promise<void | string> {
     if (!this.settings) await this.loadSettings();
     const fmt = (val: number) => 'Q' + Number(val || 0).toFixed(2);
     const dateStr = (d: string) => { try { return new Date(d).toLocaleString('es-GT', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return d; } };
@@ -1349,6 +1355,7 @@ class PrintService {
       <div style="margin-top:40px;border-top:1px solid #000;text-align:center;font-size:11px;">FIRMA CAJERO: ${data.cashierName}</div>
       ${data.notes ? '<div style="margin-top:20px;border-top:1px dashed #000;padding-top:5px;"><strong>OBSERVACIONES:</strong><br>' + data.notes + '</div>' : ''}
     `;
+    if (returnHtml) return this.generateTicketHTML('CIERRE DE CAJA', content, undefined, '80mm');
     await this.executePrint('CIERRE DE CAJA', (pw) => this.generateTicketHTML('CIERRE DE CAJA', content, undefined, pw), { silent: true, openDrawer: true });
   }
 
