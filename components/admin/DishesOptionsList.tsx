@@ -132,7 +132,14 @@ export const DishesOptionsList: React.FC = () => {
     };
 
     const handleSave = async () => {
-        if (!form.item_name || !form.option_group_id) return;
+        if (!form.item_name) {
+            notify.alert('El nombre de la opción es requerido.');
+            return;
+        }
+        if (!form.option_group_id) {
+            notify.alert('Debe seleccionar un grupo.');
+            return;
+        }
         setSaving(true);
         const payload = {
             item_name: form.item_name.toUpperCase(),
@@ -408,6 +415,19 @@ export const DishesOptionsList: React.FC = () => {
                                                         onChange={e => setForm({ ...form, display_name: e.target.value })}
                                                         className="flex-1 h-6 border border-gray-300 px-2 text-[11px] font-normal text-black uppercase outline-none focus:border-[#106ebe]"
                                                     />
+                                                </div>
+                                                <div className="flex items-center gap-4">
+                                                    <label className="w-20 text-[10px] font-bold text-slate-500">Grupo</label>
+                                                    <select
+                                                        value={form.option_group_id}
+                                                        onChange={e => setForm({ ...form, option_group_id: e.target.value })}
+                                                        className="flex-1 h-6 border border-gray-300 px-2 text-[11px] font-normal text-black uppercase outline-none focus:border-[#106ebe]"
+                                                    >
+                                                        <option value="">SELECCIONE UN GRUPO</option>
+                                                        {optionGroups.map(g => (
+                                                            <option key={g.id} value={g.id}>{g.name}</option>
+                                                        ))}
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
