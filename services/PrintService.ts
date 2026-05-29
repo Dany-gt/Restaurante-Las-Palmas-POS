@@ -532,7 +532,7 @@ class PrintService {
     if (!this.settings) await this.loadSettings();
 
     const content = `
-      <div class="info-grid" style="margin-top: 5px; margin-bottom: 10px;">
+      <div class="info-grid" style="grid-template-columns: 65% 35%; margin-top: 5px; margin-bottom: 10px;">
         <div class="info-line"><span>Fecha:</span> ${new Date(data.createdAt).toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'medium' })}</div>
         <div class="info-line"><span>Orden:</span> ${data.orderNumber || '---'}</div>
         
@@ -590,7 +590,7 @@ class PrintService {
         <div style="border: 1px solid #000; height: 40px;"></div>
       </div>
 
-      <div style="text-align:center; font-size:11px; margin-top:20px; font-weight:bold;">
+      <div style="text-align:center; font-size:8.5px; margin-top:20px; font-weight:bold;">
         *** Esto no es un documento contable. ***
       </div>
     `;
