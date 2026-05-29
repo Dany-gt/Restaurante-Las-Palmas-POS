@@ -164,18 +164,46 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
         }
 
         const fetchTerminals = async () => {
+            // First check local cache for instant loading
+            const cached = localStorage.getItem('cached_pos_terminals');
+            if (cached) {
+                try {
+                    let data = JSON.parse(cached);
+                    if (currentUser?.branch_id) {
+                        data = data.filter((pos: any) => pos.branch_id === currentUser.branch_id || !pos.branch_id);
+                    }
+                    setTerminals(data);
+                    // Preload images
+                    data.forEach((pos: any) => {
+                        if (pos.logo_url) {
+                            const img = new Image();
+                            img.src = getImageUrl(pos.logo_url);
+                        }
+                    });
+                    
+                    // If we have cached data, we can skip hitting the DB directly for every checkout
+                    // This is especially good for Electron where we cache the images explicitly.
+                    return; 
+                } catch (e) {
+                    console.warn('Error parseando pos_terminals cacheadas:', e);
+                }
+            }
+
+            // Fallback to DB query if not cached
             let query = supabase.from('pos_terminals').select('*').order('name');
             if (currentUser?.branch_id) query = query.eq('branch_id', currentUser.branch_id);
-            const { data } = await query;
-            if (data) {
+            const { data, error } = await query;
+            if (data && !error) {
                 setTerminals(data);
                 // Preload images for faster rendering when modal opens
                 data.forEach(pos => {
                     if (pos.logo_url) {
                         const img = new Image();
-                        img.src = pos.logo_url;
+                        img.src = getImageUrl(pos.logo_url);
                     }
                 });
+                // Guardamos en cache por si acaso para la proxima (se actualiza globalmente con el SyncData)
+                localStorage.setItem('cached_pos_terminals', JSON.stringify(data));
             }
         };
         fetchTerminals();

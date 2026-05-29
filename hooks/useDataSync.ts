@@ -84,7 +84,8 @@ export const useDataSync = () => {
                 roles,
                 branchPrices,
                 branchInventory,
-                itemInventory
+                itemInventory,
+                posTerminals
             ] = await Promise.all([
                 safeFetch(supabase.from('tables').select('*').order('number'), 'tables'),
                 safeFetch(supabase.from('sections').select('*').order('priority', { ascending: true }).order('name'), 'sections'),
@@ -98,7 +99,8 @@ export const useDataSync = () => {
                 safeFetch(supabase.from('roles').select('*'), 'roles'),
                 safeFetch(supabase.from('product_branch_prices').select('*'), 'branchPrices'),
                 safeFetch(supabase.from('product_branch_inventory').select('*'), 'branchInventory'),
-                safeFetch(supabase.from('inventory_item_branches').select('*'), 'itemInventory')
+                safeFetch(supabase.from('inventory_item_branches').select('*'), 'itemInventory'),
+                safeFetch(supabase.from('pos_terminals').select('*').order('name'), 'posTerminals')
             ]);
 
             // 2. Saving logic
@@ -160,6 +162,9 @@ export const useDataSync = () => {
             if (itemInventory) {
                 localStorage.setItem('cached_inventory_item_branches', JSON.stringify(itemInventory));
             }
+            if (posTerminals) {
+                localStorage.setItem('cached_pos_terminals', JSON.stringify(posTerminals));
+            }
             
             // Sync orders in background
             await syncOrders(true);
@@ -185,9 +190,13 @@ export const useDataSync = () => {
                     });
 
                     // POS terminals logos
-                    const { data: posData } = await supabase.from('pos_terminals').select('logo_url').not('logo_url', 'is', null);
-                    if (posData) {
-                        posData.forEach((p: any) => { if (p.logo_url) imageUrls.push(p.logo_url); });
+                    if (posTerminals) {
+                        posTerminals.forEach((p: any) => { if (p.logo_url) imageUrls.push(p.logo_url); });
+                    } else {
+                        const { data: posData } = await supabase.from('pos_terminals').select('logo_url').not('logo_url', 'is', null);
+                        if (posData) {
+                            posData.forEach((p: any) => { if (p.logo_url) imageUrls.push(p.logo_url); });
+                        }
                     }
 
                     const validUrls = Array.from(new Set(
