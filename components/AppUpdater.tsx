@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Download, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
 
 export const AppUpdater = () => {
-    const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'downloading' | 'downloaded' | 'error'>('idle');
+    const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'downloading' | 'downloaded' | 'error' | 'up_to_date'>('idle');
     const [progress, setProgress] = useState<{ percent: number } | null>(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [isElectron, setIsElectron] = useState(false);
@@ -16,6 +16,12 @@ export const AppUpdater = () => {
             if (api.onUpdateAvailable) {
                 api.onUpdateAvailable(() => {
                     setStatus('available');
+                });
+            }
+            if (api.onUpdateNotAvailable) {
+                api.onUpdateNotAvailable(() => {
+                    setStatus('up_to_date');
+                    setTimeout(() => setStatus('idle'), 4000);
                 });
             }
             if (api.onUpdateProgress) {
@@ -56,43 +62,52 @@ export const AppUpdater = () => {
 
     if (!isElectron) return null;
 
+    const baseClasses = "w-[150px] h-[56px] bg-[#23242f] border border-white/10 rounded-none px-3 transition-all group shadow-md active:scale-[0.97] flex flex-col items-center justify-center relative overflow-hidden";
+    const hoverClasses = "hover:bg-white/10 hover:border-white/25";
+
     if (status === 'idle') {
         return (
-            <div className="fixed bottom-4 left-4 z-[9999]">
-                <button
-                    onClick={checkForUpdates}
-                    className="bg-[#2d2e3d] border border-white/10 hover:border-white/20 text-white/50 hover:text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-2 transition-all shadow-md active:scale-95"
-                    title="Buscar Actualizaciones"
-                >
-                    <RefreshCw size={14} />
-                    <span className="font-black tracking-widest uppercase">Actualizar</span>
-                </button>
-            </div>
+            <button
+                onClick={checkForUpdates}
+                className={`${baseClasses} ${hoverClasses}`}
+                title="Buscar Actualizaciones de Sistema"
+            >
+                <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-emerald-500 border-l-[10px] border-l-transparent pointer-events-none" />
+                <RefreshCw size={14} className="text-gray-400 group-hover:text-emerald-400 mb-1 transition-colors" />
+                <span className="text-[9px] font-black text-gray-400 group-hover:text-white uppercase tracking-wider text-center transition-colors leading-tight">
+                    BUSCAR<br/>ACTUALIZACIÓN
+                </span>
+            </button>
         );
     }
 
     return (
-        <div className="fixed bottom-4 left-4 z-[9999] bg-[#2d2e3d] border border-white/20 rounded-lg p-3 shadow-xl shadow-black/40 min-w-[200px] animate-fade-in flex flex-col gap-2">
+        <button className={`${baseClasses} ${status === 'error' ? 'border-red-500/50 bg-red-500/10' : ''}`} onClick={status === 'error' ? () => setStatus('idle') : undefined}>
+            <div className={`absolute top-0 right-0 w-0 h-0 border-t-[10px] border-l-[10px] border-l-transparent pointer-events-none ${
+                status === 'error' ? 'border-t-red-500' : 
+                (status === 'downloaded' || status === 'up_to_date') ? 'border-t-emerald-500' : 
+                'border-t-blue-500'
+            }`} />
+
             {status === 'checking' && (
-                <div className="flex items-center gap-2 text-blue-400">
-                    <RefreshCw size={16} className="animate-spin" />
-                    <span className="text-xs font-black uppercase tracking-widest">Buscando...</span>
+                <div className="flex flex-col items-center">
+                    <RefreshCw size={14} className="animate-spin text-blue-400 mb-1" />
+                    <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest leading-tight">BUSCANDO...</span>
                 </div>
             )}
             
             {status === 'available' && (
-                <div className="flex items-center gap-2 text-yellow-400">
-                    <Download size={16} className="animate-bounce" />
-                    <span className="text-xs font-black uppercase tracking-widest">Encontrada! Iniciando...</span>
+                <div className="flex flex-col items-center">
+                    <Download size={14} className="animate-bounce text-yellow-400 mb-1" />
+                    <span className="text-[9px] font-black text-yellow-400 uppercase tracking-widest leading-tight">INICIANDO...</span>
                 </div>
             )}
 
             {status === 'downloading' && (
-                <div className="flex flex-col gap-1.5">
-                    <div className="flex justify-between items-center text-green-400">
-                        <span className="text-[10px] font-black uppercase tracking-widest">Descargando</span>
-                        <span className="text-xs font-black tabular-nums">{progress?.percent?.toFixed(1) || 0}%</span>
-                    </div>
+                <div className="flex flex-col items-center w-full px-2">
+                    <span className="text-[9px] font-black text-green-400 uppercase tracking-widest mb-1">
+                        DESCARGANDO {progress?.percent?.toFixed(0) || 0}%
+                    </span>
                     <div className="w-full h-1.5 bg-black/50 rounded-full overflow-hidden">
                         <div 
                             className="h-full bg-green-500 transition-all duration-300"
@@ -103,27 +118,27 @@ export const AppUpdater = () => {
             )}
 
             {status === 'downloaded' && (
-                <div className="flex items-center gap-2 text-emerald-400">
-                    <CheckCircle size={16} />
-                    <span className="text-xs font-black uppercase tracking-widest">Lista para instalar</span>
+                <div className="flex flex-col items-center">
+                    <CheckCircle size={14} className="text-emerald-400 mb-1" />
+                    <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest leading-tight">LISTA PARA<br/>INSTALAR</span>
+                </div>
+            )}
+
+            {status === 'up_to_date' && (
+                <div className="flex flex-col items-center">
+                    <CheckCircle size={14} className="text-emerald-400 mb-1" />
+                    <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest leading-tight">ACTUALIZADO</span>
                 </div>
             )}
 
             {status === 'error' && (
-                <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2 text-red-400">
-                        <AlertCircle size={16} />
-                        <span className="text-xs font-black uppercase tracking-widest">Error</span>
-                    </div>
-                    <span className="text-[9px] text-red-300/80 leading-tight">{errorMessage}</span>
-                    <button 
-                        onClick={() => setStatus('idle')}
-                        className="mt-1 text-[10px] bg-red-500/20 hover:bg-red-500/40 text-red-200 px-2 py-1 rounded w-full text-center font-bold"
-                    >
-                        CERRAR
-                    </button>
+                <div className="flex flex-col items-center">
+                    <AlertCircle size={14} className="text-red-400 mb-1" />
+                    <span className="text-[8px] font-black text-red-400 uppercase tracking-tight leading-tight px-1 text-center line-clamp-2">
+                        {errorMessage || 'ERROR'}
+                    </span>
                 </div>
             )}
-        </div>
+        </button>
     );
 };

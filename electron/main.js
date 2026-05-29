@@ -272,7 +272,7 @@ ipcMain.handle('open-cash-drawer', async (event, { target, type }) => {
     });
 });
 
-ipcMain.handle('send-email', async (event, { to, subject, body, smtpConfig, attachments }) => {
+ipcMain.handle('send-email', async (event, { to, subject, body, isHtml, smtpConfig, attachments }) => {
     try {
         const transporter = nodemailer.createTransport({
             host: smtpConfig.host,
@@ -284,7 +284,8 @@ ipcMain.handle('send-email', async (event, { to, subject, body, smtpConfig, atta
             from: smtpConfig.user,
             to,
             subject,
-            text: body,
+            text: isHtml ? undefined : body,
+            html: isHtml ? body : undefined,
             attachments: attachments ? attachments.map(a => ({
                 filename: a.filename,
                 content: Buffer.from(a.content, 'base64')
@@ -549,6 +550,10 @@ app.whenReady().then(async () => {
 // Auto Updater Events
 autoUpdater.on('update-available', (info) => {
     if (mainWindow) mainWindow.webContents.send('update-available', info);
+});
+
+autoUpdater.on('update-not-available', (info) => {
+    if (mainWindow) mainWindow.webContents.send('update-not-available', info);
 });
 
 autoUpdater.on('download-progress', (progressObj) => {
