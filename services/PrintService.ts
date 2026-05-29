@@ -563,18 +563,22 @@ class PrintService {
 
       <div class="dotted-divider"></div>
 
-      <div class="totals-container" style="width: 100%; text-align: right;">
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 3px;">
-          <span style="margin-right: 15px;">Sub-Total:</span> <span>Q${(data.subtotal || 0).toFixed(2)}</span>
+      <div class="totals-container" style="display: flex; flex-direction: column; align-items: flex-end; width: 100%;">
+        <div style="display: flex; margin-bottom: 3px;">
+          <div style="text-align: right; width: 80px; margin-right: 10px;">Sub-Total:</div>
+          <div style="text-align: right; width: 65px;">Q${(data.subtotal || 0).toFixed(2)}</div>
         </div>
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 3px;">
-          <span style="margin-right: 15px;">Otros:</span> <span>Q0.00</span>
+        <div style="display: flex; margin-bottom: 3px;">
+          <div style="text-align: right; width: 80px; margin-right: 10px;">Otros:</div>
+          <div style="text-align: right; width: 65px;">Q0.00</div>
         </div>
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 3px;">
-          <span style="margin-right: 15px;">Propina:</span> <span>Q${(data.tipAmount || 0).toFixed(2)}</span>
+        <div style="display: flex; margin-bottom: 3px;">
+          <div style="text-align: right; width: 80px; margin-right: 10px;">Propina:</div>
+          <div style="text-align: right; width: 65px;">Q${(data.tipAmount || 0).toFixed(2)}</div>
         </div>
-        <div style="display: flex; justify-content: flex-end; margin-top: 5px; font-size: 13px;">
-          <span style="margin-right: 15px;">Total:</span> <span>Q${(data.total || 0).toFixed(2)}</span>
+        <div style="display: flex; margin-top: 5px; font-size: 13px;">
+          <div style="text-align: right; width: 80px; margin-right: 10px;">Total:</div>
+          <div style="text-align: right; width: 65px;">Q${(data.total || 0).toFixed(2)}</div>
         </div>
       </div>
 
@@ -1235,7 +1239,6 @@ class PrintService {
         <div>Comensales: ${data.stats?.commensals || 0}</div>
         <div>Abiertas: ${data.stats?.openOrders || 0}</div>
       </div>
-      <div class="thick-divider"></div>
       
       <div style="text-align:center;font-weight:bold;margin:10px 0 5px 0;border-top:1px solid #000;padding-top:5px;">VENTAS</div>
       <table>
@@ -1291,8 +1294,6 @@ class PrintService {
         <span class="total-label">Total:</span> <span class="total-value">${fmt(channelTotal)}</span>
       </div>
       
-      <div class="divider"></div>
-
       <div style="text-align:center;font-weight:bold;margin:15px 0 5px 0;border-top:1px solid #000;padding-top:5px;">CUADRE EFECTIVO</div>
       <table>
         <tr class="item-row"><td class="description">(+) INICIAL:</td><td class="price">${fmt(data.cashDetail.initial)}</td></tr>
