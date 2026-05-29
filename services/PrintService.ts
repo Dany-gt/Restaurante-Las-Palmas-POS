@@ -196,7 +196,7 @@ class PrintService {
     .dotted-divider { border-top: 1px dashed #000; margin: 8px 0; }
     .thick-divider { border-top: 2px solid #000; margin: 8px 0; }
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 8px 0; }
-    .info-line { display: flex; justify-content: space-between; font-weight: bold; }
+    .info-line { display: flex; font-weight: bold; gap: 4px; margin-bottom: 2px; align-items: baseline; }
     .total-line { display: flex; justify-content: space-between; font-weight: 900; margin: 3px 0; }
     .grand-total { 
       font-size: ${isSmall ? '13px' : '16px'}; 
@@ -532,48 +532,48 @@ class PrintService {
     if (!this.settings) await this.loadSettings();
 
     const content = `
-      <div class="info-grid" style="margin-top: 5px;">
-        <div class="info-line"><span style="font-weight: normal;">Fecha:</span> ${new Date(data.createdAt).toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'medium' })}</div>
-        <div class="info-line" style="text-align: right;"><span style="font-weight: normal;">Orden:</span> ${data.orderNumber || '---'}</div>
+      <div class="info-grid" style="margin-top: 5px; margin-bottom: 10px;">
+        <div class="info-line"><span>Fecha:</span> ${new Date(data.createdAt).toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'medium' })}</div>
+        <div class="info-line"><span>Orden:</span> ${data.orderNumber || '---'}</div>
         
-        <div class="info-line"><span style="font-weight: normal;">Sección:</span> ${data.tableName || '---'}</div>
-        <div class="info-line" style="text-align: right;"><span style="font-weight: normal;">Mesa:</span> ${data.tableNumber || '---'}</div>
+        <div class="info-line"><span>Sección:</span> ${data.tableName || '---'}</div>
+        <div class="info-line"><span>Mesa:</span> ${data.tableNumber || '---'}</div>
         
-        <div class="info-line" style="grid-column: span 2;"><span style="font-weight: normal;">Atendió:</span> ${data.waiterName || '---'}</div>
-        <div class="info-line" style="grid-column: span 2;"><span style="font-weight: normal;">Cuenta:</span> ${data.customerName?.toUpperCase() === 'TODAS LAS CUENTAS' ? 'Cuenta Completa' : (data.customerName || 'Cuenta 1')}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>Atendió:</span> ${data.waiterName || '---'}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>Cuenta:</span> ${data.customerName?.toUpperCase() === 'TODAS LAS CUENTAS' ? 'Cuenta Completa' : (data.customerName || 'Cuenta 1')}</div>
       </div>
 
-      <table style="margin-top: 10px;">
-        <tr class="item-row" style="font-weight:bold; border-bottom:1px dashed #000;">
+      <table>
+        <tr class="item-row" style="border-bottom:1px dashed #000;">
           <td class="col-qty qty" style="padding-bottom: 4px;">Cant.</td>
-          <td class="col-desc description" style="padding-bottom: 4px; text-align: center;">Descripción</td>
-          <td class="col-price price" style="padding-bottom: 4px;">Total</td>
+          <td class="col-desc description" style="padding-bottom: 4px;">Descripción</td>
+          <td class="col-price price" style="padding-bottom: 4px; text-align: right;">Total</td>
         </tr>
         ${data.items.map(item => `
           <tr class="item-row">
-            <td class="col-qty qty" style="text-align: center; font-weight: normal;">${item.quantity}</td>
-            <td class="col-desc" style="font-weight: normal;">
+            <td class="col-qty qty" style="text-align: center;">${item.quantity}</td>
+            <td class="col-desc">
               <div class="description">${item.name.toUpperCase()}</div>
-              ${(item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim()) ? `<div class="note" style="font-weight: normal;">${item.notes.replace('*NO IMPRIMIR*', '').trim()}</div>` : ''}
+              ${(item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim()) ? `<div class="note">${item.notes.replace('*NO IMPRIMIR*', '').trim()}</div>` : ''}
             </td>
-            <td class="col-price price" style="font-weight: normal;">Q${((item.price || 0) * item.quantity).toFixed(2)}</td>
+            <td class="col-price price" style="text-align: right;">Q${((item.price || 0) * item.quantity).toFixed(2)}</td>
           </tr>
         `).join('')}
       </table>
 
       <div class="dotted-divider"></div>
 
-      <div class="totals-container" style="width: 100%; text-align: right; font-weight: normal;">
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 2px;">
+      <div class="totals-container" style="width: 100%; text-align: right;">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 3px;">
           <span style="margin-right: 15px;">Sub-Total:</span> <span>Q${(data.subtotal || 0).toFixed(2)}</span>
         </div>
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 2px;">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 3px;">
           <span style="margin-right: 15px;">Otros:</span> <span>Q0.00</span>
         </div>
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 2px;">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 3px;">
           <span style="margin-right: 15px;">Propina:</span> <span>Q${(data.tipAmount || 0).toFixed(2)}</span>
         </div>
-        <div style="display: flex; justify-content: flex-end; margin-top: 5px; font-weight: bold; font-size: 13px;">
+        <div style="display: flex; justify-content: flex-end; margin-top: 5px; font-size: 13px;">
           <span style="margin-right: 15px;">Total:</span> <span>Q${(data.total || 0).toFixed(2)}</span>
         </div>
       </div>
@@ -581,12 +581,12 @@ class PrintService {
       <div class="dotted-divider"></div>
 
       <div style="display: flex; align-items: center; margin-top: 8px;">
-        <span style="font-weight: normal; margin-right: 5px;">Nit:</span>
+        <span style="margin-right: 5px;">Nit:</span>
         <div style="flex-grow: 1; border: 1px solid #000; height: 20px;"></div>
       </div>
 
       <div style="margin-top: 8px;">
-        <div style="font-weight: normal; margin-bottom: 2px;">Nombre / Dirección</div>
+        <div style="margin-bottom: 2px;">Nombre / Dirección</div>
         <div style="border: 1px solid #000; height: 40px;"></div>
       </div>
 
