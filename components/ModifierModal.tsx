@@ -454,7 +454,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
             ) : currentGroup ? (
               <div className="h-full flex flex-col animate-fade-in-right pt-6 px-10">
 
-                <div className="flex flex-wrap justify-center gap-6">
+                <div className={currentGroup.type === 'MODIFIER' ? "grid grid-cols-4 gap-6 place-items-center max-w-5xl mx-auto" : "flex flex-wrap justify-center gap-6"}>
                   {currentGroup.items.map(item => {
                     const selection = selectedItems.find(i => i.id === item.id);
                     const qty = selection?.quantity || 0;
