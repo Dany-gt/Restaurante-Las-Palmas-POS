@@ -30,6 +30,9 @@ export const DishesOptions: React.FC = () => {
     const [modalItems, setModalItems] = useState<any[]>([]);
     const [loadingModalItems, setLoadingModalItems] = useState(false);
     const [selectedModalItemId, setSelectedModalItemId] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<'platillos' | 'sucursales'>('platillos');
+    const [branches, setBranches] = useState<any[]>([]);
+    const [branchAssignments, setBranchAssignments] = useState<Record<string, { is_enabled: boolean, is_assigned: boolean }>>({});
 
     // Group List Context Menu
     const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; item: any | null }>({
@@ -59,8 +62,11 @@ export const DishesOptions: React.FC = () => {
             .from('option_groups')
             .select('*')
             .order('name');
+        if (data) setItems(data);
 
-        if (!error && data) setItems(data);
+        const { data: bData } = await supabase.from('branches').select('id, name').order('name');
+        if (bData) setBranches(bData);
+
         setLoading(false);
     };
 
@@ -72,6 +78,20 @@ export const DishesOptions: React.FC = () => {
             .eq('option_group_id', groupId)
             .order('created_at');
         setModalItems(data || []);
+
+        const { data: bData } = await supabase
+            .from('option_group_branches')
+            .select('*')
+            .eq('option_group_id', groupId);
+        
+        const assignments: any = {};
+        if (bData) {
+            bData.forEach(b => {
+                assignments[b.branch_id] = { is_enabled: b.is_enabled, is_assigned: b.is_assigned };
+            });
+        }
+        setBranchAssignments(assignments);
+
         if (data && data.length > 0) setSelectedModalItemId(data[0].id);
         setLoadingModalItems(false);
     };
@@ -144,6 +164,7 @@ export const DishesOptions: React.FC = () => {
 
     const handleNew = () => {
         setIsEditing(false);
+        setActiveTab('platillos');
         setForm({
             id: '',
             name: '',
@@ -153,6 +174,7 @@ export const DishesOptions: React.FC = () => {
             is_enabled: true
         });
         setModalItems([]);
+        setBranchAssignments({});
         setShowModal(true);
     };
 
@@ -166,6 +188,7 @@ export const DishesOptions: React.FC = () => {
             max_selection: item.max_selection || 0,
             is_enabled: item.is_enabled !== false
         });
+        setBranchAssignments({});
         fetchModalItems(item.id);
         setShowModal(true);
     };
@@ -195,6 +218,16 @@ export const DishesOptions: React.FC = () => {
                 setForm(prev => ({ ...prev, id: currentId }));
                 setIsEditing(true);
             }
+        }
+
+        if (currentId) {
+            const updates = branches.map(b => ({
+                option_group_id: currentId,
+                branch_id: b.id,
+                is_enabled: branchAssignments[b.id]?.is_enabled ?? true,
+                is_assigned: branchAssignments[b.id]?.is_assigned ?? true
+            }));
+            await supabase.from('option_group_branches').upsert(updates);
         }
 
         setSaving(false);
@@ -503,57 +536,107 @@ export const DishesOptions: React.FC = () => {
                                         </div>
                                         {/* Tabs */}
                                         <div className="flex bg-[#f4f4f4] border-b border-gray-300">
-                                            <div className="px-6 py-1.5 bg-white border-t-2 border-[#106ebe] border-r border-gray-300 text-[10px] font-bold text-slate-700 cursor-pointer">
+                                            <div 
+                                                onClick={() => setActiveTab('platillos')}
+                                                className={`px-6 py-1.5 border-t-2 ${activeTab === 'platillos' ? 'bg-white border-[#106ebe] border-r border-gray-300 text-slate-700' : 'bg-[#f4f4f4] border-transparent text-slate-500 hover:bg-white'} text-[10px] font-bold cursor-pointer transition-colors`}
+                                            >
                                                 Platillos
                                             </div>
-                                            <div className="px-6 py-1.5 text-slate-500 text-[10px] font-bold cursor-pointer hover:bg-white transition-colors">
+                                            <div 
+                                                onClick={() => setActiveTab('sucursales')}
+                                                className={`px-6 py-1.5 border-t-2 ${activeTab === 'sucursales' ? 'bg-white border-[#106ebe] border-x border-gray-300 text-slate-700' : 'bg-[#f4f4f4] border-transparent text-slate-500 hover:bg-white'} text-[10px] font-bold cursor-pointer transition-colors -ml-[1px]`}
+                                            >
                                                 Sucursales
                                             </div>
                                         </div>
                                         <div
                                             className="flex-1 overflow-auto bg-white min-h-[100px]"
-                                            onContextMenu={(e) => handleConfigContextMenu(e, null)}
+                                            onContextMenu={activeTab === 'platillos' ? (e) => handleConfigContextMenu(e, null) : undefined}
                                         >
-                                            <table className="w-full border-collapse text-left">
-                                                <thead className="sticky top-0 bg-[#f4f4f4] z-10 text-[10px] font-black uppercase shadow-sm border-b border-gray-300 text-slate-700">
-                                                    <tr className="h-7 text-center">
-                                                        <th className="px-4 text-left border-r border-gray-300">Plato</th>
-                                                        <th className="px-4 border-r border-gray-300">Precio Venta</th>
-                                                        <th className="px-4 border-r border-gray-300">Precio Domicilio</th>
-                                                        <th className="px-4">Precio Plataformas</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {loadingModalItems ? (
-                                                        <tr><td colSpan={4} className="p-4 text-center"><Loader2 size={24} className="animate-spin inline text-[#106ebe]" /></td></tr>
-                                                    ) : modalItems.length === 0 ? (
-                                                        <tr>
-                                                            <td
-                                                                colSpan={4}
-                                                                onContextMenu={(e) => {
-                                                                    e.preventDefault();
-                                                                    handleConfigContextMenu(e, { id: 'empty' });
-                                                                }}
-                                                                className="px-4 py-8 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest"
+                                            {activeTab === 'platillos' ? (
+                                                <table className="w-full border-collapse text-left">
+                                                    <thead className="sticky top-0 bg-[#f4f4f4] z-10 text-[10px] font-black uppercase shadow-sm border-b border-gray-300 text-slate-700">
+                                                        <tr className="h-7 text-center">
+                                                            <th className="px-4 text-left border-r border-gray-300">Plato</th>
+                                                            <th className="px-4 border-r border-gray-300">Precio Venta</th>
+                                                            <th className="px-4 border-r border-gray-300">Precio Domicilio</th>
+                                                            <th className="px-4">Precio Plataformas</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {loadingModalItems ? (
+                                                            <tr><td colSpan={4} className="p-4 text-center"><Loader2 size={24} className="animate-spin inline text-[#106ebe]" /></td></tr>
+                                                        ) : modalItems.length === 0 ? (
+                                                            <tr>
+                                                                <td
+                                                                    colSpan={4}
+                                                                    onContextMenu={(e) => {
+                                                                        e.preventDefault();
+                                                                        handleConfigContextMenu(e, { id: 'empty' });
+                                                                    }}
+                                                                    className="px-4 py-8 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest"
+                                                                >
+                                                                    Haga clic derecho para agregar
+                                                                </td>
+                                                            </tr>
+                                                        ) : modalItems.map((mi) => (
+                                                            <tr
+                                                                key={mi.id}
+                                                                onContextMenu={(e) => handleConfigContextMenu(e, mi)}
+                                                                onClick={() => setSelectedModalItemId(mi.id)}
+                                                                className={`h-7 border-b border-gray-50 text-[10px] font-bold uppercase cursor-default ${selectedModalItemId === mi.id ? 'bg-[#106ebe] text-white' : 'hover:bg-gray-100 text-slate-600'}`}
                                                             >
-                                                                Haga clic derecho para agregar
-                                                            </td>
+                                                                <td className="px-4 border-r border-gray-200">{mi.products?.name || '—'}</td>
+                                                                <td className="px-4 border-r border-gray-200 text-center">Q{parseFloat(mi.products?.price || 0).toFixed(2)}</td>
+                                                                <td className="px-4 border-r border-gray-200 text-center">Q{parseFloat(mi.delivery_price || 0).toFixed(2)}</td>
+                                                                <td className="px-4 text-center">Q{parseFloat(mi.platform_price || 0).toFixed(2)}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            ) : (
+                                                <table className="w-full border-collapse text-left">
+                                                    <thead className="sticky top-0 bg-[#f4f4f4] z-10 text-[10px] font-black uppercase shadow-sm border-b border-gray-300 text-slate-700">
+                                                        <tr className="h-7 text-center">
+                                                            <th className="px-4 text-left border-r border-gray-300">Sucursal</th>
+                                                            <th className="px-4 border-r border-gray-300 w-[150px]">Habilitado</th>
+                                                            <th className="px-4 w-[150px]">Asignado a Sucursal</th>
                                                         </tr>
-                                                    ) : modalItems.map((mi) => (
-                                                        <tr
-                                                            key={mi.id}
-                                                            onContextMenu={(e) => handleConfigContextMenu(e, mi)}
-                                                            onClick={() => setSelectedModalItemId(mi.id)}
-                                                            className={`h-7 border-b border-gray-50 text-[10px] font-bold uppercase cursor-default ${selectedModalItemId === mi.id ? 'bg-[#106ebe] text-white' : 'hover:bg-gray-100 text-slate-600'}`}
-                                                        >
-                                                            <td className="px-4 border-r border-gray-200">{mi.products?.name || '—'}</td>
-                                                            <td className="px-4 border-r border-gray-200 text-center">Q{parseFloat(mi.products?.price || 0).toFixed(2)}</td>
-                                                            <td className="px-4 border-r border-gray-200 text-center">Q0.00</td>
-                                                            <td className="px-4 text-center">Q0.00</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100">
+                                                        {branches.map(b => {
+                                                            const assign = branchAssignments[b.id] ?? { is_enabled: true, is_assigned: true };
+                                                            return (
+                                                                <tr key={b.id} className="h-7 hover:bg-gray-100 text-slate-600 border-b border-gray-50">
+                                                                    <td className="px-4 text-[10px] font-bold uppercase border-r border-gray-200">{b.name}</td>
+                                                                    <td className="px-4 text-center border-r border-gray-200">
+                                                                        <input 
+                                                                            type="checkbox" 
+                                                                            checked={assign.is_enabled} 
+                                                                            onChange={(e) => setBranchAssignments({ ...branchAssignments, [b.id]: { ...assign, is_enabled: e.target.checked } })}
+                                                                            className="w-3.5 h-3.5 accent-[#106ebe] opacity-80 cursor-pointer" 
+                                                                        />
+                                                                    </td>
+                                                                    <td className="px-4 text-center">
+                                                                        <input 
+                                                                            type="checkbox" 
+                                                                            checked={assign.is_assigned} 
+                                                                            onChange={(e) => {
+                                                                                const isChecked = e.target.checked;
+                                                                                setBranchAssignments({ 
+                                                                                    ...branchAssignments, 
+                                                                                    [b.id]: { ...assign, is_assigned: isChecked, is_enabled: isChecked ? assign.is_enabled : false } 
+                                                                                });
+                                                                            }}
+                                                                            className="w-3.5 h-3.5 accent-[#106ebe] opacity-80 cursor-pointer" 
+                                                                        />
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                    </tbody>
+                                                </table>
+                                            )}
                                         </div>
                                     </div>
 

@@ -228,6 +228,13 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
         return [...prev, { ...item, quantity: qtyToSet }];
       }
     });
+
+    // Regresar a la vista de categorías automáticamente (efecto visual rápido)
+    if (groups.length > 1) {
+      setTimeout(() => {
+        setView('CATEGORIES');
+      }, 100);
+    }
   };
 
   const decrementItem = (item: SelectionItem) => {
@@ -386,11 +393,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                                   </div>
                                 );
                               })()}
-                              {qtyInGroup > 0 && (
-                                <div className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black  ${hasRequired ? 'bg-white/20 text-white border border-white/20' : 'bg-white/20 text-white/60'}`}>
-                                  {qtyInGroup}
-                                </div>
-                              )}
+                              {/* Badge de cantidad del grupo eliminado a petición del usuario */}
                             </button>
                           );
                         })}
@@ -438,11 +441,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                                   </div>
                                 );
                               })()}
-                              {qtyInGroup > 0 && (
-                                <div className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black  ${hasRequired ? 'bg-white/20 text-white border border-white/20' : 'bg-white/20 text-white/60'}`}>
-                                  {qtyInGroup}
-                                </div>
-                              )}
+                              {/* Badge de cantidad del modificador eliminado a petición del usuario */}
                             </button>
                           );
                         })}
@@ -508,12 +507,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                             {item.extra_price > 0 && !isMod ? '+' : ''}Q{(Number(item.extra_price) || 0).toFixed(2)}
                           </span>
 
-                          {/* Selected Badge */}
-                          {qty > 0 && (
-                            <div className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full text-[11px] font-black text-black flex items-center justify-center shadow-lg">
-                              {isMod ? '✓' : qty}
-                            </div>
-                          )}
+                          {/* Selected Badge eliminado a petición del usuario */}
                         </button>
                       </div>
                     );
