@@ -31,6 +31,35 @@ export const RemotePrintListener: React.FC = () => {
             if (ip) setCajaIp(ip);
         });
 
+        // ═══ RECOVER STUCK PRINTS ═══
+        const recoverPendingPrints = async () => {
+            try {
+                const cachedUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                let query = supabase.from('orders')
+                    .select('*')
+                    .eq('requires_printing', true)
+                    .in('print_status', ['pending', 'pre_check_pending']);
+                    
+                if (cachedUser?.branch_id) {
+                    query = query.eq('branch_id', cachedUser.branch_id);
+                }
+                
+                const { data: pendingOrders } = await query;
+                if (pendingOrders && pendingOrders.length > 0) {
+                    console.log(`🖨️ [PrintListener] Recuperando ${pendingOrders.length} impresiones estancadas...`);
+                    for (const order of pendingOrders) {
+                        const preKey = `precheck_${order.id}`;
+                        if (!processedIds.current.has(preKey)) {
+                            await processPreCheck(order);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Error recuperando impresiones:', e);
+            }
+        };
+        recoverPendingPrints();
+
         const subscription = supabase
             .channel('remote_printing')
             .on(
@@ -141,6 +170,11 @@ export const RemotePrintListener: React.FC = () => {
             console.error('❌ Error printing pre-check:', e);
         } finally {
             processingNow.current.delete(key);
+            // Allow reprint of the same order after 10 seconds
+            setTimeout(() => {
+                processedIds.current.delete(key);
+                localStorage.setItem('print_processed_ids', JSON.stringify(Array.from(processedIds.current)));
+            }, 10000);
         }
     };
 

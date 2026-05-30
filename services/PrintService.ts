@@ -561,6 +561,12 @@ class PrintService {
     deliveryAddress?: string;
     driverName?: string;
   }, options?: PrintOptions): Promise<void> {
+    if (!this.isElectron()) {
+      console.log('📡 [PrintService] Entorno Web/Tablet: Solicitando impresión remota de pre-cuenta...');
+      await this.requestPreCheckPrint(data.orderId);
+      return;
+    }
+
     if (!this.settings) await this.loadSettings();
 
     const content = `
