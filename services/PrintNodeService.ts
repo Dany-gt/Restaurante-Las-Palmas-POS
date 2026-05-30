@@ -6,8 +6,18 @@ const PRINTNODE_TIMEOUT_MS = 8000; // 8 segundos máximo para respuesta de impre
 async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), PRINTNODE_TIMEOUT_MS);
+    
+    // Si no estamos en Electron y no es localhost, usar el proxy de Vercel para evadir CORS
+    const isElectron = !!(window && ((window as any).electronAPI || (window as any).electron));
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    let finalUrl = url;
+    if (!isElectron && !isLocalhost) {
+        finalUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+    }
+
     try {
-        const response = await fetch(url, { ...options, signal: controller.signal });
+        const response = await fetch(finalUrl, { ...options, signal: controller.signal });
         return response;
     } finally {
         clearTimeout(timeout);

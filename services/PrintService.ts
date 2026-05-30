@@ -137,10 +137,10 @@ class PrintService {
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
       document.body.appendChild(iframe);
-      
+
       const doc = iframe.contentWindow?.document || iframe.contentDocument;
       if (!doc) throw new Error('No se pudo acceder al documento del iframe');
-      
+
       doc.open();
       doc.write(html);
       doc.close();
@@ -964,7 +964,7 @@ class PrintService {
   }): Promise<void> {
     if (!this.settings) await this.loadSettings();
     const fmt = (val: number) => 'Q' + Number(val || 0).toFixed(2);
-    
+
     const content = `
       <div style="text-align:center; border:2px solid #000; padding:8px; margin-bottom:15px;">
         <div style="font-size:16px; font-weight:900; letter-spacing: 1px;">VALE DE CRÉDITO</div>
@@ -1103,19 +1103,19 @@ class PrintService {
               </tr>
 
               ${Array.isArray(exp.items) && exp.items.length > 0 ?
-          exp.items.map((item: any) => `
+        exp.items.map((item: any) => `
                   <tr class="item-row">
                     <td class="col-desc description" style="font-size: 9px;">- ${item.name}</td>
                     <td class="col-price price">${fmt(item.price)}</td>
                   </tr>
                 `).join('')
-          : `
+        : `
                   <tr class="item-row">
                     <td class="col-desc description" style="font-size: 9px;">- ${exp.description}</td>
                     <td class="col-price price">${fmt(exp.amount)}</td>
                   </tr>
                 `
-        }
+      }
             </table>
             
             <div style="text-align: right; font-weight: bold; border-top: 1px dotted #ccc; margin-top: 4px;">
@@ -1143,7 +1143,7 @@ class PrintService {
     if (!this.settings) await this.loadSettings();
     const fmt = (val: number) => 'Q' + Number(val || 0).toFixed(2);
     const dateStr = (d: string) => { try { return new Date(d).toLocaleString('es-GT', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return d; } };
-    
+
     const cardTerminals = data.posCardDetail || [];
     const totalCards = cardTerminals.reduce((acc: number, item: any) => acc + (Number(item.total) || 0), 0);
 
@@ -1351,16 +1351,16 @@ class PrintService {
           </thead>
           <tbody>
             ${Array.from({ length: Math.max(monedas.length, billetes.length) }).map((_, idx) => {
-              const m = monedas[idx];
-              const b = billetes[idx];
-              
-              const mQty = m ? getCount(m.label) : 0;
-              const mTotal = m ? mQty * m.val : 0;
-              
-              const bQty = b ? getCount(b.label) : 0;
-              const bTotal = b ? bQty * b.val : 0;
+      const m = monedas[idx];
+      const b = billetes[idx];
 
-              return `
+      const mQty = m ? getCount(m.label) : 0;
+      const mTotal = m ? mQty * m.val : 0;
+
+      const bQty = b ? getCount(b.label) : 0;
+      const bTotal = b ? bQty * b.val : 0;
+
+      return `
                 <tr>
                   <td style="font-size: 8.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 1px 0;">
                     ${m ? `${m.label} x${mQty} = Q${mTotal.toFixed(2)}` : ''}
@@ -1370,7 +1370,7 @@ class PrintService {
                   </td>
                 </tr>
               `;
-            }).join('')}
+    }).join('')}
           </tbody>
         </table>
       </div>

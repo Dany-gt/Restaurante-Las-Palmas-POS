@@ -3,7 +3,7 @@ module.exports = async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, usuario, llave');
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, usuario, llave, Authorization');
 
     if (req.method === 'OPTIONS') {
         res.status(200).end();
@@ -22,7 +22,8 @@ module.exports = async function handler(req, res) {
                 'Content-Type': req.headers['content-type'] || 'application/json',
                 'usuario': req.headers['usuario'] || '',
                 'llave': req.headers['llave'] || '',
-                'alias': req.headers['alias'] || ''
+                'alias': req.headers['alias'] || '',
+                'Authorization': req.headers['authorization'] || ''
             }
         };
 
