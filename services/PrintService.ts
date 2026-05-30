@@ -342,6 +342,15 @@ class PrintService {
 
     const html = typeof htmlContent === 'function' ? htmlContent(paperWidth) : htmlContent;
 
+    // PrintNode (cloud) - Se ejecuta en TODOS los entornos (Web, Móvil, Tablet, Desktop)
+    if (this.settings?.printnode_enabled && this.settings?.printnode_printer_id) {
+      console.log('☁️ [PrintService] PrintNode habilitado. Intentando imprimir vía nube...');
+      if (!printNodeService.isEnabled) await printNodeService.init();
+      const ok = await printNodeService.printHtml(this.settings.printnode_printer_id, title, html);
+      if (ok) { console.log('✅ [PrintService] Impresión exitosa vía PrintNode'); return; }
+      console.warn('⚠️ [PrintService] Falló PrintNode, intentando local/red...');
+    }
+
     // Web/Mobile → browser dialog
     if (!this.isElectron()) {
       console.log('🌐 [PrintService] Entorno Web detectado. Abriendo diálogo de impresión del navegador.');
@@ -351,15 +360,6 @@ class PrintService {
 
     const electron = (window as any).electronAPI || (window as any).electron;
     console.log('🖥️ [PrintService] Entorno Electron detectado.');
-
-    // PrintNode (cloud)
-    if (this.settings?.printnode_enabled && this.settings?.printnode_printer_id) {
-      console.log('☁️ [PrintService] PrintNode habilitado. Intentando imprimir vía nube...');
-      if (!printNodeService.isEnabled) await printNodeService.init();
-      const ok = await printNodeService.printHtml(this.settings.printnode_printer_id, title, html);
-      if (ok) { console.log('✅ [PrintService] Impresión exitosa vía PrintNode'); return; }
-      console.warn('⚠️ [PrintService] Falló PrintNode, intentando local/red...');
-    }
 
     // SYSTEM printer (Windows driver)
     if (electron && electron.printHtml) {
