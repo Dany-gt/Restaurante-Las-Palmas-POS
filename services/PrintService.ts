@@ -133,19 +133,51 @@ class PrintService {
   // ─── BROWSER PRINT ────────────────────────────────────────────────
 
   private openPrintWindow(html: string) {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert('⚠️ El navegador bloqueó la ventana de impresión. Permite ventanas emergentes para este sitio e intenta de nuevo.');
-      return;
+    try {
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+      
+      const doc = iframe.contentWindow?.document || iframe.contentDocument;
+      if (!doc) throw new Error('No se pudo acceder al documento del iframe');
+      
+      doc.open();
+      doc.write(html);
+      doc.close();
+
+      iframe.onload = () => {
+        setTimeout(() => {
+          try {
+            iframe.contentWindow?.focus();
+            iframe.contentWindow?.print();
+          } catch (e) {
+            console.error('Error executing print on tablet/mobile:', e);
+          } finally {
+            setTimeout(() => {
+              if (document.body.contains(iframe)) {
+                document.body.removeChild(iframe);
+              }
+            }, 1000);
+          }
+        }, 500);
+      };
+    } catch (error) {
+      console.error('Error creating print iframe:', error);
+      // Fallback clásico por si falla el iframe
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(html);
+        printWindow.document.close();
+        printWindow.onload = () => {
+          setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+          }, 500);
+        };
+      } else {
+        alert('⚠️ El navegador bloqueó la ventana de impresión. Permite ventanas emergentes para este sitio e intenta de nuevo.');
+      }
     }
-    printWindow.document.write(html);
-    printWindow.document.close();
-    printWindow.onload = () => {
-      setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 500);
-    };
   }
 
   // ─── CORE HTML TEMPLATE ───────────────────────────────────────────
