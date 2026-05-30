@@ -133,6 +133,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
     setOptionsContextMenu, setShowTechnicalModal
 }) => {
     const [activeTab, setActiveTab] = useState<'sucursales' | 'opciones'>('sucursales');
+    const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
     const [uploadingImage, setUploadingImage] = useState(false);
     const [batchTool, setBatchTool] = useState({
         price: '0.00',
@@ -216,8 +217,8 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
         <div className="fixed inset-0 z-[2000000] flex items-center justify-center p-2 bg-transparent pointer-events-none font-sans overflow-hidden">
             <div className="absolute inset-0 pointer-events-auto" onClick={onClose}></div>
             <div className="pointer-events-auto">
-                <DraggableWindow>
-                    <div className="bg-white border border-[#106ebe] w-[950px] overflow-hidden flex flex-col  animate-in fade-in duration-200">
+                <DraggableWindow resizable defaultWidth={950} defaultHeight={"auto"} minWidth={700} minHeight={500}>
+                    <div className="bg-white border border-[#106ebe] w-full h-full max-h-[92vh] overflow-hidden flex flex-col animate-in fade-in duration-200">
                         {/* HEADER EXTREMO CLONE */}
                         <div className="modal-header bg-[#106ebe] h-8 px-2 flex justify-between items-center text-white shrink-0 cursor-move transition-colors">
                             <div className="flex items-center gap-2">
@@ -257,8 +258,8 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                             </div>
                         </div>
 
-                        {/* APLICANDO EL TAMAÑO DEL ALTO QUE LE GUSTÓ AL USUARIO PERO COMPACTADO */}
-                        <div className="p-4 space-y-4 bg-white overflow-y-auto max-h-[85vh] custom-scrollbar">
+                        {/* CONTENEDOR PRINCIPAL FLEXIBLE */}
+                        <div className="flex-1 p-4 space-y-4 bg-white overflow-y-auto custom-scrollbar">
                             {/* SECCIÓN 1 */}
                             <fieldset className="border border-[#ced4da] p-4 pt-2 bg-white relative ">
                                 <legend className="px-1.5 text-[10px] font-semibold text-[#106ebe] uppercase">Datos de Platillo</legend>
@@ -525,16 +526,20 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                                 <table className="w-full border-collapse">
                                                                     <tbody className="">
                                                                         {panel.data.map((item: any) => (
-                                                                            <tr key={item.id} className="h-8 hover:bg-blue-50/50 group">
-                                                                                <td className="px-4 text-[10.5px] font-bold text-slate-700 uppercase relative z-10">
+                                                                            <tr 
+                                                                                key={item.group_id || item.id} 
+                                                                                className={`h-8 group cursor-pointer ${selectedRowId === (item.group_id || item.id) ? 'bg-[#106ebe]' : 'hover:bg-blue-50/50'}`}
+                                                                                onClick={() => setSelectedRowId(item.group_id || item.id)}
+                                                                            >
+                                                                                <td className={`px-4 text-[10.5px] font-bold uppercase relative z-10 ${selectedRowId === (item.group_id || item.id) ? 'text-white' : 'text-slate-700'}`}>
                                                                                     {item.name || item.option_groups?.name || item.modifier_groups?.name || '---'}
                                                                                 </td>
-                                                                                <td className="px-2 w-[100px] text-center text-[10.5px] font-medium text-slate-500 relative z-10">
+                                                                                <td className={`px-2 w-[100px] text-center text-[10.5px] font-medium relative z-10 ${selectedRowId === (item.group_id || item.id) ? 'text-blue-100' : 'text-slate-500'}`}>
                                                                                     {item.sort_order || item.priority || '1'}
                                                                                 </td>
                                                                                 <td className="w-8 text-center">
                                                                                     <button 
-                                                                                        className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                                        className={`opacity-0 group-hover:opacity-100 transition-opacity ${selectedRowId === (item.group_id || item.id) ? 'text-red-200 hover:text-white' : 'text-red-400 hover:text-red-600'}`}
                                                                                         onClick={(e) => {
                                                                                             e.stopPropagation();
                                                                                             setOptionsContextMenu({ 
@@ -542,7 +547,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                                                                 type: panel.type, 
                                                                                                 x: e.clientX, 
                                                                                                 y: e.clientY, 
-                                                                                                targetGroupId: item.id 
+                                                                                                targetGroupId: item.group_id 
                                                                                             });
                                                                                         }}
                                                                                     >

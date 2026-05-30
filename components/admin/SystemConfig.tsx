@@ -5,7 +5,7 @@ import { Settings2, X, Building2, Loader2, Globe, Mail, Layers, Cpu, MousePointe
 import { WindowsConfirmModal } from '../WindowsConfirmModal';
 import { WindowsSaveButton } from '../WindowsSaveButton';
 import { activityLogService } from '../../services/ActivityLogService';
-
+import packageJson from '../../package.json';
 export const SystemConfig: React.FC<{
     onClose?: () => void;
     onThemeChange?: (theme: string) => void;
@@ -1005,7 +1005,7 @@ export const SystemConfig: React.FC<{
                 {/* Status Bar */}
                 <div className="bg-[#f1f3f5] px-4 py-1.5 flex items-center justify-between text-[10px] font-black text-gray-400 uppercase tracking-widest shrink-0 border-t border-gray-200">
                     <div className="flex gap-4">
-                        <span>Versión: 1.3.1</span>
+                        <span>Versión: {packageJson.version}</span>
                         <span className="text-blue-300">|</span>
                         <span>Licencia: Activa</span>
                     </div>

@@ -1,20 +1,24 @@
 @echo off
 color 0B
 echo ===================================================
-echo    ACTUALIZADOR AUTOMATICO POS - RESTAURANTE
+echo    ACTUALIZADOR Y COMPILADOR POS - RESTAURANTE
 echo ===================================================
 echo.
-echo [1/3] Descargando ultimos cambios de la nube...
+echo [1/4] Descargando ultimos cambios de la nube...
 git pull origin main
 echo.
-echo [2/3] Verificando dependencias (por si algo nuevo se instalo)...
+echo [2/4] Verificando dependencias...
 call npm install
 echo.
-echo [3/3] Aplicando los cambios y reconstruyendo el sistema...
-call npm run build
+echo [3/4] Limpiando carpetas de compilaciones anteriores...
+rmdir /s /q release 2>nul
+echo.
+echo [4/4] Compilando la nueva version del instalador...
+call npm run electron:build
 echo.
 echo ===================================================
-echo   ¡ACTUALIZACION COMPLETADA CON EXITO!
+echo   ¡COMPILACION COMPLETADA!
+echo   Busca tu nuevo .exe en la carpeta "release"
 echo ===================================================
 echo Presiona cualquier tecla para cerrar esta ventana...
 pause >nul

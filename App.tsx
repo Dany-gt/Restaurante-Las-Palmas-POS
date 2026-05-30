@@ -1272,7 +1272,6 @@ const App: React.FC = () => {
     <div className={`h-[100dvh] overflow-hidden text-white flex flex-col transition-colors pos-main-layout ${currentView === 'LOGIN' && !!(window as any).electronAPI ? 'bg-transparent' : 'bg-[#2d2e3d]'}`} style={{ WebkitOverflowScrolling: 'touch' }}>
       <ConnectionBanner />
       <NotificationContainer />
-      <AppUpdater />
       <RemotePrintListener />
       {currentView === 'DRIVER_TRACKER' ? (
         <DriverTracker />

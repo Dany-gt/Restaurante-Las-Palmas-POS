@@ -15,6 +15,7 @@ interface SelectionItem {
   quantity: number;
   min_quantity: number;
   max_quantity: number;
+  image_url?: string;
 }
 
 interface GroupConfig {
@@ -84,6 +85,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
       if (legacyOpts) {
         for (const lo of legacyOpts) {
           if (!lo.option_groups) continue;
+          if (!lo.group_id) continue;
           if (!configMap.has(lo.group_id)) {
             configMap.set(lo.group_id, {
               id: lo.group_id,
@@ -101,6 +103,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
       if (legacyMods) {
         for (const lm of legacyMods) {
           if (!lm.modifier_groups) continue;
+          if (!lm.group_id) continue;
           if (!configMap.has(lm.group_id)) {
             configMap.set(lm.group_id, {
               id: lm.group_id,
@@ -115,30 +118,32 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
         }
       }
 
-      const assignedOptionGroupIds = legacyOpts?.map(lo => lo.group_id) || [];
-      const assignedModifierGroupIds = legacyMods?.map(lm => lm.group_id) || [];
+      const assignedOptionGroupIds = legacyOpts?.map(lo => lo.group_id).filter(Boolean) || [];
+      const assignedModifierGroupIds = legacyMods?.map(lm => lm.group_id).filter(Boolean) || [];
 
       if (assignedOptionGroupIds.length > 0) {
         const { data: optItems, error: optError } = await supabase
           .from('group_items')
-          .select('*, option_catalog(*)')
+          .select('*, products(*)')
           .in('option_group_id', assignedOptionGroupIds)
           .eq('is_enabled', true)
           .order('sort_order', { ascending: true });
 
         console.log(`[POS Debug] Fetched ${optItems?.length || 0} option items. Error:`, optError);
-        if (optItems) console.log('[POS Debug] Option Items Titles:', optItems.map(i => i.item_name || i.option_catalog?.item_name));
+        if (optItems) console.log('[POS Debug] Option Items Titles:', optItems.map(i => i.item_name || i.option_catalog?.item_name || i.products?.name));
 
         optItems?.forEach(item => {
           const cat = item.option_catalog || {};
+          const prod = item.products || {};
           const grp = configMap.get(item.option_group_id);
           if (grp) {
             grp.items.push({
-              id: item.id,
-              name: item.item_name || cat.item_name,
-              display_name: item.display_name || cat.display_name,
+              id: item.id || `opt-${Math.random()}`,
+              name: item.item_name || cat.item_name || prod.name || 'Sin Nombre',
+              display_name: item.display_name || cat.display_name || prod.name || 'Sin Nombre',
+              image_url: prod.image_url || null,
               color_code: item.color_code || cat.color_code,
-              extra_price: item.extra_price ?? cat.extra_price ?? 0,
+              extra_price: item.extra_price ?? 0,
               type: (item.modifier_type?.toUpperCase() || 'ADD') as 'ADD' | 'REMOVE',
               group_id: item.option_group_id,
               group_type: 'OPTION',
@@ -153,24 +158,26 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
       if (assignedModifierGroupIds.length > 0) {
         const { data: modItems, error: modError } = await supabase
           .from('group_items')
-          .select('*, modifier_catalog(*)')
+          .select('*, modifier_catalog(*), products(*)')
           .in('modifier_group_id', assignedModifierGroupIds)
           .eq('is_enabled', true)
           .order('sort_order', { ascending: true });
 
         console.log(`[POS Debug] Fetched ${modItems?.length || 0} modifier items. Error:`, modError);
-        if (modItems) console.log('[POS Debug] Modifier Items Titles:', modItems.map(i => i.item_name || i.modifier_catalog?.item_name));
+        if (modItems) console.log('[POS Debug] Modifier Items Titles:', modItems.map(i => i.item_name || i.modifier_catalog?.item_name || i.products?.name));
 
         modItems?.forEach(item => {
           const cat = item.modifier_catalog || {};
+          const prod = item.products || {};
           const grp = configMap.get(item.modifier_group_id);
           if (grp) {
             grp.items.push({
-              id: item.id,
-              name: item.item_name || cat.item_name,
-              display_name: item.display_name || cat.display_name,
+              id: item.id || `mod-${Math.random()}`,
+              name: item.item_name || cat.item_name || prod.name || 'Sin Nombre',
+              display_name: item.display_name || cat.display_name || prod.name || 'Sin Nombre',
+              image_url: prod.image_url || null,
               color_code: item.color_code || cat.color_code,
-              extra_price: item.extra_price ?? cat.extra_price ?? 0,
+              extra_price: item.extra_price ?? cat.extra_price ?? prod.price ?? 0,
               type: (item.modifier_type?.toUpperCase() || 'ADD') as 'ADD' | 'REMOVE',
               group_id: item.modifier_group_id,
               group_type: 'MODIFIER',
@@ -192,14 +199,32 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
   };
 
   const incrementItem = (item: SelectionItem) => {
+    const currentGroup = groups.find(g => g.id === item.group_id);
+    if (!currentGroup) return;
+
     setSelectedItems(prev => {
       const existing = prev.find(i => i.id === item.id);
+      const grpQty = prev.filter(i => i.group_id === item.group_id).reduce((sum, i) => sum + i.quantity, 0);
+
+      // Toggle Off: Si ya existe, al tocarlo lo quitamos
       if (existing) {
-        // Toggle Off: If already selected, remove it
         return prev.filter(i => i.id !== item.id);
-      } else {
-        // Toggle On: Set to maximum quantity allowed (or 1 if unlimited)
-        const qtyToSet = item.max_quantity > 0 ? item.max_quantity : 1;
+      }
+
+      // Toggle On: Asignar de golpe el máximo permitido del grupo (si es 0, asigna 1)
+      const qtyToSet = currentGroup.max_selection > 0 ? currentGroup.max_selection : 1;
+
+      // Comportamiento de Radio Button (Solo 1 opción permitida)
+      if (currentGroup.max_selection === 1) {
+        const withoutOthers = prev.filter(i => i.group_id !== item.group_id);
+        return [...withoutOthers, { ...item, quantity: qtyToSet }];
+      } 
+      // Comportamiento de Multi-Selección
+      else {
+        // Si ya hay otros ítems seleccionados que suman o superan el límite del grupo, no hacemos nada
+        if (currentGroup.max_selection > 0 && grpQty >= currentGroup.max_selection) {
+          return prev;
+        }
         return [...prev, { ...item, quantity: qtyToSet }];
       }
     });
@@ -326,7 +351,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                   {/* Options Section (Up) */}
                   {groups.filter(g => g.type === 'OPTION').length > 0 && (
                     <div className="space-y-10">
-                      <div className="flex items-center gap-6">
+                      <div className="hidden items-center gap-6">
                         <div className="h-[1px] flex-1 bg-white/5" />
                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.5em] whitespace-nowrap opacity-60">Opciones Seleccionables</h4>
                         <div className="h-[1px] flex-1 bg-white/5" />
@@ -342,14 +367,25 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                                 setSelectedGroupId(grp.id);
                                 setView('DETAIL');
                               }}
-                              className={`group w-64 h-24 rounded-lg border transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
-                                ? 'bg-white/5 border-white/20  /5'
-                                : 'bg-white/[0.03] border-white/5 hover:bg-white/[0.08] hover:border-white/10'
+                              className={`group w-64 h-24 rounded-lg transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
+                                ? 'bg-[#00609a] ring-2 ring-white shadow-lg'
+                                : 'bg-[#004b79] hover:bg-[#005a8f] shadow-md'
                                 }`}
                             >
-                              <span className={`text-base font-black uppercase tracking-tight transition-transform group-hover:scale-105 ${hasRequired ? 'text-white' : 'text-white'}`}>
+                              <span className={`text-base font-black uppercase tracking-tight transition-transform group-hover:scale-105 text-white`}>
                                 {grp.group_prompt || grp.name}
                               </span>
+                              {(() => {
+                                const min = grp.min_selection;
+                                const max = grp.max_selection;
+                                if (min === 0 && (max === 0 || max >= 99)) return null;
+                                return (
+                                  <div className="flex items-center gap-4 text-[10px] font-medium text-white/90 tracking-wide mt-1 transition-transform group-hover:scale-105">
+                                    <span>Mínimo: {min}</span>
+                                    <span>Máximo: {max >= 99 ? '∞' : max}</span>
+                                  </div>
+                                );
+                              })()}
                               {qtyInGroup > 0 && (
                                 <div className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black  ${hasRequired ? 'bg-white/20 text-white border border-white/20' : 'bg-white/20 text-white/60'}`}>
                                   {qtyInGroup}
@@ -364,13 +400,13 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
 
                   {/* Horizontal Separator Line */}
                   {groups.filter(g => g.type === 'OPTION').length > 0 && groups.filter(g => g.type === 'MODIFIER').length > 0 && (
-                    <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent py-4" />
+                    <div className="w-full h-[1px] bg-white/10 my-8" />
                   )}
 
                   {/* Modifiers Section (Down) */}
                   {groups.filter(g => g.type === 'MODIFIER').length > 0 && (
                     <div className="space-y-10">
-                      <div className="flex items-center gap-6">
+                      <div className="hidden items-center gap-6">
                         <div className="h-[1px] flex-1 bg-white/5" />
                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.5em] whitespace-nowrap opacity-60">Modificadores Adicionales</h4>
                         <div className="h-[1px] flex-1 bg-white/5" />
@@ -383,14 +419,25 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                             <button
                               key={grp.id}
                               onClick={() => { setSelectedGroupId(grp.id); setView('DETAIL'); }}
-                              className={`group w-64 h-24 rounded-lg border transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
-                                ? 'bg-white/5 border-white/20  /5'
-                                : 'bg-white/[0.03] border-white/5 hover:bg-white/[0.08] hover:border-white/10'
+                              className={`group w-64 h-24 rounded-lg transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
+                                ? 'bg-[#357a80] ring-2 ring-white shadow-lg'
+                                : 'bg-[#2b6469] hover:bg-[#327379] shadow-md'
                                 }`}
                             >
-                              <span className={`text-base font-black uppercase tracking-tight transition-transform group-hover:scale-105 ${qtyInGroup > 0 ? 'text-white' : 'text-white'}`}>
+                              <span className={`text-base font-black uppercase tracking-tight transition-transform group-hover:scale-105 text-white`}>
                                 {grp.group_prompt || grp.name}
                               </span>
+                              {(() => {
+                                const min = grp.min_selection;
+                                const max = grp.max_selection;
+                                if (min === 0 && (max === 0 || max >= 99)) return null;
+                                return (
+                                  <div className="flex items-center gap-4 text-[10px] font-medium text-white/90 tracking-wide mt-1 transition-transform group-hover:scale-105">
+                                    <span>Mínimo: {min}</span>
+                                    <span>Máximo: {max >= 99 ? '∞' : max}</span>
+                                  </div>
+                                );
+                              })()}
                               {qtyInGroup > 0 && (
                                 <div className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black  ${hasRequired ? 'bg-white/20 text-white border border-white/20' : 'bg-white/20 text-white/60'}`}>
                                   {qtyInGroup}
@@ -407,15 +454,17 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
             ) : currentGroup ? (
               <div className="h-full flex flex-col animate-fade-in-right pt-6 px-10">
 
-                <div className="max-w-5xl mx-auto w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="flex flex-wrap justify-center gap-6">
                   {currentGroup.items.map(item => {
                     const selection = selectedItems.find(i => i.id === item.id);
                     const qty = selection?.quantity || 0;
                     const grpQty = selectedItems.filter(i => i.group_id === item.group_id).reduce((sum, i) => sum + i.quantity, 0);
-                    const isDisabled = qty === 0 && currentGroup.max_selection > 0 && grpQty >= currentGroup.max_selection;
+                    const isDisabled = currentGroup.max_selection === 1 
+                      ? false 
+                      : (qty === 0 && currentGroup.max_selection > 0 && grpQty >= currentGroup.max_selection);
 
                     const isMod = currentGroup.type === 'MODIFIER';
-                    const bgColor = item.color_code || (isMod ? '#b87541' : '');
+                    const bgColor = item.color_code || (isMod ? '#357a80' : '');
 
                     return (
                       <div key={item.id} className="relative group">
@@ -427,41 +476,40 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                           style={bgColor ? {
                             backgroundColor: bgColor
                           } : undefined}
-                          className={`w-full h-16 px-3 rounded-lg transition-all duration-100 flex flex-col items-center justify-center gap-1 overflow-hidden ${bgColor
-                            ? (qty > 0 ? 'brightness-110' : 'hover:brightness-110')
+                          className={`w-36 h-48 rounded-[16px] p-3 transition-all duration-200 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${bgColor
+                            ? (qty > 0 ? 'brightness-110 shadow-[0_0_15px_rgba(255,255,255,0.2)] ring-2 ring-white' : 'hover:brightness-110 shadow-md')
                             : (qty > 0
-                              ? 'bg-white/10 shadow-md'
+                              ? 'bg-[#40465c] ring-2 ring-white shadow-[0_0_15px_rgba(255,255,255,0.1)]'
                               : isDisabled
-                                ? 'bg-transparent border border-white/5 opacity-10 pointer-events-none'
-                                : 'bg-white/[0.03] border border-white/5 hover:border-white/20 hover:bg-white/[0.06]')
+                                ? 'bg-[#3b4156]/30 opacity-40 pointer-events-none'
+                                : 'bg-[#3b4156] hover:bg-[#484f6a] shadow-md')
                             }`}
                         >
-                          <span className="text-[11px] font-bold uppercase tracking-tight text-center leading-tight text-white">
+                          {/* Image Container */}
+                          <div className="w-full h-20 flex items-center justify-center shrink-0">
+                            {item.image_url ? (
+                              <img src={item.image_url} alt={item.name} className="max-w-full max-h-full object-contain drop-shadow-md" />
+                            ) : (
+                              <div className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center">
+                                <span className="text-white/20 text-[9px] font-bold uppercase tracking-wider">Img</span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Text Container */}
+                          <span className="text-[10px] font-black uppercase tracking-tight text-center leading-tight text-white line-clamp-3 mt-2 px-1">
                             {item.display_name || item.name}
                           </span>
 
-                          {isMod ? (
-                            <span className="text-[10px] font-bold text-white">
-                              Q{(Number(item.extra_price) || 0).toFixed(2)}
-                            </span>
-                          ) : (
-                            <>
-                              {(item.min_quantity > 0 || item.max_quantity > 0) && (
-                                <span className="text-[8px] font-bold text-white/50 uppercase tracking-widest">
-                                  {item.max_quantity > 0 ? `Min: ${item.min_quantity} / Máx: ${item.max_quantity}` : `Mínimo: ${item.min_quantity}`}
-                                </span>
-                              )}
-                              {item.extra_price > 0 && (
-                                <span className={`text-[9px] font-bold px-2 py-0.5 mt-1 rounded-full ${qty > 0 ? 'bg-white/30 text-white border border-white/20' : 'bg-black/20 text-white/70 border border-white/10'}`}>
-                                  +Q{(item.extra_price || 0).toFixed(2)}
-                                </span>
-                              )}
-                            </>
-                          )}
+                          {/* Price */}
+                          <span className="text-[10px] font-bold text-white/80 shrink-0">
+                            {item.extra_price > 0 && !isMod ? '+' : ''}Q{(Number(item.extra_price) || 0).toFixed(2)}
+                          </span>
 
+                          {/* Selected Badge */}
                           {qty > 0 && (
-                            <div className="absolute top-1.5 left-2 px-1.5 py-0.5 bg-black/40 rounded-sm text-[9px] font-black text-white uppercase tracking-tighter">
-                              x{qty}
+                            <div className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full text-[11px] font-black text-black flex items-center justify-center shadow-lg">
+                              {qty}
                             </div>
                           )}
                         </button>
@@ -490,7 +538,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                   <div key={mod.id} className="group flex justify-between items-center py-2 px-3 bg-[#3e4153]/40 border-b border-[#3e4153] hover:bg-[#3e4153]/80 transition-colors">
                     <span className="text-xs font-bold text-white/90 uppercase pl-3 flex items-center gap-2">
                       <div className={`w-1.5 h-1.5 rounded-full ${mod.type === 'ADD' ? 'bg-white/60' : 'bg-white/30'}`}></div>
-                      {mod.quantity > 1 ? `${mod.quantity}x ` : ''}{mod.display_name || mod.name}
+                      {mod.quantity > 1 ? `${mod.quantity} ` : ''}{mod.display_name || mod.name}
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-white">

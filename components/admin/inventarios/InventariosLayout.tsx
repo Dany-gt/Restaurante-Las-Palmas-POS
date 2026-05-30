@@ -1071,6 +1071,22 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                         <Plus size={14} className="text-green-600" />
                         <span>Agregar {optionsContextMenu.type === 'options' ? 'Opciones' : 'Modificadores'}</span>
                     </button>
+                    {optionsContextMenu.targetGroupId && (
+                        <button
+                            onClick={() => {
+                                if (optionsContextMenu.type === 'options') {
+                                    setAssignedOptionGroups(prev => prev.filter(g => g.group_id !== optionsContextMenu.targetGroupId));
+                                } else {
+                                    setAssignedModifierGroups(prev => prev.filter(g => g.group_id !== optionsContextMenu.targetGroupId));
+                                }
+                                setOptionsContextMenu({ ...optionsContextMenu, visible: false });
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white text-left"
+                        >
+                            <X size={14} className="text-orange-500" />
+                            <span>Quitar {optionsContextMenu.type === 'options' ? 'Opción' : 'Modificador'}</span>
+                        </button>
+                    )}
                     <button
                         onClick={() => {
                             if (optionsContextMenu.type === 'options') setAssignedOptionGroups([]);
@@ -1080,7 +1096,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                         className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white text-left"
                     >
                         <Trash2 size={14} className="text-red-600" />
-                        <span>Quitar Todos</span>
+                        <span>Quitar {optionsContextMenu.type === 'options' ? 'Opciones' : 'Modificadores'}</span>
                     </button>
                 </div>,
                 document.body
@@ -1152,10 +1168,10 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                                 const units = getCompatibleUnits(item.unit_measure);
                                                                 setConfigModal({ item, quantity: '0', unit: units[0] || 'Unidad' });
                                                             } else if (searchModal.type === 'options') {
-                                                                if (!assignedOptionGroups.some(g => g.group_id === item.id)) setAssignedOptionGroups([...assignedOptionGroups, { group_id: item.id }]);
+                                                                if (!assignedOptionGroups.some(g => g.group_id === item.id)) setAssignedOptionGroups([...assignedOptionGroups, { group_id: item.id, option_groups: { name: item.name || item.nombre } }]);
                                                                 setSearchModal({ ...searchModal, visible: false, type: null, query: '' });
                                                             } else {
-                                                                if (!assignedModifierGroups.some(g => g.group_id === item.id)) setAssignedModifierGroups([...assignedModifierGroups, { group_id: item.id }]);
+                                                                if (!assignedModifierGroups.some(g => g.group_id === item.id)) setAssignedModifierGroups([...assignedModifierGroups, { group_id: item.id, modifier_groups: { name: item.name || item.nombre } }]);
                                                                 setSearchModal({ ...searchModal, visible: false, type: null, query: '' });
                                                             }
                                                         }}

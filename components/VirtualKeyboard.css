@@ -5,22 +5,11 @@
 }
 
 .hg-theme-default .hg-button {
-    background: #374151 !important;
-    color: white !important;
-    border-bottom: 2px solid #111827 !important;
-    height: 45px !important;
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    border-radius: 6px !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-    transition: all 0.1s ease !important;
-    margin: 2px !important;
+    /* Los estilos base se manejan en la sección principal más abajo */
 }
 
 .hg-theme-default .hg-button:active {
-    background: #4b5563 !important;
-    transform: translateY(2px) !important;
-    border-bottom-width: 0 !important;
+    /* Los estilos activos se manejan en la sección principal más abajo */
 }
 
 /* Active State for Shift/Caps */
@@ -157,25 +146,25 @@
 
 /* Button Stylings */
 .hg-theme-default .hg-button {
-    background: #3a3b4d !important;
+    background: #303141 !important;
     color: #e5e7eb !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
     height: 54px !important;
     font-size: 16px !important;
-    font-weight: 700 !important;
-    border-radius: 16px !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
-    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    margin: 4px !important;
+    font-weight: 500 !important;
+    border-radius: 2px !important;
+    box-shadow: none !important;
+    transition: background-color 0.05s ease !important;
+    margin: 1px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
 }
 
 .hg-theme-default .hg-button:active {
-    background: #374151 !important;
-    transform: scale(0.96) !important;
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+    background: #4b5563 !important;
+    transform: none !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Functional Buttons */
@@ -198,13 +187,13 @@
 .keyboard-container.numpad-only .hg-button {
     height: 54px !important;
     font-size: 18px !important;
-    margin: 3px !important;
-    border-radius: 12px !important;
+    margin: 1px !important;
+    border-radius: 2px !important;
 }
 
 .keyboard-container.numpad-only .hg-button-enter {
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
-    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3) !important;
+    background: #4f46e5 !important;
+    box-shadow: none !important;
 }
 
 .hg-theme-default .hg-button.hg-activeButton,

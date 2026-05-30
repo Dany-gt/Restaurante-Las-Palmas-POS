@@ -470,17 +470,64 @@ export const shiftService = {
             const attachments = [
                 await generatePdf(reportTemplates.generateCierreCaja(reportData), 'Cierre_Caja'),
                 await generatePdf(reportTemplates.generateCuadreTarjetas(reportData), 'Cuadre_Tarjetas'),
-                await generatePdf(reportTemplates.generateGastos(reportData), 'Resumen_Gastos'),
-                await generatePdf(reportTemplates.generateInventario(inventoryData), 'Inventario'),
-                await generatePdf(reportTemplates.generatePlatosVendidos(soldItems, `${reportData.startTime} - ${reportData.endTime}`), 'Platos_Vendidos')
+                await generatePdf(reportTemplates.generateGastos(reportData), 'Resumen_Gastos')
             ];
+
+            const emailSubject = `Reporte de Cierre - ${reportData.registerName || 'Caja'} - ${reportData.cashierName} - ${new Date().toLocaleDateString()}`;
+            const emailBody = `
+REPORTE DE CIERRE DE TURNO
+═══════════════════════════════════════
+Adjunto a este correo encontrará los reportes en formato PDF correspondientes al turno:
+
+Turno: ${reportData.registerName || 'Caja'}: ${reportData.cashierName}
+Apertura: ${reportData.startTime}
+Cierre: ${reportData.endTime}
+
+ESTADÍSTICAS
+─────────────────────────────────────
+Órdenes Atendidas: ${reportData.stats.ordersAttended}
+Órdenes Anuladas: ${reportData.stats.cancelledOrders}
+Comensales: ${reportData.stats.commensals}
+
+VENTAS POR MÉTODO DE PAGO
+─────────────────────────────────────
+${reportData.salesByMethod.map(s => `${s.method}: Q${s.amount.toFixed(2)}`).join('\n')}
+─────────────────────────────────────
+TOTAL VENTAS: Q${reportData.salesTotal.toFixed(2)}
+
+PROPINAS
+─────────────────────────────────────
+${reportData.tipsByMethod.length > 0 ? reportData.tipsByMethod.map(t => `${t.method}: Q${t.amount.toFixed(2)}`).join('\n') : 'Sin propinas'}
+─────────────────────────────────────
+TOTAL PROPINAS: Q${reportData.tipsByMethod.reduce((acc, t) => acc + t.amount, 0).toFixed(2)}
+
+CUADRE DE EFECTIVO
+─────────────────────────────────────
+(+) Inicial: Q${reportData.cashDetail.initial.toFixed(2)}
+(+) Ventas: Q${reportData.cashDetail.sales.toFixed(2)}
+(+) Propinas: Q${reportData.cashDetail.tips.toFixed(2)}
+(-) Gastos: Q${reportData.cashDetail.expenses.toFixed(2)}
+─────────────────────────────────────
+ESPERADO: Q${reportData.expectedCash.toFixed(2)}
+CONTADO: Q${reportData.countedCash.toFixed(2)}
+DIFERENCIA: Q${reportData.difference.toFixed(2)} ${reportData.difference === 0 ? '✓ CUADRADO' : (reportData.difference > 0 ? '(SOBRANTE)' : '(FALTANTE)')}
+
+Documentos adjuntos:
+1. Cierre_Caja.pdf
+2. Cuadre_Tarjetas.pdf
+3. Resumen_Gastos.pdf
+
+═══════════════════════════════════════
+Generado: ${new Date().toLocaleString('es-GT')}
+            `.trim();
 
             const { data: settings } = await supabase.from('system_settings').select('*').single();
             if (settings?.smtp_user) {
                 await electron.sendEmail({
                     to: settings.cashier_emails || settings.smtp_user,
-                    subject: `Cierre de Caja - ${reportData.cashierName} - ${new Date().toLocaleDateString()}`,
-                    body: `Se adjuntan los 5 reportes operativos del cierre de turno.\nCajero: ${reportData.cashierName}\nFecha: ${new Date().toLocaleString()}`,
+                    subject: emailSubject,
+                    body: emailBody,
+                    isHtml: false,
                     smtpConfig: {
                         host: settings.smtp_host,
                         port: settings.smtp_port,

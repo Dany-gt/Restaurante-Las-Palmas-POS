@@ -623,7 +623,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
         // Formatear notas combinando los identificadores de los modificadores y la nota manual
         const modifierText = selectedModifiers
-            .map(m => m.item_quantity > 1 ? `${m.name} (x${m.item_quantity})` : m.name)
+            .map(m => m.item_quantity > 1 ? `${m.item_quantity} ${m.name}` : m.name)
             .join(' | ');
         const finalNotes = [modifierText, notes].filter(Boolean).join(' | ');
 

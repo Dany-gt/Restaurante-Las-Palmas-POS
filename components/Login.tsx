@@ -28,6 +28,8 @@ const CashRegisterIcon = ({ size = 24, strokeWidth = 1.5, className = "" }) => (
   </svg>
 );
 import { PrinterSelector } from './PrinterSelector';
+import { AppUpdater } from './AppUpdater';
+import packageJson from '../package.json';
 
 interface LoginProps {
   currentUser?: User | null;
@@ -808,7 +810,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
 
           {/* Versión Info */}
           <div className="mt-auto py-6 text-center">
-            <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">v1.3.1 - RESTAURANTE LAS PALMAS</span>
+            <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">v{packageJson.version} - RESTAURANTE LAS PALMAS</span>
           </div>
         </div>
 
@@ -981,6 +983,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
 
             <div className="flex items-center justify-center px-8 py-4 border-t border-white/5 flex-shrink-0">
               <div className="flex flex-wrap justify-center gap-4 w-full max-w-5xl">
+                <AppUpdater />
                 <button
                   type="button"
                   onClick={() => onRefreshMenu?.('config')}
@@ -1122,7 +1125,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
               {/* Footer Info */}
               <div className="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
                 <div className="flex flex-col">
-                  <span className="text-[8px] font-black text-gray-500 tracking-widest uppercase">Versión 1.3.1</span>
+                  <span className="text-[8px] font-black text-gray-500 tracking-widest uppercase">Versión {packageJson.version}</span>
                 </div>
               </div>
             </div>

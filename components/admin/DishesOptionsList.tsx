@@ -132,14 +132,7 @@ export const DishesOptionsList: React.FC = () => {
     };
 
     const handleSave = async () => {
-        if (!form.item_name) {
-            notify.alert('El nombre de la opción es requerido.');
-            return;
-        }
-        if (!form.option_group_id) {
-            notify.alert('Debe seleccionar un grupo.');
-            return;
-        }
+        if (!form.item_name || !form.option_group_id) return;
         setSaving(true);
         const payload = {
             item_name: form.item_name.toUpperCase(),
@@ -313,49 +306,49 @@ export const DishesOptionsList: React.FC = () => {
             {/* Context Menu */}
             {contextMenu.visible && createPortal(
                 <>
-                <div
-                    className="fixed inset-0 z-[99999]"
-                    onClick={closeContextMenu}
-                    onContextMenu={(e) => { e.preventDefault(); closeContextMenu(); }}
-                />
-                <div
-                    className="fixed z-[100000] w-44 bg-white border border-gray-300 shadow-xl overflow-hidden py-1 select-none font-sans"
-                    style={{ top: contextMenu.y, left: contextMenu.x }}
-                >
-                    <button
-                        onClick={handleNew}
-                        className="w-full h-8 px-4 flex items-center gap-3 hover:bg-[#106ebe] hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
+                    <div
+                        className="fixed inset-0 z-[99999]"
+                        onClick={closeContextMenu}
+                        onContextMenu={(e) => { e.preventDefault(); closeContextMenu(); }}
+                    />
+                    <div
+                        className="fixed z-[100000] w-44 bg-white border border-gray-300 shadow-xl overflow-hidden py-1 select-none font-sans"
+                        style={{ top: contextMenu.y, left: contextMenu.x }}
                     >
-                        <Plus size={14} className="text-green-600 group-hover:text-inherit" />
-                        Nuevo
-                    </button>
-                    {contextMenu.item && (
-                        <>
                         <button
-                            onClick={() => handleEdit(contextMenu.item)}
+                            onClick={handleNew}
                             className="w-full h-8 px-4 flex items-center gap-3 hover:bg-[#106ebe] hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
                         >
-                            <Edit3 size={14} className="text-blue-600 group-hover:text-inherit" />
-                            Editar
+                            <Plus size={14} className="text-green-600 group-hover:text-inherit" />
+                            Nuevo
                         </button>
+                        {contextMenu.item && (
+                            <>
+                                <button
+                                    onClick={() => handleEdit(contextMenu.item)}
+                                    className="w-full h-8 px-4 flex items-center gap-3 hover:bg-[#106ebe] hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
+                                >
+                                    <Edit3 size={14} className="text-blue-600 group-hover:text-inherit" />
+                                    Editar
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(contextMenu.item)}
+                                    className="w-full h-8 px-4 flex items-center gap-3 hover:bg-red-600 hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
+                                >
+                                    <Trash2 size={14} className="text-red-500 group-hover:text-inherit" />
+                                    Eliminar
+                                </button>
+                            </>
+                        )}
+                        <div className="h-px bg-gray-200 my-1 font-normal" />
                         <button
-                            onClick={() => handleDelete(contextMenu.item)}
-                            className="w-full h-8 px-4 flex items-center gap-3 hover:bg-red-600 hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
+                            onClick={fetchData}
+                            className="w-full h-8 px-4 flex items-center gap-3 hover:bg-[#106ebe] hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
                         >
-                            <Trash2 size={14} className="text-red-500 group-hover:text-inherit" />
-                            Eliminar
+                            <RotateCcw size={14} className="text-blue-600 group-hover:text-inherit" />
+                            Refrescar
                         </button>
-                        </>
-                    )}
-                    <div className="h-px bg-gray-200 my-1 font-normal" />
-                    <button
-                        onClick={fetchData}
-                        className="w-full h-8 px-4 flex items-center gap-3 hover:bg-[#106ebe] hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
-                    >
-                        <RotateCcw size={14} className="text-blue-600 group-hover:text-inherit" />
-                        Refrescar
-                    </button>
-                </div>
+                    </div>
                 </>,
                 document.body
             )}
@@ -415,19 +408,6 @@ export const DishesOptionsList: React.FC = () => {
                                                         onChange={e => setForm({ ...form, display_name: e.target.value })}
                                                         className="flex-1 h-6 border border-gray-300 px-2 text-[11px] font-normal text-black uppercase outline-none focus:border-[#106ebe]"
                                                     />
-                                                </div>
-                                                <div className="flex items-center gap-4">
-                                                    <label className="w-20 text-[10px] font-bold text-slate-500">Grupo</label>
-                                                    <select
-                                                        value={form.option_group_id}
-                                                        onChange={e => setForm({ ...form, option_group_id: e.target.value })}
-                                                        className="flex-1 h-6 border border-gray-300 px-2 text-[11px] font-normal text-black uppercase outline-none focus:border-[#106ebe]"
-                                                    >
-                                                        <option value="">SELECCIONE UN GRUPO</option>
-                                                        {optionGroups.map(g => (
-                                                            <option key={g.id} value={g.id}>{g.name}</option>
-                                                        ))}
-                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
