@@ -498,8 +498,20 @@ class PrintService {
         print_status: 'pre_check_pending',
         requires_printing: true
       }).eq('id', orderId);
+      
+      // Notify the UI
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('app-notification', {
+          detail: { type: 'SUCCESS', message: 'Impresión enviada a Caja' }
+        }));
+      }
     } catch (e) {
       console.error('Error requesting pre-check print:', e);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('app-notification', {
+          detail: { type: 'ERROR', message: 'Error enviando impresión' }
+        }));
+      }
     }
   }
 
