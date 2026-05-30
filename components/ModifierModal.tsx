@@ -211,8 +211,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
         return prev.filter(i => i.id !== item.id);
       }
 
-      // Toggle On: Asignar de golpe el máximo permitido del grupo (si es 0, asigna 1)
-      const qtyToSet = currentGroup.max_selection > 0 ? currentGroup.max_selection : 1;
+      // Toggle On: Asignar de golpe el máximo permitido del grupo (si es 0, asigna 1), pero los modificadores siempre son 1
+      const qtyToSet = currentGroup.type === 'MODIFIER' ? 1 : (currentGroup.max_selection > 0 ? currentGroup.max_selection : 1);
 
       // Comportamiento de Radio Button (Solo 1 opción permitida)
       if (currentGroup.max_selection === 1) {
@@ -511,7 +511,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                           {/* Selected Badge */}
                           {qty > 0 && (
                             <div className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full text-[11px] font-black text-black flex items-center justify-center shadow-lg">
-                              {qty}
+                              {isMod ? '✓' : qty}
                             </div>
                           )}
                         </button>
