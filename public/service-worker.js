@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'static-v1-2-7';
-const DYNAMIC_CACHE = 'dynamic-v1-2-7';
+const STATIC_CACHE = 'static-v1-2-8';
+const DYNAMIC_CACHE = 'dynamic-v1-2-8';
 
 const ASSETS = ['/', '/index.html', '/manifest.json'];
 
@@ -107,14 +107,15 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // ── Everything else ─ Cache First, Network Fallback ────────────────────
+    // ── Everything else (HTML, JS, CSS) ─ Network First, Cache Fallback ────────
+    // This solves the issue of users having to manually clear cache for new updates!
     event.respondWith(
-        caches.match(request).then((cached) => {
-            if (cached) return cached;
-            return fetch(request).then((networkRes) => {
-                bgCache(request, networkRes.clone());
-                return networkRes;
-            }).catch(() => undefined);
+        fetch(request).then((networkRes) => {
+            bgCache(request, networkRes.clone());
+            return networkRes;
+        }).catch(() => {
+            // If offline, use cache
+            return caches.match(request);
         })
     );
 });
