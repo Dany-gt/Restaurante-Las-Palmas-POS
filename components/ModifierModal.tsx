@@ -464,7 +464,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                       : (qty === 0 && currentGroup.max_selection > 0 && grpQty >= currentGroup.max_selection);
 
                     const isMod = currentGroup.type === 'MODIFIER';
-                    const bgColor = item.color_code || (isMod ? '#357a80' : '');
+                    const bgColor = item.color_code || (isMod ? '#b87333' : '');
 
                     return (
                       <div key={item.id} className="relative group">
@@ -476,7 +476,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                           style={bgColor ? {
                             backgroundColor: bgColor
                           } : undefined}
-                          className={`w-36 h-48 rounded-[16px] p-3 transition-all duration-200 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${bgColor
+                          className={`${isMod ? 'w-44 h-20 rounded-xl gap-1' : 'w-36 h-48 rounded-[16px] gap-1.5'} p-3 transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden ${bgColor
                             ? (qty > 0 ? 'brightness-110 shadow-[0_0_15px_rgba(255,255,255,0.2)] ring-2 ring-white' : 'hover:brightness-110 shadow-md')
                             : (qty > 0
                               ? 'bg-[#40465c] ring-2 ring-white shadow-[0_0_15px_rgba(255,255,255,0.1)]'
@@ -485,24 +485,26 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                                 : 'bg-[#3b4156] hover:bg-[#484f6a] shadow-md')
                             }`}
                         >
-                          {/* Image Container */}
-                          <div className="w-full h-20 flex items-center justify-center shrink-0">
-                            {item.image_url ? (
-                              <img src={item.image_url} alt={item.name} className="max-w-full max-h-full object-contain drop-shadow-md" />
-                            ) : (
-                              <div className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center">
-                                <span className="text-white/20 text-[9px] font-bold uppercase tracking-wider">Img</span>
-                              </div>
-                            )}
-                          </div>
+                          {/* Image Container (Only for Options, not Modifiers) */}
+                          {!isMod && (
+                            <div className="w-full h-20 flex items-center justify-center shrink-0">
+                              {item.image_url ? (
+                                <img src={item.image_url} alt={item.name} className="max-w-full max-h-full object-contain drop-shadow-md" />
+                              ) : (
+                                <div className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center">
+                                  <span className="text-white/20 text-[9px] font-bold uppercase tracking-wider">Img</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                           
                           {/* Text Container */}
-                          <span className="text-[10px] font-black uppercase tracking-tight text-center leading-tight text-white line-clamp-3 mt-2 px-1">
+                          <span className={`text-[10px] font-black uppercase tracking-tight text-center leading-tight text-white line-clamp-3 px-1 ${!isMod ? 'mt-2' : ''}`}>
                             {item.display_name || item.name}
                           </span>
 
                           {/* Price */}
-                          <span className="text-[10px] font-bold text-white/80 shrink-0">
+                          <span className={`${isMod ? 'text-[11px]' : 'text-[10px]'} font-bold text-white/80 shrink-0`}>
                             {item.extra_price > 0 && !isMod ? '+' : ''}Q{(Number(item.extra_price) || 0).toFixed(2)}
                           </span>
 
