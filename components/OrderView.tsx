@@ -28,6 +28,24 @@ import { WindowsConfirmModal } from './WindowsConfirmModal';
 import { WindowsInputModal } from './WindowsInputModal';
 import { generateUUID } from '../utils/uuid';
 
+export const parseNotes = (notesStr?: string | null) => {
+    if (!notesStr) return { mods: '', obs: '', isJson: false, noPrint: false };
+    const noPrint = notesStr.includes('*NO IMPRIMIR*');
+    const clean = notesStr.replace('*NO IMPRIMIR*', '').trim();
+    try {
+        if (clean.startsWith('{') && (clean.includes('"mods"') || clean.includes('"obs"'))) {
+            const parsed = JSON.parse(clean);
+            return { mods: parsed.mods || '', obs: parsed.obs || '', isJson: true, noPrint };
+        }
+    } catch(e) {}
+    return { mods: '', obs: clean, isJson: false, noPrint };
+};
+
+export const formatNotesForDisplay = (notesStr?: string | null) => {
+    const p = parseNotes(notesStr);
+    return [p.mods, p.obs].filter(Boolean).join(' | ');
+};
+
 const PlaceholderLogo = () => (
     <div className="flex flex-col items-center justify-center h-full w-full p-0 scale-100 sm:scale-110">
         <div className="flex items-baseline text-white leading-none">
@@ -621,11 +639,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         // Generar un ID local único para el item si no estamos editando
         const localId = editingItemId || `i-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-        // Formatear notas combinando los identificadores de los modificadores y la nota manual
+        // Formatear notas usando JSON para separar modificadores de la nota manual (comentario)
         const modifierText = selectedModifiers
             .map(m => m.item_quantity > 1 ? `${m.item_quantity} ${m.name}` : m.name)
             .join(' | ');
-        const finalNotes = [modifierText, notes].filter(Boolean).join(' | ');
+        const finalNotes = JSON.stringify({ mods: modifierText, obs: notes });
 
         // Determinar el precio base segn la rama y tipo de orden
         const currentOrder = tableOrders.find(o => o.id === activeOrderId) || (activeOrderId === initialOrder.id ? initialOrder : null);
@@ -695,8 +713,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             tableName: table?.section,
             waiterName: currentUser?.name || (currentUser as any)?.full_name,
             items: unsentItems
-                .filter(i => !(i as any).notes?.includes('*NO IMPRIMIR*'))
-                .map(i => ({ name: i.product_name, quantity: i.quantity, notes: (i as any).notes })),
+                .filter(i => {
+                    const parsed = parseNotes(i.notes);
+                    return !parsed.noPrint;
+                })
+                .map(i => ({ name: i.product_name, quantity: i.quantity, notes: formatNotesForDisplay(i.notes) })),
             createdAt: DateUtils.nowISO()
         };
         if (ticketData.items.length > 0) {
@@ -768,7 +789,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 name: i.product_name || (i as any).product?.name || 'Producto',
                 quantity: i.quantity,
                 price: i.price,
-                notes: i.notes,
+                notes: formatNotesForDisplay(i.notes),
                 discount_percentage: i.discount_percentage,
                 discount_amount: i.discount_amount
             })),
@@ -1133,7 +1154,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 name: i.product_name,
                                 quantity: i.quantity,
                                 price: i.price,
-                                notes: i.notes
+                                notes: formatNotesForDisplay(i.notes)
                             })),
                             subtotal: subtotalAfterDiscount - currentTaxAmount,
                             taxAmount: currentTaxAmount,
@@ -1394,7 +1415,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
     const fetchData = async (silent = false, overrideActiveOrderId?: string | null) => {
         // 1. HYBRID LOAD: Try Cache First (Catalogues)
-        // 1. HYBRID LOAD: Try Cache First (Catalogues)
         let hasCache = false;
 
         try {
@@ -1494,32 +1514,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
         try {
             const myBranchId = currentUser?.branch_id;
-
-            /* 
-               MASTER DATA FETCH REMOVED FROM OrderView RE-MOUNT 
-               To respect manual synchronization and prevent flickering.
-               Master data is now only updated via the "Actualizar" buttons in Dashboard.
-            */
-
-            /*
-            // FETCH CATEGORIES
-            console.log('DEBUG CATS QUERY: myBranchId =', myBranchId);
-            let catsQuery = supabase.from('categories').select('*').order('order_index');
-            if (myBranchId) catsQuery = catsQuery.or(`branch_id.eq.${myBranchId},branch_id.is.null`);
-            const { data: cats, error: catsError } = await catsQuery;
-            if (cats) setCategories(cats);
-
-            // FETCH PRODUCTS
-            let prodsQuery = supabase.from('products').select('*').eq('is_enabled', true);
-            const { data: prods, error: prodsError } = await prodsQuery;
-            if (prods) setProducts(prods);
-
-            // Fetch Branch Prices for the current branch
-            if (myBranchId) {
-                const { data: bPrices } = await supabase.from('product_branch_prices').select('*').eq('branch_id', myBranchId);
-                setBranchPrices(bPrices || []);
-            }
-            */
 
             // RELOAD MASTER DATA FROM IndexedDB ONLY IF LOCAL STATE IS EMPTY (Failsafe)
             if (categories.length === 0 || products.length === 0) {
@@ -2103,7 +2097,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     product_id: i.product_id,
                     quantity: i.quantity,
                     unit_price: i.price,
-                    notes: (i as any).notes,
+                    notes: i.notes,
                     status: (i as any).status || 'pending',
                     created_at: DateUtils.toGuatemalaISO(nowWithOffset),
                     discount_id: i.discount_id,
@@ -2402,13 +2396,16 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         (finalOrderId === initialOrder.id ? initialOrder : null);
 
                     const kdsItems = unsentItems
-                        .filter(i => !(i as any).notes?.includes('*NO IMPRIMIR*'))
+                        .filter(i => {
+                            const parsed = parseNotes(i.notes);
+                            return !parsed.noPrint;
+                        })
                         .map(i => ({
                             id: i.id,
                             product_id: i.product_id,
                             product_name: i.product_name,
                             quantity: i.quantity,
-                            notes: (i as any).notes,
+                            notes: formatNotesForDisplay(i.notes),
                             price: i.price
                         }));
 
@@ -3011,9 +3008,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                         </div>
                                                         <span className={`font-bold tabular-nums text-white shrink-0 ml-1 ${isTablet ? 'text-[10px]' : 'text-sm lg:text-xs'}`}>{currency}{((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                                                     </div>
-                                                    {item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim() && (
-                                                        <div className={`flex items-center gap-1 ${isTablet ? 'mt-0.5' : 'mt-1.5 lg:mt-1'}`}>
-                                                            <span className={`text-gray-500 truncate ${isTablet ? 'text-[9px] max-w-[100px]' : 'text-xs lg:text-[10px] max-w-[150px]'}`}>{item.notes.replace('*NO IMPRIMIR*', '').trim()}</span>
+                                                    {item.notes && formatNotesForDisplay(item.notes) && (
+                                                        <div className="flex items-center gap-1 mt-0.5" onClick={(e) => { e.stopPropagation(); setTabletItemActionModal(item); }}>
+                                                            <span className={`text-gray-500 truncate ${isTablet ? 'text-[9px] max-w-[100px]' : 'text-xs lg:text-[10px] max-w-[150px]'}`}>{formatNotesForDisplay(item.notes)}</span>
                                                         </div>
                                                     )}
                                                 </div>

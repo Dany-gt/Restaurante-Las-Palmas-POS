@@ -2,6 +2,22 @@ import React, { useState, useEffect, useRef } from 'react';
 import { KitchenTimer } from './KitchenTimer';
 import { DateUtils } from '../utils/DateUtils';
 
+export const parseKitchenNotes = (notesStr?: string | null) => {
+    if (!notesStr) return { mods: '', obs: '', hasNotes: false };
+    const clean = notesStr.replace('*NO IMPRIMIR*', '').trim();
+    if (!clean) return { mods: '', obs: '', hasNotes: false };
+    try {
+        if (clean.startsWith('{') && (clean.includes('"mods"') || clean.includes('"obs"'))) {
+            const parsed = JSON.parse(clean);
+            return { 
+                mods: parsed.mods || '', 
+                obs: parsed.obs || '', 
+                hasNotes: !!(parsed.mods || parsed.obs) 
+            };
+        }
+    } catch(e) {}
+    return { mods: '', obs: clean, hasNotes: true };
+};
 
 import { Clock, CheckCircle2, Flame, ChefHat, Bell, AlertCircle, Loader2, Play, Check, Trash2, Volume2, VolumeX, ChevronLeft, ChevronRight, Maximize2, X, History, Mic, MicOff, Printer } from 'lucide-react';
 import { supabase } from '../supabase';
@@ -1030,17 +1046,32 @@ export const KitchenView: React.FC = () => {
                             <span className="text-[11px] font-black uppercase tracking-tight leading-none text-white">{item.product_name}</span>
                             <span className="text-[12px] font-black text-white bg-black/20 px-2 py-0.5 rounded-md">x{item.quantity}</span>
                           </div>
-                          {item.notes && (
-                            <div className="mt-2 p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                              <div className="flex items-center gap-1.5 mb-1">
-                                <AlertCircle size={10} className="text-amber-500 flex-shrink-0" />
-                                <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest">Indicaciones:</span>
+                          {(() => {
+                            const { mods, obs, hasNotes } = parseKitchenNotes(item.notes);
+                            if (!hasNotes) return null;
+                            return (
+                              <div className="mt-2 flex flex-col gap-1">
+                                {mods && (
+                                  <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
+                                    <span className="text-[10px] text-indigo-400 font-bold uppercase leading-snug break-words">
+                                      {mods}
+                                    </span>
+                                  </div>
+                                )}
+                                {obs && (
+                                  <div className="p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                                    <div className="flex items-center gap-1.5 mb-1">
+                                      <AlertCircle size={10} className="text-amber-500 flex-shrink-0" />
+                                      <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest">Indicaciones:</span>
+                                    </div>
+                                    <p className="text-[11px] text-[#ff7675] font-bold uppercase leading-snug break-words">
+                                      "{obs}"
+                                    </p>
+                                  </div>
+                                )}
                               </div>
-                              <p className="text-[11px] text-[#ff7675] font-bold uppercase leading-snug break-words">
-                                "{item.notes}"
-                              </p>
-                            </div>
-                          )}
+                            );
+                          })()}
                         </div>
 
                         <div className="flex items-center gap-1 flex-shrink-0">
@@ -1240,12 +1271,25 @@ export const KitchenView: React.FC = () => {
                           <span className="text-2xl font-black uppercase tracking-tight">{item.product_name}</span>
                           <span className="text-sm font-bold text-indigo-400 bg-indigo-400/10 px-3 py-1 rounded-full">x{item.quantity}</span>
                         </div>
-                        {item.notes && (
-                          <div className="mt-3 flex items-start gap-3 bg-black/40 p-4 rounded-2xl border border-white/5">
-                            <AlertCircle size={18} className="text-amber-500 mt-1 flex-shrink-0" />
-                            <p className="text-base text-amber-500 font-black uppercase leading-relaxed">"{item.notes}"</p>
-                          </div>
-                        )}
+                        {(() => {
+                          const { mods, obs, hasNotes } = parseKitchenNotes(item.notes);
+                          if (!hasNotes) return null;
+                          return (
+                            <div className="mt-3 flex flex-col gap-2">
+                              {mods && (
+                                <div className="p-3 bg-indigo-500/10 rounded-2xl border border-indigo-500/20">
+                                  <p className="text-base text-indigo-400 font-bold uppercase leading-relaxed">{mods}</p>
+                                </div>
+                              )}
+                              {obs && (
+                                <div className="flex items-start gap-3 bg-black/40 p-4 rounded-2xl border border-amber-500/10">
+                                  <AlertCircle size={18} className="text-amber-500 mt-1 flex-shrink-0" />
+                                  <p className="text-base text-amber-500 font-black uppercase leading-relaxed">"{obs}"</p>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       <div className="flex items-center gap-3">

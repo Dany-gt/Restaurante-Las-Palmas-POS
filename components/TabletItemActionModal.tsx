@@ -27,13 +27,29 @@ export const TabletItemActionModal: React.FC<TabletItemActionModalProps> = ({
     onSendWithoutPrinting
 }) => {
     const [quantityStr, setQuantityStr] = useState(item?.quantity?.toString() || '1');
-    const [tempNotes, setTempNotes] = useState(item?.notes?.replace('*NO IMPRIMIR*', '').trim() || '');
+    const [tempNotes, setTempNotes] = useState(() => {
+        let n = item?.notes?.replace('*NO IMPRIMIR*', '').trim() || '';
+        try {
+            if (n.startsWith('{') && (n.includes('"mods"') || n.includes('"obs"'))) {
+                const obj = JSON.parse(n);
+                return obj.obs || '';
+            }
+        } catch(e) {}
+        return n;
+    });
     const [isCustomizable, setIsCustomizable] = useState<boolean>(false);
 
     useEffect(() => {
         if (item) {
             setQuantityStr(item.quantity?.toString() || '1');
-            setTempNotes(item.notes?.replace('*NO IMPRIMIR*', '').trim() || '');
+            let n = item.notes?.replace('*NO IMPRIMIR*', '').trim() || '';
+            try {
+                if (n.startsWith('{') && (n.includes('"mods"') || n.includes('"obs"'))) {
+                    const obj = JSON.parse(n);
+                    n = obj.obs || '';
+                }
+            } catch(e) {}
+            setTempNotes(n);
         }
     }, [item]);
 
@@ -85,7 +101,20 @@ export const TabletItemActionModal: React.FC<TabletItemActionModalProps> = ({
         if (!isNaN(newQty) && newQty > 0) {
             onUpdateQuantity(item.id, newQty);
         }
-        onUpdateNotes(item.id, tempNotes);
+
+        let newNotes = tempNotes;
+        let originalCleanNotes = item.notes?.replace('*NO IMPRIMIR*', '').trim() || '';
+        const noPrint = item.notes?.includes('*NO IMPRIMIR*') ? ' *NO IMPRIMIR*' : '';
+
+        try {
+            if (originalCleanNotes.startsWith('{') && (originalCleanNotes.includes('"mods"') || originalCleanNotes.includes('"obs"'))) {
+                const obj = JSON.parse(originalCleanNotes);
+                obj.obs = tempNotes;
+                newNotes = JSON.stringify(obj);
+            }
+        } catch (e) {}
+
+        onUpdateNotes(item.id, newNotes + noPrint);
         onClose();
     };
 
@@ -143,9 +172,19 @@ export const TabletItemActionModal: React.FC<TabletItemActionModalProps> = ({
                             </button>
                             <button
                                 onClick={() => {
-                                    onUpdateNotes(item.id || item.cart_id || '', tempNotes + (tempNotes ? ' ' : '') + '*NO IMPRIMIR*');
+                                    let newNotes = tempNotes;
+                                    let originalCleanNotes = item.notes?.replace('*NO IMPRIMIR*', '').trim() || '';
+                                    try {
+                                        if (originalCleanNotes.startsWith('{') && (originalCleanNotes.includes('"mods"') || originalCleanNotes.includes('"obs"'))) {
+                                            const obj = JSON.parse(originalCleanNotes);
+                                            obj.obs = tempNotes;
+                                            newNotes = JSON.stringify(obj);
+                                        }
+                                    } catch (e) {}
+                                    
+                                    onUpdateNotes(item.id || item.cart_id || '', newNotes + ' *NO IMPRIMIR*');
                                     if (onSendWithoutPrinting) {
-                                        onSendWithoutPrinting({ ...item, notes: tempNotes + (tempNotes ? ' ' : '') + '*NO IMPRIMIR*' });
+                                        onSendWithoutPrinting({ ...item, notes: newNotes + ' *NO IMPRIMIR*' });
                                     }
                                 }}
                                 className={`border-r border-white/5 text-[9px] font-bold uppercase tracking-wider h-16 transition-colors flex items-center justify-center text-center leading-tight hover:bg-white/10 text-white`}

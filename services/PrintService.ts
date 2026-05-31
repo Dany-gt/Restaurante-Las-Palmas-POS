@@ -38,6 +38,22 @@ export interface PrintSettings {
   restaurant_logo?: string;
 }
 
+const formatPrintNotes = (notesStr?: string | null) => {
+  if (!notesStr) return '';
+  const clean = notesStr.replace('*NO IMPRIMIR*', '').trim();
+  if (!clean) return '';
+  try {
+    if (clean.startsWith('{') && (clean.includes('"mods"') || clean.includes('"obs"'))) {
+      const obj = JSON.parse(clean);
+      let html = '';
+      if (obj.mods) html += `<div class="note-mod">${obj.mods}</div>`;
+      if (obj.obs) html += `<div class="note-obs">(${obj.obs})</div>`;
+      return html;
+    }
+  } catch (e) {}
+  return `<div class="note-obs">(${clean})</div>`;
+};
+
 class PrintService {
   private settings: PrintSettings | null = null;
   private restaurantInfo: any = null;
@@ -537,7 +553,7 @@ class PrintService {
           <span class="qty">${item.quantity}</span>
           <span class="description">${item.name.toUpperCase()}</span>
         </div>
-        ${(item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim()) ? '<div class="note">(' + item.notes.replace('*NO IMPRIMIR*', '').trim() + ')</div>' : ''}
+        ${formatPrintNotes(item.notes)}
       `).join('')}
       <div class="divider"></div>
       <div style="text-align:center; font-size:10px;">ID: ${data.orderId.substring(0, 8)}</div>
@@ -604,7 +620,7 @@ class PrintService {
             <td class="col-qty qty" style="text-align: center;">${item.quantity}</td>
             <td class="col-desc">
               <div class="description">${item.name.toUpperCase()}</div>
-              ${(item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim()) ? `<div class="note">${item.notes.replace('*NO IMPRIMIR*', '').trim()}</div>` : ''}
+              ${formatPrintNotes(item.notes)}
             </td>
             <td class="col-price price" style="text-align: right;">Q${((item.price || 0) * item.quantity).toFixed(2)}</td>
           </tr>
@@ -835,7 +851,7 @@ class PrintService {
             <td class="col-qty qty">${item.quantity}</td>
             <td class="col-desc">
               <div class="description">${item.name.toUpperCase()}</div>
-              ${(item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim()) ? `<div class="note">(${item.notes.replace('*NO IMPRIMIR*', '').trim()})</div>` : ''}
+              ${formatPrintNotes(item.notes)}
             </td>
             <td class="col-price price">Q${((item.price || 0) * item.quantity).toFixed(2)}</td>
           </tr>
