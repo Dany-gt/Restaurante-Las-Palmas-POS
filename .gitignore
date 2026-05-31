@@ -47,3 +47,11 @@ scripts/inspect_schema.js
 scripts/db_precision_fix.js
 scripts/refine_audit_idp.js
 scripts/list_models.js
+
+# Android signing keys and passwords
+public/Las Palmas - Google Play package/signing.keystore
+public/Las Palmas - Google Play package/signing-key-info.txt
+
+# Local activation documents
+Nuevo documento de texto.txt
+

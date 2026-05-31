@@ -552,8 +552,8 @@ INSERT INTO system_settings (
     'Cevichería y Restaurante Las Palmas No. 2',
     'Cevichería y Restaurante Las Palmas, Sociedad Anónima',
     '91887666', 'edvincastro1983@gmail.com', 'Avenida Circunvalación 6-73 Zona 1',
-    'Retalhueleu', 'Retalhueleu', '2', 'S2', '1', 'LASPALMAS2',
-    '9EC6C1E4EA0DC04B8B8FDDC1E39AED8A', '34f3f5812ff50f94ea367717ef453568',
+    'Retalhueleu', 'Retalhueleu', '2', 'S2', '1', 'TU_WS_PREFIX_AQUI',
+    'TU_WS_KEY_AQUI', 'TU_SIGNER_TOKEN_AQUI',
     'Sujeto a Pagos Trimestrales', 'Certificador: INFILE, S.A. NIT: 12521337',
     false, false, false, false, 'Restaurante Las Palmas'
 );
