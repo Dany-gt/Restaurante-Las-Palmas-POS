@@ -43,11 +43,6 @@ export const ReportGeneral: React.FC = () => {
             if (data) setBranches(data);
         };
         fetchBranches();
-
-        // Solo generar automáticamente si no hay un estado guardado previo
-        if (!savedState) {
-            handleGenerate();
-        }
     }, []);
 
     useEffect(() => {

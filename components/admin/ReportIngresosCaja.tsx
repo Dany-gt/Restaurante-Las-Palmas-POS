@@ -248,10 +248,10 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
         };
         fetchMetadata();
 
-        // Si no hay datos previos, generar reporte automáticamente
-        if (!savedState) {
-            handleGenerate();
-        }
+        // Eliminado auto-generar en base a petición
+        // if (!savedState) {
+        //    handleGenerate();
+        // }
     }, []);
 
     useEffect(() => {

@@ -232,11 +232,6 @@ export const ReportCaja: React.FC = () => {
             if (bData) setBranches(bData);
         };
         loadBranches();
-
-        // Si no hay datos previos, generar reporte automáticamente
-        if (!savedState) {
-            handleGenerate();
-        }
     }, []);
 
     useEffect(() => {

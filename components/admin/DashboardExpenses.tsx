@@ -53,7 +53,7 @@ const DashboardExpenses: React.FC = () => {
             if (bData) setBranches(bData);
         };
         load();
-        handleGenerate();
+        // handleGenerate();
     }, []);
 
     const handleGenerate = async () => {

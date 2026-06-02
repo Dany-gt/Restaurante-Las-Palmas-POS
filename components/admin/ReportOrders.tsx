@@ -101,11 +101,6 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
             if (b) setBranches(b);
         };
         fetchBranches();
-
-        // Solo generar automáticamente si no hay un estado guardado previo
-        if (!savedState) {
-            handleGenerate();
-        }
     }, [mode]);
 
     useEffect(() => {

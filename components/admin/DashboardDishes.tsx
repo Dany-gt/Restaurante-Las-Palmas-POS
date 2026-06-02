@@ -55,7 +55,6 @@ export const DashboardDishes: React.FC = () => {
             if (pData) setAllUsers(pData.map(p => (p.name || 'Sin nombre').toUpperCase()));
         };
         load();
-        handleGenerate();
     }, []);
 
     const handleGenerate = async () => {

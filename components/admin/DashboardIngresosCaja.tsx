@@ -62,13 +62,13 @@ export const DashboardIngresosCaja: React.FC = () => {
             if (b) setBranches(b);
         };
         fetchBranches();
-        handleGenerate();
+        // handleGenerate();
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     // AUTO-GENERAR CUANDO CAMBIAN FILTROS DE FECHA O SEDE
     useEffect(() => {
-        handleGenerate();
+        // handleGenerate();
     }, [startDate, endDate, selectedBranch]);
 
     const handleGenerate = async () => {

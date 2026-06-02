@@ -207,10 +207,7 @@ export const ReportBranch: React.FC = () => {
     const [showPrintPreview, setShowPrintPreview] = useState(false);
 
     useEffect(() => {
-        // Solo generar automáticamente si no hay un estado guardado previo
-        if (!savedState) {
-            handleGenerate();
-        }
+        // Solo generar automáticamente
     }, []);
 
     useEffect(() => {

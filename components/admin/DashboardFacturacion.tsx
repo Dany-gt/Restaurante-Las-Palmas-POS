@@ -53,15 +53,12 @@ export const DashboardFacturacion: React.FC = () => {
             if (b) setBranches(b);
         };
         fetchBranches();
-        handleGenerate();
+        // handleGenerate();
     }, []);
 
     // AUTO-SYNC cuando cambian fechas
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            handleGenerate();
-        }, 300); // Debounce para evitar AbortError
-        return () => clearTimeout(timeout);
+        // handleGenerate();
     }, [startDate, endDate, selectedBranch]);
 
     const handleGenerate = async () => {

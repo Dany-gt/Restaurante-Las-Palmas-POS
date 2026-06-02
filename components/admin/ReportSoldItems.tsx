@@ -65,11 +65,6 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
 
     useEffect(() => {
         fetchMetadata();
-
-        // Solo generar automáticamente si no hay un estado guardado previo
-        if (!savedState) {
-            handleGenerate();
-        }
     }, [mode]);
 
     useEffect(() => {

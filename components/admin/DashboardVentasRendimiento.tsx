@@ -56,12 +56,12 @@ export const DashboardVentasRendimiento: React.FC = () => {
             if (b) setBranches(b);
         };
         fetchBranches();
-        handleGenerate();
+        // handleGenerate();
     }, []);
 
     useEffect(() => {
-        const timeout = setTimeout(() => handleGenerate(), 300);
-        return () => clearTimeout(timeout);
+        // const timeout = setTimeout(() => handleGenerate(), 300);
+        // return () => clearTimeout(timeout);
     }, [startDate, endDate, selectedBranch]);
 
     const handleGenerate = async () => {
