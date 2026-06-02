@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
     Download, Printer, Search, Filter, Calendar, FileText,
     ChevronDown, ChevronRight, X, Clock, FileSpreadsheet,
@@ -232,6 +232,15 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
     const [searchTerm, setSearchTerm] = useState('');
     const [showPrintPreview, setShowPrintPreview] = useState(false);
 
+    const tableContainerRef = useRef<HTMLDivElement>(null);
+    const footerContainerRef = useRef<HTMLDivElement>(null);
+
+    const handleTableScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        if (footerContainerRef.current) {
+            footerContainerRef.current.scrollLeft = e.currentTarget.scrollLeft;
+        }
+    };
+
     useEffect(() => {
         const fetchMetadata = async () => {
             const { data: b } = await supabase.from('branches').select('id, name').order('name');
@@ -459,7 +468,12 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
             </div>
 
             {/* 5. Main Grid Area */}
-            <div className="flex-1 overflow-auto bg-white custom-scrollbar relative" id="report-container">
+            <div 
+                ref={tableContainerRef}
+                onScroll={handleTableScroll}
+                className="flex-1 overflow-auto bg-white custom-scrollbar relative" 
+                id="report-container"
+            >
                 <table className="w-full border-collapse border-spacing-0 table-fixed min-w-[1770px]">
                     <colgroup>
                         <col style={{ width: '140px' }} />
@@ -522,23 +536,41 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
                 </table>
             </div>
 
-            {/* Footer de Totales — siempre al fondo */}
-            <div className="shrink-0 overflow-x-auto bg-[#106ebe] border-t-2 border-gray-900 pb-2 custom-scrollbar">
-                <div className="min-w-[1770px] flex items-center h-12 uppercase font-bold text-[11px] text-white px-2">
-                    <div className="w-[140px] px-2"></div>
-                    <div className="w-[100px] px-2"></div>
-                    <div className="w-[100px] px-2"></div>
-                    <div className="w-[150px] px-2"></div>
-                    <div className="w-[100px] px-2"></div>
-                    <div className="w-[200px] px-8 text-right text-gray-400 tracking-tight">TOTALES:</div>
-                    <div className="w-[130px] px-4 text-right tabular-nums">Q{formatCurr(totals.efectivo)}</div>
-                    <div className="w-[130px] px-4 text-right tabular-nums">Q{formatCurr(totals.tarjeta)}</div>
-                    <div className="w-[130px] px-4 text-right tabular-nums">Q{formatCurr(totals.credito)}</div>
-                    <div className="w-[130px] px-4 text-right tabular-nums">Q{formatCurr(totals.otros)}</div>
-                    <div className="w-[150px] px-4 text-right tabular-nums font-black">Q{formatCurr(totals.totalCuenta)}</div>
-                    <div className="w-[160px] pr-10 text-right tabular-nums font-black text-blue-400">Q{formatCurr(totals.totalPagado)}</div>
-                    <div className="w-[150px] px-4 text-right tabular-nums text-gray-400 font-normal">Q{formatCurr(totals.cambio)}</div>
-                </div>
+            {/* Footer de Totales — siempre al fondo fijo */}
+            <div 
+                ref={footerContainerRef}
+                className="shrink-0 overflow-hidden bg-[#106ebe] border-t-2 border-gray-900 pb-2 custom-scrollbar"
+            >
+                <table className="w-full border-collapse border-spacing-0 table-fixed min-w-[1770px]">
+                    <colgroup>
+                        <col style={{ width: '140px' }} />
+                        <col style={{ width: '100px' }} />
+                        <col style={{ width: '100px' }} />
+                        <col style={{ width: '150px' }} />
+                        <col style={{ width: '100px' }} />
+                        <col style={{ width: '200px' }} />
+                        <col style={{ width: '130px' }} />
+                        <col style={{ width: '130px' }} />
+                        <col style={{ width: '130px' }} />
+                        <col style={{ width: '130px' }} />
+                        <col style={{ width: '150px' }} />
+                        <col style={{ width: '160px' }} />
+                        <col style={{ width: '150px' }} />
+                    </colgroup>
+                    <tbody>
+                        <tr className="h-12 uppercase font-bold text-[11px] text-white">
+                            <td colSpan={5} className="px-2"></td>
+                            <td className="px-8 text-right text-gray-300 tracking-tight">TOTALES:</td>
+                            <td className="px-4 text-right tabular-nums">Q{formatCurr(totals.efectivo)}</td>
+                            <td className="px-4 text-right tabular-nums">Q{formatCurr(totals.tarjeta)}</td>
+                            <td className="px-4 text-right tabular-nums">Q{formatCurr(totals.credito)}</td>
+                            <td className="px-4 text-right tabular-nums">Q{formatCurr(totals.otros)}</td>
+                            <td className="px-4 text-right tabular-nums font-black">Q{formatCurr(totals.totalCuenta)}</td>
+                            <td className="pr-10 text-right tabular-nums font-black text-blue-300">Q{formatCurr(totals.totalPagado)}</td>
+                            <td className="px-4 text-right tabular-nums text-gray-300 font-normal">Q{formatCurr(totals.cambio)}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
 
