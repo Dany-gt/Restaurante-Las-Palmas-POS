@@ -388,10 +388,12 @@ export const KitchenView: React.FC = () => {
         `);
 
       if (filter === 'delivered') {
+        const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         ordersQuery = ordersQuery
           .in('status', ['pending', 'preparing', 'ready', 'delivered', 'completed'])
+          .gte('updated_at', last24Hours)
           .order('updated_at', { ascending: false })
-          .limit(200);
+          .limit(100);
       } else {
         ordersQuery = ordersQuery
           .in('status', ['pending', 'preparing', 'ready'])
@@ -973,7 +975,7 @@ export const KitchenView: React.FC = () => {
           {processedBatches
             .slice(currentPage * ordersPerPage, (currentPage + 1) * ordersPerPage)
             .map(order => (
-              <div key={order.id} className="flex flex-col bg-[#16191f] rounded-[1.5rem] border border-white/10  relative overflow-hidden group h-full">
+              <div key={order.id} className="flex flex-col bg-[#16191f] rounded-md border border-white/10  relative overflow-hidden group h-full">
                 {/* CABECERA DE COMANDA */}
                 <div className="p-3 border-b border-white/10 flex justify-between items-start transition-colors bg-white/[0.03]">
                   <div>
@@ -989,9 +991,9 @@ export const KitchenView: React.FC = () => {
                         </span>
                       </span>
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 truncate block w-40">{order.section} • {order.waiter_name}</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">{order.section} • {order.waiter_name}</span>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                       onClick={(e) => handleReprint(e, order.original_order_id)}
                       className="p-1.5 hover:bg-white/10 rounded-lg text-gray-500 transition-colors"
@@ -1036,15 +1038,15 @@ export const KitchenView: React.FC = () => {
                 {/* LISTA DE ITEMS */}
                 <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-hide">
                   {(order as any).stationItems.map((item: any) => (
-                    <div key={item.id} className={`p-2.5 rounded-xl border transition-all ${item.status === 'ready' ? 'bg-white/5 border-white/20 opacity-90  /20' :
+                    <div key={item.id} className={`p-2.5 rounded-sm border transition-all ${item.status === 'ready' ? 'bg-white/5 border-white/20 opacity-90  /20' :
                       item.status === 'preparing' ? 'bg-indigo-500/20 border-indigo-500/40' :
                         'bg-[#1e293b] border-white/10'
                       }`}>
-                      <div className="flex justify-between items-center gap-2">
-                        <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1 min-w-0 flex flex-col">
                           <div className="flex items-center gap-2">
                             <span className="text-[11px] font-black uppercase tracking-tight leading-none text-white">{item.product_name}</span>
-                            <span className="text-[12px] font-black text-white bg-black/20 px-2 py-0.5 rounded-md">x{item.quantity}</span>
+                            <span className="text-[12px] font-black text-white bg-black/20 px-2.5 py-0.5 rounded-md">{item.quantity}</span>
                           </div>
                           {(() => {
                             const { mods, obs, hasNotes } = parseKitchenNotes(item.notes);
@@ -1052,10 +1054,10 @@ export const KitchenView: React.FC = () => {
                             return (
                               <div className="mt-2 flex flex-col gap-1">
                                 {mods && (
-                                  <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
-                                    <span className="text-[10px] text-indigo-400 font-bold uppercase leading-snug break-words">
+                                  <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg h-auto min-h-min">
+                                    <div className="text-[10px] text-indigo-400 font-bold uppercase leading-relaxed break-words whitespace-pre-wrap">
                                       {mods}
-                                    </span>
+                                    </div>
                                   </div>
                                 )}
                                 {obs && (
@@ -1201,7 +1203,7 @@ export const KitchenView: React.FC = () => {
 
           {/* EMPTY CARDS TO MAINTAIN GRID SHAPE */}
           {Array.from({ length: Math.max(0, ordersPerPage - (filteredOrders.slice(currentPage * ordersPerPage, (currentPage + 1) * ordersPerPage).length)) }).map((_, i) => (
-            <div key={`empty-${i}`} className="h-full border border-white/[0.02] rounded-[1.5rem] bg-white/[0.01] flex items-center justify-center">
+            <div key={`empty-${i}`} className="h-full border border-white/[0.02] rounded-md bg-white/[0.01] flex items-center justify-center">
               {filteredOrders.length === 0 && i === 2 && (
                 <div className="flex flex-col items-center opacity-5">
                   <ChefHat size={40} className="mb-2" />
@@ -1217,7 +1219,7 @@ export const KitchenView: React.FC = () => {
       {
         selectedOrder && (
           <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 lg:p-12 animate-fade-in">
-            <div className="bg-[#16191f] w-full max-w-4xl rounded-[3rem] border border-white/10  flex flex-col max-h-[90vh] overflow-hidden">
+            <div className="bg-[#16191f] w-full max-w-4xl rounded-md border border-white/10  flex flex-col max-h-[90vh] overflow-hidden">
               <div className="p-8 border-b border-white/5 flex justify-between items-center bg-black/20">
                 <div className="flex items-center gap-6">
                   <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center border border-indigo-500/20">
@@ -1261,15 +1263,15 @@ export const KitchenView: React.FC = () => {
 
               <div className="flex-1 overflow-y-auto p-8 space-y-4 scrollbar-hide">
                 {selectedOrder.items.map(item => (
-                  <div key={item.id} className={`p-6 rounded-[2rem] border transition-all ${item.status === 'ready' ? 'bg-white/5 border-white/20 opacity-40' :
+                  <div key={item.id} className={`p-6 rounded-sm border transition-all ${item.status === 'ready' ? 'bg-white/5 border-white/20 opacity-40' :
                     item.status === 'preparing' ? 'bg-indigo-500/10 border-indigo-500/30  -600/10' :
                       'bg-white/5 border-white/5'
                     }`}>
-                    <div className="flex justify-between items-center gap-6">
-                      <div className="flex-1">
+                    <div className="flex justify-between items-start gap-6">
+                      <div className="flex-1 flex flex-col">
                         <div className="flex items-baseline gap-4 mb-2">
                           <span className="text-2xl font-black uppercase tracking-tight">{item.product_name}</span>
-                          <span className="text-sm font-bold text-indigo-400 bg-indigo-400/10 px-3 py-1 rounded-full">x{item.quantity}</span>
+                          <span className="text-base font-black text-indigo-400 bg-indigo-400/10 px-3.5 py-1 rounded-md">{item.quantity}</span>
                         </div>
                         {(() => {
                           const { mods, obs, hasNotes } = parseKitchenNotes(item.notes);
@@ -1277,8 +1279,8 @@ export const KitchenView: React.FC = () => {
                           return (
                             <div className="mt-3 flex flex-col gap-2">
                               {mods && (
-                                <div className="p-3 bg-indigo-500/10 rounded-2xl border border-indigo-500/20">
-                                  <p className="text-base text-indigo-400 font-bold uppercase leading-relaxed">{mods}</p>
+                                <div className="p-3 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 h-auto min-h-min">
+                                  <p className="text-base text-indigo-400 font-bold uppercase leading-relaxed break-words whitespace-pre-wrap">{mods}</p>
                                 </div>
                               )}
                               {obs && (
@@ -1331,7 +1333,7 @@ export const KitchenView: React.FC = () => {
                     fetchKDSData();
                     setSelectedOrder(null);
                   }}
-                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-20 disabled:grayscale text-white rounded-[1.5rem] font-black text-sm uppercase tracking-[0.3em]  transition-all flex items-center justify-center gap-4"
+                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-20 disabled:grayscale text-white rounded-md font-black text-sm uppercase tracking-[0.3em]  transition-all flex items-center justify-center gap-4"
                 >
                   <CheckCircle2 size={24} /> ENTREGAR COMANDA COMPLETA
                 </button>

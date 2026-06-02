@@ -19,6 +19,7 @@ import { AccountsManagementModal } from './AccountsManagementModal';
 import { AccountsOverviewModal } from './AccountsOverviewModal';
 import { DeliveryPaymentModal } from './DeliveryPaymentModal';
 import { useSecurityPolicy } from '../hooks/useSecurityPolicy';
+import { useModulePermissions } from '../hooks/useModulePermissions';
 import { CustomerData } from '../types/billing';
 import { ItemStatusBadge } from './ItemStatusBadge';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
@@ -530,6 +531,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
     // Security hook
     const { validatePin, canAccessOrder } = useSecurityPolicy(settings);
+    const { can: canCajero } = useModulePermissions('Cajero');
 
     // ----------------------------------------------------------------------
     // HELPER FUNCTIONS (Edit, Delete, Modifier)
@@ -541,7 +543,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             // v1.7.1 - El doble clic en un item enviado ya no inicia la anulación.
             // Se reserva la anulación exclusivamente para el icono del basurero.
             // En su lugar, abrimos la gestión de descuentos ya que "la que vale es descuento".
-            const canDiscount = currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos');
+            const canDiscount = canCajero('Aplicar Descuentos') || currentUser?.role === 'CAJERO' || currentUser?.role === 'ADMIN';
             if (canDiscount) {
                 setDiscountingItem(item);
                 setShowDiscountModal(true);
@@ -1979,11 +1981,18 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     // --- FIX FOR SUBTOTAL/TOTAL CALCULATIONS ---
     // If an activeOrderId is explicitly selected, calculate only for that order!
     // Otherwise calculate for the entire table view.
-    const checkoutItems = items.filter(i => {
-        if (!activeOrderId) return true;
-        if (!i.is_sent) return true;
-        return (i as any).order_id === activeOrderId;
-    });
+    // Dedup at source: Supabase Realtime can re-insert items causing duplicate IDs
+    const checkoutItems = (() => {
+        const filtered = items.filter(i => {
+            if (!activeOrderId) return true;
+            if (!i.is_sent) return true;
+            return (i as any).order_id === activeOrderId;
+        });
+        // Remove duplicates by id, keeping the last seen (most up-to-date)
+        const seen = new Map<string, typeof filtered[0]>();
+        filtered.forEach(i => { if (i.id) seen.set(i.id, i); });
+        return Array.from(seen.values());
+    })();
 
     const subtotal = checkoutItems.reduce((acc, i) => acc + (i.price * i.quantity), 0);
     const accumulatedItemDiscounts = checkoutItems.reduce((acc, i) => acc + (i.discount_amount || 0), 0);
@@ -2581,8 +2590,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                     seen.add(key);
                                                     return true;
                                                 })
-                                                .map(cat => (
-                                                    <button key={cat.id} onClick={() => setSelectedCat(cat)} className="overflow-hidden mx-auto bg-[#3a3b4d] rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-white/5 hover:border-white/20 hover:bg-[#45465e] active:scale-95 transition-all group w-full h-full">
+                                                .map((cat, catIdx) => (
+                                                    <button key={cat.id || `cat-${catIdx}`} onClick={() => setSelectedCat(cat)} className="overflow-hidden mx-auto bg-[#3a3b4d] rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-white/5 hover:border-white/20 hover:bg-[#45465e] active:scale-95 transition-all group w-full h-full">
                                                         <div className="flex-1 flex flex-col items-center justify-center w-full mb-3">
                                                             {cat.image_url ? (
                                                                 <img src={getImageUrl(cat.image_url)} alt={cat.name} className="w-full h-full object-contain rounded-xl opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all" />
@@ -2603,8 +2612,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             .sort((a, b) => {
                                                 return (a.name || '').localeCompare(b.name || '');
                                             })
-                                            .map(sub => (
-                                                <button key={sub.id} onClick={() => setSelectedSubCat(sub)} className="overflow-hidden mx-auto bg-white/10 rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-transparent hover:border-white/10 active:scale-95 transition-all group w-full h-full">
+                                            .map((sub, subIdx) => (
+                                                <button key={sub.id || `sub-cat-${subIdx}`} onClick={() => setSelectedSubCat(sub)} className="overflow-hidden mx-auto bg-white/10 rounded-t-none rounded-b-2xl p-2 flex flex-col items-center justify-between border-2 border-transparent hover:border-white/10 active:scale-95 transition-all group w-full h-full">
                                                     <div className="flex-1 flex flex-col items-center justify-center w-full">
                                                         {sub.image_url ? (
                                                             <img src={getImageUrl(sub.image_url)} alt={sub.name} className="w-full h-full object-cover rounded-md opacity-50 group-hover:opacity-100 transition-opacity" />
@@ -2720,10 +2729,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 .sort((a: any, b: any) => {
                                                     return (a.name || '').localeCompare(b.name || '');
                                                 })
-                                                .map(product => {
+                                                .map((product, prodIdx) => {
                                                     return (
                                                         <ProductCard
-                                                            key={product.id}
+                                                            key={product.id ? `cat-${product.id}` : `cat-prod-${prodIdx}`}
                                                             product={{ ...product, price: product.finalPrice }}
                                                             stockOverride={product.consolidatedStock}
                                                             currency={currency}
@@ -2805,10 +2814,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 .sort((a: any, b: any) => {
                                                     return (a.name || '').localeCompare(b.name || '');
                                                 })
-                                                .map(product => {
+                                                .map((product, prodIdx) => {
                                                     return (
                                                         <ProductCard
-                                                            key={product.id}
+                                                            key={product.id ? `sub-${product.id}` : `sub-prod-${prodIdx}`}
                                                             product={{ ...product, price: product.finalPrice }}
                                                             stockOverride={product.consolidatedStock}
                                                             currency={currency}
@@ -2840,7 +2849,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 <span className="text-[9px] font-bold mt-0.5 uppercase tracking-tighter">Traslado</span>
                             </button>
                         )}
-                        {currentUser?.role === 'CAJERO' && (
+                        {(canCajero('Trasladar Orden a Mesero/Cajero') || currentUser?.role === 'CAJERO' || currentUser?.role === 'ADMIN') && (
                             <button
                                 onClick={() => setShowTransferWaiterModal(true)}
                                 className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 "
@@ -2850,7 +2859,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 <span className="text-[9px] font-bold mt-0.5 uppercase tracking-tighter">Mesero</span>
                             </button>
                         )}
-                        {(currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Anular Orden') || currentUser?.permissions?.includes('Cajero:Anular Orden')) && (
+                        {(canCajero('Anular Orden') || currentUser?.role === 'CAJERO' || currentUser?.role === 'ADMIN') && (
                             <button
                                 onClick={() => {
                                     // v1.6.2 - Limpiar motivo y pedir comentario antes que el PIN
@@ -2912,10 +2921,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     }
                                     return 0;
                                 })
-                                .map(item => {
+                                .map((item, index) => {
                                     const itemOrderNum = tableOrders.findIndex(o => o.id === (item as any).order_id) + 1;
+                                    const uniqueKey = item.id ? `${item.id}-${index}` : `cart-item-${index}`;
                                     return (
-                                        <div key={item.id} className="relative overflow-hidden rounded-lg group">
+                                        <div key={uniqueKey} className="relative overflow-hidden rounded-lg group">
                                             {/* Trash button behind (right side) */}
                                             <div className={`absolute right-0 top-0 bottom-0 w-[80px] bg-red-500/90 flex items-center justify-center transition-opacity duration-300 ${swipedItem?.id === item.id && swipedItem?.action === 'delete' ? 'opacity-100 z-10' : 'opacity-0 -z-10'}`}>
                                                 <button onClick={(e) => { e.stopPropagation(); removeItem(item.id); setSwipedItem(null); }} className="w-full h-full flex items-center justify-center text-white active:scale-95 transition-transform">
@@ -3638,6 +3648,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 <AnimatePresence>
                     {customDialog && (
                         <WindowsConfirmModal
+                            key="windows-confirm-dialog"
                             title={customDialog.title}
                             message={customDialog.message}
                             type={customDialog.type}
@@ -3648,6 +3659,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     )}
                     {customInput && (
                         <WindowsInputModal
+                            key="windows-input-dialog"
                             title={customInput.title}
                             message={customInput.message}
                             defaultValue={customInput.defaultValue}
@@ -3658,6 +3670,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     )}
 
                     <TabletItemActionModal
+                        key="tablet-item-action"
                         isOpen={!!tabletItemActionModal}
                         onClose={() => setTabletItemActionModal(null)}
                         item={tabletItemActionModal}
@@ -3682,6 +3695,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     />
 
                     <AccountsOverviewModal
+                        key="accounts-overview-transfer"
                         isOpen={!!singleItemToTransfer}
                         onClose={() => setSingleItemToTransfer(null)}
                         tableOrders={tableOrders}
