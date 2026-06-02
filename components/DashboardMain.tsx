@@ -531,6 +531,14 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
           data={closureData}
           onPrint={async () => {
             const { printService } = await import('../services/PrintService');
+
+            // Law of the user: When clicking Print Z, instantly trigger the email sending in background
+            if (currentUser) {
+              shiftService.sendClosureEmail(currentUser, closureData).catch(e => {
+                console.error('Error sending auto-email backup:', e);
+              });
+            }
+
             // 1. Print card terminal checkout first if cards details exist
             if (closureData.posCardDetail && closureData.posCardDetail.length > 0) {
               await printService.printPOSTarjetasReport(closureData);
@@ -542,15 +550,6 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
             // 3. If there are expenses, print the summary ticket too
             if (closureData.expenses && closureData.expenses.length > 0) {
               await printService.printExpensesSummary(closureData);
-            }
-
-            // Law of the user: When printing is done, send email automatically as backup
-            try {
-              if (currentUser) {
-                await shiftService.sendClosureEmail(currentUser, closureData);
-              }
-            } catch (e) {
-              console.error('Error sending auto-email backup:', e);
             }
           }}
           onFinish={() => {
@@ -777,43 +776,52 @@ const DashboardButton = ({ label, color, onClick, disabled }: { label: string, c
   </button>
 );
 
-const ShiftClosureSummary = ({ data, onPrint, onFinish }: { data: any, onPrint: () => void, onFinish: () => void }) => (
-  <div className="fixed inset-0 bg-black/90 z-[120] flex items-center justify-center p-6">
-    <div className="w-full max-w-2xl bg-[#16191f] rounded-xl border border-white/10 shadow-xl shadow-black/50 overflow-hidden animate-slide-up">
-      <div className="p-10 text-center">
-        <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-400">
-          <CheckCircle size={48} className="animate-bounce-slow" />
-        </div>
-        <h2 className="text-4xl font-black uppercase tracking-tighter mb-2">{data.type === 'X' ? 'Corte X Generado' : 'Turno Cerrado'}</h2>
-        <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">{data.type === 'X' ? 'El reporte parcial se ha generado correctamente' : 'El reporte de cierre ha sido generado correctamente'}</p>
+const ShiftClosureSummary = ({ data, onPrint, onFinish }: { data: any, onPrint: () => void, onFinish: () => void }) => {
+  const [isEmailing, setIsEmailing] = React.useState(false);
 
-        <div className="grid grid-cols-2 gap-4 mt-12 mb-12">
-          <div className="bg-white/5 p-6 rounded-lg border border-white/5">
-            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-2">Efectivo Contado</span>
-            <span className="text-2xl font-black">Q{data.countedCash.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span>
+  return (
+    <div className="fixed inset-0 bg-black/90 z-[120] flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-[#16191f] rounded-xl border border-white/10 shadow-xl shadow-black/50 overflow-hidden animate-slide-up">
+        <div className="p-8 text-center">
+          <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-400">
+            <CheckCircle size={32} className="animate-bounce-slow" />
           </div>
-          <div className={`p-6 rounded-lg border ${data.difference === 0 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
-            <span className="text-[10px] font-black uppercase tracking-widest block mb-2 opacity-60">Diferencia</span>
-            <span className="text-2xl font-black">{data.difference === 0 ? 'CUADRADO' : `Q${data.difference.toFixed(2)}`}</span>
-          </div>
-        </div>
+          <h2 className="text-2xl font-black uppercase tracking-tighter mb-1">{data.type === 'X' ? 'Corte X Generado' : 'Turno Cerrado'}</h2>
+          <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">{data.type === 'X' ? 'El reporte parcial se ha generado' : 'El reporte de cierre ha sido generado'}</p>
 
-        <div className="flex flex-col gap-4">
-          <button
-            onClick={onPrint}
-            className="w-full py-5 bg-white/5 hover:bg-white/10 rounded-lg font-black uppercase tracking-[0.2em] text-xs transition-all flex items-center justify-center gap-3 border border-white/10"
-          >
-            <Printer size={20} /> Imprimir {data.type === 'X' ? 'Corte X' : 'Reporte Z'}
-          </button>
-          <button
-            onClick={onFinish}
-            className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-black uppercase tracking-[0.2em] text-xs shadow-md transition-all"
-          >
-            {data.type === 'X' ? 'Continuar Operación' : 'Finalizar y Salir'}
-          </button>
+          <div className="grid grid-cols-2 gap-3 mt-6 mb-8">
+            <div className="bg-white/5 p-4 rounded-lg border border-white/5">
+              <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest block mb-1">Efectivo Contado</span>
+              <span className="text-xl font-black tabular-nums tracking-tighter">Q{data.countedCash.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span>
+            </div>
+            <div className={`p-4 rounded-lg border ${data.difference === 0 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
+              <span className="text-[9px] font-black uppercase tracking-widest block mb-1 opacity-60">Diferencia</span>
+              <span className="text-xl font-black tabular-nums tracking-tighter">{data.difference === 0 ? 'CUADRADO' : `Q${data.difference.toFixed(2)}`}</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => {
+                setIsEmailing(true);
+                onPrint();
+                setTimeout(() => setIsEmailing(false), 3000);
+              }}
+              disabled={isEmailing}
+              className={`w-full py-4 bg-white/5 hover:bg-white/10 rounded-lg font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-2 border border-white/10 ${isEmailing ? 'opacity-50' : ''}`}
+            >
+              <Printer size={16} /> {isEmailing ? 'ENVIANDO CORREO Y GENERANDO...' : `IMPRIMIR ${data.type === 'X' ? 'CORTE X' : 'REPORTE Z'}`}
+            </button>
+            <button
+              onClick={onFinish}
+              className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-black uppercase tracking-widest text-[11px] shadow-md transition-all"
+            >
+              {data.type === 'X' ? 'CONTINUAR OPERACIÓN' : 'FINALIZAR Y SALIR'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 

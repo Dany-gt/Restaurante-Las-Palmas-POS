@@ -14,7 +14,5 @@ const isStandaloneAdmin = window.location.search.includes('app=admin') || window
 
 const root = ReactDOM.createRoot(rootElement);
 root.render(
-  <React.StrictMode>
-    {isStandaloneAdmin ? <StandaloneAdminApp /> : <App />}
-  </React.StrictMode>
+  isStandaloneAdmin ? <StandaloneAdminApp /> : <App />
 );

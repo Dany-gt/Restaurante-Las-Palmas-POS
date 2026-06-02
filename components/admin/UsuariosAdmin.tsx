@@ -6,6 +6,7 @@ import { useNotify } from '../../hooks/useNotify';
 import { WindowsSaveButton } from '../WindowsSaveButton';
 import { WindowsConfirmModal } from '../WindowsConfirmModal';
 import { activityLogService } from '../../services/ActivityLogService';
+import { useModulePermissions } from '../../hooks/useModulePermissions';
 
 interface UsuariosAdminProps {
   globalSearch?: string;
@@ -38,6 +39,7 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
   const [saving, setSaving] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
   const notify = useNotify();
+  const { can } = useModulePermissions('Usuarios');
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 640);
@@ -403,27 +405,33 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
           className="absolute z-[1000] bg-white border border-gray-300 shadow-[4px_4px_15px_rgba(0,0,0,0.15)] py-1 min-w-[175px] animate-in fade-in zoom-in-95 duration-75"
           style={{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }}
         >
+          {can('Nuevo') && (
           <button
             onClick={() => { setEditingUser(null); setNewUser({ name: '', role: 'MESERO', role_id: '', pin: '', email: '', phone: '', username: '', password: '', branch_id: '', is_active: true, fingerprint_data: null }); setShowModal(true); setContextMenu(null); }}
             className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
           >
             <UserPlus size={14} className="text-gray-600 group-hover:text-white" /> Nuevo Usuario
           </button>
+          )}
           {contextMenu.user && (
             <>
               <div className="h-px bg-gray-100 my-1"></div>
+              {can('Editar') && (
               <button
                 onClick={() => { handleEdit(contextMenu.user); setContextMenu(null); }}
                 className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
               >
                 <Edit3 size={14} className="text-[#106ebe] group-hover:text-white" /> Editar Registro
               </button>
+              )}
+              {can('Eliminar') && (
               <button
                 onClick={() => { setConfirmDelete(contextMenu.user.id); setContextMenu(null); }}
                 className="w-full text-left px-4 py-2 text-[11px] font-bold text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-3 group transition-colors"
               >
                 <Trash2 size={14} className="text-red-500 group-hover:text-white" /> Eliminar Registro
               </button>
+              )}
             </>
           )}
         </div>

@@ -11,21 +11,21 @@ interface ArqueoModalProps {
 
 const DENOMINATIONS = {
     monedas: [
-        { label: 'Q0.01', val: 0.01 },
-        { label: 'Q0.05', val: 0.05 },
-        { label: 'Q0.10', val: 0.10 },
-        { label: 'Q0.25', val: 0.25 },
-        { label: 'Q0.50', val: 0.50 },
-        { label: 'Q1.00', val: 1.00 },
+        { id: 'm_0.01', label: 'Q0.01', val: 0.01 },
+        { id: 'm_0.05', label: 'Q0.05', val: 0.05 },
+        { id: 'm_0.10', label: 'Q0.10', val: 0.10 },
+        { id: 'm_0.25', label: 'Q0.25', val: 0.25 },
+        { id: 'm_0.50', label: 'Q0.50', val: 0.50 },
+        { id: 'm_1.00', label: 'Q1.00', val: 1.00 },
     ],
     billetes: [
-        { label: 'Q1.00', val: 1.00 },
-        { label: 'Q5.00', val: 5.00 },
-        { label: 'Q10.00', val: 10.00 },
-        { label: 'Q20.00', val: 20.00 },
-        { label: 'Q50.00', val: 50.00 },
-        { label: 'Q100.00', val: 100.00 },
-        { label: 'Q200.00', val: 200.00 },
+        { id: 'b_1.00', label: 'Q1.00', val: 1.00 },
+        { id: 'b_5.00', label: 'Q5.00', val: 5.00 },
+        { id: 'b_10.00', label: 'Q10.00', val: 10.00 },
+        { id: 'b_20.00', label: 'Q20.00', val: 20.00 },
+        { id: 'b_50.00', label: 'Q50.00', val: 50.00 },
+        { id: 'b_100.00', label: 'Q100.00', val: 100.00 },
+        { id: 'b_200.00', label: 'Q200.00', val: 200.00 },
     ]
 };
 
@@ -39,7 +39,7 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
     const totalArqueo = useMemo(() => {
         let total = 0;
         [...DENOMINATIONS.monedas, ...DENOMINATIONS.billetes].forEach(d => {
-            total += (counts[d.label] || 0) * d.val;
+            total += (counts[d.id] || 0) * d.val;
         });
         total += (counts['MANUAL'] || 0);
         return total;
@@ -104,137 +104,136 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
     };
 
     return (
-        <div className="fixed inset-0 bg-black/90  z-[200] flex items-center justify-center p-4 animate-fade-in">
-            <div className="bg-[#16191f] w-full max-w-6xl rounded-[2rem] border border-white/10  /50 overflow-hidden flex flex-col max-h-[90vh]">
-                {/* Header */}
-                <header className="px-8 py-5 border-b border-white/5 flex items-center justify-between bg-[#1c1f26]">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center text-white/60">
-                            <Save size={24} />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-black uppercase tracking-tight text-white">{title || 'Arqueo de Caja'}</h2>
-                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Conteo físico de efectivo para cierre</p>
-                        </div>
-                    </div>
-                    <button onClick={onClose} className="p-3 hover:bg-white/5 rounded-lg text-gray-400 transition-colors">
-                        <X size={20} />
+        <div className="fixed inset-0 bg-[#252836] z-[200] flex flex-col animate-fade-in">
+            {/* Header / Topbar */}
+            <header className="px-6 py-4 flex items-center justify-between border-b border-white/5">
+                <div className="flex items-center gap-4">
+                    <button onClick={onClose} className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 transition-colors flex items-center gap-2">
+                        <X size={18} />
+                        <span className="text-xs font-bold uppercase tracking-wider">Cerrar Arqueo</span>
                     </button>
-                </header>
+                    <h2 className="text-sm font-bold text-gray-400 uppercase tracking-[0.2em]">{title || 'PALADAR POS - Arqueo de Caja'}</h2>
+                </div>
+            </header>
 
-                {/* Main Content Grid */}
-                <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
-
-                    {/* Denominations Section (Span 8) */}
-                    <div className="lg:col-span-8 overflow-y-auto p-8 bg-[#16191f]">
-                        <div className="grid grid-cols-2 gap-8 h-full content-start">
-                            {/* Monedas */}
-                            <div className="flex flex-col gap-3">
-                                <h3 className="flex items-center justify-center py-2 bg-white/5 rounded-lg text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 border border-white/5">
-                                    Monedas
-                                </h3>
-                                <div className="space-y-2">
-                                    {DENOMINATIONS.monedas.map(d => (
-                                        <div key={d.label} className="flex gap-2 items-center group">
-                                            <div className="w-16 py-3 bg-white/5 rounded-xl text-[10px] font-bold text-center border border-white/5 text-gray-400 group-hover:bg-white/10 transition-colors">
-                                                {d.label}
-                                            </div>
-                                            <button
-                                                onClick={() => handleInputClick(d.label)}
-                                                className={`flex-1 py-3 px-4 rounded-xl text-center font-black transition-all border text-sm active:scale-95 ${activeInput === d.label
-                                                    ? 'bg-white border-white text-black  /20'
-                                                    : 'bg-[#1e222b] border-white/5 text-gray-300 hover:border-white/20 hover:bg-[#252a35]'
-                                                    }`}
-                                            >
-                                                {counts[d.label] || 0}
-                                            </button>
-                                            <div className="w-24 py-3 px-3 bg-[#111318] rounded-xl text-xs font-mono font-bold text-right text-white/80 border border-white/5">
-                                                Q{calculateSubtotal(d.val, counts[d.label] || 0).toFixed(2)}
-                                            </div>
-                                        </div>
-                                    ))}
+            {/* Centered Main Content */}
+            <div className="flex-1 flex items-center justify-center p-8 overflow-y-auto">
+                <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-12">
+                    
+                    {/* COL 1: Monedas */}
+                    <div className="flex flex-col gap-4">
+                        <div className="bg-[#303343] py-2 rounded-t-lg border-b border-white/5 text-center">
+                            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Monedas</h3>
+                        </div>
+                        <div className="space-y-2">
+                            {DENOMINATIONS.monedas.map(d => (
+                                <div key={d.id} className="flex h-10">
+                                    <button
+                                        onClick={() => handleInputClick(d.id)}
+                                        className="w-16 bg-[#303343] hover:bg-[#3d4154] transition-colors rounded-l-md flex items-center justify-center text-xs font-bold text-gray-300 border border-white/5 cursor-pointer"
+                                    >
+                                        {d.label}
+                                    </button>
+                                    <div
+                                        className={`flex-1 flex items-center justify-center font-bold text-sm transition-all border-y border-white/5 ${activeInput === d.id
+                                            ? 'bg-white text-black'
+                                            : 'bg-[#1f1d2b] text-white'
+                                            }`}
+                                    >
+                                        {counts[d.id] || 0}
+                                    </div>
+                                    <div className="w-20 bg-[#303343] rounded-r-md flex items-center justify-center text-xs font-mono font-bold text-gray-400 border border-white/5">
+                                        Q{calculateSubtotal(d.val, counts[d.id] || 0).toFixed(2)}
+                                    </div>
                                 </div>
-                            </div>
-
-                            {/* Billetes */}
-                            <div className="flex flex-col gap-3">
-                                <h3 className="flex items-center justify-center py-2 bg-white/5 rounded-lg text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 border border-white/5">
-                                    Billetes
-                                </h3>
-                                <div className="space-y-2">
-                                    {DENOMINATIONS.billetes.map(d => (
-                                        <div key={d.label} className="flex gap-2 items-center group">
-                                            <div className="w-16 py-3 bg-white/5 rounded-xl text-[10px] font-bold text-center border border-white/5 text-gray-400 group-hover:bg-white/10 transition-colors">
-                                                {d.label}
-                                            </div>
-                                            <button
-                                                onClick={() => handleInputClick(d.label)}
-                                                className={`flex-1 py-3 px-4 rounded-xl text-center font-black transition-all border text-sm active:scale-95 ${activeInput === d.label
-                                                    ? 'bg-white border-white text-black  /20'
-                                                    : 'bg-[#1e222b] border-white/5 text-gray-300 hover:border-white/20 hover:bg-[#252a35]'
-                                                    }`}
-                                            >
-                                                {counts[d.label] || 0}
-                                            </button>
-                                            <div className="w-24 py-3 px-3 bg-[#111318] rounded-xl text-xs font-mono font-bold text-right text-white/80 border border-white/5">
-                                                Q{calculateSubtotal(d.val, counts[d.label] || 0).toFixed(2)}
-                                            </div>
-                                        </div>
-                                    ))}
-
-
+                            ))}
+                        </div>
+                        
+                        {/* Totals Summary */}
+                        <div className="mt-8 space-y-4">
+                            {!isBlind && expectedAmount !== undefined && (
+                                <div className="flex justify-between items-center text-xs font-bold text-gray-400">
+                                    <span>A Cuadrar</span>
+                                    <span className="font-mono text-white">Q{expectedAmount.toFixed(2)}</span>
                                 </div>
+                            )}
+                            <div className="flex justify-between items-center text-sm font-bold text-white">
+                                <span>Total Arqueo</span>
+                                <span className="font-mono text-lg">Q{totalArqueo.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Keypad Section (Span 4) */}
-                    <div className="lg:col-span-4 bg-[#1c1f26] border-l border-white/5 p-6 flex flex-col gap-4 relative  /50 overflow-y-auto">
-                        {/* Display */}
-                        <div className="bg-black/40 rounded-lg p-6 text-right border border-white/5 h-24 flex flex-col justify-center relative overflow-hidden group">
-                            <div className="absolute inset-0 bg-white/5 group-hover:bg-white/10 transition-colors"></div>
-                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest relative z-10 mb-1">
-                                {activeInput === 'MANUAL' ? 'MONTO MANUAL' : (activeInput ? `CANTIDAD DE ${activeInput}` : 'SELECCIONE DENOMINACIÓN')}
+                    {/* COL 2: Billetes */}
+                    <div className="flex flex-col gap-4">
+                        <div className="bg-[#303343] py-2 rounded-t-lg border-b border-white/5 text-center">
+                            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Billetes</h3>
+                        </div>
+                        <div className="space-y-2">
+                            {DENOMINATIONS.billetes.map(d => (
+                                <div key={d.id} className="flex h-10">
+                                    <button
+                                        onClick={() => handleInputClick(d.id)}
+                                        className="w-16 bg-[#303343] hover:bg-[#3d4154] transition-colors rounded-l-md flex items-center justify-center text-xs font-bold text-gray-300 border border-white/5 cursor-pointer"
+                                    >
+                                        {d.label}
+                                    </button>
+                                    <div
+                                        className={`flex-1 flex items-center justify-center font-bold text-sm transition-all border-y border-white/5 ${activeInput === d.id
+                                            ? 'bg-white text-black'
+                                            : 'bg-[#1f1d2b] text-white'
+                                            }`}
+                                    >
+                                        {counts[d.id] || 0}
+                                    </div>
+                                    <div className="w-20 bg-[#303343] rounded-r-md flex items-center justify-center text-xs font-mono font-bold text-gray-400 border border-white/5">
+                                        Q{calculateSubtotal(d.val, counts[d.id] || 0).toFixed(2)}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* COL 3: Keypad & Save */}
+                    <div className="flex flex-col gap-4">
+                        {/* Display Screen */}
+                        <div className="h-14 bg-[#1f1d2b] border border-white/5 rounded-md flex flex-col justify-center px-4 text-right">
+                             <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                                {activeInput === 'MANUAL' ? 'MONTO MANUAL' : (activeInput ? `CANTIDAD DE ${[...DENOMINATIONS.monedas, ...DENOMINATIONS.billetes].find(d => d.id === activeInput)?.label || activeInput}` : 'SELECCIONE DENOMINACIÓN')}
                             </span>
-                            <span className={`text-4xl font-black tracking-tight relative z-10 transition-colors ${activeInput ? 'text-white' : 'text-gray-600'}`}>
-                                {activeInput ? (tempValue || '0') : '---'}
+                            <span className="text-lg font-bold text-white tracking-widest">
+                                {activeInput ? (tempValue || '0') : ''}
                             </span>
                         </div>
 
                         {/* Numpad */}
-                        <div className="grid grid-cols-3 gap-2 content-start">
+                        <div className="bg-[#303343] p-2 rounded-md grid grid-cols-3 gap-1">
                             {[7, 8, 9, 4, 5, 6, 1, 2, 3].map(n => (
-                                <button key={n} onClick={() => handleKeyPad(n.toString())} className="h-16 bg-[#252830] hover:bg-[#2e323b] rounded-xl text-xl font-bold transition-all active:scale-95 border border-white/5 text-gray-200">
+                                <button key={n} onClick={() => handleKeyPad(n.toString())} className="h-14 bg-[#303343] border border-white/5 hover:bg-[#3d4154] text-white font-bold text-sm transition-colors rounded-sm">
                                     {n}
                                 </button>
                             ))}
-                            <button onClick={() => handleKeyPad('BACKSPACE')} className="h-16 bg-[#252830] hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/30 rounded-xl flex items-center justify-center transition-all active:scale-95 border border-white/5 text-gray-400">
-                                <Delete size={24} />
-                            </button>
-                            <button onClick={() => handleKeyPad('0')} className="h-16 bg-[#252830] hover:bg-[#2e323b] rounded-xl text-xl font-bold transition-all active:scale-95 border border-white/5 text-gray-200">
+                            <button onClick={() => handleKeyPad('0')} className="h-14 bg-[#303343] border border-white/5 hover:bg-[#3d4154] text-white font-bold text-sm transition-colors rounded-sm">
                                 0
                             </button>
-                            <button onClick={confirmValue} className="h-16 bg-white hover:bg-white/90 rounded-xl flex items-center justify-center transition-all active:scale-95 text-black  /20">
-                                <Check size={28} />
+                            <button onClick={() => handleKeyPad('DOT')} className="h-14 bg-[#303343] border border-white/5 hover:bg-[#3d4154] text-white font-bold text-sm transition-colors rounded-sm">
+                                .
+                            </button>
+                            <button onClick={() => handleKeyPad('BACKSPACE')} className="h-14 bg-[#303343] border border-white/5 hover:bg-rose-500/20 text-gray-400 hover:text-rose-400 flex items-center justify-center transition-colors rounded-sm">
+                                <Delete size={18} />
                             </button>
                         </div>
 
-                        <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
-                            {!isBlind && expectedAmount !== undefined && (
-                                <div className="flex justify-between items-end text-gray-500 font-bold uppercase tracking-widest text-[10px]">
-                                    <span>A Cuadrar</span>
-                                    <span className="text-gray-300 text-sm font-mono bg-white/5 px-2 py-1 rounded">Q{expectedAmount.toFixed(2)}</span>
-                                </div>
-                            )}
-                            <div className="flex justify-between items-end text-white/60 font-black uppercase tracking-widest text-xs">
-                                <span>Total Arqueo</span>
-                                <span className="text-3xl text-white leading-none">Q{totalArqueo.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span>
-                            </div>
+                        {/* Action Buttons */}
+                        <div className="flex flex-col gap-2 mt-2">
+                             <button onClick={confirmValue} className="h-12 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-widest rounded-md transition-colors flex items-center justify-center gap-2">
+                                <Check size={16} /> Confirmar Monto
+                            </button>
                             <button
                                 onClick={() => onSave(totalArqueo, counts)}
-                                className="w-full bg-white hover:bg-white/90 text-black py-4 rounded-lg font-black uppercase tracking-[0.2em]  /10 active:scale-[0.98] transition-all text-xs flex items-center justify-center gap-2"
+                                className="h-12 bg-[#6b72ff] hover:bg-[#5a60e0] text-white font-bold text-xs uppercase tracking-widest rounded-md transition-colors mt-2"
                             >
-                                <Save size={18} /> Guardar Arqueo
+                                Guardar Arqueo
                             </button>
                         </div>
                     </div>

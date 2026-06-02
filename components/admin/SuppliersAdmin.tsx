@@ -6,6 +6,7 @@ import { DraggableWindow } from './AdminPortal';
 import { useNotify } from '../../hooks/useNotify';
 import { WindowsSaveButton } from '../WindowsSaveButton';
 import { WindowsConfirmModal } from '../WindowsConfirmModal';
+import { useModulePermissions } from '../../hooks/useModulePermissions';
 
 export const SuppliersAdmin: React.FC = () => {
     const [suppliers, setSuppliers] = useState<any[]>([]);
@@ -14,6 +15,7 @@ export const SuppliersAdmin: React.FC = () => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
     const notify = useNotify();
+    const { can } = useModulePermissions('Proveedores');
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         name: '',
@@ -424,18 +426,24 @@ export const SuppliersAdmin: React.FC = () => {
                         className="fixed z-[100000] bg-white border border-gray-300 shadow-[4px_4px_15px_rgba(0,0,0,0.15)] py-1 min-w-[200px] select-none"
                         style={{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }}
                     >
+                        {can('Nuevo') && (
                         <button onClick={() => { resetForm(); setShowModal(true); setContextMenu(null); }} className="w-full text-left px-3 py-1.5 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors">
                             <Plus size={14} className="text-emerald-600" /> Nuevo Proveedor
                         </button>
+                        )}
                         <div className="h-px bg-gray-100 my-1"></div>
                         {contextMenu.supplier && (
                             <>
+                                {can('Editar') && (
                                 <button onClick={() => { handleEdit(contextMenu.supplier); setContextMenu(null); }} className="w-full text-left px-3 py-1.5 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors">
                                     <Edit3 size={14} className="text-[#106ebe]" /> Editar
                                 </button>
+                                )}
+                                {can('Eliminar') && (
                                 <button onClick={() => { setConfirmDelete(contextMenu.supplier.id); setContextMenu(null); }} className="w-full text-left px-3 py-1.5 text-[11px] font-bold text-red-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors">
                                     <Trash2 size={14} className="text-red-500" /> Eliminar
                                 </button>
+                                )}
                                 <div className="h-px bg-gray-100 my-1"></div>
                             </>
                         )}

@@ -417,7 +417,7 @@ export const shiftService = {
     async sendClosureEmail(user: User, data: any) {
         try {
             const electron = (window as any).electronAPI || (window as any).electron;
-            if (!user || !electron) return;
+            if (!user) return;
 
             const { reportData } = await this.getShiftData(user);
             if (!reportData) return;
@@ -431,50 +431,36 @@ export const shiftService = {
             const { reportTemplates } = await import('./ReportTemplates');
             const css = `/* report-base.css content */ body { font-family: 'Courier New'; width: 80mm; margin: 0 auto; color: #000; } .header { text-align: center; } .title { text-align: center; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 5px 0; } .row { display: flex; justify-content: space-between; } .divider { border-top: 1px dashed #000; margin: 8px 0; }`;
 
-            const generatePdf = async (html: string, name: string) => {
-                const fullHtml = reportTemplates.wrap(html, css);
-                const result = await electron.generatePdf(fullHtml, name);
-                return { filename: `${name}.pdf`, content: result.data };
-            };
-
-            // 1. Fetch products below reorder point (Inventory)
-            const { data: invRaw } = await supabase.from('inventory_items').select('*');
-            const inventoryData = (invRaw || [])
-                .filter(i => Number(i.quantity) <= Number(i.min_stock))
-                .map(i => ({
-                    name: i.name,
-                    stock: Number(i.quantity),
-                    unit: i.unit,
-                    category_name: 'Inventario'
-                }));
-
-            // 2. Fetch sold dishes (Order Items)
-            const { data: itemsRaw } = await supabase
-                .from('order_items')
-                .select('quantity, unit_price, products(name), orders!inner(created_at, status)')
-                .eq('orders.status', 'completed')
-                .gte('orders.created_at', reportData.startTime)
-                .lte('orders.created_at', reportData.endTime);
-
-            // Group by product name
-            const soldGroups: Record<string, any> = {};
-            (itemsRaw || []).forEach((item: any) => {
-                const name = item.products?.name || 'Producto';
-                if (!soldGroups[name]) soldGroups[name] = { name, quantity: 0, total: 0 };
-                soldGroups[name].quantity += Number(item.quantity);
-                soldGroups[name].total += Number(item.quantity) * Number(item.unit_price);
-            });
-            const soldItems = Object.values(soldGroups).sort((a, b) => b.total - a.total);
-
-            // 3. Generate PDFs with the DYNAMIC data
-            const attachments = [
-                await generatePdf(reportTemplates.generateCierreCaja(reportData), 'Cierre_Caja'),
-                await generatePdf(reportTemplates.generateCuadreTarjetas(reportData), 'Cuadre_Tarjetas'),
-                await generatePdf(reportTemplates.generateGastos(reportData), 'Resumen_Gastos')
-            ];
-
             const emailSubject = `Reporte de Cierre - ${reportData.registerName || 'Caja'} - ${reportData.cashierName} - ${new Date().toLocaleDateString()}`;
-            const emailBody = `
+
+            const { data: settings } = await supabase.from('system_settings').select('*').single();
+            if (!settings?.smtp_user) return; // No SMTP config
+
+            const smtpConfig = {
+                host: settings.smtp_host,
+                port: settings.smtp_port,
+                user: settings.smtp_user,
+                pass: settings.smtp_pass
+            };
+            const to = settings.cashier_emails || settings.smtp_user;
+
+            if (electron) {
+                // ============================================
+                // ELECTRON MODE: Generate PDFs locally
+                // ============================================
+                const generatePdf = async (html: string, name: string) => {
+                    const fullHtml = reportTemplates.wrap(html, css);
+                    const result = await electron.generatePdf(fullHtml, name);
+                    return { filename: `${name}.pdf`, content: result.data };
+                };
+
+                const attachments = [
+                    await generatePdf(reportTemplates.generateCierreCaja(reportData), 'Cierre_Caja'),
+                    await generatePdf(reportTemplates.generateCuadreTarjetas(reportData), 'Cuadre_Tarjetas'),
+                    await generatePdf(reportTemplates.generateGastos(reportData), 'Resumen_Gastos')
+                ];
+
+                const emailBodyText = `
 REPORTE DE CIERRE DE TURNO
 ═══════════════════════════════════════
 Adjunto a este correo encontrará los reportes en formato PDF correspondientes al turno:
@@ -519,23 +505,52 @@ Documentos adjuntos:
 
 ═══════════════════════════════════════
 Generado: ${new Date().toLocaleString('es-GT')}
-            `.trim();
+                `.trim();
 
-            const { data: settings } = await supabase.from('system_settings').select('*').single();
-            if (settings?.smtp_user) {
                 await electron.sendEmail({
-                    to: settings.cashier_emails || settings.smtp_user,
+                    to,
                     subject: emailSubject,
-                    body: emailBody,
+                    body: emailBodyText,
                     isHtml: false,
-                    smtpConfig: {
-                        host: settings.smtp_host,
-                        port: settings.smtp_port,
-                        user: settings.smtp_user,
-                        pass: settings.smtp_pass
-                    },
+                    smtpConfig,
                     attachments
                 });
+
+            } else {
+                // ============================================
+                // CLOUD MODE (Tablets/Web): API Vercel
+                // ============================================
+                const html1 = reportTemplates.generateCierreCaja(reportData);
+                const html2 = reportTemplates.generateCuadreTarjetas(reportData);
+                const html3 = reportTemplates.generateGastos(reportData);
+                
+                const combinedHtml = `
+                    <div style="background-color: #f3f4f6; padding: 20px; font-family: monospace;">
+                        <div style="background-color: white; max-width: 400px; margin: 0 auto; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: black;">
+                            ${html1}
+                            <hr style="border: 1px dashed #ccc; margin: 20px 0;" />
+                            ${html2}
+                            <hr style="border: 1px dashed #ccc; margin: 20px 0;" />
+                            ${html3}
+                        </div>
+                    </div>
+                `;
+
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to,
+                        subject: emailSubject,
+                        body: combinedHtml,
+                        isHtml: true,
+                        smtpConfig
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Fallo al enviar correo mediante la API de Vercel');
+                }
             }
         } catch (e) {
             throw e;

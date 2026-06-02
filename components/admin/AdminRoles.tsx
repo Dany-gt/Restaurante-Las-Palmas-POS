@@ -6,6 +6,7 @@ import { DraggableWindow } from './AdminPortal';
 import { useNotify } from '../../hooks/useNotify';
 import { WindowsSaveButton } from '../WindowsSaveButton';
 import { WindowsConfirmModal } from '../WindowsConfirmModal';
+import { useModulePermissions } from '../../hooks/useModulePermissions';
 
 export const AdminRoles: React.FC = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
@@ -19,6 +20,7 @@ export const AdminRoles: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number, role: any } | null>(null);
     const notify = useNotify();
+    const { can } = useModulePermissions('Roles de Usuario');
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -397,6 +399,7 @@ export const AdminRoles: React.FC = () => {
                     className="absolute bg-white border border-gray-300 shadow-[4px_4px_15px_rgba(0,0,0,0.15)] z-[1000] py-1 min-w-[175px] animate-in fade-in zoom-in duration-75"
                     style={{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }}
                 >
+                    {can('Nuevo') && (
                     <button
                         onClick={startNewRole}
                         className="w-full text-left px-4 py-2 text-[11px] hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-gray-800 group transition-colors"
@@ -404,10 +407,12 @@ export const AdminRoles: React.FC = () => {
                         <Plus size={14} className="text-gray-600 group-hover:text-white" />
                         <span>Nuevo Registro</span>
                     </button>
+                    )}
 
                     {contextMenu.role && (
                         <>
                             <div className="h-px bg-gray-200 my-1" />
+                            {can('Editar') && (
                             <button
                                 onClick={() => {
                                     setEditingRole(contextMenu.role);
@@ -419,6 +424,8 @@ export const AdminRoles: React.FC = () => {
                                 <Edit3 size={14} className="text-gray-600 group-hover:text-white" />
                                 <span>Editar Registro</span>
                             </button>
+                            )}
+                            {can('Eliminar') && (
                             <button
                                 onClick={() => setConfirmDelete(contextMenu.role.id)}
                                 className="w-full text-left px-4 py-2 text-[11px] hover:bg-red-600 hover:text-white flex items-center gap-3 text-red-600 font-bold group transition-colors"
@@ -426,6 +433,7 @@ export const AdminRoles: React.FC = () => {
                                 <Trash2 size={14} className="text-red-500 group-hover:text-white" />
                                 <span>Eliminar Registro</span>
                             </button>
+                            )}
                         </>
                     )}
                 </div>

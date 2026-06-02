@@ -1118,9 +1118,9 @@ class PrintService {
     const content = `
       <div style="padding-left: 5px;">
         <div class="info-grid">
-          <div class="info-line"><span>Caja:</span> ${data.registerName || 'PRINCIPAL'}</div>
+          <div class="info-line"><span>Caja:</span> ${data.registerName?.toUpperCase().replace('CAJA ', '') || 'PRINCIPAL'}</div>
           <div class="info-line" style="text-align: right;"><span>Turno:</span> ${data.shiftNumber || '---'}</div>
-          <div class="info-line" style="grid-column: span 2;"><span>Cajero:</span> ${data.cashierName}</div>
+          <div class="info-line" style="grid-column: span 2;"><span>Cajero:</span> ${data.cashierName?.toUpperCase() || 'ADMIN'}</div>
         </div>
         
         <div class="thick-divider"></div>
@@ -1183,9 +1183,10 @@ class PrintService {
 
     const content = `
       <div class="info-grid">
-        <div class="info-line"><span>Caja:</span> ${data.cashierName?.toUpperCase()}</div>
-        <div class="info-line" style="text-align: right;"><span>Turno:</span> ${data.shiftNumber || '---'}</div>
-        <div class="info-line" style="grid-column: span 2;"><span>Fecha:</span> ${dateStr(data.endTime)}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>Caja:</span> ${data.registerName?.toUpperCase().replace('CAJA ', '') || 'PRINCIPAL'}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>Cajero:</span> ${data.cashierName?.toUpperCase() || 'ADMIN'}</div>
+        <div class="info-line"><span>Turno:</span> ${data.shiftNumber || '---'}</div>
+        <div class="info-line" style="text-align: right;"><span>Fecha:</span> ${dateStr(data.endTime)}</div>
       </div>
       
       <div class="divider"></div>
@@ -1292,10 +1293,10 @@ class PrintService {
 
     const content = `
       <div class="info-grid">
-        <div class="info-line"><span>CAJA:</span> ${(this.restaurantInfo?.name || 'PRINCIPAL').split(' ')[0]}</div>
-        <div class="info-line" style="text-align: right;"><span>CAJERO:</span> ${data.cashierName}</div>
-        <div class="info-line"><span>APERTURA:</span> ${dateStr(data.startTime)}</div>
-        <div class="info-line" style="text-align: right;"><span>CIERRE:</span> ${dateStr(data.endTime)}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>CAJA:</span> ${data.registerName?.toUpperCase().replace('CAJA ', '') || 'PRINCIPAL'}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>CAJERO:</span> ${data.cashierName?.toUpperCase() || 'ADMIN'}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>APERTURA:</span> ${dateStr(data.startTime)}</div>
+        <div class="info-line" style="grid-column: span 2;"><span>CIERRE:</span> ${dateStr(data.endTime)}</div>
       </div>
       <div class="thick-divider"></div>
       <div class="info-grid" style="font-size:10px;">

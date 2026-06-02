@@ -5,6 +5,7 @@ import { supabase } from '../supabase';
 import { Customer, Order, POSTerminal } from '../types';
 import { NewCreditCustomerModal } from './NewCreditCustomerModal';
 import { printService } from '../services/PrintService';
+import { useModulePermissions } from '../hooks/useModulePermissions';
 
 interface CreditSelectorProps {
     order: Order;
@@ -19,6 +20,16 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
     const [loading, setLoading] = useState(true);
     const [showNewCustomerModal, setShowNewCustomerModal] = useState(false);
+    
+    // Security hook
+    const { can: canCajero } = useModulePermissions('Cajero');
+    const isCajeroOrAdmin = (() => {
+        try {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            return user?.role === 'ADMIN' || user?.role === 'CAJERO';
+        } catch { return false; }
+    })();
+    const canCreateCreditClient = canCajero('Crear Clientes Al Crédito') || isCajeroOrAdmin;
 
     const currency = settings?.currency || 'Q';
     
@@ -143,13 +154,15 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
                     </div>
 
                     <div className="p-4 flex justify-center pb-8">
-                        <button
-                            onClick={() => setShowNewCustomerModal(true)}
-                            className="w-12 h-12 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 flex items-center justify-center text-gray-400 transition-all hover:text-white hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10 active:scale-95"
-                            title="Nuevo Cliente"
-                        >
-                            <UserPlus size={20} />
-                        </button>
+                        {canCreateCreditClient && (
+                            <button
+                                onClick={() => setShowNewCustomerModal(true)}
+                                className="w-12 h-12 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 flex items-center justify-center text-gray-400 transition-all hover:text-white hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10 active:scale-95"
+                                title="Nuevo Cliente"
+                            >
+                                <UserPlus size={20} />
+                            </button>
+                        )}
                     </div>
                 </div>
 

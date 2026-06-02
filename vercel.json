@@ -10,6 +10,10 @@
             "use": "@vercel/node"
         },
         {
+            "src": "api/send-email.js",
+            "use": "@vercel/node"
+        },
+        {
             "src": "package.json",
             "use": "@vercel/static-build",
             "config": { "distDir": "dist" }
@@ -23,6 +27,10 @@
         {
             "source": "/api/proxy",
             "destination": "/api/proxy.js"
+        },
+        {
+            "source": "/api/send-email",
+            "destination": "/api/send-email.js"
         },
         {
             "source": "/((?!api/).*)",

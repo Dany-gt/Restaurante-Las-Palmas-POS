@@ -44,7 +44,8 @@ export const reportTemplates = {
 
             <div class="title">Cierre de Caja</div>
 
-            <div class="row"><span>Turno:</span><span>${data.registerName || 'CAJA'}: ${data.cashierName}</span></div>
+            <div class="row"><span>Caja:</span><span>${data.registerName?.toUpperCase().replace('CAJA ', '') || 'PRINCIPAL'}</span></div>
+            <div class="row"><span>Cajero:</span><span>${data.cashierName?.split(' ')[0]?.toUpperCase() || 'ADMIN'}</span></div>
             <div class="row"><span>Apertura:</span><span>${formatDate(data.startTime)}</span></div>
             <div class="row"><span>Cierre:</span><span>${formatDate(data.endTime)}</span></div>
 
@@ -121,7 +122,8 @@ export const reportTemplates = {
             </div>
             <div class="title">Cuadre POS Tarjetas</div>
             
-            <div class="row"><span>Turno:</span><span>${data.registerName || 'CAJA'}: ${data.cashierName}</span></div>
+            <div class="row"><span>Caja:</span><span>${data.registerName?.toUpperCase().replace('CAJA ', '') || 'PRINCIPAL'}</span></div>
+            <div class="row"><span>Cajero:</span><span>${data.cashierName?.split(' ')[0]?.toUpperCase() || 'ADMIN'}</span></div>
             <div class="row"><span>Fecha:</span><span>${this.formatDate(data.endTime)}</span></div>
 
             <div class="divider"></div>
@@ -169,7 +171,8 @@ export const reportTemplates = {
                 <div>Resumen de Gastos</div>
             </div>
 
-            <div class="row"><span>Turno:</span><span>${data.registerName || 'CAJA'}: ${data.cashierName}</span></div>
+            <div class="row"><span>Caja:</span><span>${data.registerName?.toUpperCase().replace('CAJA ', '') || 'PRINCIPAL'}</span></div>
+            <div class="row"><span>Cajero:</span><span>${data.cashierName?.split(' ')[0]?.toUpperCase() || 'ADMIN'}</span></div>
             <div class="divider"></div>
 
             ${Object.entries(categories).map(([cat, list]) => `
