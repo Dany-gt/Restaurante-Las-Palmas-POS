@@ -148,6 +148,7 @@ export const shiftService = {
                     table_id,
                     waiter_id,
                     tip_method,
+                    pos_terminal_id,
                     tables!table_id(number, section)
                 `)
                 .gte('created_at', shift.start_time);
