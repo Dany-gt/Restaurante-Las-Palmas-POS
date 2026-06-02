@@ -256,7 +256,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
             // Ignore if in invoice modal or other overlays
             if (showInvoiceModal || showPosSelector || showCreditSelector || showOtherModal || showTipModal || processing) {
                 if (showPosSelector && e.key === 'Enter' && selectedTerminal) {
-                    handlePosSelect(selectedTerminal.name);
+                    handlePosSelect(selectedTerminal);
                 }
                 if (showPosSelector && e.key === 'Escape') {
                     setShowPosSelector(false);
@@ -404,24 +404,22 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
         setAmount('0');
     };
 
-    const handlePosSelect = (processor: string) => {
-        const terminal = terminals.find(t => t.name === processor);
+    const handlePosSelect = (terminal: POSTerminal) => {
         if (pendingAmount !== null) {
             setPayments(prev => [...prev, {
                 method: 'TARJETA',
                 amount: pendingAmount,
-                processor,
-                terminalId: terminal?.id // Store terminal ID for database
+                processor: terminal.name,
+                terminalId: terminal.id // Store terminal ID for database
             }]);
             setPendingAmount(null);
             setAmount('0');
         } else {
             // Asignación global
             setSelectedMethod('TARJETA');
-            // We already have selectedTerminal in state because they clicked the POS button
+            setSelectedTerminal(terminal);
         }
         setShowPosSelector(false);
-        // Mantenemos selectedTerminal activo para usar su ID en el processPayment
     };
 
     const handleCreditConfirm = async (customer: Customer, creditAmount: number) => {
@@ -916,7 +914,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 const { error: updateError } = await supabase.from('orders').update({
                     status: 'completed',
                     payment_method: finalPaymentMethod,
-                    card_processor: cardPayment?.processor || cardProcessor,
+                    card_processor: cardPayment?.processor || selectedTerminal?.name || cardProcessor,
                     pos_terminal_id: cardPayment?.terminalId || selectedTerminal?.id || null,
                     total: total,
                     tip_amount: currentTip,
@@ -1425,7 +1423,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                 CANCELAR
                             </button>
                             <button
-                                onClick={() => selectedTerminal && handlePosSelect(selectedTerminal.name)}
+                                onClick={() => selectedTerminal && handlePosSelect(selectedTerminal)}
                                 disabled={!selectedTerminal}
                                 className={`px-8 py-2.5 rounded-md text-white text-xs font-bold uppercase tracking-wide transition-all active:scale-95 min-w-[120px] ${selectedTerminal ? 'bg-[#7a73ff] hover:bg-[#6861ff] ' : 'bg-[#7a73ff]/50 cursor-not-allowed opacity-70'}`}
                             >
