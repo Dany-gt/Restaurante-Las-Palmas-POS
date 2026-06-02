@@ -997,7 +997,7 @@ class PrintService {
     otherPaymentsAmount: number;
   }): Promise<void> {
     if (!this.settings) await this.loadSettings();
-    const fmt = (val: number) => 'Q' + Number(val || 0).toFixed(2);
+    const fmt = (val: number) => `<span style="float:left">Q</span>${Number(val || 0).toFixed(2)}`;
 
     const content = `
       <div style="text-align:center; border:2px solid #000; padding:8px; margin-bottom:15px;">
@@ -1091,13 +1091,13 @@ class PrintService {
           ${(expense.items || []).map((item: any) => `
             <tr class="item-row">
               <td class="col-desc description">${item.name}</td>
-              <td class="col-price price">Q${Number(item.price).toFixed(2)}</td>
+              <td class="col-price price"><span style="float:left">Q</span>${Number(item.price).toFixed(2)}</td>
             </tr>
           `).join('')}
         </table>
         
         <div class="thick-divider"></div>
-        <div class="grand-total" style="text-align:right;">TOTAL: Q${Number(expense.amount).toFixed(2)}</div>
+        <div class="grand-total" style="text-align:right;"><span style="float:left">TOTAL: Q</span>${Number(expense.amount).toFixed(2)}</div>
       </div>
     `;
 
@@ -1112,7 +1112,7 @@ class PrintService {
     const expenses = data.expenses || [];
     if (expenses.length === 0) return returnHtml ? '' : undefined;
 
-    const fmt = (val: number) => 'Q' + Number(val || 0).toFixed(2);
+    const fmt = (val: number) => `<span style="float:left">Q</span>${Number(val || 0).toFixed(2)}`;
     const dateStr = (d: string) => { try { return new Date(d).toLocaleString('es-GT', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return d; } };
 
     const content = `
@@ -1175,7 +1175,7 @@ class PrintService {
 
   async printPOSTarjetasReport(data: any, returnHtml: boolean = false): Promise<void | string> {
     if (!this.settings) await this.loadSettings();
-    const fmt = (val: number) => 'Q' + Number(val || 0).toFixed(2);
+    const fmt = (val: number) => `<span style="float:left">Q</span>${Number(val || 0).toFixed(2)}`;
     const dateStr = (d: string) => { try { return new Date(d).toLocaleString('es-GT', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return d; } };
 
     const cardTerminals = data.posCardDetail || [];
@@ -1220,7 +1220,7 @@ class PrintService {
 
   async printZReport(data: any, returnHtml: boolean = false): Promise<void | string> {
     if (!this.settings) await this.loadSettings();
-    const fmt = (val: number) => 'Q' + Number(val || 0).toFixed(2);
+    const fmt = (val: number) => `<span style="float:left">Q</span>${Number(val || 0).toFixed(2)}`;
     const dateStr = (d: string) => { try { return new Date(d).toLocaleString('es-GT', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return d; } };
 
     const getSalesByMethod = (method: string) => {
@@ -1266,27 +1266,27 @@ class PrintService {
     const channelTotal = channelRestaurante + channelLlevar + channelDomicilio + channelPlataformas + channelVentaRapida;
 
     const monedas = [
-      { label: 'Q0.01', val: 0.01 },
-      { label: 'Q0.05', val: 0.05 },
-      { label: 'Q0.10', val: 0.10 },
-      { label: 'Q0.25', val: 0.25 },
-      { label: 'Q0.50', val: 0.50 },
-      { label: 'Q1.00', val: 1.00 },
+      { id: 'm_0.01', label: 'Q0.01', val: 0.01 },
+      { id: 'm_0.05', label: 'Q0.05', val: 0.05 },
+      { id: 'm_0.10', label: 'Q0.10', val: 0.10 },
+      { id: 'm_0.25', label: 'Q0.25', val: 0.25 },
+      { id: 'm_0.50', label: 'Q0.50', val: 0.50 },
+      { id: 'm_1.00', label: 'Q1.00', val: 1.00 },
     ];
     const billetes = [
-      { label: 'Q1.00', val: 1.00 },
-      { label: 'Q5.00', val: 5.00 },
-      { label: 'Q10.00', val: 10.00 },
-      { label: 'Q20.00', val: 20.00 },
-      { label: 'Q50.00', val: 50.00 },
-      { label: 'Q100.00', val: 100.00 },
-      { label: 'Q200.00', val: 200.00 },
+      { id: 'b_1.00', label: 'Q1.00', val: 1.00 },
+      { id: 'b_5.00', label: 'Q5.00', val: 5.00 },
+      { id: 'b_10.00', label: 'Q10.00', val: 10.00 },
+      { id: 'b_20.00', label: 'Q20.00', val: 20.00 },
+      { id: 'b_50.00', label: 'Q50.00', val: 50.00 },
+      { id: 'b_100.00', label: 'Q100.00', val: 100.00 },
+      { id: 'b_200.00', label: 'Q200.00', val: 200.00 },
     ];
 
-    const getCount = (label: string) => {
+    const getCount = (id: string) => {
       if (!data.denominations) return 0;
       if (typeof data.denominations === 'object' && !Array.isArray(data.denominations)) {
-        return Number(data.denominations[label] || 0);
+        return Number(data.denominations[id] || 0);
       }
       return 0;
     };
@@ -1389,10 +1389,10 @@ class PrintService {
       const m = monedas[idx];
       const b = billetes[idx];
 
-      const mQty = m ? getCount(m.label) : 0;
+      const mQty = m ? getCount(m.id) : 0;
       const mTotal = m ? mQty * m.val : 0;
 
-      const bQty = b ? getCount(b.label) : 0;
+      const bQty = b ? getCount(b.id) : 0;
       const bTotal = b ? bQty * b.val : 0;
 
       return `
