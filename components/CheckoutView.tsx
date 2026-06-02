@@ -417,8 +417,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
             setAmount('0');
         } else {
             // Asignación global
-            setPaymentMethod('TARJETA');
-            setCardProcessor(processor);
+            setSelectedMethod('TARJETA');
+            // We already have selectedTerminal in state because they clicked the POS button
         }
         setShowPosSelector(false);
         // Mantenemos selectedTerminal activo para usar su ID en el processPayment
