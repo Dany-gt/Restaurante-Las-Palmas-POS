@@ -131,7 +131,7 @@ export const shiftService = {
             });
 
             // 2. Fetch ALL orders from the shift
-            const { data: shiftOrders, error: ordersError } = await supabase
+            const { data: shiftOrdersBase, error: ordersError } = await supabase
                 .from('orders')
                 .select(`
                     id, 
@@ -154,14 +154,55 @@ export const shiftService = {
 
             if (ordersError) throw ordersError;
 
+            // Merge Offline Pending Orders
+            let shiftOrders = [...(shiftOrdersBase || [])];
+            try {
+                const { offlineDB } = await import('./OfflineDB');
+                const pendingRecords = await offlineDB.getPendingRecords();
+                
+                const offlinePendingOrders = pendingRecords
+                    .filter(r => r.type === 'ORDER' && r.data && r.data.order)
+                    .map(r => ({ ...r.data.order, id: r.data.id || r.data.order.id, _isOffline: true }));
+                    
+                offlinePendingOrders.forEach(offlineOrder => {
+                    const existingIndex = shiftOrders.findIndex(o => o.id === offlineOrder.id);
+                    if (existingIndex >= 0) {
+                        shiftOrders[existingIndex] = { ...shiftOrders[existingIndex], ...offlineOrder };
+                    } else {
+                        // Assuming offline pending orders belong to current shift since they haven't synced
+                        shiftOrders.push(offlineOrder);
+                    }
+                });
+            } catch (err) {
+                console.error("Error merging offline orders for shift summary:", err);
+            }
+
             // 2. Fetch expenses
-            const { data: shiftExpenses } = await supabase
+            const { data: shiftExpensesBase } = await supabase
                 .from('expenses')
                 .select('*')
                 .gte('created_at', shift.start_time)
                 .eq('shift_id', shift.id)
                 .eq('is_void', false)
                 .order('created_at', { ascending: false });
+
+            // Merge Offline Expenses
+            let shiftExpenses = [...(shiftExpensesBase || [])];
+            try {
+                const { offlineDB } = await import('./OfflineDB');
+                const pendingRecords = await offlineDB.getPendingRecords();
+                const offlineExpenses = pendingRecords
+                    .filter(r => r.type === 'EXPENSE' && r.data && !r.data.is_void)
+                    .map(r => r.data);
+                
+                offlineExpenses.forEach(exp => {
+                    if (!shiftExpenses.find(e => e.id === exp.id)) {
+                        shiftExpenses.push(exp);
+                    }
+                });
+            } catch (e) {
+                console.error("Error merging offline expenses:", e);
+            }
 
             // 2b. Fetch credit payments (abonos) during this shift
             const { data: creditPayments } = await supabase

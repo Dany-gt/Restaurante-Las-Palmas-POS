@@ -91,6 +91,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
   const [closureData, setClosureData] = useState<any>(null);
   // We'll store temporary closure details here before final confirmation with notes
   const [pendingClosure, setPendingClosure] = useState<{ total: number, detail: any } | null>(null);
+  const [lastArqueoCounted, setLastArqueoCounted] = useState<{ total: number, detail: any } | null>(null);
 
   const [cutType, setCutType] = useState<'X' | 'Z' | null>(null);
   const [expectedCash, setExpectedCash] = useState(0);
@@ -269,7 +270,15 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
         return;
       }
 
-      // Check if Arqueo is already done using the previously fetched shift
+      // 1. Check local session state first to avoid race conditions or offline sync delays
+      if (lastArqueoCounted) {
+        setCutType('Z');
+        setPendingClosure({ total: lastArqueoCounted.total, detail: lastArqueoCounted.detail });
+        setShowClosingNotesModal(true);
+        return;
+      }
+
+      // 2. Check if Arqueo is already done using the previously fetched shift
       if (currentShift && currentShift.counted_amount !== null && currentShift.counted_amount !== undefined) {
         // Arqueo already done, go straight to notes
         setCutType('Z');
@@ -286,6 +295,9 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
   // Called after Arqueo is done (Counted money)
   const handleArqueoSave = (countedTotal: number, detail: any) => {
     setShowArqueoModal(false);
+    
+    // Store it locally for this session to prevent race conditions during 'Z' cut right after 'X'
+    setLastArqueoCounted({ total: countedTotal, detail: detail });
 
     if (cutType === 'Z') {
       // If it's a Z cut and they just did the Arqueo, proceed to notes
