@@ -405,8 +405,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
     };
 
     const handlePosSelect = (processor: string) => {
+        const terminal = terminals.find(t => t.name === processor);
         if (pendingAmount !== null) {
-            const terminal = terminals.find(t => t.name === processor);
             setPayments(prev => [...prev, {
                 method: 'TARJETA',
                 amount: pendingAmount,
@@ -414,10 +414,14 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 terminalId: terminal?.id // Store terminal ID for database
             }]);
             setPendingAmount(null);
-            setShowPosSelector(false);
-            setSelectedTerminal(null);
             setAmount('0');
+        } else {
+            // Asignación global
+            setPaymentMethod('TARJETA');
+            setCardProcessor(processor);
         }
+        setShowPosSelector(false);
+        // Mantenemos selectedTerminal activo para usar su ID en el processPayment
     };
 
     const handleCreditConfirm = async (customer: Customer, creditAmount: number) => {
@@ -542,14 +546,16 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 };
                 const breakdown = getBreakdownValues();
 
+                const finalTipMethod = tipMethod || mainPaymentMethod;
+
                 const { error: updateError } = await supabase.from('orders').update({
                     status: 'completed',
                     payment_method: mainPaymentMethod,
                     card_processor: cardPayment?.processor || null,
-                    pos_terminal_id: cardPayment?.terminalId || null,
+                    pos_terminal_id: cardPayment?.terminalId || selectedTerminal?.id || null,
                     total: total,
                     tip_amount: currentTip,
-                    tip_method: tipMethod,
+                    tip_method: finalTipMethod,
                     subtotal: subtotalAfterDiscount - tax,
                     tax_amount: tax,
                     discount_amount: discount,
@@ -788,16 +794,19 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
             if (!navigator.onLine) {
                 // OFFLINE SAVE TO INDEXEDDB
                 const cardPayment = payments.find(p => p.method === 'TARJETA');
+                const finalPaymentMethod = payments.length > 0 ? payments[0].method : paymentMethod;
+                const finalTipMethod = tipMethod || finalPaymentMethod;
+
                 const orderData = {
                     id: order.id || generateUUID(),
                     order: {
                         status: 'completed',
-                        payment_method: payments.length > 0 ? payments[0].method : paymentMethod,
+                        payment_method: finalPaymentMethod,
                         card_processor: cardPayment?.processor || cardProcessor,
                         pos_terminal_id: cardPayment?.terminalId || selectedTerminal?.id || null,
                         total: total,
                         tip_amount: currentTip,
-                        tip_method: tipMethod,
+                        tip_method: finalTipMethod,
                         subtotal: subtotalAfterDiscount - tax,
                         tax_amount: tax,
                         discount_amount: discount,
@@ -901,14 +910,17 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 }
 
                 const cardPayment = payments.find(p => p.method === 'TARJETA');
+                const finalPaymentMethod = payments.length > 0 ? payments[0].method : paymentMethod;
+                const finalTipMethod = tipMethod || finalPaymentMethod;
+
                 const { error: updateError } = await supabase.from('orders').update({
                     status: 'completed',
-                    payment_method: payments.length > 0 ? payments[0].method : paymentMethod,
+                    payment_method: finalPaymentMethod,
                     card_processor: cardPayment?.processor || cardProcessor,
                     pos_terminal_id: cardPayment?.terminalId || selectedTerminal?.id || null,
                     total: total,
                     tip_amount: currentTip,
-                    tip_method: tipMethod,
+                    tip_method: finalTipMethod,
                     subtotal: subtotal - tax,
                     tax_amount: tax,
                     is_contingency: customer.is_contingency || false,
