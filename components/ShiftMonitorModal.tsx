@@ -14,6 +14,19 @@ export const ShiftMonitorModal: React.FC<ShiftMonitorModalProps> = ({ currentUse
     const [data, setData] = useState<ShiftReportData | null>(null);
     const [loading, setLoading] = useState(true);
     const [activeView, setActiveView] = useState<string>('VENTAS');
+    const [collapsedTerminals, setCollapsedTerminals] = useState<Set<string>>(new Set());
+
+    const toggleTerminalCollapse = (terminalId: string) => {
+        setCollapsedTerminals(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(terminalId)) {
+                newSet.delete(terminalId);
+            } else {
+                newSet.add(terminalId);
+            }
+            return newSet;
+        });
+    };
 
     const normalizedPerms = (currentUser?.permissions || []).map(p => p.toLowerCase().trim());
     const isBlind = currentUser?.role?.toUpperCase() === 'CAJERO' && normalizedPerms.some(p => p.includes('corte ciego'));
@@ -320,65 +333,71 @@ export const ShiftMonitorModal: React.FC<ShiftMonitorModalProps> = ({ currentUse
                         )}
 
                         {activeView === 'POS' && (
-                            <div className="flex flex-col h-full">
-                                <div className="p-4 border-b border-white/5 bg-white/5 flex justify-between items-center">
-                                    <span className="text-xs font-black uppercase tracking-widest text-gray-400">Cobros con Tarjeta</span>
-                                    <span className="text-[10px] bg-sky-500/20 text-sky-400 px-2 py-1 rounded font-bold uppercase tracking-widest">
-                                        {data.orders.filter(o => o.paymentMethod === 'TARJETA').length} Transacciones
-                                    </span>
+                            <div className="flex flex-col h-full bg-[#2A2C38]">
+                                <div className="p-4 border-b border-white/10 bg-[#353849] flex justify-center items-center">
+                                    <span className="text-sm font-bold text-white">Cobros con Tarjeta</span>
                                 </div>
-                                <div className="flex-1 overflow-auto p-4 space-y-4">
-                                    {data.posCardDetail.map((terminal, idx) => {
-                                        // Get orders for this terminal (simulated distribution)
-                                        const cardOrders = data.orders.filter(o => o.paymentMethod === 'TARJETA');
-                                        const terminalOrders = idx === 0
-                                            ? cardOrders.filter((_, i) => i % 2 === 0) // Even indices for first terminal
-                                            : cardOrders.filter((_, i) => i % 2 !== 0); // Odd indices for second terminal
+                                <div className="flex-1 overflow-auto">
+                                    <table className="w-full text-xs">
+                                        <thead className="bg-[#353849] text-white font-bold sticky top-0 z-10 border-y border-white/10">
+                                            <tr>
+                                                <th className="p-3 text-center">Fecha</th>
+                                                <th className="p-3 text-center">No. Orden</th>
+                                                <th className="p-3 text-center">Monto</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="text-gray-300">
+                                            {data.posCardDetail.map((terminal) => {
+                                                const cardOrders = data.orders.filter(o => o.paymentMethod === 'TARJETA');
+                                                // Group correctly using the posTerminalId we fixed
+                                                const terminalOrders = cardOrders.filter(o => 
+                                                    terminal.id === 'unassigned' ? !o.posTerminalId : String(o.posTerminalId) === String(terminal.id)
+                                                );
 
-                                        return (
-                                            <div key={terminal.name} className="bg-white/5 rounded-lg border border-white/5 overflow-hidden">
-                                                <div className="p-4 bg-white/5 border-b border-white/5 flex justify-between items-center">
-                                                    <span className="text-sm font-black uppercase tracking-widest text-white">{terminal.name}</span>
-                                                    <span className="text-lg font-black text-sky-400">{formatCurrency(terminal.total)}</span>
-                                                </div>
-                                                <div className="p-4">
-                                                    {terminalOrders.length > 0 ? (
-                                                        <table className="w-full text-xs">
-                                                            <thead className="text-[10px] text-gray-500 uppercase font-black tracking-widest">
-                                                                <tr>
-                                                                    <th className="p-2 text-left">Fecha</th>
-                                                                    <th className="p-2 text-center">No. Orden</th>
-                                                                    <th className="p-2 text-right">Monto</th>
+                                                if (terminalOrders.length === 0) return null;
+
+                                                return (
+                                                    <React.Fragment key={terminal.id}>
+                                                        {/* Group Header */}
+                                                        <tr 
+                                                            className="bg-[#e5e7eb] text-black font-bold text-xs uppercase cursor-pointer hover:bg-[#d1d5db] transition-colors select-none"
+                                                            onClick={() => toggleTerminalCollapse(terminal.id)}
+                                                        >
+                                                            <td colSpan={3} className="px-3 py-1">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-[10px] transform transition-transform duration-200 inline-block" style={{ transform: collapsedTerminals.has(terminal.id) ? 'rotate(-90deg)' : 'rotate(0deg)' }}>v</span>
+                                                                    <span>{terminal.name}</span>
+                                                                    <span className="ml-auto text-[10px] opacity-50 font-normal">{terminalOrders.length} trans.</span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        {/* Transactions */}
+                                                        {!collapsedTerminals.has(terminal.id) && terminalOrders.map(order => {
+                                                            const dateObj = new Date(order.createdAt);
+                                                            const dateStr = dateObj.toLocaleDateString('es-GT', { day: 'numeric', month: '2-digit', year: 'numeric' });
+                                                            const timeStr = dateObj.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+                                                            return (
+                                                                <tr key={order.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                                                                    <td className="p-2 text-center">{`${dateStr} ${timeStr}`}</td>
+                                                                    <td className="p-2 text-center">{order.orderNumber.replace('#', '')}</td>
+                                                                    <td className="p-2 text-right pr-[10%]">{formatCurrency(order.total)}</td>
                                                                 </tr>
-                                                            </thead>
-                                                            <tbody className="text-gray-300 divide-y divide-white/5">
-                                                                {terminalOrders.map(order => {
-                                                                    const dateObj = new Date(order.createdAt);
-                                                                    const dateStr = dateObj.toLocaleDateString('es-GT', { day: '2-digit', month: '2-digit' });
-                                                                    const timeStr = dateObj.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase();
-
-                                                                    return (
-                                                                        <tr key={order.id} className="hover:bg-white/5 transition-colors">
-                                                                            <td className="p-2 text-left">
-                                                                                <div className="flex flex-col">
-                                                                                    <span className="text-[10px] text-gray-500 font-bold">{dateStr}</span>
-                                                                                    <span className="font-bold text-white">{timeStr}</span>
-                                                                                </div>
-                                                                            </td>
-                                                                            <td className="p-2 text-center font-mono text-gray-400">{order.orderNumber}</td>
-                                                                            <td className="p-2 text-right font-mono font-bold text-sky-400">{formatCurrency(order.total)}</td>
-                                                                        </tr>
-                                                                    );
-                                                                })}
-                                                            </tbody>
-                                                        </table>
-                                                    ) : (
-                                                        <div className="text-center text-gray-500 text-xs py-4">Sin transacciones</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
+                                                            );
+                                                        })}
+                                                        {/* Subtotal Footer */}
+                                                        <tr className="bg-[#353849]">
+                                                            <td colSpan={2}></td>
+                                                            <td className="p-1 text-right">
+                                                                <div className="bg-white text-black font-bold py-1 px-4 inline-block text-sm min-w-[120px] text-right">
+                                                                    {formatCurrency(terminal.total)}
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </React.Fragment>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
                                     {data.orders.filter(o => o.paymentMethod === 'TARJETA').length === 0 && (
                                         <div className="flex flex-col items-center justify-center h-40 text-gray-500">
                                             <span className="text-xs uppercase tracking-widest">Sin cobros con tarjeta</span>
