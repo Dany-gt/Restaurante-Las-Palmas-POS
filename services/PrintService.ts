@@ -1193,12 +1193,12 @@ class PrintService {
       
       <table>
         <tr class="item-row" style="font-weight:bold; border-bottom:1px solid #000;">
-          <td class="col-desc description" style="font-weight:bold; text-align:center;">POS</td>
+          <td class="col-desc description" style="font-weight:bold; text-align:left;">POS</td>
           <td class="col-price price" style="font-weight:bold; text-align:right;">Total</td>
         </tr>
         ${cardTerminals.map((item: any) => `
           <tr class="item-row">
-            <td class="col-desc description" style="text-align:center;">${item.name.toUpperCase()}</td>
+            <td class="col-desc description" style="text-align:left;">${item.name.toUpperCase()}</td>
             <td class="col-price price" style="text-align:right;">${fmt(item.total)}</td>
           </tr>
         `).join('')}

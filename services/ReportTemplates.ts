@@ -131,14 +131,14 @@ export const reportTemplates = {
             <table>
                 <thead>
                     <tr>
-                        <th style="text-align:center;">POS</th>
+                        <th style="text-align:left;">POS</th>
                         <th class="text-right">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     ${data.posCardDetail.map(t => `
                         <tr>
-                            <td style="text-align:center;">${t.name}</td>
+                            <td style="text-align:left;">${t.name}</td>
                             <td class="text-right">${formatQ(t.total)}</td>
                         </tr>
                     `).join('')}
