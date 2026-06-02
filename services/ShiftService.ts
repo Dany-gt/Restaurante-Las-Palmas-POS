@@ -58,7 +58,7 @@ export interface ShiftReportData {
         monedas: any[];
         billetes: any[];
     };
-    posCardDetail: { name: string; total: number }[];
+    posCardDetail: { id: string | number; name: string; total: number }[];
     expenses?: any[]; // Detailed expense list
     notes?: string;
     shiftNumber?: number | null; // Sequential turn number from DB
@@ -167,7 +167,10 @@ export const shiftService = {
                 offlinePendingOrders.forEach(offlineOrder => {
                     const existingIndex = shiftOrders.findIndex(o => o.id === offlineOrder.id);
                     if (existingIndex >= 0) {
-                        shiftOrders[existingIndex] = { ...shiftOrders[existingIndex], ...offlineOrder };
+                        // If it's already in Supabase, Supabase is the source of truth!
+                        // Do NOT overwrite Supabase data with the incomplete offline data.
+                        // In fact, we should clean up this ghost record from OfflineDB.
+                        offlineDB.markAsSynced(offlineOrder.id).catch(console.error);
                     } else {
                         // Assuming offline pending orders belong to current shift since they haven't synced
                         shiftOrders.push(offlineOrder);
@@ -196,8 +199,12 @@ export const shiftService = {
                     .map(r => r.data);
                 
                 offlineExpenses.forEach(exp => {
-                    if (!shiftExpenses.find(e => e.id === exp.id)) {
+                    const existsInCloud = shiftExpenses.find(e => e.id === exp.id);
+                    if (!existsInCloud) {
                         shiftExpenses.push(exp);
+                    } else {
+                        // Clean up ghost records
+                        offlineDB.markAsSynced(exp.id).catch(console.error);
                     }
                 });
             } catch (e) {
@@ -357,7 +364,7 @@ export const shiftService = {
                     if (!terminals || terminals.length === 0) {
                         // v1.6.6: Reportar como No Asignado en lugar de dividir arbitrariamente 50/50
                         return [
-                            { name: 'SIN TERMINAL ASIGNADA', total: salesByMethodMap['TARJETA'] }
+                            { id: 'unassigned', name: 'SIN TERMINAL ASIGNADA', total: salesByMethodMap['TARJETA'] }
                         ];
                     }
 
@@ -378,12 +385,14 @@ export const shiftService = {
 
                     // Build result array with terminal names and totals
                     const result = terminals.map(t => ({
+                        id: t.id,
                         name: t.name,
                         total: terminalSales[t.id] || 0
                     }));
 
                     if (unassignedTotal > 0) {
                         result.push({
+                            id: 'unassigned',
                             name: 'SIN TERMINAL ASIGNADA',
                             total: unassignedTotal
                         });
