@@ -1,7 +1,7 @@
 {
   "name": "restaurante-las-palmas-pos",
   "private": true,
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "Sistema de Punto de Venta para Restaurante Las Palmas",
   "author": "CyR Las Palmas",
   "main": "electron/main.js",
