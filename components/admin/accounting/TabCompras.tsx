@@ -209,7 +209,7 @@ export const TabCompras: React.FC<{
         setSalesInvoices(sales || []);
         const { data: sup } = await supabase.from('accounting_suppliers').select('*').eq('org_id', 'default').order('name');
         setSuppliers(sup || []);
-        const { data: orders } = await supabase.from('orders').select('total').eq('status', 'completed').gte('created_at', dayjs(month + '-01').startOf('month').toISOString()).lte('created_at', dayjs(month + '-01').endOf('month').toISOString());
+        const { data: orders } = await supabase.from('orders').select('total').in('status', ['completed', 'finalizada', 'PAID', 'FINALIZADA', 'cerrada', 'CERRADA', 'closed']).gte('created_at', dayjs(month + '-01').startOf('month').toISOString()).lte('created_at', dayjs(month + '-01').endOf('month').toISOString());
         setMonthlySales((orders || []).reduce((a, o) => a + Number(o.total || 0), 0));
         setLoading(false);
     }, [month]);

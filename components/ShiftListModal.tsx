@@ -92,7 +92,7 @@ export const ShiftListModal: React.FC<ShiftListModalProps> = ({ isOpen, onClose 
                         products (name)
                     )
                 `)
-                .eq('shift_id', shift.id);
+                .or(`shift_id.eq.${shift.id},and(shift_id.is.null,created_at.gte.${shift.start_time},created_at.lte.${shift.end_time || new Date().toISOString()})`);
 
             if (ordersError) throw ordersError;
 
@@ -100,8 +100,8 @@ export const ShiftListModal: React.FC<ShiftListModalProps> = ({ isOpen, onClose 
             const { data: expenses, error: expensesError } = await supabase
                 .from('expenses')
                 .select('*')
-                .eq('shift_id', shift.id)
-                .eq('is_void', false);
+                .eq('is_void', false)
+                .or(`shift_id.eq.${shift.id},and(shift_id.is.null,created_at.gte.${shift.start_time},created_at.lte.${shift.end_time || new Date().toISOString()})`);
 
             if (expensesError) throw expensesError;
 
@@ -247,9 +247,9 @@ export const ShiftListModal: React.FC<ShiftListModalProps> = ({ isOpen, onClose 
             const { data: posPayments } = await supabase
                 .from('orders')
                 .select('payment_method, total, tip_amount, pos_terminals(name)')
-                .eq('shift_id', shift.id)
                 .eq('status', 'completed')
-                .eq('payment_method', 'TARJETA');
+                .eq('payment_method', 'TARJETA')
+                .or(`shift_id.eq.${shift.id},and(shift_id.is.null,created_at.gte.${shift.start_time},created_at.lte.${shift.end_time || new Date().toISOString()})`);
             
             if (posPayments && posPayments.length > 0) {
                 const posGroups: Record<string, number> = {};

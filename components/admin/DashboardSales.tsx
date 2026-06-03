@@ -25,7 +25,7 @@ export const DashboardSales: React.FC = () => {
                 .from('orders')
                 .select('*')
                 .gte('created_at', startOfMonth.toISOString())
-                .eq('status', 'completed');
+                .in('status', ['completed', 'finalizada', 'PAID', 'FINALIZADA', 'cerrada', 'CERRADA', 'closed']);
 
             if (cachedUser?.branch_id) query = query.eq('branch_id', cachedUser.branch_id);
 

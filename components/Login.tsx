@@ -5,28 +5,7 @@ import { ArrowLeft, Loader2, User as UserIcon, Building2, Calculator, Users, Che
 import { activityLogService } from '../services/ActivityLogService';
 import { getImageUrl } from '../utils/getImageUrl';
 
-const CashRegisterIcon = ({ size = 24, strokeWidth = 1.5, className = "" }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={strokeWidth}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <rect x="3" y="17" width="18" height="4" rx="1.5" />
-    <path d="M5 17V9h14v8" />
-    <rect x="11" y="3" width="8" height="4" rx="1" />
-    <path d="M14 7v2" />
-    <path d="M16 7v2" />
-    <path d="M7 14v-3l1-1 1 1 1-1 1 1v3" />
-    <path d="M6 14h6" />
-    <path fill="currentColor" stroke="none" d="M12.75 10.25h1.5v1.5h-1.5z M14.75 10.25h1.5v1.5h-1.5z M16.75 10.25h1.5v1.5h-1.5z M12.75 12.25h1.5v1.5h-1.5z M14.75 12.25h1.5v1.5h-1.5z M16.75 12.25h1.5v1.5h-1.5z M12.75 14.25h1.5v1.5h-1.5z M14.75 14.25h1.5v1.5h-1.5z M16.75 14.25h1.5v1.5h-1.5z" />
-  </svg>
-);
+import { CajaIcon } from './CajaIcon';
 import { PrinterSelector } from './PrinterSelector';
 import { AppUpdater } from './AppUpdater';
 import packageJson from '../package.json';
@@ -970,7 +949,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                       }`} />
                     {/* Icono caja */}
                     <div className="text-gray-400 group-hover:text-white transition-colors flex-shrink-0">
-                      <CashRegisterIcon size={50} strokeWidth={0.9} />
+                      <CajaIcon size={50} />
                     </div>
                     {/* Nombre */}
                     <span className="text-[14px] font-black text-white uppercase tracking-wider text-left whitespace-nowrap">
@@ -1149,7 +1128,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 {/* Roles Grid - DISTRIBUCION 2 - 2 - 1 */}
                 <div className="grid grid-cols-2 gap-3 w-fit mx-auto">
                   {[
-                    { id: 'CAJERO', icon: <CashRegisterIcon size={20} />, label: 'Cajero' },
+                    { id: 'CAJERO', icon: <CajaIcon size={20} />, label: 'Cajero' },
                     { id: 'MESERO', icon: <Users size={20} />, label: 'Mesero' },
                     { id: 'COCINA', icon: <ChefHat size={20} />, label: 'KDS' },
                     { id: 'ADMIN', icon: <ShieldCheck size={20} />, label: 'Admin' },

@@ -426,7 +426,7 @@ export async function parseAuditXML(xmlText: string): Promise<AuditResult> {
 
     // Impuestos Adicionales
     let bebalXML = 0, bebnXML = 0, idpXML = 0;
-    getTags('Impuesto').forEach(imp => {
+    getTags('Impuesto').forEach((imp: any) => {
         const nombre = imp.getElementsByTagNameNS('*', 'NombreCorto')[0]?.textContent || '';
         const monto = parseFloat(imp.getElementsByTagNameNS('*', 'Monto')[0]?.textContent || '0');
         if (nombre.toUpperCase().includes('ALCOHOLI')) bebalXML += monto;
@@ -434,7 +434,7 @@ export async function parseAuditXML(xmlText: string): Promise<AuditResult> {
         if (nombre.toUpperCase() === 'IDP' || nombre.toUpperCase().includes('PETROLEO')) idpXML += monto;
     });
 
-    const rawItems: AuditItem[] = items_nodes.map(node => ({
+    const rawItems: AuditItem[] = items_nodes.map((node: any) => ({
       numero_linea: parseInt(node.getAttribute('NumeroLinea') || '0'),
       cantidad: parseFloat(node.getElementsByTagNameNS('*', 'Cantidad')[0]?.textContent || '0'),
       descripcion: node.getElementsByTagNameNS('*', 'Descripcion')[0]?.textContent?.trim() || '',

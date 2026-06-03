@@ -218,7 +218,7 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
     });
 
     const [loading, setLoading] = useState(false);
-    const [data, setData] = useState<any[]>(savedState?.data || []);
+    const [data, setData] = useState<any[]>([]);
     const [branches, setBranches] = useState<any[]>([]);
     const [selectedBranch, setSelectedBranch] = useState(savedState?.selectedBranch || 'ALL');
 
@@ -231,6 +231,8 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
     // Filtros UI
     const [searchTerm, setSearchTerm] = useState('');
     const [showPrintPreview, setShowPrintPreview] = useState(false);
+    const [showTotals, setShowTotals] = useState(true);
+    const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
 
     const tableContainerRef = useRef<HTMLDivElement>(null);
     const footerContainerRef = useRef<HTMLDivElement>(null);
@@ -256,9 +258,9 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
 
     useEffect(() => {
         // Solo guardar si hay algo relevante que guardar para evitar sobreescribir con valores por defecto al montar
-        const state = { data, selectedBranch, startDate, endDate, startTime, endTime };
+        const state = { selectedBranch, startDate, endDate, startTime, endTime };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }, [data, selectedBranch, startDate, endDate, startTime, endTime, STORAGE_KEY]);
+    }, [selectedBranch, startDate, endDate, startTime, endTime, STORAGE_KEY]);
 
     const handleGenerate = async () => {
         setLoading(true);
@@ -396,7 +398,7 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
     const selectedBranchLabel = selectedBranch === 'ALL' ? 'Todas las Sucursales' : branches.find(b => b.id === selectedBranch)?.name || 'Sucursal';
 
     return (
-        <div className="flex flex-col h-full bg-[#f0f0f0] font-sans text-[11px] overflow-hidden select-none">
+        <div className="flex flex-col h-full bg-[#f0f0f0] font-sans text-[11px] overflow-hidden">
             {showPrintPreview && (
                 <ReceiptsPrintPreview
                     isOpen={showPrintPreview}
@@ -446,6 +448,10 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
                                 </button>
                                 <button onClick={handlePrintExport} className="h-7 px-6 bg-white border border-gray-400 hover:bg-gray-100 flex items-center gap-2 shadow-sm font-bold text-black text-[11px] active:bg-gray-200 transition-colors">
                                     <Printer size={12} className="text-blue-600" /> Vista Previa
+                                </button>
+                                <button onClick={() => setShowTotals(!showTotals)} className="h-7 px-4 bg-white border border-gray-400 hover:bg-gray-100 flex items-center gap-2 shadow-sm font-bold text-black text-[11px] active:bg-gray-200 transition-colors">
+                                    <Filter size={12} className={showTotals ? "text-emerald-600" : "text-gray-400"} /> 
+                                    {showTotals ? 'Ocultar Totales' : 'Mostrar Totales'}
                                 </button>
                             </div>
                         </div>
@@ -516,20 +522,24 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
                             </tr>
                         )}
                         {filteredData.map((row, idx) => (
-                            <tr key={idx} className={`h-8 hover:bg-slate-100 group cursor-default transition-all duration-150 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} border-b border-gray-200`}>
+                            <tr 
+                                key={row.id || idx} 
+                                onClick={() => setSelectedRowId(row.id || String(idx))}
+                                className={`h-8 group cursor-default transition-all duration-150 border-b border-gray-200 ${selectedRowId === (row.id || String(idx)) ? 'selected-row-custom' : idx % 2 === 0 ? 'bg-white hover:bg-slate-100' : 'bg-[#f5f5f5] hover:bg-slate-100'}`}
+                            >
                                 <td className="border border-gray-300 px-2 whitespace-nowrap text-center tabular-nums text-black text-[11px]">{row.ingreso}</td>
                                 <td className="border border-gray-300 px-2 text-center text-black text-[11px] font-bold">#{row.noOrden}</td>
-                                <td className="border border-gray-300 px-2 text-center text-black text-[11px]">{row.cuenta}</td>
+                                <td className="border border-gray-300 px-2 text-left text-black text-[11px] uppercase">{row.cuenta}</td>
                                 <td className="border border-gray-300 px-2 uppercase text-center text-black text-[11px]">{row.caja}</td>
                                 <td className="border border-gray-300 px-2 text-center text-black text-[11px]">{row.turno}</td>
                                 <td className="border border-gray-300 px-2 uppercase text-black text-[11px] truncate">{row.operadoPor}</td>
-                                <td className="border border-gray-300 px-4 text-right tabular-nums text-black text-[11px] font-medium">Q{formatCurr(row.efectivo)}</td>
-                                <td className="border border-gray-300 px-4 text-right tabular-nums text-black text-[11px] font-medium">Q{formatCurr(row.tarjeta)}</td>
-                                <td className="border border-gray-300 px-4 text-right tabular-nums text-black text-[11px] font-medium">Q{formatCurr(row.credito)}</td>
-                                <td className="border border-gray-300 px-4 text-right tabular-nums text-black text-[11px]">Q{formatCurr(row.otros)}</td>
-                                <td className="border border-gray-300 px-4 text-right tabular-nums text-black text-[11px] font-bold">Q{formatCurr(row.totalCuenta)}</td>
-                                <td className="border border-gray-300 pr-10 text-right tabular-nums text-black text-[11px] font-black bg-white">Q{formatCurr(row.totalPagado)}</td>
-                                <td className="border border-gray-300 px-4 text-right tabular-nums text-gray-500 text-[10px]">Q{formatCurr(row.cambio)}</td>
+                                <td className="border border-gray-300 px-4 text-black text-[11px] font-medium"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-right">{formatCurr(row.efectivo)}</span></div></td>
+                                <td className="border border-gray-300 px-4 text-black text-[11px] font-medium"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-right">{formatCurr(row.tarjeta)}</span></div></td>
+                                <td className="border border-gray-300 px-4 text-black text-[11px] font-medium"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-right">{formatCurr(row.credito)}</span></div></td>
+                                <td className="border border-gray-300 px-4 text-black text-[11px]"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-right">{formatCurr(row.otros)}</span></div></td>
+                                <td className="border border-gray-300 px-4 text-black text-[11px] font-bold"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-right">{formatCurr(row.totalCuenta)}</span></div></td>
+                                <td className="border border-gray-300 pr-10 text-black text-[11px] font-black bg-white"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal ml-2">Q</span><span className="tabular-nums text-right">{formatCurr(row.totalPagado)}</span></div></td>
+                                <td className="border border-gray-300 px-4 text-gray-500 text-[10px]"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-right">{formatCurr(row.cambio)}</span></div></td>
                             </tr>
                         ))}
                     </tbody>
@@ -537,9 +547,10 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
             </div>
 
             {/* Footer de Totales — siempre al fondo fijo */}
+            {showTotals && (
             <div 
                 ref={footerContainerRef}
-                className="shrink-0 overflow-hidden bg-[#106ebe] border-t-2 border-gray-900 pb-2 custom-scrollbar"
+                className="shrink-0 overflow-hidden bg-white border-t-2 border-gray-300 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] pb-2 custom-scrollbar z-[60]"
             >
                 <table className="w-full border-collapse border-spacing-0 table-fixed min-w-[1770px]">
                     <colgroup>
@@ -558,20 +569,21 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
                         <col style={{ width: '150px' }} />
                     </colgroup>
                     <tbody>
-                        <tr className="h-12 uppercase font-bold text-[11px] text-white">
-                            <td colSpan={5} className="px-2"></td>
-                            <td className="px-8 text-right text-gray-300 tracking-tight">TOTALES:</td>
-                            <td className="px-4 text-right tabular-nums">Q{formatCurr(totals.efectivo)}</td>
-                            <td className="px-4 text-right tabular-nums">Q{formatCurr(totals.tarjeta)}</td>
-                            <td className="px-4 text-right tabular-nums">Q{formatCurr(totals.credito)}</td>
-                            <td className="px-4 text-right tabular-nums">Q{formatCurr(totals.otros)}</td>
-                            <td className="px-4 text-right tabular-nums font-black">Q{formatCurr(totals.totalCuenta)}</td>
-                            <td className="pr-10 text-right tabular-nums font-black text-blue-300">Q{formatCurr(totals.totalPagado)}</td>
-                            <td className="px-4 text-right tabular-nums text-gray-300 font-normal">Q{formatCurr(totals.cambio)}</td>
+                        <tr className="h-8 uppercase font-bold text-[11px] text-slate-800">
+                            <td colSpan={5} className="px-2 border-r border-gray-200"></td>
+                            <td className="px-8 text-right text-slate-500 tracking-tight border-r border-gray-200">TOTALES:</td>
+                            <td className="px-4 border-r border-gray-200"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-right text-slate-900">{formatCurr(totals.efectivo)}</span></div></td>
+                            <td className="px-4 border-r border-gray-200"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-right text-slate-900">{formatCurr(totals.tarjeta)}</span></div></td>
+                            <td className="px-4 border-r border-gray-200"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-right text-slate-900">{formatCurr(totals.credito)}</span></div></td>
+                            <td className="px-4 border-r border-gray-200"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-right text-slate-900">{formatCurr(totals.otros)}</span></div></td>
+                            <td className="px-4 border-r border-gray-200 font-black"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-right text-slate-900">{formatCurr(totals.totalCuenta)}</span></div></td>
+                            <td className="pr-10 border-r border-gray-200 font-black"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal ml-2">Q</span><span className="tabular-nums text-right text-slate-900">{formatCurr(totals.totalPagado)}</span></div></td>
+                            <td className="px-4 text-slate-500 font-normal"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-right text-slate-900">{formatCurr(totals.cambio)}</span></div></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            )}
 
 
 
@@ -581,6 +593,27 @@ export const ReportIngresosCaja: React.FC<{ mode?: 'REP_CASH_IN' | 'REP_CASH_OTH
                 .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
                 #report-container { display: flex; flex-direction: column; }
                 #report-container table { border-spacing: 0; }
+                
+                .selected-row-custom {
+                    background-color: #106ebe !important;
+                }
+                .selected-row-custom td {
+                    background-color: transparent !important;
+                    color: white !important;
+                }
+                .selected-row-custom td span,
+                .selected-row-custom td div,
+                .selected-row-custom td font {
+                    color: white !important;
+                    opacity: 1 !important;
+                }
+                .selected-row-custom td svg {
+                    stroke: white !important;
+                    color: white !important;
+                }
+                tr.selected-row-custom:hover {
+                    background-color: #106ebe !important;
+                }
             `}</style>
         </div>
     );

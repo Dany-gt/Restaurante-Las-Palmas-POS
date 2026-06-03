@@ -45,7 +45,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
         return createPortal(
             <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/60 p-6 backdrop-blur-sm">
                 <DraggableWindow id="invoice-print-preview" title="Vista Previa de Impresión">
-                    <div className="bg-[#f0f0f0] border-2 border-[#106ebe] shadow-2xl flex flex-col w-[98vw] max-w-7xl h-[95vh] overflow-hidden select-none font-sans rounded-sm">
+                    <div className="bg-[#f0f0f0] border-2 border-[#106ebe] shadow-2xl flex flex-col w-[98vw] max-w-7xl h-[95vh] overflow-hidden font-sans rounded-sm">
                         {/* Toolbar */}
                         <div className="modal-header bg-[#106ebe] h-10 px-4 flex justify-between items-center text-white shrink-0 cursor-move border-b border-black">
                             <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest">
@@ -60,8 +60,9 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                     const ws = XLSX.utils.json_to_sheet(data.map(r => ({
                                         Fecha: new Date(r.creada).toLocaleDateString(),
                                         Orden: r.noOrden,
-                                        Serie: r.serie,
-                                        Numero: r.numero,
+                                        'Operado Por': r.atendio,
+                                        'Forma de Pago': r.metodo,
+                                        'Factura': r.numero,
                                         Firma: r.firma,
                                         Cliente: r.cliente,
                                         NIT: r.nit,
@@ -111,7 +112,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
 
                                 {/* Tabla de Detalle */}
                                 <div className="mb-12 relative z-10">
-                                    <div className="bg-[#106ebe] text-white px-4 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4 flex justify-between items-center font-sans">
+                                    <div className="bg-slate-800 text-white px-4 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4 flex justify-between items-center font-sans">
                                         <div className="flex items-center gap-2">
                                             <FileText size={14} />
                                             <span>Relación de Documentos Tributarios Electrónicos (DTE)</span>
@@ -124,9 +125,11 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                             <tr className="bg-slate-100 border-b-2 border-slate-900 font-black uppercase text-slate-600 tracking-tighter">
                                                 <th className="px-1 py-3 text-center">FECHA</th>
                                                 {filters.mode === 'REP_INV_VOID' && <th className="px-1 py-3 text-center">F. ANULACIÓN</th>}
-                                                <th className="px-1 py-3 text-center">ORDEN</th>
-                                                <th className="px-1 py-3 text-center">SERIE</th>
-                                                <th className="px-1 py-3 text-center">NÚMERO</th>
+                                                <th className="px-1 py-3 text-center w-[80px]">ORDEN</th>
+                                                <th className="px-1 py-3 text-center w-[120px]">OPERADO POR</th>
+                                                <th className="px-1 py-3 text-center w-[100px]">FORMA PAGO</th>
+                                                <th className="px-1 py-3 text-center w-[60px]">SERIE</th>
+                                                <th className="px-1 py-3 text-center w-[80px]">NÚMERO</th>
                                                 <th className="px-1 py-3 text-left">FIRMA / UUID</th>
                                                 <th className="px-1 py-3 text-left">CLIENTE / NIT</th>
                                                 <th className="px-1 py-3 text-right">MONTO (Q)</th>
@@ -134,7 +137,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                         </thead>
                                         <tbody className="divide-y divide-slate-100 font-bold">
                                             {data?.map((r, i) => (
-                                                <tr key={i} className={`h-9 ${r.status === 'CANCELLED' ? 'text-red-500 line-through opacity-50' : ''}`}>
+                                                <tr key={i} className={`h-7 ${r.status === 'CANCELLED' ? 'text-red-500 line-through opacity-50' : ''}`}>
                                                     <td className="px-1 text-center whitespace-nowrap">{new Date(r.creada).toLocaleDateString()}</td>
                                                     {filters.mode === 'REP_INV_VOID' && <td className="px-1 text-center whitespace-nowrap">{r.status === 'CANCELLED' && r.fechaAnulacion ? new Date(r.fechaAnulacion).toLocaleDateString() : '---'}</td>}
                                                     <td className="px-1 text-center font-black">#{r.noOrden}</td>
@@ -149,7 +152,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                         <tfoot>
                                             <tr className="border-t-2 border-slate-900 bg-slate-50 h-11 font-black uppercase text-xs">
                                                 <td colSpan={6} className="px-2 text-right tracking-[0.1em]">GRAN TOTAL DE FACTURACIÓN:</td>
-                                                <td className="px-2 text-right bg-[#106ebe] text-white font-extrabold tracking-tighter">Q{formatCurrRaw(totals?.amount || 0)}</td>
+                                                <td className="px-2 text-right bg-slate-200 text-slate-900 font-extrabold tracking-tighter">Q{formatCurrRaw(totals?.amount || 0)}</td>
                                             </tr>
                                         </tfoot>
                                     </table>
@@ -220,7 +223,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
     const [searchTerm, setSearchTerm] = useState('');
 
     // Datos
-    const [data, setData] = useState<any[]>(savedState?.data || []);
+    const [data, setData] = useState<any[]>([]);
     const [branches, setBranches] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentUser, setCurrentUser] = useState<any>(null);
@@ -232,6 +235,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
     const [invoiceItems, setInvoiceItems] = useState<any[]>([]);
     const [loadingDetails, setLoadingDetails] = useState(false);
     const [showPrintPreview, setShowPrintPreview] = useState(false);
+    const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
 
     // Referencias para scroll sincronizado
     const containerRef = React.useRef<HTMLDivElement>(null);
@@ -256,9 +260,9 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
     }, [mode]);
 
     useEffect(() => {
-        const state = { data, selectedBranch, showAllBranches, startDate, endDate };
+        const state = { selectedBranch, showAllBranches, startDate, endDate };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }, [data, selectedBranch, showAllBranches, startDate, endDate, STORAGE_KEY]);
+    }, [selectedBranch, showAllBranches, startDate, endDate, STORAGE_KEY]);
 
     const handleGenerate = async () => {
         setLoading(true);
@@ -288,7 +292,11 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                         subtotal,
                         discount_amount,
                         tip_amount,
-                        total
+                        total,
+                        payment_method,
+                        cashier_profile:profiles!cashier_id(name),
+                        waiter_profile:profiles!waiter_id(name),
+                        cancelled_profile:profiles!cancelled_by(name)
                     )
                 `)
                 .order('created_at', { ascending: false });
@@ -354,7 +362,8 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                         dte: inv.authorization_number || '---', // Short number is the DTE identifier
                         pdf_url: inv.pdf_url,
                         cliente: inv.customer_name || 'CONSUMIDOR FINAL',
-                        operadoPor: mode === 'REP_INV_VOID' && order?.cancelled_profile?.name ? order.cancelled_profile.name : (mode === 'REP_INV_CONT' && order?.cashier_profile?.name ? order.cashier_profile.name : (order?.profiles?.name || '---')),
+                        formaPago: order?.payment_method === 'CASH' ? 'EFECTIVO' : order?.payment_method === 'CARD' ? 'TARJETA' : order?.payment_method === 'MIXED' ? 'MIXTO' : order?.payment_method === 'CREDIT' ? 'CRÉDITO' : order?.payment_method === 'TRANSFER' ? 'TRANSFERENCIA' : (order?.payment_method || '---'),
+                        operadoPor: mode === 'REP_INV_VOID' ? (order?.cancelled_profile?.name || '---') : (order?.cashier_profile?.name || order?.waiter_profile?.name || '---'),
                         monto: inv.grand_total || 0,
                         status: inv.status,
                         motivoAnulacion: order?.cancellation_reason || 'SIN ESPECIFICAR',
@@ -388,6 +397,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
             'DTE': r.dte,
             'NIT': r.nit,
             'CLIENTE': r.cliente,
+            'FORMA DE PAGO': r.formaPago,
             'OPERADO POR': r.operadoPor,
             'MONTO': r.monto
         })));
@@ -500,7 +510,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                 <select
                                     value={selectedBranch}
                                     onChange={e => setSelectedBranch(e.target.value)}
-                                    className="border border-gray-400 bg-white text-[11px] h-7 px-2 w-[220px] outline-none focus:border-blue-500 shadow-sm"
+                                    className="border border-gray-400 bg-white text-[11px] h-7 px-2 w-[300px] outline-none focus:border-blue-500 shadow-sm"
                                 >
                                     <option value="ALL">TODAS LAS SUCURSALES</option>
                                     {branches.map(b => (
@@ -516,7 +526,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                     onChange={e => setShowAllBranches(e.target.checked)}
                                     className="w-3 h-3 cursor-pointer"
                                 />
-                                <label htmlFor="all-br" className="text-[10px] font-bold text-gray-600 uppercase cursor-pointer select-none">Ver todas las sucursales</label>
+                                <label htmlFor="all-br" className="text-[10px] font-bold text-gray-600 uppercase cursor-pointer select-none">Ver Todas</label>
                             </div>
                         </div>
 
@@ -552,14 +562,14 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                             <button
                                 onClick={handleGenerate}
                                 disabled={loading}
-                                className="bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-8 py-1.5 text-[11px] font-black uppercase text-gray-700 shadow-sm transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                                className="bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-8 py-0.5.5 text-[11px] font-black uppercase text-gray-700 shadow-sm transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
                             >
                                 {loading ? <Loader2 size={14} className="animate-spin text-blue-500" /> : <BarChart3 size={14} className="text-blue-500" />}
                                 Generar
                             </button>
                             <button
                                 onClick={() => setShowPrintPreview(true)}
-                                className="bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-6 py-1.5 text-[11px] font-black uppercase text-gray-700 shadow-sm transition-all active:scale-95 flex items-center gap-2"
+                                className="bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-6 py-0.5.5 text-[11px] font-black uppercase text-gray-700 shadow-sm transition-all active:scale-95 flex items-center gap-2"
                             >
                                 <Printer size={14} className="text-blue-600" /> Vista Previa
                             </button>
@@ -613,6 +623,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                 {mode !== 'REP_INV_CONT' && <th className="w-[140px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">DTE</th>}
                                 {mode !== 'REP_INV_CONT' && <th className="w-[100px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Nit</th>}
                                 <th className="w-[180px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Cliente</th>
+                                <th className="w-[130px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Forma de Pago</th>
                                 <th className="w-[120px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">
                                     {mode === 'REP_INV_VOID' ? 'Anulado Por' : 'Operado Por'}
                                 </th>
@@ -628,33 +639,35 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                     key={row.id}
                                     onContextMenu={(e) => handleContextMenu(e, row)}
                                     onDoubleClick={() => fetchInvoiceDetails(row)}
-                                    className={`hover:bg-blue-50/50 transition-colors cursor-default select-none divide-x divide-gray-100 h-9 ${row.status === 'CANCELLED' ? 'text-red-500 bg-red-50/20' : ''}`}
+                                    onClick={() => setSelectedRowId(row.id)}
+                                    className={`transition-colors cursor-default divide-x divide-gray-100 h-7 ${row.status === 'CANCELLED' ? 'text-red-500 bg-red-50/20' : ''} ${selectedRowId === row.id ? 'selected-row-custom' : 'hover:bg-blue-50/50'}`}
                                 >
-                                    <td className="px-3 py-1 text-center tabular-nums">
+                                    <td className="px-3 py-0.5 text-center tabular-nums">
                                         {new Date(row.creada).toLocaleDateString()}
                                     </td>
-                                    {mode === 'REP_INV_VOID' && <td className="px-3 py-1 text-center tabular-nums font-bold">
+                                    {mode === 'REP_INV_VOID' && <td className="px-3 py-0.5 text-center tabular-nums font-bold">
                                         {row.status === 'CANCELLED' && row.fechaAnulacion ? new Date(row.fechaAnulacion).toLocaleDateString() : '---'}
                                     </td>}
-                                    {mode === 'REP_INV_VOID' && <td className="px-3 py-1 text-center truncate text-[9px] uppercase font-bold text-gray-700">
+                                    {mode === 'REP_INV_VOID' && <td className="px-3 py-0.5 text-center truncate text-[9px] uppercase font-bold text-gray-700">
                                         {row.motivoAnulacion}
                                     </td>}
-                                    <td className="px-3 py-1 text-center font-bold">{row.noOrden}</td>
-                                    <td className="px-3 py-1 text-center truncate uppercase font-medium">{row.cuenta}</td>
-                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-1 text-center truncate uppercase font-bold text-gray-500 text-[9px]">{row.tipoOrden}</td>}
-                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-1 text-center truncate uppercase font-bold text-gray-600">{row.mesa}</td>}
-                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-1 text-center truncate uppercase font-bold text-gray-500 text-[9px]">{row.seccion}</td>}
-                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-1 text-center font-bold text-gray-500">{row.serie}</td>}
-                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-1 text-center font-black text-slate-700">{row.numero}</td>}
-                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-1 text-center text-[10px] text-gray-400 font-mono font-bold leading-none truncate">{row.firma}</td>}
-                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-1 text-center font-mono text-[10px] text-slate-900">{row.dte}</td>}
-                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-1 text-center font-bold">{row.nit}</td>}
-                                    <td className="px-3 py-1 text-center truncate uppercase font-medium">{row.cliente}</td>
-                                    <td className="px-3 py-1 text-center truncate text-[10px] text-gray-500">{row.operadoPor}</td>
-                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-1 text-center font-medium tabular-nums">{formatCurrency(row.subtotal)}</td>}
-                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-1 text-center text-red-500 font-medium tabular-nums">{formatCurrency(row.descuento)}</td>}
-                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-1 text-center text-blue-500 font-medium tabular-nums">{formatCurrency(row.propina)}</td>}
-                                    <td className="px-3 py-1 text-center font-black text-gray-900 tabular-nums">
+                                    <td className="px-3 py-0.5 text-center font-bold">{row.noOrden}</td>
+                                    <td className="px-3 py-0.5 text-center truncate uppercase font-medium">{row.cuenta}</td>
+                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center truncate uppercase font-bold text-gray-500 text-[9px]">{row.tipoOrden}</td>}
+                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center truncate uppercase font-bold text-gray-600">{row.mesa}</td>}
+                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center truncate uppercase font-bold text-gray-500 text-[9px]">{row.seccion}</td>}
+                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center font-bold text-gray-500">{row.serie}</td>}
+                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center font-black text-slate-700">{row.numero}</td>}
+                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center text-[10px] text-gray-400 font-mono font-bold leading-none truncate">{row.firma}</td>}
+                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center font-mono text-[10px] text-slate-900">{row.dte}</td>}
+                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center font-bold">{row.nit}</td>}
+                                    <td className="px-3 py-0.5 text-center truncate uppercase font-medium">{row.cliente}</td>
+                                    <td className="px-3 py-0.5 text-center text-[9px] uppercase font-black text-slate-500">{row.formaPago}</td>
+                                    <td className="px-3 py-0.5 text-center truncate text-[10px] text-gray-500">{row.operadoPor}</td>
+                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center font-medium tabular-nums">{formatCurrency(row.subtotal)}</td>}
+                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center text-red-500 font-medium tabular-nums">{formatCurrency(row.descuento)}</td>}
+                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center text-blue-500 font-medium tabular-nums">{formatCurrency(row.propina)}</td>}
+                                    <td className="px-3 py-0.5 text-center font-black text-gray-900 tabular-nums">
                                         {formatCurrency(row.monto)}
                                     </td>
                                 </tr>
@@ -671,7 +684,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                 </div>
 
                 {/* FOOTER TOTALES - Fijo y Sincronizado */}
-                <div className="shrink-0 overflow-hidden bg-[#106ebe] border-t border-white/20 shadow-[0_-4px_15px_rgba(0,0,0,0.2)]">
+                <div className="shrink-0 overflow-hidden bg-white text-slate-800 border-t-2 border-gray-300 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] z-[60]">
                     <div
                         ref={footerScrollRef}
                         className="overflow-x-auto custom-scrollbar"
@@ -679,27 +692,28 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                     >
                         <table className="w-full border-collapse text-[11px] table-fixed min-w-[1200px]">
                             <tbody>
-                                <tr className="font-black h-9 text-white items-center">
-                                    <td className="w-[100px] px-3 uppercase text-[10px] text-gray-400 border-none shrink-0">
-                                        Facts.: <span className="text-white text-[11px]">{totals.count}</span>
+                                <tr className="h-8">
+                                    <td className="w-[100px] px-3">
+                                        <div className="flex items-center gap-1 h-full text-slate-800">
+                                            <span className="text-[11px] font-bold capitalize">Facts.:</span>
+                                            <span className="text-[11px] font-black">{totals.count}</span>
+                                        </div>
                                     </td>
-                                    <td className="text-left px-4 uppercase text-[10px] font-black tracking-[0.2em] text-white/90 border-none">
-                                        Total General de Facturación
-                                    </td>
+                                    <td className="text-left border-none"></td>
                                     {mode === 'REP_INV_CONT' && (
                                         <>
-                                            <td className="w-[100px] px-3 py-1 text-center text-white text-[12px] font-black tabular-nums border-l border-gray-600 bg-transparent">
+                                            <td className="w-[100px] px-3 text-center text-slate-900 font-bold tabular-nums">
                                                 {formatCurrency(totals.subtotal)}
                                             </td>
-                                            <td className="w-[100px] px-3 py-1 text-center text-red-400 text-[12px] font-bold tabular-nums border-l border-gray-600 bg-transparent">
+                                            <td className="w-[100px] px-3 text-center text-slate-900 font-bold tabular-nums">
                                                 {formatCurrency(totals.descuento)}
                                             </td>
-                                            <td className="w-[100px] px-3 py-1 text-center text-blue-400 text-[12px] font-bold tabular-nums border-l border-gray-600 bg-transparent">
+                                            <td className="w-[100px] px-3 text-center text-slate-900 font-bold tabular-nums">
                                                 {formatCurrency(totals.propina)}
                                             </td>
                                         </>
                                     )}
-                                    <td className="w-[120px] px-3 py-1 text-right text-emerald-400 text-[13px] font-black tabular-nums border-l border-white/10 bg-white/5 pr-4">
+                                    <td className="w-[120px] px-3 text-center text-slate-900 font-black tabular-nums">
                                         {formatCurrency(totals.amount)}
                                     </td>
                                 </tr>
@@ -712,12 +726,12 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
             {/* Menú Contextual (PORTAL STANDARDS) */}
             {contextMenu && typeof document !== 'undefined' && createPortal(
                 <div
-                    className="fixed z-[100000] bg-white border border-gray-300 shadow-2xl rounded-md py-1 w-48 animate-in fade-in zoom-in duration-100 pointer-events-auto"
+                    className="fixed z-[100000] bg-white border border-gray-300 shadow-2xl rounded-md py-0.5 w-48 animate-in fade-in zoom-in duration-100 pointer-events-auto"
                     style={{ left: contextMenu.x, top: contextMenu.y }}
                 >
                     <button
                         onClick={() => fetchInvoiceDetails(contextMenu.row)}
-                        className="w-full text-left px-4 py-2 text-[11px] font-bold text-slate-700 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors"
+                        className="w-full text-left px-4 py-2 text-[11px] font-bold text-slate-700 hover:bg-slate-800 hover:text-white flex items-center gap-3 transition-colors"
                     >
                         <Eye size={14} /> Ver Detalles de Factura
                     </button>
@@ -736,9 +750,9 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
             {viewingInvoice && typeof document !== 'undefined' && createPortal(
                 <div className="fixed inset-0 z-[99999] bg-black/5 flex items-center justify-center p-4 pointer-events-none">
                     <DraggableWindow id="invoice-detail-view" title={`Detalle: ${viewingInvoice.serie}-${viewingInvoice.numero}`}>
-                        <div className="w-full max-w-4xl bg-[#f0f0f0] shadow-[0_0_40px_rgba(0,0,0,0.3)] border border-[#106ebe] flex flex-col pointer-events-auto animate-in zoom-in-95 duration-200">
+                        <div className="w-full max-w-4xl bg-[#f0f0f0] shadow-[0_0_40px_rgba(0,0,0,0.3)] border border-slate-800 flex flex-col pointer-events-auto animate-in zoom-in-95 duration-200">
                             {/* Header Clásico Windows */}
-                            <div className="modal-header bg-[#106ebe] h-10 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
+                            <div className="modal-header bg-slate-800 h-10 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0">
                                 <div className="flex items-center gap-3">
                                     <div className="flex items-center gap-2">
                                         <Receipt size={14} className="text-blue-300" />
@@ -748,7 +762,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                     {viewingInvoice.pdf_url && (
                                         <button
                                             onClick={() => window.open(viewingInvoice.pdf_url, '_blank')}
-                                            className="ml-4 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-sm text-[10px] font-black uppercase flex items-center gap-2 shadow-lg transition-all active:scale-95"
+                                            className="ml-4 bg-blue-600 hover:bg-blue-700 text-white px-3 py-0.5 rounded-sm text-[10px] font-black uppercase flex items-center gap-2 shadow-lg transition-all active:scale-95"
                                         >
                                             <ExternalLink size={12} /> Abrir Factura SAT (FEL)
                                         </button>
@@ -841,7 +855,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                                     ))
                                                 ) : (
                                                     invoiceItems.map((item, idx) => (
-                                                        <tr key={idx} className="text-center h-9 hover:bg-slate-50/50 transition-colors">
+                                                        <tr key={idx} className="text-center h-7 hover:bg-slate-50/50 transition-colors">
                                                             <td className="font-mono opacity-50">{idx + 1}</td>
                                                             <td className="font-bold uppercase tracking-tighter opacity-70">Bien</td>
                                                             <td className="font-black text-[12px]">{item.quantity}.00</td>
@@ -872,7 +886,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                                         alt="QR Certificación"
                                                         className="w-full h-full object-contain"
                                                     />
-                                                    <div className="absolute inset-x-0 bottom-0 bg-[#106ebe]/90 text-white text-[6px] font-black text-center py-0.5">
+                                                    <div className="absolute inset-x-0 bottom-0 bg-slate-800/90 text-white text-[6px] font-black text-center py-0.5">
                                                         CERTIFICADO SAT
                                                     </div>
                                                 </div>
@@ -946,6 +960,26 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                 }
                 .scrollbar-hide::-webkit-scrollbar {
                     display: none;
+                }
+                .selected-row-custom {
+                    background-color: #106ebe !important;
+                }
+                .selected-row-custom td {
+                    background-color: transparent !important;
+                    color: white !important;
+                }
+                .selected-row-custom td span,
+                .selected-row-custom td div,
+                .selected-row-custom td font {
+                    color: white !important;
+                    opacity: 1 !important;
+                }
+                .selected-row-custom td svg {
+                    stroke: white !important;
+                    color: white !important;
+                }
+                tr.selected-row-custom:hover {
+                    background-color: #106ebe !important;
                 }
             `}</style>
         </div>

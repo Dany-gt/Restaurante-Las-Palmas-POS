@@ -4,7 +4,7 @@ import { supabase } from '../supabase';
 import { NewDispatchModal } from './NewDispatchModal';
 import { DeliveryClientsView } from './DeliveryClientsView';
 import { QuickDeliveryModal } from './QuickDeliveryModal';
-import { VerifiedScooterIcon, UnverifiedScooterIcon } from './ScooterIcons';
+import { VerifiedScooterIcon, UnverifiedScooterIcon, ScooterIcon } from './ScooterIcons';
 import { printService } from '../services/PrintService';
 
 
@@ -501,8 +501,8 @@ export const DispatchView: React.FC<{
                             <ChevronLeft size={20} />
                         </button>
                     )}
-                    <div className={`p-2 rounded-xl ${type === 'DELIVERY' ? 'bg-rose-500/10 text-rose-500' : 'bg-amber-500/10 text-amber-500'}`}>
-                        {type === 'DELIVERY' ? <Truck size={20} strokeWidth={2.5} /> : <Package size={20} strokeWidth={2.5} />}
+                    <div className={`p-2 rounded-xl ${type === 'DELIVERY' ? 'bg-white/10 text-white' : 'bg-amber-500/10 text-amber-500'}`}>
+                        {type === 'DELIVERY' ? <ScooterIcon size={20} /> : <Package size={20} strokeWidth={2.5} />}
                     </div>
                     <div>
                         <h2 className="text-base font-black tracking-tight uppercase text-white leading-none">

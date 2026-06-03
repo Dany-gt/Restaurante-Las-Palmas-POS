@@ -153,7 +153,7 @@ const BranchReportPrintPreview: React.FC<{
                                             <td className="px-2 text-right text-blue-600">Q{formatCurrRaw(totals?.vTarjeta || 0)}</td>
                                             <td className="px-2 text-right bg-slate-100 font-extrabold">Q{formatCurrRaw(totals?.totalVentas || 0)}</td>
                                             <td className="px-2 text-right text-red-600">Q{formatCurrRaw(totals?.compras + totals?.gastos)}</td>
-                                            <td className="px-2 text-right bg-[#106ebe] text-white font-extrabold tracking-tighter">Q{formatCurrRaw(totals.totalVentas - totals.totalEgresos)}</td>
+                                            <td className="px-2 text-right bg-slate-200 text-slate-900 font-extrabold tracking-tighter">Q{formatCurrRaw(totals.totalVentas - totals.totalEgresos)}</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -202,7 +202,7 @@ export const ReportBranch: React.FC = () => {
     const [startDate, setStartDate] = useState(savedState?.startDate || getLocalISOString());
     const [endDate, setEndDate] = useState(savedState?.endDate || getLocalISOString());
     const [loading, setLoading] = useState(false);
-    const [data, setData] = useState<any[]>(savedState?.data || []);
+    const [data, setData] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [showPrintPreview, setShowPrintPreview] = useState(false);
 
@@ -211,9 +211,9 @@ export const ReportBranch: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        const state = { data, startDate, endDate };
+        const state = { startDate, endDate };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }, [data, startDate, endDate, STORAGE_KEY]);
+    }, [startDate, endDate, STORAGE_KEY]);
 
     const handleGenerate = async () => {
         setLoading(true);

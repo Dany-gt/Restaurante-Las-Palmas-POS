@@ -19,6 +19,9 @@ import {
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { QIcon } from './QIcon';
+import { ScooterIcon } from './ScooterIcons';
+import { TakeoutIcon } from './TakeoutIcon';
+import { MesasIcon } from './MesasIcon';
 import { PremiumIcon, ICON_MAP } from './shared/PremiumIcon';
 
 import { User } from '../types';
@@ -35,10 +38,10 @@ interface DashboardProps {
 }
 
 const MODULES = [
-  { id: 'TABLES', label: 'MESAS', icon: Utensils, color: 'bg-white/5' },
+  { id: 'TABLES', label: 'MESAS', icon: MesasIcon, color: 'bg-white/5' },
   { id: 'QUICK', label: 'VENTA RÁPIDA', icon: ShoppingCart, color: 'bg-white/5' },
-  { id: 'TAKEOUT', label: 'PARA LLEVAR', icon: Truck, color: 'bg-white/5' },
-  { id: 'DELIVERY', label: 'A DOMICILIO', icon: Home, color: 'bg-white/5' },
+  { id: 'TAKEOUT', label: 'PARA LLEVAR', icon: TakeoutIcon, color: 'bg-white/5' },
+  { id: 'DELIVERY', label: 'A DOMICILIO', icon: ScooterIcon, color: 'bg-white/5' },
 ];
 
 // Mapped to groups in AdminPortal
@@ -295,7 +298,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
   // Called after Arqueo is done (Counted money)
   const handleArqueoSave = (countedTotal: number, detail: any) => {
     setShowArqueoModal(false);
-    
+
     // Store it locally for this session to prevent race conditions during 'Z' cut right after 'X'
     setLastArqueoCounted({ total: countedTotal, detail: detail });
 
@@ -585,7 +588,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
                     {mod.iconify ? (
                       <PremiumIcon icon={mod.iconify} size={48} />
                     ) : (
-                      <mod.icon size={42} className="text-gray-400 group-hover:text-white" strokeWidth={1} />
+                      <mod.icon size={54} className="text-gray-400 group-hover:text-white" strokeWidth={1} />
                     )}
                   </div>
                   <span className="text-base font-black tracking-widest text-white uppercase">{mod.label}</span>

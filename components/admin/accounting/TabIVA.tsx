@@ -123,7 +123,7 @@ export const TabIVA: React.FC<{
         const { data: orders } = await supabase
             .from('orders')
             .select('total, order_type, payment_method')
-            .eq('status', 'completed')
+            .in('status', ['completed', 'finalizada', 'PAID', 'FINALIZADA', 'cerrada', 'CERRADA', 'closed'])
             .gte('created_at', start)
             .lte('created_at', end);
 
@@ -320,7 +320,7 @@ export const TabIVA: React.FC<{
                     iva_a_pagar: finalAmount,
                     fecha_limite: dayjs(selectedMonth + '-01').add(1, 'month').date(15).format('YYYY-MM-DD')
                 }
-            }, { amount: finalAmount, type: 'GASTO' });
+            }, { amount: finalAmount, type: 'EGRESO' });
 
             activityLogService.log({
                 user: currentUser,

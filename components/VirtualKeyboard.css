@@ -67,7 +67,7 @@
     display: flex;
     flex-direction: column;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-    border-radius: 24px;
+    border-radius: 4px;
     overflow: hidden;
     width: 90%;
     max-width: 850px;
@@ -76,7 +76,7 @@
 .keyboard-container.numpad-only {
     width: 260px;
     max-width: 260px;
-    border-radius: 20px;
+    border-radius: 4px;
 }
 
 .keyboard-container.visible {
@@ -103,7 +103,7 @@
 .keyboard-close-btn {
     padding: 6px 14px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
+    border-radius: 4px;
     color: #94a3b8;
     font-size: 10px;
     font-weight: 800;
@@ -148,14 +148,14 @@
 .hg-theme-default .hg-button {
     background: #303141 !important;
     color: #e5e7eb !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
     height: 54px !important;
     font-size: 16px !important;
     font-weight: 500 !important;
-    border-radius: 2px !important;
+    border-radius: 0px !important;
     box-shadow: none !important;
     transition: background-color 0.05s ease !important;
-    margin: 1px !important;
+    margin: 0px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;

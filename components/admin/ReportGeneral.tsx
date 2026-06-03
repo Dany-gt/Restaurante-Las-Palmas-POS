@@ -29,7 +29,7 @@ export const ReportGeneral: React.FC = () => {
     const [selectedBranch, setSelectedBranch] = useState(savedState?.selectedBranch || 'ALL');
 
     // Report data structure
-    const [reportData, setReportData] = useState(savedState?.reportData || {
+    const [reportData, setReportData] = useState({
         ventas: { efectivo: 0, tarjeta: 0, credito: 0, otros: 0, total: 0 },
         propinas: { efectivo: 0, tarjeta: 0, otros: 0, total: 0 },
         egresos: { compras: 0, gastos: 0, descuentos: 0, total: 0 },
@@ -46,9 +46,9 @@ export const ReportGeneral: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        const state = { reportData, selectedBranch, startDate, endDate };
+        const state = { selectedBranch, startDate, endDate };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }, [reportData, selectedBranch, startDate, endDate, STORAGE_KEY]);
+    }, [selectedBranch, startDate, endDate, STORAGE_KEY]);
 
     const handleGenerate = async () => {
         setLoading(true);

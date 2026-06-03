@@ -51,7 +51,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
         documentTitle: `Reporte_${mode}_${startDate}`,
     });
     const [searchTerm, setSearchTerm] = useState('');
-    const [data, setData] = useState<any[]>(savedState?.data || []);
+    const [data, setData] = useState<any[]>([]);
     const containerRef = React.useRef<HTMLDivElement>(null);
 
     const [showOrderModal, setShowOrderModal] = useState(false);
@@ -82,7 +82,8 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
         customer_phone: '',
         customer_email: '',
         delivery_address: '',
-        driver_name: ''
+        driver_name: '',
+        metodo: ''
     });
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null);
     const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
@@ -105,7 +106,6 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
 
     useEffect(() => {
         const state = {
-            data,
             selectedBranch,
             startDate,
             endDate,
@@ -113,7 +113,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
             endTime
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }, [data, selectedBranch, startDate, endDate, startTime, endTime, STORAGE_KEY]);
+    }, [selectedBranch, startDate, endDate, startTime, endTime, STORAGE_KEY]);
 
     const handleGenerate = async () => {
         setLoading(true);
@@ -163,11 +163,11 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
             } else if (mode === 'REP_DELIVERY') {
                 query = query.in('order_type', ['DELIVERY', 'TAKEOUT']);
             } else if (mode === 'REP_DISC') {
-                query = query.eq('status', 'completed').gt('discount_amount', 0);
+                query = query.in('status', ['completed', 'finalizada', 'PAID', 'FINALIZADA', 'cerrada', 'CERRADA', 'closed']).gt('discount_amount', 0);
             } else if (mode === 'REP_CLOSED' || mode === 'REP_CLOSED_CH') {
-                query = query.eq('status', 'completed');
+                query = query.in('status', ['completed', 'finalizada', 'PAID', 'FINALIZADA', 'cerrada', 'CERRADA', 'closed']);
             } else if (mode === 'REP_CREDIT') {
-                query = query.eq('status', 'completed').or('payment_method.ilike.%CREDITO%,payment_method.ilike.%CRÉDITO%');
+                query = query.in('status', ['completed', 'finalizada', 'PAID', 'FINALIZADA', 'cerrada', 'CERRADA', 'closed']).or('payment_method.ilike.%CREDITO%,payment_method.ilike.%CRÉDITO%');
             } else if (mode === 'REP_VOID') {
                 query = query.eq('status', 'cancelled');
             }
@@ -227,7 +227,15 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                         customer_phone: o.customer_phone || '---',
                         delivery_address: o.delivery_address || '---',
                         cliente: o.customer_name || '-',
-                        metodo: o.payment_method || '-',
+                        metodo: (() => {
+                            const m = (o.payment_method || 'EFECTIVO').toUpperCase();
+                            if (m === 'CASH') return 'EFECTIVO';
+                            if (m === 'CARD') return 'TARJETA';
+                            if (m === 'MIXED') return 'MIXTO';
+                            if (m === 'CREDIT' || m.includes('CRÉDITO') || m.includes('CREDITO')) return 'CRÉDITO';
+                            if (m === 'TRANSFER') return 'TRANSFERENCIA';
+                            return m;
+                        })(),
                         efectivo: (() => {
                             const hasBreakdown = (o.cash_amount !== null && o.cash_amount !== undefined && Number(o.cash_amount) > 0) ||
                                                  (o.card_amount !== null && o.card_amount !== undefined && Number(o.card_amount) > 0) ||
@@ -371,6 +379,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                         'Sección': d.seccion,
                         'Mesa No.': d.mesa,
                         'Atendió': d.atendio,
+                        'F. Pago': d.metodo,
                         'Subtotal': d.subtotal,
                         'Propina': d.propina,
                         'Descuento': d.descuento,
@@ -392,19 +401,23 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                         'Total': d.total
                     };
                 }
-                return {
+                const exportItem: any = {
                     'Fecha': d.fecha_full,
                     'Hora': d.apertura,
                     'Tipo': d.tipo,
                     'No. Orden': d.noOrden,
                     'Sección': d.seccion,
                     'Mesa No.': d.mesa,
-                    'Atendió': d.atendio,
-                    'Subtotal': d.subtotal,
-                    'Propina': d.propina,
-                    'Descuento': d.descuento,
-                    'Total': d.total
+                    'Atendió': d.atendio
                 };
+                if (mode !== 'REP_OPEN') {
+                    exportItem['Forma de Pago'] = d.metodo;
+                }
+                exportItem['Subtotal'] = d.subtotal;
+                exportItem['Propina'] = d.propina;
+                exportItem['Descuento'] = d.descuento;
+                exportItem['Total'] = d.total;
+                return exportItem;
             });
 
             const ws = XLSX.utils.json_to_sheet(exportData);
@@ -434,7 +447,8 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                 (columnFilters.seccion === '' || d.seccion.toLowerCase().includes(columnFilters.seccion.toLowerCase())) &&
                 (columnFilters.mesa === '' || d.mesa.toString().includes(columnFilters.mesa)) &&
                 (columnFilters.atendio === '' || d.atendio.toLowerCase().includes(columnFilters.atendio.toLowerCase())) &&
-                (!columnFilters.cliente || d.cliente.toLowerCase().includes(columnFilters.cliente.toLowerCase()))
+                (!columnFilters.cliente || d.cliente.toLowerCase().includes(columnFilters.cliente.toLowerCase())) &&
+                (!columnFilters.metodo || (d.metodo && d.metodo.toLowerCase().includes(columnFilters.metodo.toLowerCase())))
             );
 
             return matchesGlobal && matchesColumn;
@@ -796,6 +810,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                 <th onClick={() => requestSort('seccion')} className="px-3 py-2 text-center font-black uppercase text-black w-[150px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Sección</th>
                                                 <th onClick={() => requestSort('mesa')} className="px-3 py-2 text-center font-black uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Mesa No.</th>
                                                 <th onClick={() => requestSort('atendio')} className="px-3 py-2 text-center font-black uppercase text-black w-[150px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Atendió</th>
+                                                {mode !== 'REP_OPEN' && <th onClick={() => requestSort('metodo')} className="px-3 py-2 text-center font-black uppercase text-black w-[130px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Forma de Pago</th>}
                                             </>
                                         )}
                                         {mode === 'REP_DISC' && <th className="px-3 py-2 text-center font-black uppercase text-black w-[100px] border-r border-gray-300">Cuenta</th>}
@@ -853,6 +868,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                 <td className="p-1 border-r border-gray-200"><input type="text" value={columnFilters.seccion} onChange={e => handleFilterChange('seccion', e.target.value)} className="w-full text-[10px] border border-gray-200 px-1 py-0.5 outline-none focus:border-blue-400" placeholder="Filtrar..." /></td>
                                                 <td className="p-1 border-r border-gray-200"><input type="text" value={columnFilters.mesa} onChange={e => handleFilterChange('mesa', e.target.value)} className="w-full text-[10px] border border-gray-200 px-1 py-0.5 outline-none focus:border-blue-400" placeholder="Filtrar..." /></td>
                                                 <td className="p-1 border-r border-gray-200"><input type="text" value={columnFilters.atendio} onChange={e => handleFilterChange('atendio', e.target.value)} className="w-full text-[10px] border border-gray-200 px-1 py-0.5 outline-none focus:border-blue-400" placeholder="Filtrar..." /></td>
+                                                {mode !== 'REP_OPEN' && <td className="p-1 border-r border-gray-200"><input type="text" value={columnFilters.metodo || ''} onChange={e => handleFilterChange('metodo', e.target.value)} className="w-full text-[10px] border border-gray-200 px-1 py-0.5 outline-none focus:border-blue-400" placeholder="Filtrar..." /></td>}
                                             </>
                                         )}
                                         {mode === 'REP_DISC' && <td className="p-1 bg-gray-50 border-r border-gray-200"></td>}
@@ -878,7 +894,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                             onClick={() => toggleGroup(groupName)}
                                             className="bg-[#106ebe] text-white cursor-pointer select-none group"
                                         >
-                                            <td colSpan={mode === 'REP_CREDIT' ? 12 : (mode === 'REP_DISC' ? 11 : (mode === 'REP_VOID' ? 10 : (mode === 'REP_ALL' ? 12 : 10)))} className="px-3 py-1.5 flex items-center gap-2">
+                                            <td colSpan={mode === 'REP_CREDIT' ? 12 : (mode === 'REP_DISC' ? 11 : (mode === 'REP_VOID' ? 10 : (mode === 'REP_ALL' ? 13 : 11)))} className="px-3 py-0.5 flex items-center gap-2">
                                                 <span className="text-[10px] font-black transition-transform duration-200" style={{ transform: collapsedGroups.has(groupName) ? 'rotate(-90deg)' : 'rotate(0deg)' }}>▼</span>
                                                 <span className="text-[11px] font-black uppercase tracking-wider">{groupName}</span>
                                                 <span className="text-[10px] font-bold text-gray-300 bg-white/10 px-2 py-0.5 rounded ml-2">({(items as any[]).length} órdenes)</span>
@@ -894,53 +910,53 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                         fetchOrderDetails(row);
                                                     }}
                                                     onContextMenu={(e) => handleContextMenu(e, row)}
-                                                    className={`border-b border-gray-200 font-medium cursor-default select-none ${selectedOrderId === row.id
+                                                    className={`h-7 border-b border-gray-200 font-medium cursor-default ${selectedOrderId === row.id
                                                         ? 'selected-row-custom text-white'
                                                         : 'hover:bg-[#e1e5eb] text-slate-700 odd:bg-white even:bg-[#f6f8fa]'
                                                         }`}
                                                 >
                                                     {mode === 'REP_CREDIT' ? (
                                                         <>
-                                                            <td className="px-3 py-1.5 text-center flex flex-col items-center justify-center leading-tight">
+                                                            <td className="px-3 py-0.5 text-center flex flex-col items-center justify-center leading-tight">
                                                                 <span className="text-[10px] font-bold opacity-80">{row.fecha_full}</span>
                                                                 <div className="flex items-center gap-1">
                                                                     <Clock size={10} className="opacity-50" />
                                                                     <span className="text-[11px] font-black">{row.apertura}</span>
                                                                 </div>
                                                             </td>
-                                                            <td className="px-3 py-1.5 text-center font-bold text-[10px]">{row.tipo}</td>
-                                                            <td className="px-3 py-1.5 text-center font-black text-indigo-500 text-[10px]">#{row.noOrden}</td>
-                                                            <td className="px-3 py-1.5 text-center uppercase text-[10px]">Cuenta 1</td>
-                                                            <td className="px-3 py-1.5 text-left font-black text-[10px] uppercase truncate max-w-[180px]">{row.cliente}</td>
-                                                            <td className="px-3 py-1.5 text-center font-bold text-[10px] uppercase truncate max-w-[150px]">{row.atendio}</td>
-                                                            <td className="px-3 py-1.5 text-right font-bold text-[10px]">{formatCurr(row.total)}</td>
-                                                            <td className="px-3 py-1.5 text-right font-medium text-[10px]">{formatCurr(row.efectivo)}</td>
-                                                            <td className="px-3 py-1.5 text-right font-medium text-[10px]">{formatCurr(row.tarjeta)}</td>
-                                                            <td className="px-3 py-1.5 text-right font-black text-blue-600 text-[10px]">{formatCurr(row.credito)}</td>
-                                                            <td className="px-3 py-1.5 text-right font-medium text-[10px]">{formatCurr(row.otros)}</td>
-                                                            <td className="px-3 py-1.5 text-right font-black text-slate-900 text-[11px] bg-blue-50/50">{formatCurr(row.total)}</td>
+                                                            <td className="px-3 py-0.5 text-center font-bold text-[10px]">{row.tipo}</td>
+                                                            <td className="px-3 py-0.5 text-center font-black text-indigo-500 text-[10px]">#{row.noOrden}</td>
+                                                            <td className="px-3 py-0.5 text-center uppercase text-[10px]">Cuenta 1</td>
+                                                            <td className="px-3 py-0.5 text-left font-black text-[10px] uppercase truncate max-w-[180px]">{row.cliente}</td>
+                                                            <td className="px-3 py-0.5 text-center font-bold text-[10px] uppercase truncate max-w-[150px]">{row.atendio}</td>
+                                                            <td className="px-3 py-0.5 text-right font-bold text-[10px]">{formatCurr(row.total)}</td>
+                                                            <td className="px-3 py-0.5 text-right font-medium text-[10px]">{formatCurr(row.efectivo)}</td>
+                                                            <td className="px-3 py-0.5 text-right font-medium text-[10px]">{formatCurr(row.tarjeta)}</td>
+                                                            <td className="px-3 py-0.5 text-right font-black text-blue-600 text-[10px]">{formatCurr(row.credito)}</td>
+                                                            <td className="px-3 py-0.5 text-right font-medium text-[10px]">{formatCurr(row.otros)}</td>
+                                                            <td className="px-3 py-0.5 text-right font-black text-slate-900 text-[11px] bg-blue-50/50">{formatCurr(row.total)}</td>
                                                         </>
                                                     ) : mode === 'REP_DELIVERY' ? (
                                                         <>
-                                                            <td className="px-3 py-1.5 text-center flex flex-col items-center justify-center leading-tight">
+                                                            <td className="px-3 py-0.5 text-center flex flex-col items-center justify-center leading-tight">
                                                                 <span className="text-[10px] font-bold opacity-80">{row.fecha_full}</span>
                                                                 <div className="flex items-center gap-1">
                                                                     <Clock size={10} className="opacity-50" />
                                                                     <span className="text-[11px] font-black">{row.apertura}</span>
                                                                 </div>
                                                             </td>
-                                                            <td className="px-3 py-1.5 text-center font-black text-slate-800">#{row.noOrden}</td>
-                                                            <td className="px-3 py-1.5 text-center font-bold text-slate-700">{row.tipo}</td>
-                                                            <td className="px-3 py-1.5 text-left font-black uppercase truncate max-w-[180px] text-slate-800">{row.cliente}</td>
-                                                            <td className="px-3 py-1.5 text-center font-bold text-slate-800 tabular-nums">{row.customer_phone}</td>
-                                                            <td className="px-3 py-1.5 text-center text-slate-600 truncate max-w-[150px]">{row.customer_email}</td>
-                                                            <td className="px-3 py-1.5 text-left text-slate-700 truncate max-w-[240px]" title={row.delivery_address}>{row.delivery_address}</td>
-                                                            <td className="px-3 py-1.5 text-center font-bold text-slate-800">{row.driver_name}</td>
-                                                            <td className="px-3 py-1.5 text-right font-black text-slate-900 bg-gray-50">{formatCurr(row.total)}</td>
+                                                            <td className="px-3 py-0.5 text-center font-black text-slate-800">#{row.noOrden}</td>
+                                                            <td className="px-3 py-0.5 text-center font-bold text-slate-700">{row.tipo}</td>
+                                                            <td className="px-3 py-0.5 text-left font-black uppercase truncate max-w-[180px] text-slate-800">{row.cliente}</td>
+                                                            <td className="px-3 py-0.5 text-center font-bold text-slate-800 tabular-nums">{row.customer_phone}</td>
+                                                            <td className="px-3 py-0.5 text-center text-slate-600 truncate max-w-[150px]">{row.customer_email}</td>
+                                                            <td className="px-3 py-0.5 text-left text-slate-700 truncate max-w-[240px]" title={row.delivery_address}>{row.delivery_address}</td>
+                                                            <td className="px-3 py-0.5 text-center font-bold text-slate-800">{row.driver_name}</td>
+                                                            <td className="px-3 py-0.5 text-right font-black text-slate-900 bg-gray-50">{formatCurr(row.total)}</td>
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <td className="px-3 py-1.5 text-center border-r border-gray-200">
+                                                            <td className="px-3 py-0.5 text-center border-r border-gray-200">
                                                                 <div className="flex flex-col items-center justify-center leading-tight">
                                                                     <span className="text-[10px] font-bold opacity-80">{row.fecha_full}</span>
                                                                     <div className="flex items-center gap-1">
@@ -950,7 +966,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                                 </div>
                                                             </td>
                                                             {mode === 'REP_VOID' && (
-                                                                <td className="px-3 py-1.5 text-center border-r border-gray-200">
+                                                                <td className="px-3 py-0.5 text-center border-r border-gray-200">
                                                                     <div className="flex flex-col items-center justify-center leading-tight">
                                                                         <span className="text-[10px] font-bold opacity-80">{row.fecha_anulacion_full}</span>
                                                                         <div className="flex items-center gap-1">
@@ -960,30 +976,31 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                                     </div>
                                                                 </td>
                                                             )}
-                                                            <td className="px-3 py-1.5 text-center font-bold border-r border-gray-200">{row.tipo}</td>
-                                                            <td className="px-3 py-1.5 text-center font-black text-slate-900 border-r border-gray-200">#{row.noOrden}</td>
+                                                            <td className="px-3 py-0.5 text-center font-bold border-r border-gray-200">{row.tipo}</td>
+                                                            <td className="px-3 py-0.5 text-center font-black text-slate-900 border-r border-gray-200">#{row.noOrden}</td>
                                                             {mode === 'REP_VOID' || mode === 'REP_DISC' ? (
                                                                 <>
-                                                                    <td className="px-3 py-1.5 text-center uppercase font-bold text-slate-700 border-r border-gray-200">{row.atendio}</td>
-                                                                    {mode === 'REP_DISC' && <td className="px-3 py-1.5 text-center font-bold text-gray-600 border-r border-gray-200">{row.discount_type}</td>}
-                                                                    <td className="px-3 py-1.5 text-left text-gray-500 truncate border-r border-gray-200" title={row.discount_reason}>{row.discount_reason}</td>
+                                                                    <td className="px-3 py-0.5 text-center uppercase font-bold text-slate-700 border-r border-gray-200">{row.atendio}</td>
+                                                                    {mode === 'REP_DISC' && <td className="px-3 py-0.5 text-center font-bold text-gray-600 border-r border-gray-200">{row.discount_type}</td>}
+                                                                    <td className="px-3 py-0.5 text-left text-gray-500 truncate border-r border-gray-200" title={row.discount_reason}>{row.discount_reason}</td>
                                                                 </>
                                                             ) : (
                                                                 <>
-                                                                    <td className="px-3 py-1.5 text-center uppercase border-r border-gray-200">{row.seccion}</td>
-                                                                    <td className="px-3 py-1.5 text-center font-bold border-r border-gray-200">{row.mesa}</td>
-                                                                    <td className="px-3 py-1.5 text-center font-bold border-r border-gray-200">{row.atendio}</td>
+                                                                    <td className="px-3 py-0.5 text-center uppercase border-r border-gray-200">{row.seccion}</td>
+                                                                    <td className="px-3 py-0.5 text-center font-bold border-r border-gray-200">{row.mesa}</td>
+                                                                    <td className="px-3 py-0.5 text-center font-bold border-r border-gray-200">{row.atendio}</td>
+                                                                    {mode !== 'REP_OPEN' && <td className="px-3 py-0.5 text-center font-bold text-[9px] uppercase border-r border-gray-200 text-slate-500">{row.metodo}</td>}
                                                                 </>
                                                             )}
-                                                            {mode === 'REP_DISC' && <td className="px-3 py-1.5 text-center font-bold text-slate-800 border-r border-gray-200">Cuenta 1</td>}
-                                                            <td className="px-3 py-1.5 text-right font-medium text-slate-900 border-r border-gray-200">{formatCurr(row.subtotal)}</td>
-                                                            <td className="px-3 py-1.5 text-right font-medium text-slate-900 border-r border-gray-200">{formatCurr(row.propina)}</td>
-                                                            <td className="px-3 py-1.5 text-right font-medium text-slate-900 border-r border-gray-200">- {formatCurr(row.descuento)}</td>
-                                                            <td className="px-3 py-1.5 text-right font-black text-slate-900 border-r border-gray-200">{formatCurr(row.total)}</td>
+                                                            {mode === 'REP_DISC' && <td className="px-3 py-0.5 text-center font-bold text-slate-800 border-r border-gray-200">Cuenta 1</td>}
+                                                            <td className="px-3 py-0.5 text-right font-medium text-slate-900 border-r border-gray-200">{formatCurr(row.subtotal)}</td>
+                                                            <td className="px-3 py-0.5 text-right font-medium text-slate-900 border-r border-gray-200">{formatCurr(row.propina)}</td>
+                                                            <td className="px-3 py-0.5 text-right font-medium text-slate-900 border-r border-gray-200">- {formatCurr(row.descuento)}</td>
+                                                            <td className="px-3 py-0.5 text-right font-black text-slate-900 border-r border-gray-200">{formatCurr(row.total)}</td>
                                                             {mode === 'REP_ALL' && (
                                                                 <>
-                                                                    <td className="px-3 py-1.5 text-center text-[10px] border-r border-gray-200">{row.status === 'completed' ? <CheckSquare size={14} className="mx-auto text-green-600" /> : '-'}</td>
-                                                                    <td className="px-3 py-1.5 text-center text-[10px] border-r border-gray-200">{row.status === 'cancelled' ? <CheckSquare size={14} className="mx-auto text-rose-600" /> : '-'}</td>
+                                                                    <td className="px-3 py-0.5 text-center text-[10px] border-r border-gray-200">{row.status === 'completed' ? <CheckSquare size={14} className="mx-auto text-green-600" /> : '-'}</td>
+                                                                    <td className="px-3 py-0.5 text-center text-[10px] border-r border-gray-200">{row.status === 'cancelled' ? <CheckSquare size={14} className="mx-auto text-rose-600" /> : '-'}</td>
                                                                 </>
                                                             )}
                                                         </>
@@ -1003,32 +1020,32 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                             fetchOrderDetails(row);
                                         }}
                                         onContextMenu={(e) => handleContextMenu(e, row)}
-                                        className={`border-b border-gray-200 font-medium cursor-default select-none ${selectedOrderId === row.id
+                                        className={`h-7 border-b border-gray-200 font-medium cursor-default select-none ${selectedOrderId === row.id
                                             ? 'selected-row-custom text-white'
                                             : 'hover:bg-[#e1e5eb] text-slate-700 odd:bg-white even:bg-[#f6f8fa]'
                                             }`}
                                     >
                                         {mode === 'REP_DELIVERY' ? (
                                             <>
-                                                <td className="px-3 py-1.5 text-center flex flex-col items-center justify-center leading-tight border-r border-gray-200">
+                                                <td className="px-3 py-0.5 text-center flex flex-col items-center justify-center leading-tight border-r border-gray-200">
                                                     <span className="text-[10px] font-bold opacity-80">{row.fecha_full}</span>
                                                     <div className="flex items-center gap-1">
                                                         <Clock size={10} className="opacity-50" />
                                                         <span className="text-[11px] font-black">{row.apertura}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-3 py-1.5 text-center font-black text-slate-800 border-r border-gray-200">#{row.noOrden}</td>
-                                                <td className="px-3 py-1.5 text-center font-bold text-slate-700 border-r border-gray-200">{row.tipo}</td>
-                                                <td className="px-3 py-1.5 text-left font-black uppercase truncate max-w-[180px] text-slate-800 border-r border-gray-200">{row.cliente}</td>
-                                                <td className="px-3 py-1.5 text-center font-bold text-slate-800 tabular-nums border-r border-gray-200">{row.customer_phone}</td>
-                                                <td className="px-3 py-1.5 text-center text-slate-600 truncate max-w-[150px] border-r border-gray-200">{row.customer_email}</td>
-                                                <td className="px-3 py-1.5 text-left text-slate-700 truncate max-w-[240px] border-r border-gray-200" title={row.delivery_address}>{row.delivery_address}</td>
-                                                <td className="px-3 py-1.5 text-center font-bold text-slate-800 border-r border-gray-200">{row.driver_name}</td>
-                                                <td className="px-3 py-1.5 text-right font-black text-slate-900 bg-gray-50 border-r border-gray-200">{formatCurr(row.total)}</td>
+                                                <td className="px-3 py-0.5 text-center font-black text-slate-800 border-r border-gray-200">#{row.noOrden}</td>
+                                                <td className="px-3 py-0.5 text-center font-bold text-slate-700 border-r border-gray-200">{row.tipo}</td>
+                                                <td className="px-3 py-0.5 text-left font-black uppercase truncate max-w-[180px] text-slate-800 border-r border-gray-200">{row.cliente}</td>
+                                                <td className="px-3 py-0.5 text-center font-bold text-slate-800 tabular-nums border-r border-gray-200">{row.customer_phone}</td>
+                                                <td className="px-3 py-0.5 text-center text-slate-600 truncate max-w-[150px] border-r border-gray-200">{row.customer_email}</td>
+                                                <td className="px-3 py-0.5 text-left text-slate-700 truncate max-w-[240px] border-r border-gray-200" title={row.delivery_address}>{row.delivery_address}</td>
+                                                <td className="px-3 py-0.5 text-center font-bold text-slate-800 border-r border-gray-200">{row.driver_name}</td>
+                                                <td className="px-3 py-0.5 text-right font-black text-slate-900 bg-gray-50 border-r border-gray-200">{formatCurr(row.total)}</td>
                                             </>
                                         ) : (
                                             <>
-                                                <td className="px-3 py-1.5 text-center border-r border-gray-200">
+                                                <td className="px-3 py-0.5 text-center border-r border-gray-200">
                                                     <div className="flex flex-col items-center justify-center leading-tight">
                                                         <span className="text-[10px] font-bold opacity-80">{row.fecha_full}</span>
                                                         <div className="flex items-center gap-1">
@@ -1038,7 +1055,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                     </div>
                                                 </td>
                                                 {mode === 'REP_VOID' && (
-                                                    <td className="px-3 py-1.5 text-center border-r border-gray-200">
+                                                    <td className="px-3 py-0.5 text-center border-r border-gray-200">
                                                         <div className="flex flex-col items-center justify-center leading-tight">
                                                             <span className="text-[10px] font-bold opacity-80">{row.fecha_anulacion_full}</span>
                                                             <div className="flex items-center gap-1">
@@ -1048,30 +1065,31 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                         </div>
                                                     </td>
                                                 )}
-                                                <td className="px-3 py-1.5 text-center font-bold text-gray-600 border-r border-gray-200">{row.tipo}</td>
-                                                <td className="px-3 py-1.5 text-center font-black text-slate-900 border-r border-gray-200">#{row.noOrden}</td>
+                                                <td className="px-3 py-0.5 text-center font-bold text-gray-600 border-r border-gray-200">{row.tipo}</td>
+                                                <td className="px-3 py-0.5 text-center font-black text-slate-900 border-r border-gray-200">#{row.noOrden}</td>
                                                 {mode === 'REP_VOID' || mode === 'REP_DISC' ? (
                                                     <>
-                                                        <td className="px-3 py-1.5 text-center uppercase font-bold text-slate-700 border-r border-gray-200">{row.atendio}</td>
-                                                        {mode === 'REP_DISC' && <td className="px-3 py-1.5 text-center font-bold text-gray-600 border-r border-gray-200">{row.discount_type}</td>}
-                                                        <td className="px-3 py-1.5 text-left text-gray-500 truncate border-r border-gray-200" title={row.discount_reason}>{row.discount_reason}</td>
+                                                        <td className="px-3 py-0.5 text-center uppercase font-bold text-slate-700 border-r border-gray-200">{row.atendio}</td>
+                                                        {mode === 'REP_DISC' && <td className="px-3 py-0.5 text-center font-bold text-gray-600 border-r border-gray-200">{row.discount_type}</td>}
+                                                        <td className="px-3 py-0.5 text-left text-gray-500 truncate border-r border-gray-200" title={row.discount_reason}>{row.discount_reason}</td>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <td className="px-3 py-1.5 text-center text-gray-600 uppercase border-r border-gray-200 w-[150px]">{row.seccion}</td>
-                                                        <td className="px-3 py-1.5 text-center font-bold text-slate-800 border-r border-gray-200 w-[100px]">{row.mesa}</td>
-                                                        <td className="px-3 py-1.5 text-center font-bold text-slate-800 border-r border-gray-200 w-[150px] uppercase truncate">{row.atendio}</td>
+                                                        <td className="px-3 py-0.5 text-center text-gray-600 uppercase border-r border-gray-200 w-[150px]">{row.seccion}</td>
+                                                        <td className="px-3 py-0.5 text-center font-bold text-slate-800 border-r border-gray-200 w-[100px]">{row.mesa}</td>
+                                                        <td className="px-3 py-0.5 text-center font-bold text-slate-800 border-r border-gray-200 w-[150px] uppercase truncate">{row.atendio}</td>
+                                                        {mode !== 'REP_OPEN' && <td className="px-3 py-0.5 text-center font-bold text-[9px] uppercase text-slate-500 border-r border-gray-200 w-[130px] truncate">{row.metodo}</td>}
                                                     </>
                                                 )}
-                                                {mode === 'REP_DISC' && <td className="px-3 py-1.5 text-center font-bold text-slate-800 border-r border-gray-200 w-[100px]">Cuenta 1</td>}
-                                                <td className="px-3 py-1.5 text-right font-medium text-slate-900 border-r border-gray-200 w-[100px] tabular-nums">{formatCurr(row.subtotal)}</td>
-                                                <td className="px-3 py-1.5 text-right font-medium text-slate-900 border-r border-gray-200 w-[100px] tabular-nums">{formatCurr(row.propina)}</td>
-                                                <td className="px-3 py-1.5 text-right font-medium text-slate-900 border-r border-gray-200 w-[100px] tabular-nums">- {formatCurr(row.descuento)}</td>
-                                                <td className="px-3 py-1.5 text-right font-black text-slate-900 border-r border-gray-200 w-[120px] tabular-nums bg-gray-50">{formatCurr(row.total)}</td>
+                                                {mode === 'REP_DISC' && <td className="px-3 py-0.5 text-center font-bold text-slate-800 border-r border-gray-200 w-[100px]">Cuenta 1</td>}
+                                                <td className="px-3 py-0.5 text-right font-medium text-slate-900 border-r border-gray-200 w-[100px] tabular-nums">{formatCurr(row.subtotal)}</td>
+                                                <td className="px-3 py-0.5 text-right font-medium text-slate-900 border-r border-gray-200 w-[100px] tabular-nums">{formatCurr(row.propina)}</td>
+                                                <td className="px-3 py-0.5 text-right font-medium text-slate-900 border-r border-gray-200 w-[100px] tabular-nums">- {formatCurr(row.descuento)}</td>
+                                                <td className="px-3 py-0.5 text-right font-black text-slate-900 border-r border-gray-200 w-[120px] tabular-nums bg-gray-50">{formatCurr(row.total)}</td>
                                                 {mode === 'REP_ALL' && (
                                                     <>
-                                                        <td className="px-3 py-1.5 text-center border-r border-gray-200 w-[60px]"><div className="flex items-center justify-center">{row.status === 'completed' ? <CheckSquare size={14} className="text-gray-500" /> : <div className="w-[14px] h-[14px] border border-gray-400 rounded-sm"></div>}</div></td>
-                                                        <td className="px-3 py-1.5 text-center border-r border-gray-200 w-[60px]"><div className="flex items-center justify-center">{row.status === 'cancelled' ? <CheckSquare size={14} className="text-gray-500" /> : <div className="w-[14px] h-[14px] border border-gray-400 rounded-sm"></div>}</div></td>
+                                                        <td className="px-3 py-0.5 text-center border-r border-gray-200 w-[60px]"><div className="flex items-center justify-center">{row.status === 'completed' ? <CheckSquare size={14} className="text-gray-500" /> : <div className="w-[14px] h-[14px] border border-gray-400 rounded-sm"></div>}</div></td>
+                                                        <td className="px-3 py-0.5 text-center border-r border-gray-200 w-[60px]"><div className="flex items-center justify-center">{row.status === 'cancelled' ? <CheckSquare size={14} className="text-gray-500" /> : <div className="w-[14px] h-[14px] border border-gray-400 rounded-sm"></div>}</div></td>
                                                     </>
                                                 )}
                                             </>
@@ -1092,16 +1110,16 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
             )}
 
             {/* BARRA DE TOTALES FIJA AL FONDO - ESTRUCTURA DE TABLA PARA ALINEACIÓN PERFECTA */}
-            <div className="shrink-0 bg-[#106ebe] text-white border-t border-gray-900 shadow-[0_-4px_15px_rgba(0,0,0,0.3)] z-[60]">
-                <table className="w-full table-fixed uppercase font-bold text-[11px] select-none shadow-inner border-collapse">
+            <div className="shrink-0 bg-white text-slate-800 border-t-2 border-gray-300 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] z-[60]">
+                <table className="w-full table-fixed uppercase font-bold text-[11px] select-none border-collapse">
                     <tbody>
-                        <tr className="h-10">
+                        <tr className="h-8">
                             {mode === 'REP_CREDIT' ? (
                                 <>
                                     <td className="w-[100px] px-3">
-                                        <div className="flex items-center gap-2 h-full">
-                                            <span className="text-[9px] text-gray-400 font-bold uppercase">ÓRDENES:</span>
-                                            <span className="text-[12px] font-black">{filteredData.length}</span>
+                                        <div className="flex items-center gap-1 h-full text-slate-800">
+                                            <span className="text-[11px] font-bold">Ords.:</span>
+                                            <span className="text-[11px] font-black">{filteredData.length}</span>
                                         </div>
                                     </td>
                                     <td className="w-[120px]"></td>
@@ -1109,89 +1127,75 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                     <td className="w-[150px]"></td>
                                     <td className="w-[100px]"></td>
                                     <td className="w-[150px]"></td>
-                                    <td className="w-[100px] px-3 text-right border-l border-gray-700/30 bg-black/5">
-                                        <div className="flex flex-col h-full justify-center pb-0.5">
-                                            <span className="text-[7px] text-gray-400 uppercase font-black">EFECTIVO</span>
-                                            <span className="text-gray-100 font-bold text-[11px]">{formatCurr(filteredData.reduce((sum, d) => sum + d.efectivo, 0))}</span>
-                                        </div>
+                                    <td className="w-[100px] px-3 text-right text-slate-900 font-bold tabular-nums">
+                                        {formatCurr(filteredData.reduce((sum, d) => sum + d.efectivo, 0))}
                                     </td>
-                                    <td className="w-[100px] px-3 text-right border-l border-gray-700/30 bg-black/5">
-                                        <div className="flex flex-col h-full justify-center pb-0.5">
-                                            <span className="text-[7px] text-gray-400 uppercase font-black">TARJETA</span>
-                                            <span className="text-gray-100 font-bold text-[11px]">{formatCurr(filteredData.reduce((sum, d) => sum + d.tarjeta, 0))}</span>
-                                        </div>
+                                    <td className="w-[100px] px-3 text-right text-slate-900 font-bold tabular-nums">
+                                        {formatCurr(filteredData.reduce((sum, d) => sum + d.tarjeta, 0))}
                                     </td>
-                                    <td className="w-[100px] px-3 text-right border-l border-gray-700/30 bg-black/5">
-                                        <div className="flex flex-col h-full justify-center pb-0.5">
-                                            <span className="text-[7px] text-gray-400 uppercase font-black">CRÉDITO</span>
-                                            <span className="text-blue-400 font-bold text-[11px]">{formatCurr(filteredData.reduce((sum, d) => sum + d.credito, 0))}</span>
-                                        </div>
+                                    <td className="w-[100px] px-3 text-right text-blue-700 font-bold tabular-nums">
+                                        {formatCurr(filteredData.reduce((sum, d) => sum + d.credito, 0))}
                                     </td>
-                                    <td className="w-[120px] px-3 text-right border-l border-gray-700 bg-black/30">
-                                        <div className="flex flex-col h-full justify-center pb-0.5">
-                                            <span className="text-[9px] text-gray-400 font-black uppercase">TOTAL</span>
-                                            <span className="text-[14px] font-black text-white">{formatCurr(totals.total)}</span>
-                                        </div>
+                                    <td className="w-[120px] px-3 text-right text-slate-900 font-black tabular-nums">
+                                        {formatCurr(totals.total)}
                                     </td>
                                 </>
                             ) : mode === 'REP_DELIVERY' ? (
                                 <>
-                                    <td className="w-[110px] px-3 border-r border-gray-700/20">
-                                        <div className="flex items-center gap-2 h-full">
-                                            <span className="text-[9px] text-gray-400 font-bold uppercase">ÓRDENES:</span>
-                                            <span className="text-[12px] font-black">{filteredData.length}</span>
+                                    <td className="w-[100px] px-3">
+                                        <div className="flex items-center gap-1 h-full text-slate-800">
+                                            <span className="text-[11px] font-bold">Ords.:</span>
+                                            <span className="text-[11px] font-black">{filteredData.length}</span>
                                         </div>
                                     </td>
-                                    <td className="w-[80px]"></td>
+                                    <td className="w-[100px]"></td>
                                     <td className="w-[120px]"></td>
                                     <td className="w-[180px]"></td>
                                     <td className="w-[100px]"></td>
                                     <td className="w-[150px]"></td>
                                     <td className="w-[240px]"></td>
                                     <td className="w-[130px]"></td>
-                                    <td className="w-[110px] px-3 text-right border-l border-gray-700/30 bg-black/5 bg-opacity-20 bg-indigo-900">
-                                        <div className="flex flex-col h-full justify-center pb-0.5">
-                                            <span className="text-[7px] text-gray-300 uppercase font-black">TOTAL DOMICILIO</span>
-                                            <span className="text-white font-black text-[12px]">{formatCurr(totals.total)}</span>
-                                        </div>
+                                    <td className="w-[110px] px-3 text-right text-slate-900 font-black tabular-nums">
+                                        {formatCurr(totals.total)}
                                     </td>
                                 </>
                             ) : (
                                 <>
-                                    <td className="w-[100px] px-3 border-r border-gray-700/20">
-                                        <div className="flex items-center gap-2 h-full">
-                                            <span className="text-[9px] text-gray-400 font-bold uppercase">ÓRDENES:</span>
-                                            <span className="text-[12px] font-black">{filteredData.length}</span>
+                                    <td className="w-[100px] px-3">
+                                        <div className="flex items-center gap-1 h-full text-slate-800">
+                                            <span className="text-[11px] font-bold capitalize">Ords.:</span>
+                                            <span className="text-[11px] font-black">{filteredData.length}</span>
                                         </div>
                                     </td>
+                                    {mode === 'REP_VOID' && <td className="w-[100px]"></td>}
                                     <td className="w-[120px]"></td>
                                     <td className="w-[100px]"></td>
-                                    <td className="w-[150px]"></td>
-                                    <td className="w-[100px]"></td>
-                                    <td className="w-[150px]"></td>
-                                    <td className="w-[100px] px-3 text-right border-l border-gray-700/30 bg-black/5">
-                                        <div className="flex flex-col h-full justify-center pb-0.5">
-                                            <span className="text-[7px] text-gray-400 uppercase font-black">SUBTOTAL</span>
-                                            <span className="text-gray-100 font-bold text-[11px]">{formatCurr(totals.subtotal)}</span>
-                                        </div>
+                                    {mode === 'REP_VOID' || mode === 'REP_DISC' ? (
+                                        <>
+                                            <td className="w-[150px]"></td>
+                                            {mode === 'REP_DISC' && <td className="w-[150px]"></td>}
+                                            <td className="w-[200px]"></td>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <td className="w-[150px]"></td>
+                                            <td className="w-[100px]"></td>
+                                            <td className="w-[150px]"></td>
+                                            {mode !== 'REP_OPEN' && <td className="w-[130px]"></td>}
+                                        </>
+                                    )}
+                                    {mode === 'REP_DISC' && <td className="w-[100px]"></td>}
+                                    <td className="w-[100px] px-3 text-right text-slate-900 font-bold tabular-nums">
+                                        {formatCurr(totals.subtotal)}
                                     </td>
-                                    <td className="w-[100px] px-3 text-right border-l border-gray-700/30 bg-black/5">
-                                        <div className="flex flex-col h-full justify-center pb-0.5">
-                                            <span className="text-[7px] text-gray-400 uppercase font-black">PROPINA</span>
-                                            <span className="text-gray-100 font-bold text-[11px]">{formatCurr(totals.propina)}</span>
-                                        </div>
+                                    <td className="w-[100px] px-3 text-right text-slate-900 font-bold tabular-nums">
+                                        {formatCurr(totals.propina)}
                                     </td>
-                                    <td className="w-[100px] px-3 text-right border-l border-gray-700/30 bg-black/5">
-                                        <div className="flex flex-col h-full justify-center pb-0.5">
-                                            <span className="text-[7px] text-gray-400 uppercase font-black">DESCUENTO</span>
-                                            <span className="text-gray-400 font-bold text-[11px]">{formatCurr(totals.descuento)}</span>
-                                        </div>
+                                    <td className="w-[100px] px-3 text-right text-slate-900 font-bold tabular-nums">
+                                        {formatCurr(totals.descuento)}
                                     </td>
-                                    <td className="w-[120px] px-3 text-right border-l border-gray-700 bg-black/30">
-                                        <div className="flex flex-col h-full justify-center pb-0.5">
-                                            <span className="text-[9px] text-gray-400 font-black uppercase">GRAN TOTAL</span>
-                                            <span className="text-[14px] font-black text-white">{formatCurr(totals.total)}</span>
-                                        </div>
+                                    <td className="w-[120px] px-3 text-right text-slate-900 font-black tabular-nums">
+                                        {formatCurr(totals.total)}
                                     </td>
                                     {mode === 'REP_ALL' && <td className="w-[120px]"></td>}
                                 </>
@@ -1333,7 +1337,21 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                         </div>
                                     ) : (
                                         filteredOrderItems.map((item) => {
-                                            const noteParts = item.notes ? item.notes.replace('*NO IMPRIMIR*', '').split(' | ') : [];
+                                            let noteParts: string[] = [];
+                                            if (item.notes) {
+                                                const rawNotes = item.notes.replace('*NO IMPRIMIR*', '').trim();
+                                                try {
+                                                    const parsed = JSON.parse(rawNotes);
+                                                    if (parsed.mods) {
+                                                        parsed.mods.split(' | ').filter(Boolean).forEach((m: string) => noteParts.push(m.trim()));
+                                                    }
+                                                    if (parsed.obs) {
+                                                        noteParts.push(`NOTA: ${parsed.obs.trim()}`);
+                                                    }
+                                                } catch (e) {
+                                                    rawNotes.split(' | ').filter(Boolean).forEach((m: string) => noteParts.push(m.trim()));
+                                                }
+                                            }
                                             return (
                                                 <div key={item.id} className="flex flex-col bg-white border border-gray-400 shadow-[1px_1px_1px_rgba(0,0,0,0.1)]">
                                                     {/* Header dark bar - ultra compact */}
@@ -1464,20 +1482,20 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                 <tr className="bg-gray-100 border-y-2 border-gray-900 text-[11px] font-black uppercase text-center">
                                                     {mode === 'REP_CREDIT' ? (
                                                         <>
-                                                            <th className="px-3 py-1.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100" onClick={() => requestSort('apertura')}>Apertura</th>
-                                                            <th className="px-3 py-1.5 border-r border-gray-300 w-[120px] cursor-pointer hover:bg-gray-100" onClick={() => requestSort('tipo')}>Tipo</th>
-                                                            <th className="px-3 py-1.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100" onClick={() => requestSort('noOrden')}>No. Orden</th>
-                                                            <th className="px-3 py-1.5 border-r border-gray-300 w-[150px] cursor-pointer hover:bg-gray-100" onClick={() => requestSort('seccion')}>Sección</th>
-                                                            <th className="px-3 py-1.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100 text-center" onClick={() => requestSort('mesa')}>Mesa No.</th>
-                                                            <th className="px-3 py-1.5 border-r border-gray-300 w-[150px] cursor-pointer hover:bg-gray-100" onClick={() => requestSort('atendio')}>Atendió</th>
-                                                            <th className="px-3 py-1.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100 text-right" onClick={() => requestSort('subtotal')}>Subtotal</th>
-                                                            <th className="px-3 py-1.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100 text-right" onClick={() => requestSort('propina')}>Propina</th>
-                                                            <th className="px-3 py-1.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100 text-right" onClick={() => requestSort('descuento')}>Descuento</th>
-                                                            <th className="px-3 py-1.5 border-r border-gray-300 w-[120px] cursor-pointer hover:bg-gray-100 text-right font-black bg-gray-50 bg-opacity-50" onClick={() => requestSort('total')}>Total</th>
+                                                            <th className="px-3 py-0.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100" onClick={() => requestSort('apertura')}>Apertura</th>
+                                                            <th className="px-3 py-0.5 border-r border-gray-300 w-[120px] cursor-pointer hover:bg-gray-100" onClick={() => requestSort('tipo')}>Tipo</th>
+                                                            <th className="px-3 py-0.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100" onClick={() => requestSort('noOrden')}>No. Orden</th>
+                                                            <th className="px-3 py-0.5 border-r border-gray-300 w-[150px] cursor-pointer hover:bg-gray-100" onClick={() => requestSort('seccion')}>Sección</th>
+                                                            <th className="px-3 py-0.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100 text-center" onClick={() => requestSort('mesa')}>Mesa No.</th>
+                                                            <th className="px-3 py-0.5 border-r border-gray-300 w-[150px] cursor-pointer hover:bg-gray-100" onClick={() => requestSort('atendio')}>Atendió</th>
+                                                            <th className="px-3 py-0.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100 text-right" onClick={() => requestSort('subtotal')}>Subtotal</th>
+                                                            <th className="px-3 py-0.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100 text-right" onClick={() => requestSort('propina')}>Propina</th>
+                                                            <th className="px-3 py-0.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100 text-right" onClick={() => requestSort('descuento')}>Descuento</th>
+                                                            <th className="px-3 py-0.5 border-r border-gray-300 w-[120px] cursor-pointer hover:bg-gray-100 text-right font-black bg-gray-50 bg-opacity-50" onClick={() => requestSort('total')}>Total</th>
                                                             {mode === 'REP_ALL' && (
                                                                 <>
-                                                                    <th className="px-3 py-1.5 border-r border-gray-300 w-[100px] text-center">Cerrada</th>
-                                                                    <th className="px-3 py-1.5 w-[100px] text-center">Anulada</th>
+                                                                    <th className="px-3 py-0.5 border-r border-gray-300 w-[100px] text-center">Cerrada</th>
+                                                                    <th className="px-3 py-0.5 w-[100px] text-center">Anulada</th>
                                                                 </>
                                                             )}
                                                         </>
@@ -1540,43 +1558,43 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                     <tr key={i} className="border-b border-gray-300 odd:bg-white even:bg-gray-50">
                                                         {mode === 'REP_CREDIT' ? (
                                                             <>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 font-bold bg-gray-100">{row.fecha_full} {row.apertura}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-center">{row.tipo}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-center font-bold">#{row.noOrden}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 uppercase truncate max-w-[150px]">{row.cliente}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-right">{formatCurr(row.total)}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-right">{formatCurr(row.efectivo)}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-right">{formatCurr(row.tarjeta)}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-right font-black bg-slate-50 text-slate-900">{formatCurr(row.credito)}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-right">{formatCurr(row.otros)}</td>
-                                                                <td className="px-3 py-1.5 text-right font-black bg-gray-50">{formatCurr(row.total)}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 font-bold bg-gray-100">{row.fecha_full} {row.apertura}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center">{row.tipo}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center font-bold">#{row.noOrden}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 uppercase truncate max-w-[150px]">{row.cliente}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-right">{formatCurr(row.total)}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-right">{formatCurr(row.efectivo)}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-right">{formatCurr(row.tarjeta)}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-right font-black bg-slate-50 text-slate-900">{formatCurr(row.credito)}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-right">{formatCurr(row.otros)}</td>
+                                                                <td className="px-3 py-0.5 text-right font-black bg-gray-50">{formatCurr(row.total)}</td>
                                                             </>
                                                         ) : mode === 'REP_VOID' || mode === 'REP_DISC' ? (
                                                             <>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 font-bold bg-gray-50">{row.fecha_creacion}</td>
-                                                                {mode === 'REP_VOID' && <td className="px-3 py-1.5 border-r border-gray-300 font-bold text-slate-900 bg-slate-50/30">{row.fecha_anulacion}</td>}
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-center">{row.tipo}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-center font-black text-slate-900">#{row.noOrden}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 uppercase truncate font-bold text-slate-700">{row.atendio}</td>
-                                                                {mode === 'REP_DISC' && <td className="px-3 py-1.5 border-r border-gray-300 text-center text-gray-500 font-bold">{row.discount_type}</td>}
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-left text-gray-400 max-w-[250px] truncate" title={row.discount_reason}>{row.discount_reason}</td>
-                                                                {mode === 'REP_DISC' && <td className="px-3 py-1.5 border-r border-gray-300 text-center text-slate-700 font-bold">Cuenta 1</td>}
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-right font-medium">{formatCurr(row.subtotal)}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-right font-medium">{formatCurr(row.propina)}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-right font-medium">-{formatCurr(row.descuento)}</td>
-                                                                <td className="px-3 py-1.5 text-right font-black bg-gray-50 text-slate-900">{formatCurr(row.total)}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 font-bold bg-gray-50">{row.fecha_creacion}</td>
+                                                                {mode === 'REP_VOID' && <td className="px-3 py-0.5 border-r border-gray-300 font-bold text-slate-900 bg-slate-50/30">{row.fecha_anulacion}</td>}
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center">{row.tipo}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center font-black text-slate-900">#{row.noOrden}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 uppercase truncate font-bold text-slate-700">{row.atendio}</td>
+                                                                {mode === 'REP_DISC' && <td className="px-3 py-0.5 border-r border-gray-300 text-center text-gray-500 font-bold">{row.discount_type}</td>}
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-left text-gray-400 max-w-[250px] truncate" title={row.discount_reason}>{row.discount_reason}</td>
+                                                                {mode === 'REP_DISC' && <td className="px-3 py-0.5 border-r border-gray-300 text-center text-slate-700 font-bold">Cuenta 1</td>}
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-right font-medium">{formatCurr(row.subtotal)}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-right font-medium">{formatCurr(row.propina)}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-right font-medium">-{formatCurr(row.descuento)}</td>
+                                                                <td className="px-3 py-0.5 text-right font-black bg-gray-50 text-slate-900">{formatCurr(row.total)}</td>
                                                             </>
                                                         ) : mode === 'REP_DELIVERY' ? (
                                                             <>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 font-bold bg-gray-100">{row.fecha_full} {row.apertura}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-center font-bold">#{row.noOrden}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-center">{row.tipo}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 uppercase truncate max-w-[150px]">{row.cliente}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-center font-mono">{row.customer_phone}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 truncate max-w-[120px] text-gray-500">{row.customer_email}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-left truncate max-w-[250px]">{row.delivery_address}</td>
-                                                                <td className="px-3 py-1.5 border-r border-gray-300 text-center font-bold text-slate-800">{row.driver_name}</td>
-                                                                <td className="px-3 py-1.5 text-right font-black bg-gray-50">{formatCurr(row.total)}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 font-bold bg-gray-100">{row.fecha_full} {row.apertura}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center font-bold">#{row.noOrden}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center">{row.tipo}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 uppercase truncate max-w-[150px]">{row.cliente}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center font-mono">{row.customer_phone}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 truncate max-w-[120px] text-gray-500">{row.customer_email}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-left truncate max-w-[250px]">{row.delivery_address}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center font-bold text-slate-800">{row.driver_name}</td>
+                                                                <td className="px-3 py-0.5 text-right font-black bg-gray-50">{formatCurr(row.total)}</td>
                                                             </>
                                                         ) : mode === 'REP_ALL' ? (
                                                             <>

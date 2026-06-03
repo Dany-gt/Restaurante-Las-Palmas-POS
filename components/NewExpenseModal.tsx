@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Trash2, ShoppingCart } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Trash2, ShoppingCart, Delete, ChevronUp, ChevronDown } from 'lucide-react';
 import { supabase } from '../supabase';
 import { User } from '../types';
 import { printService } from '../services/PrintService';
@@ -24,6 +24,14 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
     const [itemName, setItemName] = useState('');
     const [items, setItems] = useState<ExpenseItem[]>([]);
     const [loading, setLoading] = useState(false);
+
+    const categoryScrollRef = useRef<HTMLDivElement>(null);
+
+    const scrollCategories = (direction: number) => {
+        if (categoryScrollRef.current) {
+            categoryScrollRef.current.scrollBy({ top: direction * 80, behavior: 'smooth' });
+        }
+    };
     const [now, setNow] = useState(new Date());
 
     useEffect(() => {
@@ -189,18 +197,18 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
     );
 
     return (
-        <div className="fixed inset-0 bg-black/60  z-50 flex items-center justify-center p-4 font-sans">
-            <div className="bg-[#2d3244] w-full max-w-[950px] rounded-lg  border border-white/10 overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 font-sans">
+            <div className="bg-[#2d2f3d] w-full max-w-[760px] rounded-lg border border-[#3e4153] overflow-hidden flex flex-col shadow-2xl">
 
                 {/* Header */}
-                <div className="bg-[#3a4159] p-2 flex items-center justify-center border-b border-black/20">
-                    <span className="text-white font-bold text-sm uppercase tracking-wider">Categorías de Gastos</span>
+                <div className="bg-[#383a4c] p-3 flex items-center justify-center border-b border-[#3e4153]">
+                    <span className="text-white font-semibold text-sm tracking-wide">Categorías de Gastos</span>
                 </div>
 
-                <div className="flex" style={{ height: '520px' }}>
+                <div className="flex" style={{ height: '440px' }}>
 
                     {/* ══════════ LEFT PANEL ══════════ */}
-                    <div className="flex-1 p-4 flex flex-col gap-3 bg-[#33394d] border-r border-black/30">
+                    <div className="flex-1 p-3 flex flex-col gap-2 bg-[#2d2f3d]">
 
                         {/* Search */}
                         <div className="relative shrink-0">
@@ -211,51 +219,71 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                                 type="text"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder="Buscar categoría..."
-                                className="w-full bg-[#242938] border border-black/20 rounded px-9 py-2 text-white text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 uppercase"
+                                placeholder="Buscar..."
+                                className="w-full bg-[#242533] border border-[#3e4153] rounded-md px-9 py-2 text-white text-sm focus:outline-none focus:border-[#7a73ff] transition-colors placeholder-gray-500 uppercase"
                             />
                         </div>
 
-                        {/* Category Grid */}
-                        <div className="grid grid-cols-3 gap-2 shrink-0 overflow-y-auto" style={{ maxHeight: '160px' }}>
-                            {filteredCategories.map(cat => (
-                                <button
-                                    key={cat.id}
-                                    onClick={() => setSelectedCategory(cat.name)}
-                                    className={`px-2 py-2 rounded text-[10px] font-bold uppercase tracking-tight transition-all h-12 flex items-center justify-center text-center leading-tight ${
-                                        selectedCategory === cat.name
-                                            ? 'bg-[#6366f1] text-white '
-                                            : 'bg-[#474f68] text-gray-200 hover:bg-[#525b7a] border border-black/20'
-                                    }`}
+                        {/* Category Grid - 3 rows visible with scroll arrows */}
+                        <div className="flex gap-2 shrink-0 h-[116px]">
+                            <div 
+                                ref={categoryScrollRef}
+                                className="flex-1 grid grid-cols-3 gap-1.5 overflow-y-hidden"
+                                style={{ scrollBehavior: 'smooth' }}
+                            >
+                                {filteredCategories.map(cat => (
+                                    <button
+                                        key={cat.id}
+                                        onClick={() => setSelectedCategory(cat.name)}
+                                        className={`px-2 py-1 rounded-md text-[11px] font-semibold uppercase tracking-tight transition-all h-8 flex items-center justify-center text-center leading-tight shadow-sm ${
+                                            selectedCategory === cat.name
+                                                ? 'bg-[#7a73ff] text-white border-transparent'
+                                                : 'bg-[#3e4153] text-gray-200 hover:bg-[#484b5e] border border-transparent'
+                                        }`}
+                                    >
+                                        {cat.name}
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="flex flex-col gap-1.5 shrink-0 w-8">
+                                <button 
+                                    onClick={() => scrollCategories(-1)} 
+                                    className="flex-1 bg-[#3e4153] hover:bg-[#484b5e] active:bg-[#7a73ff] text-gray-300 hover:text-white rounded-md flex items-center justify-center transition-colors border border-[#4b4e63]"
                                 >
-                                    {cat.name}
+                                    <ChevronUp size={16} strokeWidth={2.5} />
                                 </button>
-                            ))}
+                                <button 
+                                    onClick={() => scrollCategories(1)} 
+                                    className="flex-1 bg-[#3e4153] hover:bg-[#484b5e] active:bg-[#7a73ff] text-gray-300 hover:text-white rounded-md flex items-center justify-center transition-colors border border-[#4b4e63]"
+                                >
+                                    <ChevronDown size={16} strokeWidth={2.5} />
+                                </button>
+                            </div>
                         </div>
 
                         {/* Items List */}
-                        <div className="flex-1 flex flex-col min-h-0 bg-[#242938] rounded border border-black/20 overflow-hidden">
-                            <div className="px-3 py-1.5 bg-black/20 border-b border-black/20 shrink-0 flex items-center gap-1.5">
-                                <ShoppingCart size={12} className="text-indigo-400" />
-                                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Detalle del Gasto</span>
+                        <div className="flex-1 flex flex-col min-h-0 bg-[#242533] rounded-md border border-[#3e4153] overflow-hidden">
+                            <div className="px-3 py-1 bg-[#2d2f3d]/50 border-b border-[#3e4153] shrink-0 flex items-center gap-2">
+                                <ShoppingCart size={13} className="text-[#7a73ff]" />
+                                <span className="text-[10px] font-semibold text-[#7a73ff] uppercase tracking-wider">Detalle del Gasto</span>
                             </div>
-                            <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                            <div className="flex-1 overflow-y-auto p-1.5 space-y-1 custom-scrollbar">
                                 {items.length === 0 ? (
-                                    <div className="h-full flex flex-col items-center justify-center text-gray-600 opacity-40 py-6">
-                                        <ShoppingCart size={22} className="mb-1" />
-                                        <span className="text-[9px] uppercase font-bold">Presiona AGREGAR para añadir ítems</span>
+                                    <div className="h-full flex flex-col items-center justify-center text-gray-500 opacity-60 py-2">
+                                        <ShoppingCart size={18} className="mb-1" />
+                                        <span className="text-[9px] uppercase font-semibold">Presiona el cheque para añadir ítems</span>
                                     </div>
                                 ) : (
                                     items.map(item => (
-                                        <div key={item.id} className="flex justify-between items-center px-3 py-2 bg-black/20 rounded group hover:bg-black/30">
-                                            <span className="text-xs font-bold text-gray-300 uppercase truncate flex-1">{item.name}</span>
-                                            <div className="flex items-center gap-3 shrink-0">
-                                                <span className="text-xs font-black text-white tabular-nums">Q{item.price.toFixed(2)}</span>
+                                        <div key={item.id} className="flex justify-between items-center px-2 py-1 bg-[#3e4153]/40 rounded-md group hover:bg-[#3e4153]/80 transition-colors">
+                                            <span className="text-[11px] font-bold text-gray-300 uppercase truncate flex-1">{item.name}</span>
+                                            <div className="flex items-center gap-2 shrink-0">
+                                                <span className="text-[11px] font-black text-white tabular-nums">Q{item.price.toFixed(2)}</span>
                                                 <button
                                                     onClick={() => handleRemoveItem(item.id)}
                                                     className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                                 >
-                                                    <Trash2 size={13} />
+                                                    <Trash2 size={12} />
                                                 </button>
                                             </div>
                                         </div>
@@ -264,106 +292,101 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                             </div>
                         </div>
 
-                        {/* Item name input */}
-                        <input
-                            type="text"
-                            value={itemName}
-                            onChange={(e) => setItemName(e.target.value.toUpperCase())}
-                            onKeyDown={(e) => { if (e.key === 'Enter') handleAddItem(); }}
-                            placeholder="Nombre del producto (ej: AGUACATE)..."
-                            className="w-full bg-[#242938] border border-black/20 rounded px-3 py-2.5 text-white text-xs focus:outline-none uppercase placeholder-gray-600 shrink-0"
-                        />
-
-                        {/* Category + Total row */}
-                        <div className="flex gap-2 shrink-0">
-                            <div className="flex-1 bg-[#242938] border border-black/20 rounded px-3 py-2 flex items-center gap-2">
-                                <span className="text-gray-500 text-xs">📁</span>
-                                <span className="text-gray-200 text-xs font-bold uppercase truncate">
-                                    {selectedCategory || 'Seleccione Categoría'}
-                                </span>
+                        {/* Inputs */}
+                        <div className="flex flex-col gap-1.5 mt-auto shrink-0">
+                            <div className="flex gap-1.5">
+                                <div className="flex-1 flex items-center bg-[#242533] border border-[#3e4153] rounded px-3 py-1.5">
+                                    <span className="text-gray-400 text-xs mr-2">📁</span>
+                                    <span className="text-gray-300 text-xs font-semibold whitespace-nowrap overflow-hidden text-ellipsis">
+                                        {selectedCategory || 'Categoría'}
+                                    </span>
+                                </div>
+                                <div className="w-24 flex items-center bg-[#242533] border border-[#3e4153] rounded px-3 py-1.5">
+                                    <span className="text-[#7a73ff] font-bold mr-1.5 text-xs">Q</span>
+                                    <span className="text-white text-xs font-bold whitespace-nowrap overflow-hidden text-ellipsis tabular-nums">
+                                        {total.toFixed(2)}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="w-28 bg-[#242938] border border-indigo-500/30 rounded px-3 py-2 flex items-center gap-1">
-                                <span className="text-indigo-400 font-bold text-xs">Q</span>
-                                <span className="text-white text-xs font-black tabular-nums">{total.toFixed(2)}</span>
+
+                            <div className="flex items-center bg-[#242533] border border-[#3e4153] rounded px-3 py-1.5">
+                                <input
+                                    type="text"
+                                    placeholder="Nombre del producto..."
+                                    value={itemName}
+                                    onChange={(e) => setItemName(e.target.value.toUpperCase())}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') handleAddItem(); }}
+                                    className="w-full bg-transparent border-none text-white text-xs font-semibold focus:outline-none placeholder-gray-500 uppercase"
+                                    autoComplete="off"
+                                />
                             </div>
                         </div>
 
-
-
-                        <div className="grid grid-cols-2 gap-3 shrink-0">
+                        {/* Actions */}
+                        <div className="flex gap-2 pt-1 shrink-0">
                             <button
                                 onClick={onClose}
-                                className="bg-[#3a4159] hover:bg-[#474f68] text-white py-3 rounded font-bold uppercase text-xs transition-colors border border-black/20"
+                                className="flex-1 py-1.5 text-xs font-bold rounded border border-[#3e4153] text-gray-300 hover:bg-[#3e4153] transition-colors uppercase"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={handleSaveExpense}
                                 disabled={items.length === 0 || !selectedCategory || loading}
-                                className={`py-3 rounded font-bold uppercase text-xs transition-all border border-black/20 ${
+                                className={`flex-1 py-1.5 text-xs font-bold rounded transition-colors uppercase ${
                                     items.length > 0 && selectedCategory && !loading
-                                        ? 'bg-[#6366f1] hover:bg-[#4f46e5] text-white'
-                                        : 'bg-[#242938] text-gray-500 cursor-not-allowed opacity-50'
+                                    ? 'bg-[#7a73ff] text-white hover:bg-[#6b64ff] shadow-md shadow-[#7a73ff]/20' 
+                                    : 'bg-[#3e4153] text-gray-500 cursor-not-allowed opacity-50'
                                 }`}
                             >
-                                {loading ? '...' : 'ACEPTAR'}
+                                {loading ? '...' : 'Aceptar'}
                             </button>
                         </div>
-
                     </div>
                     {/* ══════════ END LEFT PANEL ══════════ */}
 
                     {/* ══════════ RIGHT PANEL: Numpad ══════════ */}
-                    <div className="w-[300px] bg-[#3a4159] p-4 flex flex-col gap-3 ">
+                    <div className="w-[230px] bg-[#36384a] p-3 flex flex-col gap-3 border-l border-[#2d2f3d]">
 
-                        {/* Amount display — shows what you are typing */}
-                        <div className="bg-[#242938] rounded p-4 text-right border-b-2 border-indigo-500/50  shrink-0">
-                            <span className="text-3xl font-black text-white tabular-nums tracking-tighter">Q{itemPrice}</span>
+                        {/* Amount display */}
+                        <div className="bg-transparent border border-[#4b4e63] rounded h-12 flex items-center justify-center shrink-0">
+                            <span className="text-xl font-bold text-white tabular-nums tracking-wide">Q{itemPrice}</span>
                         </div>
 
-                        {/* Number keys */}
-                        <div className="grid grid-cols-3 gap-2 flex-1">
-                            {['7','8','9','4','5','6','1','2','3'].map(k => (
-                                <button
-                                    key={k}
-                                    onClick={() => handleKeyPad(k)}
-                                    className="bg-[#474f68] hover:bg-[#525b7a] active:bg-[#6366f1] text-2xl font-bold text-white rounded transition-colors  border-b-2 border-black/20"
-                                >
-                                    {k}
-                                </button>
+                        {/* 4-column Numpad */}
+                        <div className="grid grid-cols-4 gap-0 auto-rows-[55px] border-t border-l border-[#4b4e63] rounded overflow-hidden mb-auto">
+                            {/* Row 1 */}
+                            {['7','8','9'].map(k => (
+                                <button key={k} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-sm font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
                             ))}
-                            <button onClick={() => handleKeyPad('0')} className="bg-[#474f68] hover:bg-[#525b7a] text-2xl font-bold text-white rounded  border-b-2 border-black/20">0</button>
-                            <button onClick={() => handleKeyPad('.')} className="bg-[#474f68] hover:bg-[#525b7a] text-2xl font-bold text-white rounded  border-b-2 border-black/20">.</button>
-                            <button onClick={() => handleKeyPad('BACKSPACE')} className="bg-[#474f68] hover:bg-rose-500 text-white rounded flex items-center justify-center  border-b-2 border-black/20">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/>
-                                    <line x1="18" y1="9" x2="12" y2="15"/>
-                                    <line x1="12" y1="9" x2="18" y2="15"/>
+                            <button onClick={() => handleKeyPad('BACKSPACE')} className="bg-transparent hover:bg-rose-500/80 active:bg-rose-500 text-white rounded-none flex items-center justify-center transition-colors border-r border-b border-[#4b4e63] row-span-2">
+                                <Delete size={16} strokeWidth={2.5} />
+                            </button>
+
+                            {/* Row 2 */}
+                            {['4','5','6'].map(k => (
+                                <button key={k} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-sm font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
+                            ))}
+
+                            {/* Row 3 */}
+                            {['1','2','3'].map(k => (
+                                <button key={k} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-sm font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
+                            ))}
+                            <button onClick={handleAddItem} disabled={parseFloat(itemPrice) <= 0 || !selectedCategory} className={`rounded-none flex items-center justify-center transition-all row-span-2 border-r border-b border-[#4b4e63] ${parseFloat(itemPrice) > 0 && selectedCategory ? 'bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-white cursor-pointer' : 'bg-transparent text-gray-500 cursor-not-allowed opacity-50'}`}>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
                                 </svg>
                             </button>
-                        </div>
 
-                        {/* AGREGAR button */}
-                        <button
-                            onClick={handleAddItem}
-                            disabled={parseFloat(itemPrice) <= 0 || !selectedCategory}
-                            className={`w-full h-14 rounded flex items-center justify-center gap-2 transition-all  font-black uppercase text-sm tracking-widest border-b-2 shrink-0 ${
-                                parseFloat(itemPrice) > 0 && selectedCategory
-                                    ? 'bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white border-emerald-700'
-                                    : 'bg-[#242938] text-gray-600 cursor-not-allowed border-black/20'
-                            }`}
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
-                            AGREGAR
-                        </button>
+                            {/* Row 4 */}
+                            <button onClick={() => handleKeyPad('0')} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-sm font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63] col-span-2">0</button>
+                            <button onClick={() => handleKeyPad('.')} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-sm font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">.</button>
+                        </div>
 
                     </div>
                     {/* ══════════ END RIGHT PANEL ══════════ */}
-
                 </div>
-
             </div>
         </div>
     );

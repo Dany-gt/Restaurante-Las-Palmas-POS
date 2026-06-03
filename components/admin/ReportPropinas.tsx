@@ -442,7 +442,7 @@ export const ReportPropinas: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
-    const [data, setData] = useState<any[]>(savedState?.data || []);
+    const [data, setData] = useState<any[]>([]);
     const [branches, setBranches] = useState<any[]>([]);
     const [selectedBranch, setSelectedBranch] = useState<string>(savedState?.selectedBranch || 'all');
     const [searchTerm, setSearchTerm] = useState('');
@@ -450,9 +450,9 @@ export const ReportPropinas: React.FC = () => {
     const toggleWaiter = (name: string) => { setExpandedWaiters(prev => prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]); };
 
     useEffect(() => {
-        const state = { data, expandedWaiters, selectedBranch, startDate, endDate, startTime, endTime };
+        const state = { expandedWaiters, selectedBranch, startDate, endDate, startTime, endTime };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }, [data, expandedWaiters, selectedBranch, startDate, endDate, startTime, endTime, STORAGE_KEY]);
+    }, [expandedWaiters, selectedBranch, startDate, endDate, startTime, endTime, STORAGE_KEY]);
 
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number, order: any } | null>(null);
     const [editOrder, setEditOrder] = useState<any>(null);
@@ -609,7 +609,7 @@ export const ReportPropinas: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#f8fafc] text-[11px] select-none">
+        <div className="flex flex-col h-full bg-[#f8fafc] text-[11px]">
             {/* TOOLBAR */}
             <div className="bg-white border-b-2 border-slate-200 p-4 flex items-center flex-wrap gap-4 shadow-sm">
                 <div className="flex flex-col gap-0.5"><span className="text-[9px] font-black uppercase text-slate-400">Sucursal:</span><select value={selectedBranch} onChange={e => setSelectedBranch(e.target.value)} className="h-8 border border-slate-300 rounded px-2 font-bold bg-slate-50 outline-none w-48"><option value="all">TODAS LAS SUCURSALES</option>{branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
@@ -675,9 +675,10 @@ export const ReportPropinas: React.FC = () => {
                                             {w.orders.map((o: any) => (
                                                 <tr
                                                     key={o.id}
+                                                    onClick={() => setSelectedOrderId(o.id)}
                                                     onDoubleClick={() => { setEditOrder({ ...o }); setShowEditModal(true); }}
                                                     onContextMenu={e => { e.preventDefault(); setSelectedOrderId(o.id); setContextMenu({ x: e.clientX, y: e.clientY, order: o }) }}
-                                                    className={`divide-x divide-slate-100 font-bold text-slate-600 transition-colors hover:bg-blue-50/30 ${selectedOrderId === o.id ? 'bg-blue-100 ring-1 ring-inset ring-blue-300' : ''}`}
+                                                    className={`divide-x divide-slate-100 font-bold transition-colors cursor-default ${selectedOrderId === o.id ? 'selected-row-custom' : 'text-slate-600 hover:bg-blue-50/30'}`}
                                                 >
                                                     <td className="px-6 py-1.5 text-slate-400 font-mono text-[9px]">{dayjs(o.fecha).format('DD/MM/YYYY HH:mm')}</td>
                                                     <td className="px-4 py-1.5 text-center text-slate-800 font-black">{o.no_orden}</td>
@@ -703,14 +704,14 @@ export const ReportPropinas: React.FC = () => {
                         })}
                     </tbody>
                     {data.length > 0 && (
-                        <tfoot className="sticky bottom-0 z-30 bg-[#106ebe] text-white font-black uppercase text-[11px] divide-x divide-white/10 shadow-[0_-4px_10px_rgba(0,0,0,0.2)]">
-                            <tr>
-                                <td colSpan={3} className="px-8 py-3 text-right tracking-[0.1em]">TOTALES PERIODO</td>
-                                <td className="px-4 py-3 text-center text-blue-400 bg-blue-500/10 font-mono">{formatCurr(globalTotals.facturado)}</td>
-                                <td className="px-4 py-3 text-right font-mono text-slate-300">{formatCurr(globalTotals.efectivo)}</td>
-                                <td className="px-4 py-3 text-right font-mono text-slate-300">{formatCurr(globalTotals.tarjeta)}</td>
-                                <td className="px-4 py-3 text-right font-mono text-slate-300">{formatCurr(globalTotals.otros)}</td>
-                                <td className="px-4 py-3 text-right font-mono text-emerald-400 bg-emerald-500/10 text-[14px]">{formatCurr(globalTotals.total)}</td>
+                        <tfoot className="sticky bottom-0 z-30 bg-white text-slate-800 border-t-2 border-gray-300 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] font-black uppercase text-[11px] divide-x divide-gray-200">
+                            <tr className="h-8">
+                                <td colSpan={3} className="px-8 py-0.5 text-right tracking-[0.1em]">TOTALES PERIODO</td>
+                                <td className="px-4 py-0.5 text-center text-blue-600 bg-blue-50/50 font-mono">{formatCurr(globalTotals.facturado)}</td>
+                                <td className="px-4 py-0.5 text-right font-mono text-slate-600">{formatCurr(globalTotals.efectivo)}</td>
+                                <td className="px-4 py-0.5 text-right font-mono text-slate-600">{formatCurr(globalTotals.tarjeta)}</td>
+                                <td className="px-4 py-0.5 text-right font-mono text-slate-600">{formatCurr(globalTotals.otros)}</td>
+                                <td className="px-4 py-0.5 text-right font-mono text-emerald-600 bg-emerald-50/50 text-[14px]">{formatCurr(globalTotals.total)}</td>
                             </tr>
                         </tfoot>
                     )}
@@ -944,7 +945,7 @@ export const ReportPropinas: React.FC = () => {
                                         </div>
                                         <table className="w-full border-collapse">
                                             <thead>
-                                                <tr className="bg-[#106ebe] text-white text-[10px] font-black uppercase tracking-widest">
+                                                <tr className="bg-slate-200 text-slate-900 text-[10px] font-black uppercase tracking-widest">
                                                     <th className="px-5 py-3 text-left w-1/2">Colaborador (Mesero)</th>
                                                     <th className="px-5 py-3 text-right">Venta Acumulada</th>
                                                     <th className="px-5 py-3 text-right">Proporción (%)</th>
@@ -1001,6 +1002,28 @@ export const ReportPropinas: React.FC = () => {
                 </div>,
                 document.body
             )}
+            <style>{`
+                .selected-row-custom {
+                    background-color: #106ebe !important;
+                }
+                .selected-row-custom td {
+                    background-color: transparent !important;
+                    color: white !important;
+                }
+                .selected-row-custom td span,
+                .selected-row-custom td div,
+                .selected-row-custom td font {
+                    color: white !important;
+                    opacity: 1 !important;
+                }
+                .selected-row-custom td svg {
+                    stroke: white !important;
+                    color: white !important;
+                }
+                tr.selected-row-custom:hover {
+                    background-color: #106ebe !important;
+                }
+            `}</style>
         </div>
     );
 };

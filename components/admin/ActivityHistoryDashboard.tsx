@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Search, Calendar, Filter, User, Box, 
-    FileText, ChevronDown, ChevronRight, 
-    RefreshCcw, Download, Info, Shield, 
+import {
+    Search, Calendar, Filter, User, Box,
+    FileText, ChevronDown, ChevronRight,
+    RefreshCcw, Download, Info, Shield,
     Layout, Receipt, Trash, Edit3, Settings,
     Printer, X, Eye, FileSearch
 } from 'lucide-react';
@@ -245,7 +245,7 @@ export const ActivityHistoryDashboard: React.FC = () => {
         if (typeof value === 'boolean') {
             return (
                 <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${value ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
-                    {value ? 'SÍ' : 'NO' }
+                    {value ? 'SÍ' : 'NO'}
                 </span>
             );
         }
@@ -297,7 +297,7 @@ export const ActivityHistoryDashboard: React.FC = () => {
             }
             return <span className="text-gray-400 text-[9px] font-mono">{JSON.stringify(value).slice(0, 80)}...</span>;
         }
-        
+
         // Currency formatting for amounts
         const lowerKey = key.toLowerCase();
         if (lowerKey.includes('amount') || lowerKey.includes('total') || lowerKey.includes('price') || lowerKey.includes('subtotal') || lowerKey.includes('discount') || lowerKey.includes('monto') || lowerKey.includes('impuesto') || lowerKey.includes('iva') || lowerKey.includes('propina') || lowerKey.includes('efectivo') || lowerKey.includes('tarjeta') || lowerKey.includes('gasto') || lowerKey.includes('apertura') || lowerKey.includes('diferencia')) {
@@ -309,6 +309,37 @@ export const ActivityHistoryDashboard: React.FC = () => {
         }
 
         return <span className="font-bold text-gray-700 uppercase">{String(value)}</span>;
+    };
+
+    // Helper to generate a human-readable sentence
+    const buildSentence = (log: any) => {
+        let actionDesc = log.details?.description || (log.action ? log.action.replace(/_/g, ' ').toLowerCase() : 'evento del sistema');
+        let suffix = '';
+        
+        if (log.details?._changes && log.details._changes.length > 0) {
+            const changesDesc = log.details._changes.map((c: any) => {
+                const field = KEY_LABELS[c.field] || c.field;
+                return `cambió ${field} de "${c.before ?? 'nada'}" a "${c.after ?? 'nada'}"`;
+            }).join(', ');
+            suffix += ` Modificaciones: ${changesDesc}.`;
+        }
+
+        if (log.details?._financial) {
+            const f = log.details._financial;
+            suffix += ` Impacto: ${f.type} por ${f.currency || 'Q'}${Number(f.amount).toFixed(2)}.`;
+        }
+
+        if (log.details?.ticket_id || log.details?.order_id) {
+            suffix += ` Ticket #${log.details.ticket_id || log.details.order_id}.`;
+        }
+        if (log.details?.motivo || log.details?.reason) {
+            suffix += ` Motivo especificado: ${log.details.motivo || log.details.reason}.`;
+        }
+
+        let finalDesc = actionDesc.trim();
+        if (!finalDesc.endsWith('.')) finalDesc += '.';
+        
+        return `${finalDesc}${suffix}`;
     };
 
     return (
@@ -326,14 +357,14 @@ export const ActivityHistoryDashboard: React.FC = () => {
                         </p>
                     </div>
                     <div className="flex items-center gap-1.5">
-                        <button 
+                        <button
                             onClick={fetchLogs}
                             className="h-8 w-8 flex items-center justify-center bg-white text-gray-600 hover:bg-gray-50 transition-all border border-gray-300 shadow-sm"
                             title="Recargar"
                         >
                             <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
                         </button>
-                        <button 
+                        <button
                             onClick={() => setShowExportModal(true)}
                             className="flex items-center gap-2 h-8 px-4 bg-[#106ebe] hover:bg-[#0d599a] text-white font-black text-[10px] uppercase shadow-sm transition-all active:scale-95"
                         >
@@ -349,20 +380,20 @@ export const ActivityHistoryDashboard: React.FC = () => {
                     <div className="flex items-center gap-1.5 bg-gray-200/50 px-2 py-1 rounded-sm border border-gray-300">
                         <div className="flex items-center gap-2 px-2 h-7 bg-white border border-gray-300">
                             <Calendar size={12} className="text-gray-400" />
-                            <input 
-                                type="date" 
+                            <input
+                                type="date"
                                 value={filters.startDate}
-                                onChange={(e) => setFilters({...filters, startDate: e.target.value})}
+                                onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
                                 className="text-[10px] font-black text-gray-700 focus:outline-none bg-transparent"
                             />
                         </div>
                         <span className="text-[9px] font-black text-gray-400 uppercase px-1">Hasta</span>
                         <div className="flex items-center gap-2 px-2 h-7 bg-white border border-gray-300">
                             <Calendar size={12} className="text-gray-400" />
-                            <input 
-                                type="date" 
+                            <input
+                                type="date"
                                 value={filters.endDate}
-                                onChange={(e) => setFilters({...filters, endDate: e.target.value})}
+                                onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
                                 className="text-[10px] font-black text-gray-700 focus:outline-none bg-transparent"
                             />
                         </div>
@@ -371,9 +402,9 @@ export const ActivityHistoryDashboard: React.FC = () => {
                     {/* Module Filter */}
                     <div className="flex items-center gap-2 bg-white px-2 h-7 border border-gray-300">
                         <Filter size={12} className="text-gray-400" />
-                        <select 
+                        <select
                             value={filters.module}
-                            onChange={(e) => setFilters({...filters, module: e.target.value})}
+                            onChange={(e) => setFilters({ ...filters, module: e.target.value })}
                             className="bg-transparent text-[10px] font-black text-gray-700 focus:outline-none uppercase"
                         >
                             <option value="ALL">TODOS LOS MÓDULOS</option>
@@ -393,9 +424,9 @@ export const ActivityHistoryDashboard: React.FC = () => {
                     {/* Role Filter */}
                     <div className="flex items-center gap-2 bg-white px-2 h-7 border border-gray-300">
                         <User size={12} className="text-gray-400" />
-                        <select 
+                        <select
                             value={filters.role}
-                            onChange={(e) => setFilters({...filters, role: e.target.value})}
+                            onChange={(e) => setFilters({ ...filters, role: e.target.value })}
                             className="bg-transparent text-[10px] font-black text-gray-700 focus:outline-none uppercase"
                         >
                             <option value="ALL">TODOS LOS ROLES</option>
@@ -409,273 +440,193 @@ export const ActivityHistoryDashboard: React.FC = () => {
                     <form onSubmit={handleSearch} className="flex-1 min-w-[200px]">
                         <div className="relative h-7">
                             <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-                            <input 
+                            <input
                                 type="text"
                                 placeholder="BUSCAR POR USUARIO O ACCIÓN..."
                                 value={filters.search}
-                                onChange={(e) => setFilters({...filters, search: e.target.value})}
-                                className="w-full bg-white h-full pl-8 pr-4 border border-gray-300 focus:border-blue-500 focus:outline-none transition-all text-[10px] font-black uppercase tracking-wider shadow-inner"
+                                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                                className="w-full bg-white text-gray-800 h-full pl-8 pr-4 border border-gray-300 focus:border-blue-500 focus:outline-none transition-all text-[10px] font-black uppercase tracking-wider shadow-inner"
                             />
                         </div>
                     </form>
                 </div>
             </div>
 
-            {/* Content Area */}
-            <div className="flex-1 overflow-hidden flex flex-col p-2 gap-4">
-                <div className="flex-1 bg-white border border-gray-300 shadow-sm overflow-hidden flex flex-col">
-                    <div className="overflow-x-auto flex-1">
-                        <table className="w-full border-collapse">
-                            <thead>
-                                <tr className="bg-gray-100 border-b border-gray-300 sticky top-0 z-10">
-                                    <th className="px-3 py-2 text-left text-[9px] font-black text-gray-500 uppercase tracking-widest border-r border-gray-200">FECHA / HORA</th>
-                                    <th className="px-3 py-2 text-left text-[9px] font-black text-gray-500 uppercase tracking-widest border-r border-gray-200">USUARIO</th>
-                                    <th className="px-3 py-2 text-left text-[9px] font-black text-gray-500 uppercase tracking-widest border-r border-gray-200">MÓDULO</th>
-                                    <th className="px-3 py-2 text-left text-[9px] font-black text-gray-500 uppercase tracking-widest border-r border-gray-200">ACCIÓN</th>
-                                    <th className="px-3 py-2 text-center text-[9px] font-black text-gray-500 uppercase tracking-widest">VER</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {loading ? (
-                                    Array(5).fill(0).map((_, i) => (
-                                        <tr key={i} className="animate-pulse">
-                                            <td colSpan={5} className="px-6 py-4">
-                                                <div className="h-10 bg-slate-50 rounded-xl" />
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : logs.length > 0 ? (
-                                    logs.map((log) => (
-                                        <tr 
-                                            key={log.id} 
-                                            className="hover:bg-blue-50/30 transition-colors group cursor-default border-b border-gray-100 h-10"
-                                            onClick={() => setSelectedLog(selectedLog?.id === log.id ? null : log)}
-                                        >
-                                            <td className="px-3 py-1 whitespace-nowrap border-r border-gray-50">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black text-gray-700 leading-none">{dayjs(log.created_at).format('DD/MM/YYYY')}</span>
-                                                    <span className="text-[9px] font-bold text-gray-400 tracking-tight">{dayjs(log.created_at).format('hh:mm:ss A')}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-3 py-1 border-r border-gray-50">
-                                                <div className="flex flex-col gap-0.5">
-                                                    <span className="text-[10px] font-black text-gray-800 uppercase tracking-tight leading-none">{log.user_name}</span>
-                                                    <span className={`w-fit px-1 text-[8px] font-black uppercase tracking-tight border ${getRoleBadgeColor(log.user_role)}`}>
-                                                        {log.user_role}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="px-3 py-1 border-r border-gray-50">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-blue-600 border border-blue-100 p-0.5 rounded-sm bg-blue-50/30">{getModuleIcon(log.module)}</span>
-                                                    <span className="text-[9px] font-black text-gray-600 uppercase tracking-tighter">{log.module}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-3 py-1 border-r border-gray-50">
-                                                <p className="text-[10px] font-bold text-gray-700 uppercase tracking-tight leading-tight group-hover:text-blue-600 transition-colors">
-                                                    {log.action}
-                                                </p>
-                                            </td>
-                                            <td className="px-3 py-1 text-center">
-                                                <div className={`mx-auto w-5 h-5 flex items-center justify-center rounded-sm border transition-all ${
-                                                    selectedLog?.id === log.id 
-                                                        ? 'bg-[#106ebe] text-white border-[#106ebe]' 
-                                                        : 'bg-white text-gray-400 border-gray-300 group-hover:bg-gray-50'
-                                                }`}>
-                                                    {selectedLog?.id === log.id ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={5} className="px-6 py-20 text-center">
-                                            <div className="flex flex-col items-center">
-                                                <Info size={48} className="text-slate-200 mb-4" />
-                                                <p className="text-sm font-black text-slate-400 uppercase tracking-widest">No se encontraron registros</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
+            {/* Content Area - Activity Feed */}
+            <div className="flex-1 overflow-hidden flex flex-col bg-gray-50">
+                
+                {/* Stats Grid */}
+                <div className="grid grid-cols-4 border-y border-gray-200 bg-white divide-x divide-gray-200 shrink-0">
+                    <div className="p-4 text-center">
+                        <div className="text-2xl font-black text-gray-800">{logs.length}</div>
+                        <div className="text-[10px] text-gray-500 font-bold uppercase mt-1">Eventos hoy</div>
+                    </div>
+                    <div className="p-4 text-center">
+                        <div className="text-2xl font-black text-gray-800">
+                            {logs.filter(l => l.action.includes('ORDEN') || l.action.includes('PEDIDO') || l.module === 'MESAS' || l.module === 'CAJA').length}
+                        </div>
+                        <div className="text-[10px] text-gray-500 font-bold uppercase mt-1">Órdenes</div>
+                    </div>
+                    <div className="p-4 text-center">
+                        <div className="text-2xl font-black text-gray-800">
+                            {logs.filter(l => l.details?._financial).length}
+                        </div>
+                        <div className="text-[10px] text-gray-500 font-bold uppercase mt-1">Pagos</div>
+                    </div>
+                    <div className="p-4 text-center">
+                        <div className="text-2xl font-black text-gray-800">
+                            {logs.filter(l => l.details?._meta?.severity === 'WARNING' || l.details?._meta?.severity === 'CRITICAL' || l.action.includes('CANCEL') || l.action.includes('ANUL')).length}
+                        </div>
+                        <div className="text-[10px] text-gray-500 font-bold uppercase mt-1">Ajustes/Alertas</div>
                     </div>
                 </div>
 
-                {/* Details Side Panel (only visible when a log is selected) */}
-                {selectedLog && (
-                    <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-2xl z-[100] border-l-2 border-[#106ebe] flex flex-col animate-slide-in-right">
-                        <div className="p-4 bg-[#f0f0f0] border-b border-gray-300 flex items-center justify-between">
-                            <div>
-                                <h3 className="text-[11px] font-black text-[#106ebe] uppercase tracking-wider">DETALLES DEL MOVIMIENTO</h3>
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">ID: {selectedLog.id}</p>
-                            </div>
-                            <button 
-                                onClick={() => setSelectedLog(null)}
-                                className="h-7 w-7 flex items-center justify-center bg-white border border-gray-300 text-gray-400 hover:text-red-500 transition-all shadow-sm"
-                            >
-                                <ChevronRight size={16} className="rotate-180" />
-                            </button>
+                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                    {loading ? (
+                        <div className="p-4 space-y-3">
+                            {Array(5).fill(0).map((_, i) => (
+                                <div key={i} className="animate-pulse bg-white border border-gray-200 rounded-lg p-5 h-16 shadow-sm" />
+                            ))}
                         </div>
-                        <div className="flex-1 overflow-y-auto p-4 bg-gray-50/50">
-                            <div className="space-y-4">
-                                {/* Context Grid */}
-                                <div className="grid grid-cols-2 gap-2">
-                                    <div className="bg-white p-3 border border-gray-200 shadow-sm">
-                                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1">Módulo</p>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[#106ebe] font-bold">{getModuleIcon(selectedLog.module)}</span>
-                                            <span className="text-[10px] font-black text-gray-700 uppercase">{selectedLog.module}</span>
+                    ) : logs.length > 0 ? (
+                        <div className="flex flex-col">
+                            <div className="bg-gray-100 px-6 py-2 text-[10px] font-black text-gray-500 uppercase tracking-widest border-b border-gray-200 sticky top-0 z-10">
+                                Recientes
+                            </div>
+                            
+                            {logs.map((log) => {
+                                const time = dayjs(log.created_at).format('hh:mm A');
+                                
+                                let financialStr = '—';
+                                let financialClass = 'text-gray-400';
+                                if (log.details?._financial) {
+                                    const amt = Number(log.details._financial.amount).toFixed(2);
+                                    const curr = log.details._financial.currency || 'Q';
+                                    if (log.details._financial.type === 'INGRESO') {
+                                        financialStr = `${curr} ${amt}`;
+                                        financialClass = 'text-gray-900';
+                                    } else {
+                                        financialStr = `- ${curr} ${amt}`;
+                                        financialClass = 'text-red-500';
+                                    }
+                                }
+
+                                return (
+                                    <div 
+                                        key={log.id} 
+                                        className={`flex items-center gap-4 px-6 py-3 bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer ${
+                                            selectedLog?.id === log.id ? 'bg-blue-50/50' : ''
+                                        }`}
+                                        onClick={() => setSelectedLog(selectedLog?.id === log.id ? null : log)}
+                                    >
+                                        <div className="w-16 shrink-0 text-[11px] font-black text-gray-500">{time}</div>
+                                        
+                                        <div className="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shrink-0 border border-orange-200">
+                                            <span className="text-[10px] font-black uppercase">{(log.user_name || 'S').charAt(0)}</span>
                                         </div>
-                                    </div>
-                                    <div className="bg-white p-3 border border-gray-200 shadow-sm">
-                                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1">Usuario</p>
-                                        <span className="text-[10px] font-black text-gray-700 uppercase truncate block">{selectedLog.user_name}</span>
-                                    </div>
-                                </div>
 
-                                {/* Action */}
-                                <div className="bg-white p-3 border border-gray-200 shadow-sm">
-                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1">Acción Realizada</p>
-                                    <span className="text-[11px] font-black text-[#106ebe] uppercase leading-tight">{selectedLog.action}</span>
-                                    {/* Severity Badge */}
-                                    {selectedLog.details?._meta?.severity && selectedLog.details._meta.severity !== 'INFO' && (
-                                        <span className={`ml-2 px-1.5 text-[7px] font-black uppercase tracking-tight border ${
-                                            selectedLog.details._meta.severity === 'CRITICAL' ? 'bg-red-50 text-red-600 border-red-200' :
-                                            selectedLog.details._meta.severity === 'WARNING' ? 'bg-amber-50 text-amber-600 border-amber-200' :
-                                            selectedLog.details._meta.severity === 'FINANCIAL' ? 'bg-blue-50 text-blue-600 border-blue-200' :
-                                            'bg-gray-50 text-gray-500 border-gray-200'
-                                        }`}>
-                                            {selectedLog.details._meta.severity}
-                                        </span>
-                                    )}
-                                </div>
-
-                                {/* Changes (Before/After) */}
-                                {selectedLog.details?._changes && selectedLog.details._changes.length > 0 && (
-                                    <div className="space-y-2">
-                                        <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest ml-1">⚡ Cambios Detectados</p>
-                                        <div className="bg-white border border-amber-200 shadow-sm overflow-hidden divide-y divide-amber-50">
-                                            {selectedLog.details._changes.map((change: any, idx: number) => (
-                                                <div key={idx} className="px-3 py-2">
-                                                    <span className="text-[8px] font-black text-gray-400 uppercase tracking-wider block mb-1">{change.label || KEY_LABELS[change.field] || change.field}</span>
-                                                    <div className="flex items-center gap-2 text-[10px]">
-                                                        <span className="bg-red-50 text-red-600 px-1.5 py-0.5 border border-red-100 font-bold line-through">{String(change.before ?? '--')}</span>
-                                                        <span className="text-gray-300">→</span>
-                                                        <span className="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 border border-emerald-100 font-black">{String(change.after ?? '--')}</span>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Financial Impact */}
-                                {selectedLog.details?._financial && (
-                                    <div className="space-y-2">
-                                        <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest ml-1">💰 Impacto Financiero</p>
-                                        <div className={`p-3 border shadow-sm ${
-                                            selectedLog.details._financial.type === 'INGRESO' ? 'bg-emerald-50 border-emerald-200' :
-                                            selectedLog.details._financial.type === 'EGRESO' ? 'bg-amber-50 border-amber-200' :
-                                            selectedLog.details._financial.type === 'ANULACION' ? 'bg-red-50 border-red-200' :
-                                            selectedLog.details._financial.type === 'DESCUENTO' ? 'bg-purple-50 border-purple-200' :
-                                            'bg-gray-50 border-gray-200'
-                                        }`}>
-                                            <div className="flex items-center justify-between mb-2">
-                                                <span className={`px-1.5 text-[8px] font-black uppercase tracking-tight border ${
-                                                    selectedLog.details._financial.type === 'INGRESO' ? 'bg-emerald-100 text-emerald-700 border-emerald-300' :
-                                                    selectedLog.details._financial.type === 'EGRESO' ? 'bg-amber-100 text-amber-700 border-amber-300' :
-                                                    selectedLog.details._financial.type === 'ANULACION' ? 'bg-red-100 text-red-700 border-red-300' :
-                                                    selectedLog.details._financial.type === 'DESCUENTO' ? 'bg-purple-100 text-purple-700 border-purple-300' :
-                                                    'bg-gray-100 text-gray-600 border-gray-300'
-                                                }`}>
-                                                    {selectedLog.details._financial.type}
-                                                </span>
-                                                <span className="text-[14px] font-black text-gray-900">
-                                                    {selectedLog.details._financial.currency || 'Q'}{Number(selectedLog.details._financial.amount).toFixed(2)}
-                                                </span>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-[13px] font-black text-gray-900 truncate capitalize">
+                                                {log.details?.description || (log.action ? log.action.replace(/_/g, ' ').toLowerCase() : 'Evento')}
                                             </div>
-                                            {(selectedLog.details._financial.tax_amount || selectedLog.details._financial.tip_amount) && (
-                                                <div className="flex gap-3 text-[9px] text-gray-500 font-bold">
-                                                    {selectedLog.details._financial.tax_amount > 0 && <span>IVA: Q{Number(selectedLog.details._financial.tax_amount).toFixed(2)}</span>}
-                                                    {selectedLog.details._financial.tip_amount > 0 && <span>Propina: Q{Number(selectedLog.details._financial.tip_amount).toFixed(2)}</span>}
-                                                </div>
-                                            )}
-                                            {selectedLog.details._financial.payment_breakdown && (
-                                                <div className="flex flex-wrap gap-2 mt-1.5 text-[8px] font-bold">
-                                                    {Object.entries(selectedLog.details._financial.payment_breakdown).filter(([,v]) => Number(v) > 0).map(([k, v]) => (
-                                                        <span key={k} className="bg-white px-1.5 py-0.5 border border-gray-200 text-gray-600 uppercase">{k}: Q{Number(v).toFixed(2)}</span>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Parsed Details */}
-                                <div className="space-y-2">
-                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Atributos del Evento</p>
-                                    <div className="bg-white border border-gray-200 shadow-sm overflow-hidden divide-y divide-gray-100">
-                                        {selectedLog.details && Object.entries(selectedLog.details)
-                                            .filter(([key]) => !IGNORED_KEYS.includes(key))
-                                            .length > 0 ? (
-                                                Object.entries(selectedLog.details)
-                                                    .filter(([key]) => !IGNORED_KEYS.includes(key))
-                                                    .map(([key, value]) => (
-                                                        <div key={key} className="px-3 py-2 flex items-center justify-between gap-4">
-                                                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tight leading-none whitespace-nowrap">
-                                                                {KEY_LABELS[key] || key}
-                                                            </span>
-                                                            <div className="text-right text-[10px]">
-                                                                {formatValue(key, value)}
-                                                            </div>
-                                                        </div>
-                                                    ))
-                                            ) : (
-                                                <div className="p-8 text-center">
-                                                    <Info size={24} className="mx-auto text-slate-200 mb-2" />
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Sin detalles adicionales registrados</p>
-                                                </div>
-                                            )}
-                                    </div>
-                                </div>
-
-                                {/* Advanced JSON (Minimized toggle) */}
-                                <details className="group">
-                                    <summary className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-600 transition-colors ml-1 list-none">
-                                        <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
-                                        Ver Metadata Técnica (JSON)
-                                    </summary>
-                                    <div className="mt-3 bg-[#106ebe] rounded-3xl overflow-hidden shadow-xl animate-in fade-in slide-in-from-top-2 duration-300">
-                                        <div className="bg-[#106ebe] px-5 py-3 border-b border-slate-700 flex items-center justify-between">
-                                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Código Crudo</span>
-                                            <div className="flex gap-1.5">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-red-500/30" />
-                                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500/30" />
-                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/30" />
+                                            <div className="text-[11px] text-gray-500 truncate mt-0.5">
+                                                {log.user_name || 'Sistema'} · {buildSentence(log)}
                                             </div>
                                         </div>
-                                        <div className="p-5 overflow-x-auto">
-                                            <pre className="text-[10px] font-mono text-emerald-500/80 leading-relaxed scrollbar-hide">
-                                                {JSON.stringify(selectedLog.details, null, 4)}
-                                            </pre>
+
+                                        <div className={`font-mono text-[12px] font-bold ${financialClass} w-24 text-right shrink-0`}>
+                                            {financialStr}
+                                        </div>
+
+                                        <div className="shrink-0 w-24 flex justify-end">
+                                            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-orange-50/50 border border-orange-200 text-[9px] font-black text-orange-700 capitalize">
+                                                <div className="w-1 h-1 rounded-sm bg-orange-400"></div>
+                                                {log.module.toLowerCase()}
+                                            </span>
                                         </div>
                                     </div>
-                                </details>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="bg-white border border-gray-200 m-4 rounded-xl p-12 text-center shadow-sm">
+                            <Info size={48} className="mx-auto text-gray-300 mb-4" />
+                            <p className="text-sm font-black text-gray-400 uppercase tracking-widest">No se encontraron registros</p>
+                        </div>
+                    )}
+                </div>
+                
+                {/* Footer Status Bar */}
+                <div className="bg-[#2D2D2D] text-white px-6 py-3 flex items-center justify-between shrink-0">
+                    <div className="text-[11px] text-gray-400">
+                        Mostrando {logs.length} eventos · Hoy
+                    </div>
+                    <button onClick={() => setShowExportModal(true)} className="flex items-center gap-2 text-[11px] font-bold text-white hover:text-blue-400 transition-colors border border-gray-600 px-3 py-1.5 rounded-md hover:border-blue-400">
+                        <Printer size={12} />
+                        Exportar log ↗
+                    </button>
+                </div>
+            </div>
 
-                                {/* Help Note */}
-                                <div className="bg-blue-50 p-3 border border-blue-100 flex gap-2">
-                                    <Info className="text-blue-500 shrink-0" size={14} />
-                                    <p className="text-[9px] font-bold text-blue-700 leading-tight">
-                                        Este registro es inmutable y forma parte de la cadena de auditoría del sistema. 
-                                        Solo personal autorizado puede exportar o depurar este historial.
-                                    </p>
+            {/* Details Side Panel */}
+            {selectedLog && (
+                <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-2xl z-[100] border-l-2 border-[#106ebe] flex flex-col animate-slide-in-right">
+                    <div className="p-4 bg-[#f0f0f0] border-b border-gray-300 flex items-center justify-between">
+                        <div>
+                            <h3 className="text-[11px] font-black text-[#106ebe] uppercase tracking-wider">DETALLES DEL MOVIMIENTO</h3>
+                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">ID: {selectedLog.id}</p>
+                        </div>
+                        <button
+                            onClick={() => setSelectedLog(null)}
+                            className="h-7 w-7 flex items-center justify-center bg-white border border-gray-300 text-gray-400 hover:text-red-500 transition-all shadow-sm"
+                        >
+                            <ChevronRight size={16} className="rotate-180" />
+                        </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-5 bg-white">
+                        <div className="space-y-6">
+                            <div className="bg-gray-50 border border-gray-200 p-4 rounded-xl shadow-inner">
+                                <p className="text-gray-800 text-[13px] leading-relaxed">
+                                    <span className="font-bold text-gray-500">[{dayjs(selectedLog.created_at).format('DD/MMM/YYYY hh:mm A')}]</span>{' '}
+                                    <span className="font-bold text-[#106ebe] capitalize">{selectedLog.user_role} ({selectedLog.user_name})</span>:{' '}
+                                    <span className="text-gray-700">{buildSentence(selectedLog)}</span>
+                                </p>
+                            </div>
+                            
+                            <details className="group" open>
+                                <summary className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-600 transition-colors ml-1 list-none">
+                                    <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
+                                    Ver Metadata Técnica (JSON)
+                                </summary>
+                                <div className="mt-3 bg-slate-900 rounded-xl overflow-hidden shadow-md animate-in fade-in slide-in-from-top-2 duration-300 border border-slate-800">
+                                    <div className="bg-slate-800/50 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Metadata Cruda</span>
+                                        <div className="flex gap-1.5">
+                                            <div className="w-2 h-2 rounded-full bg-slate-700" />
+                                            <div className="w-2 h-2 rounded-full bg-slate-700" />
+                                            <div className="w-2 h-2 rounded-full bg-slate-700" />
+                                        </div>
+                                    </div>
+                                    <div className="p-4 overflow-x-auto">
+                                        <pre className="text-[11px] font-mono text-emerald-400 leading-relaxed scrollbar-hide">
+                                            {JSON.stringify(selectedLog.details, null, 4)}
+                                        </pre>
+                                    </div>
                                 </div>
+                            </details>
+
+                            {/* Help Note */}
+                            <div className="bg-blue-50 p-3 border border-blue-100 flex gap-2">
+                                <Info className="text-blue-500 shrink-0" size={14} />
+                                <p className="text-[9px] font-bold text-blue-700 leading-tight">
+                                    Este registro es inmutable y forma parte de la cadena de auditoría del sistema.
+                                    Solo personal autorizado puede exportar o depurar este historial.
+                                </p>
                             </div>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
             {/* Export Preview Modal */}
             {showExportModal && typeof document !== 'undefined' && createPortal(
                 <div id="printable-report-wrapper" className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200 no-print">
@@ -687,14 +638,14 @@ export const ActivityHistoryDashboard: React.FC = () => {
                                 <span className="text-white text-[12px] font-black uppercase tracking-widest">VISUALIZADOR DE AUDITORÍA — LAS PALMAS</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <button 
+                                <button
                                     onClick={() => window.print()}
                                     className="h-7 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase flex items-center gap-2 transition-colors shadow-sm"
                                 >
                                     <Printer size={14} />
                                     IMPRIMIR REPORTE
                                 </button>
-                                <button 
+                                <button
                                     onClick={() => setShowExportModal(false)}
                                     className="h-7 w-7 flex items-center justify-center bg-white/10 hover:bg-red-500 text-white transition-all ml-2"
                                 >
@@ -755,8 +706,8 @@ export const ActivityHistoryDashboard: React.FC = () => {
                                                 </td>
                                                 <td className="p-1 px-2 align-top">
                                                     <div className="font-black text-[#106ebe] uppercase text-[8px] mb-0.5">{log.action}</div>
-                                                    <div className="text-[7px] text-gray-500 leading-none">
-                                                        {log.details?._meta?.description || log.details?.accion_descripcion || 'Sin descripción'}
+                                                    <div className="text-[8px] text-gray-600 leading-tight mt-1">
+                                                        {buildSentence(log)}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -783,13 +734,13 @@ export const ActivityHistoryDashboard: React.FC = () => {
 
                         {/* Toolbar Bottom */}
                         <div className="bg-white border-t border-gray-300 p-3 flex justify-end gap-3 shrink-0">
-                            <button 
+                            <button
                                 onClick={() => setShowExportModal(false)}
                                 className="h-8 px-5 border border-gray-400 text-gray-600 text-[10px] font-black uppercase hover:bg-gray-100 transition-colors"
                             >
                                 CANCELAR
                             </button>
-                            <button 
+                            <button
                                 onClick={() => window.print()}
                                 className="h-8 px-6 bg-[#106ebe] text-white text-[10px] font-black uppercase flex items-center gap-2 hover:bg-[#0d599a] transition-all shadow-md"
                             >

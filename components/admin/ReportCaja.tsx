@@ -46,7 +46,7 @@ const ShiftsPrintPreview: React.FC<{
     return createPortal(
         <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/60 p-6 backdrop-blur-sm">
             <DraggableWindow>
-                <div className="bg-[#f0f0f0] border-2 border-[#106ebe] shadow-2xl flex flex-col w-[95vw] max-w-6xl h-[90vh] overflow-hidden select-none font-sans rounded-sm">
+                <div className="bg-[#f0f0f0] border-2 border-[#106ebe] shadow-2xl flex flex-col w-[95vw] max-w-6xl h-[90vh] overflow-hidden font-sans rounded-sm">
                     {/* Toolbar */}
                     <div className="modal-header bg-[#106ebe] h-10 px-4 flex justify-between items-center text-white shrink-0 cursor-move border-b border-black">
                         <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest">
@@ -118,7 +118,7 @@ const ShiftsPrintPreview: React.FC<{
 
                             {/* Tabla de Detalle */}
                             <div className="mb-12 relative z-10">
-                                <div className="bg-[#106ebe] text-white px-4 py-2 text-[10px] font-black uppercase tracking-widest mb-4 flex justify-between items-center font-sans">
+                                <div className="bg-slate-800 text-white px-4 py-2 text-[10px] font-black uppercase tracking-widest mb-4 flex justify-between items-center font-sans">
                                     <div className="flex items-center gap-2">
                                         <ClipboardList size={14} />
                                         <span>Detalle Cronológico de Turnos</span>
@@ -133,6 +133,8 @@ const ShiftsPrintPreview: React.FC<{
                                             <th className="px-2 py-3 text-left">CIERRE</th>
                                             <th className="px-2 py-3 text-left">CAJA / TURNO</th>
                                             <th className="px-2 py-3 text-left">CAJERO</th>
+                                            <th className="px-2 py-3 text-right">M. INICIAL</th>
+                                            <th className="px-2 py-3 text-right">M. FINAL</th>
                                             <th className="px-2 py-3 text-right">VENTAS</th>
                                             <th className="px-2 py-3 text-right">GASTOS</th>
                                             <th className="px-2 py-3 text-right">BALANCE</th>
@@ -145,6 +147,8 @@ const ShiftsPrintPreview: React.FC<{
                                                 <td className="px-2 whitespace-nowrap">{s.end_time ? new Date(s.end_time).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'ABIERTO'}</td>
                                                 <td className="px-2 uppercase truncate max-w-[120px]">{s.cash_registers?.name || 'S/C'} - T{s.shift_number || 1}</td>
                                                 <td className="px-2 uppercase truncate max-w-[120px]">{s.profiles?.full_name || s.profiles?.name || '---'}</td>
+                                                <td className="px-2 text-right">Q{formatCurr(Number(s.start_amount || 0))}</td>
+                                                <td className="px-2 text-right text-blue-500">Q{formatCurr(Number(s.end_amount || 0))}</td>
                                                 <td className="px-2 text-right">Q{formatCurr(s.ventas)}</td>
                                                 <td className="px-2 text-right text-red-500">Q{formatCurr(s.gastos)}</td>
                                                 <td className="px-2 text-right font-black">Q{formatCurr(Number(s.ventas || 0) + Number(s.abonos || 0) - Number(s.gastos || 0))}</td>
@@ -154,9 +158,11 @@ const ShiftsPrintPreview: React.FC<{
                                     <tfoot>
                                         <tr className="border-t-2 border-slate-900 bg-slate-50 h-10 font-black uppercase">
                                             <td colSpan={4} className="px-2 text-right">Sumatoria de Auditoría:</td>
+                                            <td className="px-2 text-right">Q{formatCurr(data?.reduce((acc, curr) => acc + (Number(curr.start_amount) || 0), 0) || 0)}</td>
+                                            <td className="px-2 text-right text-blue-600">Q{formatCurr(data?.reduce((acc, curr) => acc + (Number(curr.end_amount) || 0), 0) || 0)}</td>
                                             <td className="px-2 text-right">Q{formatCurr(totals?.ventas || 0)}</td>
                                             <td className="px-2 text-right text-red-600">Q{formatCurr(totals?.gastos || 0)}</td>
-                                            <td className="px-2 text-right bg-[#106ebe] text-white">Q{formatCurr(totals.ventas + totals.abonos - totals.gastos)}</td>
+                                            <td className="px-2 text-right bg-slate-200 text-slate-900">Q{formatCurr(totals.ventas + totals.abonos - totals.gastos)}</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -209,7 +215,7 @@ export const ReportCaja: React.FC = () => {
     });
 
     const [loading, setLoading] = useState(false);
-    const [shifts, setShifts] = useState<any[]>(savedState?.shifts || []);
+    const [shifts, setShifts] = useState<any[]>([]);
     const [branches, setBranches] = useState<any[]>([]);
     const [selectedBranch, setSelectedBranch] = useState(savedState?.selectedBranch || 'ALL');
 
@@ -224,6 +230,7 @@ export const ReportCaja: React.FC = () => {
     // UI State
     const [searchTerm, setSearchTerm] = useState('');
     const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
+    const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
 
     // Cargar Sucursales
     useEffect(() => {
@@ -235,19 +242,20 @@ export const ReportCaja: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        const state = { shifts, selectedBranch, startDate, endDate };
+        const state = { selectedBranch, startDate, endDate };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }, [shifts, selectedBranch, startDate, endDate, STORAGE_KEY]);
+    }, [selectedBranch, startDate, endDate, STORAGE_KEY]);
 
     const handleGenerate = async () => {
         setLoading(true);
         console.log('Fetching shifts for:', { startDate, endDate, selectedBranch });
         try {
+            const isFilteringBranch = selectedBranch && selectedBranch !== 'ALL';
             let query = supabase
                 .from('shifts')
                 .select(`
                     *,
-                    cash_registers (name, branch_id),
+                    cash_registers${isFilteringBranch ? '!inner' : ''} (name, branch_id),
                     profiles:cashier_id (full_name, name)
                 `)
                 .order('start_time', { ascending: false });
@@ -257,11 +265,9 @@ export const ReportCaja: React.FC = () => {
             query = query.lte('start_time', `${endDate}T23:59:59`);
 
             // Filtrado por sucursal si no es 'ALL'
-            if (selectedBranch && selectedBranch !== 'ALL') {
-                // Como shifts.branch_id puede ser null, filtramos por la relación con cash_registers
-                // query = query.filter('cash_registers.branch_id', 'eq', selectedBranch);
-                // Nota: PostgREST requiere inner join para filtrar por relaciones
-                query = query.filter('branch_id', 'eq', selectedBranch);
+            if (isFilteringBranch) {
+                // PostgREST requiere inner join para filtrar por relaciones
+                query = query.eq('cash_registers.branch_id', selectedBranch);
             }
 
             const { data: shiftsData, error } = await query;
@@ -277,12 +283,12 @@ export const ReportCaja: React.FC = () => {
 
             // Enriquecer datos con totales (Ventas, Abonos, Propinas, Gastos)
             const enrichedShifts = await Promise.all(shiftsData.map(async (shift: any) => {
-                // Ventas (Neto)
+                const endTimeStr = shift.end_time || new Date().toISOString();
                 const { data: orders } = await supabase
                     .from('orders')
                     .select('total, tip_amount')
-                    .eq('shift_id', shift.id)
-                    .eq('status', 'completed');
+                    .in('status', ['completed', 'finalizada', 'PAID', 'FINALIZADA', 'cerrada', 'CERRADA', 'closed'])
+                    .or(`shift_id.eq.${shift.id},and(shift_id.is.null,created_at.gte.${shift.start_time},created_at.lte.${endTimeStr})`);
 
                 let ventas = 0;
                 let propinas = 0;
@@ -296,8 +302,8 @@ export const ReportCaja: React.FC = () => {
                 const { data: expenses } = await supabase
                     .from('expenses')
                     .select('amount')
-                    .eq('shift_id', shift.id)
-                    .eq('is_void', false);
+                    .eq('is_void', false)
+                    .or(`shift_id.eq.${shift.id},and(shift_id.is.null,created_at.gte.${shift.start_time},created_at.lte.${endTimeStr})`);
                 const gastos = expenses?.reduce((acc, curr) => acc + Number(curr.amount || 0), 0) || 0;
 
                 // Abonos
@@ -359,7 +365,7 @@ export const ReportCaja: React.FC = () => {
     const handleExportExcel = () => {
         const ws = XLSX.utils.json_to_sheet(filteredShifts.map(s => ({
             'Apertura': s.start_time, 'Cierre': s.end_time, 'Caja': s.cash_registers?.name,
-            'Turno No.': s.shift_number, 'Ventas': s.ventas, 'Abonos': s.abonos, 'Propinas': s.propinas, 'Gastos': s.gastos
+            'Turno No.': s.shift_number, 'Monto Inicial': s.start_amount || 0, 'Monto Final': s.end_amount || 0, 'Ventas': s.ventas, 'Abonos': s.abonos, 'Propinas': s.propinas, 'Gastos': s.gastos
         })));
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Data');
@@ -430,7 +436,7 @@ export const ReportCaja: React.FC = () => {
 
             {/* 4. Data Grid (Table) + Total Footer en el mismo scroll horizontal */}
             <div id="report-caja-container" className="flex-1 overflow-auto bg-white relative">
-                <table className="w-full border-collapse border-slate-300 table-fixed min-w-[1376px]">
+                <table className="w-full border-collapse border-slate-300 table-fixed min-w-[1632px] h-full">
                     <thead className="sticky top-0 z-20">
                         {/* Headers Principales */}
                         <tr className="bg-[#f0f0f0] h-9">
@@ -440,6 +446,8 @@ export const ReportCaja: React.FC = () => {
                             <th className="border border-gray-300 px-2 font-bold text-center w-24 text-black">Turno No.</th>
                             <th className="border border-gray-300 px-2 font-bold text-center w-48 text-black">Aperturado Por</th>
                             <th className="border border-gray-300 px-2 font-bold text-center w-48 text-black">Cerrado Por</th>
+                            <th className="border border-gray-300 px-2 font-bold text-center w-32 text-black bg-emerald-50">Monto Inicial</th>
+                            <th className="border border-gray-300 px-2 font-bold text-center w-32 text-black bg-blue-50">Monto Final</th>
                             <th className="border border-gray-300 px-2 font-bold text-center w-32 text-black">Ventas</th>
                             <th className="border border-gray-300 px-2 font-bold text-center w-32 text-black">Abonos Créditos</th>
                             <th className="border border-gray-300 px-2 font-bold text-center w-32 text-black">Propinas</th>
@@ -448,37 +456,40 @@ export const ReportCaja: React.FC = () => {
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                         {filteredShifts.map((s, idx) => (
-                            <tr key={s.id} className={`h-8 hover:bg-blue-50 cursor-default ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
+                            <tr
+                                key={s.id}
+                                onClick={() => setSelectedRowId(s.id)}
+                                className={`h-8 cursor-default ${selectedRowId === s.id ? 'selected-row-custom' : idx % 2 === 0 ? 'bg-white hover:bg-blue-50' : 'bg-[#f5f5f5] hover:bg-blue-50'}`}
+                            >
                                 <td className="border border-gray-200 px-2 text-black">{s.start_time ? new Date(s.start_time).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '---'}</td>
                                 <td className="border border-gray-200 px-2 text-black">{s.end_time ? new Date(s.end_time).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'ABIERTO'}</td>
                                 <td className="border border-gray-200 px-2 font-bold text-black text-center">{s.cash_registers?.name || '---'}</td>
                                 <td className="border border-gray-200 px-2 text-center text-black font-semibold">{s.shift_number || '1'}</td>
                                 <td className="border border-gray-200 px-2 uppercase font-semibold text-black text-center">{s.profiles?.full_name || s.profiles?.name || '---'}</td>
                                 <td className="border border-gray-200 px-2 text-black font-semibold uppercase text-center">{s.profiles?.full_name || s.profiles?.name || '---'}</td>
-                                <td className="border border-gray-200 px-2 text-right font-bold text-black whitespace-nowrap">Q{Number(s.ventas || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</td>
-                                <td className="border border-gray-200 px-2 text-right text-black whitespace-nowrap">Q{Number(s.abonos || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</td>
-                                <td className="border border-gray-200 px-2 text-right text-black whitespace-nowrap">Q{Number(s.propinas || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</td>
-                                <td className="border border-gray-200 px-2 text-right font-bold text-black whitespace-nowrap">Q{Number(s.gastos || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</td>
+                                <td className="border border-gray-200 px-2 font-bold text-black bg-emerald-50/50"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.start_amount || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                                <td className="border border-gray-200 px-2 font-bold text-black bg-blue-50/50"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.end_amount || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                                <td className="border border-gray-200 px-2 font-bold text-black"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.ventas || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                                <td className="border border-gray-200 px-2 text-black"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.abonos || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                                <td className="border border-gray-200 px-2 text-black"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.propinas || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                                <td className="border border-gray-200 px-2 font-bold text-black"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.gastos || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
                             </tr>
                         ))}
+                        <tr className="h-auto"><td colSpan={12}></td></tr>
                     </tbody>
+                    <tfoot className="sticky bottom-0 z-20 bg-white border-t-2 border-gray-300 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] uppercase font-bold text-[11px] text-slate-800">
+                        <tr className="h-8">
+                            <td colSpan={5} className="border-r border-gray-200 px-2"></td>
+                            <td className="px-2 text-right text-slate-500 tracking-tight border-r border-gray-200">TOTALES:</td>
+                            <td className="px-2 border-r border-gray-200 bg-emerald-50/50"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-slate-900">{shifts.reduce((acc, curr) => acc + (Number(curr.start_amount) || 0), 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                            <td className="px-2 border-r border-gray-200 bg-blue-50/50"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-slate-900">{shifts.reduce((acc, curr) => acc + (Number(curr.end_amount) || 0), 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                            <td className="px-2 border-r border-gray-200"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-slate-900">{totals.ventas.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                            <td className="px-2 border-r border-gray-200"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-slate-900">{totals.abonos.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                            <td className="px-2 border-r border-gray-200"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-slate-900">{totals.propinas.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                            <td className="px-2 font-black"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-slate-900">{totals.gastos.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                        </tr>
+                    </tfoot>
                 </table>
-            </div>
-
-            {/* Footer de Totales — siempre al fondo */}
-            <div className="shrink-0 overflow-x-auto bg-[#106ebe] border-t-2 border-gray-900 pb-2 custom-scrollbar">
-                <div className="min-w-[1376px] flex items-center h-12 uppercase font-bold text-[11px] text-white">
-                    <div className="w-32 px-2"></div>
-                    <div className="w-32 px-2"></div>
-                    <div className="w-32 px-2"></div>
-                    <div className="w-24 px-2"></div>
-                    <div className="w-48 px-2"></div>
-                    <div className="w-48 px-2 text-right text-gray-400 tracking-tight">TOTALES:</div>
-                    <div className="w-32 px-2 text-right tabular-nums border-l border-gray-600">Q{totals.ventas.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</div>
-                    <div className="w-32 px-2 text-right tabular-nums border-l border-gray-600">Q{totals.abonos.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</div>
-                    <div className="w-32 px-2 text-right tabular-nums border-l border-gray-600">Q{totals.propinas.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</div>
-                    <div className="w-32 px-2 text-right tabular-nums border-l border-gray-600 text-blue-400 font-black">Q{totals.gastos.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</div>
-                </div>
             </div>
 
             {
@@ -494,6 +505,29 @@ export const ReportCaja: React.FC = () => {
                     />
                 )
             }
+
+            <style>{`
+                .selected-row-custom {
+                    background-color: #106ebe !important;
+                }
+                .selected-row-custom td {
+                    background-color: transparent !important;
+                    color: white !important;
+                }
+                .selected-row-custom td span,
+                .selected-row-custom td div,
+                .selected-row-custom td font {
+                    color: white !important;
+                    opacity: 1 !important;
+                }
+                .selected-row-custom td svg {
+                    stroke: white !important;
+                    color: white !important;
+                }
+                tr.selected-row-custom:hover {
+                    background-color: #106ebe !important;
+                }
+            `}</style>
         </div >
     );
 };

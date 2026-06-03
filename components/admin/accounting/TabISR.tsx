@@ -107,7 +107,7 @@ export const TabISR: React.FC<{
             const { data: orders } = await supabase
                 .from('orders')
                 .select('total')
-                .eq('status', 'completed')
+                .in('status', ['completed', 'finalizada', 'PAID', 'FINALIZADA', 'cerrada', 'CERRADA', 'closed'])
                 .gte('created_at', start)
                 .lte('created_at', end);
 
@@ -141,7 +141,7 @@ export const TabISR: React.FC<{
                 const { data: mOrders } = await supabase
                     .from('orders')
                     .select('total, payment_method')
-                    .eq('status', 'completed')
+                    .in('status', ['completed', 'finalizada', 'PAID', 'FINALIZADA', 'cerrada', 'CERRADA', 'closed'])
                     .gte('created_at', mStart)
                     .lte('created_at', mEnd);
                 const cardSales = (mOrders || []).filter(o => (o.payment_method || '').toLowerCase().includes('tarjeta')).reduce((a, o) => a + (Number(o.total) || 0), 0);

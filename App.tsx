@@ -40,7 +40,7 @@ import { DriverTracker } from './components/driver/DriverTracker';
 import { BillingViewer } from './components/BillingViewer';
 import { Installer } from './components/admin/Installer';
 import ModuloProduccion from './components/produccion/ModuloProduccion';
-
+import { CajaIcon } from './components/CajaIcon';
 import { AdminAuthPanel } from './components/AdminAuthPanel';
 
 type ViewState = 'LOGIN' | 'DASHBOARD' | 'TABLES' | 'ORDER' | 'CHECKOUT' | 'HISTORY' | 'DELIVERY' | 'TAKEOUT' | 'KITCHEN' | 'ADMIN_PORTAL' | 'OPEN_SHIFT' | 'DRIVER_TRACKER' | 'BILLING_VIEWER' | 'KDS_STATION_SELECT' | 'PRODUCCION' | 'ADMIN_AUTH_PANEL';
@@ -1312,18 +1312,7 @@ const App: React.FC = () => {
               {/* Centered CAJA BRANDING - Only for Cashiers */}
               {currentUser?.role?.toUpperCase() === 'CAJERO' && (
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-4 pointer-events-none">
-                  <div className="p-2 bg-white/5 rounded-xl border border-white/5">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
-                      <rect x="3" y="17" width="18" height="4" rx="1.5" />
-                      <path d="M5 17V9h14v8" />
-                      <rect x="11" y="3" width="8" height="4" rx="1" />
-                      <path d="M14 7v2" />
-                      <path d="M16 7v2" />
-                      <path d="M7 14v-3l1-1 1 1 1-1 1 1v3" />
-                      <path d="M6 14h6" />
-                      <path fill="currentColor" stroke="none" d="M12.75 10.25h1.5v1.5h-1.5z M14.75 10.25h1.5v1.5h-1.5z M16.75 10.25h1.5v1.5h-1.5z M12.75 12.25h1.5v1.5h-1.5z M14.75 12.25h1.5v1.5h-1.5z M16.75 12.25h1.5v1.5h-1.5z M12.75 14.25h1.5v1.5h-1.5z M14.75 14.25h1.5v1.5h-1.5z M16.75 14.25h1.5v1.5h-1.5z" />
-                    </svg>
-                  </div>
+                  <CajaIcon size={28} className="text-gray-400" />
                   <span className="text-lg font-black tracking-[0.5em] text-white uppercase opacity-90">Caja</span>
                 </div>
               )}

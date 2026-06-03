@@ -38,7 +38,7 @@ export const parseNotes = (notesStr?: string | null) => {
             const parsed = JSON.parse(clean);
             return { mods: parsed.mods || '', obs: parsed.obs || '', isJson: true, noPrint };
         }
-    } catch(e) {}
+    } catch (e) { }
     return { mods: '', obs: clean, isJson: false, noPrint };
 };
 

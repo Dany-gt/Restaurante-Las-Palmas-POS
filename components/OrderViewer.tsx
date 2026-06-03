@@ -21,12 +21,12 @@ const parseDBDate = (dateStr: string) => {
 
 const getComputedTotals = (order: any) => {
     if (!order) return { subtotal: 0, discount: 0, tip: 0, total: 0 };
-    
+
     const hasItems = order.order_items && order.order_items.length > 0;
-    
+
     const dbSubtotal = parseFloat(order.subtotal || 0);
     const dbTotal = parseFloat(order.total || 0);
-    
+
     if (dbSubtotal > 0 && dbTotal > 0) {
         return {
             subtotal: dbSubtotal,
@@ -35,7 +35,7 @@ const getComputedTotals = (order: any) => {
             total: dbTotal
         };
     }
-    
+
     if (!hasItems) {
         return {
             subtotal: dbSubtotal,
@@ -44,16 +44,16 @@ const getComputedTotals = (order: any) => {
             total: dbTotal
         };
     }
-    
+
     // Calculate dynamically from order_items
     const calculatedSubtotal = order.order_items
         .filter((i: any) => i.status !== 'voided' && i.status !== 'cancelled')
         .reduce((acc: number, i: any) => acc + ((i.unit_price || 0) * (i.quantity || 0)), 0);
-        
+
     const calculatedItemDiscounts = order.order_items
         .filter((i: any) => i.status !== 'voided' && i.status !== 'cancelled')
         .reduce((acc: number, i: any) => acc + (i.discount_amount || 0), 0);
-        
+
     let globalDiscount = 0;
     if (order.discount_percentage > 0) {
         globalDiscount = (calculatedSubtotal * order.discount_percentage / 100);
@@ -62,13 +62,13 @@ const getComputedTotals = (order: any) => {
     } else if (order.discount > 0) {
         globalDiscount = order.discount;
     }
-    
+
     const totalDiscount = calculatedItemDiscounts + globalDiscount;
     const subtotalAfterDiscount = Math.max(0, calculatedSubtotal - totalDiscount);
-    
+
     const tip = parseFloat(order.tip_amount || order.tip || 0);
     const total = subtotalAfterDiscount + tip;
-    
+
     return {
         subtotal: calculatedSubtotal,
         discount: totalDiscount,
@@ -119,7 +119,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
             } else {
                 const now = new Date();
                 const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-                
+
                 if (activeTab === 'CLOSED') {
                     query = query.eq('status', 'completed').gte('created_at', todayStart);
                 } else if (activeTab === 'CANCELLED') {
@@ -152,9 +152,9 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
             const enrichedOrders = rawOrders.map(order => {
                 const rawItems: any[] = order.order_items || [];
                 const item_counts = {
-                    pending:   rawItems.filter(i => i.status === 'pending').length,
+                    pending: rawItems.filter(i => i.status === 'pending').length,
                     preparing: rawItems.filter(i => i.status === 'preparing').length,
-                    ready:     rawItems.filter(i => ['ready', 'delivered'].includes(i.status)).length,
+                    ready: rawItems.filter(i => ['ready', 'delivered'].includes(i.status)).length,
                 };
 
                 let total = parseFloat(order.total || 0);

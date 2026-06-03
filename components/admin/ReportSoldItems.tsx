@@ -51,11 +51,12 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
     const [categories, setCategories] = useState<any[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<Set<string>>(savedState?.selectedCategories ? new Set(savedState.selectedCategories) : new Set());
     const [expandedParents, setExpandedParents] = useState<Set<string>>(new Set());
-    const [data, setData] = useState<any[]>(savedState?.data || []);
+    const [data, setData] = useState<any[]>([]);
     const [branches, setBranches] = useState<any[]>([]);
     const [selectedBranch, setSelectedBranch] = useState<string>(savedState?.selectedBranch || 'all');
     const [searchTerm, setSearchTerm] = useState('');
     const [showPrintModal, setShowPrintModal] = useState(false);
+    const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
     const printRef = React.useRef<HTMLDivElement>(null);
 
     const handlePrint = useReactToPrint({
@@ -69,7 +70,6 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
 
     useEffect(() => {
         const state = {
-            data,
             selectedBranch,
             selectedCategories: Array.from(selectedCategories),
             startDate,
@@ -78,7 +78,7 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
             endTime
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }, [data, selectedBranch, selectedCategories, startDate, endDate, startTime, endTime, STORAGE_KEY]);
+    }, [selectedBranch, selectedCategories, startDate, endDate, startTime, endTime, STORAGE_KEY]);
 
     const fetchMetadata = async () => {
         try {
@@ -418,7 +418,7 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#f0f0f0] text-slate-800 font-sans select-none overflow-hidden">
+        <div className="flex flex-col h-full bg-[#f0f0f0] text-slate-800 font-sans overflow-hidden">
             {/* Header / Toolbar */}
             <div className="bg-[#f0f0f0] border-b border-gray-300 p-3 shrink-0">
                 <div className="flex flex-col gap-3">
@@ -590,8 +590,14 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                                     </tr>
                                 ) : (
                                     mode === 'REP_DELETED' ? (
-                                        filteredData.map((item, idx) => (
-                                            <tr key={item.id || idx} className="border-b border-gray-100 hover:bg-rose-50/30 transition-colors divide-x divide-gray-100">
+                                        filteredData.map((item, idx) => {
+                                            const rowId = item.id || `del-${idx}`;
+                                            return (
+                                            <tr 
+                                                key={rowId} 
+                                                onClick={() => setSelectedRowId(rowId)}
+                                                className={`border-b border-gray-100 transition-colors divide-x divide-gray-100 cursor-default ${selectedRowId === rowId ? 'selected-row-custom' : 'hover:bg-rose-50/30'}`}
+                                            >
                                                 <td className="px-4 py-2 font-bold text-gray-500 tabular-nums">
                                                     {dayjs(item.updated_at).format('DD/MM/YYYY HH:mm')}
                                                 </td>
@@ -612,7 +618,8 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                                                 <td className="px-4 py-2 text-right font-bold tabular-nums">{formatCurr(item.unit_price)}</td>
                                                 <td className="px-4 py-2 text-right font-black tabular-nums text-rose-700">{formatCurr(item.quantity * item.unit_price)}</td>
                                             </tr>
-                                        ))
+                                            );
+                                        })
                                     ) : (
                                         filteredData.map(group => (
                                             <React.Fragment key={group.id}>
@@ -624,8 +631,14 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                                                     </td>
                                                 </tr>
                                                 {/* Items */}
-                                                {group.displayItems.map((item: any, idx: number) => (
-                                                    <tr key={`${group.id}-${idx}`} className="border-b border-gray-100 hover:bg-gray-50 transition-colors divide-x divide-gray-100">
+                                                {group.displayItems.map((item: any, idx: number) => {
+                                                    const rowId = `${group.id}-${idx}`;
+                                                    return (
+                                                    <tr 
+                                                        key={rowId} 
+                                                        onClick={() => setSelectedRowId(rowId)}
+                                                        className={`border-b border-gray-100 transition-colors divide-x divide-gray-100 cursor-default ${selectedRowId === rowId ? 'selected-row-custom' : 'hover:bg-gray-50'}`}
+                                                    >
                                                         {mode === 'REP_SOLD_USER' && <td className="px-10 py-2 font-bold text-gray-500 uppercase">{item.categoryName}</td>}
                                                         <td className={`${mode === 'REP_SOLD_USER' ? 'px-4' : 'px-10'} py-2 font-bold text-slate-700 uppercase`}>
                                                             {mode === 'REP_SOLD_USER' ? item.productName : item.name}
@@ -633,7 +646,8 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                                                         <td className="px-4 py-2 text-center font-bold tabular-nums">{item.qty}</td>
                                                         <td className="px-4 py-2 text-right font-bold tabular-nums">{formatCurr(item.total)}</td>
                                                     </tr>
-                                                ))}
+                                                    );
+                                                })}
                                                 {/* Group Footer */}
                                                 <tr className="bg-white border-b border-gray-300">
                                                     <td className="px-4 py-2" colSpan={mode === 'REP_SOLD_USER' ? 2 : 1}></td>
@@ -650,30 +664,30 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
 
                     {/* Fila Fija Total General al Fondo */}
                     {filteredData.length > 0 && (
-                        <div className="bg-[#106ebe] text-white select-none shrink-0 z-20 shadow-[0_-4px_15px_rgba(0,0,0,0.2)] border-t border-white/20">
+                        <div className="shrink-0 bg-white text-slate-800 border-t-2 border-gray-300 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] z-[60]">
                             <table className="w-full border-collapse text-[11px]">
                                 <tbody>
-                                    <tr className="divide-x divide-gray-700/50">
+                                    <tr className="h-8">
                                         {mode === 'REP_DELETED' ? (
                                             <>
-                                                <td className="px-4 py-1 font-black uppercase tracking-[0.2em] text-[10px]">Resumen de Eliminaciones</td>
-                                                <td className="px-4 py-1 text-center font-black text-xs w-24 bg-white/5">{globalCount}</td>
+                                                <td className="px-4 font-bold uppercase tracking-widest text-[11px] text-slate-500">Resumen de Eliminaciones</td>
+                                                <td className="px-4 text-center font-black text-[12px] text-slate-800 w-24">{globalCount}</td>
                                                 <td className="w-24"></td>
                                                 <td className="w-48"></td>
-                                                <td className="px-4 py-1 text-right font-black text-xs w-28 bg-white/10 uppercase">Total</td>
-                                                <td className="px-4 py-1 text-right font-black text-xs w-28 bg-white/10 pr-4">{formatCurr(globalTotal)}</td>
+                                                <td className="px-4 text-right font-bold text-slate-500 uppercase text-[11px] w-28">Total</td>
+                                                <td className="px-4 text-right font-black text-[12px] text-slate-900 w-28 tabular-nums">{formatCurr(globalTotal)}</td>
                                             </>
                                         ) : (
                                             <>
                                                 {mode === 'REP_SOLD_USER' ? (
-                                                    <td className="px-4 py-1 font-black uppercase tracking-[0.2em] text-[10px]" colSpan={2}>Total General</td>
+                                                    <td className="px-4 font-bold uppercase tracking-widest text-slate-500 text-[11px]" colSpan={2}>Total General</td>
                                                 ) : (
-                                                    <td className="px-4 py-1 font-black uppercase tracking-[0.2em] text-[10px]">Total General</td>
+                                                    <td className="px-4 font-bold uppercase tracking-widest text-slate-500 text-[11px]">Total General</td>
                                                 )}
-                                                <td className="px-4 py-1 text-center font-black text-xs w-32 bg-white/5">
+                                                <td className="px-4 text-center font-black text-[12px] text-slate-800 w-32">
                                                     {globalCount}
                                                 </td>
-                                                <td className="px-4 py-1 text-right font-black text-xs w-32 bg-white/10 pr-4">
+                                                <td className="px-4 text-right font-black text-[12px] text-slate-900 w-32 tabular-nums">
                                                     {formatCurr(globalTotal)}
                                                 </td>
                                             </>
@@ -689,8 +703,8 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
             {/* Print / Export Modal */}
             {showPrintModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 animate-in fade-in duration-200">
-                    <div className="bg-[#f0f0f0] border-2 border-[#106ebe] shadow-2xl w-[950px] h-[90%] flex flex-col scale-in-center overflow-hidden">
-                        <div className="bg-[#106ebe] text-white p-2 flex justify-between items-center shrink-0">
+                    <div className="bg-[#f0f0f0] border-2 border-slate-800 shadow-2xl w-[950px] h-[90%] flex flex-col scale-in-center overflow-hidden">
+                        <div className="bg-slate-800 text-white p-2 flex justify-between items-center shrink-0">
                             <span className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
                                 <Printer size={14} />
                                 {mode === 'REP_DELETED' ? 'Reporte de Platillos Eliminados' :
@@ -827,6 +841,29 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                     </div>
                 </div>
             )}
+            
+            <style>{`
+                .selected-row-custom {
+                    background-color: #106ebe !important;
+                }
+                .selected-row-custom td {
+                    background-color: transparent !important;
+                    color: white !important;
+                }
+                .selected-row-custom td span,
+                .selected-row-custom td div,
+                .selected-row-custom td font {
+                    color: white !important;
+                    opacity: 1 !important;
+                }
+                .selected-row-custom td svg {
+                    stroke: white !important;
+                    color: white !important;
+                }
+                tr.selected-row-custom:hover {
+                    background-color: #106ebe !important;
+                }
+            `}</style>
         </div>
     );
 };
