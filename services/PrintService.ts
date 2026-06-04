@@ -789,7 +789,7 @@ class PrintService {
       <div class="divider"></div>
       <div class="totals-container">
         <div class="total-line"><span>Sub-Total:</span> <span>Q${(data.subtotal || 0).toFixed(2)}</span></div>
-        <div class="total-line"><span>Impuesto:</span> <span>Q${(data.taxAmount || 0).toFixed(2)}</span></div>
+        <div class="total-line"><span>Otros:</span> <span>Q${(data.taxAmount || 0).toFixed(2)}</span></div>
         ${data.paymentMethod === 'TARJETA' && data.tipAmount > 0
         ? `<div class="total-line"><span>Propina:</span> <span>Q${data.tipAmount.toFixed(2)}</span></div>
              <div class="total-line grand-total"><span>Total:</span> <span>Q${(legalTotal + data.tipAmount).toFixed(2)}</span></div>`
