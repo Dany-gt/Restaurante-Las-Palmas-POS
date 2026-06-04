@@ -385,7 +385,10 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                 className="w-[71px] h-[71px] border border-white/20 rounded-xl text-gray-300 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-gray-300"
                                 title="Nueva Dirección"
                             >
-                                <MapPinPlus size={24} strokeWidth={2} />
+                                <div className="relative w-6 h-6 flex items-center justify-center -ml-1">
+                                    <MapPin size={24} strokeWidth={2} />
+                                    <Plus size={14} strokeWidth={3} className="absolute -bottom-1 -right-3" />
+                                </div>
                             </button>
                             <button
                                 onClick={handleEditAddress}
@@ -393,7 +396,10 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                 className="w-[71px] h-[71px] border border-white/20 rounded-xl text-gray-300 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-gray-300"
                                 title="Editar Dirección"
                             >
-                                <MapPinPen size={24} strokeWidth={2} />
+                                <div className="relative w-6 h-6 flex items-center justify-center -ml-1">
+                                    <MapPin size={24} strokeWidth={2} />
+                                    <Edit2 size={13} strokeWidth={2.5} className="absolute -bottom-1 -right-3" />
+                                </div>
                             </button>
                             <button
                                 onClick={handleDeleteAddressBtnClick}
