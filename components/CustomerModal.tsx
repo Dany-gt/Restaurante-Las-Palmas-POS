@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { X, User, Phone, Mail, MapPin, Navigation, FileText, Hash, Building, ChevronUp, ChevronDown, Loader2, Search } from 'lucide-react';
 import { supabase } from '../supabase';
 import { billingService } from '../services/BillingService';
@@ -169,9 +170,13 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({ isOpen, onClose, o
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 animate-fade-in"
             style={{ alignItems: isRaised ? 'flex-start' : 'center', paddingTop: isRaised ? '12px' : undefined }}
         >
-            <div className="w-full max-w-lg bg-[#2d2e3d] rounded-lg border border-white/5  /50 flex flex-col max-h-[85vh] overflow-hidden transition-all duration-300">
+            <motion.div
+                drag
+                dragMomentum={false}
+                className="w-full max-w-lg bg-[#2d2e3d] rounded-lg border border-white/5 flex flex-col max-h-[85vh] overflow-hidden cursor-default"
+            >
                 {/* Header */}
-                <div className="p-4 border-b border-white/5 flex items-center justify-between shrink-0 bg-[#3a3b4d] z-10">
+                <div className="p-4 border-b border-white/5 flex items-center justify-between shrink-0 bg-[#3a3b4d] z-10 cursor-grab active:cursor-grabbing select-none">
                     <h3 className="text-sm font-bold uppercase tracking-widest text-gray-200">
                         {customerToEdit ? 'Editar Cliente' : 'Datos de Cliente'}
                     </h3>
@@ -358,7 +363,7 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({ isOpen, onClose, o
                         {saving ? 'Guardando...' : 'Aceptar'}
                     </button>
                 </div>
-            </div>
+            </motion.div>
         </div>
     );
 };

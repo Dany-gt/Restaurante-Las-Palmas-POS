@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { X, MapPin, Map, Navigation, Save, User } from 'lucide-react';
 import { supabase } from '../supabase';
 
@@ -85,8 +86,12 @@ export const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, onS
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 animate-fade-in">
-            <div className="w-full max-w-[400px] bg-[#2d2e3d] rounded-sm border border-white/10  /50 overflow-hidden flex flex-col">
-                <div className="bg-[#3a3b4d] h-10 flex items-center justify-center relative shrink-0 border-b border-white/5">
+            <motion.div
+                drag
+                dragMomentum={false}
+                className="w-full max-w-[400px] bg-[#2d2e3d] rounded-sm border border-white/10 overflow-hidden flex flex-col cursor-default"
+            >
+                <div className="bg-[#3a3b4d] h-10 flex items-center justify-center relative shrink-0 border-b border-white/5 cursor-grab active:cursor-grabbing select-none">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-white">
                         DATOS DIRECCIÓN
                     </h3>
@@ -144,7 +149,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, onS
                         {loading ? '...' : 'ACEPTAR'}
                     </button>
                 </div>
-            </div>
+            </motion.div>
         </div>
     );
 };
