@@ -344,23 +344,10 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
 
                 {/* RIGHT PANEL: ADDRESSES & DETAILS */}
                 <div className="w-[400px] bg-[#2d2e3d] flex flex-col shrink-0 border-l border-white/5 min-h-0">
-                    {/* Header: Dynamic content based on selection */}
-                    <div className="bg-[#3a3b4d] h-10 flex items-center px-4 justify-between shrink-0 ">
-                        {selectedCustomer ? (
-                            <>
-                                <span className="text-[10px] font-black uppercase tracking-wider text-white truncate flex-1">
-                                    {selectedCustomer.name}
-                                </span>
-                                <div className="flex items-center gap-1 opacity-40">
-                                    <div className="w-px h-3 bg-white/20 mx-1"></div>
-                                    <Plus size={14} strokeWidth={3} />
-                                </div>
-                            </>
-                        ) : (
-                            <div className="w-full text-center">
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">Detalles</span>
-                            </div>
-                        )}
+                    <div className="bg-[#3a3b4d] h-10 flex items-center justify-center shrink-0 border-b border-white/5">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">
+                            Direcciones
+                        </span>
                     </div>
 
                     <div className="flex-1 p-6 overflow-y-auto space-y-4 min-h-0 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
