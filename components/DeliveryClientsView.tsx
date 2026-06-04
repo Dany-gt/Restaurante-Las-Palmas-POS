@@ -224,27 +224,26 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
             {/* Main Content Area */}
             <div className="flex-1 flex overflow-hidden min-h-0">
                 {/* LEFT PANEL: CLIENTS GRID */}
-                <div className="flex-1 flex flex-col border-r border-white/5 bg-[#2d2e3d] min-h-0">
-                    {/* Header 'Clientes' */}
+                <div className="flex-1 flex flex-col border-r border-white/5 bg-[#2d2e3d] min-h-0">                    {/* Header 'Clientes' */}
                     <div className="bg-[#3a3b4d] h-10 flex items-center justify-center shrink-0 ">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">Clientes</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Clientes</span>
                     </div>
-
+ 
                     {/* Search Bar */}
                     <div className="p-3">
                         <div className="relative group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={16} />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70" size={16} />
                             <input
                                 autoFocus
                                 type="text"
                                 placeholder="BUSCAR..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-black/40 border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-black placeholder:text-gray-500 outline-none focus:border-white/50 focus:bg-black/60 transition-all uppercase tracking-widest text-white "
+                                className="w-full bg-black/40 border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-black placeholder:text-white/60 outline-none focus:border-white/50 focus:bg-black/60 transition-all uppercase tracking-widest text-white "
                             />
                         </div>
                     </div>
-
+ 
                     {/* Grid */}
                     <div className="flex-1 overflow-y-auto p-4 content-start min-h-0 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                         <div className="grid grid-cols-4 gap-3 w-fit mx-auto">
@@ -261,14 +260,14 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                     `}
                                 >
                                     <div className="flex items-center gap-2 mb-1">
-                                        <User size={12} className={selectedCustomer?.id === customer.id ? 'text-indigo-400' : 'text-gray-500'} />
-                                        <span className={`text-[11px] font-black uppercase truncate ${selectedCustomer?.id === customer.id ? 'text-white' : 'text-gray-300'}`}>
+                                        <User size={12} className={selectedCustomer?.id === customer.id ? 'text-indigo-400' : 'text-white/70'} />
+                                        <span className="text-[11px] font-black uppercase truncate text-white">
                                             {customer.name}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <Phone size={12} className="text-gray-600" />
-                                        <span className="text-[10px] font-bold text-gray-500 tracking-wider">
+                                        <Phone size={12} className="text-white/50" />
+                                        <span className="text-[10px] font-bold text-white/80 tracking-wider">
                                             {customer.phone || 'Sin Teléfono'}
                                         </span>
                                     </div>
@@ -279,9 +278,9 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             ))}
                         </div>
                     </div>
-
+ 
                     {/* Bottom Action Buttons (Left) */}
-                    <div className="p-3 border-t border-white/5 flex gap-3 shrink-0 items-center justify-center bg-black/20">
+                    <div className="p-3 border-t border-white/5 flex gap-3 shrink-0 items-center justify-center bg-transparent">
                         <button
                             onClick={handleNewCustomer}
                             className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center"
@@ -314,8 +313,8 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                         </button>
                     </div>
 
-                    <div className="px-4 py-2 bg-black/40 border-t border-white/5">
-                        <div className="flex justify-between text-[8px] text-white/20 uppercase font-black tracking-widest">
+                    <div className="px-4 py-2 bg-transparent border-t border-white/5">
+                        <div className="flex justify-between text-[8px] text-white/70 uppercase font-black tracking-widest">
                             <span>1. ENTER - BUSCAR</span>
                             <span>2. Ctrl+Enter - NUEVO</span>
                         </div>
@@ -345,7 +344,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                 {/* RIGHT PANEL: ADDRESSES & DETAILS */}
                 <div className="w-[400px] bg-[#2d2e3d] flex flex-col shrink-0 border-l border-white/5 min-h-0">
                     <div className="bg-[#3a3b4d] h-10 flex items-center justify-center shrink-0 border-b border-white/5">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">
                             Direcciones
                         </span>
                     </div>
@@ -358,39 +357,39 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                         key={addr.id}
                                         onClick={() => setSelectedAddress(addr)}
                                         className={`w-full p-4 rounded-xl border text-left transition-all relative group ${selectedAddress?.id === addr.id
-                                            ? 'bg-indigo-600/10 border-indigo-500 text-indigo-200'
-                                            : 'bg-[#3a3b4d] border-white/5 hover:border-white/10 text-gray-400'
+                                            ? 'bg-indigo-600/10 border-indigo-500 text-white'
+                                            : 'bg-[#3a3b4d] border-white/5 hover:border-white/10 text-white'
                                             }`}
                                     >
                                         <div className="flex items-center justify-between mb-2">
-                                            <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                                                <MapPin size={12} /> {addr.name || 'Dirección'}
+                                            <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2 text-white">
+                                                <MapPin size={12} className="text-white/70" /> {addr.name || 'Dirección'}
                                             </span>
                                             {selectedAddress?.id === addr.id && <div className="w-2 h-2 bg-indigo-400 rounded-full" />}
                                         </div>
-                                        <p className="text-xs font-bold leading-relaxed uppercase opacity-80">
+                                        <p className="text-xs font-bold leading-relaxed uppercase text-white/95">
                                             {addr.address}
                                         </p>
                                         {addr.zone && (
-                                            <span className="inline-block mt-2 px-2 py-0.5 bg-black/20 rounded text-[9px] font-bold uppercase">
+                                            <span className="inline-block mt-2 px-2 py-0.5 bg-black/20 rounded text-[9px] font-bold uppercase text-white">
                                                 Zona {addr.zone}
                                             </span>
                                         )}
                                     </button>
                                 ))
                             ) : (
-                                <div className="flex flex-col items-center justify-center h-40 opacity-30 text-gray-500">
-                                    <Map size={48} strokeWidth={1} />
-                                    <span className="mt-2 text-[10px] font-black uppercase tracking-widest">Sin direcciones registradas</span>
+                                <div className="flex flex-col items-center justify-center h-40 text-white/50">
+                                    <Map size={48} strokeWidth={1} className="text-white/40" />
+                                    <span className="mt-2 text-[10px] font-black uppercase tracking-widest text-white">Sin direcciones registradas</span>
                                 </div>
                             )
                         ) : (
-                            <div className="flex flex-col items-center justify-center h-full opacity-50 p-10 text-center">
+                            <div className="flex flex-col items-center justify-center h-full p-10 text-center">
                                 <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-8 border border-white/10 ">
-                                    <User size={56} className="text-white/30" strokeWidth={1} />
+                                    <User size={56} className="text-white/60" strokeWidth={1} />
                                 </div>
-                                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white/60 mb-2 whitespace-nowrap">Seleccione un Cliente</h3>
-                                <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest leading-relaxed">
+                                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white mb-2 whitespace-nowrap">Seleccione un Cliente</h3>
+                                <p className="text-[9px] font-bold text-white/70 uppercase tracking-widest leading-relaxed">
                                     Para ver su información y direcciones de envío
                                 </p>
                             </div>
@@ -398,7 +397,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                     </div>
 
                     {/* Bottom Actions (Right) */}
-                    <div className="p-4 border-t border-white/5 bg-black/40 shrink-0 flex flex-col gap-4">
+                    <div className="p-4 border-t border-white/5 bg-transparent shrink-0 flex flex-col gap-4">
                         <div className="flex justify-center gap-3">
                             <button
                                 onClick={handleNewAddress}
