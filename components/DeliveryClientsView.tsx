@@ -385,9 +385,9 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                 className="w-[71px] h-[71px] border border-white/20 rounded-xl text-gray-300 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-gray-300"
                                 title="Nueva Dirección"
                             >
-                                <div className="relative w-6 h-6 flex items-center justify-center -ml-1">
+                                <div className="relative w-6 h-6 flex items-center justify-center">
                                     <MapPin size={24} strokeWidth={2} />
-                                    <Plus size={14} strokeWidth={3} className="absolute -bottom-1 -right-3" />
+                                    <Plus size={14} strokeWidth={3} className="absolute -bottom-0.5 -right-2 bg-[#2d2e3d] rounded-full" />
                                 </div>
                             </button>
                             <button
@@ -396,9 +396,9 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                 className="w-[71px] h-[71px] border border-white/20 rounded-xl text-gray-300 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-gray-300"
                                 title="Editar Dirección"
                             >
-                                <div className="relative w-6 h-6 flex items-center justify-center -ml-1">
+                                <div className="relative w-6 h-6 flex items-center justify-center">
                                     <MapPin size={24} strokeWidth={2} />
-                                    <Edit2 size={13} strokeWidth={2.5} className="absolute -bottom-1 -right-3" />
+                                    <Edit2 size={13} strokeWidth={2.5} className="absolute -bottom-0.5 -right-2 bg-[#2d2e3d] rounded-full p-[1px]" />
                                 </div>
                             </button>
                             <button
