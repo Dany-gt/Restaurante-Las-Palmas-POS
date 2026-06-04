@@ -247,13 +247,13 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
 
                     {/* Grid */}
                     <div className="flex-1 overflow-y-auto p-4 content-start min-h-0 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        <div className="grid grid-cols-4 gap-3 w-fit mx-auto">
                             {filteredCustomers.map(customer => (
                                 <button
                                     key={customer.id}
                                     onClick={() => setSelectedCustomer(customer)}
                                     className={`
-                                        h-20 rounded-lg flex flex-col justify-center px-4 relative group transition-all text-left border
+                                        w-[278px] h-20 rounded-lg flex flex-col justify-center px-4 relative group transition-all text-left border
                                         ${selectedCustomer?.id === customer.id
                                             ? 'bg-indigo-600/20 border-indigo-500/50 '
                                             : 'bg-[#3a3b4d] border-transparent hover:bg-[#45465a]'
