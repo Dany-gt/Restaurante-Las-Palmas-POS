@@ -407,11 +407,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
 
                         <button
                             onClick={handleCreateOrder}
-                            disabled={!selectedCustomer}
-                            className={`w-full h-[46px] rounded flex items-center justify-center transition-all active:scale-95 ${selectedCustomer
-                                ? 'bg-[#7c71e2] hover:bg-[#8e84f0] text-white font-semibold text-[13px]'
-                                : 'bg-white/5 text-white/30 border border-white/5 cursor-not-allowed font-semibold text-[13px]'
-                                }`}
+                            className="w-full h-[46px] rounded flex items-center justify-center transition-all active:scale-95 bg-[#7c71e2] hover:bg-[#8e84f0] text-white font-semibold text-[13px]"
                         >
                             Crear Orden
                         </button>
