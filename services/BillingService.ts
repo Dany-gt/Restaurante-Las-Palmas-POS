@@ -351,6 +351,7 @@ class BillingService {
 
         const signerUrl = 'https://signer-emisores.feel.com.gt/sign_solicitud_firmas/firma_xml';
         const proxies = [
+            '',
             '/api/proxy?url=',
             'https://api.codetabs.com/v1/proxy?quest=',
             'https://corsproxy.io/?url='
@@ -392,6 +393,7 @@ class BillingService {
         };
 
         const proxies = [
+            '',
             '/api/proxy?url=',
             'https://api.codetabs.com/v1/proxy?quest=',
             'https://corsproxy.io/?url='
@@ -620,6 +622,7 @@ class BillingService {
         ];
 
         const proxies = [
+            '',
             '/api/proxy?url=',
             'https://api.codetabs.com/v1/proxy?quest=',
             'https://corsproxy.io/?url='
