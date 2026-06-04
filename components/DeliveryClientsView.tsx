@@ -335,7 +335,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                     </div>
 
                     <div className="px-4 py-2 bg-transparent border-t border-white/5">
-                        <div className="flex justify-between text-[8px] text-white/70 uppercase font-black tracking-widest">
+                        <div className="flex gap-4 text-[8px] text-white/70 uppercase font-black tracking-widest justify-start">
                             <span>1. ENTER - BUSCAR</span>
                             <span>2. Ctrl+Enter - NUEVO</span>
                         </div>
@@ -378,7 +378,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                         key={addr.id}
                                         onClick={() => setSelectedAddress(addr)}
                                         className={`w-full p-4 rounded-xl border text-left transition-all relative group ${selectedAddress?.id === addr.id
-                                            ? 'bg-[#d1d5db] border-transparent text-[#1e2030]'
+                                            ? 'bg-[#e2e8f0] border-transparent text-[#1e2030]'
                                             : 'bg-[#3a3b4d] border-transparent hover:bg-[#45465a] text-white'
                                             }`}
                                     >
