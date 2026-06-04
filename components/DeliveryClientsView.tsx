@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, User, Phone, MapPin, Plus, ArrowLeft, ArrowRight, UserPlus, Edit2, Trash2, Map, Users, AlertTriangle, X } from 'lucide-react';
+import { Search, User, Phone, MapPin, MapPinPlus, MapPinPen, MapPinOff, Plus, ArrowLeft, ArrowRight, UserPlus, Edit2, Trash2, Map, Users, AlertTriangle, X } from 'lucide-react';
 import { supabase } from '../supabase';
 import { CustomerModal } from './CustomerModal';
 import { AddressModal } from './AddressModal';
@@ -382,26 +382,26 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             <button
                                 onClick={handleNewAddress}
                                 disabled={!selectedCustomer}
-                                className="w-12 h-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm text-gray-400 hover:text-white transition-all active:scale-95 flex items-center justify-center disabled:opacity-10"
+                                className="w-12 h-12 bg-transparent hover:bg-white/10 border border-white/10 rounded-xl text-gray-400 hover:text-white transition-all active:scale-95 flex items-center justify-center disabled:opacity-10"
                                 title="Nueva Dirección"
                             >
-                                <Plus size={20} strokeWidth={3} />
+                                <MapPinPlus size={20} strokeWidth={2} />
                             </button>
                             <button
                                 onClick={handleEditAddress}
                                 disabled={!selectedAddress}
-                                className="w-12 h-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm text-gray-400 hover:text-white transition-all active:scale-95 flex items-center justify-center disabled:opacity-10"
+                                className="w-12 h-12 bg-transparent hover:bg-white/10 border border-white/10 rounded-xl text-gray-400 hover:text-white transition-all active:scale-95 flex items-center justify-center disabled:opacity-10"
                                 title="Editar Dirección"
                             >
-                                <Edit2 size={16} />
+                                <MapPinPen size={20} strokeWidth={2} />
                             </button>
                             <button
                                 onClick={handleDeleteAddressBtnClick}
                                 disabled={!selectedAddress}
-                                className="w-12 h-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm text-gray-400 hover:text-red-500 transition-all active:scale-95 flex items-center justify-center disabled:opacity-10"
+                                className="w-12 h-12 bg-transparent hover:bg-white/10 border border-white/10 rounded-xl text-gray-400 hover:text-red-500 transition-all active:scale-95 flex items-center justify-center disabled:opacity-10"
                                 title="Eliminar Dirección"
                             >
-                                <Trash2 size={16} />
+                                <MapPinOff size={20} strokeWidth={2} />
                             </button>
                         </div>
 
