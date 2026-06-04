@@ -382,7 +382,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             <button
                                 onClick={handleNewAddress}
                                 disabled={!selectedCustomer}
-                                className="w-[71px] h-[71px] border border-white/20 rounded-xl text-gray-300 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-gray-300"
+                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center disabled:hover:bg-transparent"
                                 title="Nueva Dirección"
                             >
                                 <div className="relative w-[32px] h-[26px]">
@@ -393,7 +393,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             <button
                                 onClick={handleEditAddress}
                                 disabled={!selectedAddress}
-                                className="w-[71px] h-[71px] border border-white/20 rounded-xl text-gray-300 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-gray-300"
+                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center disabled:hover:bg-transparent"
                                 title="Editar Dirección"
                             >
                                 <div className="relative w-[32px] h-[26px]">
@@ -404,7 +404,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             <button
                                 onClick={handleDeleteAddressBtnClick}
                                 disabled={!selectedAddress}
-                                className="w-[71px] h-[71px] border border-white/20 rounded-xl text-gray-300 hover:text-red-500 hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-gray-300"
+                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-red-500/20 hover:text-red-500 transition-colors flex items-center justify-center disabled:hover:bg-transparent disabled:hover:text-white"
                                 title="Eliminar Dirección"
                             >
                                 <MapPinOff size={26} strokeWidth={1.5} />
