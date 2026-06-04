@@ -59,6 +59,15 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
     const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
     const [addressToDelete, setAddressToDelete] = useState<Address | null>(null);
 
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (toastMessage) {
+            const timer = setTimeout(() => setToastMessage(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [toastMessage]);
+
     useEffect(() => {
         fetchCustomers();
     }, []);
@@ -90,7 +99,10 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
     };
 
     const handleCreateOrder = () => {
-        if (!selectedCustomer) return;
+        if (!selectedCustomer) {
+            setToastMessage('Elija un cliente por favor.');
+            return;
+        }
         onSelectCustomer(selectedCustomer, selectedAddress);
     };
 
@@ -126,19 +138,28 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
 
     // --- ADDRESS HANDLERS ---
     const handleNewAddress = () => {
-        if (!selectedCustomer) return;
+        if (!selectedCustomer) {
+            setToastMessage('Elija un cliente por favor.');
+            return;
+        }
         setEditingAddress(null);
         setShowAddressModal(true);
     };
 
     const handleEditAddress = () => {
-        if (!selectedAddress) return;
+        if (!selectedAddress) {
+            setToastMessage('Elija una dirección por favor.');
+            return;
+        }
         setEditingAddress(selectedAddress);
         setShowAddressModal(true);
     };
 
     const handleDeleteAddressBtnClick = () => {
-        if (!selectedAddress) return;
+        if (!selectedAddress) {
+            setToastMessage('Elija una dirección por favor.');
+            return;
+        }
         setAddressToDelete(selectedAddress);
     };
 
@@ -381,8 +402,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                         <div className="flex justify-center gap-3">
                             <button
                                 onClick={handleNewAddress}
-                                disabled={!selectedCustomer}
-                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center disabled:hover:bg-transparent"
+                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center"
                                 title="Nueva Dirección"
                             >
                                 <div className="relative w-[32px] h-[26px]">
@@ -392,8 +412,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             </button>
                             <button
                                 onClick={handleEditAddress}
-                                disabled={!selectedAddress}
-                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center disabled:hover:bg-transparent"
+                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center"
                                 title="Editar Dirección"
                             >
                                 <div className="relative w-[32px] h-[26px]">
@@ -403,8 +422,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             </button>
                             <button
                                 onClick={handleDeleteAddressBtnClick}
-                                disabled={!selectedAddress}
-                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-red-500/20 hover:text-red-500 transition-colors flex items-center justify-center disabled:hover:bg-transparent disabled:hover:text-white"
+                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-red-500/20 hover:text-red-500 transition-colors flex items-center justify-center"
                                 title="Eliminar Dirección"
                             >
                                 <MapPinOff size={26} strokeWidth={1.5} />
@@ -478,6 +496,26 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                 Eliminar
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+            {toastMessage && (
+                <div className="fixed top-12 right-4 z-[999999] animate-in slide-in-from-right fade-in duration-300">
+                    <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4 min-w-[320px] shadow-2xl backdrop-blur-md">
+                        <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center shrink-0">
+                            <span className="text-white text-base font-black">!</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-[#1e232f] text-[11px] font-bold leading-tight">
+                                {toastMessage}
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => setToastMessage(null)}
+                            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                        >
+                            <X size={14} />
+                        </button>
                     </div>
                 </div>
             )}
