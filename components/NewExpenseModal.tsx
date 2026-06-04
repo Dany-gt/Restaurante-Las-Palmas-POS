@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Trash2, ShoppingCart, Delete, ChevronUp, ChevronDown } from 'lucide-react';
+import { Search, Trash2, ShoppingCart, Delete, ArrowUp, ArrowDown } from 'lucide-react';
 import { supabase } from '../supabase';
 import { User } from '../types';
 import { printService } from '../services/PrintService';
@@ -26,12 +26,32 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
     const [loading, setLoading] = useState(false);
 
     const categoryScrollRef = useRef<HTMLDivElement>(null);
+    const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const scrollCategories = (direction: number) => {
         if (categoryScrollRef.current) {
-            categoryScrollRef.current.scrollBy({ top: direction * 80, behavior: 'smooth' });
+            categoryScrollRef.current.scrollBy({ top: direction * 40, behavior: 'auto' });
         }
     };
+
+    const startScrolling = (direction: number) => {
+        scrollCategories(direction);
+        if (scrollIntervalRef.current) clearInterval(scrollIntervalRef.current);
+        scrollIntervalRef.current = setInterval(() => {
+            scrollCategories(direction);
+        }, 50);
+    };
+
+    const stopScrolling = () => {
+        if (scrollIntervalRef.current) {
+            clearInterval(scrollIntervalRef.current);
+            scrollIntervalRef.current = null;
+        }
+    };
+
+    useEffect(() => {
+        return () => stopScrolling();
+    }, []);
     const [now, setNow] = useState(new Date());
 
     useEffect(() => {
@@ -224,18 +244,34 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                             />
                         </div>
 
-                        {/* Category Grid - 3 rows visible with scroll arrows */}
-                        <div className="flex gap-2 shrink-0 h-[116px]">
+                        {/* Category Grid */}
+                        <div className="relative shrink-0 h-[116px] overflow-hidden rounded-sm">
+                            <style>{`.hide-scroll::-webkit-scrollbar { display: none; }`}</style>
+                            
+                            {/* Floating Up Arrow Area */}
+                            <div 
+                                className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-8 z-10 flex justify-center opacity-0 hover:opacity-100 transition-opacity duration-200"
+                                onMouseDown={(e) => { e.preventDefault(); startScrolling(-1); }}
+                                onMouseUp={stopScrolling}
+                                onMouseLeave={stopScrolling}
+                                onTouchStart={(e) => { e.preventDefault(); startScrolling(-1); }}
+                                onTouchEnd={stopScrolling}
+                            >
+                                <div className="bg-[#3e4153]/90 text-white p-1 rounded-full shadow-md mt-1 backdrop-blur-sm cursor-pointer hover:bg-[#484b5e] transition-colors h-fit">
+                                    <ArrowUp size={16} strokeWidth={3} />
+                                </div>
+                            </div>
+
                             <div 
                                 ref={categoryScrollRef}
-                                className="flex-1 grid grid-cols-3 gap-1.5 overflow-y-hidden"
-                                style={{ scrollBehavior: 'smooth' }}
+                                className="grid grid-cols-3 gap-1.5 h-full overflow-y-auto hide-scroll"
+                                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                             >
                                 {filteredCategories.map(cat => (
                                     <button
                                         key={cat.id}
                                         onClick={() => setSelectedCategory(cat.name)}
-                                        className={`px-2 py-1 rounded-md text-[11px] font-semibold uppercase tracking-tight transition-all h-8 flex items-center justify-center text-center leading-tight shadow-sm ${
+                                        className={`px-2 py-1 rounded-none text-[11px] font-semibold uppercase tracking-tight transition-all h-8 flex items-center justify-center text-center leading-tight ${
                                             selectedCategory === cat.name
                                                 ? 'bg-[#7a73ff] text-white border-transparent'
                                                 : 'bg-[#3e4153] text-gray-200 hover:bg-[#484b5e] border border-transparent'
@@ -245,19 +281,19 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                                     </button>
                                 ))}
                             </div>
-                            <div className="flex flex-col gap-1.5 shrink-0 w-8">
-                                <button 
-                                    onClick={() => scrollCategories(-1)} 
-                                    className="flex-1 bg-[#3e4153] hover:bg-[#484b5e] active:bg-[#7a73ff] text-gray-300 hover:text-white rounded-md flex items-center justify-center transition-colors border border-[#4b4e63]"
-                                >
-                                    <ChevronUp size={16} strokeWidth={2.5} />
-                                </button>
-                                <button 
-                                    onClick={() => scrollCategories(1)} 
-                                    className="flex-1 bg-[#3e4153] hover:bg-[#484b5e] active:bg-[#7a73ff] text-gray-300 hover:text-white rounded-md flex items-center justify-center transition-colors border border-[#4b4e63]"
-                                >
-                                    <ChevronDown size={16} strokeWidth={2.5} />
-                                </button>
+
+                            {/* Floating Down Arrow Area */}
+                            <div 
+                                className="absolute bottom-0 left-1/2 -translate-x-1/2 w-20 h-8 z-10 flex justify-center items-end opacity-0 hover:opacity-100 transition-opacity duration-200"
+                                onMouseDown={(e) => { e.preventDefault(); startScrolling(1); }}
+                                onMouseUp={stopScrolling}
+                                onMouseLeave={stopScrolling}
+                                onTouchStart={(e) => { e.preventDefault(); startScrolling(1); }}
+                                onTouchEnd={stopScrolling}
+                            >
+                                <div className="bg-[#3e4153]/90 text-white p-1 rounded-full shadow-md mb-1 backdrop-blur-sm cursor-pointer hover:bg-[#484b5e] transition-colors h-fit">
+                                    <ArrowDown size={16} strokeWidth={3} />
+                                </div>
                             </div>
                         </div>
 
@@ -302,7 +338,7 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                                     </span>
                                 </div>
                                 <div className="w-24 flex items-center bg-[#242533] border border-[#3e4153] rounded px-3 py-1.5">
-                                    <span className="text-[#7a73ff] font-bold mr-1.5 text-xs">Q</span>
+                                    <span className="text-gray-400 font-bold mr-1.5 text-xs">Q</span>
                                     <span className="text-white text-xs font-bold whitespace-nowrap overflow-hidden text-ellipsis tabular-nums">
                                         {total.toFixed(2)}
                                     </span>
