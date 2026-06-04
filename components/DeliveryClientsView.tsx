@@ -113,13 +113,19 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
     };
 
     const handleEditCustomer = () => {
-        if (!selectedCustomer) return;
+        if (!selectedCustomer) {
+            setToastMessage('Elija un cliente por favor.');
+            return;
+        }
         setEditingCustomer(selectedCustomer);
         setShowCustomerModal(true);
     };
 
     const handleDeleteCustomerBtnClick = () => {
-        if (!selectedCustomer) return;
+        if (!selectedCustomer) {
+            setToastMessage('Elija un cliente por favor.');
+            return;
+        }
         setCustomerToDelete(selectedCustomer);
     };
 
@@ -278,26 +284,33 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                     <div className="p-3 border-t border-white/5 flex gap-3 shrink-0 items-center justify-center bg-black/20">
                         <button
                             onClick={handleNewCustomer}
-                            className="w-12 h-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm text-gray-400 hover:text-white transition-all active:scale-95 flex items-center justify-center"
+                            className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center"
                             title="Nuevo Cliente"
                         >
-                            <UserPlus size={18} />
+                            <div className="relative w-[32px] h-[26px]">
+                                <User size={26} strokeWidth={1.5} className="absolute left-0 top-0" />
+                                <Plus size={16} strokeWidth={2} className="absolute -bottom-1 -right-1" />
+                            </div>
                         </button>
                         <button
                             onClick={handleEditCustomer}
-                            disabled={!selectedCustomer}
-                            className="w-12 h-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm text-gray-400 hover:text-white transition-all active:scale-95 flex items-center justify-center disabled:opacity-10"
+                            className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center"
                             title="Editar Cliente"
                         >
-                            <Edit2 size={16} />
+                            <div className="relative w-[32px] h-[26px]">
+                                <User size={26} strokeWidth={1.5} className="absolute left-0 top-0" />
+                                <Edit2 size={14} strokeWidth={2} className="absolute -bottom-1 -right-1" />
+                            </div>
                         </button>
                         <button
                             onClick={handleDeleteCustomerBtnClick}
-                            disabled={!selectedCustomer}
-                            className="w-12 h-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm text-gray-400 hover:text-red-500 transition-all active:scale-95 flex items-center justify-center disabled:opacity-10"
+                            className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-red-500/20 hover:text-red-500 transition-colors flex items-center justify-center"
                             title="Eliminar Cliente"
                         >
-                            <Trash2 size={16} />
+                            <div className="relative w-[32px] h-[26px] flex items-center justify-center">
+                                <User size={26} strokeWidth={1.5} />
+                                <div className="absolute w-[30px] h-[1.5px] bg-current -rotate-45" />
+                            </div>
                         </button>
                     </div>
 
