@@ -42,6 +42,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
     const timeDisplay = nowServer.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const dateDisplay = nowServer.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
 
+    const searchInputRef = React.useRef<HTMLInputElement>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -60,6 +61,25 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
     const [addressToDelete, setAddressToDelete] = useState<Address | null>(null);
 
     const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Ctrl + Enter -> New Customer Modal
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                handleNewCustomer();
+            } else if (e.key === 'Enter' && !e.ctrlKey) {
+                // If not already focused in search input, focus it
+                if (document.activeElement !== searchInputRef.current) {
+                    e.preventDefault();
+                    searchInputRef.current?.focus();
+                    searchInputRef.current?.select();
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     useEffect(() => {
         if (toastMessage) {
@@ -234,12 +254,13 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                         <div className="relative group">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70" size={16} />
                             <input
+                                ref={searchInputRef}
                                 autoFocus
                                 type="text"
                                 placeholder="BUSCAR..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-black/40 border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-black placeholder:text-white/60 outline-none focus:border-white/50 focus:bg-black/60 transition-all uppercase tracking-widest text-white "
+                                className="w-full bg-transparent border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-black placeholder:text-white/60 outline-none focus:border-white/50 focus:bg-transparent transition-all uppercase tracking-widest text-white "
                             />
                         </div>
                     </div>
