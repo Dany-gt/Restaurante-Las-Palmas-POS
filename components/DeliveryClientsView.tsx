@@ -408,13 +408,12 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                         <button
                             onClick={handleCreateOrder}
                             disabled={!selectedCustomer}
-                            className={`w-full py-3.5 rounded-sm font-black uppercase tracking-[0.2em] text-[10px]  flex items-center justify-center gap-3 transition-all active:scale-95 ${selectedCustomer
-                                ? 'bg-indigo-600 hover:bg-indigo-500 text-white -600/20'
-                                : 'bg-white/5 text-white/10 border border-white/5 cursor-not-allowed uppercase'
+                            className={`w-full h-[46px] rounded flex items-center justify-center transition-all active:scale-95 ${selectedCustomer
+                                ? 'bg-[#7c71e2] hover:bg-[#8e84f0] text-white font-semibold text-[13px]'
+                                : 'bg-white/5 text-white/30 border border-white/5 cursor-not-allowed font-semibold text-[13px]'
                                 }`}
                         >
-                            <span>Crear Orden</span>
-                            <ArrowRight size={14} strokeWidth={3} />
+                            Crear Orden
                         </button>
                     </div>
                 </div>
