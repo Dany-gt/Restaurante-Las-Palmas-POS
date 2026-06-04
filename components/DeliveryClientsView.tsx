@@ -378,24 +378,32 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                         key={addr.id}
                                         onClick={() => setSelectedAddress(addr)}
                                         className={`w-full p-4 rounded-xl border text-left transition-all relative group ${selectedAddress?.id === addr.id
-                                            ? 'bg-indigo-600/10 border-indigo-500 text-white'
-                                            : 'bg-[#3a3b4d] border-white/5 hover:border-white/10 text-white'
+                                            ? 'bg-[#d1d5db] border-transparent text-[#1e2030]'
+                                            : 'bg-[#3a3b4d] border-transparent hover:bg-[#45465a] text-white'
                                             }`}
                                     >
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2 text-white">
-                                                <MapPin size={12} className="text-white/70" /> {addr.name || 'Dirección'}
-                                            </span>
-                                            {selectedAddress?.id === addr.id && <div className="w-2 h-2 bg-indigo-400 rounded-full" />}
+                                        <div className="flex flex-col gap-1 text-left">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${selectedAddress?.id === addr.id ? 'text-[#1e2030]' : 'text-white'}`}>
+                                                    <MapPin size={12} className={selectedAddress?.id === addr.id ? 'text-[#1e2030]/70' : 'text-white/70'} />
+                                                    {addr.name || 'Dirección'}
+                                                </span>
+                                                {selectedAddress?.id === addr.id && <div className="w-2 h-2 bg-[#7c71e2] rounded-full" />}
+                                            </div>
+                                            <p className={`text-xs font-black uppercase leading-normal ${selectedAddress?.id === addr.id ? 'text-[#1e2030]' : 'text-white'}`}>
+                                                {addr.address}
+                                            </p>
+                                            {addr.reference && (
+                                                <p className={`text-[10px] font-bold mt-1 leading-normal ${selectedAddress?.id === addr.id ? 'text-gray-600' : 'text-white/60'}`}>
+                                                    {addr.reference}
+                                                </p>
+                                            )}
+                                            {addr.zone && (
+                                                <span className={`inline-block w-fit mt-2 px-2 py-0.5 rounded text-[9px] font-black uppercase ${selectedAddress?.id === addr.id ? 'bg-black/10 text-gray-800' : 'bg-black/20 text-white'}`}>
+                                                    Zona {addr.zone}
+                                                </span>
+                                            )}
                                         </div>
-                                        <p className="text-xs font-bold leading-relaxed uppercase text-white/95">
-                                            {addr.address}
-                                        </p>
-                                        {addr.zone && (
-                                            <span className="inline-block mt-2 px-2 py-0.5 bg-black/20 rounded text-[9px] font-bold uppercase text-white">
-                                                Zona {addr.zone}
-                                            </span>
-                                        )}
                                     </button>
                                 ))
                             ) : (
