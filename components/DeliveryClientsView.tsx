@@ -407,7 +407,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
 
                         <button
                             onClick={handleCreateOrder}
-                            className="w-full h-[46px] rounded flex items-center justify-center transition-all active:scale-95 bg-[#7c71e2] hover:bg-[#8e84f0] text-white font-semibold text-[13px]"
+                            className="w-[237px] mx-auto h-[46px] rounded flex items-center justify-center transition-all active:scale-95 bg-[#7c71e2] hover:bg-[#8e84f0] text-white font-semibold text-[13px]"
                         >
                             Crear Orden
                         </button>
