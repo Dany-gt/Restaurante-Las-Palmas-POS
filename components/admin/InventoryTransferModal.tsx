@@ -225,7 +225,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                     {/* Header */}
                     <div className="modal-header bg-[#106ebe] px-3 py-1.5 flex items-center justify-between text-white shrink-0 cursor-default select-none">
                         <div className="flex items-center gap-2">
-                            <span className="text-[12px] font-bold tracking-wider">Traslado de Inventario</span>
+                            <span className="text-[12px] font-medium tracking-wider">Traslado de Inventario</span>
                         </div>
                         <div className="flex items-center gap-1">
                             <WindowsSaveButton onClick={handleSave} loading={saving} title="Guardar Traslado" />
@@ -239,12 +239,12 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                         {/* Datos de Traslado Section */}
                         <div className="border border-gray-300 rounded-sm bg-white overflow-hidden">
                             <div className="bg-gray-100 px-3 py-1 border-b border-gray-300">
-                                <span className="text-[11px] font-black text-[#106ebe] uppercase">Datos de Traslado</span>
+                                <span className="text-[11px] font-semibold text-[#106ebe] uppercase">Datos de Traslado</span>
                             </div>
                             <div className="p-3 grid grid-cols-2 gap-x-12 gap-y-2">
                                 {/* Row 1 */}
                                 <div className="flex items-center gap-2">
-                                    <label className="text-[11px] font-bold text-gray-600 w-24">Fecha</label>
+                                    <label className="text-[11px] font-medium text-gray-600 w-24">Fecha</label>
                                     <input
                                         type="date"
                                         value={formData.date}
@@ -253,7 +253,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                     />
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <label className="text-[11px] font-bold text-gray-600 w-24">Traslado No.</label>
+                                    <label className="text-[11px] font-medium text-gray-600 w-24">Traslado No.</label>
                                     <input
                                         type="text"
                                         value={formData.transfer_no}
@@ -265,22 +265,22 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
 
                                 {/* Row 2 */}
                                 <div className="flex items-center gap-2">
-                                    <label className="text-[11px] font-bold text-gray-600 w-24">Sucursal Envía</label>
+                                    <label className="text-[11px] font-medium text-gray-600 w-24">Sucursal Envía</label>
                                         <select
                                             value={formData.from_branch_id}
                                             onChange={e => setFormData({ ...formData, from_branch_id: e.target.value })}
-                                            className="flex-1 h-6 border border-gray-300 px-2 text-[11px] outline-none bg-white font-bold"
+                                            className="flex-1 h-6 border border-gray-300 px-2 text-[11px] outline-none bg-white font-medium"
                                         >
                                             <option value="">Seleccione...</option>
                                             {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
                                         </select>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <label className="text-[11px] font-bold text-gray-600 w-24">Sucursal Destino</label>
+                                    <label className="text-[11px] font-medium text-gray-600 w-24">Sucursal Destino</label>
                                         <select
                                             value={formData.to_branch_id}
                                             onChange={e => setFormData({ ...formData, to_branch_id: e.target.value })}
-                                            className="flex-1 h-6 border border-gray-300 px-2 text-[11px] outline-none bg-white font-bold"
+                                            className="flex-1 h-6 border border-gray-300 px-2 text-[11px] outline-none bg-white font-medium"
                                         >
                                             <option value="">Seleccione...</option>
                                             {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -289,11 +289,11 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
 
                                 {/* Row 3 */}
                                 <div className="flex items-center gap-2">
-                                    <label className="text-[11px] font-bold text-gray-600 w-24">Estado</label>
+                                    <label className="text-[11px] font-medium text-gray-600 w-24">Estado</label>
                                     <select
                                         value={formData.status}
                                         onChange={e => setFormData({ ...formData, status: e.target.value })}
-                                        className="flex-1 h-6 border border-gray-300 px-2 text-[11px] outline-none bg-white font-bold"
+                                        className="flex-1 h-6 border border-gray-300 px-2 text-[11px] outline-none bg-white font-medium"
                                     >
                                         <option value="GUARDAR">GUARDAR</option>
                                         <option value="PROCESAR">PROCESAR</option>
@@ -305,7 +305,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                         {/* Detalle de Traslado Section */}
                         <div className="border border-gray-300 rounded-sm bg-white overflow-hidden flex flex-col min-h-[400px]">
                             <div className="bg-gray-100 px-3 py-1 border-b border-gray-300 shrink-0">
-                                <span className="text-[11px] font-black text-[#106ebe] uppercase">Detalle de Traslado</span>
+                                <span className="text-[11px] font-semibold text-[#106ebe] uppercase">Detalle de Traslado</span>
                             </div>
 
                             <div
@@ -319,11 +319,11 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                     <thead className="bg-[#e8e8e8] sticky top-0 z-10">
                                         <tr className="h-7 border-b border-gray-400">
                                             <th className="w-[3%] px-1 border-r border-gray-300"></th>
-                                            <th className="w-[40%] text-left px-3 font-bold border-r border-gray-300 uppercase text-[10px]">Producto</th>
-                                            <th className="w-[15%] text-left px-3 font-bold border-r border-gray-300 uppercase text-[10px]">Presentación</th>
-                                            <th className="w-[15%] text-center px-3 font-bold border-r border-gray-300 uppercase text-[10px]">Cantidad a Trasladar</th>
-                                            <th className="w-[12%] text-right px-3 font-bold border-r border-gray-300 uppercase text-[10px]">Costo Producto</th>
-                                            <th className="w-[15%] text-right px-3 font-bold uppercase text-[10px]">Costo Total</th>
+                                            <th className="w-[40%] text-left px-3 font-medium border-r border-gray-300 uppercase text-[10px]">Producto</th>
+                                            <th className="w-[15%] text-left px-3 font-medium border-r border-gray-300 uppercase text-[10px]">Presentación</th>
+                                            <th className="w-[15%] text-center px-3 font-medium border-r border-gray-300 uppercase text-[10px]">Cantidad a Trasladar</th>
+                                            <th className="w-[12%] text-right px-3 font-medium border-r border-gray-300 uppercase text-[10px]">Costo Producto</th>
+                                            <th className="w-[15%] text-right px-3 font-medium uppercase text-[10px]">Costo Total</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white">
@@ -368,7 +368,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                                                     onClick={() => handleProductSelect(idx, p)}
                                                                     className="px-3 py-1.5 text-[11px] hover:bg-blue-600 hover:text-white cursor-pointer border-b border-gray-50 flex justify-between"
                                                                 >
-                                                                    <span className="font-bold">{p.name}</span>
+                                                                    <span className="font-medium">{p.name}</span>
                                                                     <span className="opacity-70">{p.presentation}</span>
                                                                 </div>
                                                             ))}
@@ -381,13 +381,13 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                                         type="number"
                                                         value={item.quantity}
                                                         onChange={e => handleQuantityChange(idx, Number(e.target.value))}
-                                                        className="w-full text-center text-[11px] outline-none h-6 font-bold tabular-nums"
+                                                        className="w-full text-center text-[11px] outline-none h-6 font-medium tabular-nums"
                                                     />
                                                 </td>
                                                 <td className="px-3 border-r border-gray-200 text-right text-[11px] tabular-nums font-medium">
                                                     Q{item.cost.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                                 </td>
-                                                <td className="px-3 text-right text-[11px] tabular-nums font-bold text-[#106ebe]">
+                                                <td className="px-3 text-right text-[11px] tabular-nums font-medium text-[#106ebe]">
                                                     Q{item.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                                 </td>
                                             </tr>
@@ -400,8 +400,8 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                             {/* Table Footer / Total */}
                             <div className="bg-gray-100 border-t border-gray-400 p-2 flex justify-end items-center px-4 h-10 shrink-0">
                                 <div className="flex items-baseline gap-4">
-                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Total del Traslado</span>
-                                    <span className="text-xl font-black text-[#106ebe] tabular-nums">
+                                    <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Total del Traslado</span>
+                                    <span className="text-xl font-semibold text-[#106ebe] tabular-nums">
                                         Q{calculateTotal().toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                     </span>
                                 </div>
@@ -411,7 +411,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
 
                     {/* Floating Info Note */}
                     <div className="bg-[#f0f0f0] px-4 py-1.5 border-t border-gray-300">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase">* Verifique los datos antes de procesar el traslado.</p>
+                        <p className="text-[10px] font-medium text-gray-400 uppercase">* Verifique los datos antes de procesar el traslado.</p>
                     </div>
                 </div>
             </DraggableWindow>
@@ -429,7 +429,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                         onClick={(e) => e.stopPropagation()}
                     >
                         <button
-                            className="w-full text-left px-6 py-2 text-[11px] font-bold hover:bg-[#106ebe] hover:text-white text-black flex items-center gap-3 transition-colors uppercase"
+                            className="w-full text-left px-6 py-2 text-[11px] font-medium hover:bg-[#106ebe] hover:text-white text-black flex items-center gap-3 transition-colors uppercase"
                             onClick={() => {
                                 setDetailContextMenu(null);
                                 setProductListSearch('');
@@ -442,7 +442,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                             <>
                                 <div className="h-px bg-gray-300 my-1 mx-2" />
                                 <button
-                                    className="w-full text-left px-6 py-2 text-[11px] font-bold hover:bg-red-600 hover:text-white text-red-600 flex items-center gap-3 transition-colors uppercase"
+                                    className="w-full text-left px-6 py-2 text-[11px] font-medium hover:bg-red-600 hover:text-white text-red-600 flex items-center gap-3 transition-colors uppercase"
                                     onClick={() => {
                                         if (detailContextMenu.itemIdx !== null) handleRemoveItem(detailContextMenu.itemIdx);
                                         setDetailContextMenu(null);
@@ -466,7 +466,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                     >
                         {/* Header */}
                         <div className="bg-[#106ebe] px-3 py-1.5 flex items-center justify-between text-white shrink-0">
-                            <span className="text-[11px] font-bold tracking-wider uppercase flex items-center gap-2">
+                            <span className="text-[11px] font-medium tracking-wider uppercase flex items-center gap-2">
                                 <Search size={14} /> Buscador de Insumos - Listado para Traslado
                             </span>
                             <button onClick={() => setShowProductListModal(false)} className="w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
@@ -482,9 +482,9 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                 placeholder="INTRODUZCA EL TEXTO A BUSCAR (CÓDIGO O NOMBRE)..."
                                 value={productListSearch}
                                 onChange={(e) => setProductListSearch(e.target.value)}
-                                className="flex-1 h-8 border border-gray-400 px-3 text-[11px] outline-none focus:border-[#106ebe] bg-white font-bold uppercase"
+                                className="flex-1 h-8 border border-gray-400 px-3 text-[11px] outline-none focus:border-[#106ebe] bg-white font-medium uppercase"
                             />
-                            <button className="bg-[#106ebe] text-white px-8 h-8 text-[11px] font-bold uppercase hover:bg-[#002244] ">
+                            <button className="bg-[#106ebe] text-white px-8 h-8 text-[11px] font-medium uppercase hover:bg-[#002244] ">
                                 Buscar
                             </button>
                         </div>
@@ -494,10 +494,10 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                             <table className="w-full text-left border-collapse table-fixed">
                                 <thead className="bg-[#e8e8e8] sticky top-0 z-10 border-b border-gray-400 select-none">
                                     <tr className="h-8">
-                                        <th className="px-3 text-[10px] font-bold text-black border-r border-gray-300 w-28 uppercase">Código</th>
-                                        <th className="px-3 text-[10px] font-bold text-black border-r border-gray-300 uppercase">Producto / Insumo</th>
-                                        <th className="px-3 text-[10px] font-bold text-black border-r border-gray-300 w-32 text-center uppercase">Presentación</th>
-                                        <th className="px-12 text-[10px] font-bold text-black w-48 text-left uppercase">Proveedor</th>
+                                        <th className="px-3 text-[10px] font-medium text-black border-r border-gray-300 w-28 uppercase">Código</th>
+                                        <th className="px-3 text-[10px] font-medium text-black border-r border-gray-300 uppercase">Producto / Insumo</th>
+                                        <th className="px-3 text-[10px] font-medium text-black border-r border-gray-300 w-32 text-center uppercase">Presentación</th>
+                                        <th className="px-12 text-[10px] font-medium text-black w-48 text-left uppercase">Proveedor</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -516,7 +516,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                                 className={`h-8 cursor-pointer border-b border-gray-100 transition-colors group ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#f2f7fb] ${alreadyAdded ? 'bg-emerald-50/20' : ''}`}
                                             >
                                                 <td className="px-3 text-[10px] border-r border-gray-100 font-mono text-gray-400 truncate">{item.code || '--'}</td>
-                                                <td className="px-3 text-[11px] border-r border-gray-100 font-bold uppercase truncate text-gray-800">{item.name}</td>
+                                                <td className="px-3 text-[11px] border-r border-gray-100 font-medium uppercase truncate text-gray-800">{item.name}</td>
                                                 <td className="px-3 text-[10px] border-r border-gray-100 text-center truncate text-gray-500 uppercase">{item.presentation || 'N/A'}</td>
                                                 <td className="px-3 text-[10px] truncate text-gray-400 uppercase">---</td>
                                             </tr>
@@ -528,10 +528,10 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
 
                         {/* Table Footer Hint */}
                         <div className="bg-[#e8e8e8] border-t border-gray-300 px-4 py-1.5 flex justify-between items-center shrink-0">
-                            <span className="text-[10px] font-bold text-gray-500 uppercase">
+                            <span className="text-[10px] font-medium text-gray-500 uppercase">
                                 * Doble clic sobre el insumo para configurar cantidad
                             </span>
-                            <span className="text-[10px] font-black text-gray-600 uppercase">
+                            <span className="text-[10px] font-semibold text-gray-600 uppercase">
                                 {inventoryItems.length} Registros
                             </span>
                         </div>
@@ -540,7 +540,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                         <div className="bg-[#f0f0f0] border-t border-gray-400 p-3 flex justify-end shrink-0">
                             <button
                                 onClick={() => setShowProductListModal(false)}
-                                className="bg-[#106ebe] text-white px-10 h-9 text-[11px] font-bold uppercase hover:bg-[#002244]  flex items-center justify-center"
+                                className="bg-[#106ebe] text-white px-10 h-9 text-[11px] font-medium uppercase hover:bg-[#002244]  flex items-center justify-center"
                             >
                                 Salir / Cancelar
                             </button>
@@ -551,7 +551,7 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                             <div className="absolute inset-0 z-50 flex items-center justify-center animate-in fade-in duration-200 pointer-events-none">
                                 <div className="bg-[#f0f0f0] border border-gray-400  /50 w-[420px] relative rounded-sm overflow-hidden animate-in zoom-in-95 pointer-events-auto">
                                     <div className="bg-[#106ebe] px-3 py-1.5 flex items-center justify-between text-white  shrink-0">
-                                        <span className="text-[11px] font-bold uppercase tracking-wider">
+                                        <span className="text-[11px] font-medium uppercase tracking-wider">
                                             Configuración - ESC (Cerrar)
                                         </span>
                                         <button onClick={() => setSelectedProductForConfig(null)} className="w-5 h-5 flex items-center justify-center hover:bg-red-600 transition-colors">
@@ -561,30 +561,30 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                     <div className="p-6 space-y-3">
                                         {/* Product Field */}
                                         <div className="flex items-center gap-4">
-                                            <label className="text-[11px] font-bold text-[#106ebe] w-20 uppercase text-right">Producto</label>
+                                            <label className="text-[11px] font-medium text-[#106ebe] w-20 uppercase text-right">Producto</label>
                                             <input
                                                 type="text"
                                                 disabled
                                                 value={selectedProductForConfig.name || ''}
-                                                className="flex-1 h-8 border border-gray-400 bg-white/50 px-3 text-[11px] font-bold uppercase text-gray-800"
+                                                className="flex-1 h-8 border border-gray-400 bg-white/50 px-3 text-[11px] font-medium uppercase text-gray-800"
                                             />
                                         </div>
 
                                         {/* Quantity Field */}
                                         <div className="flex items-center gap-4">
-                                            <label className="text-[11px] font-bold text-[#106ebe] w-20 uppercase text-right">Cantidad</label>
+                                            <label className="text-[11px] font-medium text-[#106ebe] w-20 uppercase text-right">Cantidad</label>
                                             <div className="flex-1 flex gap-px">
                                                 <input
                                                     autoFocus
                                                     type="number"
                                                     value={configQty}
                                                     onChange={(e) => setConfigQty(parseFloat(e.target.value) || 0)}
-                                                    className="w-24 h-8 border-2 border-gray-300 bg-white px-2 text-[14px] font-black text-center text-[#106ebe] outline-none focus:border-[#106ebe] tabular-nums"
+                                                    className="w-24 h-8 border-2 border-gray-300 bg-white px-2 text-[14px] font-semibold text-center text-[#106ebe] outline-none focus:border-[#106ebe] tabular-nums"
                                                 />
                                                 <select
                                                     value={configUnit}
                                                     onChange={(e) => setConfigUnit(e.target.value)}
-                                                    className="flex-1 h-8 border-2 border-gray-300 bg-white px-2 text-[10px] font-bold uppercase text-gray-600 outline-none focus:border-[#106ebe]"
+                                                    className="flex-1 h-8 border-2 border-gray-300 bg-white px-2 text-[10px] font-medium uppercase text-gray-600 outline-none focus:border-[#106ebe]"
                                                 >
                                                     {(() => {
                                                         const unit = selectedProductForConfig.unit?.toUpperCase() || 'UNIDAD';
@@ -631,11 +631,11 @@ export const InventoryTransferModal: React.FC<InventoryTransferModalProps> = ({
                                                     setSelectedProductForConfig(null);
                                                     setShowProductListModal(false);
                                                 }}
-                                                className="w-36 h-9 bg-[#106ebe] text-white text-[11px] font-black hover:bg-[#002244] uppercase  active:scale-95 transition-all"
+                                                className="w-36 h-9 bg-[#106ebe] text-white text-[11px] font-semibold hover:bg-[#002244] uppercase  active:scale-95 transition-all"
                                             >
                                                 Agregar
                                             </button>
-                                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                            <p className="text-[9px] font-medium text-gray-400 uppercase tracking-widest">
                                                 Presiona ESC para cancelar
                                             </p>
                                         </div>

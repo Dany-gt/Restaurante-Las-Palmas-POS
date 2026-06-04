@@ -202,7 +202,7 @@ export const DashboardVentasRendimiento: React.FC = () => {
     const FilterBlock = ({ title, icon: Icon, options, selected, setSelected }: any) => (
         <div className="border-b border-slate-200">
             <div className="flex items-center px-3 py-2 bg-white">
-                <h3 className="text-[10px] font-bold text-slate-700 flex items-center gap-2">
+                <h3 className="text-[10px] font-medium text-slate-700 flex items-center gap-2">
                     <Icon size={12} className="text-slate-400" />
                     {title}
                 </h3>
@@ -210,7 +210,7 @@ export const DashboardVentasRendimiento: React.FC = () => {
             <div className="p-3 bg-[#f3f4f6]/50 space-y-1 max-h-[120px] overflow-y-auto custom-scrollbar">
                 <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={selected.length === 0} onChange={() => setSelected([])} className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-0" />
-                    <span className="text-[10px] text-blue-600 font-bold">(Todos)</span>
+                    <span className="text-[10px] text-blue-600 font-medium">(Todos)</span>
                 </label>
                 {options.map((o: string) => (
                     <label key={o} className="flex items-center gap-2 cursor-pointer pl-2">
@@ -242,17 +242,17 @@ export const DashboardVentasRendimiento: React.FC = () => {
                         {/* FECHAS */}
                         <div className="border-b border-slate-200">
                             <div className="flex items-center px-3 py-2 bg-white">
-                                <h3 className="text-[10px] font-bold text-slate-700 flex items-center gap-2">
+                                <h3 className="text-[10px] font-medium text-slate-700 flex items-center gap-2">
                                     <Calendar size={12} className="text-slate-400" /> Filtro Fechas
                                 </h3>
                             </div>
                             <div className="p-3 space-y-2">
                                 <div className="space-y-1">
-                                    <label className="text-[9px] text-slate-500 font-bold block px-1">Fecha Inicial</label>
+                                    <label className="text-[9px] text-slate-500 font-medium block px-1">Fecha Inicial</label>
                                     <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full h-8 bg-white border border-slate-200 rounded px-2 text-[10px] outline-none focus:border-blue-400" />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[9px] text-slate-500 font-bold block px-1">Fecha Final</label>
+                                    <label className="text-[9px] text-slate-500 font-medium block px-1">Fecha Final</label>
                                     <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full h-8 bg-white border border-slate-200 rounded px-2 text-[10px] outline-none focus:border-blue-400" />
                                 </div>
                             </div>
@@ -269,7 +269,7 @@ export const DashboardVentasRendimiento: React.FC = () => {
                 {!isSidebarCollapsed && (
                     <div className="p-3 bg-white border-t border-slate-200">
                         <button onClick={handleGenerate}
-                            className="w-full h-9 bg-[#1a1b26] text-white rounded flex items-center justify-center gap-2 font-bold uppercase tracking-widest shadow-sm active:scale-95 transition-all text-[9px] hover:bg-[#106ebe] cursor-pointer"
+                            className="w-full h-9 bg-[#1a1b26] text-white rounded flex items-center justify-center gap-2 font-medium uppercase tracking-widest shadow-sm active:scale-95 transition-all text-[9px] hover:bg-[#106ebe] cursor-pointer"
                         >
                             {loading ? <Loader2 size={12} className="animate-spin" /> : 'Sincronizar Datos'}
                         </button>
@@ -280,14 +280,14 @@ export const DashboardVentasRendimiento: React.FC = () => {
             {/* CONTENIDO */}
             <main className="flex-1 overflow-y-auto bg-[#f1f3f6] p-4 pb-64 custom-scrollbar scroll-smooth">
                 <div className="text-center mb-4">
-                    <h1 className="text-[14px] font-black text-slate-800 uppercase tracking-widest">Análisis De Ventas</h1>
+                    <h1 className="text-[14px] font-semibold text-slate-800 uppercase tracking-widest">Análisis De Ventas</h1>
                 </div>
 
                 {/* TABS */}
                 <div className="flex items-center gap-1 mb-6 bg-white p-1 rounded-2xl border border-slate-200 shadow-sm w-fit sticky top-0 z-10 mx-auto">
                     {TABS.map(tab => (
                         <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer ${activeTab === tab.id ? 'bg-[#1a1b26] text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-semibold uppercase tracking-widest transition-all cursor-pointer ${activeTab === tab.id ? 'bg-[#1a1b26] text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                             <tab.icon size={13} className={activeTab === tab.id ? 'text-teal-400' : 'text-slate-400'} />
                             {tab.label}
@@ -304,10 +304,10 @@ export const DashboardVentasRendimiento: React.FC = () => {
                                 {/* Ventas Por Hora */}
                                 <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                     <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200 flex justify-between items-center">
-                                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Ventas Por Hora</h3>
+                                        <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Ventas Por Hora</h3>
                                         <div className="flex gap-4">
-                                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-teal-500 rounded-sm" /><span className="text-[9px] font-bold text-slate-500">Total Venta</span></div>
-                                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-rose-500 rounded-full" /><span className="text-[9px] font-bold text-slate-500">Total Ordenes</span></div>
+                                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-teal-500 rounded-sm" /><span className="text-[9px] font-medium text-slate-500">Total Venta</span></div>
+                                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-rose-500 rounded-full" /><span className="text-[9px] font-medium text-slate-500">Total Ordenes</span></div>
                                         </div>
                                     </div>
                                     <div className="h-[300px] p-4">
@@ -333,7 +333,7 @@ export const DashboardVentasRendimiento: React.FC = () => {
                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                     <div className="lg:col-span-2 bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Ventas Por Día</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Ventas Por Día</h3>
                                         </div>
                                         <div className="h-[300px] p-4">
                                             <ResponsiveContainer width="100%" height="100%">
@@ -357,20 +357,20 @@ export const DashboardVentasRendimiento: React.FC = () => {
                                     {/* Resumen De Ventas */}
                                     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Resumen De Ventas</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Resumen De Ventas</h3>
                                         </div>
                                         <table className="w-full text-[10px]">
                                             <thead>
-                                                <tr className="border-b border-slate-200 text-[8px] font-black text-slate-500 uppercase tracking-widest">
+                                                <tr className="border-b border-slate-200 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">
                                                     <th className="px-3 py-2 text-left" colSpan={3}>Gran Total</th>
                                                 </tr>
-                                                <tr className="border-b border-slate-100 text-[8px] font-black text-slate-400 uppercase tracking-widest">
+                                                <tr className="border-b border-slate-100 text-[8px] font-semibold text-slate-400 uppercase tracking-widest">
                                                     <th className="px-3 py-1.5 text-left"></th>
                                                     <th className="px-3 py-1.5 text-right">Total Ordenes</th>
                                                     <th className="px-3 py-1.5 text-right">Total Venta</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-slate-100 font-bold text-slate-600">
+                                            <tbody className="divide-y divide-slate-100 font-medium text-slate-600">
                                                 {(stats.byType as any[]).map((t: any, i: number) => (
                                                     <tr key={i} className="hover:bg-slate-50">
                                                         <td className="px-3 py-1.5 text-[9px]">{t.name}</td>
@@ -378,7 +378,7 @@ export const DashboardVentasRendimiento: React.FC = () => {
                                                         <td className="px-3 py-1.5 text-right tabular-nums text-teal-600">{formatCurrency(t.totalVenta)}</td>
                                                     </tr>
                                                 ))}
-                                                <tr className="bg-[#106ebe] text-white font-black text-[10px]">
+                                                <tr className="bg-[#106ebe] text-white font-semibold text-[10px]">
                                                     <td className="px-3 py-2">Gran Total</td>
                                                     <td className="px-3 py-2 text-right tabular-nums text-orange-400">{stats.totalOrdenes}</td>
                                                     <td className="px-3 py-2 text-right tabular-nums text-teal-400">{formatCurrency(stats.totalVenta)}</td>
@@ -395,7 +395,7 @@ export const DashboardVentasRendimiento: React.FC = () => {
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                     <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Ventas Por Tipo de Orden</h3>
+                                        <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Ventas Por Tipo de Orden</h3>
                                     </div>
                                     <div className="h-[350px] p-4">
                                         <ResponsiveContainer width="100%" height="100%">
@@ -413,7 +413,7 @@ export const DashboardVentasRendimiento: React.FC = () => {
                                 </div>
                                 <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm flex flex-col">
                                     <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Distribución</h3>
+                                        <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Distribución</h3>
                                     </div>
                                     <div className="flex-1 min-h-[350px] flex items-center justify-center p-4">
                                         <ResponsiveContainer width="100%" height="100%">
@@ -437,7 +437,7 @@ export const DashboardVentasRendimiento: React.FC = () => {
                             <div className="space-y-6">
                                 <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                     <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Ventas Por Sección</h3>
+                                        <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Ventas Por Sección</h3>
                                     </div>
                                     <div className="h-[300px] p-4">
                                         <ResponsiveContainer width="100%" height="100%">
@@ -459,21 +459,21 @@ export const DashboardVentasRendimiento: React.FC = () => {
                                 </div>
                                 <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm w-fit min-w-[500px]">
                                     <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200 flex justify-between">
-                                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Ventas Por Sección</h3>
+                                        <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Ventas Por Sección</h3>
                                     </div>
                                     <table className="w-full text-[10px]">
                                         <thead>
-                                            <tr className="border-b border-slate-200 text-[8px] font-black text-slate-500 uppercase tracking-widest">
+                                            <tr className="border-b border-slate-200 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">
                                                 <th className="px-4 py-2 text-left bg-[#f8f9fa] border-r border-slate-200"></th>
                                                 <th className="px-4 py-2 text-center border-r border-slate-200" colSpan={2}>Gran Total</th>
                                             </tr>
-                                            <tr className="border-b border-slate-100 text-[8px] font-black text-slate-400 uppercase tracking-widest bg-slate-50">
+                                            <tr className="border-b border-slate-100 text-[8px] font-semibold text-slate-400 uppercase tracking-widest bg-slate-50">
                                                 <th className="px-4 py-2 text-left border-r border-slate-100"></th>
                                                 <th className="px-4 py-2 text-right border-r border-slate-100">Total Ordenes</th>
                                                 <th className="px-4 py-2 text-right">Total Venta</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-100 font-bold text-slate-600">
+                                        <tbody className="divide-y divide-slate-100 font-medium text-slate-600">
                                             {(stats.bySection as any[]).map((s: any, i: number) => (
                                                 <tr key={i} className="hover:bg-slate-50">
                                                     <td className="px-4 py-2 uppercase text-[9px] border-r border-slate-100">{s.name}</td>
@@ -481,7 +481,7 @@ export const DashboardVentasRendimiento: React.FC = () => {
                                                     <td className="px-4 py-2 text-right tabular-nums text-white bg-orange-600 border-y border-white">{formatCurrency(s.totalVenta)}</td>
                                                 </tr>
                                             ))}
-                                            <tr className="bg-[#f8f9fa] text-slate-700 font-black text-[10px]">
+                                            <tr className="bg-[#f8f9fa] text-slate-700 font-semibold text-[10px]">
                                                 <td className="px-4 py-2 border-r border-slate-200">Gran Total</td>
                                                 <td className="px-4 py-2 text-right tabular-nums border-r border-slate-200">{stats.totalOrdenes}</td>
                                                 <td className="px-4 py-2 text-right tabular-nums">{formatCurrency(stats.totalVenta)}</td>
@@ -497,7 +497,7 @@ export const DashboardVentasRendimiento: React.FC = () => {
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <div className="lg:col-span-2 bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                     <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Ventas Por Usuario</h3>
+                                        <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Ventas Por Usuario</h3>
                                     </div>
                                     <div className="h-[400px] p-4">
                                         <ResponsiveContainer width="100%" height="100%">
@@ -519,21 +519,21 @@ export const DashboardVentasRendimiento: React.FC = () => {
                                 </div>
                                 <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm h-fit">
                                     <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Total Ventas</h3>
+                                        <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Total Ventas</h3>
                                     </div>
                                     <table className="w-full text-[10px]">
                                         <thead>
-                                            <tr className="border-b border-slate-200 text-[8px] font-black text-slate-500 uppercase tracking-widest bg-[#f8f9fa]">
+                                            <tr className="border-b border-slate-200 text-[8px] font-semibold text-slate-500 uppercase tracking-widest bg-[#f8f9fa]">
                                                 <th className="px-4 py-2 text-left border-r border-slate-200"></th>
                                                 <th className="px-4 py-2 text-center" colSpan={2}>Gran Total</th>
                                             </tr>
-                                            <tr className="border-b border-slate-100 text-[8px] font-black text-slate-400 uppercase tracking-widest bg-slate-50">
+                                            <tr className="border-b border-slate-100 text-[8px] font-semibold text-slate-400 uppercase tracking-widest bg-slate-50">
                                                 <th className="px-4 py-2 text-left border-r border-slate-100"></th>
                                                 <th className="px-4 py-2 text-right border-r border-slate-100">Total Ordenes</th>
                                                 <th className="px-4 py-2 text-right">Total Venta</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-100 font-bold text-slate-600">
+                                        <tbody className="divide-y divide-slate-100 font-medium text-slate-600">
                                             {(stats.byUser as any[]).map((u: any, i: number) => (
                                                 <tr key={i} className="hover:bg-slate-50">
                                                     <td className="px-4 py-2 uppercase text-[9px] border-r border-slate-100">{u.name}</td>
@@ -541,7 +541,7 @@ export const DashboardVentasRendimiento: React.FC = () => {
                                                     <td className="px-4 py-2 text-right tabular-nums border-y border-white" style={{ backgroundColor: i < 3 ? '#ea580c' : 'transparent', color: i < 3 ? 'white' : 'inherit' }}>{formatCurrency(u.totalVenta)}</td>
                                                 </tr>
                                             ))}
-                                            <tr className="bg-[#f8f9fa] text-slate-700 font-black text-[10px]">
+                                            <tr className="bg-[#f8f9fa] text-slate-700 font-semibold text-[10px]">
                                                 <td className="px-4 py-2 border-r border-slate-200">Gran Total</td>
                                                 <td className="px-4 py-2 text-right tabular-nums border-r border-slate-200">{stats.totalOrdenes}</td>
                                                 <td className="px-4 py-2 text-right tabular-nums">{formatCurrency(stats.totalVenta)}</td>
@@ -558,7 +558,7 @@ export const DashboardVentasRendimiento: React.FC = () => {
                                 <div className="flex-1 overflow-x-auto overflow-y-auto custom-scrollbar">
                                     <table className="w-full min-w-[1200px] text-[10px] border-collapse relative">
                                         <thead className="sticky top-0 z-10">
-                                            <tr className="bg-[#f8f9fa] border-b border-slate-200 text-[8px] font-black text-slate-500 uppercase tracking-widest">
+                                            <tr className="bg-[#f8f9fa] border-b border-slate-200 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">
                                                 <th className="px-3 py-3 text-left border-r border-slate-200">Fecha</th>
                                                 <th className="px-3 py-3 text-center border-r border-slate-200">No. Orden</th>
                                                 <th className="px-3 py-3 text-left border-r border-slate-200">Tipo</th>
@@ -571,7 +571,7 @@ export const DashboardVentasRendimiento: React.FC = () => {
                                                 <th className="px-3 py-3 text-right">Total</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-100 font-bold text-slate-600">
+                                        <tbody className="divide-y divide-slate-100 font-medium text-slate-600">
                                             {filteredData.map((o: any, i: number) => (
                                                 <tr key={i} className="hover:bg-slate-50">
                                                     <td className="px-3 py-2 text-[9px] border-r border-slate-100 text-slate-500 whitespace-nowrap">{o.fechaFormatted}</td>
@@ -583,20 +583,20 @@ export const DashboardVentasRendimiento: React.FC = () => {
                                                     <td className="px-3 py-2 text-right tabular-nums border-r border-slate-100 text-slate-500">{formatCurrency(o.total)}</td>
                                                     <td className="px-3 py-2 text-right tabular-nums border-r border-slate-100 text-slate-500">{formatCurrency(o.tip)}</td>
                                                     <td className="px-3 py-2 text-right tabular-nums border-r border-slate-100 text-slate-500">{formatCurrency(o.discount)}</td>
-                                                    <td className="px-3 py-2 text-right tabular-nums text-teal-700 bg-teal-50/10 font-black">{formatCurrency(o.total + o.tip - o.discount)}</td>
+                                                    <td className="px-3 py-2 text-right tabular-nums text-teal-700 bg-teal-50/10 font-semibold">{formatCurrency(o.total + o.tip - o.discount)}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
                                 </div>
                                 {/* Resumen Footer Fijo */}
-                                <div className="bg-white border-t border-slate-200 text-slate-800 font-black flex items-center px-3 py-3 shrink-0 uppercase tracking-widest text-[9px]">
-                                    <div className="w-[150px] flex gap-2"><span className="text-slate-500 font-bold">Recuento:</span>{filteredData.length}</div>
+                                <div className="bg-white border-t border-slate-200 text-slate-800 font-semibold flex items-center px-3 py-3 shrink-0 uppercase tracking-widest text-[9px]">
+                                    <div className="w-[150px] flex gap-2"><span className="text-slate-500 font-medium">Recuento:</span>{filteredData.length}</div>
                                     <div className="flex-1 flex justify-end items-center gap-8">
-                                        <div className="flex items-center gap-2"><span className="text-slate-500 font-bold">Suma SubTotal =</span>{formatCurrency(filteredData.reduce((a, c) => a + c.total, 0))}</div>
-                                        <div className="flex items-center gap-2"><span className="text-slate-500 font-bold">Suma Propina =</span>{formatCurrency(filteredData.reduce((a, c) => a + c.tip, 0))}</div>
-                                        <div className="flex items-center gap-2"><span className="text-slate-500 font-bold">Suma Descuento =</span>{formatCurrency(filteredData.reduce((a, c) => a + c.discount, 0))}</div>
-                                        <div className="flex items-center gap-2 text-[10px] text-teal-700"><span className="text-slate-500 font-bold">Suma Total =</span>{formatCurrency(filteredData.reduce((a, c) => a + (c.total + c.tip - c.discount), 0))}</div>
+                                        <div className="flex items-center gap-2"><span className="text-slate-500 font-medium">Suma SubTotal =</span>{formatCurrency(filteredData.reduce((a, c) => a + c.total, 0))}</div>
+                                        <div className="flex items-center gap-2"><span className="text-slate-500 font-medium">Suma Propina =</span>{formatCurrency(filteredData.reduce((a, c) => a + c.tip, 0))}</div>
+                                        <div className="flex items-center gap-2"><span className="text-slate-500 font-medium">Suma Descuento =</span>{formatCurrency(filteredData.reduce((a, c) => a + c.discount, 0))}</div>
+                                        <div className="flex items-center gap-2 text-[10px] text-teal-700"><span className="text-slate-500 font-medium">Suma Total =</span>{formatCurrency(filteredData.reduce((a, c) => a + (c.total + c.tip - c.discount), 0))}</div>
                                     </div>
                                 </div>
                             </div>

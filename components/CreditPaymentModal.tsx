@@ -146,13 +146,13 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                     >
                         <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                     </button>
-                    <span className="text-sm font-black text-indigo-400 uppercase tracking-tighter">RESTAURANTE LAS PALMAS POS</span>
+                    <span className="text-sm font-semibold text-indigo-400 uppercase tracking-tighter">RESTAURANTE LAS PALMAS POS</span>
                 </div>
 
                 <div className="flex items-center gap-8">
                     <div className="flex flex-col items-end">
-                        <span className="text-xs font-black text-[#f8f8f2] uppercase">DANILO PEREZ</span>
-                        <span className="text-[10px] font-bold text-[#50fa7b] uppercase tracking-widest">Abono A Créditos</span>
+                        <span className="text-xs font-semibold text-[#f8f8f2] uppercase">DANILO PEREZ</span>
+                        <span className="text-[10px] font-medium text-[#50fa7b] uppercase tracking-widest">Abono A Créditos</span>
                     </div>
                 </div>
             </div>
@@ -163,7 +163,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                 <div className="w-[360px] flex flex-col gap-4">
                     <div className="bg-[#383a59]/30 rounded-sm border border-white/5 overflow-hidden flex flex-col h-[480px]">
                         <div className="p-2 border-b border-white/5 text-center bg-[#383a59]/50 shrink-0">
-                            <span className="text-[11px] font-bold text-gray-300 uppercase tracking-wider">Cuentas por Cobrar</span>
+                            <span className="text-[11px] font-medium text-gray-300 uppercase tracking-wider">Cuentas por Cobrar</span>
                         </div>
                         <div className="p-3 bg-black/10 shrink-0">
                             <div className="relative">
@@ -173,7 +173,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                                     placeholder=""
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full bg-black/20 border border-white/10 rounded h-9 pl-9 pr-4 text-xs font-bold text-white uppercase focus:outline-none"
+                                    className="w-full bg-black/20 border border-white/10 rounded h-9 pl-9 pr-4 text-xs font-medium text-white uppercase focus:outline-none"
                                 />
                             </div>
                         </div>
@@ -181,7 +181,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                             {loading ? (
                                 <div className="flex justify-center py-8"><Loader2 className="animate-spin text-gray-600" size={20} /></div>
                             ) : customers.length === 0 ? (
-                                <div className="py-8 text-center text-[10px] uppercase font-bold text-gray-700">Sin resultados</div>
+                                <div className="py-8 text-center text-[10px] uppercase font-medium text-gray-700">Sin resultados</div>
                             ) : customers.map(c => (
                                 <button
                                     key={c.id}
@@ -192,7 +192,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                                         : 'bg-[#282a36]/50 border-transparent hover:bg-[#383a59]/30'
                                     }`}
                                 >
-                                    <div className="text-[10px] font-black text-gray-200 uppercase truncate">{c.customer_name}</div>
+                                    <div className="text-[10px] font-semibold text-gray-200 uppercase truncate">{c.customer_name}</div>
                                 </button>
                             ))}
                         </div>
@@ -202,25 +202,25 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                 {/* COL 2: El Ticket */}
                 <div className="w-[320px] h-[480px] bg-[#44475a]  /50 relative flex flex-col">
                     <div className="p-8 flex-1 space-y-4">
-                        <div className="flex justify-between items-center text-[11px] font-bold">
+                        <div className="flex justify-between items-center text-[11px] font-medium">
                             <span className="text-gray-200 uppercase tracking-wider">Saldo Actual</span>
                             <span className="text-white">Q{selectedCustomer?.saldo.toFixed(2) || '0.00'}</span>
                         </div>
-                        <div className="flex justify-between items-center text-[11px] font-bold">
+                        <div className="flex justify-between items-center text-[11px] font-medium">
                             <span className="text-gray-200 uppercase tracking-wider">Efectivo</span>
                             <span className="text-white">Q{paymentMethod === 'EFECTIVO' ? parseFloat(amount).toFixed(2) : '0.00'}</span>
                         </div>
-                        <div className="flex justify-between items-center text-[11px] font-bold">
+                        <div className="flex justify-between items-center text-[11px] font-medium">
                             <span className="text-gray-200 uppercase tracking-wider">Tarjeta</span>
                             <span className="text-white">Q{paymentMethod === 'TARJETA' ? parseFloat(amount).toFixed(2) : '0.00'}</span>
                         </div>
-                        <div className="flex justify-between items-center text-[11px] font-bold border-b border-white/10 pb-4">
+                        <div className="flex justify-between items-center text-[11px] font-medium border-b border-white/10 pb-4">
                             <span className="text-gray-200 uppercase tracking-wider">Otros</span>
                             <span className="text-white">Q{paymentMethod === 'OTROS' ? parseFloat(amount).toFixed(2) : '0.00'}</span>
                         </div>
                         <div className="flex justify-between items-center pt-2">
-                            <span className="text-[12px] font-black text-white uppercase">Saldo Nuevo</span>
-                            <span className="text-[12px] font-black text-white uppercase tracking-tight">Q{calculateNewBalance().toFixed(2)}</span>
+                            <span className="text-[12px] font-semibold text-white uppercase">Saldo Nuevo</span>
+                            <span className="text-[12px] font-semibold text-white uppercase tracking-tight">Q{calculateNewBalance().toFixed(2)}</span>
                         </div>
                     </div>
                     {/* Zigzag bottom effect */}
@@ -231,7 +231,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                 <div className="flex flex-col gap-4">
                     {/* Display */}
                     <div className="w-[360px] bg-[#21222c] border border-white/5 p-4 text-center rounded-sm">
-                        <span className="text-2xl font-black text-white tracking-widest">Q{amount}</span>
+                        <span className="text-2xl font-semibold text-white tracking-widest">Q{amount}</span>
                     </div>
 
                     <div className="flex gap-3">
@@ -241,7 +241,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                                 <button 
                                     key={n} 
                                     onClick={() => handleKeypad(n.toString())}
-                                    className="h-16 bg-[#282a36]/80 hover:bg-[#44475a] text-sm font-black text-white transition-all flex items-center justify-center rounded-sm"
+                                    className="h-16 bg-[#282a36]/80 hover:bg-[#44475a] text-sm font-semibold text-white transition-all flex items-center justify-center rounded-sm"
                                 >
                                     {n}
                                 </button>
@@ -249,8 +249,8 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                             <button onClick={() => handleKeypad('DEL')} className="h-16 bg-[#282a36]/80 hover:bg-[#ff5555]/20 flex items-center justify-center text-gray-500 rounded-sm">
                                 <DeleteIcon size={18} />
                             </button>
-                            <button onClick={() => handleKeypad('0')} className="h-16 bg-[#282a36]/80 hover:bg-[#44475a] text-sm font-black text-white flex items-center justify-center rounded-sm">0</button>
-                            <button onClick={() => handleKeypad('.')} className="h-16 bg-[#282a36]/80 hover:bg-[#44475a] text-sm font-black text-white flex items-center justify-center rounded-sm">.</button>
+                            <button onClick={() => handleKeypad('0')} className="h-16 bg-[#282a36]/80 hover:bg-[#44475a] text-sm font-semibold text-white flex items-center justify-center rounded-sm">0</button>
+                            <button onClick={() => handleKeypad('.')} className="h-16 bg-[#282a36]/80 hover:bg-[#44475a] text-sm font-semibold text-white flex items-center justify-center rounded-sm">.</button>
                         </div>
 
                         {/* Métodos Íconos */}
@@ -268,7 +268,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                                 }`}
                             >
                                 <Banknote size={16} />
-                                <span className="text-[8px] font-bold uppercase">Efectivo</span>
+                                <span className="text-[8px] font-medium uppercase">Efectivo</span>
                             </button>
                              <button 
                                 onClick={() => {
@@ -283,8 +283,8 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                                 }`}
                             >
                                 <CardIcon size={16} />
-                                <span className="text-[8px] font-bold uppercase">Tarjeta</span>
-                                {selectedProcessor && <span className="text-[7px] text-blue-400 font-black">{selectedProcessor}</span>}
+                                <span className="text-[8px] font-medium uppercase">Tarjeta</span>
+                                {selectedProcessor && <span className="text-[7px] text-blue-400 font-semibold">{selectedProcessor}</span>}
                             </button>
                              <button 
                                 onClick={() => {
@@ -299,7 +299,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                                 }`}
                             >
                                 <Wallet size={16} />
-                                <span className="text-[8px] font-bold uppercase">Otros</span>
+                                <span className="text-[8px] font-medium uppercase">Otros</span>
                             </button>
                         </div>
                     </div>
@@ -307,7 +307,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                     <button 
                         onClick={handlePayment}
                         disabled={!selectedCustomer || parseFloat(amount) <= 0 || processing}
-                        className={`w-full h-12 rounded-sm font-black uppercase text-xs tracking-widest transition-all ${
+                        className={`w-full h-12 rounded-sm font-semibold uppercase text-xs tracking-widest transition-all ${
                             !selectedCustomer || parseFloat(amount) <= 0 
                             ? 'bg-[#44475a] text-gray-600' 
                             : 'bg-[#6272a4] hover:bg-[#7282b4] text-white '
@@ -324,7 +324,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                 <div className="fixed inset-0 z-[100] bg-black/80  flex items-center justify-center p-6">
                     <div className="bg-[#1e212b] w-full max-w-2xl rounded-xl border border-white/10  /50 overflow-hidden flex flex-col">
                         <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
-                            <h3 className="text-lg font-black text-white uppercase tracking-tighter">Seleccione POS</h3>
+                            <h3 className="text-lg font-semibold text-white uppercase tracking-tighter">Seleccione POS</h3>
                             <button onClick={() => setShowPosSelector(false)} className="p-2 bg-white/5 rounded-full text-white">
                                 <X size={20} />
                             </button>
@@ -344,14 +344,14 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                                     ) : (
                                         <CreditCard size={32} className="text-gray-400" />
                                     )}
-                                    <span className="text-[10px] font-black text-black uppercase tracking-widest">{pos.name}</span>
+                                    <span className="text-[10px] font-semibold text-black uppercase tracking-widest">{pos.name}</span>
                                 </button>
                             ))}
                         </div>
                         <div className="p-6 bg-[#0d0f13] border-t border-white/5">
                             <button
                                 onClick={() => setShowPosSelector(false)}
-                                className="w-full h-14 rounded-lg border border-white/10 bg-white/5 font-black uppercase text-[11px] text-gray-500 hover:text-white"
+                                className="w-full h-14 rounded-lg border border-white/10 bg-white/5 font-semibold uppercase text-[11px] text-gray-500 hover:text-white"
                             >
                                 Cancelar
                             </button>
@@ -364,7 +364,7 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                 <div className="fixed inset-0 bg-black/60  z-[200] flex items-center justify-center">
                     <div className="flex flex-col items-center gap-4">
                         <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
-                        <span className="text-xs font-black uppercase tracking-widest text-white/40">Procesando Pago...</span>
+                        <span className="text-xs font-semibold uppercase tracking-widest text-white/40">Procesando Pago...</span>
                     </div>
                 </div>
             )}

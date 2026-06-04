@@ -299,8 +299,8 @@ export const InventoryProducts: React.FC = () => {
         if (!capacity || capacity <= 0) {
             return (
                 <div className="flex flex-col items-center">
-                    <span className="font-bold text-sm">{stock}</span>
-                    <span className="text-[9px] text-slate-800 font-bold">{unit}</span>
+                    <span className="font-medium text-sm">{stock}</span>
+                    <span className="text-[9px] text-slate-800 font-medium">{unit}</span>
                 </div>
             );
         }
@@ -310,8 +310,8 @@ export const InventoryProducts: React.FC = () => {
 
         return (
             <div className="flex flex-col items-center">
-                <span className="font-bold text-sm">{displayValue}</span>
-                <span className="text-[9px] text-slate-800 font-bold">{stock} {unit}</span>
+                <span className="font-medium text-sm">{displayValue}</span>
+                <span className="text-[9px] text-slate-800 font-medium">{stock} {unit}</span>
             </div>
         );
     };
@@ -688,7 +688,7 @@ export const InventoryProducts: React.FC = () => {
                             <div
                                 onClick={() => toggleCategorySelection(cat.id)}
                                 onContextMenu={(e) => handleContextMenu(e, 'category', cat)}
-                                className={`flex-1 flex items-center gap-1.5 px-3 py-1 text-left truncate cursor-pointer transition-colors ${isSelected ? 'bg-blue-50/50' : 'text-slate-800 font-bold hover:bg-slate-100'}`}
+                                className={`flex-1 flex items-center gap-1.5 px-3 py-1 text-left truncate cursor-pointer transition-colors ${isSelected ? 'bg-blue-50/50' : 'text-slate-800 font-medium hover:bg-slate-100'}`}
                             >
                                 <div style={{ paddingLeft: `${depth * 12}px` }} className="flex items-center gap-1.5 flex-1 min-w-0">
                                     {hasChildren ? (
@@ -696,15 +696,15 @@ export const InventoryProducts: React.FC = () => {
                                             onClick={(e) => { e.stopPropagation(); toggleCategory(cat.id); }} 
                                             className="w-4 h-4 flex items-center justify-center hover:bg-slate-200 rounded-sm"
                                         >
-                                            {isExpanded ? <ChevronDown size={14} className="text-slate-800 font-bold" /> : <ChevronRight size={14} className="text-slate-800 font-bold" />}
+                                            {isExpanded ? <ChevronDown size={14} className="text-slate-800 font-medium" /> : <ChevronRight size={14} className="text-slate-800 font-medium" />}
                                         </button>
                                     ) : (
                                         <div className="w-4" />
                                     )}
                                     <div className="flex items-center justify-center">
-                                        {isSelected ? <CheckSquare size={14} className="text-[#106ebe]" /> : <Square size={14} className="text-slate-800 font-bold" />}
+                                        {isSelected ? <CheckSquare size={14} className="text-[#106ebe]" /> : <Square size={14} className="text-slate-800 font-medium" />}
                                     </div>
-                                    <span className={`text-[11px] uppercase truncate ${hasChildren ? 'font-bold' : ''} ${isSelected ? 'text-[#106ebe] font-bold' : 'text-slate-800 font-bold'}`}>
+                                    <span className={`text-[11px] uppercase truncate ${hasChildren ? 'font-medium' : ''} ${isSelected ? 'text-[#106ebe] font-medium' : 'text-slate-800 font-medium'}`}>
                                         {cat.name}
                                     </span>
                                 </div>
@@ -725,11 +725,11 @@ export const InventoryProducts: React.FC = () => {
             <div className="h-full flex flex-col relative bg-[#f0f0f0] font-['Montserrat'] overflow-hidden" onClick={() => setProductContextMenu(null)}>
                 <div className="bg-[#e6e6e6] px-3 border-b border-gray-300 flex items-center justify-between shrink-0 h-[40px] z-[100]">
                     <div className="flex items-center gap-2">
-                        <span className="text-slate-800 font-bold font-medium text-[12px]">Sucursal</span>
+                        <span className="text-slate-800 font-medium font-medium text-[12px]">Sucursal</span>
                         <select
                             value={selectedBranch}
                             onChange={e => setSelectedBranch(e.target.value)}
-                            className="bg-transparent outline-none text-[10px] font-bold uppercase text-slate-700 min-w-[280px] cursor-pointer"
+                            className="bg-transparent outline-none text-[10px] font-medium uppercase text-slate-700 min-w-[280px] cursor-pointer"
                         >
                             <option value="all">TODAS LAS SUCURSALES</option>
                             {branches.map(b => (
@@ -738,7 +738,7 @@ export const InventoryProducts: React.FC = () => {
                         </select>
                         <button
                             onClick={() => setSelectedCategories(new Set())}
-                            className="bg-[#106ebe] text-white px-3 h-[24px] text-[10px] font-bold uppercase rounded-sm shadow-sm hover:bg-[#005a9e] active:shadow-inner transition-all flex items-center justify-center"
+                            className="bg-[#106ebe] text-white px-3 h-[24px] text-[10px] font-medium uppercase rounded-sm shadow-sm hover:bg-[#005a9e] active:shadow-inner transition-all flex items-center justify-center"
                         >
                             Mostrar Todos
                         </button>
@@ -751,10 +751,10 @@ export const InventoryProducts: React.FC = () => {
                                 placeholder="Buscar producto..."
                                 value={searchProduct}
                                 onChange={(e) => setSearchProduct(e.target.value)}
-                                className="px-2 text-[11px] w-64 outline-none text-slate-800 font-bold font-medium h-[22px] bg-transparent"
+                                className="px-2 text-[11px] w-64 outline-none text-slate-800 font-medium font-medium h-[22px] bg-transparent"
                             />
                         </div>
-                        <button className="bg-[#f0f0f0] border border-gray-400 px-4 h-[24px] text-[10px] font-bold uppercase hover:bg-[#e1e1e1] active:bg-[#d1d1d1] text-slate-800 font-bold rounded-sm shadow-sm transition-all flex items-center justify-center">
+                        <button className="bg-[#f0f0f0] border border-gray-400 px-4 h-[24px] text-[10px] font-medium uppercase hover:bg-[#e1e1e1] active:bg-[#d1d1d1] text-slate-800 font-medium rounded-sm shadow-sm transition-all flex items-center justify-center">
                             Buscar
                         </button>
                     </div>
@@ -763,7 +763,7 @@ export const InventoryProducts: React.FC = () => {
             <div className="flex-1 flex overflow-hidden">
                     <aside className="w-[280px] bg-white border-r border-gray-300 flex flex-col shrink-0">
                         <div className="bg-[#f0f0f0] px-3 py-1.5 border-b border-gray-300 flex items-center justify-between">
-                            <span className="text-[11px] text-slate-800 font-bold uppercase tracking-widest">Categorías</span>
+                            <span className="text-[11px] text-slate-800 font-medium uppercase tracking-widest">Categorías</span>
                         </div>
                         <div
                             className="flex-1 overflow-y-auto p-1"
@@ -773,7 +773,7 @@ export const InventoryProducts: React.FC = () => {
                         >
                             <div className="space-y-0.5">
                                 {loading ? (
-                                    <div className="flex justify-center py-8"><Loader2 className="animate-spin text-slate-800 font-bold" size={20} /></div>
+                                    <div className="flex justify-center py-8"><Loader2 className="animate-spin text-slate-800 font-medium" size={20} /></div>
                                 ) : (
                                     renderCategoryTree()
                                 )}
@@ -783,7 +783,7 @@ export const InventoryProducts: React.FC = () => {
 
                     <div className="flex-1 flex flex-col min-w-0">
                         <div className="bg-[#f0f0f0] px-3 py-1.5 border-b border-gray-300 flex justify-between items-center">
-                            <span className="text-[11px] text-slate-800 font-bold uppercase tracking-widest">Existencias de Inventario</span>
+                            <span className="text-[11px] text-slate-800 font-medium uppercase tracking-widest">Existencias de Inventario</span>
                         </div>
 
                         <div
@@ -797,22 +797,22 @@ export const InventoryProducts: React.FC = () => {
                                 <table className="w-full text-left border-collapse">
                                     <thead className="bg-[#e8e8e8] sticky top-0 z-20 border-b border-gray-400 select-none">
                                         <tr className="h-8">
-                                            <th className="px-4 text-[10px] font-bold text-black uppercase border-r border-gray-300">Código</th>
-                                            <th className="px-4 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300">Categoría</th>
-                                            <th className="px-4 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300">Producto</th>
-                                            <th className="px-2 text-center w-28 text-[10px] font-bold text-black uppercase border-r border-gray-300">Existencia</th>
-                                            <th className="px-4 w-32 hidden md:table-cell text-left text-[10px] font-bold text-black uppercase border-r border-gray-300">Presentación</th>
-                                            <th className="px-4 text-right w-32 text-[10px] font-bold text-black uppercase border-r border-gray-300">Precio Costo</th>
-                                            <th className="px-4 text-center w-24 hidden lg:table-cell text-[10px] font-bold text-black uppercase">Habilitado</th>
+                                            <th className="px-4 text-[10px] font-medium text-black uppercase border-r border-gray-300">Código</th>
+                                            <th className="px-4 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300">Categoría</th>
+                                            <th className="px-4 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300">Producto</th>
+                                            <th className="px-2 text-center w-28 text-[10px] font-medium text-black uppercase border-r border-gray-300">Existencia</th>
+                                            <th className="px-4 w-32 hidden md:table-cell text-left text-[10px] font-medium text-black uppercase border-r border-gray-300">Presentación</th>
+                                            <th className="px-4 text-right w-32 text-[10px] font-medium text-black uppercase border-r border-gray-300">Precio Costo</th>
+                                            <th className="px-4 text-center w-24 hidden lg:table-cell text-[10px] font-medium text-black uppercase">Habilitado</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white min-h-[100px]">
                                         {loading ? (
-                                            <tr><td colSpan={7} className="py-20 text-center"><Loader2 className="animate-spin text-slate-800 font-bold mx-auto" size={32} /></td></tr>
+                                            <tr><td colSpan={7} className="py-20 text-center"><Loader2 className="animate-spin text-slate-800 font-medium mx-auto" size={32} /></td></tr>
                                         ) : filteredProducts.length === 0 ? (
                                             <tr>
                                                 <td colSpan={7} className="py-20 text-center">
-                                                    <span className="text-[11px] text-slate-800 font-bold font-medium font-['Montserrat']">No se encontraron productos en esta categoría</span>
+                                                    <span className="text-[11px] text-slate-800 font-medium font-medium font-['Montserrat']">No se encontraron productos en esta categoría</span>
                                                 </td>
                                             </tr>
                                         ) : (
@@ -826,19 +826,19 @@ export const InventoryProducts: React.FC = () => {
                                                             setSelectedProduct(prod.id);
                                                             if (e.detail === 2) handleEdit(prod);
                                                         }}
-                                                        className={`h-6 cursor-pointer border-b border-gray-50 transition-colors ${isSelected || isSelectedRow ? 'bg-[#106ebe] text-white [&>td]:border-transparent' : `text-slate-800 font-bold ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#f2f7fb]`}`}
+                                                        className={`h-6 cursor-pointer border-b border-gray-50 transition-colors ${isSelected || isSelectedRow ? 'bg-[#106ebe] text-white [&>td]:border-transparent' : `text-slate-800 font-medium ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#f2f7fb]`}`}
                                                         onContextMenu={(e) => handleContextMenu(e, 'product', prod)}
                                                     >
-                                                        <td className="px-4 font-bold border-r border-gray-100 uppercase text-[10px]">{prod.code || '--'}</td>
+                                                        <td className="px-4 font-medium border-r border-gray-100 uppercase text-[10px]">{prod.code || '--'}</td>
                                                         <td className="px-4 border-r border-gray-100 text-[10px] uppercase truncate">
                                                             {categories.find(c => c.id === prod.category_id)?.name || 'Sin categ.'}
                                                         </td>
-                                                        <td className="px-4 border-r border-gray-100 text-[10px] font-bold uppercase truncate">{prod.name}</td>
-                                                        <td className="px-4 border-r border-gray-100 text-[10px] text-center font-bold tabular-nums">
+                                                        <td className="px-4 border-r border-gray-100 text-[10px] font-medium uppercase truncate">{prod.name}</td>
+                                                        <td className="px-4 border-r border-gray-100 text-[10px] text-center font-medium tabular-nums">
                                                             {parseFloat(prod.quantity.toString()).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                         </td>
                                                         <td className="px-4 border-r border-gray-100 text-[10px] uppercase truncate">{prod.presentation_display || '--'}</td>
-                                                        <td className="px-4 border-r border-gray-100 text-[10px] text-right font-bold tabular-nums">
+                                                        <td className="px-4 border-r border-gray-100 text-[10px] text-right font-medium tabular-nums">
                                                             Q{parseFloat(prod.cost.toString()).toFixed(2)}
                                                         </td>
                                                         <td className="px-4 text-center">
@@ -858,7 +858,7 @@ export const InventoryProducts: React.FC = () => {
                         </div>
 
                         <div className="bg-[#f0f0f0] border-t border-gray-400 px-3 flex items-center shrink-0 h-[22px] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
-                            <span className="text-[10px] font-bold text-slate-700 uppercase tracking-tighter">Productos: {filteredProducts.length}</span>
+                            <span className="text-[10px] font-medium text-slate-700 uppercase tracking-tighter">Productos: {filteredProducts.length}</span>
                         </div>
                     </div>
                 </div>
@@ -870,7 +870,7 @@ export const InventoryProducts: React.FC = () => {
                                 <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move shrink-0 select-none">
                                     <div className="flex items-center gap-2">
                                         <Package size={14} className="text-white" />
-                                        <span className="text-white text-[12px] font-bold tracking-wide">Control de Inventario - {formData.name || 'Nuevo'}</span>
+                                        <span className="text-white text-[12px] font-medium tracking-wide">Control de Inventario - {formData.name || 'Nuevo'}</span>
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <button
@@ -890,32 +890,32 @@ export const InventoryProducts: React.FC = () => {
                                                 <div className="border border-gray-300 bg-white flex flex-col shadow-sm">
                                                     <div className="p-3 pt-4 flex flex-col gap-1.5">
                                                         <div className="flex items-center gap-2">
-                                                            <label className="w-24 shrink-0 text-[10px] text-slate-800 font-bold uppercase tracking-tight">Código</label>
+                                                            <label className="w-24 shrink-0 text-[10px] text-slate-800 font-medium uppercase tracking-tight">Código</label>
                                                             <input
                                                                 value={formData.code}
                                                                 onChange={e => setFormData({ ...formData, code: e.target.value })}
-                                                                className="flex-1 h-6 border border-gray-300 px-2 text-[11px] text-slate-800 font-bold focus:border-[#106ebe] outline-none uppercase font-bold"
+                                                                className="flex-1 h-6 border border-gray-300 px-2 text-[11px] text-slate-800 font-medium focus:border-[#106ebe] outline-none uppercase font-medium"
                                                             />
                                                         </div>
                                                         <div className="flex items-center gap-2">
-                                                            <label className="w-24 shrink-0 text-[10px] text-slate-800 font-bold uppercase tracking-tight">Nombre Producto</label>
+                                                            <label className="w-24 shrink-0 text-[10px] text-slate-800 font-medium uppercase tracking-tight">Nombre Producto</label>
                                                             <input
                                                                 value={formData.name}
                                                                 onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                                                className="flex-1 h-6 border border-gray-300 px-2 text-[11px] text-slate-800 font-bold focus:border-[#106ebe] outline-none uppercase font-bold"
+                                                                className="flex-1 h-6 border border-gray-300 px-2 text-[11px] text-slate-800 font-medium focus:border-[#106ebe] outline-none uppercase font-medium"
                                                             />
                                                         </div>
                                                         <div className="grid grid-cols-2 gap-3">
                                                             <div className="flex items-center gap-2">
-                                                                <label className="w-24 shrink-0 text-[10px] text-slate-800 font-bold uppercase tracking-tight">Unidad</label>
+                                                                <label className="w-24 shrink-0 text-[10px] text-slate-800 font-medium uppercase tracking-tight">Unidad</label>
                                                                 <div className="flex-1 relative">
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => setShowUnitDropdown(!showUnitDropdown)}
-                                                                        className="w-full h-6 border border-gray-300 px-2 text-[11px] text-slate-800 font-bold text-left focus:border-[#106ebe] outline-none bg-[#f8f9fa] uppercase font-bold flex items-center justify-between"
+                                                                        className="w-full h-6 border border-gray-300 px-2 text-[11px] text-slate-800 font-medium text-left focus:border-[#106ebe] outline-none bg-[#f8f9fa] uppercase font-medium flex items-center justify-between"
                                                                     >
                                                                         <span>{formData.unit}</span>
-                                                                        <ChevronDown size={12} className="text-slate-800 font-bold" />
+                                                                        <ChevronDown size={12} className="text-slate-800 font-medium" />
                                                                     </button>
                                                                     {showUnitDropdown && (
                                                                         <>
@@ -926,7 +926,7 @@ export const InventoryProducts: React.FC = () => {
                                                                                         key={u}
                                                                                         type="button"
                                                                                         onClick={() => { setFormData({ ...formData, unit: u }); setShowUnitDropdown(false); }}
-                                                                                        className="w-full text-left px-2 py-1 text-[10px] text-slate-800 font-bold hover:bg-[#106ebe] hover:text-white transition-colors uppercase"
+                                                                                        className="w-full text-left px-2 py-1 text-[10px] text-slate-800 font-medium hover:bg-[#106ebe] hover:text-white transition-colors uppercase"
                                                                                     >
                                                                                         {u}
                                                                                     </button>
@@ -937,15 +937,15 @@ export const InventoryProducts: React.FC = () => {
                                                                 </div>
                                                             </div>
                                                             <div className="flex items-center gap-2">
-                                                                <label className="w-24 shrink-0 text-[10px] font-bold text-black uppercase tracking-tight">Presentación</label>
+                                                                <label className="w-24 shrink-0 text-[10px] font-medium text-black uppercase tracking-tight">Presentación</label>
                                                                 <div className="flex-1 relative">
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => setShowPresentationDropdown(!showPresentationDropdown)}
-                                                                        className="w-full h-6 border border-gray-300 px-2 text-[11px] text-slate-800 font-bold text-left focus:border-[#106ebe] outline-none bg-[#f8f9fa] uppercase font-bold flex items-center justify-between"
+                                                                        className="w-full h-6 border border-gray-300 px-2 text-[11px] text-slate-800 font-medium text-left focus:border-[#106ebe] outline-none bg-[#f8f9fa] uppercase font-medium flex items-center justify-between"
                                                                     >
                                                                         <span>{formData.presentation}</span>
-                                                                        <ChevronDown size={12} className="text-slate-800 font-bold" />
+                                                                        <ChevronDown size={12} className="text-slate-800 font-medium" />
                                                                     </button>
                                                                     {showPresentationDropdown && (
                                                                         <>
@@ -956,7 +956,7 @@ export const InventoryProducts: React.FC = () => {
                                                                                         key={p}
                                                                                         type="button"
                                                                                         onClick={() => { setFormData({ ...formData, presentation: p }); setShowPresentationDropdown(false); }}
-                                                                                        className="w-full text-left px-2 py-1 text-[10px] text-slate-800 font-bold hover:bg-[#106ebe] hover:text-white transition-colors uppercase"
+                                                                                        className="w-full text-left px-2 py-1 text-[10px] text-slate-800 font-medium hover:bg-[#106ebe] hover:text-white transition-colors uppercase"
                                                                                     >
                                                                                         {p}
                                                                                     </button>
@@ -969,34 +969,34 @@ export const InventoryProducts: React.FC = () => {
                                                         </div>
                                                         <div className="grid grid-cols-2 gap-3">
                                                             <div className="flex items-center gap-2">
-                                                                <label className="w-24 shrink-0 text-[10px] text-slate-800 font-bold uppercase tracking-tight leading-none">Contenido</label>
+                                                                <label className="w-24 shrink-0 text-[10px] text-slate-800 font-medium uppercase tracking-tight leading-none">Contenido</label>
                                                                 <div className="flex-1 flex items-center bg-gray-50 border border-gray-300 h-6 px-2">
                                                                     <input
                                                                         type="number"
                                                                         step="any"
                                                                         value={formData.conversion_factor}
                                                                         onChange={e => setFormData({ ...formData, conversion_factor: parseFloat(e.target.value) || 0 })}
-                                                                        className="w-full bg-transparent border-none text-[11px] text-slate-800 font-bold outline-none text-center font-bold"
+                                                                        className="w-full bg-transparent border-none text-[11px] text-slate-800 font-medium outline-none text-center font-medium"
                                                                     />
-                                                                    <span className="text-[8px] text-slate-800 font-bold ml-1 whitespace-nowrap">{formData.unit}/1 {formData.presentation}</span>
+                                                                    <span className="text-[8px] text-slate-800 font-medium ml-1 whitespace-nowrap">{formData.unit}/1 {formData.presentation}</span>
                                                                 </div>
                                                             </div>
                                                             <div className="flex items-center gap-2">
-                                                                <label className="w-24 shrink-0 text-[10px] text-slate-800 font-bold uppercase tracking-tight">Costo</label>
+                                                                <label className="w-24 shrink-0 text-[10px] text-slate-800 font-medium uppercase tracking-tight">Costo</label>
                                                                 <div className="flex-1 flex flex-col gap-1">
                                                                     <div className="flex items-center bg-gray-50 border border-gray-300 h-6 px-2">
-                                                                        <span className="text-[9px] text-slate-800 font-bold mr-1">Q</span>
+                                                                        <span className="text-[9px] text-slate-800 font-medium mr-1">Q</span>
                                                                         <input
                                                                             type="number"
                                                                             step="any"
                                                                             value={formData.cost}
                                                                             onChange={e => setFormData({ ...formData, cost: parseFloat(e.target.value) || 0 })}
-                                                                            className="w-full bg-transparent border-none text-[11px] text-slate-800 font-bold outline-none font-bold text-[#106ebe]"
+                                                                            className="w-full bg-transparent border-none text-[11px] text-slate-800 font-medium outline-none font-medium text-[#106ebe]"
                                                                         />
                                                                     </div>
                                                                     {formData.cost > 0 && formData.conversion_factor > 0 && (
                                                                         <div className="px-2 py-0.5 bg-blue-50/50 rounded flex justify-between items-center">
-                                                                            <span className="text-[8px] font-black text-[#106ebe] uppercase italic">
+                                                                            <span className="text-[8px] font-semibold text-[#106ebe] uppercase italic">
                                                                                 P. UNITARIO: Q{(formData.cost / formData.conversion_factor).toFixed(2)} / {formData.unit}
                                                                             </span>
                                                                         </div>
@@ -1005,7 +1005,7 @@ export const InventoryProducts: React.FC = () => {
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center gap-2">
-                                                            <label className="w-24 shrink-0 text-[10px] text-slate-800 font-bold uppercase tracking-tight">Categoría</label>
+                                                            <label className="w-24 shrink-0 text-[10px] text-slate-800 font-medium uppercase tracking-tight">Categoría</label>
                                                             <div className="flex-1 relative group">
                                                                 <div className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#106ebe] pointer-events-none">
                                                                     <Search size={12} strokeWidth={3} />
@@ -1016,7 +1016,7 @@ export const InventoryProducts: React.FC = () => {
                                                                     value={showCategoryDropdown ? categorySearch : (categories.find(c => c.id === formData.category_id)?.name || '')}
                                                                     onFocus={() => { setShowCategoryDropdown(true); setCategorySearch(''); }}
                                                                     onChange={e => { setCategorySearch(e.target.value); setShowCategoryDropdown(true); }}
-                                                                    className="w-full h-7 border border-gray-300 pl-7 pr-2 text-[11px] text-slate-800 font-bold focus:border-[#106ebe] focus:ring-1 focus:ring-[#106ebe]/20 outline-none uppercase font-bold bg-[#f8f9fa] transition-all shadow-sm"
+                                                                    className="w-full h-7 border border-gray-300 pl-7 pr-2 text-[11px] text-slate-800 font-medium focus:border-[#106ebe] focus:ring-1 focus:ring-[#106ebe]/20 outline-none uppercase font-medium bg-[#f8f9fa] transition-all shadow-sm"
                                                                 />
                                                                 {showCategoryDropdown && (
                                                                     <>
@@ -1025,7 +1025,7 @@ export const InventoryProducts: React.FC = () => {
                                                                             <button
                                                                                 type="button"
                                                                                 onClick={() => { setFormData({ ...formData, category_id: '' }); setShowCategoryDropdown(false); }}
-                                                                                className="w-full text-left px-3 py-2 text-[11px] font-bold text-rose-600 hover:bg-rose-50 transition-colors uppercase border-b border-gray-100 flex items-center justify-between"
+                                                                                className="w-full text-left px-3 py-2 text-[11px] font-medium text-rose-600 hover:bg-rose-50 transition-colors uppercase border-b border-gray-100 flex items-center justify-between"
                                                                             >
                                                                                 <span>[Sin Categoría]</span>
                                                                                 <X size={10} />
@@ -1035,13 +1035,13 @@ export const InventoryProducts: React.FC = () => {
                                                                                     key={c.id}
                                                                                     type="button"
                                                                                     onClick={() => { setFormData({ ...formData, category_id: c.id }); setShowCategoryDropdown(false); }}
-                                                                                    className="w-full text-left px-3 py-2 text-[11px] text-slate-800 font-bold hover:bg-[#106ebe] hover:text-white transition-all uppercase border-b border-gray-50 last:border-0"
+                                                                                    className="w-full text-left px-3 py-2 text-[11px] text-slate-800 font-medium hover:bg-[#106ebe] hover:text-white transition-all uppercase border-b border-gray-50 last:border-0"
                                                                                 >
                                                                                     {c.name}
                                                                                 </button>
                                                                             ))}
                                                                             {categories.filter(c => c.name.toLowerCase().includes(categorySearch.toLowerCase())).length === 0 && (
-                                                                                <div className="px-3 py-4 text-center text-[10px] text-gray-400 italic font-bold">
+                                                                                <div className="px-3 py-4 text-center text-[10px] text-gray-400 italic font-medium">
                                                                                     No se encontraron categorías
                                                                                 </div>
                                                                             )}
@@ -1051,7 +1051,7 @@ export const InventoryProducts: React.FC = () => {
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center gap-2">
-                                                            <label className="w-24 shrink-0 text-[10px] text-slate-800 font-bold uppercase tracking-tight">Proveedor</label>
+                                                            <label className="w-24 shrink-0 text-[10px] text-slate-800 font-medium uppercase tracking-tight">Proveedor</label>
                                                             <div className="flex-1 relative group">
                                                                 <div className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#106ebe] pointer-events-none">
                                                                     <Search size={12} strokeWidth={3} />
@@ -1062,7 +1062,7 @@ export const InventoryProducts: React.FC = () => {
                                                                     value={showSupplierDropdown ? supplierSearch : (suppliers.find(s => s.id === formData.supplier_id)?.name || '')}
                                                                     onFocus={() => { setShowSupplierDropdown(true); setSupplierSearch(''); }}
                                                                     onChange={e => { setSupplierSearch(e.target.value); setShowSupplierDropdown(true); }}
-                                                                    className="w-full h-7 border border-gray-300 pl-7 pr-2 text-[11px] text-slate-800 font-bold focus:border-[#106ebe] focus:ring-1 focus:ring-[#106ebe]/20 outline-none uppercase font-bold bg-[#f8f9fa] transition-all shadow-sm"
+                                                                    className="w-full h-7 border border-gray-300 pl-7 pr-2 text-[11px] text-slate-800 font-medium focus:border-[#106ebe] focus:ring-1 focus:ring-[#106ebe]/20 outline-none uppercase font-medium bg-[#f8f9fa] transition-all shadow-sm"
                                                                 />
                                                                 {showSupplierDropdown && (
                                                                     <>
@@ -1071,7 +1071,7 @@ export const InventoryProducts: React.FC = () => {
                                                                             <button
                                                                                 type="button"
                                                                                 onClick={() => { setFormData({ ...formData, supplier_id: '' }); setShowSupplierDropdown(false); }}
-                                                                                className="w-full text-left px-3 py-2 text-[11px] font-bold text-rose-600 hover:bg-rose-50 transition-colors uppercase border-b border-gray-100 flex items-center justify-between"
+                                                                                className="w-full text-left px-3 py-2 text-[11px] font-medium text-rose-600 hover:bg-rose-50 transition-colors uppercase border-b border-gray-100 flex items-center justify-between"
                                                                             >
                                                                                 <span>[Quitar Proveedor]</span>
                                                                                 <X size={10} />
@@ -1081,13 +1081,13 @@ export const InventoryProducts: React.FC = () => {
                                                                                     key={s.id}
                                                                                     type="button"
                                                                                     onClick={() => { setFormData({ ...formData, supplier_id: s.id }); setShowSupplierDropdown(false); }}
-                                                                                    className="w-full text-left px-3 py-2 text-[11px] text-slate-800 font-bold hover:bg-[#106ebe] hover:text-white transition-all uppercase border-b border-gray-50 last:border-0"
+                                                                                    className="w-full text-left px-3 py-2 text-[11px] text-slate-800 font-medium hover:bg-[#106ebe] hover:text-white transition-all uppercase border-b border-gray-50 last:border-0"
                                                                                 >
                                                                                     {s.name}
                                                                                 </button>
                                                                             ))}
                                                                             {suppliers.filter(s => s.name.toLowerCase().includes(supplierSearch.toLowerCase())).length === 0 && (
-                                                                                <div className="px-3 py-4 text-center text-[10px] text-gray-400 italic font-bold">
+                                                                                <div className="px-3 py-4 text-center text-[10px] text-gray-400 italic font-medium">
                                                                                     No se encontraron proveedores
                                                                                 </div>
                                                                             )}
@@ -1105,13 +1105,13 @@ export const InventoryProducts: React.FC = () => {
                                             <div className="flex bg-[#e1e1e1] px-2 pt-2 gap-0.5 border-b border-gray-300">
                                                 <button
                                                     onClick={() => setActiveModalTab('SUCURSALES')}
-                                                    className={`px-4 py-1.5 text-[10px] font-bold border-t border-x transition-all ${activeModalTab === 'SUCURSALES' ? 'bg-white border-gray-300 -mb-[1px] z-10 text-[#106ebe]' : 'bg-[#d1d1d1] border-gray-300 text-slate-800 font-bold hover:bg-[#c1c1c1]'}`}
+                                                    className={`px-4 py-1.5 text-[10px] font-medium border-t border-x transition-all ${activeModalTab === 'SUCURSALES' ? 'bg-white border-gray-300 -mb-[1px] z-10 text-[#106ebe]' : 'bg-[#d1d1d1] border-gray-300 text-slate-800 font-medium hover:bg-[#c1c1c1]'}`}
                                                 >
                                                     SUCURSALES
                                                 </button>
                                                 <button
                                                     onClick={() => setActiveModalTab('RECETA')}
-                                                    className={`px-4 py-1.5 text-[10px] font-bold border-t border-x transition-all ${activeModalTab === 'RECETA' ? 'bg-white border-gray-300 -mb-[1px] z-10 text-[#106ebe]' : 'bg-[#d1d1d1] border-gray-300 text-slate-800 font-bold hover:bg-[#c1c1c1]'}`}
+                                                    className={`px-4 py-1.5 text-[10px] font-medium border-t border-x transition-all ${activeModalTab === 'RECETA' ? 'bg-white border-gray-300 -mb-[1px] z-10 text-[#106ebe]' : 'bg-[#d1d1d1] border-gray-300 text-slate-800 font-medium hover:bg-[#c1c1c1]'}`}
                                                 >
                                                     RECETA / COMPOSICIÓN
                                                 </button>
@@ -1122,7 +1122,7 @@ export const InventoryProducts: React.FC = () => {
                                                     <div className="flex-1 overflow-auto p-0">
                                                         <table className="w-full text-[10px] text-left border-collapse">
                                                             <thead className="bg-[#f0f0f0] sticky top-0 z-10 select-none uppercase">
-                                                                <tr className="text-slate-800 font-bold border-b border-gray-300 h-7">
+                                                                <tr className="text-slate-800 font-medium border-b border-gray-300 h-7">
                                                                     <th className="px-3 py-1 border-r border-gray-200">Sucursal</th>
                                                                     <th className="px-3 py-1 border-r border-gray-200 text-center w-24">Existencia</th>
                                                                     <th className="px-3 py-1 border-r border-gray-200 text-center w-24">Reorden</th>
@@ -1133,8 +1133,8 @@ export const InventoryProducts: React.FC = () => {
                                                             <tbody className="divide-y divide-gray-100">
                                                                 {branchData.map((bd, i) => (
                                                                     <tr key={bd.branch_id} className="h-7 hover:bg-[#e5f1fb] transition-colors group">
-                                                                        <td className="px-3 py-0 border-r border-gray-50 font-bold uppercase text-slate-800 font-bold truncate">{bd.name}</td>
-                                                                        <td className="px-3 py-0 border-r border-gray-50 text-center font-bold tabular-nums text-[#106ebe]">{bd.quantity}</td>
+                                                                        <td className="px-3 py-0 border-r border-gray-50 font-medium uppercase text-slate-800 font-medium truncate">{bd.name}</td>
+                                                                        <td className="px-3 py-0 border-r border-gray-50 text-center font-medium tabular-nums text-[#106ebe]">{bd.quantity}</td>
                                                                         <td className="px-3 py-0 border-r border-gray-50 text-center">
                                                                             <input
                                                                                 type="number"
@@ -1144,7 +1144,7 @@ export const InventoryProducts: React.FC = () => {
                                                                                     next[i] = { ...next[i], min_stock: parseFloat(e.target.value) || 0 };
                                                                                     setBranchData(next);
                                                                                 }}
-                                                                                className="w-16 h-5 border border-transparent group-hover:border-gray-300 focus:border-[#106ebe] outline-none text-[10px] text-center transition-all bg-transparent font-bold"
+                                                                                className="w-16 h-5 border border-transparent group-hover:border-gray-300 focus:border-[#106ebe] outline-none text-[10px] text-center transition-all bg-transparent font-medium"
                                                                             />
                                                                         </td>
                                                                         <td className="px-3 py-0 border-r border-gray-50 text-center">
@@ -1186,22 +1186,22 @@ export const InventoryProducts: React.FC = () => {
                                                     <div className="flex-1 overflow-hidden flex flex-col relative bg-white">
                                                         <div className="flex justify-between items-center p-2 bg-[#f0f0f0] border-b border-gray-300">
                                                             <div className="flex items-center gap-2">
-                                                                <Layers size={12} className="text-slate-800 font-bold" />
-                                                                <h4 className="text-[10px] font-bold uppercase text-slate-800 font-bold tracking-tight">Componentes de Receta</h4>
+                                                                <Layers size={12} className="text-slate-800 font-medium" />
+                                                                <h4 className="text-[10px] font-medium uppercase text-slate-800 font-medium tracking-tight">Componentes de Receta</h4>
                                                             </div>
                                                             <button
                                                                 onClick={() => setShowSearchModal(true)}
                                                                 className="flex items-center gap-1.5 px-3 py-1 bg-[#106ebe] text-white hover:bg-[#005a9e] transition-colors shadow-sm"
                                                             >
                                                                 <Plus size={12} />
-                                                                <span className="text-[10px] font-bold uppercase">Agregar</span>
+                                                                <span className="text-[10px] font-medium uppercase">Agregar</span>
                                                             </button>
                                                         </div>
 
                                                         <div className="flex-1 overflow-auto">
                                                             <table className="w-full text-[10px] text-left border-collapse">
                                                                 <thead className="bg-[#f0f0f0] sticky top-0 z-10 select-none uppercase">
-                                                                    <tr className="text-slate-800 font-bold border-b border-gray-300 h-7">
+                                                                    <tr className="text-slate-800 font-medium border-b border-gray-300 h-7">
                                                                         <th className="px-3 py-1 border-r border-gray-200">Producto</th>
                                                                         <th className="px-3 py-1 border-r border-gray-200 text-center w-24">Cantidad</th>
                                                                         <th className="px-3 py-1 border-r border-gray-200 text-center w-24">Medida</th>
@@ -1211,7 +1211,7 @@ export const InventoryProducts: React.FC = () => {
                                                                 <tbody className="divide-y divide-gray-100 min-h-[100px]">
                                                                     {recipeItems.map((item, index) => (
                                                                         <tr key={index} className="h-7 hover:bg-[#e5f1fb] transition-colors group cursor-context-menu" onContextMenu={(e) => handleContextMenu(e, 'recipe', index)}>
-                                                                            <td className="px-3 py-0 border-r border-gray-50 font-bold uppercase text-slate-800 font-bold truncate">{item.name}</td>
+                                                                            <td className="px-3 py-0 border-r border-gray-50 font-medium uppercase text-slate-800 font-medium truncate">{item.name}</td>
                                                                             <td className="px-3 py-0 border-r border-gray-50 text-center">
                                                                                 <input
                                                                                     type="number"
@@ -1221,16 +1221,16 @@ export const InventoryProducts: React.FC = () => {
                                                                                         next[index] = { ...next[index], quantity: parseFloat(e.target.value) || 0 };
                                                                                         setRecipeItems(next);
                                                                                     }}
-                                                                                    className="w-16 h-5 border border-transparent group-hover:border-gray-300 focus:border-[#106ebe] outline-none text-[10px] text-center font-bold bg-transparent"
+                                                                                    className="w-16 h-5 border border-transparent group-hover:border-gray-300 focus:border-[#106ebe] outline-none text-[10px] text-center font-medium bg-transparent"
                                                                                 />
                                                                             </td>
-                                                                            <td className="px-3 py-0 border-r border-gray-50 text-center text-slate-800 font-bold">{item.unit || item.measure}</td>
-                                                                            <td className="px-3 py-0 text-right font-bold text-[#106ebe] tabular-nums">Q{((item.cost || 0) * (item.quantity || 0)).toFixed(2)}</td>
+                                                                            <td className="px-3 py-0 border-r border-gray-50 text-center text-slate-800 font-medium">{item.unit || item.measure}</td>
+                                                                            <td className="px-3 py-0 text-right font-medium text-[#106ebe] tabular-nums">Q{((item.cost || 0) * (item.quantity || 0)).toFixed(2)}</td>
                                                                         </tr>
                                                                     ))}
                                                                     {recipeItems.length === 0 && (
                                                                         <tr>
-                                                                            <td colSpan={4} className="py-12 text-center text-slate-800 font-bold italic font-medium">No hay componentes en la receta</td>
+                                                                            <td colSpan={4} className="py-12 text-center text-slate-800 font-medium italic font-medium">No hay componentes en la receta</td>
                                                                         </tr>
                                                                     )}
                                                                 </tbody>
@@ -1238,12 +1238,12 @@ export const InventoryProducts: React.FC = () => {
                                                         </div>
                                                         <div className="p-1.5 bg-[#f0f0f0] border-t border-gray-300 flex justify-between items-center shrink-0">
                                                             <div className="flex items-center gap-2">
-                                                                <Layers size={12} className="text-slate-800 font-bold" />
-                                                                <span className="text-[9px] text-slate-800 font-bold uppercase tracking-tight">{recipeItems.length} COMPONENTES</span>
+                                                                <Layers size={12} className="text-slate-800 font-medium" />
+                                                                <span className="text-[9px] text-slate-800 font-medium uppercase tracking-tight">{recipeItems.length} COMPONENTES</span>
                                                             </div>
                                                             <div className="flex items-center gap-2">
-                                                                <span className="text-[9px] font-bold text-black uppercase tracking-widest">Costo Total:</span>
-                                                                <span className="text-[12px] font-bold text-black tabular-nums">Q{recipeItems.reduce((acc, item) => acc + (item.quantity * (item.cost || 0)), 0).toFixed(2)}</span>
+                                                                <span className="text-[9px] font-medium text-black uppercase tracking-widest">Costo Total:</span>
+                                                                <span className="text-[12px] font-medium text-black tabular-nums">Q{recipeItems.reduce((acc, item) => acc + (item.quantity * (item.cost || 0)), 0).toFixed(2)}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1254,8 +1254,8 @@ export const InventoryProducts: React.FC = () => {
                                 </div>
 
                                 <div className="h-10 px-4 bg-[#e1e1e1] border-t border-gray-400 flex justify-end items-center gap-2 shrink-0">
-                                    <button onClick={() => setShowModal(false)} className="px-4 py-1.5 bg-[#d1d1d1] text-black text-[10px] font-bold uppercase border border-gray-400 hover:bg-[#c1c1c1] transition-colors">Cancelar</button>
-                                    <button onClick={handleSave} disabled={saving} className="px-6 py-1.5 bg-[#106ebe] text-white text-[10px] font-bold uppercase flex items-center gap-2 hover:bg-[#005a9e] transition-colors disabled:opacity-50">
+                                    <button onClick={() => setShowModal(false)} className="px-4 py-1.5 bg-[#d1d1d1] text-black text-[10px] font-medium uppercase border border-gray-400 hover:bg-[#c1c1c1] transition-colors">Cancelar</button>
+                                    <button onClick={handleSave} disabled={saving} className="px-6 py-1.5 bg-[#106ebe] text-white text-[10px] font-medium uppercase flex items-center gap-2 hover:bg-[#005a9e] transition-colors disabled:opacity-50">
                                         {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
                                         {saving ? 'Guardando...' : 'Confirmar Cambios'}
                                     </button>
@@ -1274,18 +1274,18 @@ export const InventoryProducts: React.FC = () => {
                                 <div className="modal-header bg-[#106ebe] px-3 py-1.5 flex justify-between items-center shrink-0 border-b border-white/10 select-none">
                                     <div className="flex items-center gap-2">
                                         <Search size={14} className="text-white/80" />
-                                        <span className="text-[11px] font-bold uppercase tracking-wider text-white">Buscador de Insumos</span>
+                                        <span className="text-[11px] font-medium uppercase tracking-wider text-white">Buscador de Insumos</span>
                                     </div>
-                                    <button onClick={() => setShowSearchModal(false)} className="px-2 py-0.5 hover:bg-red-500 text-white transition-colors text-xs font-bold">X</button>
+                                    <button onClick={() => setShowSearchModal(false)} className="px-2 py-0.5 hover:bg-red-500 text-white transition-colors text-xs font-medium">X</button>
                                 </div>
                                 <div className="p-3 bg-[#f0f0f0] border-b border-gray-300">
                                     <div className="flex items-center gap-3">
-                                        <label className="text-[10px] font-bold uppercase text-slate-700 whitespace-nowrap">Buscar:</label>
+                                        <label className="text-[10px] font-medium uppercase text-slate-700 whitespace-nowrap">Buscar:</label>
                                         <div className="flex-1 relative">
                                             <input
                                                 type="text" autoFocus placeholder="Ingrese nombre o código..." value={searchQuery}
                                                 onChange={e => setSearchQuery(e.target.value)}
-                                                className="w-full bg-white border border-gray-300 px-3 py-1.5 text-[10px] font-bold text-slate-700 focus:border-[#106ebe] outline-none uppercase placeholder:text-slate-300 transition-all shadow-inner"
+                                                className="w-full bg-white border border-gray-300 px-3 py-1.5 text-[10px] font-medium text-slate-700 focus:border-[#106ebe] outline-none uppercase placeholder:text-slate-300 transition-all shadow-inner"
                                             />
                                         </div>
                                     </div>
@@ -1304,21 +1304,21 @@ export const InventoryProducts: React.FC = () => {
                                             {searchResults.length > 0 ? (
                                                 searchResults.map(p => (
                                                     <tr key={p.id} onMouseDown={() => handleAddIngredient(p)} className="h-8 hover:bg-[#106ebe] hover:text-white cursor-pointer group">
-                                                        <td className="px-3 border-r border-gray-100 font-bold tabular-nums text-slate-800 font-bold group-hover:text-white/80">{p.code || 'N/A'}</td>
-                                                        <td className="px-3 border-r border-gray-100 font-bold uppercase text-[#106ebe] group-hover:text-white">{p.name}</td>
-                                                        <td className="px-3 border-r border-gray-100 uppercase text-slate-800 font-bold group-hover:text-white/60">{p.quantity} {p.unit}</td>
-                                                        <td className="px-3 truncate text-slate-800 font-bold group-hover:text-white/60 text-[9.5px] uppercase">{suppliers.find(s => s.id === p.supplier_id)?.name || 'SIN PROVEEDOR'}</td>
+                                                        <td className="px-3 border-r border-gray-100 font-medium tabular-nums text-slate-800 font-medium group-hover:text-white/80">{p.code || 'N/A'}</td>
+                                                        <td className="px-3 border-r border-gray-100 font-medium uppercase text-[#106ebe] group-hover:text-white">{p.name}</td>
+                                                        <td className="px-3 border-r border-gray-100 uppercase text-slate-800 font-medium group-hover:text-white/60">{p.quantity} {p.unit}</td>
+                                                        <td className="px-3 truncate text-slate-800 font-medium group-hover:text-white/60 text-[9.5px] uppercase">{suppliers.find(s => s.id === p.supplier_id)?.name || 'SIN PROVEEDOR'}</td>
                                                     </tr>
                                                 ))
                                             ) : (
-                                                <tr><td colSpan={4} className="py-20 text-center text-slate-800 font-bold italic">No se encontraron resultados</td></tr>
+                                                <tr><td colSpan={4} className="py-20 text-center text-slate-800 font-medium italic">No se encontraron resultados</td></tr>
                                             )}
                                         </tbody>
                                     </table>
                                 </div>
                                 <div className="px-3 py-1 bg-[#f0f0f0] border-t-2 border-gray-300 flex justify-between items-center shrink-0">
-                                    <span className="text-[9.5px] font-bold text-[#106ebe] uppercase flex items-center gap-1"><Package size={10} /> {searchResults.length} Ítems</span>
-                                    <button onClick={() => setShowSearchModal(false)} className="px-6 py-1 bg-[#f0f0f0] border-2 border-gray-400 text-[#106ebe] text-[10px] font-bold uppercase hover:bg-red-500 hover:text-white shadow-sm">Cerrar [ESC]</button>
+                                    <span className="text-[9.5px] font-medium text-[#106ebe] uppercase flex items-center gap-1"><Package size={10} /> {searchResults.length} Ítems</span>
+                                    <button onClick={() => setShowSearchModal(false)} className="px-6 py-1 bg-[#f0f0f0] border-2 border-gray-400 text-[#106ebe] text-[10px] font-medium uppercase hover:bg-red-500 hover:text-white shadow-sm">Cerrar [ESC]</button>
                                 </div>
                             </div>
                         </DraggableWindow>
@@ -1332,19 +1332,19 @@ export const InventoryProducts: React.FC = () => {
                         <DraggableWindow>
                             <div className="bg-white w-full max-w-md border border-gray-400 shadow-xl flex flex-col pointer-events-auto">
                                 <div className="modal-header bg-[#106ebe] px-3 py-1.5 flex justify-between items-center shrink-0 select-none">
-                                    <div className="flex items-center gap-2"><Settings size={14} className="text-white/80" /> <span className="text-[11px] font-bold uppercase text-white">Configuración de Insumo</span></div>
-                                    <button onClick={() => setShowConfigModal(false)} className="px-2 py-0.5 hover:bg-red-500 text-white font-bold">X</button>
+                                    <div className="flex items-center gap-2"><Settings size={14} className="text-white/80" /> <span className="text-[11px] font-medium uppercase text-white">Configuración de Insumo</span></div>
+                                    <button onClick={() => setShowConfigModal(false)} className="px-2 py-0.5 hover:bg-red-500 text-white font-medium">X</button>
                                 </div>
                                 <div className="p-4 bg-[#f0f0f0] space-y-4">
                                     <div className="flex items-center gap-3">
-                                        <label className="w-20 text-[10px] font-bold uppercase text-slate-700">Insumo:</label>
-                                        <div className="flex-1 bg-white border border-gray-300 px-3 py-1.5 font-bold text-[10px] text-[#106ebe] uppercase truncate">{selectedIngredient?.name}</div>
+                                        <label className="w-20 text-[10px] font-medium uppercase text-slate-700">Insumo:</label>
+                                        <div className="flex-1 bg-white border border-gray-300 px-3 py-1.5 font-medium text-[10px] text-[#106ebe] uppercase truncate">{selectedIngredient?.name}</div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <label className="w-20 text-[10px] font-bold uppercase text-slate-700">Consumo:</label>
+                                        <label className="w-20 text-[10px] font-medium uppercase text-slate-700">Consumo:</label>
                                         <div className="flex-1 flex gap-1">
-                                            <input type="number" autoFocus value={configData.quantity} onChange={e => setConfigData({ ...configData, quantity: parseFloat(e.target.value) || 0 })} className="w-24 bg-white border border-gray-300 px-3 py-1.5 text-[10px] font-bold text-center text-slate-700 outline-none shadow-inner" />
-                                            <select value={configData.unit} onChange={e => setConfigData({ ...configData, unit: e.target.value })} className="flex-1 h-8 border border-gray-300 bg-white px-2 text-[10px] font-bold uppercase text-slate-700 outline-none">
+                                            <input type="number" autoFocus value={configData.quantity} onChange={e => setConfigData({ ...configData, quantity: parseFloat(e.target.value) || 0 })} className="w-24 bg-white border border-gray-300 px-3 py-1.5 text-[10px] font-medium text-center text-slate-700 outline-none shadow-inner" />
+                                            <select value={configData.unit} onChange={e => setConfigData({ ...configData, unit: e.target.value })} className="flex-1 h-8 border border-gray-300 bg-white px-2 text-[10px] font-medium uppercase text-slate-700 outline-none">
                                                 <option value="Unidad">Unidad (UN)</option>
                                                 <option value="Mililitro">Mililitro (ML)</option>
                                                 <option value="Gramo">Gramo (GR)</option>
@@ -1355,8 +1355,8 @@ export const InventoryProducts: React.FC = () => {
                                         </div>
                                     </div>
                                     <div className="pt-2 flex justify-end gap-2">
-                                        <button onClick={() => setShowConfigModal(false)} className="px-4 py-1.5 bg-[#d1d1d1] border border-gray-400 text-slate-700 text-[10px] font-bold uppercase">Cancelar</button>
-                                        <button onClick={confirmAddIngredient} className="px-6 py-1.5 bg-[#106ebe] text-white text-[10px] font-bold uppercase shadow-sm">Agregar</button>
+                                        <button onClick={() => setShowConfigModal(false)} className="px-4 py-1.5 bg-[#d1d1d1] border border-gray-400 text-slate-700 text-[10px] font-medium uppercase">Cancelar</button>
+                                        <button onClick={confirmAddIngredient} className="px-6 py-1.5 bg-[#106ebe] text-white text-[10px] font-medium uppercase shadow-sm">Agregar</button>
                                     </div>
                                 </div>
                             </div>
@@ -1369,13 +1369,13 @@ export const InventoryProducts: React.FC = () => {
                     <div className="fixed inset-0 z-[99999]" onClick={() => setProductContextMenu(null)}>
                         <div className="absolute bg-[#f0f0f0] border border-gray-400 shadow-lg py-1 min-w-[200px]" style={{ left: productContextMenu.x, top: productContextMenu.y }}>
                             <div className="px-3 py-1 border-b border-gray-300 bg-[#e1e1e1] flex items-center gap-2">
-                                <Package size={12} className="text-slate-800 font-bold" />
-                                <span className="text-[10px] font-bold uppercase truncate text-slate-800 font-bold">{productContextMenu.product?.name || 'PRODUCTOS'}</span>
+                                <Package size={12} className="text-slate-800 font-medium" />
+                                <span className="text-[10px] font-medium uppercase truncate text-slate-800 font-medium">{productContextMenu.product?.name || 'PRODUCTOS'}</span>
                             </div>
-                            <button onClick={handleNew} className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-slate-800 font-bold hover:bg-[#106ebe] hover:text-white uppercase cursor-pointer"><PlusCircle size={14} className="inline mr-2" /> Nuevo</button>
+                            <button onClick={handleNew} className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-slate-800 font-medium hover:bg-[#106ebe] hover:text-white uppercase cursor-pointer"><PlusCircle size={14} className="inline mr-2" /> Nuevo</button>
                             {productContextMenu.product && (
                                 <>
-                                    <button onClick={() => handleEdit(productContextMenu.product)} className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-slate-800 font-bold hover:bg-[#106ebe] hover:text-white uppercase cursor-pointer"><Pencil size={14} className="inline mr-2" /> Editar</button>
+                                    <button onClick={() => handleEdit(productContextMenu.product)} className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-slate-800 font-medium hover:bg-[#106ebe] hover:text-white uppercase cursor-pointer"><Pencil size={14} className="inline mr-2" /> Editar</button>
                                     <button onClick={() => handleDelete(productContextMenu.product.id)} className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-rose-600 hover:bg-[#106ebe] hover:text-white uppercase cursor-pointer"><Trash size={14} className="inline mr-2" /> Eliminar</button>
                                 </>
                             )}
@@ -1387,11 +1387,11 @@ export const InventoryProducts: React.FC = () => {
                 {categoryContextMenu && createPortal(
                     <div className="fixed inset-0 z-[99999]" onClick={() => setCategoryContextMenu(null)}>
                         <div className="absolute bg-[#f0f0f0] border border-gray-400 shadow-lg py-1 min-w-[200px]" style={{ left: categoryContextMenu.x, top: categoryContextMenu.y }}>
-                            <div className="px-3 py-1 border-b border-gray-300 bg-[#e1e1e1] flex items-center gap-2"><Folder size={12} className="text-[#f0ba4c]" /> <span className="text-[10px] font-bold uppercase truncate text-slate-800 font-bold">{categoryContextMenu.category.name}</span></div>
-                            <button onClick={() => handleNewCategory(categoryContextMenu.category.id)} className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-slate-800 font-bold hover:bg-[#106ebe] hover:text-white uppercase cursor-pointer"><PlusCircle size={14} className="inline mr-2" /> Nuevo</button>
+                            <div className="px-3 py-1 border-b border-gray-300 bg-[#e1e1e1] flex items-center gap-2"><Folder size={12} className="text-[#f0ba4c]" /> <span className="text-[10px] font-medium uppercase truncate text-slate-800 font-medium">{categoryContextMenu.category.name}</span></div>
+                            <button onClick={() => handleNewCategory(categoryContextMenu.category.id)} className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-slate-800 font-medium hover:bg-[#106ebe] hover:text-white uppercase cursor-pointer"><PlusCircle size={14} className="inline mr-2" /> Nuevo</button>
                             {categoryContextMenu.category.id && (
                                 <>
-                                    <button onClick={() => handleEditCategory(categoryContextMenu.category)} className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-slate-800 font-bold hover:bg-[#106ebe] hover:text-white uppercase cursor-pointer"><Pencil size={14} className="inline mr-2" /> Editar</button>
+                                    <button onClick={() => handleEditCategory(categoryContextMenu.category)} className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-slate-800 font-medium hover:bg-[#106ebe] hover:text-white uppercase cursor-pointer"><Pencil size={14} className="inline mr-2" /> Editar</button>
                                     <button onClick={() => handleDeleteCategory(categoryContextMenu.category.id)} className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-rose-600 hover:bg-[#106ebe] hover:text-white uppercase cursor-pointer"><Trash size={14} className="inline mr-2" /> Eliminar</button>
                                 </>
                             )}
@@ -1404,26 +1404,26 @@ export const InventoryProducts: React.FC = () => {
                     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/5">
                         <DraggableWindow>
                             <div className="w-[500px] bg-[#f0f0f0] border border-[#106EBE] flex flex-col">
-                                <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center text-white font-bold select-none cursor-move">
+                                <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center text-white font-medium select-none cursor-move">
                                     <span className="text-[12px] uppercase">Categorías</span>
                                     <button onClick={() => setShowCategoryModal(false)}><X size={18} /></button>
                                 </div>
                                 <div className="p-4 space-y-4">
                                     <fieldset className="border border-gray-400 p-3 pt-4 relative">
-                                        <legend className="absolute -top-2.5 left-2 bg-[#f0f0f0] text-[10px] font-bold text-[#106EBE] uppercase px-1">Datos</legend>
+                                        <legend className="absolute -top-2.5 left-2 bg-[#f0f0f0] text-[10px] font-medium text-[#106EBE] uppercase px-1">Datos</legend>
                                         <div className="flex flex-col gap-3">
                                             <div className="flex items-center gap-2">
-                                                <label className="w-24 text-[10px] font-bold uppercase text-slate-800 font-bold">Nombre</label>
-                                                <input value={categoryFormData.name} onChange={e => setCategoryFormData({ ...categoryFormData, name: e.target.value.toUpperCase() })} className="flex-1 bg-white border border-gray-400 px-2 h-7 text-[11px] text-slate-800 font-bold uppercase outline-none focus:border-[#106EBE]" />
+                                                <label className="w-24 text-[10px] font-medium uppercase text-slate-800 font-medium">Nombre</label>
+                                                <input value={categoryFormData.name} onChange={e => setCategoryFormData({ ...categoryFormData, name: e.target.value.toUpperCase() })} className="flex-1 bg-white border border-gray-400 px-2 h-7 text-[11px] text-slate-800 font-medium uppercase outline-none focus:border-[#106EBE]" />
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <div className="w-24" />
-                                                <label className="flex items-center gap-2 cursor-pointer font-bold text-[10px] uppercase text-slate-800 font-bold">
+                                                <label className="flex items-center gap-2 cursor-pointer font-medium text-[10px] uppercase text-slate-800 font-medium">
                                                     <input type="checkbox" checked={categoryFormData.is_subcategory} onChange={e => setCategoryFormData({ ...categoryFormData, is_subcategory: e.target.checked, parent_id: e.target.checked ? categoryFormData.parent_id : null })} /> Es Subcategoría
                                                 </label>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <label className="w-24 text-[10px] font-bold uppercase text-slate-800 font-bold">Padre</label>
+                                                <label className="w-24 text-[10px] font-medium uppercase text-slate-800 font-medium">Padre</label>
                                                 <div className="flex-1 relative">
                                                     <input
                                                         type="text"
@@ -1432,7 +1432,7 @@ export const InventoryProducts: React.FC = () => {
                                                         value={showParentDropdown ? parentSearch : (categories.find(c => c.id === categoryFormData.parent_id)?.name || '[NINGUNO]')}
                                                         onFocus={() => { setShowParentDropdown(true); setParentSearch(''); }}
                                                         onChange={e => { setParentSearch(e.target.value); setShowParentDropdown(true); }}
-                                                        className="w-full h-7 border border-gray-400 px-2 text-[11px] text-slate-800 font-bold uppercase underline-none focus:border-[#106EBE] disabled:bg-gray-200"
+                                                        className="w-full h-7 border border-gray-400 px-2 text-[11px] text-slate-800 font-medium uppercase underline-none focus:border-[#106EBE] disabled:bg-gray-200"
                                                     />
                                                     {showParentDropdown && (
                                                         <>
@@ -1441,7 +1441,7 @@ export const InventoryProducts: React.FC = () => {
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => { setCategoryFormData({ ...categoryFormData, parent_id: null }); setShowParentDropdown(false); }}
-                                                                    className="w-full text-left px-2 py-1 text-[10px] font-bold text-rose-600 hover:bg-[#106ebe] hover:text-white transition-colors uppercase"
+                                                                    className="w-full text-left px-2 py-1 text-[10px] font-medium text-rose-600 hover:bg-[#106ebe] hover:text-white transition-colors uppercase"
                                                                 >
                                                                     [NINGUNO]
                                                                 </button>
@@ -1450,7 +1450,7 @@ export const InventoryProducts: React.FC = () => {
                                                                         key={cat.id}
                                                                         type="button"
                                                                         onClick={() => { setCategoryFormData({ ...categoryFormData, parent_id: cat.id }); setShowParentDropdown(false); }}
-                                                                        className="w-full text-left px-2 py-0.5 text-[10px] font-bold text-slate-700 hover:bg-[#106ebe] hover:text-white transition-colors uppercase"
+                                                                        className="w-full text-left px-2 py-0.5 text-[10px] font-medium text-slate-700 hover:bg-[#106ebe] hover:text-white transition-colors uppercase"
                                                                     >
                                                                         {cat.name}
                                                                     </button>
@@ -1461,11 +1461,11 @@ export const InventoryProducts: React.FC = () => {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <label className="w-24 text-[10px] font-bold uppercase text-slate-800 font-bold">Módulo</label>
+                                                <label className="w-24 text-[10px] font-medium uppercase text-slate-800 font-medium">Módulo</label>
                                                 <select
                                                     value={categoryFormData.section || 'INVENTARIO'}
                                                     onChange={e => setCategoryFormData({ ...categoryFormData, section: e.target.value as any })}
-                                                    className="flex-1 bg-white border border-gray-400 px-2 h-7 text-[11px] text-slate-800 font-bold uppercase outline-none focus:border-[#106EBE]"
+                                                    className="flex-1 bg-white border border-gray-400 px-2 h-7 text-[11px] text-slate-800 font-medium uppercase outline-none focus:border-[#106EBE]"
                                                 >
                                                     <option value="MENU">MENÚ (PLATILLOS Y BEBIDAS)</option>
                                                     <option value="INVENTARIO">INVENTARIO (MATERIA PRIMA)</option>
@@ -1475,8 +1475,8 @@ export const InventoryProducts: React.FC = () => {
                                     </fieldset>
                                 </div>
                                 <div className="h-10 px-4 bg-[#e1e1e1] border-t border-gray-400 flex justify-end items-center gap-2">
-                                    <button onClick={() => setShowCategoryModal(false)} className="px-4 py-1.5 bg-[#d1d1d1] border border-gray-400 text-slate-800 font-bold font-bold uppercase text-[10px] hover:bg-[#c1c1c1] transition-colors cursor-pointer">Cancelar</button>
-                                    <button onClick={handleSaveCategory} className="px-6 py-1.5 bg-[#106ebe] text-white font-bold uppercase text-[10px] hover:bg-[#005a9e] transition-colors cursor-pointer shadow-sm">Guardar</button>
+                                    <button onClick={() => setShowCategoryModal(false)} className="px-4 py-1.5 bg-[#d1d1d1] border border-gray-400 text-slate-800 font-medium font-medium uppercase text-[10px] hover:bg-[#c1c1c1] transition-colors cursor-pointer">Cancelar</button>
+                                    <button onClick={handleSaveCategory} className="px-6 py-1.5 bg-[#106ebe] text-white font-medium uppercase text-[10px] hover:bg-[#005a9e] transition-colors cursor-pointer shadow-sm">Guardar</button>
                                 </div>
                             </div>
                         </DraggableWindow>

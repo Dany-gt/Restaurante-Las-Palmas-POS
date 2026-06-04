@@ -202,10 +202,10 @@ export const AccountingPortal: React.FC = () => {
             {showAlertBar && alerts.length > 0 && (
                 <div className="shrink-0 bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center gap-4">
                     <AlertCircle size={14} className="text-amber-600 shrink-0" />
-                    <span className="text-[10px] font-black text-amber-800 uppercase tracking-widest">Próximas obligaciones:</span>
+                    <span className="text-[10px] font-semibold text-amber-800 uppercase tracking-widest">Próximas obligaciones:</span>
                     <div className="flex gap-4 flex-1">
                         {alerts.map((a, i) => (
-                            <span key={i} className={`text-[10px] font-bold ${a.color}`}>
+                            <span key={i} className={`text-[10px] font-medium ${a.color}`}>
                                 {a.label} en <strong>{a.days}</strong> días
                             </span>
                         ))}
@@ -226,7 +226,7 @@ export const AccountingPortal: React.FC = () => {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold rounded-t-lg border-t-2 transition-all whitespace-nowrap
+                                className={`flex items-center gap-2 px-4 py-2.5 text-[11px] font-medium rounded-t-lg border-t-2 transition-all whitespace-nowrap
                                     ${isActive
                                         ? `bg-white ${tab.color} ${tab.border} border-x border-gray-200 shadow-sm -mb-px z-10`
                                         : 'bg-[#f0f0f0] text-slate-500 border-transparent hover:bg-white hover:text-slate-700'
@@ -252,8 +252,8 @@ export const AccountingPortal: React.FC = () => {
                     >
                         <div className="w-8 h-8 rounded-full border-2 border-slate-100 border-t-[#106ebe] animate-spin" />
                         <div className="flex flex-col pr-4">
-                            <span className="text-[9px] font-black uppercase text-[#106ebe] tracking-widest">Sincronizando SAT...</span>
-                            <span className="text-[10px] font-bold text-slate-600 truncate max-w-[200px]">{sat.status}</span>
+                            <span className="text-[9px] font-semibold uppercase text-[#106ebe] tracking-widest">Sincronizando SAT...</span>
+                            <span className="text-[10px] font-medium text-slate-600 truncate max-w-[200px]">{sat.status}</span>
                         </div>
                         <Maximize2 size={14} className="text-slate-400" />
                     </div>
@@ -269,7 +269,7 @@ export const AccountingPortal: React.FC = () => {
                             <div className="bg-[#106EBE] h-9 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0">
                                 <div className="flex items-center gap-2">
                                     <Cloud size={14} className="text-white/80" />
-                                    <span className="text-white text-[11px] font-black uppercase tracking-widest">Canal de Sincronización SAT</span>
+                                    <span className="text-white text-[11px] font-semibold uppercase tracking-widest">Canal de Sincronización SAT</span>
                                 </div>
                                 <div className="flex items-center">
                                     <button 
@@ -293,25 +293,25 @@ export const AccountingPortal: React.FC = () => {
                                 {/* Left: Config */}
                                 <div className="w-[340px] p-6 bg-slate-50 border-r border-slate-200 space-y-6">
                                     <div className="space-y-4">
-                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block border-b pb-1">Configuración Temporal</label>
+                                        <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest block border-b pb-1">Configuración Temporal</label>
                                         <div className="grid grid-cols-2 gap-3">
                                             <div>
-                                                <label className="text-[8px] font-black text-slate-500 uppercase block mb-1">Fecha Inicio</label>
-                                                <input type="date" value={sat.dateStart} onChange={e => setSat(s => ({ ...s, dateStart: e.target.value }))} className="w-full bg-white border border-slate-300 text-[11px] font-black px-2 py-1.5 rounded outline-none focus:border-[#106EBE] h-8 shadow-sm" />
+                                                <label className="text-[8px] font-semibold text-slate-500 uppercase block mb-1">Fecha Inicio</label>
+                                                <input type="date" value={sat.dateStart} onChange={e => setSat(s => ({ ...s, dateStart: e.target.value }))} className="w-full bg-white border border-slate-300 text-[11px] font-semibold px-2 py-1.5 rounded outline-none focus:border-[#106EBE] h-8 shadow-sm" />
                                             </div>
                                             <div>
-                                                <label className="text-[8px] font-black text-slate-500 uppercase block mb-1">Fecha Fin</label>
-                                                <input type="date" value={sat.dateEnd} onChange={e => setSat(s => ({ ...s, dateEnd: e.target.value }))} className="w-full bg-white border border-slate-300 text-[11px] font-black px-2 py-1.5 rounded outline-none focus:border-[#106EBE] h-8 shadow-sm" />
+                                                <label className="text-[8px] font-semibold text-slate-500 uppercase block mb-1">Fecha Fin</label>
+                                                <input type="date" value={sat.dateEnd} onChange={e => setSat(s => ({ ...s, dateEnd: e.target.value }))} className="w-full bg-white border border-slate-300 text-[11px] font-semibold px-2 py-1.5 rounded outline-none focus:border-[#106EBE] h-8 shadow-sm" />
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="space-y-3">
-                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block border-b pb-1">Libro Objetivo</label>
+                                        <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest block border-b pb-1">Libro Objetivo</label>
                                         <div className="flex flex-col gap-2">
                                             {['recibida', 'emitida'].map(t => (
                                                 <button key={t} onClick={() => setSat(s => ({ ...s, tipo: t as any }))}
-                                                    className={`px-4 py-2.5 text-[10px] font-black uppercase rounded border transition-all flex items-center gap-3 ${sat.tipo === t ? 'bg-white border-[#106ebe] text-[#106ebe] shadow-md ring-2 ring-[#106ebe]/10' : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-white'}`}>
+                                                    className={`px-4 py-2.5 text-[10px] font-semibold uppercase rounded border transition-all flex items-center gap-3 ${sat.tipo === t ? 'bg-white border-[#106ebe] text-[#106ebe] shadow-md ring-2 ring-[#106ebe]/10' : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-white'}`}>
                                                     <div className={`w-3 h-3 rounded-full border-2 ${sat.tipo === t ? 'bg-[#106ebe] border-[#106ebe]' : 'bg-white border-slate-300'}`} />
                                                     {t === 'recibida' ? 'Facturas Recibidas (Compras)' : 'Facturas Emitidas (Ventas)'}
                                                 </button>
@@ -320,7 +320,7 @@ export const AccountingPortal: React.FC = () => {
                                     </div>
 
                                     {!sat.syncing && (
-                                        <button onClick={handleSatSync} className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black uppercase rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 mt-4">
+                                        <button onClick={handleSatSync} className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold uppercase rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 mt-4">
                                             <CloudDownload size={16} /> Sincronizar Ahora
                                         </button>
                                     )}
@@ -332,8 +332,8 @@ export const AccountingPortal: React.FC = () => {
                                         <div className="flex flex-col items-center space-y-6">
                                             <div className="w-16 h-16 border-4 border-slate-100 border-t-[#106ebe] rounded-full animate-spin" />
                                             <div className="text-center space-y-2">
-                                                <p className="text-[14px] font-black text-slate-800 uppercase tracking-tight">{sat.status}</p>
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase">El proceso continúa si cambias de pestaña o minimizas...</p>
+                                                <p className="text-[14px] font-semibold text-slate-800 uppercase tracking-tight">{sat.status}</p>
+                                                <p className="text-[10px] font-medium text-slate-400 uppercase">El proceso continúa si cambias de pestaña o minimizas...</p>
                                             </div>
                                             <div className="w-full max-w-xs bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200 relative">
                                                 <div 
@@ -341,7 +341,7 @@ export const AccountingPortal: React.FC = () => {
                                                     style={{ width: `${sat.progress}%` }}
                                                 />
                                             </div>
-                                            <span className="text-[10px] font-black text-[#106ebe]">{sat.progress}%</span>
+                                            <span className="text-[10px] font-semibold text-[#106ebe]">{sat.progress}%</span>
                                         </div>
                                     ) : sat.status && sat.status.includes('❌') ? (
                                         <div className="space-y-6 animate-in slide-in-from-bottom-2">
@@ -349,12 +349,12 @@ export const AccountingPortal: React.FC = () => {
                                                 <div className="w-14 h-14 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-100 shadow-inner">
                                                     <X size={28} />
                                                 </div>
-                                                <h4 className="text-[18px] font-black text-rose-600 uppercase">Fallo en Sync SAT</h4>
+                                                <h4 className="text-[18px] font-semibold text-rose-600 uppercase">Fallo en Sync SAT</h4>
                                             </div>
                                             <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl">
                                                 <p className="text-[12px] font-medium text-rose-800 text-center">{sat.status}</p>
                                             </div>
-                                            <button onClick={() => setSat(s => ({ ...s, showModal: false }))} className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-black uppercase rounded-xl transition-all">Regresar</button>
+                                            <button onClick={() => setSat(s => ({ ...s, showModal: false }))} className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-semibold uppercase rounded-xl transition-all">Regresar</button>
                                         </div>
                                     ) : sat.result ? (
                                         <div className="space-y-6 animate-in slide-in-from-bottom-2">
@@ -362,30 +362,30 @@ export const AccountingPortal: React.FC = () => {
                                                 <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-100 shadow-inner">
                                                     <ShieldCheck size={28} />
                                                 </div>
-                                                <h4 className="text-[18px] font-black text-black uppercase">Sync Completada</h4>
+                                                <h4 className="text-[18px] font-semibold text-black uppercase">Sync Completada</h4>
                                             </div>
                                             
                                             <div className="grid grid-cols-3 gap-3">
                                                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
-                                                     <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px] font-black">{sat.result.imported}</div>
-                                                     <div><span className="block text-[7px] font-black text-slate-400 uppercase">Nuevas</span><span className="text-[9px] font-bold text-slate-700">Hecho</span></div>
+                                                     <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px] font-semibold">{sat.result.imported}</div>
+                                                     <div><span className="block text-[7px] font-semibold text-slate-400 uppercase">Nuevas</span><span className="text-[9px] font-medium text-slate-700">Hecho</span></div>
                                                  </div>
                                                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
-                                                     <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 text-[10px] font-black">{sat.result.skipped}</div>
-                                                     <div><span className="block text-[7px] font-black text-slate-400 uppercase">Omitidas</span><span className="text-[9px] font-bold text-slate-700">Existían</span></div>
+                                                     <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 text-[10px] font-semibold">{sat.result.skipped}</div>
+                                                     <div><span className="block text-[7px] font-semibold text-slate-400 uppercase">Omitidas</span><span className="text-[9px] font-medium text-slate-700">Existían</span></div>
                                                  </div>
                                                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
-                                                     <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center text-red-600 text-[10px] font-black">{sat.result.errors}</div>
-                                                     <div><span className="block text-[7px] font-black text-slate-400 uppercase">Errores</span><span className="text-[9px] font-bold text-slate-700">Fallas</span></div>
+                                                     <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center text-red-600 text-[10px] font-semibold">{sat.result.errors}</div>
+                                                     <div><span className="block text-[7px] font-semibold text-slate-400 uppercase">Errores</span><span className="text-[9px] font-medium text-slate-700">Fallas</span></div>
                                                  </div>
                                              </div>
 
-                                            <button onClick={() => setSat(s => ({ ...s, showModal: false }))} className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-black uppercase rounded-xl transition-all">Regresar</button>
+                                            <button onClick={() => setSat(s => ({ ...s, showModal: false }))} className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-semibold uppercase rounded-xl transition-all">Regresar</button>
                                         </div>
                                     ) : (
                                         <div className="flex flex-col items-center opacity-30 text-center space-y-4">
                                             <CloudDownload size={64} className="text-slate-200" />
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Listo para iniciar...</p>
+                                            <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Listo para iniciar...</p>
                                         </div>
                                     )}
                                 </div>
@@ -401,7 +401,7 @@ export const AccountingPortal: React.FC = () => {
                 <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[999999] animate-in slide-in-from-top-4">
                     <div className="bg-rose-600 text-white px-6 py-2 border border-rose-700 shadow-[0_0_20px_rgba(0,0,0,0.3)] flex items-center gap-3">
                         <AlertCircle size={16} />
-                        <span className="text-[11px] font-black uppercase tracking-widest">{portalError}</span>
+                        <span className="text-[11px] font-semibold uppercase tracking-widest">{portalError}</span>
                         <button onClick={() => setPortalError(null)} className="ml-4 p-1 hover:bg-black/20 transition-colors">
                             <X size={14} strokeWidth={3} />
                         </button>

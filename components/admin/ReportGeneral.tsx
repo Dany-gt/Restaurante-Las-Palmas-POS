@@ -138,7 +138,7 @@ export const ReportGeneral: React.FC = () => {
     if (!isVisible) {
         return (
             <div className="w-full h-full flex items-center justify-center p-4 bg-[#e5e7eb]">
-                <span className="text-gray-400 font-bold tracking-widest uppercase">Seleccione una opción del menú</span>
+                <span className="text-gray-400 font-medium tracking-widest uppercase">Seleccione una opción del menú</span>
             </div>
         );
     }
@@ -152,7 +152,7 @@ export const ReportGeneral: React.FC = () => {
                             {/* Header Clásico Windows */}
                             <div className="modal-header bg-[#106ebe] h-8 px-2 flex justify-between items-center select-none text-white cursor-move active:cursor-grabbing">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[12px] font-bold tracking-wide ml-2">Reporte General</span>
+                                    <span className="text-[12px] font-medium tracking-wide ml-2">Reporte General</span>
                                 </div>
                                 <div className="flex items-center">
                                     <button onClick={() => setIsVisible(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors">
@@ -166,7 +166,7 @@ export const ReportGeneral: React.FC = () => {
 
                                 {/* Sección 1: Configuración */}
                                 <div className="border border-gray-300 relative pt-4 pb-3 px-3">
-                                    <span className="absolute -top-2 left-2 bg-[#f0f0f0] px-1 text-[11px] font-bold text-gray-700">Configuración</span>
+                                    <span className="absolute -top-2 left-2 bg-[#f0f0f0] px-1 text-[11px] font-medium text-gray-700">Configuración</span>
                                     <div className="flex items-center justify-between gap-4">
                                         <select value={selectedBranch} onChange={e => setSelectedBranch(e.target.value)} className="border border-gray-400 bg-white text-[11px] px-2 py-1 h-7 w-[200px] outline-none shadow-sm focus:border-blue-500 uppercase text-black">
                                             <option value="ALL">TODAS LAS SUCURSALES</option>
@@ -174,12 +174,12 @@ export const ReportGeneral: React.FC = () => {
                                         </select>
 
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[11px] font-bold text-gray-700">Del</span>
+                                            <span className="text-[11px] font-medium text-gray-700">Del</span>
                                             <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="border border-gray-400 bg-white text-[11px] text-black px-2 py-1 h-7 outline-none shadow-sm focus:border-blue-500" />
                                         </div>
 
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[11px] font-bold text-gray-700">Al</span>
+                                            <span className="text-[11px] font-medium text-gray-700">Al</span>
                                             <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="border border-gray-400 bg-white text-[11px] text-black px-2 py-1 h-7 outline-none shadow-sm focus:border-blue-500" />
                                         </div>
 
@@ -196,75 +196,75 @@ export const ReportGeneral: React.FC = () => {
 
                                 {/* Sección 2: Ventas / Propinas / Gastos */}
                                 <div className="border border-gray-300 relative pt-5 pb-4 px-3">
-                                    <span className="absolute -top-2 left-2 bg-[#f0f0f0] px-1 text-[11px] font-bold text-gray-700">Ventas / Propinas / Gastos</span>
+                                    <span className="absolute -top-2 left-2 bg-[#f0f0f0] px-1 text-[11px] font-medium text-gray-700">Ventas / Propinas / Gastos</span>
 
                                     <div className="flex flex-col gap-4">
                                         {/* Fila Ventas */}
                                         <div className="flex items-center gap-4">
-                                            <div className="w-32"><span className="text-[11px] font-bold text-gray-900">Ventas</span></div>
+                                            <div className="w-32"><span className="text-[11px] font-medium text-gray-900">Ventas</span></div>
                                             <div className="flex-1 grid grid-cols-5 gap-4">
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span className="text-[10px] text-gray-600">Efectivo</span>
-                                                    <input type="text" readOnly value={formatCurr(reportData.ventas.efectivo)} className="w-full h-7 text-center text-[11px] text-black font-bold border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={formatCurr(reportData.ventas.efectivo)} className="w-full h-7 text-center text-[11px] text-black font-medium border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span className="text-[10px] text-gray-600">Tarjeta</span>
-                                                    <input type="text" readOnly value={formatCurr(reportData.ventas.tarjeta)} className="w-full h-7 text-center text-[11px] text-black font-bold border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={formatCurr(reportData.ventas.tarjeta)} className="w-full h-7 text-center text-[11px] text-black font-medium border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span className="text-[10px] text-gray-600">Al Crédito</span>
-                                                    <input type="text" readOnly value={formatCurr(reportData.ventas.credito)} className="w-full h-7 text-center text-[11px] text-black font-bold border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={formatCurr(reportData.ventas.credito)} className="w-full h-7 text-center text-[11px] text-black font-medium border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span className="text-[10px] text-gray-600">Otros</span>
-                                                    <input type="text" readOnly value={formatCurr(reportData.ventas.otros)} className="w-full h-7 text-center text-[11px] text-black font-bold border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={formatCurr(reportData.ventas.otros)} className="w-full h-7 text-center text-[11px] text-black font-medium border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                                 <div className="flex flex-col items-center gap-1">
-                                                    <span className="text-[10px] font-bold text-gray-900">TOTAL</span>
-                                                    <input type="text" readOnly value={formatCurr(reportData.ventas.total)} className="w-full h-7 text-center text-[11px] text-black font-black border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <span className="text-[10px] font-medium text-gray-900">TOTAL</span>
+                                                    <input type="text" readOnly value={formatCurr(reportData.ventas.total)} className="w-full h-7 text-center text-[11px] text-black font-semibold border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Fila Propinas */}
                                         <div className="flex items-center gap-4">
-                                            <div className="w-32"><span className="text-[11px] font-bold text-gray-900">Propinas</span></div>
+                                            <div className="w-32"><span className="text-[11px] font-medium text-gray-900">Propinas</span></div>
                                             <div className="flex-1 grid grid-cols-5 gap-4">
                                                 <div className="flex flex-col items-center">
-                                                    <input type="text" readOnly value={formatCurr(reportData.propinas.efectivo)} className="w-full h-7 mt-4 text-center text-black font-bold text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={formatCurr(reportData.propinas.efectivo)} className="w-full h-7 mt-4 text-center text-black font-medium text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                                 <div className="flex flex-col items-center">
-                                                    <input type="text" readOnly value={formatCurr(reportData.propinas.tarjeta)} className="w-full h-7 mt-4 text-center text-black font-bold text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={formatCurr(reportData.propinas.tarjeta)} className="w-full h-7 mt-4 text-center text-black font-medium text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                                 <div className="flex flex-col items-center"></div> {/* Espacio vacío para Crédito */}
                                                 <div className="flex flex-col items-center">
-                                                    <input type="text" readOnly value={formatCurr(reportData.propinas.otros)} className="w-full h-7 mt-4 text-center text-black font-bold text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={formatCurr(reportData.propinas.otros)} className="w-full h-7 mt-4 text-center text-black font-medium text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                                 <div className="flex flex-col items-center">
-                                                    <input type="text" readOnly value={formatCurr(reportData.propinas.total)} className="w-full h-7 mt-4 text-center text-black font-black text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={formatCurr(reportData.propinas.total)} className="w-full h-7 mt-4 text-center text-black font-semibold text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Fila Egresos */}
                                         <div className="flex items-center gap-4 mt-2">
-                                            <div className="w-32"><span className="text-[11px] font-bold text-gray-900">Egresos y Descuentos</span></div>
+                                            <div className="w-32"><span className="text-[11px] font-medium text-gray-900">Egresos y Descuentos</span></div>
                                             <div className="flex-1 grid grid-cols-5 gap-4">
                                                 <div className="flex flex-col items-center gap-1 col-start-2">
                                                     <span className="text-[10px] text-gray-600">Compras</span>
-                                                    <input type="text" readOnly value={formatCurr(reportData.egresos.compras)} className="w-full h-7 text-center text-black font-bold text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={formatCurr(reportData.egresos.compras)} className="w-full h-7 text-center text-black font-medium text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span className="text-[10px] text-gray-600">Gastos</span>
-                                                    <input type="text" readOnly value={formatCurr(reportData.egresos.gastos)} className="w-full h-7 text-center text-black font-bold text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={formatCurr(reportData.egresos.gastos)} className="w-full h-7 text-center text-black font-medium text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span className="text-[10px] text-gray-600">Descuentos</span>
-                                                    <input type="text" readOnly value={formatCurr(reportData.egresos.descuentos)} className="w-full h-7 text-center text-black font-bold text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={formatCurr(reportData.egresos.descuentos)} className="w-full h-7 text-center text-black font-medium text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                                 <div className="flex flex-col items-center gap-1">
-                                                    <span className="text-[10px] font-bold text-gray-900">TOTAL</span>
-                                                    <input type="text" readOnly value={formatCurr(reportData.egresos.total)} className="w-full h-7 text-center text-black font-black text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <span className="text-[10px] font-medium text-gray-900">TOTAL</span>
+                                                    <input type="text" readOnly value={formatCurr(reportData.egresos.total)} className="w-full h-7 text-center text-black font-semibold text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                             </div>
                                         </div>
@@ -277,24 +277,24 @@ export const ReportGeneral: React.FC = () => {
 
                                 {/* Sección 3: Ordenes / Ticket */}
                                 <div className="border border-gray-300 relative pt-6 pb-4 px-3 h-[110px]">
-                                    <span className="absolute -top-2 left-2 bg-[#f0f0f0] px-1 text-[11px] font-bold text-gray-700">Ordenes / Ticket Promedio</span>
+                                    <span className="absolute -top-2 left-2 bg-[#f0f0f0] px-1 text-[11px] font-medium text-gray-700">Ordenes / Ticket Promedio</span>
 
                                     <div className="flex h-full">
                                         {/* Bloque Izquierdo */}
                                         <div className="w-3/5 flex flex-col justify-center items-center">
-                                            <span className="text-[11px] font-bold text-gray-900 mb-2">Ordenes y Comensales</span>
+                                            <span className="text-[11px] font-medium text-gray-900 mb-2">Ordenes y Comensales</span>
                                             <div className="grid grid-cols-3 gap-6 w-full px-4">
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span className="text-[10px] text-gray-600">Ordenes Atendidas</span>
-                                                    <input type="text" readOnly value={reportData.ordenes.atendidas} className="w-full h-7 text-center text-black font-bold text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={reportData.ordenes.atendidas} className="w-full h-7 text-center text-black font-medium text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span className="text-[10px] text-gray-600">Ordenes Anuladas</span>
-                                                    <input type="text" readOnly value={reportData.ordenes.anuladas} className="w-full h-7 text-center text-black font-bold text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={reportData.ordenes.anuladas} className="w-full h-7 text-center text-black font-medium text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span className="text-[10px] text-gray-600">Comensales Atendidos</span>
-                                                    <input type="text" readOnly value={reportData.ordenes.comensales} className="w-full h-7 text-center text-black font-bold text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={reportData.ordenes.comensales} className="w-full h-7 text-center text-black font-medium text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                             </div>
                                         </div>
@@ -304,15 +304,15 @@ export const ReportGeneral: React.FC = () => {
 
                                         {/* Bloque Derecho */}
                                         <div className="w-2/5 flex flex-col justify-center items-center">
-                                            <span className="text-[11px] font-bold text-gray-900 mb-2">Ticket Promedio</span>
+                                            <span className="text-[11px] font-medium text-gray-900 mb-2">Ticket Promedio</span>
                                             <div className="grid grid-cols-2 gap-6 w-full px-4">
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span className="text-[10px] text-gray-600">Por Persona</span>
-                                                    <input type="text" readOnly value={formatCurr(reportData.ticket.porPersona)} className="w-full h-7 text-center text-black font-bold text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={formatCurr(reportData.ticket.porPersona)} className="w-full h-7 text-center text-black font-medium text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                                 <div className="flex flex-col items-center gap-1">
                                                     <span className="text-[10px] text-gray-600">Por Orden / Mesa</span>
-                                                    <input type="text" readOnly value={formatCurr(reportData.ticket.porOrden)} className="w-full h-7 text-center text-black font-bold text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
+                                                    <input type="text" readOnly value={formatCurr(reportData.ticket.porOrden)} className="w-full h-7 text-center text-black font-medium text-[11px] border border-gray-400 bg-gray-50 cursor-default" />
                                                 </div>
                                             </div>
                                         </div>

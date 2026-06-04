@@ -196,11 +196,11 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
             <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sucursal</span>
+                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Sucursal</span>
                         <select
                             value={selectedBranchFilter}
                             onChange={(e) => setSelectedBranchFilter(e.target.value)}
-                            className="h-8 px-3 bg-gray-50 border border-gray-200 rounded-lg text-[11px] font-bold text-[#106ebe] outline-none focus:border-[#106ebe] transition-all min-w-[280px]"
+                            className="h-8 px-3 bg-gray-50 border border-gray-200 rounded-lg text-[11px] font-medium text-[#106ebe] outline-none focus:border-[#106ebe] transition-all min-w-[280px]"
                         >
                             <option value="ALL">TODAS LAS SUCURSALES</option>
                             {branches.map(b => (
@@ -217,13 +217,13 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                             onChange={(e) => setLocalSearch(e.target.value)}
                             type="text"
                             placeholder="Introduzca el texto a buscar..."
-                            className="w-full h-8 pl-9 pr-4 bg-white border border-gray-300 rounded-lg text-[11px] font-bold text-slate-900 outline-none focus:border-[#106ebe] transition-all shadow-sm"
+                            className="w-full h-8 pl-9 pr-4 bg-white border border-gray-300 rounded-lg text-[11px] font-medium text-slate-900 outline-none focus:border-[#106ebe] transition-all shadow-sm"
                         />
                         <Search className="absolute left-3 top-2.5 text-slate-400" size={14} />
                     </div>
                     <button
                         onClick={() => fetchData()}
-                        className="h-8 px-4 bg-gray-100 hover:bg-[#106ebe] hover:text-white text-slate-900 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all border border-gray-300 active:scale-95"
+                        className="h-8 px-4 bg-gray-100 hover:bg-[#106ebe] hover:text-white text-slate-900 text-[10px] font-semibold uppercase tracking-widest rounded-lg transition-all border border-gray-300 active:scale-95"
                     >
                         Buscar
                     </button>
@@ -246,25 +246,25 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                     <table className="w-full border-collapse text-[11px]">
                         <thead className="sticky top-0 z-20 bg-[#e8e8e8] select-none">
                             <tr className="border-b border-gray-400 h-10">
-                                <th className="px-6 py-2 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[25%]">Estación</th>
-                                <th className="px-6 py-2 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[25%]">Punto de Impresión / KDS</th>
-                                <th className="px-6 py-2 text-center text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[10%]">Ticket</th>
-                                <th className="px-6 py-2 text-center text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[10%]">Pantalla</th>
-                                <th className="px-6 py-2 text-center text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[10%]">Habilitado</th>
-                                <th className="px-6 py-2 text-left text-[10px] font-bold text-black uppercase w-[20%]">Sucursal</th>
+                                <th className="px-6 py-2 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[25%]">Estación</th>
+                                <th className="px-6 py-2 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[25%]">Punto de Impresión / KDS</th>
+                                <th className="px-6 py-2 text-center text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[10%]">Ticket</th>
+                                <th className="px-6 py-2 text-center text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[10%]">Pantalla</th>
+                                <th className="px-6 py-2 text-center text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[10%]">Habilitado</th>
+                                <th className="px-6 py-2 text-left text-[10px] font-medium text-black uppercase w-[20%]">Sucursal</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                             {kitchens.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="py-20 text-center text-slate-500 font-bold italic">
+                                    <td colSpan={6} className="py-20 text-center text-slate-500 font-medium italic">
                                         No hay estaciones de cocina vinculadas. <br />
                                         Haz clic derecho para agregar una nueva.
                                     </td>
                                 </tr>
                             ) : filteredKitchens.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="py-20 text-center text-slate-500 font-bold italic">
+                                    <td colSpan={6} className="py-20 text-center text-slate-500 font-medium italic">
                                         No se encontraron resultados para "{localSearch}".
                                     </td>
                                 </tr>
@@ -287,12 +287,12 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                                                 : index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'
                                         } text-slate-900`}
                                     >
-                                        <td className="px-4 font-bold flex items-center gap-2 h-6 border-r border-gray-100">
+                                        <td className="px-4 font-medium flex items-center gap-2 h-6 border-r border-gray-100">
                                             <ChefHat size={12} className={selectedKitchenId === k.id ? 'text-white' : 'text-slate-400'} />
                                             <span className="uppercase tracking-tight text-[10px]">{k.name}</span>
                                         </td>
                                         <td className="px-4 border-r border-gray-100">
-                                            <span className={`uppercase tracking-tight text-[10px] ${selectedKitchenId === k.id ? 'text-blue-100' : 'text-slate-500 font-bold'}`}>{k.device_name || '---'}</span>
+                                            <span className={`uppercase tracking-tight text-[10px] ${selectedKitchenId === k.id ? 'text-blue-100' : 'text-slate-500 font-medium'}`}>{k.device_name || '---'}</span>
                                         </td>
                                         <td className="px-4 border-r border-gray-100">
                                             <div className="flex justify-center items-center h-full">
@@ -316,7 +316,7 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                                             </div>
                                         </td>
                                         <td className="px-4">
-                                            <span className={`uppercase tracking-tight text-[9px] font-black flex items-center gap-1 ${selectedKitchenId === k.id ? 'text-blue-100' : 'text-[#106ebe]'}`}>
+                                            <span className={`uppercase tracking-tight text-[9px] font-semibold flex items-center gap-1 ${selectedKitchenId === k.id ? 'text-blue-100' : 'text-[#106ebe]'}`}>
                                                 <Building2 size={10} /> {k.branch?.name || 'CENTRAL / GENERAL'}
                                             </span>
                                         </td>
@@ -329,7 +329,7 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
             </div>
 
             <div className="flex items-center justify-between shrink-0">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-2 border-l-4 border-[#106ebe]">
+                <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest pl-2 border-l-4 border-[#106ebe]">
                     {filteredKitchens.length} Estaciones Operativas
                 </span>
             </div>
@@ -342,7 +342,7 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                 >
                     <button
                         onClick={() => { setEditingKitchen(null); setFormData(defaultFormData); setShowModal(true); setContextMenu(null); }}
-                        className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                        className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
                     >
                         <Plus size={14} className="text-emerald-500 group-hover:text-white" /> Nuevo Registro
                     </button>
@@ -351,7 +351,7 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                         <>
                             <button
                                 onClick={() => { openEdit(contextMenu.kitchen); setContextMenu(null); }}
-                                className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                                className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
                             >
                                 <Edit3 size={14} className="text-[#106ebe] group-hover:text-white" /> Editar Configuración
                             </button>
@@ -362,14 +362,14 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                                     setShowAssignDeviceModal(true);
                                     setContextMenu(null);
                                 }}
-                                className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                                className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
                             >
                                 <Smartphone size={14} className="text-indigo-500 group-hover:text-white" /> Asignar Dispositivo
                             </button>
                             <div className="h-px bg-gray-100 my-1"></div>
                             <button
                                 onClick={() => { setConfirmDelete(contextMenu.kitchen.id); setContextMenu(null); }}
-                                className="w-full text-left px-4 py-2 text-[11px] font-bold text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-3 group transition-colors"
+                                className="w-full text-left px-4 py-2 text-[11px] font-medium text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-3 group transition-colors"
                             >
                                 <Trash2 size={14} className="text-red-500 group-hover:text-white" /> Eliminar Estación
                             </button>
@@ -378,7 +378,7 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                     )}
                     <button
                         onClick={() => { fetchData(); setContextMenu(null); }}
-                        className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                        className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
                     >
                         <RefreshCw size={14} className="text-gray-400 group-hover:text-white" /> Refrescar
                     </button>
@@ -398,7 +398,7 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                             >
                                 <div className="flex items-center gap-2 pointer-events-none select-none">
                                     <ChefHat size={14} className="text-white" />
-                                    <span className="text-white text-[11px] font-bold">Mantenimiento de Cocinas</span>
+                                    <span className="text-white text-[11px] font-medium">Mantenimiento de Cocinas</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <WindowsSaveButton onClick={handleSave} loading={isSaving} title="Guardar Estación" variant="minimal" />
@@ -412,7 +412,7 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                                 {/* Sección Datos de Cocina */}
                                 <div className="bg-white border border-gray-300 shadow-sm">
                                     <div className="bg-[#cbd5e1] px-3 py-1 border-b border-gray-300">
-                                        <span className="text-[11px] font-bold text-[#106ebe] uppercase tracking-tighter">Datos de Cocina</span>
+                                        <span className="text-[11px] font-medium text-[#106ebe] uppercase tracking-tighter">Datos de Cocina</span>
                                     </div>
                                     <div className="p-4 space-y-2">
                                         <div className="grid grid-cols-[100px_1fr] items-center gap-4">
@@ -452,12 +452,12 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                                 {/* Sección Sucursales con Tabla de Checkboxes */}
                                 <div className="bg-white border border-gray-300 shadow-sm">
                                     <div className="bg-[#cbd5e1] px-3 py-1 border-b border-gray-300">
-                                        <span className="text-[11px] font-bold text-[#106ebe] uppercase tracking-tighter">Sucursales</span>
+                                        <span className="text-[11px] font-medium text-[#106ebe] uppercase tracking-tighter">Sucursales</span>
                                     </div>
                                     <div className="overflow-x-auto">
                                         <table className="w-full border-collapse text-[10px]">
                                             <thead className="bg-[#e8e8e8] select-none uppercase">
-                                                <tr className="text-black font-bold border-b border-gray-400 h-8">
+                                                <tr className="text-black font-medium border-b border-gray-400 h-8">
                                                     <th className="px-6 py-2 text-left border-r border-gray-300">Agencia / Sucursal</th>
                                                     <th className="px-2 py-2 text-center border-r border-gray-300 w-16">Imprime</th>
                                                     <th className="px-2 py-2 text-center border-r border-gray-300 w-16">KDS</th>
@@ -468,7 +468,7 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                                             <tbody className="divide-y divide-gray-200">
                                                 {branches.map((b, index) => (
                                                     <tr key={b.id} className={`hover:bg-blue-50/50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
-                                                        <td className="py-2 px-6 font-bold text-gray-700 border-r border-gray-300 uppercase">{b.name}</td>
+                                                        <td className="py-2 px-6 font-medium text-gray-700 border-r border-gray-300 uppercase">{b.name}</td>
                                                         <td className="py-2 px-2 text-center border-r border-gray-300">
                                                             <input type="checkbox" checked={formData.branch_id === b.id ? formData.is_printer : false} disabled={formData.branch_id !== b.id} onChange={e => formData.branch_id === b.id && setFormData({ ...formData, is_printer: e.target.checked })} className="w-3.5 h-3.5 accent-[#106ebe]" />
                                                         </td>
@@ -485,7 +485,7 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                                                 ))}
                                                 {/* Fila para "TODAS LAS SUCURSALES / GENERAL" */}
                                                 <tr className="bg-gray-50/50">
-                                                    <td className="py-2 px-6 font-black text-[#106ebe]/40 border-r border-gray-300 uppercase">General / Sucursal</td>
+                                                    <td className="py-2 px-6 font-semibold text-[#106ebe]/40 border-r border-gray-300 uppercase">General / Sucursal</td>
                                                     <td className="py-2 px-2 text-center border-r border-gray-300">
                                                         <input type="checkbox" checked={!formData.branch_id ? formData.is_printer : false} disabled={!!formData.branch_id} onChange={e => !formData.branch_id && setFormData({ ...formData, is_printer: e.target.checked })} className="w-3.5 h-3.5 accent-[#106ebe]" />
                                                     </td>
@@ -515,7 +515,7 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                     <DraggableWindow id="kitchens-device-assign" title="Asignar Dispositivo">
                         <div className="bg-white w-[500px] shadow-2xl border border-[#106ebe] overflow-hidden animate-zoom-in pointer-events-auto relative flex flex-col">
                             <div className="bg-[#106ebe] h-8 flex items-center justify-between px-3 shrink-0 modal-header cursor-default select-none">
-                                <span className="text-white text-[11px] font-bold uppercase tracking-wider">Asignar Dispositivo</span>
+                                <span className="text-white text-[11px] font-medium uppercase tracking-wider">Asignar Dispositivo</span>
                                 <button onClick={() => setShowAssignDeviceModal(false)} className="text-white/60 hover:text-white transition-colors">
                                     <X size={18} />
                                 </button>
@@ -523,14 +523,14 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
 
                             <div className="p-6 space-y-6">
                                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Dispositivo</h4>
+                                    <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em] mb-3">Dispositivo</h4>
                                     <div className="flex flex-col gap-4">
                                         <div className="grid grid-cols-[100px_1fr] items-center gap-4">
-                                            <label className="text-[11px] font-bold text-slate-700 uppercase">Punto Impresión</label>
+                                            <label className="text-[11px] font-medium text-slate-700 uppercase">Punto Impresión</label>
                                             <select
                                                 value={selectedPrinter}
                                                 onChange={(e) => setSelectedPrinter(e.target.value)}
-                                                className="w-full h-10 bg-white border border-slate-200 rounded-xl px-4 text-[12px] font-black text-[#106ebe] outline-none focus:ring-4 focus:ring-blue-500/5 transition-all"
+                                                className="w-full h-10 bg-white border border-slate-200 rounded-xl px-4 text-[12px] font-semibold text-[#106ebe] outline-none focus:ring-4 focus:ring-blue-500/5 transition-all"
                                             >
                                                 <option value="">SELECCIONE PUNTO DE IMPRESIÓN...</option>
                                                 {printers.filter(p => !p.branch_id || p.branch_id === assignDeviceKitchen.branch_id).map(p => (
@@ -546,7 +546,7 @@ export const KitchensAdmin: React.FC<KitchensAdminProps> = ({ globalSearch = '' 
                                     <button
                                         onClick={handleAssignDevice}
                                         disabled={loading || !selectedPrinter}
-                                        className="px-8 py-2.5 bg-[#106ebe] hover:bg-black text-white rounded-xl font-black text-[10px] tracking-widest uppercase transition-all shadow-lg active:scale-95 flex items-center gap-2 disabled:opacity-50"
+                                        className="px-8 py-2.5 bg-[#106ebe] hover:bg-black text-white rounded-xl font-semibold text-[10px] tracking-widest uppercase transition-all shadow-lg active:scale-95 flex items-center gap-2 disabled:opacity-50"
                                     >
                                         {loading ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
                                         Aceptar

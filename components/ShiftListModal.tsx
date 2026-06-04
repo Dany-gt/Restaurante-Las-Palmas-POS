@@ -376,7 +376,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
             <div className="w-full max-w-3xl bg-[#2e303f] rounded-[4px] border border-white/10  overflow-hidden flex flex-col">
                 {/* HEADER */}
                 <div className="bg-[#212330] py-3.5 px-4 flex justify-between items-center border-b border-white/5 relative">
-                    <span className="text-[10px] font-black text-white uppercase tracking-[0.25em] mx-auto">
+                    <span className="text-[10px] font-semibold text-white uppercase tracking-[0.25em] mx-auto">
                         LISTADO DE CIERRES
                     </span>
                     <button
@@ -395,7 +395,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                         </div>
                     ) : shifts.length === 0 ? (
                         <div className="flex items-center justify-center h-64">
-                            <p className="text-gray-400 text-sm font-bold">No hay cierres registrados</p>
+                            <p className="text-gray-400 text-sm font-medium">No hay cierres registrados</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -413,19 +413,19 @@ Generado: ${new Date().toLocaleString('es-GT')}
                                     >
                                         <div className="flex justify-between items-center text-[10px] leading-tight">
                                             <span className={isSelected ? 'text-white/70' : 'text-white/50'}>Caja</span>
-                                            <span className="font-bold text-white text-right">{shift.cash_registers?.name || 'Caja'}</span>
+                                            <span className="font-medium text-white text-right">{shift.cash_registers?.name || 'Caja'}</span>
                                         </div>
                                         <div className="flex justify-between items-center text-[10px] leading-tight">
                                             <span className={isSelected ? 'text-white/70' : 'text-white/50'}>Turno</span>
-                                            <span className="font-bold text-white text-right">{shift.shift_number || 1}</span>
+                                            <span className="font-medium text-white text-right">{shift.shift_number || 1}</span>
                                         </div>
                                         <div className="flex justify-between items-center text-[10px] leading-tight">
                                             <span className={isSelected ? 'text-white/70' : 'text-white/50'}>Apertura</span>
-                                            <span className="font-bold text-white text-right">{formatDate(shift.start_time)}</span>
+                                            <span className="font-medium text-white text-right">{formatDate(shift.start_time)}</span>
                                         </div>
                                         <div className="flex justify-between items-center text-[10px] leading-tight">
                                             <span className={isSelected ? 'text-white/70' : 'text-white/50'}>Cierre</span>
-                                            <span className="font-bold text-white text-right">{formatDate(shift.end_time)}</span>
+                                            <span className="font-medium text-white text-right">{formatDate(shift.end_time)}</span>
                                         </div>
                                     </div>
                                 );
@@ -439,7 +439,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                     <button
                         onClick={() => selectedShift && handlePrint(selectedShift)}
                         disabled={!selectedShift || processingShiftId !== null}
-                        className="relative w-[150px] h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-bold text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all  active:scale-95 overflow-hidden disabled:opacity-50"
+                        className="relative w-[150px] h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-medium text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all  active:scale-95 overflow-hidden disabled:opacity-50"
                     >
                         {processingShiftId === selectedShift?.id ? (
                             <div className="w-4 h-4 border-2 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
@@ -452,7 +452,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                     <button
                         onClick={() => selectedShift && handleEmail(selectedShift)}
                         disabled={!selectedShift || processingShiftId !== null}
-                        className="relative w-[150px] h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-bold text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all  active:scale-95 overflow-hidden disabled:opacity-50"
+                        className="relative w-[150px] h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-medium text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all  active:scale-95 overflow-hidden disabled:opacity-50"
                     >
                         {processingShiftId === selectedShift?.id ? (
                             <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -464,7 +464,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
 
                     <button
                         onClick={onClose}
-                        className="relative w-[150px] h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-bold text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all  active:scale-95 overflow-hidden"
+                        className="relative w-[150px] h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-medium text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all  active:scale-95 overflow-hidden"
                     >
                         CERRAR
                         <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-red-500 border-l-[10px] border-l-transparent pointer-events-none" />

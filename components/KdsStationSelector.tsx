@@ -71,8 +71,8 @@ export const KdsStationSelector: React.FC<KdsStationSelectorProps> = ({ onSelect
                     <div className="w-24 h-24 bg-indigo-600/20 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-indigo-500/30 shadow-2xl shadow-indigo-500/20">
                         <ChefHat size={48} className="text-indigo-400" />
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-widest mb-3">SELECCIÓN DE ESTACIÓN</h1>
-                    <p className="text-gray-400 font-bold tracking-[0.2em] uppercase text-sm">Configuración de KDS</p>
+                    <h1 className="text-3xl md:text-4xl font-semibold text-white uppercase tracking-widest mb-3">SELECCIÓN DE ESTACIÓN</h1>
+                    <p className="text-gray-400 font-medium tracking-[0.2em] uppercase text-sm">Configuración de KDS</p>
                 </div>
 
                 {loading && stations.length === 0 ? (
@@ -82,8 +82,8 @@ export const KdsStationSelector: React.FC<KdsStationSelectorProps> = ({ onSelect
                 ) : error ? (
                     <div className="flex flex-col items-center gap-4 text-red-400 bg-red-500/10 p-8 rounded-2xl border border-red-500/20">
                         <AlertCircle size={48} />
-                        <span className="font-bold text-lg">{error}</span>
-                        <button onClick={fetchStations} className="px-6 py-2 bg-red-500/20 hover:bg-red-500/40 rounded-lg text-white font-bold transition-colors">Reintentar</button>
+                        <span className="font-medium text-lg">{error}</span>
+                        <button onClick={fetchStations} className="px-6 py-2 bg-red-500/20 hover:bg-red-500/40 rounded-lg text-white font-medium transition-colors">Reintentar</button>
                     </div>
                 ) : (
                     <div className="flex flex-col gap-4 w-full max-w-md mx-auto animate-fade-in">
@@ -106,7 +106,7 @@ export const KdsStationSelector: React.FC<KdsStationSelectorProps> = ({ onSelect
                 <div className="mt-16 flex flex-col md:flex-row items-center justify-center gap-8">
                     <button
                         onClick={onLogout}
-                        className="flex items-center gap-2 text-gray-500 hover:text-white transition-colors font-bold text-xs uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-white/5"
+                        className="flex items-center gap-2 text-gray-500 hover:text-white transition-colors font-medium text-xs uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-white/5"
                     >
                         <ChevronLeft size={16} />
                         Volver al Inicio
@@ -114,7 +114,7 @@ export const KdsStationSelector: React.FC<KdsStationSelectorProps> = ({ onSelect
 
                     <button
                         onClick={onLogout}
-                        className="flex items-center gap-2 text-red-500/50 hover:text-red-400 transition-colors font-bold text-xs uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-red-500/10"
+                        className="flex items-center gap-2 text-red-500/50 hover:text-red-400 transition-colors font-medium text-xs uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-red-500/10"
                     >
                         <LogOut size={16} />
                         Cerrar Sesión

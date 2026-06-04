@@ -352,7 +352,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
             <button
               key={s}
               onClick={() => setActiveSection(s)}
-              className={`w-auto min-w-[100px] sm:min-w-[110px] lg:min-w-[140px] max-w-[150px] sm:max-w-[140px] h-auto min-h-[55px] sm:min-h-[60px] lg:min-h-[65px] flex-shrink-0 flex items-center justify-center rounded-lg font-black text-[11px] sm:text-[11px] lg:text-[12px] tracking-wider uppercase transition-all border px-3 py-2 text-center leading-snug whitespace-normal break-words area-button ${
+              className={`w-auto min-w-[100px] sm:min-w-[110px] lg:min-w-[140px] max-w-[150px] sm:max-w-[140px] h-auto min-h-[55px] sm:min-h-[60px] lg:min-h-[65px] flex-shrink-0 flex items-center justify-center rounded-lg font-semibold text-[11px] sm:text-[11px] lg:text-[12px] tracking-wider uppercase transition-all border px-3 py-2 text-center leading-snug whitespace-normal break-words area-button ${
                 activeSection === s
                   ? 'bg-[#6366f1] text-white border-[#6366f1] shadow-xl'
                   : 'bg-white border-white/10 text-black shadow-sm hover:bg-gray-100'
@@ -375,7 +375,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
               <div className={`p-8 rounded-full mb-6 ${!isOnline ? 'bg-rose-500/10' : 'bg-white/5'}`}>
                 {!isOnline ? <Loader2 size={64} className="text-rose-500" /> : <Users size={64} className="opacity-50" />}
               </div>
-              <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-wide">
+              <h3 className="text-2xl font-semibold text-white mb-2 uppercase tracking-wide">
                 {!isOnline ? 'SIN CONEXIÓN' : 'Sin Configuración'}
               </h3>
               <p className="text-sm text-center max-w-md text-gray-400 mb-8 leading-relaxed">
@@ -408,12 +408,12 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
                   {/* Badge: Pendiente de sincronizar (Offline) */}
                   {isOfflineOnly && (
                     <div className="absolute top-2 left-2 flex items-center gap-0.5 bg-amber-500/20 border border-amber-500/40 rounded-full px-1.5 py-0.5" title="Orden guardada sin internet - pendiente de sincronizar">
-                      <span className="text-[7px] font-black text-amber-400 uppercase tracking-widest">Local</span>
+                      <span className="text-[7px] font-semibold text-amber-400 uppercase tracking-widest">Local</span>
                     </div>
                   )}
                   
                   <div className="flex-1 flex items-center justify-center w-full">
-                    <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-white">{t.number}</span>
+                    <span className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white">{t.number}</span>
                   </div>
 
                   <div className="w-full h-[38%] border-t border-white/5 flex flex-col items-center justify-center gap-1.5 pb-1">
@@ -441,18 +441,18 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
       {showCounter && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-6 animate-fade-in backdrop-blur-sm">
           <div className="w-full max-w-[320px] bg-[#2d2e3d] rounded-2xl p-6 border border-white/5 shadow-2xl relative z-[101]">
-            <h3 className="text-center text-[10px] font-black text-white/40 tracking-[0.4em] uppercase mb-2">Mesa {showCounter.number}</h3>
-            <h4 className="text-center text-lg font-black mb-8 tracking-tight text-white">CANTIDAD PERSONAS</h4>
+            <h3 className="text-center text-[10px] font-semibold text-white/40 tracking-[0.4em] uppercase mb-2">Mesa {showCounter.number}</h3>
+            <h4 className="text-center text-lg font-semibold mb-8 tracking-tight text-white">CANTIDAD PERSONAS</h4>
 
             <div className="flex items-center justify-center gap-6 mb-8">
               <button onClick={() => setPax(p => Math.max(1, p - 1))} className="w-14 h-14 rounded-2xl bg-[#3a3b4d] border border-white/5 flex items-center justify-center text-xl transition-all active:scale-95 text-white shadow-lg">-</button>
-              <span className="text-6xl font-black tabular-nums text-white w-24 text-center tracking-tighter shadow-black drop-shadow-lg">{pax}</span>
+              <span className="text-6xl font-semibold tabular-nums text-white w-24 text-center tracking-tighter shadow-black drop-shadow-lg">{pax}</span>
               <button onClick={() => setPax(p => p + 1)} className="w-14 h-14 rounded-2xl bg-[#3a3b4d] border border-white/5 flex items-center justify-center text-xl transition-all active:scale-95 text-white shadow-lg">+</button>
             </div>
 
             <div className="flex gap-4">
-              <button onClick={() => setShowCounter(null)} className="flex-1 py-4 bg-[#3a3b4d] border border-white/5 rounded-xl font-black uppercase tracking-widest text-[10px] text-white transition-all">Cancelar</button>
-              <button onClick={() => { onSelectTable(showCounter, pax); setShowCounter(null); }} className="flex-[1.5] py-3 bg-white text-black rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg active:scale-95 transition-all">Confirmar</button>
+              <button onClick={() => setShowCounter(null)} className="flex-1 py-4 bg-[#3a3b4d] border border-white/5 rounded-xl font-semibold uppercase tracking-widest text-[10px] text-white transition-all">Cancelar</button>
+              <button onClick={() => { onSelectTable(showCounter, pax); setShowCounter(null); }} className="flex-[1.5] py-3 bg-white text-black rounded-xl font-semibold uppercase tracking-widest text-[10px] shadow-lg active:scale-95 transition-all">Confirmar</button>
             </div>
           </div>
         </div>

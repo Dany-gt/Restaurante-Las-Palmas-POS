@@ -51,10 +51,10 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8">
                     <div>
-                        <h3 className="text-xl font-black uppercase tracking-tighter text-white">
+                        <h3 className="text-xl font-semibold uppercase tracking-tighter text-white">
                             {type === 'DELIVERY' ? 'Domicilio' : 'Para Llevar'}
                         </h3>
-                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">
+                        <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest mt-1">
                             Datos del cliente
                         </p>
                     </div>
@@ -75,7 +75,7 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
                 {/* Form Body */}
                 <div className="space-y-5 mb-8">
                     <div className="space-y-2">
-                        <label className="text-[9px] font-black text-indigo-400 uppercase tracking-wider ml-1">Nombre</label>
+                        <label className="text-[9px] font-semibold text-indigo-400 uppercase tracking-wider ml-1">Nombre</label>
                         <div className="relative">
                             <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
                             <input
@@ -84,13 +84,13 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
                                 placeholder="Ej. Juan Pérez"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-11 pr-4 text-xs font-bold text-white focus:outline-none focus:border-indigo-500/50 transition-all uppercase tracking-wide"
+                                className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-11 pr-4 text-xs font-medium text-white focus:outline-none focus:border-indigo-500/50 transition-all uppercase tracking-wide"
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[9px] font-black text-indigo-400 uppercase tracking-wider ml-1">Teléfono</label>
+                        <label className="text-[9px] font-semibold text-indigo-400 uppercase tracking-wider ml-1">Teléfono</label>
                         <div className="relative">
                             <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
                             <input
@@ -98,21 +98,21 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
                                 placeholder="Ej. 5555-5555"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-11 pr-4 text-xs font-bold text-white focus:outline-none focus:border-indigo-500/50 transition-all tracking-wide"
+                                className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-11 pr-4 text-xs font-medium text-white focus:outline-none focus:border-indigo-500/50 transition-all tracking-wide"
                             />
                         </div>
                     </div>
 
                     {type === 'DELIVERY' && (
                         <div className="space-y-2">
-                            <label className="text-[9px] font-black text-indigo-400 uppercase tracking-wider ml-1">Dirección</label>
+                            <label className="text-[9px] font-semibold text-indigo-400 uppercase tracking-wider ml-1">Dirección</label>
                             <div className="relative">
                                 <MapPin size={16} className="absolute left-4 top-4 text-gray-500" />
                                 <textarea
                                     placeholder="Dirección exacta..."
                                     value={address}
                                     onChange={(e) => setAddress(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-11 pr-4 text-xs font-bold text-white focus:outline-none focus:border-indigo-500/50 transition-all min-h-[80px] resize-none uppercase tracking-wide"
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-11 pr-4 text-xs font-medium text-white focus:outline-none focus:border-indigo-500/50 transition-all min-h-[80px] resize-none uppercase tracking-wide"
                                 />
                             </div>
                         </div>
@@ -121,7 +121,7 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
                     {platforms.length > 0 && (
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-[9px] font-black text-emerald-400 uppercase tracking-wider ml-1">Plataforma de Pedido (Opcional)</label>
+                                <label className="text-[9px] font-semibold text-emerald-400 uppercase tracking-wider ml-1">Plataforma de Pedido (Opcional)</label>
                                 <div className="relative">
                                     <Globe size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
                                     <select
@@ -130,7 +130,7 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
                                             setPlatformId(e.target.value);
                                             if (!e.target.value) setIsPlatformDriver(false);
                                         }}
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-11 pr-4 text-xs font-bold text-white focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer"
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-11 pr-4 text-xs font-medium text-white focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer"
                                     >
                                         <option value="" className="bg-[#1a1d24]">Venta Directa (Sin Plataforma)</option>
                                         {platforms.map(p => (
@@ -142,17 +142,17 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
 
                             {platformId && (
                                 <div className="p-4 bg-white/5 border border-white/10 rounded-lg space-y-3">
-                                    <label className="text-[9px] font-black text-indigo-400 uppercase tracking-wider block">¿Quién entrega el pedido?</label>
+                                    <label className="text-[9px] font-semibold text-indigo-400 uppercase tracking-wider block">¿Quién entrega el pedido?</label>
                                     <div className="grid grid-cols-2 gap-2">
                                         <button
                                             onClick={() => setIsPlatformDriver(false)}
-                                            className={`py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${!isPlatformDriver ? 'bg-indigo-600 text-white ' : 'bg-white/5 text-gray-500 hover:bg-white/10'}`}
+                                            className={`py-2.5 rounded-xl text-[10px] font-semibold uppercase transition-all ${!isPlatformDriver ? 'bg-indigo-600 text-white ' : 'bg-white/5 text-gray-500 hover:bg-white/10'}`}
                                         >
                                             REPARTIDOR PROPIO
                                         </button>
                                         <button
                                             onClick={() => setIsPlatformDriver(true)}
-                                            className={`py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${isPlatformDriver ? 'bg-indigo-600 text-white ' : 'bg-white/5 text-gray-500 hover:bg-white/10'}`}
+                                            className={`py-2.5 rounded-xl text-[10px] font-semibold uppercase transition-all ${isPlatformDriver ? 'bg-indigo-600 text-white ' : 'bg-white/5 text-gray-500 hover:bg-white/10'}`}
                                         >
                                             REPARTIDOR {platforms.find(p => p.id === platformId)?.name.toUpperCase() || 'PLATAFORMA'}
                                         </button>
@@ -167,7 +167,7 @@ export const NewDispatchModal: React.FC<NewDispatchModalProps> = ({ isOpen, onCl
                 <button
                     disabled={!isComplete}
                     onClick={() => onConfirm({ name, phone, address, type, platform_id: platformId || undefined, is_platform_driver: isPlatformDriver })}
-                    className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-white/5 disabled:text-gray-500 text-white rounded-lg font-black uppercase tracking-[0.2em] text-xs  -600/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                    className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-white/5 disabled:text-gray-500 text-white rounded-lg font-semibold uppercase tracking-[0.2em] text-xs  -600/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                 >
                     Continuar <ArrowRight size={16} />
                 </button>

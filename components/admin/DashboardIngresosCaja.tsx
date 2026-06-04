@@ -262,18 +262,18 @@ export const DashboardIngresosCaja: React.FC = () => {
                         {/* SECCIÓN: FILTRO FECHAS */}
                         <div className="border-b border-slate-200">
                             <div className="flex items-center justify-between px-3 py-2 bg-white">
-                                <h3 className="text-[10px] font-bold text-slate-700 flex items-center gap-2">
+                                <h3 className="text-[10px] font-medium text-slate-700 flex items-center gap-2">
                                     <Calendar size={12} className="text-slate-400" />
                                     Filtro Fechas
                                 </h3>
                             </div>
                             <div className="p-3 space-y-2">
                                 <div className="space-y-1">
-                                    <label className="text-[9px] text-slate-500 font-bold block px-1">Fecha Inicial</label>
+                                    <label className="text-[9px] text-slate-500 font-medium block px-1">Fecha Inicial</label>
                                     <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full h-8 bg-white border border-slate-200 rounded px-2 text-[10px] outline-none focus:border-blue-400 transition-colors" />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[9px] text-slate-500 font-bold block px-1">Fecha Final</label>
+                                    <label className="text-[9px] text-slate-500 font-medium block px-1">Fecha Final</label>
                                     <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full h-8 bg-white border border-slate-200 rounded px-2 text-[10px] outline-none focus:border-blue-400 transition-colors" />
                                 </div>
                             </div>
@@ -282,7 +282,7 @@ export const DashboardIngresosCaja: React.FC = () => {
                         {/* SECCIÓN: FILTRO TURNOS */}
                         <div className="border-b border-slate-200">
                             <div className="flex items-center justify-between px-3 py-2 bg-white">
-                                <h3 className="text-[10px] font-bold text-slate-700 flex items-center gap-2">
+                                <h3 className="text-[10px] font-medium text-slate-700 flex items-center gap-2">
                                     <Clock size={12} className="text-slate-400" />
                                     Filtro Turnos
                                 </h3>
@@ -316,7 +316,7 @@ export const DashboardIngresosCaja: React.FC = () => {
                         {/* SECCIÓN: FILTRO CAJAS */}
                         <div className="border-b border-slate-200">
                             <div className="flex items-center justify-between px-3 py-2 bg-white">
-                                <h3 className="text-[10px] font-bold text-slate-700 flex items-center gap-2">
+                                <h3 className="text-[10px] font-medium text-slate-700 flex items-center gap-2">
                                     <Smartphone size={12} className="text-slate-400" />
                                     Filtro Cajas
                                 </h3>
@@ -354,7 +354,7 @@ export const DashboardIngresosCaja: React.FC = () => {
                     <div className="p-3 bg-white border-t border-slate-200">
                         <button
                             onClick={handleGenerate}
-                            className="w-full h-9 bg-[#1a1b26] text-white rounded flex items-center justify-center gap-2 font-bold uppercase tracking-widest shadow-sm active:scale-95 transition-all text-[9px] hover:bg-[#106ebe]"
+                            className="w-full h-9 bg-[#1a1b26] text-white rounded flex items-center justify-center gap-2 font-medium uppercase tracking-widest shadow-sm active:scale-95 transition-all text-[9px] hover:bg-[#106ebe]"
                         >
                             {loading ? <Loader2 size={12} className="animate-spin" /> : 'Sincronizar Datos'}
                         </button>
@@ -370,7 +370,7 @@ export const DashboardIngresosCaja: React.FC = () => {
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-[#1a1b26] text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`flex items-center gap-2 px-6 py-2 rounded-xl text-[9px] font-semibold uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-[#1a1b26] text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                             <tab.icon size={13} className={activeTab === tab.id ? 'text-emerald-400' : 'text-slate-400'} />
                             {tab.label}
@@ -392,7 +392,7 @@ export const DashboardIngresosCaja: React.FC = () => {
                                 <div className="bg-slate-50/50 rounded-xl border border-slate-100 overflow-hidden shadow-sm">
                                     <table className="w-full text-center border-collapse">
                                         <thead>
-                                            <tr className="bg-[#f8f9fa] text-[8px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                            <tr className="bg-[#f8f9fa] text-[8px] font-semibold text-slate-500 uppercase tracking-widest border-b border-slate-200">
                                                 <th className="py-2.5 border-r border-slate-200">Total Ingresos</th>
                                                 <th className="py-2.5 border-r border-slate-200">Venta Efectivo</th>
                                                 <th className="py-2.5 border-r border-slate-200">Venta Tarjeta</th>
@@ -400,7 +400,7 @@ export const DashboardIngresosCaja: React.FC = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr className="text-xs font-black text-slate-700">
+                                            <tr className="text-xs font-semibold text-slate-700">
                                                 <td className="py-2.5 border-r border-slate-200 text-emerald-600 font-mono">{formatCurrency(stats.total)}</td>
                                                 <td className="py-2.5 border-r border-slate-200 text-[#b91c1c] font-mono">{formatCurrency(stats.cash)}</td>
                                                 <td className="py-2.5 border-r border-slate-200 text-[#7c3aed] font-mono">{formatCurrency(stats.card)}</td>
@@ -413,11 +413,11 @@ export const DashboardIngresosCaja: React.FC = () => {
                                 <div className="space-y-4">
                                     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200 flex justify-between items-center">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Ingresos Por Hora</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Ingresos Por Hora</h3>
                                             <div className="flex gap-4">
-                                                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#b91c1c] rounded-sm" /> <span className="text-[9px] font-bold text-slate-500">Efectivo</span></div>
-                                                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#7c3aed] rounded-sm" /> <span className="text-[9px] font-bold text-slate-500">Tarjeta</span></div>
-                                                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#0369a1] rounded-sm" /> <span className="text-[9px] font-bold text-slate-500">Otros</span></div>
+                                                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#b91c1c] rounded-sm" /> <span className="text-[9px] font-medium text-slate-500">Efectivo</span></div>
+                                                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#7c3aed] rounded-sm" /> <span className="text-[9px] font-medium text-slate-500">Tarjeta</span></div>
+                                                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#0369a1] rounded-sm" /> <span className="text-[9px] font-medium text-slate-500">Otros</span></div>
                                             </div>
                                         </div>
                                         <div className="h-[280px] p-4">
@@ -443,10 +443,10 @@ export const DashboardIngresosCaja: React.FC = () => {
 
                                     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200 flex justify-between items-center">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Ingresos Por Día</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Ingresos Por Día</h3>
                                             <div className="flex gap-4">
-                                                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#b91c1c] rounded-sm" /> <span className="text-[9px] font-bold text-slate-500">Efectivo</span></div>
-                                                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#7c3aed] rounded-sm" /> <span className="text-[9px] font-bold text-slate-500">Tarjeta</span></div>
+                                                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#b91c1c] rounded-sm" /> <span className="text-[9px] font-medium text-slate-500">Efectivo</span></div>
+                                                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#7c3aed] rounded-sm" /> <span className="text-[9px] font-medium text-slate-500">Tarjeta</span></div>
                                             </div>
                                         </div>
                                         <div className="h-[280px] p-4">
@@ -474,7 +474,7 @@ export const DashboardIngresosCaja: React.FC = () => {
                             <div className="space-y-6">
                                 <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                     <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Total Por Día</h3>
+                                        <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Total Por Día</h3>
                                     </div>
                                     <div className="h-[280px] p-4">
                                         <ResponsiveContainer width="100%" height="100%">
@@ -493,11 +493,11 @@ export const DashboardIngresosCaja: React.FC = () => {
 
                                 <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                     <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200 flex justify-between items-center">
-                                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Desglose Por Día</h3>
+                                        <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Desglose Por Día</h3>
                                         <div className="flex gap-4">
-                                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#b91c1c] rounded-sm" /> <span className="text-[9px] font-bold text-slate-500">Efectivo</span></div>
-                                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#7c3aed] rounded-sm" /> <span className="text-[9px] font-bold text-slate-500">Tarjeta</span></div>
-                                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#0369a1] rounded-sm" /> <span className="text-[9px] font-bold text-slate-500">Crédito</span></div>
+                                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#b91c1c] rounded-sm" /> <span className="text-[9px] font-medium text-slate-500">Efectivo</span></div>
+                                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#7c3aed] rounded-sm" /> <span className="text-[9px] font-medium text-slate-500">Tarjeta</span></div>
+                                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#0369a1] rounded-sm" /> <span className="text-[9px] font-medium text-slate-500">Crédito</span></div>
                                         </div>
                                     </div>
                                     <div className="h-[320px] p-4">
@@ -527,7 +527,7 @@ export const DashboardIngresosCaja: React.FC = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm flex flex-col">
                                     <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Participación Por Método de Pago</h3>
+                                        <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Participación Por Método de Pago</h3>
                                     </div>
                                     <div className="flex-1 min-h-[400px] flex items-center justify-center p-4">
                                         <ResponsiveContainer width="100%" height="100%">
@@ -551,7 +551,7 @@ export const DashboardIngresosCaja: React.FC = () => {
 
                                 <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm flex flex-col">
                                     <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Distribución Por Caja / Usuario</h3>
+                                        <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Distribución Por Caja / Usuario</h3>
                                     </div>
                                     <div className="flex-1 min-h-[400px] flex items-center justify-center p-4">
                                         <ResponsiveContainer width="100%" height="100%">
@@ -598,7 +598,7 @@ export const DashboardIngresosCaja: React.FC = () => {
                                     ) : (
                                         <table className="w-full text-[10px] border-collapse">
                                             <thead>
-                                                <tr className="bg-[#f8f9fa] border-b border-slate-200 font-black text-slate-500 uppercase tracking-widest text-[8px]">
+                                                <tr className="bg-[#f8f9fa] border-b border-slate-200 font-semibold text-slate-500 uppercase tracking-widest text-[8px]">
                                                     <th className="px-4 py-3 text-left border-r border-slate-200">Fecha</th>
                                                     <th className="px-4 py-3 text-right border-r border-slate-200">Crédito</th>
                                                     <th className="px-4 py-3 text-right border-r border-slate-200">Efectivo</th>
@@ -607,9 +607,9 @@ export const DashboardIngresosCaja: React.FC = () => {
                                                     <th className="px-4 py-3 text-right bg-orange-50/50">Ingreso Total</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="font-bold text-slate-600 divide-y divide-slate-100">
+                                            <tbody className="font-medium text-slate-600 divide-y divide-slate-100">
                                                 {/* FILA DE GRAN TOTAL */}
-                                                <tr className="bg-[#106ebe] text-white font-black text-[11px] shadow-sm">
+                                                <tr className="bg-[#106ebe] text-white font-semibold text-[11px] shadow-sm">
                                                     <td className="px-4 py-3 border-r border-slate-700 uppercase tracking-tighter">Gran Total Periodo</td>
                                                     <td className="px-4 py-3 text-right border-r border-slate-700 tabular-nums text-amber-400">Q{(stats.other || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                                                     <td className="px-4 py-3 text-right border-r border-slate-700 tabular-nums text-emerald-400">Q{(stats.cash || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
@@ -620,7 +620,7 @@ export const DashboardIngresosCaja: React.FC = () => {
                                                 {/* FILAS DIARIAS */}
                                                 {dailyGrid.map((day: any, idx: number) => (
                                                     <tr key={idx} className="hover:bg-slate-50 transition-colors group">
-                                                        <td className="px-4 py-2 text-slate-500 border-r border-slate-100 uppercase font-black text-[8px] tracking-tighter">
+                                                        <td className="px-4 py-2 text-slate-500 border-r border-slate-100 uppercase font-semibold text-[8px] tracking-tighter">
                                                             {dayjs(day.date).format('dddd, DD [de] MMMM YYYY')}
                                                         </td>
                                                         <td className="px-4 py-2 text-right border-r border-slate-100 tabular-nums text-slate-400">Q{day.credit.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
@@ -628,7 +628,7 @@ export const DashboardIngresosCaja: React.FC = () => {
                                                         <td className="px-4 py-2 text-right border-r border-slate-100 tabular-nums text-slate-300">Q{day.other.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                                                         <td className="px-4 py-2 text-right border-r border-slate-100 tabular-nums text-blue-600">Q{day.card.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                                                         <td
-                                                            className="px-4 py-2 text-right font-black tabular-nums transition-all border-l border-slate-100 text-[#c2410c]"
+                                                            className="px-4 py-2 text-right font-semibold tabular-nums transition-all border-l border-slate-100 text-[#c2410c]"
                                                             style={{
                                                                 backgroundColor: `rgba(249, 115, 22, ${0.05 + (day.intensity || 0) * 0.12})`
                                                             }}

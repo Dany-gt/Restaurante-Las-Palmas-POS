@@ -34,7 +34,7 @@ export const ExpenseReportViewerModal: React.FC<ExpenseReportViewerModalProps> =
                     <div className="h-7 bg-[#106ebe] flex items-center justify-between px-2 shrink-0 select-none modal-header">
                         <div className="flex items-center gap-2">
                             <FileText size={14} className="text-white" />
-                            <span className="text-white text-[11px] font-bold">Vista previa</span>
+                            <span className="text-white text-[11px] font-medium">Vista previa</span>
                         </div>
                         <div className="flex items-center gap-1">
                             <button onClick={onClose} className="w-5 h-5 flex items-center justify-center bg-red-600 hover:bg-red-700 text-white transition-all">
@@ -57,7 +57,7 @@ export const ExpenseReportViewerModal: React.FC<ExpenseReportViewerModalProps> =
                                     <span className="text-[9px] mt-0.5">Guardar</span>
                                 </div>
                             </div>
-                            <span className="text-[9px] text-[#808080] font-bold uppercase tracking-tighter">Documento</span>
+                            <span className="text-[9px] text-[#808080] font-medium uppercase tracking-tighter">Documento</span>
                         </div>
 
                         {/* Group: Imprimir */}
@@ -68,7 +68,7 @@ export const ExpenseReportViewerModal: React.FC<ExpenseReportViewerModalProps> =
                                     className="flex flex-col items-center group cursor-pointer px-2 hover:bg-[#e5f1fb] border border-transparent hover:border-[#a0c7e4] rounded-sm transition-all"
                                 >
                                     <Printer size={24} className="text-[#2b2b2b]" />
-                                    <span className="text-[9px] mt-0.5 font-bold">Imprimir</span>
+                                    <span className="text-[9px] mt-0.5 font-medium">Imprimir</span>
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <div className="flex items-center gap-1.5 px-1 hover:bg-[#e5f1fb] rounded-sm cursor-pointer grayscale hover:grayscale-0">
@@ -81,7 +81,7 @@ export const ExpenseReportViewerModal: React.FC<ExpenseReportViewerModalProps> =
                                     </div>
                                 </div>
                             </div>
-                            <span className="text-[9px] text-[#808080] font-bold uppercase tracking-tighter">Imprimir</span>
+                            <span className="text-[9px] text-[#808080] font-medium uppercase tracking-tighter">Imprimir</span>
                         </div>
 
                         {/* Group: Configurar Página */}
@@ -100,7 +100,7 @@ export const ExpenseReportViewerModal: React.FC<ExpenseReportViewerModalProps> =
                                     <span className="text-[9px] mt-0.5">Tamaño</span>
                                 </div>
                             </div>
-                            <span className="text-[9px] text-[#808080] font-bold uppercase tracking-tighter">Configurar Página</span>
+                            <span className="text-[9px] text-[#808080] font-medium uppercase tracking-tighter">Configurar Página</span>
                         </div>
 
                         {/* Group: Navegación */}
@@ -123,7 +123,7 @@ export const ExpenseReportViewerModal: React.FC<ExpenseReportViewerModalProps> =
                                     <span className="text-[9px] mt-0.5">Última</span>
                                 </div>
                             </div>
-                            <span className="text-[9px] text-[#808080] font-bold uppercase tracking-tighter">Navegación</span>
+                            <span className="text-[9px] text-[#808080] font-medium uppercase tracking-tighter">Navegación</span>
                         </div>
 
                         {/* Right: Close */}
@@ -133,7 +133,7 @@ export const ExpenseReportViewerModal: React.FC<ExpenseReportViewerModalProps> =
                                 className="flex flex-col items-center group cursor-pointer px-3 py-1 hover:bg-red-50 border border-transparent hover:border-red-200 rounded-sm transition-all"
                             >
                                 <X size={24} className="text-red-500" />
-                                <span className="text-[10px] text-red-600 font-bold mt-0.5 uppercase">Cerrar</span>
+                                <span className="text-[10px] text-red-600 font-medium mt-0.5 uppercase">Cerrar</span>
                             </button>
                         </div>
                     </div>
@@ -152,7 +152,7 @@ export const ExpenseReportViewerModal: React.FC<ExpenseReportViewerModalProps> =
 
                     {/* Status Bar */}
                     <div className="h-6 bg-[#f0f0f0] border-t border-[#dadada] flex items-center justify-between px-4 shrink-0 select-none">
-                        <span className="text-[10px] text-gray-500 font-bold">Página 1 de 1</span>
+                        <span className="text-[10px] text-gray-500 font-medium">Página 1 de 1</span>
                         <div className="flex items-center gap-4 grayscale opacity-60">
                             <div className="flex items-center gap-2">
                                 <ZoomOut size={12} />
@@ -161,7 +161,7 @@ export const ExpenseReportViewerModal: React.FC<ExpenseReportViewerModalProps> =
                                 </div>
                                 <ZoomIn size={12} />
                             </div>
-                            <span className="text-[10px] text-gray-500 font-bold">100%</span>
+                            <span className="text-[10px] text-gray-500 font-medium">100%</span>
                         </div>
                     </div>
 

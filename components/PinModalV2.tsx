@@ -199,12 +199,12 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                 </div>
 
                 <div className="flex flex-col items-center mb-6 relative z-10">
-                    <span className="text-[10px] font-black text-gray-500 tracking-[0.2em] uppercase mb-2 opacity-80">{title}</span>
-                    <h3 className="text-xs font-bold text-gray-400 text-center uppercase tracking-widest mb-6 px-4 leading-relaxed">{subtitle}</h3>
+                    <span className="text-[10px] font-semibold text-gray-500 tracking-[0.2em] uppercase mb-2 opacity-80">{title}</span>
+                    <h3 className="text-xs font-medium text-gray-400 text-center uppercase tracking-widest mb-6 px-4 leading-relaxed">{subtitle}</h3>
 
                     {error && (
                         <div className="absolute top-0 translate-y-16 w-full flex justify-center z-50">
-                            <span className="text-[9px] font-black text-white bg-black/80 px-3 py-1.5 rounded-md  border border-white/10">
+                            <span className="text-[9px] font-semibold text-white bg-black/80 px-3 py-1.5 rounded-md  border border-white/10">
                                 {error}
                             </span>
                         </div>
@@ -229,7 +229,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                 {remoteStatus === 'waiting' ? (
                     <div className="flex flex-col items-center justify-center py-6 relative z-10 animate-in fade-in zoom-in duration-300">
                         <Loader2 className="w-12 h-12 text-white animate-spin mb-4" />
-                        <h4 className="text-white font-bold text-center">Esperando Aprobación</h4>
+                        <h4 className="text-white font-medium text-center">Esperando Aprobación</h4>
                         <p className="text-gray-400 text-xs text-center mt-2 px-4">
                             Se ha enviado una notificación al administrador. La pantalla se desbloqueará sola.
                         </p>
@@ -243,12 +243,12 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                 ) : remoteStatus === 'approved' ? (
                     <div className="flex flex-col items-center justify-center py-8 relative z-10 animate-in fade-in zoom-in duration-300">
                         <CheckCircle2 className="w-16 h-16 text-white mb-4" />
-                        <h4 className="text-white font-bold text-center text-lg">¡APROBADO!</h4>
+                        <h4 className="text-white font-medium text-center text-lg">¡APROBADO!</h4>
                     </div>
                 ) : remoteStatus === 'rejected' ? (
                     <div className="flex flex-col items-center justify-center py-8 relative z-10 animate-in fade-in zoom-in duration-300">
                         <XCircle className="w-16 h-16 text-white/40 mb-4" />
-                        <h4 className="text-white font-bold text-center text-lg">RECHAZADO</h4>
+                        <h4 className="text-white font-medium text-center text-lg">RECHAZADO</h4>
                     </div>
                 ) : (
                     <>
@@ -259,7 +259,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                             onClick={() => handlePinInput(key.toString())}
                             disabled={loading}
                             className="
-                                group relative w-16 h-14 rounded-md text-xl font-bold text-white/90 
+                                group relative w-16 h-14 rounded-md text-xl font-medium text-white/90 
                                 transition-all duration-100 active:scale-95 flex items-center justify-center 
                                 bg-white/5 hover:bg-white/10 border border-white/5
                                  disabled:opacity-50 disabled:pointer-events-none
@@ -273,7 +273,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                         onClick={() => setPin('')}
                         disabled={loading}
                         className="
-                            group relative w-16 h-14 rounded-md text-[10px] font-black text-gray-400 
+                            group relative w-16 h-14 rounded-md text-[10px] font-semibold text-gray-400 
                             transition-all duration-100 active:scale-95 flex items-center justify-center 
                             bg-white/5 hover:bg-white/10 border border-white/5
                             disabled:opacity-50 disabled:pointer-events-none
@@ -286,7 +286,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                         onClick={() => handlePinInput('0')}
                         disabled={loading}
                         className="
-                            group relative w-16 h-14 rounded-md text-xl font-bold text-white/90 
+                            group relative w-16 h-14 rounded-md text-xl font-medium text-white/90 
                             transition-all duration-100 active:scale-95 flex items-center justify-center 
                             bg-white/5 hover:bg-white/10 border border-white/5
                              disabled:opacity-50 disabled:pointer-events-none
@@ -299,7 +299,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                         onClick={handleSubmit}
                         disabled={loading}
                         className="
-                            group relative w-16 h-14 rounded-md text-sm font-black text-white 
+                            group relative w-16 h-14 rounded-md text-sm font-semibold text-white 
                             transition-all duration-100 active:scale-95 flex items-center justify-center 
                             bg-white hover:bg-white/90 border border-white 
                              disabled:opacity-50 disabled:pointer-events-none
@@ -314,7 +314,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                         <button
                             onClick={handleRemoteAuthRequest}
                             disabled={loading}
-                            className="w-full py-3 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-md text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                            className="w-full py-3 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-md text-xs font-medium uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                         >
                             <Send size={14} />
                             Solicitar Autorización Remota

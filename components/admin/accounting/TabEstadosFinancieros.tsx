@@ -690,7 +690,7 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
             <div className="shrink-0 bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     {/* Tabs de periodo */}
-                    <div className="flex rounded-md overflow-hidden border border-slate-200 text-[10px] font-black uppercase">
+                    <div className="flex rounded-md overflow-hidden border border-slate-200 text-[10px] font-semibold uppercase">
                         {(['mes', 'trimestre', 'año'] as PeriodView[]).map(p => (
                             <button key={p}
                                 onClick={() => setPeriodView(p)}
@@ -704,7 +704,7 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                         type="month"
                         value={month}
                         onChange={e => setMonth(e.target.value)}
-                        className="border border-slate-200 rounded px-3 py-2 text-[11px] font-bold uppercase outline-none focus:ring-2 focus:ring-[#1e6091]/30"
+                        className="border border-slate-200 rounded px-3 py-2 text-[11px] font-medium uppercase outline-none focus:ring-2 focus:ring-[#1e6091]/30"
                     />
 
                     <button onClick={loadData}
@@ -716,7 +716,7 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => setShowDataPanel(p => !p)}
-                        className="flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                        className="flex items-center gap-2 px-4 py-2 text-[10px] font-semibold uppercase border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
                         {showDataPanel ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                         Ingresar Datos
                     </button>
@@ -724,13 +724,13 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                     <button
                         onClick={saveData}
                         disabled={saving}
-                        className="flex items-center gap-2 px-5 py-2 bg-[#1e6091] hover:bg-[#174f7a] text-white text-[10px] font-black uppercase rounded-lg transition-colors shadow-sm">
+                        className="flex items-center gap-2 px-5 py-2 bg-[#1e6091] hover:bg-[#174f7a] text-white text-[10px] font-semibold uppercase rounded-lg transition-colors shadow-sm">
                         {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
                         Guardar Periodo
                     </button>
                     <button
                         onClick={exportarPDF}
-                        className="flex items-center gap-2 px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase rounded-lg transition-colors shadow-sm">
+                        className="flex items-center gap-2 px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-semibold uppercase rounded-lg transition-colors shadow-sm">
                         <FileText size={13} />
                         Exportar — Formato Contadora
                     </button>
@@ -743,7 +743,7 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                 {showDataPanel && (
                     <div className="bg-white border-b border-slate-200 px-8 py-6">
                         <div className="max-w-5xl mx-auto">
-                            <h3 className="text-[11px] font-black uppercase text-[#1e6091] tracking-widest mb-1">
+                            <h3 className="text-[11px] font-semibold uppercase text-[#1e6091] tracking-widest mb-1">
                                 Datos del periodo — {dayjs(month + '-01').format('MMMM YYYY')}
                             </h3>
                             <p className="text-[10px] text-slate-400 mb-6">
@@ -761,17 +761,17 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                                                     : <Circle size={14} className="text-slate-300" />}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider truncate">{acc.code}</p>
-                                                <p className="text-[10px] font-bold text-slate-700 truncate">{acc.name}</p>
+                                                <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider truncate">{acc.code}</p>
+                                                <p className="text-[10px] font-medium text-slate-700 truncate">{acc.name}</p>
                                             </div>
                                             <div className="flex items-center gap-1 shrink-0">
-                                                <span className="text-[10px] text-slate-400 font-bold">Q</span>
+                                                <span className="text-[10px] text-slate-400 font-medium">Q</span>
                                                 <input
                                                     type="number"
                                                     value={val || ''}
                                                     onChange={ev => setEntry(acc.code, Number(ev.target.value))}
                                                     placeholder="0.00"
-                                                    className="w-24 text-right text-[11px] font-black border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#1e6091] bg-white"
+                                                    className="w-24 text-right text-[11px] font-semibold border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#1e6091] bg-white"
                                                 />
                                             </div>
                                         </div>
@@ -781,7 +781,7 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
 
                             {/* ── Configuración de Firmas en el Reporte ── */}
                             <div className="mt-8 pt-8 border-t border-slate-100">
-                                <h3 className="text-[11px] font-black uppercase text-[#1e6091] tracking-widest mb-1">
+                                <h3 className="text-[11px] font-semibold uppercase text-[#1e6091] tracking-widest mb-1">
                                     Firmas y Metadatos del Reporte
                                 </h3>
                                 <p className="text-[10px] text-slate-400 mb-6">
@@ -789,7 +789,7 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                                 </p>
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-4">
-                                        <p className="text-[9px] font-black text-slate-500 uppercase border-b border-slate-50 pb-1">Representante Legal</p>
+                                        <p className="text-[9px] font-semibold text-slate-500 uppercase border-b border-slate-50 pb-1">Representante Legal</p>
                                         <FormField label="Nombre del Propietario">
                                             <input type="text" value={reportConfig.proprietor_name} onChange={e => setReportConfig(p => ({...p, proprietor_name: e.target.value}))} className="input-std" />
                                         </FormField>
@@ -798,7 +798,7 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                                         </FormField>
                                     </div>
                                     <div className="space-y-4">
-                                        <p className="text-[9px] font-black text-slate-500 uppercase border-b border-slate-50 pb-1">Contador Autorizado</p>
+                                        <p className="text-[9px] font-semibold text-slate-500 uppercase border-b border-slate-50 pb-1">Contador Autorizado</p>
                                         <FormField label="Nombre del Contador">
                                             <input type="text" value={reportConfig.accountant_name} onChange={e => setReportConfig(p => ({...p, accountant_name: e.target.value}))} className="input-std" />
                                         </FormField>
@@ -816,7 +816,7 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                                 <button
                                     onClick={saveData}
                                     disabled={saving}
-                                    className="flex items-center gap-2 px-6 py-2.5 bg-[#1e6091] hover:bg-[#174f7a] text-white text-[10px] font-black uppercase rounded-lg transition-colors shadow-sm">
+                                    className="flex items-center gap-2 px-6 py-2.5 bg-[#1e6091] hover:bg-[#174f7a] text-white text-[10px] font-semibold uppercase rounded-lg transition-colors shadow-sm">
                                     {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
                                     Guardar datos del periodo
                                 </button>
@@ -835,10 +835,10 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
 
                             {/* Encabezado azul */}
                             <div className="bg-[#1e6091] px-6 py-3">
-                                <h2 className="text-white font-black text-[13px] uppercase tracking-wide">
+                                <h2 className="text-white font-semibold text-[13px] uppercase tracking-wide">
                                     Estado de Resultados
                                 </h2>
-                                <p className="text-[#a8d0f0] text-[10px] font-bold uppercase tracking-wider mt-0.5">
+                                <p className="text-[#a8d0f0] text-[10px] font-medium uppercase tracking-wider mt-0.5">
                                     Restaurante Las Palmas — {dayjs(month + '-01').format('MMMM YYYY')}
                                 </p>
                             </div>
@@ -858,16 +858,16 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                                             <div className="flex justify-between items-center py-1 text-[11px]">
                                                 <span className="text-slate-700 font-medium flex items-center gap-2">
                                                     411006 Ventas Gravadas
-                                                    <span className="text-[7px] font-black text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded uppercase">sin datos POS</span>
+                                                    <span className="text-[7px] font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded uppercase">sin datos POS</span>
                                                 </span>
                                                 <div className="flex items-center gap-1">
-                                                    <span className="text-[10px] text-slate-400 font-bold">Q</span>
+                                                    <span className="text-[10px] text-slate-400 font-medium">Q</span>
                                                     <input
                                                         type="number"
                                                         value={g('411006') || ''}
                                                         onChange={ev => setEntry('411006', Number(ev.target.value))}
                                                         placeholder="0.00"
-                                                        className="w-32 text-right font-bold border-b border-[#1e6091] outline-none bg-transparent text-slate-900 tabular-nums"
+                                                        className="w-32 text-right font-medium border-b border-[#1e6091] outline-none bg-transparent text-slate-900 tabular-nums"
                                                     />
                                                 </div>
                                             </div>
@@ -878,14 +878,14 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                                     <section>
                                         <SectionHeader label="Costo de Ventas" />
 
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 mt-4">
+                                        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-2 mt-4">
                                             Costo Primo
                                         </p>
                                         <StatRow label="Materia prima" val={matPrima} indent={1} />
                                         <StatRow label="Mano de obra directa (con prest.)" val={mod} indent={1} isAuto={!!autoValues['511002']} />
                                         <SubtotalRow label="Total costo primo" val={subtotalCP} />
 
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 mt-5">
+                                        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-2 mt-5">
                                             Gastos de Fabricación
                                         </p>
                                         <StatRow label="Mano de obra indirecta" val={moi} indent={1} isAuto={!!autoValues['521002']} />
@@ -897,17 +897,17 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
 
                                         <TotalRow label="Total Costo de Producción" val={totalCostoProd} />
 
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 mt-5">
+                                        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-2 mt-5">
                                             Costo de Ventas (bebidas)
                                         </p>
                                         <StatRow label="Compras de Mercaderías (bebidas)" val={bebidas} indent={1} />
                                         <SubtotalRow label="Subtotal Costo de Ventas" val={bebidas} />
 
                                         <div className="mt-3 flex justify-between items-center border-t-2 border-slate-900 pt-3">
-                                            <span className="text-[11px] font-black uppercase">Margen bruto</span>
+                                            <span className="text-[11px] font-semibold uppercase">Margen bruto</span>
                                             <div className="flex items-center gap-6">
-                                                {!noData && <span className="text-[9px] font-bold text-slate-400 italic">{fmtPct((ventas - costoVentasTotal) / ventas * 100)}</span>}
-                                                <span className="text-[13px] font-black">{fmtQ(ventas - costoVentasTotal)}</span>
+                                                {!noData && <span className="text-[9px] font-medium text-slate-400 italic">{fmtPct((ventas - costoVentasTotal) / ventas * 100)}</span>}
+                                                <span className="text-[13px] font-semibold">{fmtQ(ventas - costoVentasTotal)}</span>
                                             </div>
                                         </div>
                                     </section>
@@ -916,7 +916,7 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                                     <section>
                                         <SectionHeader label="Gastos Operativos" />
 
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 mt-4">
+                                        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-2 mt-4">
                                             Gastos de Personal
                                         </p>
                                         <StatRow label="Sueldos de Administración" val={sueldosAdm} indent={1} isAuto={!!autoValues['711001']} />
@@ -925,7 +925,7 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                                         <StatRow label="Cuota Patronal IRTRA e INTECAP Admon" val={irtraAdm} indent={1} isAuto />
                                         <SubtotalRow label="Total gastos de personal" val={subtotalPersonal} />
 
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 mt-5">
+                                        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-2 mt-5">
                                             Gastos de Administración
                                         </p>
                                         <StatRow label="Combustibles y Lubricantes" val={comb} indent={1} />
@@ -942,13 +942,13 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                                         <StatRow label="Material de Empaque" val={empaque} indent={1} />
                                         <SubtotalRow label="Total gastos de administración" val={subtotalAdmin} />
 
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 mt-5">
+                                        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-2 mt-5">
                                             Impuestos Pagados
                                         </p>
                                         <StatRow label="IDP (Impuesto Derivados del Petróleo)" val={idp} indent={1} />
                                         <SubtotalRow label="Total impuestos" val={idp} />
 
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 mt-5">
+                                        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-2 mt-5">
                                             Otros Gastos
                                         </p>
                                         <StatRow label="Gas Propano" val={gas} indent={1} />
@@ -960,19 +960,19 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
 
                                     {/* ── LÍNEAS FINALES ── */}
                                     <section className="space-y-3 pt-4 border-t border-slate-200">
-                                        <div className="flex justify-between items-center text-[11px] font-black uppercase">
+                                        <div className="flex justify-between items-center text-[11px] font-semibold uppercase">
                                             <span>Costos y Gastos Total</span>
                                             <span>{fmtQ(costosGastosTotal)}</span>
                                         </div>
                                         <div className="flex justify-between items-end border-t-2 border-slate-900 pt-4">
-                                            <span className="text-[13px] font-black uppercase tracking-widest">Utilidad del Ejercicio</span>
+                                            <span className="text-[13px] font-semibold uppercase tracking-widest">Utilidad del Ejercicio</span>
                                             <div className="flex items-baseline gap-5">
                                                 {!noData && (
-                                                    <span className="text-[9px] font-bold text-slate-400 italic">
+                                                    <span className="text-[9px] font-medium text-slate-400 italic">
                                                         {fmtPct(utilidad / ventas * 100)}
                                                     </span>
                                                 )}
-                                                <span className={`text-[22px] font-black ${utilidad >= 0 ? 'text-slate-900' : 'text-red-600'}`}>
+                                                <span className={`text-[22px] font-semibold ${utilidad >= 0 ? 'text-slate-900' : 'text-red-600'}`}>
                                                     {fmtQ(utilidad)}
                                                 </span>
                                             </div>
@@ -982,7 +982,7 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
 
                                 {/* ── Columna Derecha: Indicadores ── */}
                                 <div className="col-span-4 p-8 bg-[#fbfcfd]">
-                                    <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-8">
+                                    <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-8">
                                         Indicadores Clave
                                     </p>
 
@@ -1010,19 +1010,19 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                                     </div>
 
                                     <div className="mt-12 pt-8 border-t border-slate-100">
-                                        <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-3">
+                                        <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-3">
                                             Punto de Equilibrio
                                         </p>
                                         {ventas === 0 ? (
-                                            <p className="text-[22px] font-black">{fmtQ(0)}</p>
+                                            <p className="text-[22px] font-semibold">{fmtQ(0)}</p>
                                         ) : gastosFijosPE === 0 && gastosVarPE === 0 ? (
-                                            <p className="text-[11px] text-slate-400 font-bold">
+                                            <p className="text-[11px] text-slate-400 font-medium">
                                                 Ingresa datos para calcular
                                             </p>
                                         ) : (
                                             <>
-                                                <p className="text-[22px] font-black">{fmtQ(PE)}</p>
-                                                <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">
+                                                <p className="text-[22px] font-semibold">{fmtQ(PE)}</p>
+                                                <p className="text-[8px] font-medium text-slate-400 uppercase mt-1">
                                                     Ventas necesarias para no perder
                                                 </p>
                                             </>
@@ -1040,20 +1040,20 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                             {/* Encabezado azul */}
                             <div className="bg-[#1e6091] px-6 py-3 flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-white font-black text-[13px] uppercase tracking-wide">
+                                    <h2 className="text-white font-semibold text-[13px] uppercase tracking-wide">
                                         Sección B — Balance General
                                     </h2>
-                                    <p className="text-[#a8d0f0] text-[10px] font-bold mt-0.5">
+                                    <p className="text-[#a8d0f0] text-[10px] font-medium mt-0.5">
                                         Ingresa valores manuales · Impuestos se calculan automáticamente
                                     </p>
                                 </div>
                                 {/* Badge de cuadre */}
                                 {Math.abs(diffBalance) < 0.5 ? (
-                                    <span className="px-3 py-1 bg-emerald-500 text-white text-[9px] font-black uppercase rounded-full">
+                                    <span className="px-3 py-1 bg-emerald-500 text-white text-[9px] font-semibold uppercase rounded-full">
                                         Balance cuadrado
                                     </span>
                                 ) : (
-                                    <span className="px-3 py-1 bg-red-500 text-white text-[9px] font-black uppercase rounded-full">
+                                    <span className="px-3 py-1 bg-red-500 text-white text-[9px] font-semibold uppercase rounded-full">
                                         Dif. {fmtQ(diffBalance)}
                                     </span>
                                 )}
@@ -1064,9 +1064,9 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
 
                                 {/* Activos */}
                                 <div>
-                                    <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-6">Activos</p>
+                                    <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-6">Activos</p>
 
-                                    <p className="text-[8px] font-black text-slate-400 uppercase mb-3">Activo Circulante</p>
+                                    <p className="text-[8px] font-semibold text-slate-400 uppercase mb-3">Activo Circulante</p>
                                     {['caja', 'banco', 'inventario', 'cxc'].map(code => (
                                         <BalanceInput
                                             key={code}
@@ -1077,7 +1077,7 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                                     ))}
                                     <BalanceLine label="Total Activo Circulante" val={totalActCir} />
 
-                                    <p className="text-[8px] font-black text-slate-400 uppercase mb-3 mt-6">Activo Fijo</p>
+                                    <p className="text-[8px] font-semibold text-slate-400 uppercase mb-3 mt-6">Activo Fijo</p>
                                     {['equipo_cocina', 'mobiliario', 'depreciacion'].map(code => (
                                         <BalanceInput
                                             key={code}
@@ -1089,16 +1089,16 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                                     <BalanceLine label="Total Activo Fijo" val={totalActFijo} />
 
                                     <div className="mt-4 pt-4 border-t-2 border-slate-900 flex justify-between items-center">
-                                        <span className="text-[11px] font-black uppercase">Total Activos</span>
-                                        <span className="text-[13px] font-black">{fmtQ(totalActivos)}</span>
+                                        <span className="text-[11px] font-semibold uppercase">Total Activos</span>
+                                        <span className="text-[13px] font-semibold">{fmtQ(totalActivos)}</span>
                                     </div>
                                 </div>
 
                                 {/* Pasivos */}
                                 <div className="px-8">
-                                    <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-6">Pasivos</p>
+                                    <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-6">Pasivos</p>
 
-                                    <p className="text-[8px] font-black text-slate-400 uppercase mb-3">Pasivo Circulante</p>
+                                    <p className="text-[8px] font-semibold text-slate-400 uppercase mb-3">Pasivo Circulante</p>
                                     {['cxp', 'igss_pagar', 'prestaciones'].map(code => (
                                         <BalanceInput
                                             key={code}
@@ -1112,14 +1112,14 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                                     <BalanceLine label="Total Pasivo Circulante" val={totalPasCir} />
 
                                     <div className="mt-4 pt-4 border-t-2 border-slate-900 flex justify-between items-center">
-                                        <span className="text-[11px] font-black uppercase">Total Pasivos</span>
-                                        <span className="text-[13px] font-black">{fmtQ(totalPasivos)}</span>
+                                        <span className="text-[11px] font-semibold uppercase">Total Pasivos</span>
+                                        <span className="text-[13px] font-semibold">{fmtQ(totalPasivos)}</span>
                                     </div>
                                 </div>
 
                                 {/* Patrimonio */}
                                 <div>
-                                    <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-6">Patrimonio</p>
+                                    <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-6">Patrimonio</p>
 
                                     {['capital', 'util_acum'].map(code => (
                                         <BalanceInput
@@ -1133,8 +1133,8 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
                                     <BalanceLine label="Total Patrimonio" val={totalPatrimonio} />
 
                                     <div className="mt-4 pt-4 border-t-2 border-slate-900 flex justify-between items-center">
-                                        <span className="text-[11px] font-black uppercase">Total Pasivo + Patrimonio</span>
-                                        <span className="text-[13px] font-black">{fmtQ(totalPasPatr)}</span>
+                                        <span className="text-[11px] font-semibold uppercase">Total Pasivo + Patrimonio</span>
+                                        <span className="text-[13px] font-semibold">{fmtQ(totalPasPatr)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1150,7 +1150,7 @@ export const TabEstadosFinancieros: React.FC<{ accentColor: string }> = ({ accen
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 const SectionHeader = ({ label }: { label: string }) => (
-    <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-2">
+    <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest border-b border-slate-100 pb-2">
         {label}
     </p>
 );
@@ -1160,22 +1160,22 @@ const StatRow = ({ label, val, indent, isAuto }: { label: string; val: number; i
         <span className="text-slate-700 font-medium flex items-center gap-2">
             {label}
             {isAuto && (
-                <span className="text-[7px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded uppercase tracking-wide">auto</span>
+                <span className="text-[7px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded uppercase tracking-wide">auto</span>
             )}
         </span>
-        <span className="font-bold tabular-nums">{fmtQ(val)}</span>
+        <span className="font-medium tabular-nums">{fmtQ(val)}</span>
     </div>
 );
 
 const SubtotalRow = ({ label, val }: { label: string; val: number }) => (
-    <div className="flex justify-between items-center py-2 mt-1 border-t border-slate-100 text-[11px] font-bold">
+    <div className="flex justify-between items-center py-2 mt-1 border-t border-slate-100 text-[11px] font-medium">
         <span>{label}</span>
         <span className="tabular-nums">{fmtQ(val)}</span>
     </div>
 );
 
 const TotalRow = ({ label, val }: { label: string; val: number }) => (
-    <div className="flex justify-between items-center py-2 mt-2 border-t-2 border-slate-300 text-[12px] font-black uppercase">
+    <div className="flex justify-between items-center py-2 mt-2 border-t-2 border-slate-300 text-[12px] font-semibold uppercase">
         <span>{label}</span>
         <span className="tabular-nums">{fmtQ(val)}</span>
     </div>
@@ -1189,15 +1189,15 @@ const KPIBar = ({ label, val, target, legendLow, legendMid, legendHigh }: any) =
     return (
         <div className="space-y-2">
             <div className="flex justify-between items-end">
-                <span className="text-[9px] font-black uppercase tracking-tight text-slate-900">{label}</span>
-                <span className="text-[13px] font-black">
+                <span className="text-[9px] font-semibold uppercase tracking-tight text-slate-900">{label}</span>
+                <span className="text-[13px] font-semibold">
                     {noData ? '—' : fmtPct(val)}
                 </span>
             </div>
             <div className="bg-slate-100 h-1.5 w-full rounded-full overflow-hidden">
                 <div className={`h-full rounded-full transition-all duration-700 ${color}`} style={{ width: `${pct}%` }} />
             </div>
-            <p className="text-[7px] font-bold text-slate-400 italic">
+            <p className="text-[7px] font-medium text-slate-400 italic">
                 {legendLow} / {legendMid} / {legendHigh}
             </p>
         </div>
@@ -1206,8 +1206,8 @@ const KPIBar = ({ label, val, target, legendLow, legendMid, legendHigh }: any) =
 
 const KPISimple = ({ label, val, bold }: { label: string; val: number | null; bold?: boolean }) => (
     <div className="flex justify-between items-center">
-        <span className={`text-[9px] font-black uppercase tracking-tight ${bold ? 'text-slate-900' : 'text-slate-400'}`}>{label}</span>
-        <span className={`text-[13px] font-black ${bold ? 'text-slate-900' : 'text-slate-500'}`}>
+        <span className={`text-[9px] font-semibold uppercase tracking-tight ${bold ? 'text-slate-900' : 'text-slate-400'}`}>{label}</span>
+        <span className={`text-[13px] font-semibold ${bold ? 'text-slate-900' : 'text-slate-500'}`}>
             {val === null ? '—' : fmtPct(val)}
         </span>
     </div>
@@ -1221,7 +1221,7 @@ const BalanceInput = ({ label, val, onChange }: { key?: string; label: string; v
             value={val || ''}
             onChange={e => onChange(Number(e.target.value))}
             placeholder="0"
-            className="w-28 text-right font-bold border-b border-slate-200 outline-none focus:border-[#1e6091] bg-transparent text-slate-900 tabular-nums"
+            className="w-28 text-right font-medium border-b border-slate-200 outline-none focus:border-[#1e6091] bg-transparent text-slate-900 tabular-nums"
         />
     </div>
 );
@@ -1230,14 +1230,14 @@ const BalanceAutoLine = ({ label, val }: { label: string; val: number }) => (
     <div className="flex justify-between items-center py-1.5 text-[11px]">
         <span className="text-slate-500 font-medium flex items-center gap-1.5">
             {label}
-            <span className="text-[7px] font-black text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded uppercase">auto</span>
+            <span className="text-[7px] font-semibold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded uppercase">auto</span>
         </span>
-        <span className="font-bold tabular-nums text-slate-700">{fmtQ(val)}</span>
+        <span className="font-medium tabular-nums text-slate-700">{fmtQ(val)}</span>
     </div>
 );
 
 const BalanceLine = ({ label, val }: { label: string; val: number }) => (
-    <div className="flex justify-between items-center py-2 mt-1 border-t border-slate-100 text-[11px] font-bold">
+    <div className="flex justify-between items-center py-2 mt-1 border-t border-slate-100 text-[11px] font-medium">
         <span>{label}</span>
         <span className="tabular-nums">{fmtQ(val)}</span>
     </div>
@@ -1245,7 +1245,7 @@ const BalanceLine = ({ label, val }: { label: string; val: number }) => (
 
 const FormField: React.FC<{ label: string; colSpan?: number; children: React.ReactNode }> = ({ label, colSpan = 1, children }) => (
     <div style={{ gridColumn: `span ${colSpan}` }}>
-        <label className="block text-[9px] font-black uppercase text-slate-500 tracking-widest mb-1">{label} :</label>
+        <label className="block text-[9px] font-semibold uppercase text-slate-500 tracking-widest mb-1">{label} :</label>
         {children}
     </div>
 );

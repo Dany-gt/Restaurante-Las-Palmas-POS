@@ -361,17 +361,17 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
 
             {/* ── TOOLBAR ── */}
             <div className="shrink-0 bg-white border-b border-gray-300 px-3 py-1.5 flex items-center gap-1.5 flex-wrap">
-                <button onClick={openNew} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-bold text-slate-700"><Plus size={11}/> Nuevo</button>
-                <button onClick={fetchItems} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-bold text-slate-700"><RefreshCw size={11}/> Actualizar</button>
+                <button onClick={openNew} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-medium text-slate-700"><Plus size={11}/> Nuevo</button>
+                <button onClick={fetchItems} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-medium text-slate-700"><RefreshCw size={11}/> Actualizar</button>
                 <div className="w-px h-5 bg-gray-300 mx-0.5"/>
-                <button onClick={() => setShowPhysicalCount(true)} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-bold text-slate-700"><ClipboardList size={11}/> Conteo Físico</button>
-                <button onClick={() => setShowPurchaseList(true)} className={`flex items-center gap-1 px-2.5 py-1 border text-[11px] font-bold transition-colors ${purchaseItems.length > 0 ? 'bg-amber-50 border-amber-400 text-amber-700 hover:bg-amber-100' : 'bg-white border-gray-300 text-slate-700 hover:bg-gray-50'}`}>
+                <button onClick={() => setShowPhysicalCount(true)} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-medium text-slate-700"><ClipboardList size={11}/> Conteo Físico</button>
+                <button onClick={() => setShowPurchaseList(true)} className={`flex items-center gap-1 px-2.5 py-1 border text-[11px] font-medium transition-colors ${purchaseItems.length > 0 ? 'bg-amber-50 border-amber-400 text-amber-700 hover:bg-amber-100' : 'bg-white border-gray-300 text-slate-700 hover:bg-gray-50'}`}>
                     <ShoppingCart size={11}/> Lista Compras {purchaseItems.length > 0 && <span className="bg-amber-500 text-white text-[8px] px-1 rounded-full">{purchaseItems.length}</span>}
                 </button>
                 <div className="w-px h-5 bg-gray-300 mx-0.5"/>
-                <button onClick={exportCSV} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-bold text-slate-700"><FileSpreadsheet size={11}/> Excel</button>
+                <button onClick={exportCSV} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-medium text-slate-700"><FileSpreadsheet size={11}/> Excel</button>
                 <div className="w-px h-5 bg-gray-300 mx-0.5"/>
-                <button onClick={() => setViewMode(v => v==='table'?'cards':'table')} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-bold text-slate-700">
+                <button onClick={() => setViewMode(v => v==='table'?'cards':'table')} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-medium text-slate-700">
                     {viewMode==='table' ? <><LayoutGrid size={11}/> Tarjetas</> : <><List size={11}/> Lista</>}
                 </button>
                 <div className="flex-1"/>
@@ -399,9 +399,9 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                     <button onClick={() => setShowAlertsPanel(v=>!v)}
                         className="w-full flex items-center gap-2 px-3 py-1 bg-amber-50 hover:bg-amber-100 transition-colors">
                         <AlertTriangle size={12} className="text-amber-600"/>
-                        <span className="text-[10px] font-black text-amber-700 uppercase tracking-widest">ALERTAS DE INVENTARIO</span>
-                        {alertasCriticas.length > 0 && <span className="flex items-center gap-1 bg-red-600 text-white text-[9px] font-black px-2 py-0.5"><span className="w-1.5 h-1.5 bg-white rounded-full"/> {alertasCriticas.length} crítico(s)</span>}
-                        {alertasBajas.length > 0 && <span className="flex items-center gap-1 bg-amber-500 text-white text-[9px] font-black px-2 py-0.5"><span className="w-1.5 h-1.5 bg-white rounded-full"/> {alertasBajas.length} bajo(s)</span>}
+                        <span className="text-[10px] font-semibold text-amber-700 uppercase tracking-widest">ALERTAS DE INVENTARIO</span>
+                        {alertasCriticas.length > 0 && <span className="flex items-center gap-1 bg-red-600 text-white text-[9px] font-semibold px-2 py-0.5"><span className="w-1.5 h-1.5 bg-white rounded-full"/> {alertasCriticas.length} crítico(s)</span>}
+                        {alertasBajas.length > 0 && <span className="flex items-center gap-1 bg-amber-500 text-white text-[9px] font-semibold px-2 py-0.5"><span className="w-1.5 h-1.5 bg-white rounded-full"/> {alertasBajas.length} bajo(s)</span>}
                         <div className="flex-1"/>
                         {showAlertsPanel ? <ChevronUp size={12} className="text-amber-600"/> : <ChevronDown size={12} className="text-amber-600"/>}
                     </button>
@@ -410,10 +410,10 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                             {[...alertasCriticas, ...alertasBajas].slice(0,8).map(item => {
                                 const st = getStockStatus(item);
                                 return (
-                                    <div key={item.id} className={`shrink-0 flex items-center gap-2 px-2 py-1 border text-[10px] font-bold ${st==='empty'||st==='critical' ? 'bg-red-50 border-red-300 text-red-700' : 'bg-amber-50 border-amber-300 text-amber-700'}`}>
+                                    <div key={item.id} className={`shrink-0 flex items-center gap-2 px-2 py-1 border text-[10px] font-medium ${st==='empty'||st==='critical' ? 'bg-red-50 border-red-300 text-red-700' : 'bg-amber-50 border-amber-300 text-amber-700'}`}>
                                         <span className={`w-2 h-2 rounded-full ${st==='empty'||st==='critical'?'bg-red-500':'bg-amber-500'}`}/>
                                         <span>{item.nombre}</span>
-                                        <span className="font-black">{item.stock_actual}/{item.stock_minimo}</span>
+                                        <span className="font-semibold">{item.stock_actual}/{item.stock_minimo}</span>
                                         <button onClick={() => openMovForm(item)} className="underline text-[9px]">+Stock</button>
                                     </div>
                                 );
@@ -433,16 +433,16 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                 ].map((k,i) => (
                     <div key={i} className="flex items-center gap-2 px-4 py-1.5 border-r border-gray-300">
                         <k.icon size={13} className={k.color}/>
-                        <span className={`text-[12px] font-black ${k.color}`}>{k.value}</span>
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{k.label}</span>
+                        <span className={`text-[12px] font-semibold ${k.color}`}>{k.value}</span>
+                        <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">{k.label}</span>
                     </div>
                 ))}
                 <div className="flex-1"/>
-                <span className="text-[9px] text-slate-400 font-bold pr-3">{filtered.length} de {items.length} registros</span>
+                <span className="text-[9px] text-slate-400 font-medium pr-3">{filtered.length} de {items.length} registros</span>
             </div>
 
             {dbError && (
-                <div className="shrink-0 flex items-center gap-2 bg-red-50 border-b border-red-200 px-4 py-2 text-[11px] text-red-700 font-bold">
+                <div className="shrink-0 flex items-center gap-2 bg-red-50 border-b border-red-200 px-4 py-2 text-[11px] text-red-700 font-medium">
                     <AlertCircle size={13}/>Tabla <code className="bg-red-100 px-1">supply_items</code> no existe. Ejecuta <code className="bg-red-100 px-1">sql/supply_inventory_schema.sql</code> y <code className="bg-red-100 px-1">sql/inventory_movements_patch.sql</code>
                 </div>
             )}
@@ -450,26 +450,26 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
             {/* ── CONTENIDO ── */}
             <div className="flex-1 overflow-auto" onContextMenu={e => handleContextMenu(e)}>
                 {loading ? (
-                    <div className="flex items-center justify-center h-32 text-slate-400"><Loader2 size={18} className="animate-spin mr-2"/><span className="text-[11px] font-bold">Cargando...</span></div>
+                    <div className="flex items-center justify-center h-32 text-slate-400"><Loader2 size={18} className="animate-spin mr-2"/><span className="text-[11px] font-medium">Cargando...</span></div>
                 ) : filtered.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-32 text-slate-400"><Archive size={28} className="mb-2 opacity-30"/><p className="text-[11px] font-bold">SIN REGISTROS</p><button onClick={openNew} className="mt-2 text-[10px] text-[#106EBE] font-black underline">+ Crear nuevo</button></div>
+                    <div className="flex flex-col items-center justify-center h-32 text-slate-400"><Archive size={28} className="mb-2 opacity-30"/><p className="text-[11px] font-medium">SIN REGISTROS</p><button onClick={openNew} className="mt-2 text-[10px] text-[#106EBE] font-semibold underline">+ Crear nuevo</button></div>
                 ) : viewMode === 'table' ? (
                     /* ── TABLA ── */
                     <table className="w-full border-collapse text-left">
                         <thead className="sticky top-0 z-10">
                             <tr className="bg-[#e8e8e8] border-b border-gray-300">
                                 <th className="w-6 px-2 py-1 border-r border-gray-300"/>
-                                <th className="w-10 px-2 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Img</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Nombre</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Código</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Categoría</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700 text-center">Stock</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700 text-center">Mín</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Ubicación</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Estado</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Días/Sem.</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700 text-right">Precio</th>
-                                <th className="px-3 py-1 text-[10px] font-bold text-slate-700 text-center">Acciones</th>
+                                <th className="w-10 px-2 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Img</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Nombre</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Código</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Categoría</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700 text-center">Stock</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700 text-center">Mín</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Ubicación</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Estado</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Días/Sem.</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700 text-right">Precio</th>
+                                <th className="px-3 py-1 text-[10px] font-medium text-slate-700 text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -493,25 +493,25 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                                 <div className="w-8 h-8 bg-gray-100 border border-gray-300 flex items-center justify-center text-gray-300"><Package size={13}/></div>
                                             )}
                                         </td>
-                                        <td className="px-3 py-1 border-r border-gray-200"><span className="text-[11px] font-bold text-slate-800">{item.nombre}</span></td>
+                                        <td className="px-3 py-1 border-r border-gray-200"><span className="text-[11px] font-medium text-slate-800">{item.nombre}</span></td>
                                         <td className="px-3 py-1 border-r border-gray-200"><span className="text-[10px] font-mono text-slate-500">{item.codigo_interno}</span></td>
                                         <td className="px-3 py-1 border-r border-gray-200"><span className="text-[10px] text-slate-600">{item.categoria?.split(' — ')[1]||item.categoria}</span></td>
                                         <td className="px-3 py-1 border-r border-gray-200 text-center">
                                             <div className="flex items-center justify-center gap-1" onClick={e=>e.stopPropagation()}>
-                                                <button onClick={()=>quickUpdateStock(item,-1)} className="w-4 h-4 bg-gray-200 hover:bg-red-100 text-[10px] font-black border border-gray-300 flex items-center justify-center">−</button>
-                                                <span className={`text-[12px] font-black w-8 text-center ${status==='empty'?'text-red-600':status==='critical'?'text-orange-600':status==='low'?'text-amber-600':'text-slate-800'}`}>{fmtNum(item.stock_actual)}</span>
-                                                <button onClick={()=>quickUpdateStock(item,1)} className="w-4 h-4 bg-gray-200 hover:bg-emerald-100 text-[10px] font-black border border-gray-300 flex items-center justify-center">+</button>
+                                                <button onClick={()=>quickUpdateStock(item,-1)} className="w-4 h-4 bg-gray-200 hover:bg-red-100 text-[10px] font-semibold border border-gray-300 flex items-center justify-center">−</button>
+                                                <span className={`text-[12px] font-semibold w-8 text-center ${status==='empty'?'text-red-600':status==='critical'?'text-orange-600':status==='low'?'text-amber-600':'text-slate-800'}`}>{fmtNum(item.stock_actual)}</span>
+                                                <button onClick={()=>quickUpdateStock(item,1)} className="w-4 h-4 bg-gray-200 hover:bg-emerald-100 text-[10px] font-semibold border border-gray-300 flex items-center justify-center">+</button>
                                             </div>
                                         </td>
                                         <td className="px-3 py-1 border-r border-gray-200 text-center"><span className="text-[10px] text-slate-500">{item.stock_minimo}</span></td>
                                         <td className="px-3 py-1 border-r border-gray-200"><span className="text-[10px] text-slate-600">{item.ubicacion}</span></td>
                                         <td className="px-3 py-1 border-r border-gray-200">
-                                            <span className={`inline-block px-1.5 py-0.5 text-[8px] font-black uppercase ${STATUS_BADGE[status]}`}>{STATUS_LABEL[status]}</span>
+                                            <span className={`inline-block px-1.5 py-0.5 text-[8px] font-semibold uppercase ${STATUS_BADGE[status]}`}>{STATUS_LABEL[status]}</span>
                                         </td>
                                         <td className="px-3 py-1 border-r border-gray-200">
-                                            {dias !== null ? <span className={`text-[10px] font-bold ${dias<=3?'text-red-600':dias<=7?'text-amber-600':'text-slate-600'}`}>{dias}d / {sem}/sem</span> : <span className="text-[9px] text-slate-300">—</span>}
+                                            {dias !== null ? <span className={`text-[10px] font-medium ${dias<=3?'text-red-600':dias<=7?'text-amber-600':'text-slate-600'}`}>{dias}d / {sem}/sem</span> : <span className="text-[9px] text-slate-300">—</span>}
                                         </td>
-                                        <td className="px-3 py-1 border-r border-gray-200 text-right"><span className="text-[11px] font-bold text-slate-800">{fmtQ(item.precio_unitario)}</span></td>
+                                        <td className="px-3 py-1 border-r border-gray-200 text-right"><span className="text-[11px] font-medium text-slate-800">{fmtQ(item.precio_unitario)}</span></td>
                                         <td className="px-3 py-1" onClick={e=>e.stopPropagation()}>
                                             <div className="flex items-center justify-center gap-0.5">
                                                 <button onClick={()=>setViewItem(item)} title="Ver" className="p-0.5 hover:bg-blue-100 text-slate-400 hover:text-blue-600"><Eye size={12}/></button>
@@ -541,18 +541,18 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                         <div className="w-full h-24 bg-gray-100 flex items-center justify-center text-gray-300"><Package size={32}/></div>
                                     )}
                                     <div className="p-2 flex-1 flex flex-col gap-1">
-                                        <span className={`self-start px-1.5 py-0.5 text-[8px] font-black uppercase ${STATUS_BADGE[status]}`}>{STATUS_LABEL[status]}</span>
-                                        <p className="text-[11px] font-black text-slate-800 leading-tight">{item.nombre}</p>
-                                        <p className="text-[9px] text-slate-400 font-bold">{item.codigo_interno}</p>
+                                        <span className={`self-start px-1.5 py-0.5 text-[8px] font-semibold uppercase ${STATUS_BADGE[status]}`}>{STATUS_LABEL[status]}</span>
+                                        <p className="text-[11px] font-semibold text-slate-800 leading-tight">{item.nombre}</p>
+                                        <p className="text-[9px] text-slate-400 font-medium">{item.codigo_interno}</p>
                                         <div className="h-1.5 bg-gray-200 mt-1"><div className={`h-full ${status==='empty'?'bg-red-600':status==='critical'?'bg-orange-600':status==='low'?'bg-amber-500':'bg-[#106EBE]'}`} style={{width:`${pct}%`}}/></div>
                                         <div className="flex justify-between items-center">
-                                            <span className={`text-[13px] font-black ${status==='empty'?'text-red-600':status==='critical'?'text-orange-600':status==='low'?'text-amber-600':'text-slate-800'}`}>{item.stock_actual} <span className="text-[9px] font-bold text-slate-400">/ {item.stock_minimo} mín</span></span>
+                                            <span className={`text-[13px] font-semibold ${status==='empty'?'text-red-600':status==='critical'?'text-orange-600':status==='low'?'text-amber-600':'text-slate-800'}`}>{item.stock_actual} <span className="text-[9px] font-medium text-slate-400">/ {item.stock_minimo} mín</span></span>
                                         </div>
                                         <p className="text-[9px] text-slate-500">{item.ubicacion} · {fmtQ(item.precio_unitario)}</p>
                                         <div className="flex gap-1 mt-1" onClick={e=>e.stopPropagation()}>
-                                            <button onClick={()=>quickUpdateStock(item,-1)} className="flex-1 py-0.5 bg-gray-100 border border-gray-300 text-[10px] font-black hover:bg-red-50">−</button>
-                                            <button onClick={()=>openMovForm(item)} className="flex-1 py-0.5 bg-[#106EBE] text-white border border-[#0d5aa0] text-[9px] font-black hover:bg-[#0d5aa0]">+Mov</button>
-                                            <button onClick={()=>quickUpdateStock(item,1)} className="flex-1 py-0.5 bg-gray-100 border border-gray-300 text-[10px] font-black hover:bg-emerald-50">+</button>
+                                            <button onClick={()=>quickUpdateStock(item,-1)} className="flex-1 py-0.5 bg-gray-100 border border-gray-300 text-[10px] font-semibold hover:bg-red-50">−</button>
+                                            <button onClick={()=>openMovForm(item)} className="flex-1 py-0.5 bg-[#106EBE] text-white border border-[#0d5aa0] text-[9px] font-semibold hover:bg-[#0d5aa0]">+Mov</button>
+                                            <button onClick={()=>quickUpdateStock(item,1)} className="flex-1 py-0.5 bg-gray-100 border border-gray-300 text-[10px] font-semibold hover:bg-emerald-50">+</button>
                                         </div>
                                     </div>
                                 </div>
@@ -564,8 +564,8 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
 
             {/* ── STATUS BAR ── */}
             <div className="shrink-0 bg-[#f0f0f0] border-t border-gray-300 flex items-center gap-4 px-3 py-0.5">
-                <span className="text-[9px] text-slate-500 font-bold">{filtered.length} registro(s)</span>
-                {selectedIds.size > 0 && <span className="text-[9px] text-[#106EBE] font-bold">{selectedIds.size} seleccionado(s)</span>}
+                <span className="text-[9px] text-slate-500 font-medium">{filtered.length} registro(s)</span>
+                {selectedIds.size > 0 && <span className="text-[9px] text-[#106EBE] font-medium">{selectedIds.size} seleccionado(s)</span>}
                 <div className="flex-1"/>
                 <span className="text-[9px] text-slate-400">INSUMOS Y SUMINISTROS — Las Palmas POS</span>
             </div>
@@ -593,7 +593,7 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                     <DraggableWindow>
                         <div className="w-[700px] max-h-[92vh] bg-[#f0f0f0] shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-[#106EBE] flex flex-col pointer-events-auto">
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move select-none shrink-0">
-                                <div className="flex items-center gap-2"><Package size={13} className="text-white"/><span className="text-white text-[12px] font-bold">{editingItem?'Editar':'Nuevo'} Insumo — {form.codigo_interno}</span></div>
+                                <div className="flex items-center gap-2"><Package size={13} className="text-white"/><span className="text-white text-[12px] font-medium">{editingItem?'Editar':'Nuevo'} Insumo — {form.codigo_interno}</span></div>
                                 <button onClick={()=>setShowForm(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white transition-all"><X size={18} strokeWidth={2.5}/></button>
                             </div>
                             <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -655,8 +655,8 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                 </Fieldset>
                             </div>
                             <div className="shrink-0 flex items-center justify-end gap-2 px-4 py-2 bg-[#f0f0f0] border-t border-gray-300">
-                                <button onClick={()=>setShowForm(false)} className="px-4 py-1 text-[11px] font-bold bg-white border border-gray-400 hover:bg-gray-100 text-slate-700">Cancelar</button>
-                                <button onClick={handleSave} disabled={saving||!form.nombre.trim()} className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] hover:bg-[#0d5aa0] text-white text-[11px] font-bold border border-[#0d5aa0] disabled:opacity-50">
+                                <button onClick={()=>setShowForm(false)} className="px-4 py-1 text-[11px] font-medium bg-white border border-gray-400 hover:bg-gray-100 text-slate-700">Cancelar</button>
+                                <button onClick={handleSave} disabled={saving||!form.nombre.trim()} className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] hover:bg-[#0d5aa0] text-white text-[11px] font-medium border border-[#0d5aa0] disabled:opacity-50">
                                     {saving?<Loader2 size={12} className="animate-spin"/>:<Save size={12}/>}{saving?'Guardando...':editingItem?'Actualizar':'Guardar'}
                                 </button>
                             </div>
@@ -672,12 +672,12 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                     <DraggableWindow>
                         <div className="w-[460px] bg-[#f0f0f0] shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-[#106EBE] flex flex-col pointer-events-auto">
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move select-none">
-                                <div className="flex items-center gap-2"><ArrowUpCircle size={13} className="text-white"/><span className="text-white text-[12px] font-bold">Registrar Movimiento — {editingItem.nombre}</span></div>
+                                <div className="flex items-center gap-2"><ArrowUpCircle size={13} className="text-white"/><span className="text-white text-[12px] font-medium">Registrar Movimiento — {editingItem.nombre}</span></div>
                                 <button onClick={()=>setShowMovForm(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white"><X size={18} strokeWidth={2.5}/></button>
                             </div>
                             <div className="p-4 space-y-3">
-                                <div className="flex items-center gap-2 bg-white border border-gray-300 px-3 py-2 text-[11px] font-bold text-slate-600">
-                                    Stock actual: <span className="text-[14px] font-black text-[#106EBE] ml-1">{editingItem.stock_actual}</span> <span className="text-slate-400">{editingItem.unidad_medida}</span>
+                                <div className="flex items-center gap-2 bg-white border border-gray-300 px-3 py-2 text-[11px] font-medium text-slate-600">
+                                    Stock actual: <span className="text-[14px] font-semibold text-[#106EBE] ml-1">{editingItem.stock_actual}</span> <span className="text-slate-400">{editingItem.unidad_medida}</span>
                                 </div>
                                 <Fieldset title="Datos del Movimiento">
                                     <div className="grid grid-cols-2 gap-3">
@@ -700,8 +700,8 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                         <div className="col-span-2"><FLabel>Notas opcionales</FLabel><input value={movForm.notas} onChange={e=>setMovForm(f=>({...f,notas:e.target.value}))} className={IC} placeholder="Observaciones adicionales..."/></div>
                                     </div>
                                     {movForm.cantidad && (
-                                        <div className="mt-2 bg-white border border-gray-300 text-[11px] px-3 py-1.5 font-bold text-slate-600">
-                                            Stock resultante: <span className="text-[14px] font-black text-[#106EBE]">
+                                        <div className="mt-2 bg-white border border-gray-300 text-[11px] px-3 py-1.5 font-medium text-slate-600">
+                                            Stock resultante: <span className="text-[14px] font-semibold text-[#106EBE]">
                                                 {movForm.tipo==='entrada' ? editingItem.stock_actual + Number(movForm.cantidad) : movForm.tipo==='salida' ? Math.max(0, editingItem.stock_actual - Number(movForm.cantidad)) : Number(movForm.cantidad)}
                                             </span> {editingItem.unidad_medida}
                                         </div>
@@ -709,8 +709,8 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                 </Fieldset>
                             </div>
                             <div className="flex items-center justify-end gap-2 px-4 py-2 border-t border-gray-300 bg-[#f0f0f0]">
-                                <button onClick={()=>setShowMovForm(false)} className="px-4 py-1 text-[11px] font-bold bg-white border border-gray-400 hover:bg-gray-100 text-slate-700">Cancelar</button>
-                                <button onClick={handleMovSave} disabled={saving||!movForm.cantidad} className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] text-white text-[11px] font-bold border border-[#0d5aa0] disabled:opacity-50">
+                                <button onClick={()=>setShowMovForm(false)} className="px-4 py-1 text-[11px] font-medium bg-white border border-gray-400 hover:bg-gray-100 text-slate-700">Cancelar</button>
+                                <button onClick={handleMovSave} disabled={saving||!movForm.cantidad} className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] text-white text-[11px] font-medium border border-[#0d5aa0] disabled:opacity-50">
                                     {saving?<Loader2 size={12} className="animate-spin"/>:<Save size={12}/>} Registrar
                                 </button>
                             </div>
@@ -726,28 +726,28 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                     <DraggableWindow>
                         <div className="w-[600px] max-h-[80vh] bg-[#f0f0f0] shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-[#106EBE] flex flex-col pointer-events-auto">
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move select-none">
-                                <div className="flex items-center gap-2"><History size={13} className="text-white"/><span className="text-white text-[12px] font-bold">Historial de Movimientos — {movItem?.nombre}</span></div>
+                                <div className="flex items-center gap-2"><History size={13} className="text-white"/><span className="text-white text-[12px] font-medium">Historial de Movimientos — {movItem?.nombre}</span></div>
                                 <button onClick={()=>setShowMovements(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white"><X size={18} strokeWidth={2.5}/></button>
                             </div>
                             <div className="flex-1 overflow-y-auto">
                                 {movLoading ? <div className="flex items-center justify-center h-24"><Loader2 size={18} className="animate-spin text-slate-400"/></div> :
-                                movements.length === 0 ? <div className="flex items-center justify-center h-24 text-[11px] text-slate-400 font-bold">Sin movimientos registrados</div> : (
+                                movements.length === 0 ? <div className="flex items-center justify-center h-24 text-[11px] text-slate-400 font-medium">Sin movimientos registrados</div> : (
                                     <table className="w-full border-collapse text-left">
                                         <thead className="sticky top-0"><tr className="bg-[#f0f0f0] border-b border-gray-300">
-                                            <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-300">Fecha</th>
-                                            <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-300">Tipo</th>
-                                            <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-300 text-center">Cant.</th>
-                                            <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-300 text-center">Antes→Después</th>
-                                            <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-300">Motivo</th>
-                                            <th className="px-3 py-1 text-[10px] font-bold text-slate-700">Usuario</th>
+                                            <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-300">Fecha</th>
+                                            <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-300">Tipo</th>
+                                            <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-300 text-center">Cant.</th>
+                                            <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-300 text-center">Antes→Después</th>
+                                            <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-300">Motivo</th>
+                                            <th className="px-3 py-1 text-[10px] font-medium text-slate-700">Usuario</th>
                                         </tr></thead>
                                         <tbody>{movements.map((m,i) => (
                                             <tr key={m.id} className={`border-b border-gray-200 ${i % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
                                                 <td className="px-3 py-1 border-r border-gray-200 text-[10px] text-slate-600 whitespace-nowrap">{fmtDate(m.created_at)}</td>
                                                 <td className="px-3 py-1 border-r border-gray-200">
-                                                    <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 ${m.tipo_movimiento==='entrada'?'bg-emerald-100 text-emerald-700':m.tipo_movimiento==='salida'?'bg-red-100 text-red-700':m.tipo_movimiento==='conteo_fisico'?'bg-purple-100 text-purple-700':'bg-amber-100 text-amber-700'}`}>{m.tipo_movimiento}</span>
+                                                    <span className={`text-[9px] font-semibold uppercase px-1.5 py-0.5 ${m.tipo_movimiento==='entrada'?'bg-emerald-100 text-emerald-700':m.tipo_movimiento==='salida'?'bg-red-100 text-red-700':m.tipo_movimiento==='conteo_fisico'?'bg-purple-100 text-purple-700':'bg-amber-100 text-amber-700'}`}>{m.tipo_movimiento}</span>
                                                 </td>
-                                                <td className="px-3 py-1 border-r border-gray-200 text-center text-[11px] font-black text-slate-800">{m.cantidad}</td>
+                                                <td className="px-3 py-1 border-r border-gray-200 text-center text-[11px] font-semibold text-slate-800">{m.cantidad}</td>
                                                 <td className="px-3 py-1 border-r border-gray-200 text-center text-[10px] text-slate-600">{m.stock_antes} → {m.stock_despues}</td>
                                                 <td className="px-3 py-1 border-r border-gray-200 text-[10px] text-slate-600">{m.motivo}{m.notas?` · ${m.notas}`:''}{m.numero_factura?` (${m.numero_factura})`:''}</td>
                                                 <td className="px-3 py-1 text-[10px] text-slate-500">{m.usuario}</td>
@@ -757,7 +757,7 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                 )}
                             </div>
                             <div className="flex justify-end px-4 py-2 border-t border-gray-300 bg-[#f0f0f0]">
-                                <button onClick={()=>setShowMovements(false)} className="px-4 py-1 text-[11px] font-bold bg-white border border-gray-400 text-slate-600 hover:bg-gray-100">Cerrar</button>
+                                <button onClick={()=>setShowMovements(false)} className="px-4 py-1 text-[11px] font-medium bg-white border border-gray-400 text-slate-600 hover:bg-gray-100">Cerrar</button>
                             </div>
                         </div>
                     </DraggableWindow>
@@ -771,20 +771,20 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                     <DraggableWindow>
                         <div className="w-[700px] max-h-[90vh] bg-[#f0f0f0] shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-[#106EBE] flex flex-col pointer-events-auto">
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move select-none">
-                                <div className="flex items-center gap-2"><ClipboardList size={13} className="text-white"/><span className="text-white text-[12px] font-bold">Conteo Físico de Inventario — {new Date().toLocaleDateString('es-GT')}</span></div>
+                                <div className="flex items-center gap-2"><ClipboardList size={13} className="text-white"/><span className="text-white text-[12px] font-medium">Conteo Físico de Inventario — {new Date().toLocaleDateString('es-GT')}</span></div>
                                 <button onClick={()=>setShowPhysicalCount(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white"><X size={18} strokeWidth={2.5}/></button>
                             </div>
                             <div className="px-4 py-2 bg-amber-50 border-b border-amber-200">
-                                <p className="text-[11px] font-bold text-amber-700">Ingrese la cantidad REAL contada de cada ítem. Solo se registran los cambios. Deje en blanco si no contó el ítem.</p>
+                                <p className="text-[11px] font-medium text-amber-700">Ingrese la cantidad REAL contada de cada ítem. Solo se registran los cambios. Deje en blanco si no contó el ítem.</p>
                             </div>
                             <div className="flex-1 overflow-y-auto">
                                 <table className="w-full border-collapse">
                                     <thead className="sticky top-0"><tr className="bg-[#f0f0f0] border-b border-gray-300">
-                                        <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-300">Código</th>
-                                        <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-300">Nombre</th>
-                                        <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-300 text-center">Sistema</th>
-                                        <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-300 text-center">Real contado</th>
-                                        <th className="px-3 py-1 text-[10px] font-bold text-slate-700 text-center">Diferencia</th>
+                                        <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-300">Código</th>
+                                        <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-300">Nombre</th>
+                                        <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-300 text-center">Sistema</th>
+                                        <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-300 text-center">Real contado</th>
+                                        <th className="px-3 py-1 text-[10px] font-medium text-slate-700 text-center">Diferencia</th>
                                     </tr></thead>
                                     <tbody>{items.map((item,idx) => {
                                         const counted = physicalCounts[item.id];
@@ -792,16 +792,16 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                         return (
                                             <tr key={item.id} className={`border-b border-gray-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
                                                 <td className="px-3 py-1 border-r border-gray-200 text-[10px] font-mono text-slate-500">{item.codigo_interno}</td>
-                                                <td className="px-3 py-1 border-r border-gray-200 text-[11px] font-bold text-slate-800">{item.nombre}</td>
-                                                <td className="px-3 py-1 border-r border-gray-200 text-center text-[12px] font-black text-slate-600">{item.stock_actual}</td>
+                                                <td className="px-3 py-1 border-r border-gray-200 text-[11px] font-medium text-slate-800">{item.nombre}</td>
+                                                <td className="px-3 py-1 border-r border-gray-200 text-center text-[12px] font-semibold text-slate-600">{item.stock_actual}</td>
                                                 <td className="px-3 py-1 border-r border-gray-200 text-center">
                                                     <input type="number" min={0} placeholder="—"
                                                         value={physicalCounts[item.id]||''}
                                                         onChange={e=>setPhysicalCounts(p=>({...p,[item.id]:e.target.value}))}
-                                                        className="w-20 px-2 py-0.5 text-[11px] font-black border border-gray-400 text-center outline-none focus:border-[#106EBE] bg-white"/>
+                                                        className="w-20 px-2 py-0.5 text-[11px] font-semibold border border-gray-400 text-center outline-none focus:border-[#106EBE] bg-white"/>
                                                 </td>
                                                 <td className="px-3 py-1 text-center">
-                                                    {diff !== null && <span className={`text-[12px] font-black ${diff===0?'text-slate-400':diff>0?'text-emerald-600':'text-red-600'}`}>{diff>0?`+${diff}`:diff}</span>}
+                                                    {diff !== null && <span className={`text-[12px] font-semibold ${diff===0?'text-slate-400':diff>0?'text-emerald-600':'text-red-600'}`}>{diff>0?`+${diff}`:diff}</span>}
                                                 </td>
                                             </tr>
                                         );
@@ -809,10 +809,10 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                 </table>
                             </div>
                             <div className="flex items-center justify-between px-4 py-2 border-t border-gray-300 bg-[#f0f0f0]">
-                                <span className="text-[10px] font-bold text-slate-500">{Object.values(physicalCounts).filter(v=>v!=='').length} ítems ingresados</span>
+                                <span className="text-[10px] font-medium text-slate-500">{Object.values(physicalCounts).filter(v=>v!=='').length} ítems ingresados</span>
                                 <div className="flex gap-2">
-                                    <button onClick={()=>setShowPhysicalCount(false)} className="px-4 py-1 text-[11px] font-bold bg-white border border-gray-400 text-slate-600 hover:bg-gray-100">Cancelar</button>
-                                    <button onClick={handlePhysicalCountSave} disabled={saving} className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] text-white text-[11px] font-bold border border-[#0d5aa0] disabled:opacity-50">
+                                    <button onClick={()=>setShowPhysicalCount(false)} className="px-4 py-1 text-[11px] font-medium bg-white border border-gray-400 text-slate-600 hover:bg-gray-100">Cancelar</button>
+                                    <button onClick={handlePhysicalCountSave} disabled={saving} className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] text-white text-[11px] font-medium border border-[#0d5aa0] disabled:opacity-50">
                                         {saving?<Loader2 size={12} className="animate-spin"/>:<Save size={12}/>} Guardar Conteo
                                     </button>
                                 </div>
@@ -829,23 +829,23 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                     <DraggableWindow>
                         <div className="w-[660px] max-h-[90vh] bg-[#f0f0f0] shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-[#106EBE] flex flex-col pointer-events-auto">
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move select-none">
-                                <div className="flex items-center gap-2"><ShoppingCart size={13} className="text-white"/><span className="text-white text-[12px] font-bold">Lista de Compras Automática — {new Date().toLocaleDateString('es-GT')}</span></div>
+                                <div className="flex items-center gap-2"><ShoppingCart size={13} className="text-white"/><span className="text-white text-[12px] font-medium">Lista de Compras Automática — {new Date().toLocaleDateString('es-GT')}</span></div>
                                 <button onClick={()=>setShowPurchaseList(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white"><X size={18} strokeWidth={2.5}/></button>
                             </div>
                             <div className="flex-1 overflow-y-auto p-4">
                                 {purchaseItems.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center h-32 text-slate-400"><Check size={28} className="text-emerald-500 mb-2"/><p className="text-[11px] font-bold">¡Todo el stock está en niveles correctos!</p></div>
+                                    <div className="flex flex-col items-center justify-center h-32 text-slate-400"><Check size={28} className="text-emerald-500 mb-2"/><p className="text-[11px] font-medium">¡Todo el stock está en niveles correctos!</p></div>
                                 ) : (
                                     <div className="space-y-3">
                                         {(Object.entries(purchaseByProvider) as [string, SupplyItem[]][]).map(([prov, provItems]) => (
                                             <div key={prov} className="border border-gray-300 bg-white">
-                                                <div className="bg-[#106EBE] px-3 py-1.5"><p className="text-[11px] font-black text-white uppercase">PROVEEDOR: {prov}</p></div>
+                                                <div className="bg-[#106EBE] px-3 py-1.5"><p className="text-[11px] font-semibold text-white uppercase">PROVEEDOR: {prov}</p></div>
                                                 <table className="w-full border-collapse">
                                                     <thead><tr className="bg-gray-50 border-b border-gray-200">
-                                                        <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-200">Producto</th>
-                                                        <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-200 text-center">Stock</th>
-                                                        <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-200 text-center">A pedir</th>
-                                                        <th className="px-3 py-1 text-[10px] font-bold text-slate-700 text-right">Costo est.</th>
+                                                        <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-200">Producto</th>
+                                                        <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-200 text-center">Stock</th>
+                                                        <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-200 text-center">A pedir</th>
+                                                        <th className="px-3 py-1 text-[10px] font-medium text-slate-700 text-right">Costo est.</th>
                                                     </tr></thead>
                                                     <tbody>{provItems.map(item => {
                                                         const aPedir = Math.max(0, item.stock_maximo - item.stock_actual);
@@ -853,22 +853,22 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                                         return (
                                                             <tr key={item.id} className="border-b border-gray-100">
                                                                 <td className="px-3 py-1 border-r border-gray-100">
-                                                                    <p className="text-[11px] font-bold text-slate-800">{item.nombre}</p>
+                                                                    <p className="text-[11px] font-medium text-slate-800">{item.nombre}</p>
                                                                     <p className="text-[9px] text-slate-400">{item.unidad_medida}</p>
                                                                 </td>
                                                                 <td className="px-3 py-1 border-r border-gray-100 text-center">
-                                                                    <span className={`text-[11px] font-black ${st==='empty'?'text-red-600':st==='critical'?'text-orange-600':'text-amber-600'}`}>{item.stock_actual}</span>
+                                                                    <span className={`text-[11px] font-semibold ${st==='empty'?'text-red-600':st==='critical'?'text-orange-600':'text-amber-600'}`}>{item.stock_actual}</span>
                                                                     <span className="text-[9px] text-slate-400">/{item.stock_minimo}</span>
                                                                 </td>
-                                                                <td className="px-3 py-1 border-r border-gray-100 text-center"><span className="text-[12px] font-black text-[#106EBE]">{aPedir}</span></td>
-                                                                <td className="px-3 py-1 text-right text-[11px] font-bold text-slate-800">{fmtQ(aPedir*item.precio_unitario)}</td>
+                                                                <td className="px-3 py-1 border-r border-gray-100 text-center"><span className="text-[12px] font-semibold text-[#106EBE]">{aPedir}</span></td>
+                                                                <td className="px-3 py-1 text-right text-[11px] font-medium text-slate-800">{fmtQ(aPedir*item.precio_unitario)}</td>
                                                             </tr>
                                                         );
                                                     })}</tbody>
                                                 </table>
                                             </div>
                                         ))}
-                                        <div className="flex items-center justify-between px-3 py-2 bg-white border border-gray-300 font-bold text-[12px]">
+                                        <div className="flex items-center justify-between px-3 py-2 bg-white border border-gray-300 font-medium text-[12px]">
                                             <span className="text-slate-600">TOTAL ESTIMADO</span>
                                             <span className="text-[#106EBE]">{fmtQ(purchaseItems.reduce((s,i)=>s+Math.max(0,i.stock_maximo-i.stock_actual)*i.precio_unitario,0))}</span>
                                         </div>
@@ -877,9 +877,9 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                             </div>
                             {purchaseItems.length > 0 && (
                                 <div className="flex items-center gap-2 px-4 py-2 border-t border-gray-300 bg-[#f0f0f0]">
-                                    <button onClick={printPurchaseList} className="flex items-center gap-1.5 px-4 py-1 bg-white border border-gray-400 text-[11px] font-bold text-slate-700 hover:bg-gray-100"><Printer size={12}/> Imprimir / PDF</button>
-                                    <button onClick={sendWhatsApp} className="flex items-center gap-1.5 px-4 py-1 bg-emerald-600 border border-emerald-700 text-white text-[11px] font-bold hover:bg-emerald-700"><MessageCircle size={12}/> WhatsApp</button>
-                                    <button onClick={exportCSV} className="flex items-center gap-1.5 px-4 py-1 bg-white border border-gray-400 text-[11px] font-bold text-slate-700 hover:bg-gray-100"><FileSpreadsheet size={12}/> CSV</button>
+                                    <button onClick={printPurchaseList} className="flex items-center gap-1.5 px-4 py-1 bg-white border border-gray-400 text-[11px] font-medium text-slate-700 hover:bg-gray-100"><Printer size={12}/> Imprimir / PDF</button>
+                                    <button onClick={sendWhatsApp} className="flex items-center gap-1.5 px-4 py-1 bg-emerald-600 border border-emerald-700 text-white text-[11px] font-medium hover:bg-emerald-700"><MessageCircle size={12}/> WhatsApp</button>
+                                    <button onClick={exportCSV} className="flex items-center gap-1.5 px-4 py-1 bg-white border border-gray-400 text-[11px] font-medium text-slate-700 hover:bg-gray-100"><FileSpreadsheet size={12}/> CSV</button>
                                 </div>
                             )}
                         </div>
@@ -894,7 +894,7 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                     <DraggableWindow>
                         <div className="w-[480px] max-h-[85vh] bg-[#f0f0f0] shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-[#106EBE] flex flex-col pointer-events-auto">
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move select-none">
-                                <span className="text-white text-[12px] font-bold">{viewItem.nombre} — {viewItem.codigo_interno}</span>
+                                <span className="text-white text-[12px] font-medium">{viewItem.nombre} — {viewItem.codigo_interno}</span>
                                 <button onClick={()=>setViewItem(null)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white"><X size={18} strokeWidth={2.5}/></button>
                             </div>
                             <div className="p-4 overflow-y-auto space-y-3">
@@ -919,7 +919,7 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                             ['Última compra', viewItem.fecha_ultima_compra||'—'],
                                         ].map(([l,v],i)=>(
                                             <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}>
-                                                <td className="px-2 py-0.5 border border-gray-200 font-bold text-slate-600 w-36">{l}</td>
+                                                <td className="px-2 py-0.5 border border-gray-200 font-medium text-slate-600 w-36">{l}</td>
                                                 <td className="px-2 py-0.5 border border-gray-200 text-slate-800">{v}</td>
                                             </tr>
                                         ))}
@@ -927,9 +927,9 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
                                 </table>
                             </div>
                             <div className="flex gap-2 px-4 py-2 border-t border-gray-300 bg-[#f0f0f0]">
-                                <button onClick={()=>{setViewItem(null);openEdit(viewItem);}} className="flex items-center gap-1.5 px-4 py-1 bg-white border border-gray-400 text-[11px] font-bold text-amber-700 hover:bg-amber-50"><Edit2 size={11}/> Editar</button>
-                                <button onClick={()=>{const tmp=viewItem;setViewItem(null);openMovements(tmp);}} className="flex items-center gap-1.5 px-4 py-1 bg-white border border-gray-400 text-[11px] font-bold text-purple-700 hover:bg-purple-50"><History size={11}/> Historial</button>
-                                <button onClick={()=>setViewItem(null)} className="flex-1 py-1 bg-white border border-gray-400 text-[11px] font-bold text-slate-600 hover:bg-gray-100">Cerrar</button>
+                                <button onClick={()=>{setViewItem(null);openEdit(viewItem);}} className="flex items-center gap-1.5 px-4 py-1 bg-white border border-gray-400 text-[11px] font-medium text-amber-700 hover:bg-amber-50"><Edit2 size={11}/> Editar</button>
+                                <button onClick={()=>{const tmp=viewItem;setViewItem(null);openMovements(tmp);}} className="flex items-center gap-1.5 px-4 py-1 bg-white border border-gray-400 text-[11px] font-medium text-purple-700 hover:bg-purple-50"><History size={11}/> Historial</button>
+                                <button onClick={()=>setViewItem(null)} className="flex-1 py-1 bg-white border border-gray-400 text-[11px] font-medium text-slate-600 hover:bg-gray-100">Cerrar</button>
                             </div>
                         </div>
                     </DraggableWindow>
@@ -941,16 +941,16 @@ export const InventarioSuministros: React.FC<Props> = ({ initialTab = 'insumos' 
 };
 
 // ─── Sub-componentes ──────────────────────────────────────────────────────────
-const IC = 'w-full px-2 py-1 text-[11px] border border-gray-400 bg-white outline-none focus:border-[#106EBE] h-7 font-bold';
-const FLabel: React.FC<{children:React.ReactNode}> = ({children}) => <label className="block text-[10px] font-bold text-slate-700 mb-0.5">{children}</label>;
+const IC = 'w-full px-2 py-1 text-[11px] border border-gray-400 bg-white outline-none focus:border-[#106EBE] h-7 font-medium';
+const FLabel: React.FC<{children:React.ReactNode}> = ({children}) => <label className="block text-[10px] font-medium text-slate-700 mb-0.5">{children}</label>;
 const Fieldset: React.FC<{title:string;children:React.ReactNode}> = ({title,children}) => (
     <fieldset className="border border-gray-400 bg-white px-3 pt-0.5 pb-3">
-        <legend className="text-[10px] font-black text-slate-700 uppercase px-1">{title}</legend>
+        <legend className="text-[10px] font-semibold text-slate-700 uppercase px-1">{title}</legend>
         {children}
     </fieldset>
 );
 const CtxItem: React.FC<{icon:any;label:string;onClick:()=>void;danger?:boolean}> = ({icon:Icon,label,onClick,danger}) => (
-    <button onClick={onClick} className={`w-full flex items-center gap-2 px-3 py-1 text-[11px] font-bold text-left hover:bg-[#106EBE] hover:text-white transition-colors ${danger?'text-red-600':'text-slate-700'}`}>
+    <button onClick={onClick} className={`w-full flex items-center gap-2 px-3 py-1 text-[11px] font-medium text-left hover:bg-[#106EBE] hover:text-white transition-colors ${danger?'text-red-600':'text-slate-700'}`}>
         <Icon size={12}/>{label}
     </button>
 );

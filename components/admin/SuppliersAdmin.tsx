@@ -214,7 +214,7 @@ export const SuppliersAdmin: React.FC = () => {
                                 className="bg-white border border-gray-400 rounded-sm px-2 text-[11px] w-64 outline-none text-slate-900 font-medium focus:border-[#106ebe] h-[24px]"
                             />
                         </div>
-                        <button className="bg-[#f0f0f0] border border-gray-400 px-4 h-[24px] text-[10px] font-bold uppercase hover:bg-[#e1e1e1] active:bg-[#d1d1d1] text-slate-800 rounded-sm shadow-sm transition-all flex items-center justify-center">
+                        <button className="bg-[#f0f0f0] border border-gray-400 px-4 h-[24px] text-[10px] font-medium uppercase hover:bg-[#e1e1e1] active:bg-[#d1d1d1] text-slate-800 rounded-sm shadow-sm transition-all flex items-center justify-center">
                             Buscar
                         </button>
                         <button 
@@ -243,10 +243,10 @@ export const SuppliersAdmin: React.FC = () => {
                         <table className="w-full border-collapse text-[11px]">
                             <thead className="bg-[#e8e8e8] sticky top-0 z-10 select-none">
                                 <tr className="border-b border-gray-400 h-8">
-                                    <th className="px-4 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[50%]">Proveedor</th>
-                                    <th className="px-4 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[15%]">Teléfono</th>
-                                    <th className="px-4 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[25%]">Correo</th>
-                                    <th className="px-4 text-center text-[10px] font-bold text-black uppercase w-[10%]">Habilitado</th>
+                                    <th className="px-4 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[50%]">Proveedor</th>
+                                    <th className="px-4 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[15%]">Teléfono</th>
+                                    <th className="px-4 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[25%]">Correo</th>
+                                    <th className="px-4 text-center text-[10px] font-medium text-black uppercase w-[10%]">Habilitado</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -271,7 +271,7 @@ export const SuppliersAdmin: React.FC = () => {
                                             }}
                                             className={`h-6 transition-colors cursor-pointer relative border-b border-gray-50 group ${selectedSupplierId === sup.id ? 'bg-[#106ebe] text-white' : (index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]') + ' text-slate-900 hover:bg-[#cce8ff]'}`}
                                         >
-                                            <td className="px-4 font-bold uppercase text-[10px] border-r border-gray-100">{sup.name}</td>
+                                            <td className="px-4 font-medium uppercase text-[10px] border-r border-gray-100">{sup.name}</td>
                                             <td className="px-4 border-r border-gray-100 uppercase text-[10px]">{sup.phone || '--'}</td>
                                             <td className="px-4 border-r border-gray-100 text-[10px]">{sup.email || '--'}</td>
                                             <td className="px-4 text-center">
@@ -297,7 +297,7 @@ export const SuppliersAdmin: React.FC = () => {
                                 <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center shrink-0 select-none cursor-move">
                                     <div className="flex items-center gap-2">
                                         <Truck size={14} className="text-white" />
-                                        <span className="text-white text-[12px] font-bold">Mantenimiento de Proveedores</span>
+                                        <span className="text-white text-[12px] font-medium">Mantenimiento de Proveedores</span>
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <WindowsSaveButton onClick={handleSave} loading={saving} variant="minimal" title="Guardar Proveedor" />
@@ -314,41 +314,41 @@ export const SuppliersAdmin: React.FC = () => {
                                 <div className="p-4 space-y-4">
                                     {/* Datos de Proveedor */}
                                     <fieldset className="border border-gray-400 p-4 pt-5 relative bg-white/50">
-                                        <legend className="absolute -top-3 left-3 bg-[#f0f0f0] px-2 text-[11px] font-bold text-[#106EBE] uppercase">Datos de Proveedor</legend>
+                                        <legend className="absolute -top-3 left-3 bg-[#f0f0f0] px-2 text-[11px] font-medium text-[#106EBE] uppercase">Datos de Proveedor</legend>
                                         
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-4">
-                                                <label className="w-24 text-[11px] font-bold text-slate-600 uppercase">Proveedor</label>
+                                                <label className="w-24 text-[11px] font-medium text-slate-600 uppercase">Proveedor</label>
                                                 <input 
                                                     autoFocus
                                                     value={formData.name} 
                                                     onChange={e => setFormData({ ...formData, name: e.target.value.toUpperCase() })} 
-                                                    className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE] bg-[#fffceb] font-bold text-slate-900" 
+                                                    className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE] bg-[#fffceb] font-medium text-slate-900" 
                                                 />
                                             </div>
 
                                             <div className="grid grid-cols-2 gap-x-8 gap-y-3">
                                                 <div className="flex items-center gap-4">
-                                                    <label className="w-24 text-[11px] font-bold text-slate-600 uppercase">Teléfono</label>
+                                                    <label className="w-24 text-[11px] font-medium text-slate-600 uppercase">Teléfono</label>
                                                     <input value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE] text-slate-900" />
                                                 </div>
                                                 <div className="flex items-center gap-4">
-                                                    <label className="w-16 text-[11px] font-bold text-slate-600 uppercase text-right">Correo</label>
+                                                    <label className="w-16 text-[11px] font-medium text-slate-600 uppercase text-right">Correo</label>
                                                     <input value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value.toLowerCase() })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE] text-slate-900" />
                                                 </div>
                                                 
                                                 <div className="flex items-center gap-4">
-                                                    <label className="w-24 text-[11px] font-bold text-slate-600 uppercase">Contacto</label>
+                                                    <label className="w-24 text-[11px] font-medium text-slate-600 uppercase">Contacto</label>
                                                     <input value={formData.contact_name} onChange={e => setFormData({ ...formData, contact_name: e.target.value.toUpperCase() })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE] text-slate-900" />
                                                 </div>
                                                 <div className="h-7" />
 
                                                 <div className="flex items-center gap-4">
-                                                    <label className="w-24 text-[11px] font-bold text-slate-600 uppercase whitespace-nowrap">Tel. Contacto</label>
+                                                    <label className="w-24 text-[11px] font-medium text-slate-600 uppercase whitespace-nowrap">Tel. Contacto</label>
                                                     <input value={formData.contact_phone} onChange={e => setFormData({ ...formData, contact_phone: e.target.value })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE] text-slate-900" />
                                                 </div>
                                                 <div className="flex items-center gap-4">
-                                                    <label className="w-16 text-[11px] font-bold text-slate-600 uppercase text-right">Correo</label>
+                                                    <label className="w-16 text-[11px] font-medium text-slate-600 uppercase text-right">Correo</label>
                                                     <input value={formData.contact_email} onChange={e => setFormData({ ...formData, contact_email: e.target.value.toLowerCase() })} className="flex-1 h-7 border border-gray-400 px-2 text-[11px] outline-none focus:border-[#106EBE] text-slate-900" />
                                                 </div>
                                             </div>
@@ -357,15 +357,15 @@ export const SuppliersAdmin: React.FC = () => {
 
                                     {/* Sucursales */}
                                     <fieldset className="border border-gray-400 p-0 pt-5 relative bg-white/50">
-                                        <legend className="absolute -top-3 left-3 bg-[#f0f0f0] px-2 text-[11px] font-bold text-[#106EBE] uppercase">Sucursales</legend>
+                                        <legend className="absolute -top-3 left-3 bg-[#f0f0f0] px-2 text-[11px] font-medium text-[#106EBE] uppercase">Sucursales</legend>
                                         
                                         <div className="max-h-[250px] overflow-y-auto custom-scrollbar">
                                             <table className="w-full text-left border-collapse">
                                                 <thead className="bg-[#e8e8e8] sticky top-0 border-b border-gray-400 z-10">
                                                     <tr>
-                                                        <th className="px-4 py-1.5 text-[10px] font-bold text-slate-700 uppercase border-r border-gray-300">Sucursal</th>
-                                                        <th className="w-24 px-2 py-1.5 text-center text-[10px] font-bold text-slate-700 uppercase border-r border-gray-300">Habilitado</th>
-                                                        <th className="w-40 px-2 py-1.5 text-center text-[10px] font-bold text-slate-700 uppercase">Asignado a Sucursal</th>
+                                                        <th className="px-4 py-1.5 text-[10px] font-medium text-slate-700 uppercase border-r border-gray-300">Sucursal</th>
+                                                        <th className="w-24 px-2 py-1.5 text-center text-[10px] font-medium text-slate-700 uppercase border-r border-gray-300">Habilitado</th>
+                                                        <th className="w-40 px-2 py-1.5 text-center text-[10px] font-medium text-slate-700 uppercase">Asignado a Sucursal</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -399,10 +399,10 @@ export const SuppliersAdmin: React.FC = () => {
 
                                 {/* Status Bar del Modal */}
                                 <div className="h-6 px-3 bg-[#e8e8e8] border-t border-gray-300 flex items-center justify-between shrink-0">
-                                    <span className="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                                    <span className="text-[9px] font-medium text-slate-500 uppercase flex items-center gap-1">
                                         <Info size={10} /> {editingId ? 'Editando registro' : 'Nuevo Proveedor'}
                                     </span>
-                                    <span className="text-[9px] font-bold text-[#106EBE] uppercase tracking-[0.2em]">SISTEMA POS v2.0</span>
+                                    <span className="text-[9px] font-medium text-[#106EBE] uppercase tracking-[0.2em]">SISTEMA POS v2.0</span>
                                 </div>
                             </div>
                         </DraggableWindow>
@@ -427,7 +427,7 @@ export const SuppliersAdmin: React.FC = () => {
                         style={{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }}
                     >
                         {can('Nuevo') && (
-                        <button onClick={() => { resetForm(); setShowModal(true); setContextMenu(null); }} className="w-full text-left px-3 py-1.5 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors">
+                        <button onClick={() => { resetForm(); setShowModal(true); setContextMenu(null); }} className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors">
                             <Plus size={14} className="text-emerald-600" /> Nuevo Proveedor
                         </button>
                         )}
@@ -435,19 +435,19 @@ export const SuppliersAdmin: React.FC = () => {
                         {contextMenu.supplier && (
                             <>
                                 {can('Editar') && (
-                                <button onClick={() => { handleEdit(contextMenu.supplier); setContextMenu(null); }} className="w-full text-left px-3 py-1.5 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors">
+                                <button onClick={() => { handleEdit(contextMenu.supplier); setContextMenu(null); }} className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors">
                                     <Edit3 size={14} className="text-[#106ebe]" /> Editar
                                 </button>
                                 )}
                                 {can('Eliminar') && (
-                                <button onClick={() => { setConfirmDelete(contextMenu.supplier.id); setContextMenu(null); }} className="w-full text-left px-3 py-1.5 text-[11px] font-bold text-red-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors">
+                                <button onClick={() => { setConfirmDelete(contextMenu.supplier.id); setContextMenu(null); }} className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-red-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors">
                                     <Trash2 size={14} className="text-red-500" /> Eliminar
                                 </button>
                                 )}
                                 <div className="h-px bg-gray-100 my-1"></div>
                             </>
                         )}
-                        <button onClick={() => { fetchSuppliers(); setContextMenu(null); }} className="w-full text-left px-3 py-1.5 text-[11px] font-bold text-gray-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors">
+                        <button onClick={() => { fetchSuppliers(); setContextMenu(null); }} className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-gray-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors">
                             <RefreshCw size={14} className="text-gray-400" /> Refrescar Lista
                         </button>
                     </div>,
@@ -464,10 +464,10 @@ export const SuppliersAdmin: React.FC = () => {
         );
     } catch (renderError: any) {
         return (
-            <div className="p-10 bg-red-50 text-red-700 font-bold border-2 border-red-500 rounded-lg">
-                <h1 className="text-xl mb-4 text-red-900 font-black">FALLO DE RENDERIZADO</h1>
+            <div className="p-10 bg-red-50 text-red-700 font-medium border-2 border-red-500 rounded-lg">
+                <h1 className="text-xl mb-4 text-red-900 font-semibold">FALLO DE RENDERIZADO</h1>
                 <code className="block bg-white p-4 text-sm whitespace-pre-wrap">{renderError.message}</code>
-                <button onClick={() => window.location.reload()} className="mt-4 bg-red-600 text-white px-4 py-2 font-bold uppercase rounded">Reiniciar</button>
+                <button onClick={() => window.location.reload()} className="mt-4 bg-red-600 text-white px-4 py-2 font-medium uppercase rounded">Reiniciar</button>
             </div>
         );
     }

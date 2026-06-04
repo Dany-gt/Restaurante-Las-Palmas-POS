@@ -162,11 +162,11 @@ export const InventoryProduction: React.FC = () => {
                 {/* Branch Selection Bar */}
                 <div className="bg-[#f0f0f0] border-b border-gray-300 px-1 py-1.5 flex items-center">
                     <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white border border-gray-300 rounded-sm">
-                        <span className="text-[10px] font-bold text-slate-800 tracking-tight">Sucursal</span>
+                        <span className="text-[10px] font-medium text-slate-800 tracking-tight">Sucursal</span>
                         <select
                             value={selectedBranch}
                             onChange={e => setSelectedBranch(e.target.value)}
-                            className="bg-transparent outline-none text-[10px] font-bold text-slate-700 min-w-[250px] cursor-pointer"
+                            className="bg-transparent outline-none text-[10px] font-medium text-slate-700 min-w-[250px] cursor-pointer"
                         >
                             {branches.map(b => (
                                 <option key={b.id} value={b.id}>{b.name}</option>
@@ -180,39 +180,39 @@ export const InventoryProduction: React.FC = () => {
                     <div className="flex items-center gap-1">
                         {/* Title group */}
                         <div className="px-3 py-0.5 bg-[#e0e0e0] border border-gray-300 rounded-sm mr-2 shadow-[inset_0_1px_0_#fff]">
-                            <span className="text-[11px] font-bold text-slate-700">Fechas</span>
+                            <span className="text-[11px] font-medium text-slate-700">Fechas</span>
                         </div>
 
                         <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white border border-gray-300 rounded-sm">
-                            <span className="text-[10px] font-bold text-slate-800 tracking-tight">Del:</span>
+                            <span className="text-[10px] font-medium text-slate-800 tracking-tight">Del:</span>
                             <input
                                 type="date"
                                 value={fromDate}
                                 onChange={(e) => setFromDate(e.target.value)}
-                                className="bg-transparent outline-none text-[10px] font-bold text-slate-700 cursor-pointer"
+                                className="bg-transparent outline-none text-[10px] font-medium text-slate-700 cursor-pointer"
                             />
                         </div>
 
                         <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white border border-gray-300 rounded-sm">
-                            <span className="text-[10px] font-bold text-slate-800 tracking-tight">Al:</span>
+                            <span className="text-[10px] font-medium text-slate-800 tracking-tight">Al:</span>
                             <input
                                 type="date"
                                 value={toDate}
                                 onChange={(e) => setToDate(e.target.value)}
-                                className="bg-transparent outline-none text-[10px] font-bold text-slate-700 cursor-pointer"
+                                className="bg-transparent outline-none text-[10px] font-medium text-slate-700 cursor-pointer"
                             />
                         </div>
 
                         <button
                             onClick={fetchOrders}
-                            className="ml-2 bg-white border border-gray-400 px-8 py-0.5 text-[10px] font-bold text-slate-700 hover:bg-slate-50 shadow-sm active:scale-95 transition-all outline-none focus:ring-1 focus:ring-blue-400"
+                            className="ml-2 bg-white border border-gray-400 px-8 py-0.5 text-[10px] font-medium text-slate-700 hover:bg-slate-50 shadow-sm active:scale-95 transition-all outline-none focus:ring-1 focus:ring-blue-400"
                         >
                             Generar
                         </button>
 
                         <button
                             onClick={handleExportExcel}
-                            className="ml-4 bg-white border border-gray-300 px-4 py-0.5 text-[10px] font-bold text-slate-700 hover:bg-slate-50 shadow-sm"
+                            className="ml-4 bg-white border border-gray-300 px-4 py-0.5 text-[10px] font-medium text-slate-700 hover:bg-slate-50 shadow-sm"
                         >
                             Imprimir / Exportar
                         </button>
@@ -235,10 +235,10 @@ export const InventoryProduction: React.FC = () => {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="bg-white border border-gray-400 px-2 py-0.5 text-[11px] font-bold text-slate-700 w-64 outline-none focus:border-blue-500"
+                        className="bg-white border border-gray-400 px-2 py-0.5 text-[11px] font-medium text-slate-700 w-64 outline-none focus:border-blue-500"
                         placeholder="Introduzca el texto a buscar..."
                     />
-                    <button className="bg-white border border-gray-400 px-4 py-0.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 transition-colors">Buscar</button>
+                    <button className="bg-white border border-gray-400 px-4 py-0.5 text-[11px] font-medium text-slate-700 hover:bg-slate-50 transition-colors">Buscar</button>
                 </div>
             </div>
 
@@ -250,13 +250,13 @@ export const InventoryProduction: React.FC = () => {
                 <table className="w-full text-left border-collapse select-none min-w-[1000px]">
                     <thead className="sticky top-0 bg-[#e8e8e8] border-b border-gray-400 z-30 shadow-sm">
                         <tr className="h-9">
-                            <th className="px-3 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300 text-center w-32">Fecha</th>
-                            <th className="px-3 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300">No. / Código</th>
-                            <th className="px-3 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300 w-[20%]">Producto Producido</th>
-                            <th className="px-3 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300">Creado Por</th>
-                            <th className="px-3 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300 text-center w-32">Total Costo</th>
-                            <th className="px-3 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300 text-center w-32 text-nowrap">Procesado</th>
-                            <th className="px-3 text-[11px] font-bold text-slate-700 uppercase text-center w-32 text-nowrap">Anulado</th>
+                            <th className="px-3 text-[11px] font-medium text-slate-700 uppercase border-r border-gray-300 text-center w-32">Fecha</th>
+                            <th className="px-3 text-[11px] font-medium text-slate-700 uppercase border-r border-gray-300">No. / Código</th>
+                            <th className="px-3 text-[11px] font-medium text-slate-700 uppercase border-r border-gray-300 w-[20%]">Producto Producido</th>
+                            <th className="px-3 text-[11px] font-medium text-slate-700 uppercase border-r border-gray-300">Creado Por</th>
+                            <th className="px-3 text-[11px] font-medium text-slate-700 uppercase border-r border-gray-300 text-center w-32">Total Costo</th>
+                            <th className="px-3 text-[11px] font-medium text-slate-700 uppercase border-r border-gray-300 text-center w-32 text-nowrap">Procesado</th>
+                            <th className="px-3 text-[11px] font-medium text-slate-700 uppercase text-center w-32 text-nowrap">Anulado</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -267,7 +267,7 @@ export const InventoryProduction: React.FC = () => {
                                     className="py-20 text-center bg-white border-b border-gray-100"
                                     onContextMenu={(e) => handleContextMenu(e, null)}
                                 >
-                                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-loose">No hay datos para mostrar</span>
+                                    <span className="text-[11px] font-medium text-slate-400 uppercase tracking-widest leading-loose">No hay datos para mostrar</span>
                                 </td>
                             </tr>
                         ) : (
@@ -284,9 +284,9 @@ export const InventoryProduction: React.FC = () => {
                                         ${selectedOrderId === order.id ? 'bg-[#cce5ff]' : (idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]')} 
                                         hover:bg-[#f2f7fb]`}
                                 >
-                                    <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-700 text-center">{order.date}</td>
-                                    <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-900 uppercase">{order.code}</td>
-                                    <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-900 uppercase">
+                                    <td className="px-3 border-r border-gray-200 text-[10px] font-medium text-slate-700 text-center">{order.date}</td>
+                                    <td className="px-3 border-r border-gray-200 text-[10px] font-medium text-slate-900 uppercase">{order.code}</td>
+                                    <td className="px-3 border-r border-gray-200 text-[10px] font-medium text-slate-900 uppercase">
                                         {order.produced_item_name ? (
                                             <div className="flex flex-col leading-tight">
                                                 <span>{order.produced_item_name}</span>
@@ -298,8 +298,8 @@ export const InventoryProduction: React.FC = () => {
                                             <span className="text-gray-400 italic text-[9px]">No especificado</span>
                                         )}
                                     </td>
-                                    <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-700 uppercase">{order.created_by}</td>
-                                    <td className="px-3 border-r border-gray-200 text-[11px] font-bold text-[#106ebe] text-center tabular-nums">Q{(order.total_cost || 0).toFixed(2)}</td>
+                                    <td className="px-3 border-r border-gray-200 text-[10px] font-medium text-slate-700 uppercase">{order.created_by}</td>
+                                    <td className="px-3 border-r border-gray-200 text-[11px] font-medium text-[#106ebe] text-center tabular-nums">Q{(order.total_cost || 0).toFixed(2)}</td>
                                     <td className="px-3 border-r border-gray-200 text-center">
                                         <div className="w-4 h-4 border border-gray-400 mx-auto flex items-center justify-center bg-white">
                                             {order.processed && <Check size={12} className="text-blue-600" strokeWidth={4} />}
@@ -319,9 +319,9 @@ export const InventoryProduction: React.FC = () => {
 
             {/* Bottom Status Bar - Summary */}
             <div className="bg-[#f0f0f0] border-t border-gray-300 px-4 py-1.5 flex items-center justify-between shrink-0">
-                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">TOTAL ÓRDENES: {orders.length}</span>
+                <span className="text-[10px] font-medium text-slate-600 uppercase tracking-wider">TOTAL ÓRDENES: {orders.length}</span>
                 <div className="flex gap-10">
-                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">MODO VISUALIZACIÓN: GRILLA ERP</span>
+                    <span className="text-[10px] font-medium text-slate-600 uppercase tracking-wider">MODO VISUALIZACIÓN: GRILLA ERP</span>
                 </div>
             </div>
 
@@ -341,7 +341,7 @@ export const InventoryProduction: React.FC = () => {
                             setIsModalOpen(true);
                             setContextMenu(null);
                         }}
-                        className="w-full px-3 py-1.5 text-[11px] font-bold text-slate-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-2 transition-colors uppercase border-b border-gray-200 last:border-0 text-left group"
+                        className="w-full px-3 py-1.5 text-[11px] font-medium text-slate-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-2 transition-colors uppercase border-b border-gray-200 last:border-0 text-left group"
                     >
                         <Plus size={14} className="text-[#106ebe] group-hover:text-white" />
                         Nuevo
@@ -358,7 +358,7 @@ export const InventoryProduction: React.FC = () => {
                             }
                             setContextMenu(null);
                         }}
-                        className={`w-full px-3 py-1.5 text-[11px] font-bold flex items-center gap-2 transition-colors uppercase border-b border-gray-200 last:border-0 text-left group
+                        className={`w-full px-3 py-1.5 text-[11px] font-medium flex items-center gap-2 transition-colors uppercase border-b border-gray-200 last:border-0 text-left group
                             ${(contextMenu.row || selectedOrderId) ? 'text-slate-800 hover:bg-[#106ebe] hover:text-white' : 'text-slate-400 cursor-not-allowed'}`}
                     >
                         <ClipboardList size={14} className={(contextMenu.row || selectedOrderId) ? 'text-[#106ebe] group-hover:text-white' : 'text-slate-300'} />

@@ -315,15 +315,15 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                     <div className="w-24 h-24 bg-white/10 flex items-center justify-center mb-6 text-white">
                         <Check size={48} />
                     </div>
-                    <h2 className="text-3xl font-black uppercase tracking-tighter text-white mb-2">Factura Generada</h2>
-                    <p className="text-white/40 font-bold uppercase tracking-widest text-[10px] mb-8">El proceso se completó correctamente</p>
+                    <h2 className="text-3xl font-semibold uppercase tracking-tighter text-white mb-2">Factura Generada</h2>
+                    <p className="text-white/40 font-medium uppercase tracking-widest text-[10px] mb-8">El proceso se completó correctamente</p>
 
                     {pdfUrl && (
                         <a
                             href={pdfUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full py-5 bg-indigo-600 text-white font-black uppercase tracking-[0.2em] text-xs  transition-all flex items-center justify-center gap-3 mb-4 active:scale-95 hover:bg-indigo-500"
+                            className="w-full py-5 bg-indigo-600 text-white font-semibold uppercase tracking-[0.2em] text-xs  transition-all flex items-center justify-center gap-3 mb-4 active:scale-95 hover:bg-indigo-500"
                         >
                             <ExternalLink size={20} /> Ver Factura (PDF)
                         </a>
@@ -331,14 +331,14 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 
                     <button
                         onClick={handleWhatsApp}
-                        className="w-full py-5 bg-white/10 text-white font-black uppercase tracking-[0.2em] text-xs  transition-all flex items-center justify-center gap-3 mb-4 active:scale-95 hover:bg-white/20"
+                        className="w-full py-5 bg-white/10 text-white font-semibold uppercase tracking-[0.2em] text-xs  transition-all flex items-center justify-center gap-3 mb-4 active:scale-95 hover:bg-white/20"
                     >
                         <Smartphone size={20} /> Enviar WhatsApp
                     </button>
 
                     <button
                         onClick={onClose}
-                        className="w-full py-5 bg-white/5 text-white font-black uppercase tracking-[0.2em] text-xs border border-white/10 transition-all active:scale-95 hover:bg-white/10"
+                        className="w-full py-5 bg-white/5 text-white font-semibold uppercase tracking-[0.2em] text-xs border border-white/10 transition-all active:scale-95 hover:bg-white/10"
                     >
                         Finalizar
                     </button>
@@ -362,7 +362,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 
                 {/* Header */}
                 <div className="bg-white/5 border-b border-white/5 p-6 flex justify-center items-center">
-                    <h2 className="text-sm font-black text-white uppercase tracking-[0.3em]">DATOS FACTURACIÓN</h2>
+                    <h2 className="text-sm font-semibold text-white uppercase tracking-[0.3em]">DATOS FACTURACIÓN</h2>
                 </div>
 
                 <div className="flex flex-col md:flex-row px-5 py-3 gap-5 bg-[#1f2333] flex-1 overflow-hidden">
@@ -408,7 +408,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 value={customer.name}
                                 onFocus={() => setActiveInput('name')}
                                 onChange={handleChange}
-                                className="flex-1 bg-transparent px-3 text-[10px] font-bold outline-none text-white placeholder:text-gray-600 tracking-tight caret-transparent"
+                                className="flex-1 bg-transparent px-3 text-[10px] font-medium outline-none text-white placeholder:text-gray-600 tracking-tight caret-transparent"
                                 placeholder="NOMBRE DEL CLIENTE"
                                 data-no-keyboard
                             />
@@ -424,7 +424,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 value={customer.address}
                                 onFocus={() => setActiveInput('address')}
                                 onChange={handleChange}
-                                className="flex-1 bg-transparent px-3 text-[10px] font-bold outline-none text-white placeholder:text-gray-600 tracking-tight caret-transparent"
+                                className="flex-1 bg-transparent px-3 text-[10px] font-medium outline-none text-white placeholder:text-gray-600 tracking-tight caret-transparent"
                                 placeholder="DIRECCIÓN"
                                 data-no-keyboard
                             />
@@ -450,7 +450,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                         <div className="flex gap-2 mt-1">
                             <button 
                                 onClick={handleContingency} 
-                                className={`h-9 px-2 border text-[10px] font-bold uppercase tracking-wider transition-all flex-1 ${
+                                className={`h-9 px-2 border text-[10px] font-medium uppercase tracking-wider transition-all flex-1 ${
                                     customer.is_contingency
                                         ? 'bg-orange-600 border-orange-400 text-white '
                                         : 'bg-[#181b25] border-gray-700 text-gray-400 hover:bg-[#252a36] hover:text-white'
@@ -460,7 +460,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                             </button>
                             <button 
                                 onClick={handlePorConsumo} 
-                                className={`h-9 px-2 border text-[10px] font-bold uppercase tracking-wider transition-all flex-1 ${
+                                className={`h-9 px-2 border text-[10px] font-medium uppercase tracking-wider transition-all flex-1 ${
                                     customer.is_por_consumo
                                         ? 'bg-indigo-600 border-indigo-400 text-white '
                                         : 'bg-[#181b25] border-gray-700 text-gray-400 hover:bg-[#252a36] hover:text-white'
@@ -470,7 +470,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                             </button>
                             <button 
                                 onClick={handlePorAlmuerzo} 
-                                className={`h-9 px-2 border text-[10px] font-bold uppercase tracking-wider transition-all flex-1 ${
+                                className={`h-9 px-2 border text-[10px] font-medium uppercase tracking-wider transition-all flex-1 ${
                                     customer.is_por_almuerzo
                                         ? 'bg-indigo-600 border-indigo-400 text-white '
                                         : 'bg-[#181b25] border-gray-700 text-gray-400 hover:bg-[#252a36] hover:text-white'
@@ -488,12 +488,12 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                         {/* Display - Small - STRICTLY NIT */}
                         <div className="bg-black/40 border border-white/5 text-center h-12 flex flex-col justify-center px-4 mb-3 relative overflow-hidden">
                             {activeInput === 'nit' && keypadNit && (
-                                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-0.5">
+                                <span className="text-[10px] font-semibold text-white/20 uppercase tracking-widest mb-0.5">
                                     INGRESANDO NIT...
                                 </span>
                             )}
                             <div className="flex justify-center items-center overflow-hidden">
-                                <span className="text-2xl font-bold text-white truncate tracking-wide">
+                                <span className="text-2xl font-medium text-white truncate tracking-wide">
                                     {activeInput === 'nit' ? keypadNit : ''}
                                     <span className="animate-fast-blink text-white/40 font-light ml-0.5">|</span>
                                 </span>
@@ -504,7 +504,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                             {/* Num Pad */}
                             {/* Row 1 */}
                             {['7', '8', '9'].map(num => (
-                                <button key={num} onClick={() => handleKeypadClick(num)} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all  border border-gray-700/30">
+                                <button key={num} onClick={() => handleKeypadClick(num)} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-medium text-white transition-all  border border-gray-700/30">
                                     {num}
                                 </button>
                             ))}
@@ -515,14 +515,14 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 
                             {/* Row 2 */}
                             {['4', '5', '6'].map(num => (
-                                <button key={num} onClick={() => handleKeypadClick(num)} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all  border border-gray-700/30">
+                                <button key={num} onClick={() => handleKeypadClick(num)} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-medium text-white transition-all  border border-gray-700/30">
                                     {num}
                                 </button>
                             ))}
 
                             {/* Row 3 */}
                             {['1', '2', '3'].map(num => (
-                                <button key={num} onClick={() => handleKeypadClick(num)} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all  border border-gray-700/30">
+                                <button key={num} onClick={() => handleKeypadClick(num)} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-medium text-white transition-all  border border-gray-700/30">
                                     {num}
                                 </button>
                             ))}
@@ -531,7 +531,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                             <button
                                 onClick={() => handleNitLookup(keypadNit)}
                                 disabled={!keypadNit || loading}
-                                className="row-span-2 h-full bg-white text-black hover:bg-white/90 disabled:opacity-50 disabled:bg-white/10 disabled:text-white/20 font-black  transition-all flex items-center justify-center active:scale-95"
+                                className="row-span-2 h-full bg-white text-black hover:bg-white/90 disabled:opacity-50 disabled:bg-white/10 disabled:text-white/20 font-semibold  transition-all flex items-center justify-center active:scale-95"
                                 title="Buscar NIT"
                             >
                                 {loading ? (
@@ -541,10 +541,10 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 )}
                             </button>
 
-                            <button onClick={() => handleKeypadClick('0')} className="col-span-2 h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all  border border-gray-700/30">
+                            <button onClick={() => handleKeypadClick('0')} className="col-span-2 h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-medium text-white transition-all  border border-gray-700/30">
                                 0
                             </button>
-                            <button onClick={() => handleKeypadClick('K')} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-bold text-white transition-all  border border-gray-700/30">
+                            <button onClick={() => handleKeypadClick('K')} className="h-14 bg-[#232836] hover:bg-[#2d3345] active:bg-[#384055] text-lg font-medium text-white transition-all  border border-gray-700/30">
                                 K
                             </button>
                         </div>
@@ -556,14 +556,14 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                 <div className="px-5 py-3 bg-white/5 border-t border-white/5 flex gap-4 justify-end shrink-0">
                     <button
                         onClick={onClose}
-                        className="px-8 h-10 border border-white/10 text-white/40 font-black uppercase hover:bg-white/5 active:scale-95 transition-all text-xs tracking-[0.2em]"
+                        className="px-8 h-10 border border-white/10 text-white/40 font-semibold uppercase hover:bg-white/5 active:scale-95 transition-all text-xs tracking-[0.2em]"
                     >
                         CANCELAR
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={loading || (!!customer.nit && customer.nit !== 'CF' && !customer.name)}
-                        className="px-10 h-10 bg-white text-black font-black uppercase  transition-all active:scale-95 text-xs tracking-[0.2em] flex items-center gap-2 disabled:opacity-50 disabled:bg-white/10 disabled:text-white/20"
+                        className="px-10 h-10 bg-white text-black font-semibold uppercase  transition-all active:scale-95 text-xs tracking-[0.2em] flex items-center gap-2 disabled:opacity-50 disabled:bg-white/10 disabled:text-white/20"
                     >
                         {!loading ? <CheckCircle size={18} /> : <Loader2 className="animate-spin" size={18} />}
                         {loading ? 'PROCESANDO' : 'ACEPTAR'}

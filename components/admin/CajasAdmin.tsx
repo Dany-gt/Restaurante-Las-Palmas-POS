@@ -198,9 +198,9 @@ export const CajasAdmin: React.FC = () => {
                     <table className="w-full border-collapse text-[11px]">
                         <thead className="bg-[#e8e8e8] sticky top-0 z-10 select-none">
                             <tr className="border-b border-gray-400 h-8">
-                                <th className="px-4 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[40%]">Caja</th>
-                                <th className="px-4 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[40%]">Punto de Impresión</th>
-                                <th className="px-4 text-center text-[10px] font-bold text-black uppercase w-[20%]">Habilitado</th>
+                                <th className="px-4 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[40%]">Caja</th>
+                                <th className="px-4 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[40%]">Punto de Impresión</th>
+                                <th className="px-4 text-center text-[10px] font-medium text-black uppercase w-[20%]">Habilitado</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 bg-white">
@@ -225,13 +225,13 @@ export const CajasAdmin: React.FC = () => {
                                     <td className="px-4 border-r border-gray-100">
                                         <div className="flex items-center gap-2">
                                             <Wallet size={12} className={selectedCajaId === c.id ? 'text-white' : 'text-slate-400'} />
-                                            <span className="font-bold uppercase tracking-tight text-[10px]">{c.name}</span>
+                                            <span className="font-medium uppercase tracking-tight text-[10px]">{c.name}</span>
                                         </div>
                                     </td>
                                     <td className="px-4 border-r border-gray-100">
                                         <div className="flex items-center gap-2">
                                             <Printer size={12} className={selectedCajaId === c.id ? 'text-white' : 'text-slate-400'} />
-                                            <span className="font-bold uppercase tracking-tight text-[10px]">{c.printer_name || 'CAJA'}</span>
+                                            <span className="font-medium uppercase tracking-tight text-[10px]">{c.printer_name || 'CAJA'}</span>
                                         </div>
                                     </td>
                                     <td className="px-4">
@@ -256,7 +256,7 @@ export const CajasAdmin: React.FC = () => {
                 >
                     <button
                         onClick={() => { setEditingCaja(null); setFormData(defaultFormData); setShowModal(true); setContextMenu(null); }}
-                        className="w-full text-left px-3 py-1.5 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                        className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
                     >
                         <Plus size={14} className="text-emerald-600 group-hover:text-white" /> Nuevo Registro
                     </button>
@@ -265,14 +265,14 @@ export const CajasAdmin: React.FC = () => {
                         <>
                             <button
                                 onClick={() => { openEdit(contextMenu.caja); setContextMenu(null); }}
-                                className="w-full text-left px-3 py-1.5 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
                             >
                                 <Edit3 size={14} className="text-[#106ebe] group-hover:text-white" /> Editar Configuración
                             </button>
                             <div className="h-px bg-gray-100 my-1"></div>
                             <button
                                 onClick={() => { setConfirmDelete(contextMenu.caja.id); setContextMenu(null); }}
-                                className="w-full text-left px-3 py-1.5 text-[11px] font-bold text-red-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-red-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
                             >
                                 <Trash2 size={14} className="text-red-500 group-hover:text-white" /> Eliminar Registro
                             </button>
@@ -281,7 +281,7 @@ export const CajasAdmin: React.FC = () => {
                     )}
                     <button
                         onClick={() => { fetchData(); setContextMenu(null); }}
-                        className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                        className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
                     >
                         <RefreshCw size={14} className="text-gray-400 group-hover:text-white" /> Refrescar
                     </button>
@@ -297,7 +297,7 @@ export const CajasAdmin: React.FC = () => {
                             {/* Header del Modal */}
                             <div className="bg-[#106ebe] h-8 flex items-center justify-between px-3 shrink-0 modal-header cursor-default select-none">
                                 <div className="flex items-center gap-2 pointer-events-none select-none">
-                                    <span className="text-white text-[11px] font-bold">Mantenimiento de Cajas</span>
+                                    <span className="text-white text-[11px] font-medium">Mantenimiento de Cajas</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <WindowsSaveButton onClick={handleSave} loading={isSaving} title="Guardar Caja" variant="minimal" />
@@ -311,7 +311,7 @@ export const CajasAdmin: React.FC = () => {
                                 {/* Sección Datos de Caja */}
                                 <div className="bg-white border border-gray-300 shadow-sm">
                                     <div className="bg-[#cbd5e1] px-3 py-1 border-b border-gray-300">
-                                        <span className="text-[11px] font-bold text-[#106ebe] uppercase tracking-tighter">Datos de Caja</span>
+                                        <span className="text-[11px] font-medium text-[#106ebe] uppercase tracking-tighter">Datos de Caja</span>
                                     </div>
                                     <div className="p-4 space-y-2">
                                         <div className="grid grid-cols-[100px_1fr] items-center gap-4">
@@ -360,7 +360,7 @@ export const CajasAdmin: React.FC = () => {
                                 {/* Sección Lector de Huella */}
                                 <div className="bg-white border border-gray-300 shadow-sm">
                                     <div className="bg-[#cbd5e1] px-3 py-1 border-b border-gray-300">
-                                        <span className="text-[11px] font-bold text-[#106ebe] uppercase tracking-tighter">Lector de Huella</span>
+                                        <span className="text-[11px] font-medium text-[#106ebe] uppercase tracking-tighter">Lector de Huella</span>
                                     </div>
                                     <div className="p-4 space-y-2">
                                         <div className="flex items-center gap-2 mb-2">
@@ -384,7 +384,7 @@ export const CajasAdmin: React.FC = () => {
                                                     type="text"
                                                     className="erp-input-field bg-gray-50"
                                                 />
-                                                <button className="h-6 bg-[#0066cc] hover:bg-[#004499] text-white text-[10px] font-bold uppercase rounded shadow-sm transition-all focus:ring-2 focus:ring-blue-500/20 active:scale-95 disabled:opacity-50">
+                                                <button className="h-6 bg-[#0066cc] hover:bg-[#004499] text-white text-[10px] font-medium uppercase rounded shadow-sm transition-all focus:ring-2 focus:ring-blue-500/20 active:scale-95 disabled:opacity-50">
                                                     Obtener MAC
                                                 </button>
                                             </div>

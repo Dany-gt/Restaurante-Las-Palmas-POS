@@ -210,11 +210,11 @@ export const DashboardDishes: React.FC = () => {
                             <div className="border-b border-slate-200">
                                 <div className="p-3 space-y-2">
                                     <div className="space-y-1">
-                                        <label className="text-[9px] text-slate-500 font-bold block px-1">Sucursal</label>
+                                        <label className="text-[9px] text-slate-500 font-medium block px-1">Sucursal</label>
                                         <select
                                             value={selectedBranch}
                                             onChange={e => setSelectedBranch(e.target.value)}
-                                            className="w-full h-8 bg-white border border-slate-200 rounded px-2 text-[10px] uppercase font-bold text-slate-700 outline-none"
+                                            className="w-full h-8 bg-white border border-slate-200 rounded px-2 text-[10px] uppercase font-medium text-slate-700 outline-none"
                                         >
                                             <option value="ALL">TODAS</option>
                                             {branches.map(b => (
@@ -223,14 +223,14 @@ export const DashboardDishes: React.FC = () => {
                                         </select>
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[9px] text-slate-500 font-bold block px-1">Del:</label>
+                                        <label className="text-[9px] text-slate-500 font-medium block px-1">Del:</label>
                                         <div className="flex gap-1">
                                             <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full h-8 bg-white border border-slate-200 rounded px-2 text-[10px] outline-none" />
                                             <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="w-16 h-8 bg-white border border-slate-200 rounded px-1 text-[10px] outline-none" />
                                         </div>
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[9px] text-slate-500 font-bold block px-1">Al:</label>
+                                        <label className="text-[9px] text-slate-500 font-medium block px-1">Al:</label>
                                         <div className="flex gap-1">
                                             <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full h-8 bg-white border border-slate-200 rounded px-2 text-[10px] outline-none" />
                                             <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="w-16 h-8 bg-white border border-slate-200 rounded px-1 text-[10px] outline-none" />
@@ -244,7 +244,7 @@ export const DashboardDishes: React.FC = () => {
                             <button
                                 onClick={handleGenerate}
                                 disabled={loading}
-                                className="w-full py-2.5 bg-[#106ebe] hover:bg-[#0f172a] text-white rounded font-black text-[10px] uppercase tracking-widest transition-all shadow-sm active:scale-[0.98] flex items-center justify-center gap-2"
+                                className="w-full py-2.5 bg-[#106ebe] hover:bg-[#0f172a] text-white rounded font-semibold text-[10px] uppercase tracking-widest transition-all shadow-sm active:scale-[0.98] flex items-center justify-center gap-2"
                             >
                                 {loading && <Activity size={12} className="animate-spin" />}
                                 Sincronizar Datos
@@ -258,7 +258,7 @@ export const DashboardDishes: React.FC = () => {
             <div className="flex-1 flex flex-col overflow-hidden relative bg-[#f1f3f6]">
                 {/* Header */}
                 <div className="bg-white border-b border-slate-200 px-6 py-4 shrink-0 flex items-center justify-between shadow-sm z-10">
-                    <h1 className="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                    <h1 className="text-sm font-semibold text-slate-800 uppercase tracking-widest flex items-center gap-2">
                         <Utensils size={16} className="text-indigo-600" />
                         Análisis Ventas Platillos
                     </h1>
@@ -269,7 +269,7 @@ export const DashboardDishes: React.FC = () => {
                         <button
                             key={t.id}
                             onClick={() => setActiveTab(t.id)}
-                            className={`px-4 py-2 rounded-full font-black text-[10px] uppercase tracking-wider transition-all flex items-center gap-2 whitespace-nowrap border ${activeTab === t.id
+                            className={`px-4 py-2 rounded-full font-semibold text-[10px] uppercase tracking-wider transition-all flex items-center gap-2 whitespace-nowrap border ${activeTab === t.id
                                 ? 'bg-indigo-50 border-indigo-200 text-indigo-700 shadow-inner'
                                 : 'bg-white border-transparent text-slate-500 hover:bg-slate-50'
                                 }`}
@@ -285,21 +285,21 @@ export const DashboardDishes: React.FC = () => {
                     {loading ? (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm z-50">
                             <Activity size={32} className="text-indigo-500 animate-spin mb-4" />
-                            <p className="font-bold text-slate-500 uppercase tracking-widest text-xs">Calculando estadísticas...</p>
+                            <p className="font-medium text-slate-500 uppercase tracking-widest text-xs">Calculando estadísticas...</p>
                         </div>
                     ) : fetchError ? (
                         <div className="h-full flex flex-col items-center justify-center text-red-500 max-w-xl mx-auto text-center px-6">
                             <Activity size={48} className="mb-4 opacity-50 text-red-500" />
-                            <p className="font-black uppercase tracking-widest text-sm mb-2">Error obteniendo datos desde SQL:</p>
+                            <p className="font-semibold uppercase tracking-widest text-sm mb-2">Error obteniendo datos desde SQL:</p>
                             <p className="font-mono text-xs text-red-700 bg-red-50 p-4 border border-red-200 rounded break-all shadow-sm">
                                 {fetchError}
                             </p>
-                            <p className="font-bold text-[10px] uppercase text-red-400 mt-4 tracking-wider">Toma captura de este mensaje para diagnosticarlo.</p>
+                            <p className="font-medium text-[10px] uppercase text-red-400 mt-4 tracking-wider">Toma captura de este mensaje para diagnosticarlo.</p>
                         </div>
                     ) : !stats ? (
                         <div className="h-full flex flex-col items-center justify-center text-slate-400">
                             <Filter size={48} className="mb-4 opacity-20" />
-                            <p className="font-black uppercase tracking-widest">Ajuste los filtros y genere el reporte</p>
+                            <p className="font-semibold uppercase tracking-widest">Ajuste los filtros y genere el reporte</p>
                         </div>
                     ) : (
                         <div className="space-y-6 max-w-7xl mx-auto pb-20">
@@ -310,7 +310,7 @@ export const DashboardDishes: React.FC = () => {
                                     <div className="xl:col-span-2 space-y-6">
                                         <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                             <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                                <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Ventas Por Hora (Items / Quetzales)</h3>
+                                                <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Ventas Por Hora (Items / Quetzales)</h3>
                                             </div>
                                             <div className="h-[250px] p-4">
                                                 <ResponsiveContainer width="100%" height="100%">
@@ -332,7 +332,7 @@ export const DashboardDishes: React.FC = () => {
                                         </div>
                                         <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                             <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                                <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Ventas Por Día</h3>
+                                                <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Ventas Por Día</h3>
                                             </div>
                                             <div className="h-[250px] p-4">
                                                 <ResponsiveContainer width="100%" height="100%">
@@ -355,26 +355,26 @@ export const DashboardDishes: React.FC = () => {
                                     </div>
                                     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm h-fit">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Resumen De Ventas</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Resumen De Ventas</h3>
                                         </div>
                                         <div className="p-0">
                                             <table className="w-full text-left text-[10px]">
                                                 <thead className="bg-[#f0f0f0] border-b border-slate-200">
                                                     <tr>
-                                                        <th className="px-4 py-2 font-black text-slate-600 uppercase">Gran Total</th>
-                                                        <th className="px-4 py-2 text-right font-black text-slate-600 uppercase">Items</th>
-                                                        <th className="px-4 py-2 text-right font-black text-slate-600 uppercase">Venta</th>
+                                                        <th className="px-4 py-2 font-semibold text-slate-600 uppercase">Gran Total</th>
+                                                        <th className="px-4 py-2 text-right font-semibold text-slate-600 uppercase">Items</th>
+                                                        <th className="px-4 py-2 text-right font-semibold text-slate-600 uppercase">Venta</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-slate-100">
                                                     {stats.byType.map((t: any, i: number) => (
-                                                        <tr key={i} className="hover:bg-[#f6f8fa] text-slate-700 font-bold uppercase transition-colors">
+                                                        <tr key={i} className="hover:bg-[#f6f8fa] text-slate-700 font-medium uppercase transition-colors">
                                                             <td className="px-4 py-2 border-r border-slate-100">{t.name}</td>
                                                             <td className="px-4 py-2 text-right tabular-nums border-r border-slate-100">{t.items}</td>
                                                             <td className="px-4 py-2 text-right tabular-nums">{formatCurrency(t.venta)}</td>
                                                         </tr>
                                                     ))}
-                                                    <tr className="bg-[#106ebe] text-white font-black">
+                                                    <tr className="bg-[#106ebe] text-white font-semibold">
                                                         <td className="px-4 py-2 border-r border-[#3a3b4d]">Gran Total</td>
                                                         <td className="px-4 py-2 text-right tabular-nums border-r border-[#3a3b4d]">{stats.grandItems}</td>
                                                         <td className="px-4 py-2 text-right tabular-nums">{formatCurrency(stats.grandVenta)}</td>
@@ -392,7 +392,7 @@ export const DashboardDishes: React.FC = () => {
                                     <div className="xl:col-span-2 space-y-6">
                                         <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                             <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                                <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Venta Por Platos (20 Mejores)</h3>
+                                                <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Venta Por Platos (20 Mejores)</h3>
                                             </div>
                                             <div className="h-[350px] p-4">
                                                 <ResponsiveContainer width="100%" height="100%">
@@ -411,7 +411,7 @@ export const DashboardDishes: React.FC = () => {
 
                                         <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                             <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                                <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Participación Tipo Orden</h3>
+                                                <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Participación Tipo Orden</h3>
                                             </div>
                                             <div className="h-[300px] flex items-center justify-center pt-6">
                                                 <ResponsiveContainer width="100%" height="100%">
@@ -439,25 +439,25 @@ export const DashboardDishes: React.FC = () => {
                                     </div>
                                     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm h-[680px] flex flex-col">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200 shrink-0">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Venta Por Categoria y Plato (Todos)</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Venta Por Categoria y Plato (Todos)</h3>
                                         </div>
                                         <div className="flex-1 overflow-auto custom-scrollbar">
                                             <table className="w-full text-left text-[10px]">
                                                 <thead className="bg-[#f0f0f0] border-b border-slate-200 sticky top-0 z-10">
                                                     <tr>
-                                                        <th className="px-4 py-2 font-black text-slate-600 uppercase">Platos</th>
-                                                        <th className="px-4 py-2 text-right font-black text-slate-600 uppercase">Total Venta</th>
+                                                        <th className="px-4 py-2 font-semibold text-slate-600 uppercase">Platos</th>
+                                                        <th className="px-4 py-2 text-right font-semibold text-slate-600 uppercase">Total Venta</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-slate-100">
                                                     {stats.byCat.map((c: any, i: number) => (
                                                         <React.Fragment key={i}>
-                                                            <tr className="bg-orange-600 text-white font-black uppercase text-[11px] sticky top-8 shadow-sm">
+                                                            <tr className="bg-orange-600 text-white font-semibold uppercase text-[11px] sticky top-8 shadow-sm">
                                                                 <td className="px-4 py-1.5 border-r border-orange-500 flex items-center gap-1"><ChevronRight size={12} /> {c.name}</td>
                                                                 <td className="px-4 py-1.5 text-right tabular-nums">{formatCurrency(c.venta)}</td>
                                                             </tr>
                                                             {c.products.map((p: any, j: number) => (
-                                                                <tr key={j} className="hover:bg-slate-50 text-slate-700 font-bold uppercase transition-colors">
+                                                                <tr key={j} className="hover:bg-slate-50 text-slate-700 font-medium uppercase transition-colors">
                                                                     <td className="px-8 py-1.5 border-r border-slate-100">{p.name}</td>
                                                                     <td className="px-4 py-1.5 text-right tabular-nums">{formatCurrency(p.venta)}</td>
                                                                 </tr>
@@ -476,7 +476,7 @@ export const DashboardDishes: React.FC = () => {
                                 <div className="space-y-6">
                                     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Top 10 Más Vendidos</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Top 10 Más Vendidos</h3>
                                         </div>
                                         <div className="h-[300px] p-4">
                                             <ResponsiveContainer width="100%" height="100%">
@@ -498,7 +498,7 @@ export const DashboardDishes: React.FC = () => {
                                     </div>
                                     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Top 10 Menos Vendidos</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Top 10 Menos Vendidos</h3>
                                         </div>
                                         <div className="h-[300px] p-4">
                                             <ResponsiveContainer width="100%" height="100%">
@@ -526,7 +526,7 @@ export const DashboardDishes: React.FC = () => {
                                 <div className="space-y-6">
                                     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Venta y Cantidad de Platos Vendidos por Usuario</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Venta y Cantidad de Platos Vendidos por Usuario</h3>
                                         </div>
                                         <div className="h-[300px] p-4">
                                             <ResponsiveContainer width="100%" height="100%">
@@ -548,22 +548,22 @@ export const DashboardDishes: React.FC = () => {
                                     </div>
                                     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm overflow-x-auto">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Venta y cantidad de items vendidos</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Venta y cantidad de items vendidos</h3>
                                         </div>
                                         <table className="w-full text-left text-[10px]">
                                             <thead className="bg-[#f0f0f0]">
                                                 <tr>
                                                     <th className="px-4 py-2 bg-white min-w-[150px] sticky left-0 z-10 border-r border-b border-slate-200"></th>
                                                     {stats.byUser.map((u: any, i: number) => (
-                                                        <th key={i} colSpan={2} className="px-4 py-2 text-center font-black text-slate-600 uppercase border-r border-b border-slate-200">{u.name}</th>
+                                                        <th key={i} colSpan={2} className="px-4 py-2 text-center font-semibold text-slate-600 uppercase border-r border-b border-slate-200">{u.name}</th>
                                                     ))}
                                                 </tr>
                                                 <tr>
                                                     <th className="bg-white sticky left-0 z-10 border-r border-b border-slate-200"></th>
                                                     {stats.byUser.map((_: any, i: number) => (
                                                         <React.Fragment key={`sub-${i}`}>
-                                                            <th className="px-4 py-1 text-center font-bold text-slate-500 uppercase border-r border-b border-slate-200">Items</th>
-                                                            <th className="px-4 py-1 text-center font-bold text-slate-500 uppercase border-r border-b border-slate-200">Venta</th>
+                                                            <th className="px-4 py-1 text-center font-medium text-slate-500 uppercase border-r border-b border-slate-200">Items</th>
+                                                            <th className="px-4 py-1 text-center font-medium text-slate-500 uppercase border-r border-b border-slate-200">Venta</th>
                                                         </React.Fragment>
                                                     ))}
                                                 </tr>
@@ -571,13 +571,13 @@ export const DashboardDishes: React.FC = () => {
                                             <tbody className="divide-y divide-slate-100">
                                                 {stats.byCat.map((c: any, i: number) => (
                                                     <tr key={i} className="hover:bg-orange-50 transition-colors">
-                                                        <td className="px-4 py-2 uppercase font-black text-slate-700 bg-white sticky left-0 z-10 border-r border-slate-200 whitespace-nowrap">{c.name}</td>
+                                                        <td className="px-4 py-2 uppercase font-semibold text-slate-700 bg-white sticky left-0 z-10 border-r border-slate-200 whitespace-nowrap">{c.name}</td>
                                                         {stats.byUser.map((u: any, j: number) => {
                                                             const s = u.byCat[c.name] || { items: 0, venta: 0 };
                                                             return (
                                                                 <React.Fragment key={j}>
-                                                                    <td className="px-4 py-2 text-center tabular-nums font-bold text-slate-600 border-r border-slate-100">{s.items || ''}</td>
-                                                                    <td className="px-4 py-2 text-right tabular-nums font-black text-slate-800 border-r border-slate-100">{s.venta ? formatCurrency(s.venta) : ''}</td>
+                                                                    <td className="px-4 py-2 text-center tabular-nums font-medium text-slate-600 border-r border-slate-100">{s.items || ''}</td>
+                                                                    <td className="px-4 py-2 text-right tabular-nums font-semibold text-slate-800 border-r border-slate-100">{s.venta ? formatCurrency(s.venta) : ''}</td>
                                                                 </React.Fragment>
                                                             )
                                                         })}
@@ -594,7 +594,7 @@ export const DashboardDishes: React.FC = () => {
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Mejores 10 Usuarios</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Mejores 10 Usuarios</h3>
                                         </div>
                                         <div className="h-[400px] flex items-center justify-center p-4">
                                             <ResponsiveContainer width="100%" height="100%">
@@ -627,24 +627,24 @@ export const DashboardDishes: React.FC = () => {
                                     </div>
                                     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Ventas Por Usuario</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Ventas Por Usuario</h3>
                                         </div>
                                         <div className="p-0">
                                             <table className="w-full text-left text-[10px]">
                                                 <thead className="bg-[#f0f0f0] border-b border-slate-200">
                                                     <tr>
-                                                        <th className="px-4 py-2 font-black text-slate-600 uppercase border-r border-slate-200">Usuario</th>
-                                                        <th className="px-4 py-2 text-right font-black text-slate-600 uppercase">Total Venta</th>
+                                                        <th className="px-4 py-2 font-semibold text-slate-600 uppercase border-r border-slate-200">Usuario</th>
+                                                        <th className="px-4 py-2 text-right font-semibold text-slate-600 uppercase">Total Venta</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-slate-100">
                                                     {stats.byUser.map((u: any, i: number) => (
                                                         <tr key={i} className="hover:bg-slate-50 transition-colors">
-                                                            <td className="px-4 py-2 font-bold uppercase text-slate-700 border-r border-slate-100">{u.name}</td>
+                                                            <td className="px-4 py-2 font-medium uppercase text-slate-700 border-r border-slate-100">{u.name}</td>
                                                             <td className="px-4 py-2 text-right tabular-nums text-slate-800 bg-orange-600 text-white border-y border-white">{formatCurrency(u.venta)}</td>
                                                         </tr>
                                                     ))}
-                                                    <tr className="bg-[#f8f9fa] text-slate-700 font-black">
+                                                    <tr className="bg-[#f8f9fa] text-slate-700 font-semibold">
                                                         <td className="px-4 py-3 border-r border-slate-200">Gran Total</td>
                                                         <td className="px-4 py-3 text-right tabular-nums text-slate-900 border-b-2 border-slate-300">{formatCurrency(stats.grandVenta)}</td>
                                                     </tr>
@@ -659,30 +659,30 @@ export const DashboardDishes: React.FC = () => {
                             {activeTab === 'VENTAS_PLATILLOS' && (
                                 <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                     <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Ventas de Todos los Platillos</h3>
+                                        <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Ventas de Todos los Platillos</h3>
                                     </div>
                                     <div className="overflow-x-auto">
                                         <table className="w-full text-left text-[10px]">
                                             <thead className="bg-[#f0f0f0]">
                                                 <tr>
-                                                    <th className="px-4 py-2 font-black text-slate-600 uppercase">Categoría</th>
-                                                    <th className="px-4 py-2 font-black text-slate-600 uppercase">Platillo</th>
-                                                    <th className="px-4 py-2 text-center font-black text-slate-600 uppercase">Cantidad</th>
-                                                    <th className="px-4 py-2 text-right font-black text-slate-600 uppercase">Total Venta</th>
+                                                    <th className="px-4 py-2 font-semibold text-slate-600 uppercase">Categoría</th>
+                                                    <th className="px-4 py-2 font-semibold text-slate-600 uppercase">Platillo</th>
+                                                    <th className="px-4 py-2 text-center font-semibold text-slate-600 uppercase">Cantidad</th>
+                                                    <th className="px-4 py-2 text-right font-semibold text-slate-600 uppercase">Total Venta</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-slate-100">
                                                 {stats.byCat.map((c: any) => (
                                                     <React.Fragment key={c.name}>
                                                         <tr className="bg-slate-50 border-b border-slate-200">
-                                                            <td colSpan={4} className="px-4 py-2 font-black text-slate-700 uppercase">{c.name}</td>
+                                                            <td colSpan={4} className="px-4 py-2 font-semibold text-slate-700 uppercase">{c.name}</td>
                                                         </tr>
                                                         {c.products.map((p: any, i: number) => (
                                                             <tr key={`${c.name}-${i}`} className="hover:bg-slate-50 transition-colors">
                                                                 <td className="px-4 py-2 text-slate-500 uppercase"></td>
-                                                                <td className="px-4 py-2 font-bold text-slate-700 uppercase">{p.name}</td>
+                                                                <td className="px-4 py-2 font-medium text-slate-700 uppercase">{p.name}</td>
                                                                 <td className="px-4 py-2 text-center tabular-nums text-slate-600">{p.items}</td>
-                                                                <td className="px-4 py-2 text-right tabular-nums text-slate-800 font-bold">{formatCurrency(p.venta)}</td>
+                                                                <td className="px-4 py-2 text-right tabular-nums text-slate-800 font-medium">{formatCurrency(p.venta)}</td>
                                                             </tr>
                                                         ))}
                                                     </React.Fragment>
@@ -697,29 +697,29 @@ export const DashboardDishes: React.FC = () => {
                             {activeTab === 'GENERAL_VENTAS' && (
                                 <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                     <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Reporte Detallado de Items Vendidos</h3>
+                                        <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Reporte Detallado de Items Vendidos</h3>
                                     </div>
                                     <div className="overflow-x-auto h-[600px] overflow-y-auto custom-scrollbar">
                                         <table className="w-full text-left text-[10px] sticky-header">
                                             <thead className="bg-[#f0f0f0] sticky top-0 z-10 shadow-sm border-b border-slate-200">
                                                 <tr>
-                                                    <th className="px-4 py-2 font-black text-slate-600 uppercase">Orden</th>
-                                                    <th className="px-4 py-2 font-black text-slate-600 uppercase">Día / Hora</th>
-                                                    <th className="px-4 py-2 font-black text-slate-600 uppercase">Categoría</th>
-                                                    <th className="px-4 py-2 font-black text-slate-600 uppercase">Platillo</th>
-                                                    <th className="px-4 py-2 text-center font-black text-slate-600 uppercase">Cant.</th>
-                                                    <th className="px-4 py-2 text-right font-black text-slate-600 uppercase">Total</th>
+                                                    <th className="px-4 py-2 font-semibold text-slate-600 uppercase">Orden</th>
+                                                    <th className="px-4 py-2 font-semibold text-slate-600 uppercase">Día / Hora</th>
+                                                    <th className="px-4 py-2 font-semibold text-slate-600 uppercase">Categoría</th>
+                                                    <th className="px-4 py-2 font-semibold text-slate-600 uppercase">Platillo</th>
+                                                    <th className="px-4 py-2 text-center font-semibold text-slate-600 uppercase">Cant.</th>
+                                                    <th className="px-4 py-2 text-right font-semibold text-slate-600 uppercase">Total</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-slate-100">
                                                 {rawItems.map((item: any, i: number) => (
                                                     <tr key={item.id || i} className="hover:bg-slate-50 transition-colors">
-                                                        <td className="px-4 py-2 font-black text-slate-800 uppercase">#{item.orderNumber}</td>
-                                                        <td className="px-4 py-2 font-bold text-slate-500 whitespace-nowrap">{item.createdAt}</td>
-                                                        <td className="px-4 py-2 font-bold text-slate-500 uppercase">{item.category}</td>
-                                                        <td className="px-4 py-2 font-bold text-slate-700 uppercase">{item.product}</td>
+                                                        <td className="px-4 py-2 font-semibold text-slate-800 uppercase">#{item.orderNumber}</td>
+                                                        <td className="px-4 py-2 font-medium text-slate-500 whitespace-nowrap">{item.createdAt}</td>
+                                                        <td className="px-4 py-2 font-medium text-slate-500 uppercase">{item.category}</td>
+                                                        <td className="px-4 py-2 font-medium text-slate-700 uppercase">{item.product}</td>
                                                         <td className="px-4 py-2 text-center tabular-nums text-slate-600">{item.quantity}</td>
-                                                        <td className="px-4 py-2 text-right tabular-nums text-slate-800 font-bold">{formatCurrency(item.totalVenta)}</td>
+                                                        <td className="px-4 py-2 text-right tabular-nums text-slate-800 font-medium">{formatCurrency(item.totalVenta)}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>

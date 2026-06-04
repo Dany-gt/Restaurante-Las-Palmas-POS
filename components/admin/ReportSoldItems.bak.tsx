@@ -430,7 +430,7 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                     {/* Top Row: Branch & Options */}
                     <div className="flex items-center gap-4 border-b border-gray-200 pb-2">
                         <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-bold text-gray-700">Sucursal</span>
+                            <span className="text-[11px] font-medium text-gray-700">Sucursal</span>
                             <select
                                 value={selectedBranch}
                                 onChange={e => setSelectedBranch(e.target.value)}
@@ -442,21 +442,21 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                         </div>
                         <label className="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" checked={selectedBranch === 'all'} onChange={() => setSelectedBranch('all')} />
-                            <span className="text-[11px] font-bold text-gray-700">Ver todas las sucursales</span>
+                            <span className="text-[11px] font-medium text-gray-700">Ver todas las sucursales</span>
                         </label>
                     </div>
 
                     {/* Filters Row */}
                     <div className="flex items-center gap-6">
                         <div className="flex items-center gap-4 relative pt-2">
-                            <span className="absolute -top-3.5 left-0 text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Fechas</span>
+                            <span className="absolute -top-3.5 left-0 text-[10px] font-medium text-gray-500 uppercase tracking-tighter">Fechas</span>
                             <div className="flex items-center gap-2">
-                                <span className="text-[11px] font-bold text-gray-700">Del:</span>
+                                <span className="text-[11px] font-medium text-gray-700">Del:</span>
                                 <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="border border-gray-400 bg-white text-[11px] h-7 px-2 outline-none shadow-inner" />
                                 <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="border border-gray-400 bg-white text-[11px] h-7 px-1 outline-none shadow-inner" />
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="text-[11px] font-bold text-gray-700">Al:</span>
+                                <span className="text-[11px] font-medium text-gray-700">Al:</span>
                                 <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="border border-gray-400 bg-white text-[11px] h-7 px-2 outline-none shadow-inner" />
                                 <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="border border-gray-400 bg-white text-[11px] h-7 px-1 outline-none shadow-inner" />
                             </div>
@@ -466,14 +466,14 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                             <button
                                 onClick={handleGenerate}
                                 disabled={loading}
-                                className="bg-white border-2 border-gray-300 hover:bg-gray-50 px-6 py-1 h-8 text-[11px] font-black uppercase text-gray-700 shadow-sm active:scale-95 flex items-center gap-2"
+                                className="bg-white border-2 border-gray-300 hover:bg-gray-50 px-6 py-1 h-8 text-[11px] font-semibold uppercase text-gray-700 shadow-sm active:scale-95 flex items-center gap-2"
                             >
                                 {loading ? <Loader2 size={12} className="animate-spin" /> : <Search size={12} />} Generar
                             </button>
                             <button
                                 onClick={() => setShowPrintModal(true)}
                                 disabled={data.length === 0}
-                                className="bg-white border-2 border-gray-300 hover:bg-gray-50 px-6 py-1 h-8 text-[11px] font-black uppercase text-gray-700 shadow-sm active:scale-95 flex items-center gap-2"
+                                className="bg-white border-2 border-gray-300 hover:bg-gray-50 px-6 py-1 h-8 text-[11px] font-semibold uppercase text-gray-700 shadow-sm active:scale-95 flex items-center gap-2"
                             >
                                 <Printer size={12} className="text-blue-600" /> Vista Previa
                             </button>
@@ -501,12 +501,12 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                 {/* Sidebar: Categories */}
                 {mode !== 'REP_DELETED' && (
                     <div className="w-64 border-r border-gray-300 bg-white flex flex-col shrink-0 shadow-lg z-10">
-                        <div className="bg-gray-100 border-b border-gray-300 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-gray-600 flex justify-between items-center">
+                        <div className="bg-gray-100 border-b border-gray-300 px-3 py-2 text-[11px] font-semibold uppercase tracking-widest text-gray-600 flex justify-between items-center">
                             <span>Categoría</span>
                             {selectedCategories.size > 0 && (
                                 <button
                                     onClick={() => setSelectedCategories(new Set())}
-                                    className="text-[9px] text-blue-600 hover:text-blue-800 lowercase font-bold"
+                                    className="text-[9px] text-blue-600 hover:text-blue-800 lowercase font-medium"
                                 >
                                     (Limpiar)
                                 </button>
@@ -532,7 +532,7 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                                             />
                                             <div className="flex-1 flex items-center gap-2">
                                                 {expandedParents.has(parent.id) ? <ChevronDown size={12} className="text-blue-600" /> : <ChevronRight size={12} className="text-gray-400" />}
-                                                <span className="text-[11px] font-black text-gray-800 uppercase tracking-tight">{parent.name}</span>
+                                                <span className="text-[11px] font-semibold text-gray-800 uppercase tracking-tight">{parent.name}</span>
                                             </div>
                                         </div>
                                         {expandedParents.has(parent.id) && (
@@ -545,7 +545,7 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                                                             onChange={() => toggleCategory(child.id)}
                                                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                                         />
-                                                        <span className="text-[10px] font-bold text-gray-700 uppercase truncate">{child.name}</span>
+                                                        <span className="text-[10px] font-medium text-gray-700 uppercase truncate">{child.name}</span>
                                                     </label>
                                                 ))}
                                             </div>
@@ -565,20 +565,20 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                                 <tr className="divide-x divide-gray-300">
                                     {mode === 'REP_DELETED' ? (
                                         <>
-                                            <th className="px-4 py-2 text-left font-black uppercase text-gray-600 w-40">Fecha</th>
-                                            <th className="px-4 py-2 text-center font-black uppercase text-gray-600 w-24">Cant.</th>
-                                            <th className="px-4 py-2 text-center font-black uppercase text-gray-600 w-24">No. Orden</th>
-                                            <th className="px-4 py-2 text-left font-black uppercase text-gray-600">Platillo</th>
-                                            <th className="px-4 py-2 text-left font-black uppercase text-gray-600 w-48">Eliminado Por</th>
-                                            <th className="px-4 py-2 text-right font-black uppercase text-gray-600 w-28">Precio</th>
-                                            <th className="px-4 py-2 text-right font-black uppercase text-gray-600 w-28">Total</th>
+                                            <th className="px-4 py-2 text-left font-semibold uppercase text-gray-600 w-40">Fecha</th>
+                                            <th className="px-4 py-2 text-center font-semibold uppercase text-gray-600 w-24">Cant.</th>
+                                            <th className="px-4 py-2 text-center font-semibold uppercase text-gray-600 w-24">No. Orden</th>
+                                            <th className="px-4 py-2 text-left font-semibold uppercase text-gray-600">Platillo</th>
+                                            <th className="px-4 py-2 text-left font-semibold uppercase text-gray-600 w-48">Eliminado Por</th>
+                                            <th className="px-4 py-2 text-right font-semibold uppercase text-gray-600 w-28">Precio</th>
+                                            <th className="px-4 py-2 text-right font-semibold uppercase text-gray-600 w-28">Total</th>
                                         </>
                                     ) : (
                                         <>
-                                            {mode === 'REP_SOLD_USER' && <th className="px-4 py-2 text-left font-black uppercase text-gray-600 w-1/4">Categoría</th>}
-                                            <th className="px-4 py-2 text-left font-black uppercase text-gray-600">Platillo</th>
-                                            <th className="px-4 py-2 text-center font-black uppercase text-gray-600 w-32">Cantidad</th>
-                                            <th className="px-4 py-2 text-right font-black uppercase text-gray-600 w-32">Total</th>
+                                            {mode === 'REP_SOLD_USER' && <th className="px-4 py-2 text-left font-semibold uppercase text-gray-600 w-1/4">Categoría</th>}
+                                            <th className="px-4 py-2 text-left font-semibold uppercase text-gray-600">Platillo</th>
+                                            <th className="px-4 py-2 text-center font-semibold uppercase text-gray-600 w-32">Cantidad</th>
+                                            <th className="px-4 py-2 text-right font-semibold uppercase text-gray-600 w-32">Total</th>
                                         </>
                                     )}
                                 </tr>
@@ -589,7 +589,7 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                                         <td colSpan={mode === 'REP_DELETED' ? 7 : (mode === 'REP_SOLD_USER' ? 4 : 3)} className="px-4 py-20 text-center text-gray-400 h-full">
                                             <div className="flex flex-col items-center gap-2 opacity-50">
                                                 {mode === 'REP_DELETED' ? <Trash2 size={48} strokeWidth={1} /> : <Utensils size={48} strokeWidth={1} />}
-                                                <span className="font-bold uppercase tracking-widest">No hay datos para mostrar</span>
+                                                <span className="font-medium uppercase tracking-widest">No hay datos para mostrar</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -597,25 +597,25 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                                     mode === 'REP_DELETED' ? (
                                         filteredData.map((item, idx) => (
                                             <tr key={item.id || idx} className="border-b border-gray-100 hover:bg-rose-50/30 transition-colors divide-x divide-gray-100">
-                                                <td className="px-4 py-2 font-bold text-gray-500 tabular-nums">
+                                                <td className="px-4 py-2 font-medium text-gray-500 tabular-nums">
                                                     {dayjs(item.updated_at).format('DD/MM/YYYY HH:mm')}
                                                 </td>
-                                                <td className="px-4 py-2 text-center font-black text-rose-600">{item.quantity}</td>
-                                                <td className="px-4 py-2 text-center font-bold text-gray-600">#{item.orders?.order_number}</td>
-                                                <td className="px-4 py-2 font-black text-slate-700 uppercase truncate" title={item.product_name}>
+                                                <td className="px-4 py-2 text-center font-semibold text-rose-600">{item.quantity}</td>
+                                                <td className="px-4 py-2 text-center font-medium text-gray-600">#{item.orders?.order_number}</td>
+                                                <td className="px-4 py-2 font-semibold text-slate-700 uppercase truncate" title={item.product_name}>
                                                     {item.product_name}
                                                     {item.void_reason && (
-                                                        <div className="text-[9px] font-bold text-gray-400 lowercase mt-0.5">
+                                                        <div className="text-[9px] font-medium text-gray-400 lowercase mt-0.5">
                                                             Razón: {item.void_reason}
                                                         </div>
                                                     )}
                                                 </td>
-                                                <td className="px-4 py-2 uppercase font-bold text-gray-500 flex items-center gap-2 overflow-hidden">
+                                                <td className="px-4 py-2 uppercase font-medium text-gray-500 flex items-center gap-2 overflow-hidden">
                                                     <UserCircle size={12} className="shrink-0" />
                                                     <span className="truncate">{(item.orders as any)?.waiter?.name || 'SISTEMA'}</span>
                                                 </td>
-                                                <td className="px-4 py-2 text-right font-bold tabular-nums">{formatCurr(item.unit_price)}</td>
-                                                <td className="px-4 py-2 text-right font-black tabular-nums text-rose-700">{formatCurr(item.quantity * item.unit_price)}</td>
+                                                <td className="px-4 py-2 text-right font-medium tabular-nums">{formatCurr(item.unit_price)}</td>
+                                                <td className="px-4 py-2 text-right font-semibold tabular-nums text-rose-700">{formatCurr(item.quantity * item.unit_price)}</td>
                                             </tr>
                                         ))
                                     ) : (
@@ -625,25 +625,25 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                                                 <tr className="bg-blue-50/50 border-y border-gray-200">
                                                     <td colSpan={mode === 'REP_SOLD_USER' ? 4 : 3} className="px-4 py-2 flex items-center gap-2">
                                                         {mode === 'REP_SOLD_USER' ? <User size={12} className="text-blue-600" /> : <ChevronDown size={12} className="text-blue-600" />}
-                                                        <span className="font-black text-blue-800 uppercase tracking-wider">{group.name}</span>
+                                                        <span className="font-semibold text-blue-800 uppercase tracking-wider">{group.name}</span>
                                                     </td>
                                                 </tr>
                                                 {/* Items */}
                                                 {group.displayItems.map((item: any, idx: number) => (
                                                     <tr key={`${group.id}-${idx}`} className="border-b border-gray-100 hover:bg-gray-50 transition-colors divide-x divide-gray-100">
-                                                        {mode === 'REP_SOLD_USER' && <td className="px-10 py-2 font-bold text-gray-500 uppercase">{item.categoryName}</td>}
-                                                        <td className={`${mode === 'REP_SOLD_USER' ? 'px-4' : 'px-10'} py-2 font-bold text-slate-700 uppercase`}>
+                                                        {mode === 'REP_SOLD_USER' && <td className="px-10 py-2 font-medium text-gray-500 uppercase">{item.categoryName}</td>}
+                                                        <td className={`${mode === 'REP_SOLD_USER' ? 'px-4' : 'px-10'} py-2 font-medium text-slate-700 uppercase`}>
                                                             {mode === 'REP_SOLD_USER' ? item.productName : item.name}
                                                         </td>
-                                                        <td className="px-4 py-2 text-center font-bold tabular-nums">{item.qty}</td>
-                                                        <td className="px-4 py-2 text-right font-bold tabular-nums">{formatCurr(item.total)}</td>
+                                                        <td className="px-4 py-2 text-center font-medium tabular-nums">{item.qty}</td>
+                                                        <td className="px-4 py-2 text-right font-medium tabular-nums">{formatCurr(item.total)}</td>
                                                     </tr>
                                                 ))}
                                                 {/* Group Footer */}
                                                 <tr className="bg-white border-b border-gray-300">
                                                     <td className="px-4 py-2" colSpan={mode === 'REP_SOLD_USER' ? 2 : 1}></td>
-                                                    <td className="px-4 py-2 text-center font-black border-t-2 border-gray-400">{group.groupTotalQty}</td>
-                                                    <td className="px-4 py-2 text-right font-black border-t-2 border-gray-400 text-blue-700">{formatCurr(group.groupTotalAmount)}</td>
+                                                    <td className="px-4 py-2 text-center font-semibold border-t-2 border-gray-400">{group.groupTotalQty}</td>
+                                                    <td className="px-4 py-2 text-right font-semibold border-t-2 border-gray-400 text-blue-700">{formatCurr(group.groupTotalAmount)}</td>
                                                 </tr>
                                             </React.Fragment>
                                         ))
@@ -661,24 +661,24 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                                     <tr className="divide-x divide-gray-700/50">
                                         {mode === 'REP_DELETED' ? (
                                             <>
-                                                <td className="px-4 py-1 font-black uppercase tracking-[0.2em] text-[10px]">Resumen de Eliminaciones</td>
-                                                <td className="px-4 py-1 text-center font-black text-xs w-24 bg-white/5">{globalCount}</td>
+                                                <td className="px-4 py-1 font-semibold uppercase tracking-[0.2em] text-[10px]">Resumen de Eliminaciones</td>
+                                                <td className="px-4 py-1 text-center font-semibold text-xs w-24 bg-white/5">{globalCount}</td>
                                                 <td className="w-24"></td>
                                                 <td className="w-48"></td>
-                                                <td className="px-4 py-1 text-right font-black text-xs w-28 bg-white/10 uppercase">Total</td>
-                                                <td className="px-4 py-1 text-right font-black text-xs w-28 bg-white/10 pr-4">{formatCurr(globalTotal)}</td>
+                                                <td className="px-4 py-1 text-right font-semibold text-xs w-28 bg-white/10 uppercase">Total</td>
+                                                <td className="px-4 py-1 text-right font-semibold text-xs w-28 bg-white/10 pr-4">{formatCurr(globalTotal)}</td>
                                             </>
                                         ) : (
                                             <>
                                                 {mode === 'REP_SOLD_USER' ? (
-                                                    <td className="px-4 py-1 font-black uppercase tracking-[0.2em] text-[10px]" colSpan={2}>Total General</td>
+                                                    <td className="px-4 py-1 font-semibold uppercase tracking-[0.2em] text-[10px]" colSpan={2}>Total General</td>
                                                 ) : (
-                                                    <td className="px-4 py-1 font-black uppercase tracking-[0.2em] text-[10px]">Total General</td>
+                                                    <td className="px-4 py-1 font-semibold uppercase tracking-[0.2em] text-[10px]">Total General</td>
                                                 )}
-                                                <td className="px-4 py-1 text-center font-black text-xs w-32 bg-white/5">
+                                                <td className="px-4 py-1 text-center font-semibold text-xs w-32 bg-white/5">
                                                     {globalCount}
                                                 </td>
-                                                <td className="px-4 py-1 text-right font-black text-xs w-32 bg-white/10 pr-4">
+                                                <td className="px-4 py-1 text-right font-semibold text-xs w-32 bg-white/10 pr-4">
                                                     {formatCurr(globalTotal)}
                                                 </td>
                                             </>
@@ -696,7 +696,7 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="bg-[#f0f0f0] border-2 border-[#106ebe] shadow-2xl w-[950px] h-[90%] flex flex-col scale-in-center overflow-hidden">
                         <div className="bg-[#106ebe] text-white p-2 flex justify-between items-center shrink-0">
-                            <span className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                            <span className="text-xs font-semibold uppercase tracking-widest flex items-center gap-2">
                                 <Printer size={14} />
                                 {mode === 'REP_DELETED' ? 'Reporte de Platillos Eliminados' :
                                     mode === 'REP_SOLD_USER' ? 'Platillos Vendidos por Usuario' :
@@ -711,30 +711,30 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                             <div className="flex gap-2">
                                 <button
                                     onClick={handlePrint}
-                                    className="bg-gray-100 hover:bg-gray-200 border border-gray-400 px-4 py-1 text-xs font-bold flex items-center gap-2 transition-colors shadow-sm"
+                                    className="bg-gray-100 hover:bg-gray-200 border border-gray-400 px-4 py-1 text-xs font-medium flex items-center gap-2 transition-colors shadow-sm"
                                 >
                                     <Printer size={14} /> Imprimir Reporte
                                 </button>
                                 <button
                                     onClick={handleExportExcel}
-                                    className="bg-emerald-50 hover:bg-emerald-100 border border-emerald-400 text-emerald-700 px-4 py-1 text-xs font-bold flex items-center gap-2 transition-colors shadow-sm"
+                                    className="bg-emerald-50 hover:bg-emerald-100 border border-emerald-400 text-emerald-700 px-4 py-1 text-xs font-medium flex items-center gap-2 transition-colors shadow-sm"
                                 >
                                     <Download size={14} /> Exportar Excel (.xlsx)
                                 </button>
                             </div>
-                            <button onClick={() => setShowPrintModal(false)} className="text-xs font-bold text-gray-500 hover:text-gray-700 uppercase">Cerrar</button>
+                            <button onClick={() => setShowPrintModal(false)} className="text-xs font-medium text-gray-500 hover:text-gray-700 uppercase">Cerrar</button>
                         </div>
 
                         <div className="flex-1 overflow-auto bg-gray-200 p-8">
                             <div ref={printRef} className="bg-white shadow-lg p-10 min-h-full w-[25cm] mx-auto text-black">
                                 <div className="text-center mb-10 border-b-4 border-double border-black pb-6">
-                                    <h1 className="text-3xl font-black uppercase mb-1 tracking-tighter">RESTAURANTE LAS PALMAS</h1>
-                                    <h2 className="text-xl font-bold uppercase mb-2">
+                                    <h1 className="text-3xl font-semibold uppercase mb-1 tracking-tighter">RESTAURANTE LAS PALMAS</h1>
+                                    <h2 className="text-xl font-medium uppercase mb-2">
                                         {mode === 'REP_DELETED' ? 'Reporte de Platillos Eliminados' :
                                             mode === 'REP_SOLD_USER' ? 'Reporte por Usuario' :
                                                 mode === 'REP_BILLED' ? 'Platillos Facturados' : 'Reporte Platillos Vendidos General'}
                                     </h2>
-                                    <p className="text-sm font-bold text-gray-600 uppercase">
+                                    <p className="text-sm font-medium text-gray-600 uppercase">
                                         Período: {dayjs(startDate + 'T' + startTime).format('DD/MM/YYYY HH:mm')} al {dayjs(endDate + 'T' + endTime).format('DD/MM/YYYY HH:mm')}
                                     </p>
                                 </div>
@@ -744,20 +744,20 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                                         <tr>
                                             {mode === 'REP_DELETED' ? (
                                                 <>
-                                                    <th className="py-2 text-left font-black uppercase w-32">Fecha</th>
-                                                    <th className="py-2 text-center font-black uppercase w-12">Cant.</th>
-                                                    <th className="py-2 text-center font-black uppercase w-16">Orden</th>
-                                                    <th className="py-2 text-left font-black uppercase">Platillo</th>
-                                                    <th className="py-2 text-left font-black uppercase w-32">Eliminado Por</th>
-                                                    <th className="py-2 text-right font-black uppercase w-24">Precio</th>
-                                                    <th className="py-2 text-right font-black uppercase w-24">Total</th>
+                                                    <th className="py-2 text-left font-semibold uppercase w-32">Fecha</th>
+                                                    <th className="py-2 text-center font-semibold uppercase w-12">Cant.</th>
+                                                    <th className="py-2 text-center font-semibold uppercase w-16">Orden</th>
+                                                    <th className="py-2 text-left font-semibold uppercase">Platillo</th>
+                                                    <th className="py-2 text-left font-semibold uppercase w-32">Eliminado Por</th>
+                                                    <th className="py-2 text-right font-semibold uppercase w-24">Precio</th>
+                                                    <th className="py-2 text-right font-semibold uppercase w-24">Total</th>
                                                 </>
                                             ) : (
                                                 <>
-                                                    {mode === 'REP_SOLD_USER' && <th className="py-2 text-left font-black uppercase">Categoría</th>}
-                                                    <th className="py-2 text-left font-black uppercase">Platillo</th>
-                                                    <th className="py-2 text-center font-black uppercase w-24">Unidades</th>
-                                                    <th className="py-2 text-right font-black uppercase w-32">Monto Total</th>
+                                                    {mode === 'REP_SOLD_USER' && <th className="py-2 text-left font-semibold uppercase">Categoría</th>}
+                                                    <th className="py-2 text-left font-semibold uppercase">Platillo</th>
+                                                    <th className="py-2 text-center font-semibold uppercase w-24">Unidades</th>
+                                                    <th className="py-2 text-right font-semibold uppercase w-32">Monto Total</th>
                                                 </>
                                             )}
                                         </tr>
@@ -766,23 +766,23 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                                         {mode === 'REP_DELETED' ? (
                                             filteredData.map((item, i) => (
                                                 <tr key={i} className="border-b border-gray-100">
-                                                    <td className="py-2 font-bold">{dayjs(item.updated_at).format('DD/MM/YYYY HH:mm')}</td>
+                                                    <td className="py-2 font-medium">{dayjs(item.updated_at).format('DD/MM/YYYY HH:mm')}</td>
                                                     <td className="py-2 text-center">{item.quantity}</td>
                                                     <td className="py-2 text-center">#{item.orders?.order_number}</td>
                                                     <td className="py-2">
-                                                        <div className="font-bold uppercase">{item.product_name}</div>
+                                                        <div className="font-medium uppercase">{item.product_name}</div>
                                                         {item.void_reason && <div className="text-[8px] text-gray-400">Motivo: {item.void_reason}</div>}
                                                     </td>
                                                     <td className="py-2 uppercase">{(item.orders as any)?.waiter?.name || 'SISTEMA'}</td>
-                                                    <td className="py-2 text-right font-bold">{formatCurr(item.unit_price)}</td>
-                                                    <td className="py-2 text-right font-black">{formatCurr(item.quantity * item.unit_price)}</td>
+                                                    <td className="py-2 text-right font-medium">{formatCurr(item.unit_price)}</td>
+                                                    <td className="py-2 text-right font-semibold">{formatCurr(item.quantity * item.unit_price)}</td>
                                                 </tr>
                                             ))
                                         ) : (
                                             filteredData.map(group => (
                                                 <React.Fragment key={group.id}>
                                                     <tr className="bg-gray-100">
-                                                        <td colSpan={mode === 'REP_SOLD_USER' ? 4 : 3} className="py-2 px-2 font-black uppercase border-b border-gray-300 text-[11px]">
+                                                        <td colSpan={mode === 'REP_SOLD_USER' ? 4 : 3} className="py-2 px-2 font-semibold uppercase border-b border-gray-300 text-[11px]">
                                                             {mode === 'REP_SOLD_USER' ? 'USUARIO: ' : ''}{group.name}
                                                         </td>
                                                     </tr>
@@ -796,8 +796,8 @@ export const ReportSoldItems: React.FC<ReportSoldItemsProps> = ({ mode = 'REP_SO
                                                     ))}
                                                     <tr>
                                                         <td className="py-2" colSpan={mode === 'REP_SOLD_USER' ? 2 : 1}></td>
-                                                        <td className="py-2 text-center font-black border-t border-black">{group.groupTotalQty}</td>
-                                                        <td className="py-2 text-right font-black border-t border-black">{formatCurr(group.groupTotalAmount)}</td>
+                                                        <td className="py-2 text-center font-semibold border-t border-black">{group.groupTotalQty}</td>
+                                                        <td className="py-2 text-right font-semibold border-t border-black">{formatCurr(group.groupTotalAmount)}</td>
                                                     </tr>
                                                 </React.Fragment>
                                             ))

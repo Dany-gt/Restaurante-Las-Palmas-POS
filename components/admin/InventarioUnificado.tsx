@@ -856,36 +856,36 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
         <div className="h-full flex flex-col bg-[#f0f0f0] overflow-hidden select-none font-sans" onContextMenu={e => handleCtx(e)}>
         {/* Header de Módulo */}
             <div className="shrink-0 bg-[#106ebe] px-4 py-1 flex items-center justify-between shadow-sm">
-                <span className="text-white text-[11px] font-black uppercase tracking-[0.2em]">
+                <span className="text-white text-[11px] font-semibold uppercase tracking-[0.2em]">
                     {activeTab === 'insumo' ? 'Suministros e Insumos' : 'Utensilios de Cocina'}
                 </span>
-                <span className="text-white/60 text-[9px] font-bold uppercase tracking-widest">
+                <span className="text-white/60 text-[9px] font-medium uppercase tracking-widest">
                     {activeTab === 'insumo' ? 'TABLA: inventory_items (tipo=insumo)' : 'TABLA: inventory_items (tipo=utensilio)'}
                 </span>
             </div>
 
             {/* ── TOOLBAR ── */}
             <div className="shrink-0 bg-white border-b border-gray-300 px-3 py-1.5 flex items-center gap-1.5 flex-wrap">
-                <button onClick={openNew} className="flex items-center gap-1 px-3 py-1 bg-[#106EBE] text-white text-[11px] font-bold border border-[#0d5aa0] hover:bg-[#0d5aa0]"><Plus size={11} /> Agregar Ítem</button>
+                <button onClick={openNew} className="flex items-center gap-1 px-3 py-1 bg-[#106EBE] text-white text-[11px] font-medium border border-[#0d5aa0] hover:bg-[#0d5aa0]"><Plus size={11} /> Agregar Ítem</button>
                 <div className="w-px h-5 bg-gray-300 mx-0.5" />
-                <button onClick={() => { setPhysCounts({}); setPhysResponsable(''); setShowPhysical(true); }} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-bold text-slate-700 shadow-sm"><ClipboardList size={11} /> Conteo Físico</button>
-                <button onClick={() => setShowPurchase(true)} className={`flex items-center gap-1 px-2.5 py-1 border text-[11px] font-bold shadow-sm transition-all ${purchaseItems.length > 0 ? 'bg-amber-50 border-amber-400 text-amber-700 hover:bg-amber-100' : 'bg-white border-gray-300 text-slate-700 hover:bg-gray-50'}`}>
+                <button onClick={() => { setPhysCounts({}); setPhysResponsable(''); setShowPhysical(true); }} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-medium text-slate-700 shadow-sm"><ClipboardList size={11} /> Conteo Físico</button>
+                <button onClick={() => setShowPurchase(true)} className={`flex items-center gap-1 px-2.5 py-1 border text-[11px] font-medium shadow-sm transition-all ${purchaseItems.length > 0 ? 'bg-amber-50 border-amber-400 text-amber-700 hover:bg-amber-100' : 'bg-white border-gray-300 text-slate-700 hover:bg-gray-50'}`}>
                     <ShoppingCart size={11} /> Lista Compras{purchaseItems.length > 0 && <span className="ml-0.5 bg-amber-500 text-white text-[8px] px-1">{purchaseItems.length}</span>}
                 </button>
-                <button onClick={exportCSV} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-bold text-slate-700 shadow-sm"><FileSpreadsheet size={11} /> Exportar CSV</button>
+                <button onClick={exportCSV} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-medium text-slate-700 shadow-sm"><FileSpreadsheet size={11} /> Exportar CSV</button>
                 
                 <div className="flex-1" />
                 
                 <div className="relative"><Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar en inventario..." className="pl-6 pr-2 py-1 text-[11px] border border-gray-400 bg-white w-48 outline-none focus:border-[#106EBE] font-bold shadow-inner" />
+                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar en inventario..." className="pl-6 pr-2 py-1 text-[11px] border border-gray-400 bg-white w-48 outline-none focus:border-[#106EBE] font-medium shadow-inner" />
                 </div>
                 
                 <div className="w-px h-5 bg-gray-300 mx-0.5" />
                 
-                <button onClick={() => setViewMode(v => v === 'list' ? 'cards' : 'list')} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-bold text-slate-700 shadow-sm">
+                <button onClick={() => setViewMode(v => v === 'list' ? 'cards' : 'list')} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-medium text-slate-700 shadow-sm">
                     {viewMode === 'list' ? <><LayoutGrid size={11} /> Tarjetas</> : <><List size={11} /> Lista</>}
                 </button>
-                <button onClick={() => fetchCategories().then(c => fetchItems(c))} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-bold text-slate-700 shadow-sm"><RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Actualizar</button>
+                <button onClick={() => fetchCategories().then(c => fetchItems(c))} className="flex items-center gap-1 px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-medium text-slate-700 shadow-sm"><RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Actualizar</button>
             </div>
 
             {/* ── MAIN CONTENT WITH SIDEBAR ── */}
@@ -899,7 +899,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                 >
                     <div className="bg-[#f0f0f0] h-[24px] flex items-center border-b border-gray-400 shrink-0">
                         <div className="w-[34px] h-full border-r border-gray-300" />
-                        <span className="pl-2 text-[10px] font-bold text-slate-700 uppercase tracking-tight">Categorías de Inventario</span>
+                        <span className="pl-2 text-[10px] font-medium text-slate-700 uppercase tracking-tight">Categorías de Inventario</span>
                     </div>
                     
                     <div className="flex-1 overflow-y-auto py-2">
@@ -913,7 +913,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                 {filterCat === '' && <span className="text-[#106ebe] text-[9px]">►</span>}
                             </div>
                             <div className={`flex-1 h-full flex items-center pl-2 ${filterCat === '' ? 'bg-[#106ebe]' : ''}`}>
-                                <span className={`text-[11px] font-black uppercase tracking-tight ${filterCat === '' ? 'text-white' : 'text-slate-600'}`}>MOSTRAR TODO</span>
+                                <span className={`text-[11px] font-semibold uppercase tracking-tight ${filterCat === '' ? 'text-white' : 'text-slate-600'}`}>MOSTRAR TODO</span>
                             </div>
                         </button>
                         
@@ -936,7 +936,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                             {isSelected && <span className="text-[#106ebe] text-[9px]">►</span>}
                                         </div>
                                         <div className={`flex-1 h-full flex items-center pl-2 ${isSelected ? 'bg-[#106ebe]' : ''}`}>
-                                            <span className={`text-[11px] font-black uppercase truncate pr-1 ${isSelected ? 'text-white' : 'text-slate-800'}`}>
+                                            <span className={`text-[11px] font-semibold uppercase truncate pr-1 ${isSelected ? 'text-white' : 'text-slate-800'}`}>
                                                 {cat.nombre}
                                             </span>
                                         </div>
@@ -946,7 +946,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                             {tabCats.length === 0 && !loading && (
                                 <div className="px-4 py-4 text-center">
                                     <Info size={16} className="mx-auto mb-2 text-slate-300" />
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase leading-tight">No hay categorías configuradas</p>
+                                    <p className="text-[10px] font-medium text-slate-400 uppercase leading-tight">No hay categorías configuradas</p>
                                 </div>
                             )}
                         </div>
@@ -955,7 +955,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                     <div className="p-3 bg-gray-50 border-t border-gray-300">
                         <div className="flex items-center gap-2 mb-2">
                             <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Conexión Segura</span>
+                            <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tighter">Conexión Segura</span>
                         </div>
                         <p className="text-[8px] text-slate-400 font-medium leading-tight">Este módulo opera bajo el esquema de inventario independiente (TABLA: inventory_items).</p>
                     </div>
@@ -980,20 +980,20 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                         ].map((k, i) => (
                             <div key={i} className="flex items-center gap-2 px-4 py-1.5 border-r border-gray-200 last:border-r-0">
                                 <k.icon size={12} className={k.c} />
-                                <span className={`text-[12px] font-black ${k.c}`}>{k.value}</span>
-                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{k.label}</span>
+                                <span className={`text-[12px] font-semibold ${k.c}`}>{k.value}</span>
+                                <span className="text-[8px] font-medium text-slate-400 uppercase tracking-widest">{k.label}</span>
                             </div>
                         ))}
                     </div>
 
                     {dbError && (
                         <div className="shrink-0 bg-red-50 border-b border-red-200 px-4 py-2">
-                            <div className="flex items-center gap-2 text-[11px] text-red-700 font-bold mb-1">
+                            <div className="flex items-center gap-2 text-[11px] text-red-700 font-medium mb-1">
                                 <AlertCircle size={14} /> Error al cargar inventario
                                 {dbErrorMsg && <span className="font-normal text-red-600">— {dbErrorMsg}</span>}
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="text-[10px] text-red-600 font-bold">Abre la consola del navegador (F12) para ver el error exacto.</span>
+                                <span className="text-[10px] text-red-600 font-medium">Abre la consola del navegador (F12) para ver el error exacto.</span>
                             </div>
                         </div>
                     )}
@@ -1001,24 +1001,24 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                     {/* ── CONTENIDO ── */}
                     <div className="flex-1 overflow-auto" onContextMenu={e=>handleCtx(e)}>
                 {loading?(
-                    <div className="flex items-center justify-center h-32 text-slate-400"><Loader2 size={18} className="animate-spin mr-2"/><span className="text-[11px] font-bold">Cargando...</span></div>
+                    <div className="flex items-center justify-center h-32 text-slate-400"><Loader2 size={18} className="animate-spin mr-2"/><span className="text-[11px] font-medium">Cargando...</span></div>
                 ):filtered.length===0?(
-                    <div className="flex flex-col items-center justify-center h-32 text-slate-400"><Archive size={28} className="mb-2 opacity-30"/><p className="text-[11px] font-bold">SIN REGISTROS</p><button onClick={openNew} className="mt-2 text-[10px] text-[#106EBE] font-black underline">+ Agregar ítem</button></div>
+                    <div className="flex flex-col items-center justify-center h-32 text-slate-400"><Archive size={28} className="mb-2 opacity-30"/><p className="text-[11px] font-medium">SIN REGISTROS</p><button onClick={openNew} className="mt-2 text-[10px] text-[#106EBE] font-semibold underline">+ Agregar ítem</button></div>
                 ):viewMode==='list'?(
                     /* ── VISTA LISTA ── */
                     <table className="w-full border-collapse text-left">
                         <thead className="sticky top-0 z-10"><tr className="bg-[#f0f0f0] border-b border-gray-300">
                             <th className="w-6 px-2 py-1 border-r border-gray-300"/>
-                            <th className="w-10 px-2 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Foto</th>
-                            <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Nombre</th>
-                            <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Código</th>
-                            <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Categoría</th>
-                            {activeTab==='utensilio'&&<th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Marca</th>}
-                            <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700 text-center">{activeTab==='insumo'?'Stock':'Cant.'}</th>
-                            <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Estado</th>
-                            <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Ubicación</th>
-                            {activeTab==='insumo'&&<th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Días rest.</th>}
-                            <th className="px-3 py-1 text-[10px] font-bold text-slate-700 text-center">Acciones</th>
+                            <th className="w-10 px-2 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Foto</th>
+                            <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Nombre</th>
+                            <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Código</th>
+                            <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Categoría</th>
+                            {activeTab==='utensilio'&&<th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Marca</th>}
+                            <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700 text-center">{activeTab==='insumo'?'Stock':'Cant.'}</th>
+                            <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Estado</th>
+                            <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Ubicación</th>
+                            {activeTab==='insumo'&&<th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Días rest.</th>}
+                            <th className="px-3 py-1 text-[10px] font-medium text-slate-700 text-center">Acciones</th>
                         </tr></thead>
                         <tbody>{filtered.map((item,idx)=>{
                             const st=getAlertStatus(item);
@@ -1037,26 +1037,26 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                         {item.imagen_principal_url?<img src={item.imagen_principal_url} alt="" className="w-8 h-8 object-cover border border-gray-300 cursor-pointer" onClick={e=>{e.stopPropagation();loadPhotosForView(item);}}/>
                                         :<div className="w-8 h-8 bg-gray-100 border border-gray-300 flex items-center justify-center text-gray-300">{activeTab==='insumo'?<Package size={12}/>:<Wrench size={12}/>}</div>}
                                     </td>
-                                    <td className="px-3 py-1 border-r border-gray-200"><span className="text-[11px] font-bold text-slate-800">{item.nombre}</span></td>
+                                    <td className="px-3 py-1 border-r border-gray-200"><span className="text-[11px] font-medium text-slate-800">{item.nombre}</span></td>
                                     <td className="px-3 py-1 border-r border-gray-200"><span className="text-[10px] font-mono text-slate-400">{item.codigo}</span></td>
                                     <td className="px-3 py-1 border-r border-gray-200"><span className="text-[10px] text-slate-600">{item.categoria_nombre||'—'}</span></td>
                                     {activeTab==='utensilio'&&<td className="px-3 py-1 border-r border-gray-200"><span className="text-[10px] text-slate-600">{item.marca||'—'}</span></td>}
                                     <td className="px-3 py-1 border-r border-gray-200 text-center">
                                         <div className="flex items-center justify-center gap-1" onClick={e=>e.stopPropagation()}>
-                                            <button onClick={()=>handleQuickSave((activeTab==='insumo'?item.stock_actual:item.cantidad_total)-1)} className="w-4 h-4 bg-gray-200 hover:bg-red-100 border border-gray-300 text-[10px] font-black flex items-center justify-center">−</button>
-                                            <span onClick={()=>openQuick(item)} className={`text-[12px] font-black w-8 text-center cursor-pointer hover:bg-gray-100 ${st==='empty'?'text-red-600':st==='critical'?'text-orange-600':st==='low'?'text-amber-600':'text-slate-800'}`}>{fmtNum(stockVal)}</span>
-                                            <button onClick={()=>handleQuickSave((activeTab==='insumo'?item.stock_actual:item.cantidad_total)+1)} className="w-4 h-4 bg-gray-200 hover:bg-emerald-100 border border-gray-300 text-[10px] font-black flex items-center justify-center">+</button>
+                                            <button onClick={()=>handleQuickSave((activeTab==='insumo'?item.stock_actual:item.cantidad_total)-1)} className="w-4 h-4 bg-gray-200 hover:bg-red-100 border border-gray-300 text-[10px] font-semibold flex items-center justify-center">−</button>
+                                            <span onClick={()=>openQuick(item)} className={`text-[12px] font-semibold w-8 text-center cursor-pointer hover:bg-gray-100 ${st==='empty'?'text-red-600':st==='critical'?'text-orange-600':st==='low'?'text-amber-600':'text-slate-800'}`}>{fmtNum(stockVal)}</span>
+                                            <button onClick={()=>handleQuickSave((activeTab==='insumo'?item.stock_actual:item.cantidad_total)+1)} className="w-4 h-4 bg-gray-200 hover:bg-emerald-100 border border-gray-300 text-[10px] font-semibold flex items-center justify-center">+</button>
                                         </div>
                                     </td>
                                     <td className="px-3 py-1 border-r border-gray-200">
                                         {activeTab==='insumo'
-                                            ?<span className={`inline-block px-1.5 py-0.5 text-[8px] font-black uppercase ${ALERT_BADGE[st]}`}>{ALERT_LABEL[st]}</span>
-                                            :<span className={`inline-block px-1.5 py-0.5 text-[8px] font-black uppercase ${ESTADOS_U.find(e=>e.v===item.estado)?.cls||'bg-gray-400 text-white'}`}>{ESTADOS_U.find(e=>e.v===item.estado)?.l||item.estado}</span>
+                                            ?<span className={`inline-block px-1.5 py-0.5 text-[8px] font-semibold uppercase ${ALERT_BADGE[st]}`}>{ALERT_LABEL[st]}</span>
+                                            :<span className={`inline-block px-1.5 py-0.5 text-[8px] font-semibold uppercase ${ESTADOS_U.find(e=>e.v===item.estado)?.cls||'bg-gray-400 text-white'}`}>{ESTADOS_U.find(e=>e.v===item.estado)?.l||item.estado}</span>
                                         }
                                     </td>
                                     <td className="px-3 py-1 border-r border-gray-200"><span className="text-[10px] text-slate-600">{item.ubicacion||'—'}</span></td>
                                     {activeTab==='insumo'&&<td className="px-3 py-1 border-r border-gray-200">
-                                        {dias!==null?<span className={`text-[10px] font-bold ${dias<=3?'text-red-600':dias<=7?'text-amber-600':'text-slate-600'}`}>{dias}d</span>:<span className="text-[9px] text-slate-300">—</span>}
+                                        {dias!==null?<span className={`text-[10px] font-medium ${dias<=3?'text-red-600':dias<=7?'text-amber-600':'text-slate-600'}`}>{dias}d</span>:<span className="text-[9px] text-slate-300">—</span>}
                                     </td>}
                                     <td className="px-3 py-1" onClick={e=>e.stopPropagation()}>
                                         <div className="flex items-center justify-center gap-0.5">
@@ -1084,20 +1084,20 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                         :<div className="w-full h-24 bg-gray-100 flex items-center justify-center text-gray-200">{activeTab==='insumo'?<Package size={36}/>:<Wrench size={36}/>}</div>
                                     }
                                     <div className="p-2 flex-1 flex flex-col gap-1">
-                                        <span className={`self-start px-1.5 py-0.5 text-[8px] font-black uppercase ${activeTab==='insumo'?ALERT_BADGE[st]:ESTADOS_U.find(e=>e.v===item.estado)?.cls||'bg-gray-400 text-white'}`}>
+                                        <span className={`self-start px-1.5 py-0.5 text-[8px] font-semibold uppercase ${activeTab==='insumo'?ALERT_BADGE[st]:ESTADOS_U.find(e=>e.v===item.estado)?.cls||'bg-gray-400 text-white'}`}>
                                             {activeTab==='insumo'?ALERT_LABEL[st]:ESTADOS_U.find(e=>e.v===item.estado)?.l}
                                         </span>
-                                        <p className="text-[11px] font-black text-slate-800 leading-tight">{item.nombre}</p>
+                                        <p className="text-[11px] font-semibold text-slate-800 leading-tight">{item.nombre}</p>
                                         <p className="text-[9px] text-slate-400">{item.codigo} · {item.categoria_nombre||'—'}</p>
                                         {activeTab==='insumo'&&<><div className="h-1.5 bg-gray-200"><div className={`h-full ${st==='empty'?'bg-red-600':st==='critical'?'bg-orange-600':st==='low'?'bg-amber-500':'bg-[#106EBE]'}`} style={{width:`${pct}%`}}/></div></>}
                                         <div className="flex justify-between items-center">
-                                            <span className={`text-[13px] font-black ${st==='empty'?'text-red-600':st==='critical'?'text-orange-600':st==='low'?'text-amber-600':'text-slate-800'}`}>{fmtNum(stockVal)}</span>
+                                            <span className={`text-[13px] font-semibold ${st==='empty'?'text-red-600':st==='critical'?'text-orange-600':st==='low'?'text-amber-600':'text-slate-800'}`}>{fmtNum(stockVal)}</span>
                                             <span className="text-[9px] text-slate-400">{activeTab==='insumo'?item.unidad_medida||'u.':item.marca||''}</span>
                                         </div>
                                         <p className="text-[9px] text-slate-400">{item.ubicacion||'—'}</p>
                                         <div className="flex gap-1 mt-auto pt-1" onClick={e=>e.stopPropagation()}>
                                             <button onClick={()=>loadPhotosForView(item)} className="flex-none p-1 bg-gray-100 border border-gray-200 hover:bg-blue-50 text-slate-500"><Eye size={10}/></button>
-                                            <button onClick={()=>openMovForm(item)} className="flex-1 py-1 bg-[#106EBE] text-white text-[9px] font-black hover:bg-[#0d5aa0] border border-[#0d5aa0]">+Mov</button>
+                                            <button onClick={()=>openMovForm(item)} className="flex-1 py-1 bg-[#106EBE] text-white text-[9px] font-semibold hover:bg-[#0d5aa0] border border-[#0d5aa0]">+Mov</button>
                                             <button onClick={()=>openEdit(item)} className="flex-none p-1 bg-gray-100 border border-gray-200 hover:bg-amber-50 text-slate-500"><Edit2 size={10}/></button>
                                         </div>
                                     </div>
@@ -1110,8 +1110,8 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
 
             {/* ── STATUS BAR ── */}
             <div className="shrink-0 bg-[#f0f0f0] border-t border-gray-300 flex items-center gap-4 px-3 py-0.5">
-                <span className="text-[9px] text-slate-500 font-bold">{filtered.length} registro(s)</span>
-                {selectedIds.size>0&&<span className="text-[9px] text-[#106EBE] font-bold">{selectedIds.size} seleccionado(s)</span>}
+                <span className="text-[9px] text-slate-500 font-medium">{filtered.length} registro(s)</span>
+                {selectedIds.size>0&&<span className="text-[9px] text-[#106EBE] font-medium">{selectedIds.size} seleccionado(s)</span>}
                 <div className="flex-1"/>
                 <span className="text-[9px] text-slate-400">{activeTab==='insumo'?'INSUMOS Y SUMINISTROS':'UTENSILIOS DE COCINA'} — Las Palmas POS</span>
             </div>
@@ -1143,7 +1143,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                             <div className="modal-header bg-[#106EBE] h-9 px-3 flex justify-between items-center cursor-move select-none shrink-0 border-b border-[#0d5aa0]">
                                 <div className="flex items-center gap-2">
                                     {activeTab==='insumo'?<Package size={15} className="text-white"/>:<Wrench size={15} className="text-white"/>}
-                                    <span className="text-white text-[13px] font-bold tracking-tight uppercase">Mantenimiento de {activeTab==='insumo'?'Insumo':'Utensilio'} {form.nombre && `— ${form.nombre}`}</span>
+                                    <span className="text-white text-[13px] font-medium tracking-tight uppercase">Mantenimiento de {activeTab==='insumo'?'Insumo':'Utensilio'} {form.nombre && `— ${form.nombre}`}</span>
                                 </div>
                                 <button onClick={()=>setShowForm(false)} className="w-9 h-9 flex items-center justify-center hover:bg-red-500 text-white transition-all"><X size={20} strokeWidth={2.5}/></button>
                             </div>
@@ -1157,7 +1157,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                     ...(editingItem?[{id:'historial',label:'Historial',icon:History}]:[]),
                                 ] as {id:FormTab;label:string;icon:any}[]).map(t=>(
                                     <button key={t.id} onClick={()=>setFormTab(t.id)}
-                                        className={`flex items-center gap-1 px-3 py-1 text-[10px] font-bold border border-b-0 transition-colors ${formTab===t.id?'bg-white border-gray-300 text-[#106EBE]':'bg-[#e8e8e8] border-gray-300 text-slate-500 hover:bg-[#ebebeb]'}`}>
+                                        className={`flex items-center gap-1 px-3 py-1 text-[10px] font-medium border border-b-0 transition-colors ${formTab===t.id?'bg-white border-gray-300 text-[#106EBE]':'bg-[#e8e8e8] border-gray-300 text-slate-500 hover:bg-[#ebebeb]'}`}>
                                         <t.icon size={10}/>{t.label}
                                     </button>
                                 ))}
@@ -1175,7 +1175,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                                         <option value="">Seleccionar</option>
                                                         {tabCats.map(c=><option key={c.id} value={c.id}>{c.nombre}</option>)}
                                                     </select>
-                                                    <button onClick={()=>setShowCatModal(true)} className="px-2 bg-white border border-gray-400 hover:bg-gray-100 text-[#106EBE] font-bold">+</button>
+                                                    <button onClick={()=>setShowCatModal(true)} className="px-2 bg-white border border-gray-400 hover:bg-gray-100 text-[#106EBE] font-medium">+</button>
                                                 </div>
                                             </div>
                                             {activeTab==='insumo'&&<div><FLabel>Stock Actual</FLabel><input type="number" value={form.stock_actual} onChange={e=>setForm(f=>({...f,stock_actual:Number(e.target.value)}))} className={IC}/></div>}
@@ -1203,7 +1203,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                             <div><FLabel>Stock máximo</FLabel><input type="number" min={0} value={form.stock_maximo} onChange={e=>setForm(f=>({...f,stock_maximo:Number(e.target.value)}))} className={IC}/></div>
                                             <div><FLabel>Consumo promedio/día</FLabel><input type="number" min={0} step={0.1} value={form.consumo_diario_promedio} onChange={e=>setForm(f=>({...f,consumo_diario_promedio:Number(e.target.value)}))} className={IC}/></div>
                                         </div>
-                                        {form.stock_maximo>0&&<div className="mt-3"><div className="flex justify-between text-[9px] text-slate-500 font-bold mb-1"><span>0</span><span>Stock: {form.stock_actual}/{form.stock_maximo}</span><span>{form.stock_maximo}</span></div>
+                                        {form.stock_maximo>0&&<div className="mt-3"><div className="flex justify-between text-[9px] text-slate-500 font-medium mb-1"><span>0</span><span>Stock: {form.stock_actual}/{form.stock_maximo}</span><span>{form.stock_maximo}</span></div>
                                             <div className="h-2 bg-gray-200 border border-gray-300"><div className={`h-full transition-all ${form.stock_actual<=0?'bg-red-600':form.stock_actual<=form.stock_minimo?'bg-amber-500':'bg-[#106EBE]'}`} style={{width:`${Math.min(100,(form.stock_actual/form.stock_maximo)*100)}%`}}/></div>
                                         </div>}
                                     </Fieldset>:<Fieldset title="Control de Cantidades">
@@ -1217,7 +1217,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                             <div><FLabel>Costo adquisición (Q)</FLabel><input type="number" min={0} step={0.01} value={form.costo_adquisicion} onChange={e=>setForm(f=>({...f,costo_adquisicion:Number(e.target.value)}))} className={IC}/></div>
                                         </div>
                                         {(form.cantidad_en_uso+form.cantidad_bodega+form.cantidad_reparacion)!==form.cantidad_total&&form.cantidad_total>0&&(
-                                            <p className="mt-2 text-[10px] font-bold text-amber-600 flex items-center gap-1"><AlertTriangle size={11}/>En uso+Bodega+Reparación = {form.cantidad_en_uso+form.cantidad_bodega+form.cantidad_reparacion} ≠ Total {form.cantidad_total}</p>
+                                            <p className="mt-2 text-[10px] font-medium text-amber-600 flex items-center gap-1"><AlertTriangle size={11}/>En uso+Bodega+Reparación = {form.cantidad_en_uso+form.cantidad_bodega+form.cantidad_reparacion} ≠ Total {form.cantidad_total}</p>
                                         )}
                                     </Fieldset>}
                                 </div>}
@@ -1230,8 +1230,8 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                                 <div key={ph.id} className="relative group flex flex-col items-center">
                                                     <div className="relative">
                                                         <img src={ph.url} alt="" className="w-20 h-20 object-cover border border-gray-400 cursor-pointer" onClick={()=>window.open(ph.url,'_blank')}/>
-                                                        <span className={`absolute top-0 right-0 text-[7px] font-black px-1 py-0.5 ${ph.tipo==='principal'?'bg-[#106EBE] text-white':ph.tipo==='estado'?'bg-orange-600 text-white':ph.tipo==='baja'?'bg-red-700 text-white':'bg-gray-700 text-white'}`}>{ph.tipo}</span>
-                                                        <button onClick={()=>deletePhoto(ph.id)} className="absolute bottom-0 left-0 w-full bg-red-600/80 text-white text-[8px] font-black py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">Eliminar</button>
+                                                        <span className={`absolute top-0 right-0 text-[7px] font-semibold px-1 py-0.5 ${ph.tipo==='principal'?'bg-[#106EBE] text-white':ph.tipo==='estado'?'bg-orange-600 text-white':ph.tipo==='baja'?'bg-red-700 text-white':'bg-gray-700 text-white'}`}>{ph.tipo}</span>
+                                                        <button onClick={()=>deletePhoto(ph.id)} className="absolute bottom-0 left-0 w-full bg-red-600/80 text-white text-[8px] font-semibold py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">Eliminar</button>
                                                     </div>
                                                     <p className="text-[8px] text-slate-500 mt-1 max-w-[80px] text-center truncate">{ph.descripcion||' '}</p>
                                                     <p className="text-[8px] text-slate-400">{new Date(ph.fecha_foto).toLocaleDateString('es-GT')}</p>
@@ -1247,7 +1247,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                             <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic" capture="environment" className="hidden" onChange={handleFileSelect}/>
                                         </div>
                                         <p className="text-[9px] text-slate-400 mt-2">Compresión automática a máx. 800kb · Compatible con cámara del teléfono · Al seleccionar se pregunta el tipo de foto</p>
-                                        {activeTab==='utensilio'&&<p className="text-[9px] text-amber-600 font-bold mt-1">💡 Para utensilios: carga fotos de "estado" periódicamente para comparar el deterioro con el tiempo</p>}
+                                        {activeTab==='utensilio'&&<p className="text-[9px] text-amber-600 font-medium mt-1">💡 Para utensilios: carga fotos de "estado" periódicamente para comparar el deterioro con el tiempo</p>}
                                     </Fieldset>
                                 </div>}
 
@@ -1266,11 +1266,11 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                 {formTab==='historial'&&editingItem&&<HistorialTab itemId={editingItem.id}/>}
                             </div>
                             <div className="shrink-0 flex items-center justify-end gap-2 px-4 py-3 bg-[#f0f0f0] border-t border-gray-300">
-                                <button onClick={()=>setShowForm(false)} className="px-5 py-1 text-[12px] font-bold bg-white border border-gray-400 hover:bg-gray-100 text-slate-700 shadow-sm transition-all active:scale-95">Cancelar y Salir</button>
+                                <button onClick={()=>setShowForm(false)} className="px-5 py-1 text-[12px] font-medium bg-white border border-gray-400 hover:bg-gray-100 text-slate-700 shadow-sm transition-all active:scale-95">Cancelar y Salir</button>
                                 <button 
                                     onClick={handleSave} 
                                     disabled={saving||!form.nombre.trim()} 
-                                    className="flex items-center gap-2 px-6 py-1 bg-[#106EBE] hover:bg-[#0d5aa0] text-white text-[12px] font-bold border border-[#0d5aa0] shadow-md disabled:opacity-50 transition-all active:scale-95 group"
+                                    className="flex items-center gap-2 px-6 py-1 bg-[#106EBE] hover:bg-[#0d5aa0] text-white text-[12px] font-medium border border-[#0d5aa0] shadow-md disabled:opacity-50 transition-all active:scale-95 group"
                                 >
                                     {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={14} className="group-hover:scale-110 transition-transform" />}
                                     {saving ? 'Procesando...' : editingItem ? 'Actualizar Registro' : 'Guardar Nuevo Ítem'}
@@ -1287,7 +1287,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                 <div className="fixed inset-0 z-[199999] flex items-center justify-center bg-black/20 pointer-events-auto">
                     <div className="w-[380px] bg-[#f0f0f0] border border-[#106EBE] shadow-xl pointer-events-auto">
                         <div className="bg-[#106EBE] h-8 px-3 flex items-center gap-2">
-                            <ImagePlus size={13} className="text-white"/><span className="text-white text-[12px] font-bold">¿Qué tipo de foto es esta?</span>
+                            <ImagePlus size={13} className="text-white"/><span className="text-white text-[12px] font-medium">¿Qué tipo de foto es esta?</span>
                         </div>
                         <div className="p-4 space-y-3">
                             <div className="grid grid-cols-2 gap-2">
@@ -1299,15 +1299,15 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                 ].map(t=>(
                                     <button key={t.v} onClick={()=>setSelectedPhotoType(t.v)}
                                         className={`p-2 border-2 text-left transition-all ${selectedPhotoType===t.v?'border-[#106EBE] bg-blue-50':'border-gray-300 bg-white hover:border-gray-400'}`}>
-                                        <p className="text-[11px] font-black text-slate-800">{t.l}</p>
+                                        <p className="text-[11px] font-semibold text-slate-800">{t.l}</p>
                                         <p className="text-[9px] text-slate-500 mt-0.5">{t.desc}</p>
                                     </button>
                                 ))}
                             </div>
                             <div><FLabel>Descripción opcional</FLabel><input value={photoDesc} onChange={e=>setPhotoDesc(e.target.value)} placeholder="Ej: Foto del 10/04/2025 — estado regular" className={IC}/></div>
                             <div className="flex gap-2">
-                                <button onClick={()=>setPhotoTypeModal({file:null,show:false})} className="flex-1 py-1 text-[11px] font-bold bg-white border border-gray-400 text-slate-700 hover:bg-gray-100">Cancelar</button>
-                                <button onClick={confirmPhotoUpload} className="flex-1 py-1 text-[11px] font-bold bg-[#106EBE] text-white border border-[#0d5aa0] hover:bg-[#0d5aa0]">Confirmar</button>
+                                <button onClick={()=>setPhotoTypeModal({file:null,show:false})} className="flex-1 py-1 text-[11px] font-medium bg-white border border-gray-400 text-slate-700 hover:bg-gray-100">Cancelar</button>
+                                <button onClick={confirmPhotoUpload} className="flex-1 py-1 text-[11px] font-medium bg-[#106EBE] text-white border border-[#0d5aa0] hover:bg-[#0d5aa0]">Confirmar</button>
                             </div>
                         </div>
                     </div>
@@ -1321,12 +1321,12 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                     <DraggableWindow>
                         <div className="w-[460px] bg-[#f0f0f0] shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-[#106EBE] flex flex-col pointer-events-auto">
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move select-none">
-                                <div className="flex items-center gap-2"><ArrowUpCircle size={13} className="text-white"/><span className="text-white text-[12px] font-bold">Registrar Movimiento — {movItem.nombre}</span></div>
+                                <div className="flex items-center gap-2"><ArrowUpCircle size={13} className="text-white"/><span className="text-white text-[12px] font-medium">Registrar Movimiento — {movItem.nombre}</span></div>
                                 <button onClick={()=>setShowMovForm(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white"><X size={18} strokeWidth={2.5}/></button>
                             </div>
                             <div className="p-4 space-y-3">
-                                <div className="bg-white border border-gray-300 px-3 py-2 text-[11px] font-bold text-slate-600 flex items-center gap-2">
-                                    Stock actual: <span className="text-[15px] font-black text-[#106EBE]">{activeTab==='insumo'?movItem.stock_actual:movItem.cantidad_total}</span> <span className="text-slate-400">{movItem.unidad_medida||'uds'}</span>
+                                <div className="bg-white border border-gray-300 px-3 py-2 text-[11px] font-medium text-slate-600 flex items-center gap-2">
+                                    Stock actual: <span className="text-[15px] font-semibold text-[#106EBE]">{activeTab==='insumo'?movItem.stock_actual:movItem.cantidad_total}</span> <span className="text-slate-400">{movItem.unidad_medida||'uds'}</span>
                                 </div>
                                 <Fieldset title="Datos del Movimiento">
                                     <div className="grid grid-cols-2 gap-3 mt-1">
@@ -1346,16 +1346,16 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                         <div><FLabel>N° Factura</FLabel><input value={movForm.referencia} onChange={e=>setMovForm(f=>({...f,referencia:e.target.value}))} className={IC} placeholder="Opcional"/></div>
                                         <div className="col-span-2"><FLabel>Notas</FLabel><input value={movForm.notas} onChange={e=>setMovForm(f=>({...f,notas:e.target.value}))} className={IC}/></div>
                                     </div>
-                                    {movForm.cantidad&&<div className="mt-2 bg-white border border-gray-300 px-3 py-1.5 text-[11px] font-bold text-slate-600">
-                                        Resultado: <span className="text-[15px] font-black text-[#106EBE]">
+                                    {movForm.cantidad&&<div className="mt-2 bg-white border border-gray-300 px-3 py-1.5 text-[11px] font-medium text-slate-600">
+                                        Resultado: <span className="text-[15px] font-semibold text-[#106EBE]">
                                             {movForm.tipo==='entrada'?(activeTab==='insumo'?movItem.stock_actual:movItem.cantidad_total)+Number(movForm.cantidad):movForm.tipo==='salida'?Math.max(0,(activeTab==='insumo'?movItem.stock_actual:movItem.cantidad_total)-Number(movForm.cantidad)):Number(movForm.cantidad)}
                                         </span>
                                     </div>}
                                 </Fieldset>
                             </div>
                             <div className="flex items-center justify-end gap-2 px-4 py-2 border-t border-gray-300 bg-[#f0f0f0]">
-                                <button onClick={()=>setShowMovForm(false)} className="px-4 py-1 text-[11px] font-bold bg-white border border-gray-400 text-slate-700 hover:bg-gray-100">Cancelar</button>
-                                <button onClick={handleMovSave} disabled={saving||!movForm.cantidad} className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] text-white text-[11px] font-bold border border-[#0d5aa0] disabled:opacity-50">
+                                <button onClick={()=>setShowMovForm(false)} className="px-4 py-1 text-[11px] font-medium bg-white border border-gray-400 text-slate-700 hover:bg-gray-100">Cancelar</button>
+                                <button onClick={handleMovSave} disabled={saving||!movForm.cantidad} className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] text-white text-[11px] font-medium border border-[#0d5aa0] disabled:opacity-50">
                                     {saving?<Loader2 size={12} className="animate-spin"/>:<Save size={12}/>} Registrar
                                 </button>
                             </div>
@@ -1371,18 +1371,18 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                     <DraggableWindow>
                         <div className="w-[340px] bg-[#f0f0f0] border border-[#106EBE] shadow-[0_0_30px_rgba(0,0,0,0.5)] pointer-events-auto flex flex-col">
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move select-none shrink-0">
-                                <span className="text-white text-[12px] font-bold">Ajustar: {quickItem.nombre}</span>
+                                <span className="text-white text-[12px] font-medium">Ajustar: {quickItem.nombre}</span>
                                 <button onClick={()=>setShowQuick(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white"><X size={18} strokeWidth={2.5}/></button>
                             </div>
                             <div className="p-4 space-y-3">
                                 <div className="flex items-center justify-between bg-white border border-gray-300 px-3 py-2">
-                                    <span className="text-[11px] font-bold text-slate-600">Stock actual</span>
-                                    <span className="text-[18px] font-black text-[#106EBE]">{activeTab==='insumo'?quickItem.stock_actual:quickItem.cantidad_total}</span>
+                                    <span className="text-[11px] font-medium text-slate-600">Stock actual</span>
+                                    <span className="text-[18px] font-semibold text-[#106EBE]">{activeTab==='insumo'?quickItem.stock_actual:quickItem.cantidad_total}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <button onClick={()=>setQuickDelta(String(Math.max(1,Number(quickDelta)-1)))} className="shrink-0 w-10 h-10 bg-white border border-gray-400 text-[18px] font-black hover:bg-red-50 flex items-center justify-center">−</button>
-                                    <input type="number" min={0} value={quickDelta} onChange={e=>setQuickDelta(e.target.value)} className="w-full h-10 text-center text-[22px] font-black text-[#106EBE] border-2 border-[#106EBE] outline-none" autoFocus/>
-                                    <button onClick={()=>setQuickDelta(String(Number(quickDelta)+1))} className="shrink-0 w-10 h-10 bg-white border border-gray-400 text-[18px] font-black hover:bg-emerald-50 flex items-center justify-center">+</button>
+                                    <button onClick={()=>setQuickDelta(String(Math.max(1,Number(quickDelta)-1)))} className="shrink-0 w-10 h-10 bg-white border border-gray-400 text-[18px] font-semibold hover:bg-red-50 flex items-center justify-center">−</button>
+                                    <input type="number" min={0} value={quickDelta} onChange={e=>setQuickDelta(e.target.value)} className="w-full h-10 text-center text-[22px] font-semibold text-[#106EBE] border-2 border-[#106EBE] outline-none" autoFocus/>
+                                    <button onClick={()=>setQuickDelta(String(Number(quickDelta)+1))} className="shrink-0 w-10 h-10 bg-white border border-gray-400 text-[18px] font-semibold hover:bg-emerald-50 flex items-center justify-center">+</button>
                                 </div>
                                 <div><FLabel>Motivo</FLabel>
                                     <select value={quickMotivo} onChange={e=>setQuickMotivo(e.target.value)} className={IC}>
@@ -1390,10 +1390,10 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                     </select>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button onClick={()=>handleQuickSave(-Number(quickDelta))} disabled={Number(quickDelta)===0} className="flex-1 flex items-center justify-center gap-1 py-1.5 bg-red-600 text-white text-[11px] font-bold border border-red-700 hover:bg-red-700 disabled:opacity-40">
+                                    <button onClick={()=>handleQuickSave(-Number(quickDelta))} disabled={Number(quickDelta)===0} className="flex-1 flex items-center justify-center gap-1 py-1.5 bg-red-600 text-white text-[11px] font-medium border border-red-700 hover:bg-red-700 disabled:opacity-40">
                                         <ArrowDownCircle size={12}/> Salida −{quickDelta}
                                     </button>
-                                    <button onClick={()=>handleQuickSave(Number(quickDelta))} disabled={Number(quickDelta)===0} className="flex-1 flex items-center justify-center gap-1 py-1.5 bg-emerald-600 text-white text-[11px] font-bold border border-emerald-700 hover:bg-emerald-700 disabled:opacity-40">
+                                    <button onClick={()=>handleQuickSave(Number(quickDelta))} disabled={Number(quickDelta)===0} className="flex-1 flex items-center justify-center gap-1 py-1.5 bg-emerald-600 text-white text-[11px] font-medium border border-emerald-700 hover:bg-emerald-700 disabled:opacity-40">
                                         <ArrowUpCircle size={12}/> Entrada +{quickDelta}
                                     </button>
                                 </div>
@@ -1410,21 +1410,21 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                     <DraggableWindow>
                         <div className="w-[680px] max-h-[90vh] bg-[#f0f0f0] shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-[#106EBE] flex flex-col pointer-events-auto">
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move select-none">
-                                <div className="flex items-center gap-2"><ClipboardList size={13} className="text-white"/><span className="text-white text-[12px] font-bold">Conteo Físico — {new Date().toLocaleDateString('es-GT')}</span></div>
+                                <div className="flex items-center gap-2"><ClipboardList size={13} className="text-white"/><span className="text-white text-[12px] font-medium">Conteo Físico — {new Date().toLocaleDateString('es-GT')}</span></div>
                                 <button onClick={()=>setShowPhysical(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white"><X size={18}/></button>
                             </div>
                             <div className="px-4 py-2 bg-amber-50 border-b border-amber-200 flex items-center gap-3">
                                 <div className="flex-1"><FLabel>Responsable del conteo</FLabel><input value={physResponsable} onChange={e=>setPhysResponsable(e.target.value)} placeholder="Nombre del responsable" className="px-2 py-1 text-[11px] border border-gray-400 bg-white w-48 outline-none focus:border-[#106EBE] h-7"/></div>
-                                <p className="text-[10px] font-bold text-amber-700">Ingrese la cantidad REAL contada. Solo se actualizan los ítems modificados.</p>
+                                <p className="text-[10px] font-medium text-amber-700">Ingrese la cantidad REAL contada. Solo se actualizan los ítems modificados.</p>
                             </div>
                             <div className="flex-1 overflow-y-auto">
                                 <table className="w-full border-collapse">
                                     <thead className="sticky top-0"><tr className="bg-[#f0f0f0] border-b border-gray-300">
-                                        <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-300">Código</th>
-                                        <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-300">Nombre</th>
-                                        <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-300 text-center">Sistema</th>
-                                        <th className="px-3 py-1 text-[10px] font-bold text-slate-700 border-r border-gray-300 text-center">Contado</th>
-                                        <th className="px-3 py-1 text-[10px] font-bold text-slate-700 text-center">Diferencia</th>
+                                        <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-300">Código</th>
+                                        <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-300">Nombre</th>
+                                        <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-300 text-center">Sistema</th>
+                                        <th className="px-3 py-1 text-[10px] font-medium text-slate-700 border-r border-gray-300 text-center">Contado</th>
+                                        <th className="px-3 py-1 text-[10px] font-medium text-slate-700 text-center">Diferencia</th>
                                     </tr></thead>
                                     <tbody>{items.map((item,idx)=>{
                                         const val=physCounts[item.id];
@@ -1433,22 +1433,22 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                         return(
                                             <tr key={item.id} className={`border-b border-gray-200 ${idx%2===0?'bg-white':'bg-[#f5f5f5]'}`}>
                                                 <td className="px-3 py-1 border-r border-gray-200 text-[10px] font-mono text-slate-400">{item.codigo}</td>
-                                                <td className="px-3 py-1 border-r border-gray-200 text-[11px] font-bold text-slate-800">{item.nombre}</td>
-                                                <td className="px-3 py-1 border-r border-gray-200 text-center text-[12px] font-black text-slate-600">{sys}</td>
+                                                <td className="px-3 py-1 border-r border-gray-200 text-[11px] font-medium text-slate-800">{item.nombre}</td>
+                                                <td className="px-3 py-1 border-r border-gray-200 text-center text-[12px] font-semibold text-slate-600">{sys}</td>
                                                 <td className="px-3 py-1 border-r border-gray-200 text-center">
-                                                    <input type="number" min={0} placeholder="—" value={physCounts[item.id]||''} onChange={e=>setPhysCounts(p=>({...p,[item.id]:e.target.value}))} className="w-20 px-2 py-0.5 text-[11px] font-black border border-gray-400 text-center outline-none focus:border-[#106EBE] bg-white"/>
+                                                    <input type="number" min={0} placeholder="—" value={physCounts[item.id]||''} onChange={e=>setPhysCounts(p=>({...p,[item.id]:e.target.value}))} className="w-20 px-2 py-0.5 text-[11px] font-semibold border border-gray-400 text-center outline-none focus:border-[#106EBE] bg-white"/>
                                                 </td>
-                                                <td className="px-3 py-1 text-center">{diff!==null&&<span className={`text-[12px] font-black ${diff===0?'text-slate-400':diff>0?'text-emerald-600':'text-red-600'}`}>{diff>0?`+${diff}`:diff}</span>}</td>
+                                                <td className="px-3 py-1 text-center">{diff!==null&&<span className={`text-[12px] font-semibold ${diff===0?'text-slate-400':diff>0?'text-emerald-600':'text-red-600'}`}>{diff>0?`+${diff}`:diff}</span>}</td>
                                             </tr>
                                         );
                                     })}</tbody>
                                 </table>
                             </div>
                             <div className="flex items-center justify-between px-4 py-2 border-t border-gray-300 bg-[#f0f0f0]">
-                                <span className="text-[10px] font-bold text-slate-500">{Object.values(physCounts).filter(v=>v!=='').length} ítems ingresados</span>
+                                <span className="text-[10px] font-medium text-slate-500">{Object.values(physCounts).filter(v=>v!=='').length} ítems ingresados</span>
                                 <div className="flex gap-2">
-                                    <button onClick={()=>setShowPhysical(false)} className="px-4 py-1 text-[11px] font-bold bg-white border border-gray-400 text-slate-700 hover:bg-gray-100">Cancelar</button>
-                                    <button onClick={handlePhysicalSave} disabled={saving} className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] text-white text-[11px] font-bold border border-[#0d5aa0] disabled:opacity-50">
+                                    <button onClick={()=>setShowPhysical(false)} className="px-4 py-1 text-[11px] font-medium bg-white border border-gray-400 text-slate-700 hover:bg-gray-100">Cancelar</button>
+                                    <button onClick={handlePhysicalSave} disabled={saving} className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] text-white text-[11px] font-medium border border-[#0d5aa0] disabled:opacity-50">
                                         {saving?<Loader2 size={12} className="animate-spin"/>:<Save size={12}/>} Guardar Conteo
                                     </button>
                                 </div>
@@ -1467,7 +1467,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                             <div className="modal-header bg-[#106EBE] h-9 px-3 flex justify-between items-center cursor-move select-none shrink-0 border-b border-[#0d5aa0]">
                                 <div className="flex items-center gap-2">
                                     <ShoppingCart size={15} className="text-white"/>
-                                    <span className="text-white text-[13px] font-bold uppercase tracking-wide">Planeación de Abastecimiento — Sugerencia de Compras</span>
+                                    <span className="text-white text-[13px] font-medium uppercase tracking-wide">Planeación de Abastecimiento — Sugerencia de Compras</span>
                                 </div>
                                 <button onClick={()=>setShowPurchase(false)} className="w-9 h-9 flex items-center justify-center hover:bg-red-500 text-white transition-all"><X size={20} strokeWidth={2.5}/></button>
                             </div>
@@ -1475,14 +1475,14 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                 {purchaseItems.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center py-16 text-slate-400 opacity-60">
                                         <CheckCircle2 size={48} className="mb-4 text-emerald-500"/>
-                                        <p className="text-[14px] font-black uppercase tracking-widest">Inventario en Niveles Óptimos</p>
+                                        <p className="text-[14px] font-semibold uppercase tracking-widest">Inventario en Niveles Óptimos</p>
                                         <p className="text-[11px]">No se detectan faltantes ni alertas críticas en este momento.</p>
                                     </div>
                                 ) : (
                                     <div className="bg-white border border-gray-300 shadow-sm overflow-hidden text-slate-900 rounded-sm">
                                         <table className="w-full text-left border-collapse">
                                             <thead>
-                                                <tr className="bg-[#f0f0f0] border-b border-gray-300 text-[10px] uppercase font-bold text-slate-700">
+                                                <tr className="bg-[#f0f0f0] border-b border-gray-300 text-[10px] uppercase font-medium text-slate-700">
                                                     <th className="px-3 py-2 border-r border-gray-200">Producto / Insumo</th>
                                                     <th className="px-3 py-2 border-r border-gray-200 text-center w-24">Estado</th>
                                                     <th className="px-3 py-2 border-r border-gray-200 text-center w-24">Existencia</th>
@@ -1497,20 +1497,20 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                                     return (
                                                         <tr key={item.id} className={`border-b border-gray-100 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-blue-50/50`}>
                                                             <td className="px-3 py-2 border-r border-gray-100">
-                                                                <p className="text-[11px] font-black text-slate-800 uppercase tracking-tight leading-none">{item.nombre}</p>
-                                                                <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase italic">{item.categoria_nombre || 'General'} · {item.unidad_medida}</p>
+                                                                <p className="text-[11px] font-semibold text-slate-800 uppercase tracking-tight leading-none">{item.nombre}</p>
+                                                                <p className="text-[9px] text-slate-400 font-medium mt-1 uppercase italic">{item.categoria_nombre || 'General'} · {item.unidad_medida}</p>
                                                             </td>
                                                             <td className="px-3 py-2 border-r border-gray-100 text-center">
-                                                                <span className={`inline-block px-1.5 py-0.5 text-[8px] font-black uppercase rounded-sm ${ALERT_BADGE[st]}`}>{ALERT_LABEL[st]}</span>
+                                                                <span className={`inline-block px-1.5 py-0.5 text-[8px] font-semibold uppercase rounded-sm ${ALERT_BADGE[st]}`}>{ALERT_LABEL[st]}</span>
                                                             </td>
                                                             <td className="px-3 py-2 border-r border-gray-100 text-center">
-                                                                <span className={`text-[12px] font-black ${st === 'empty' ? 'text-red-600' : 'text-amber-600'}`}>{item.stock_actual}</span>
-                                                                <span className="text-[9px] text-slate-400 font-bold ml-1">/{item.stock_minimo}</span>
+                                                                <span className={`text-[12px] font-semibold ${st === 'empty' ? 'text-red-600' : 'text-amber-600'}`}>{item.stock_actual}</span>
+                                                                <span className="text-[9px] text-slate-400 font-medium ml-1">/{item.stock_minimo}</span>
                                                             </td>
                                                             <td className="px-3 py-2 border-r border-gray-100 text-center">
-                                                                <span className="text-[15px] font-black text-[#106EBE]">{ap}</span>
+                                                                <span className="text-[15px] font-semibold text-[#106EBE]">{ap}</span>
                                                             </td>
-                                                            <td className="px-3 py-2 text-right text-[12px] font-black text-slate-800 bg-slate-50/50">
+                                                            <td className="px-3 py-2 text-right text-[12px] font-semibold text-slate-800 bg-slate-50/50">
                                                                 {fmtQ(ap * (item.precio_compra || 0))}
                                                             </td>
                                                         </tr>
@@ -1518,7 +1518,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                                 })}
                                             </tbody>
                                         </table>
-                                        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-300 bg-emerald-50 font-black text-[14px]">
+                                        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-300 bg-emerald-50 font-semibold text-[14px]">
                                             <div className="flex flex-col">
                                                 <span className="text-emerald-700 text-[9px] uppercase tracking-tighter leading-none">Inversión Estimada de Abastecimiento</span>
                                                 <span className="text-emerald-800 uppercase">Total Global Sugerido</span>
@@ -1532,10 +1532,10 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                             </div>
                             {purchaseItems.length > 0 && (
                                 <div className="flex items-center gap-2 px-4 py-3 bg-[#f0f0f0] border-t border-gray-300 shrink-0">
-                                    <button onClick={printPurchaseList} className="flex items-center gap-2 px-6 py-2 bg-white border border-gray-400 text-[11px] font-black text-slate-700 hover:bg-gray-100 shadow-sm uppercase tracking-tighter transition-all active:scale-95"><Printer size={16}/> Comprobante PDF</button>
-                                    <button onClick={sendWhatsApp} className="flex items-center gap-2 px-6 py-2 bg-emerald-600 text-white text-[11px] font-black border border-emerald-700 hover:bg-emerald-700 shadow-sm uppercase tracking-tighter transition-all active:scale-95"><MessageCircle size={16}/> Compra vía WhatsApp</button>
+                                    <button onClick={printPurchaseList} className="flex items-center gap-2 px-6 py-2 bg-white border border-gray-400 text-[11px] font-semibold text-slate-700 hover:bg-gray-100 shadow-sm uppercase tracking-tighter transition-all active:scale-95"><Printer size={16}/> Comprobante PDF</button>
+                                    <button onClick={sendWhatsApp} className="flex items-center gap-2 px-6 py-2 bg-emerald-600 text-white text-[11px] font-semibold border border-emerald-700 hover:bg-emerald-700 shadow-sm uppercase tracking-tighter transition-all active:scale-95"><MessageCircle size={16}/> Compra vía WhatsApp</button>
                                     <div className="flex-1" />
-                                    <button onClick={exportCSV} className="flex items-center gap-2 px-6 py-2 bg-white border border-gray-400 text-[11px] font-black text-slate-700 hover:bg-gray-100 shadow-sm uppercase tracking-tighter transition-all active:scale-95"><FileSpreadsheet size={16}/> Descargar Excel</button>
+                                    <button onClick={exportCSV} className="flex items-center gap-2 px-6 py-2 bg-white border border-gray-400 text-[11px] font-semibold text-slate-700 hover:bg-gray-100 shadow-sm uppercase tracking-tighter transition-all active:scale-95"><FileSpreadsheet size={16}/> Descargar Excel</button>
                                 </div>
                             )}
                         </div>
@@ -1552,7 +1552,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                             <div className="modal-header bg-[#106EBE] h-9 px-3 flex justify-between items-center cursor-move select-none border-b border-[#0d5aa0]">
                                 <div className="flex items-center gap-2">
                                     <Search size={14} className="text-white"/>
-                                    <span className="text-white text-[13px] font-bold tracking-tight uppercase">Expediente del Ítem: {viewItem.nombre}</span>
+                                    <span className="text-white text-[13px] font-medium tracking-tight uppercase">Expediente del Ítem: {viewItem.nombre}</span>
                                 </div>
                                 <button onClick={()=>setViewItem(null)} className="w-9 h-9 flex items-center justify-center hover:bg-red-500 text-white transition-all"><X size={20} strokeWidth={2.5}/></button>
                             </div>
@@ -1567,18 +1567,18 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                         </div>
                                     )}
                                     <div className="flex-1 flex flex-col">
-                                        <span className="text-[10px] font-black text-[#106EBE] uppercase tracking-[0.2em] mb-1">{viewItem.categoria_nombre||'Sin Categoría'}</span>
-                                        <h2 className="text-[18px] font-black text-slate-800 leading-tight mb-1">{viewItem.nombre}</h2>
-                                        <p className="text-[11px] font-bold text-slate-400">SKU: {viewItem.codigo} · UBICACIÓN: {viewItem.ubicacion || 'N/A'}</p>
+                                        <span className="text-[10px] font-semibold text-[#106EBE] uppercase tracking-[0.2em] mb-1">{viewItem.categoria_nombre||'Sin Categoría'}</span>
+                                        <h2 className="text-[18px] font-semibold text-slate-800 leading-tight mb-1">{viewItem.nombre}</h2>
+                                        <p className="text-[11px] font-medium text-slate-400">SKU: {viewItem.codigo} · UBICACIÓN: {viewItem.ubicacion || 'N/A'}</p>
                                         <div className="flex items-center gap-3 mt-3">
                                             <div className="flex flex-col">
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase">Existencia Real</span>
-                                                <span className="text-[18px] font-black text-slate-800 leading-none">{(activeTab==='insumo'?viewItem.stock_actual:viewItem.cantidad_total) || 0}</span>
+                                                <span className="text-[9px] font-medium text-slate-400 uppercase">Existencia Real</span>
+                                                <span className="text-[18px] font-semibold text-slate-800 leading-none">{(activeTab==='insumo'?viewItem.stock_actual:viewItem.cantidad_total) || 0}</span>
                                             </div>
                                             <div className="w-px h-8 bg-gray-200" />
                                             <div className="flex flex-col text-slate-500">
-                                                <span className="text-[9px] font-bold uppercase">Unidad</span>
-                                                <span className="text-[12px] font-black">{viewItem.unidad_medida || 'Unidad'}</span>
+                                                <span className="text-[9px] font-medium uppercase">Unidad</span>
+                                                <span className="text-[12px] font-semibold">{viewItem.unidad_medida || 'Unidad'}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1592,7 +1592,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                                 <div key={ph.id} className="group relative cursor-zoom-in transition-transform hover:scale-105 active:scale-95" onClick={() => window.open(ph.url, '_blank')}>
                                                     <img src={ph.url} alt="" className="w-24 h-24 object-cover border-2 border-white shadow-md ring-1 ring-gray-200" />
                                                     <div className="absolute inset-x-0 bottom-0 bg-black/70 py-1 text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <span className="text-[8px] font-black text-white uppercase tracking-tighter">{ph.tipo}</span>
+                                                        <span className="text-[8px] font-semibold text-white uppercase tracking-tighter">{ph.tipo}</span>
                                                     </div>
                                                 </div>
                                             ))}
@@ -1609,13 +1609,13 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                                     <div key={m.id} className={`flex items-start gap-3 p-3 text-[11px] border-l-4 transition-colors hover:bg-slate-50 ${m.tipo === 'entrada' ? 'border-emerald-500' : m.tipo === 'salida' ? 'border-red-400' : 'border-amber-400'}`}>
                                                         <div className="flex-1 flex flex-col">
                                                             <div className="flex items-center justify-between mb-1">
-                                                                <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-sm ${m.tipo === 'entrada' ? 'bg-emerald-100 text-emerald-700' : m.tipo === 'salida' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{m.tipo}</span>
-                                                                <span className="text-slate-400 text-[9px] font-bold uppercase">{fmtDate(m.fecha_movimiento)}</span>
+                                                                <span className={`text-[9px] font-semibold uppercase px-2 py-0.5 rounded-sm ${m.tipo === 'entrada' ? 'bg-emerald-100 text-emerald-700' : m.tipo === 'salida' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{m.tipo}</span>
+                                                                <span className="text-slate-400 text-[9px] font-medium uppercase">{fmtDate(m.fecha_movimiento)}</span>
                                                             </div>
                                                             <div className="flex items-center gap-2">
                                                                 <span className="text-slate-400 line-through">{m.cantidad_anterior}</span>
-                                                                <span className="text-slate-800 font-black">→ {m.cantidad_nueva}</span>
-                                                                <span className="text-slate-500 font-bold opacity-60 ml-2 uppercase italic text-[9px]">{m.motivo?.replace(/_/g, ' ')}</span>
+                                                                <span className="text-slate-800 font-semibold">→ {m.cantidad_nueva}</span>
+                                                                <span className="text-slate-500 font-medium opacity-60 ml-2 uppercase italic text-[9px]">{m.motivo?.replace(/_/g, ' ')}</span>
                                                             </div>
                                                             {m.notas && <p className="text-[10px] text-slate-400 mt-1 first-letter:uppercase">{m.notas}</p>}
                                                         </div>
@@ -1629,9 +1629,9 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                 </Fieldset>
                             </div>
                             <div className="flex gap-2 px-4 py-3 border-t border-gray-300 bg-[#f0f0f0] shrink-0">
-                                <button onClick={() => { setViewItem(null); openEdit(viewItem); }} className="flex items-center gap-2 px-6 py-1.5 bg-white border border-gray-400 text-[11px] font-black text-amber-700 hover:bg-amber-50 shadow-sm transition-all active:scale-95 uppercase tracking-tighter"><Pencil size={12} strokeWidth={3}/> Modificar Ítem</button>
+                                <button onClick={() => { setViewItem(null); openEdit(viewItem); }} className="flex items-center gap-2 px-6 py-1.5 bg-white border border-gray-400 text-[11px] font-semibold text-amber-700 hover:bg-amber-50 shadow-sm transition-all active:scale-95 uppercase tracking-tighter"><Pencil size={12} strokeWidth={3}/> Modificar Ítem</button>
                                 <div className="flex-1" />
-                                <button onClick={() => setViewItem(null)} className="px-8 py-1.5 bg-white border border-gray-400 text-[11px] font-black text-slate-600 hover:bg-gray-100 shadow-sm transition-all active:scale-95 uppercase tracking-tighter">Cerrar Expediente</button>
+                                <button onClick={() => setViewItem(null)} className="px-8 py-1.5 bg-white border border-gray-400 text-[11px] font-semibold text-slate-600 hover:bg-gray-100 shadow-sm transition-all active:scale-95 uppercase tracking-tighter">Cerrar Expediente</button>
                             </div>
                         </div>
                     </DraggableWindow>
@@ -1646,7 +1646,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
                                 <div className="flex items-center gap-2">
                                     <FolderPlus size={14} className="text-white" />
-                                    <span className="text-white text-[12px] font-bold tracking-wide uppercase">Nueva Categoría</span>
+                                    <span className="text-white text-[12px] font-medium tracking-wide uppercase">Nueva Categoría</span>
                                 </div>
                                 <div className="flex items-center">
                                     <button onClick={() => setShowCatModal(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white transition-all" title="Cerrar">
@@ -1665,15 +1665,15 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                             autoFocus 
                                             placeholder="EJ: DESECHABLES" 
                                         />
-                                        <p className="text-[9px] text-slate-500 mt-1 uppercase font-bold tracking-tighter italic">Se guardará automáticamente en la sección de {activeTab === 'insumo' ? 'INSUMOS' : 'UTENSILIOS'}</p>
+                                        <p className="text-[9px] text-slate-500 mt-1 uppercase font-medium tracking-tighter italic">Se guardará automáticamente en la sección de {activeTab === 'insumo' ? 'INSUMOS' : 'UTENSILIOS'}</p>
                                     </div>
                                 </Fieldset>
                                 <div className="flex items-center justify-end gap-2 pt-1">
-                                    <button onClick={() => setShowCatModal(false)} className="px-4 py-1 text-[11px] font-bold bg-white border border-gray-400 hover:bg-gray-100 text-slate-700 shadow-sm">Cancelar</button>
+                                    <button onClick={() => setShowCatModal(false)} className="px-4 py-1 text-[11px] font-medium bg-white border border-gray-400 hover:bg-gray-100 text-slate-700 shadow-sm">Cancelar</button>
                                     <button 
                                         onClick={handleSaveCategory} 
                                         disabled={saving || !newCatName.trim()} 
-                                        className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] hover:bg-[#0d5aa0] text-white text-[11px] font-bold border border-[#0d5aa0] disabled:opacity-50 shadow-sm"
+                                        className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] hover:bg-[#0d5aa0] text-white text-[11px] font-medium border border-[#0d5aa0] disabled:opacity-50 shadow-sm"
                                     >
                                         {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
                                         {saving ? 'Guardando...' : (editingCat ? 'Actualizar Categoría' : 'Crear Categoría')}
@@ -1734,7 +1734,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
                                 <div className="flex items-center gap-2">
                                     <TrendingDown size={14} className="text-white" />
-                                    <span className="text-white text-[12px] font-bold tracking-wide uppercase">Ajuste de Stock Directo</span>
+                                    <span className="text-white text-[12px] font-medium tracking-wide uppercase">Ajuste de Stock Directo</span>
                                 </div>
                                 <button onClick={() => setShowQuick(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white transition-all">
                                     <X size={18} strokeWidth={2.5} />
@@ -1742,8 +1742,8 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                             </div>
                             <div className="p-4 bg-[#f0f0f0] flex flex-col gap-4">
                                 <div className="bg-white p-3 border border-gray-300 shadow-inner">
-                                    <p className="text-[10px] font-black text-[#106EBE] uppercase leading-tight mb-0.5">{quickItem.nombre}</p>
-                                    <p className="text-[9px] font-bold text-slate-400">ITEM ID: {quickItem.codigo}</p>
+                                    <p className="text-[10px] font-semibold text-[#106EBE] uppercase leading-tight mb-0.5">{quickItem.nombre}</p>
+                                    <p className="text-[9px] font-medium text-slate-400">ITEM ID: {quickItem.codigo}</p>
                                 </div>
 
                                 <Fieldset title="Valores de Ajuste">
@@ -1755,7 +1755,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                                 step="0.01" 
                                                 value={quickDelta} 
                                                 onChange={e => setQuickDelta(e.target.value)} 
-                                                className="w-full px-2 py-1.5 text-[15px] font-black text-center border-2 border-slate-300 focus:border-[#106EBE] outline-none text-[#106EBE] bg-blue-50/30" 
+                                                className="w-full px-2 py-1.5 text-[15px] font-semibold text-center border-2 border-slate-300 focus:border-[#106EBE] outline-none text-[#106EBE] bg-blue-50/30" 
                                                 autoFocus 
                                                 onFocus={e => e.target.select()} 
                                             />
@@ -1775,7 +1775,7 @@ export const InventarioUnificado: React.FC<Props> = ({ initialTab = 'insumo' }) 
                                 <button 
                                     onClick={() => handleQuickSave(Number(quickDelta))} 
                                     disabled={!quickDelta} 
-                                    className="w-full py-2 bg-[#106EBE] hover:bg-[#0d5aa0] text-white text-[11px] font-black uppercase tracking-widest transition-all shadow-md active:scale-[0.98]"
+                                    className="w-full py-2 bg-[#106EBE] hover:bg-[#0d5aa0] text-white text-[11px] font-semibold uppercase tracking-widest transition-all shadow-md active:scale-[0.98]"
                                 >
                                     Confirmar y Actualizar Saldo
                                 </button>
@@ -1800,13 +1800,13 @@ const HistorialTab: React.FC<{itemId:string}> = ({itemId}) => {
     return(
         <div>
             {loading?<div className="flex justify-center py-8"><Loader2 size={18} className="animate-spin text-slate-400"/></div>:
-            movs.length===0?<div className="flex flex-col items-center justify-center py-12 text-slate-400"><History size={24} className="mb-2 opacity-30"/><p className="text-[11px] font-bold">Sin movimientos registrados</p></div>:(
+            movs.length===0?<div className="flex flex-col items-center justify-center py-12 text-slate-400"><History size={24} className="mb-2 opacity-30"/><p className="text-[11px] font-medium">Sin movimientos registrados</p></div>:(
                 <div className="space-y-1">
                     {movs.map(m=>(
                         <div key={m.id} className={`flex items-start gap-2 px-3 py-2 border-l-3 text-[10px] ${m.tipo==='entrada'?'border-l-4 border-emerald-500 bg-white':m.tipo==='salida'?'border-l-4 border-red-400 bg-white':m.tipo==='conteo'?'border-l-4 border-purple-400 bg-white':'border-l-4 border-amber-400 bg-white'}`}>
-                            <span className={`font-black uppercase text-[8px] px-1.5 py-0.5 shrink-0 ${m.tipo==='entrada'?'bg-emerald-100 text-emerald-700':m.tipo==='salida'?'bg-red-100 text-red-700':m.tipo==='conteo'?'bg-purple-100 text-purple-700':'bg-amber-100 text-amber-700'}`}>{m.tipo}</span>
+                            <span className={`font-semibold uppercase text-[8px] px-1.5 py-0.5 shrink-0 ${m.tipo==='entrada'?'bg-emerald-100 text-emerald-700':m.tipo==='salida'?'bg-red-100 text-red-700':m.tipo==='conteo'?'bg-purple-100 text-purple-700':'bg-amber-100 text-amber-700'}`}>{m.tipo}</span>
                             <div className="flex-1">
-                                <span className="text-slate-700 font-bold">{m.cantidad_anterior} → {m.cantidad_nueva}</span>
+                                <span className="text-slate-700 font-medium">{m.cantidad_anterior} → {m.cantidad_nueva}</span>
                                 <span className="text-slate-500 ml-2">{m.motivo?.replace(/_/g,' ')}{m.notas?` · ${m.notas}`:''}{m.referencia?` (${m.referencia})`:''}</span>
                             </div>
                             <div className="text-right shrink-0 text-slate-400">
@@ -1822,13 +1822,13 @@ const HistorialTab: React.FC<{itemId:string}> = ({itemId}) => {
 };
 
 // ─── Sub-componentes ──────────────────────────────────────────────────────────
-const IC='w-full px-2 py-1 text-[11px] text-slate-800 border border-gray-400 bg-white outline-none focus:border-[#106EBE] h-7 font-bold';
-const FLabel:React.FC<{children:React.ReactNode}>=({children})=><label className="block text-[10px] font-bold text-slate-700 mb-0.5">{children}</label>;
+const IC='w-full px-2 py-1 text-[11px] text-slate-800 border border-gray-400 bg-white outline-none focus:border-[#106EBE] h-7 font-medium';
+const FLabel:React.FC<{children:React.ReactNode}>=({children})=><label className="block text-[10px] font-medium text-slate-700 mb-0.5">{children}</label>;
 const Fieldset:React.FC<{title:string;children:React.ReactNode}>=({title,children})=>(
-    <fieldset className="border border-gray-400 bg-white px-3 pt-0.5 pb-3"><legend className="text-[10px] font-black text-slate-700 uppercase px-1">{title}</legend>{children}</fieldset>
+    <fieldset className="border border-gray-400 bg-white px-3 pt-0.5 pb-3"><legend className="text-[10px] font-semibold text-slate-700 uppercase px-1">{title}</legend>{children}</fieldset>
 );
 const CtxItem:React.FC<{icon:any;label:string;onClick:()=>void;danger?:boolean}>=({icon:Icon,label,onClick,danger})=>(
-    <button onClick={onClick} className={`w-full flex items-center gap-2 px-3 py-1 text-[11px] font-bold text-left hover:bg-[#106EBE] hover:text-white ${danger?'text-red-600':'text-slate-700'}`}>
+    <button onClick={onClick} className={`w-full flex items-center gap-2 px-3 py-1 text-[11px] font-medium text-left hover:bg-[#106EBE] hover:text-white ${danger?'text-red-600':'text-slate-700'}`}>
         <Icon size={12}/>{label}
     </button>
 );

@@ -244,7 +244,7 @@ export const ActivityHistoryDashboard: React.FC = () => {
         if (value === null || value === undefined) return '--';
         if (typeof value === 'boolean') {
             return (
-                <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${value ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
+                <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase ${value ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
                     {value ? 'SÍ' : 'NO'}
                 </span>
             );
@@ -255,18 +255,18 @@ export const ActivityHistoryDashboard: React.FC = () => {
             if (value.length === 0) return <span className="text-gray-400 text-[9px]">Vacío</span>;
             // Simple string/number arrays
             if (typeof value[0] === 'string' || typeof value[0] === 'number') {
-                return <span className="font-bold text-gray-700 text-[10px] uppercase">{value.join(', ')}</span>;
+                return <span className="font-medium text-gray-700 text-[10px] uppercase">{value.join(', ')}</span>;
             }
             // Complex object arrays (items, pagos)
             return (
                 <div className="flex flex-col gap-0.5 text-[9px]">
                     {value.slice(0, 8).map((item: any, idx: number) => (
                         <div key={idx} className="flex items-center gap-2 bg-gray-50 px-1.5 py-0.5 border border-gray-100 rounded-sm">
-                            {item.nombre && <span className="font-bold text-gray-700 uppercase truncate max-w-[120px]">{item.nombre}</span>}
-                            {item.metodo && <span className="font-bold text-blue-600 uppercase">{item.metodo}</span>}
+                            {item.nombre && <span className="font-medium text-gray-700 uppercase truncate max-w-[120px]">{item.nombre}</span>}
+                            {item.metodo && <span className="font-medium text-blue-600 uppercase">{item.metodo}</span>}
                             {item.cantidad && <span className="text-gray-500">x{item.cantidad}</span>}
-                            {item.monto !== undefined && <span className="font-black text-gray-900 ml-auto">Q{Number(item.monto).toFixed(2)}</span>}
-                            {item.precio !== undefined && <span className="font-black text-gray-900 ml-auto">Q{Number(item.precio).toFixed(2)}</span>}
+                            {item.monto !== undefined && <span className="font-semibold text-gray-900 ml-auto">Q{Number(item.monto).toFixed(2)}</span>}
+                            {item.precio !== undefined && <span className="font-semibold text-gray-900 ml-auto">Q{Number(item.precio).toFixed(2)}</span>}
                             {item.procesador && <span className="text-gray-400 text-[8px]">({item.procesador})</span>}
                         </div>
                     ))}
@@ -279,7 +279,7 @@ export const ActivityHistoryDashboard: React.FC = () => {
         if (typeof value === 'object') {
             // Mesa object
             if (value.numero !== undefined && value.seccion !== undefined) {
-                return <span className="font-black text-gray-700 uppercase text-[10px]">{value.seccion} #{value.numero}</span>;
+                return <span className="font-semibold text-gray-700 uppercase text-[10px]">{value.seccion} #{value.numero}</span>;
             }
             // Generic object -> Compact key:value render
             const entries = Object.entries(value).filter(([k]) => !IGNORED_KEYS.includes(k));
@@ -289,7 +289,7 @@ export const ActivityHistoryDashboard: React.FC = () => {
                         {entries.map(([k, v]) => (
                             <div key={k} className="flex justify-between gap-2">
                                 <span className="text-gray-400 uppercase">{KEY_LABELS[k] || k}:</span>
-                                <span className="font-bold text-gray-700">{String(v)}</span>
+                                <span className="font-medium text-gray-700">{String(v)}</span>
                             </div>
                         ))}
                     </div>
@@ -304,11 +304,11 @@ export const ActivityHistoryDashboard: React.FC = () => {
             if (!isNaN(value)) {
                 const num = Number(value);
                 const isNegative = num < 0;
-                return <span className={`font-black ${isNegative ? 'text-red-600' : 'text-gray-900'}`}>Q{Math.abs(num).toFixed(2)}{isNegative ? ' (-)' : ''}</span>;
+                return <span className={`font-semibold ${isNegative ? 'text-red-600' : 'text-gray-900'}`}>Q{Math.abs(num).toFixed(2)}{isNegative ? ' (-)' : ''}</span>;
             }
         }
 
-        return <span className="font-bold text-gray-700 uppercase">{String(value)}</span>;
+        return <span className="font-medium text-gray-700 uppercase">{String(value)}</span>;
     };
 
     // Helper to generate a human-readable sentence
@@ -348,11 +348,11 @@ export const ActivityHistoryDashboard: React.FC = () => {
             <div className="bg-[#f0f0f0] border-b border-gray-300 p-4 shrink-0 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-lg font-black text-[#106ebe] tracking-tight flex items-center gap-2">
+                        <h1 className="text-lg font-semibold text-[#106ebe] tracking-tight flex items-center gap-2">
                             <Shield className="text-[#106ebe]" size={20} />
                             HISTORIAL DE ACTIVIDAD
                         </h1>
-                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">
+                        <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-0.5">
                             Auditoría integral de movimientos del sistema
                         </p>
                     </div>
@@ -366,7 +366,7 @@ export const ActivityHistoryDashboard: React.FC = () => {
                         </button>
                         <button
                             onClick={() => setShowExportModal(true)}
-                            className="flex items-center gap-2 h-8 px-4 bg-[#106ebe] hover:bg-[#0d599a] text-white font-black text-[10px] uppercase shadow-sm transition-all active:scale-95"
+                            className="flex items-center gap-2 h-8 px-4 bg-[#106ebe] hover:bg-[#0d599a] text-white font-semibold text-[10px] uppercase shadow-sm transition-all active:scale-95"
                         >
                             <Eye size={14} />
                             VISTA PREVIA
@@ -384,17 +384,17 @@ export const ActivityHistoryDashboard: React.FC = () => {
                                 type="date"
                                 value={filters.startDate}
                                 onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
-                                className="text-[10px] font-black text-gray-700 focus:outline-none bg-transparent"
+                                className="text-[10px] font-semibold text-gray-700 focus:outline-none bg-transparent"
                             />
                         </div>
-                        <span className="text-[9px] font-black text-gray-400 uppercase px-1">Hasta</span>
+                        <span className="text-[9px] font-semibold text-gray-400 uppercase px-1">Hasta</span>
                         <div className="flex items-center gap-2 px-2 h-7 bg-white border border-gray-300">
                             <Calendar size={12} className="text-gray-400" />
                             <input
                                 type="date"
                                 value={filters.endDate}
                                 onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-                                className="text-[10px] font-black text-gray-700 focus:outline-none bg-transparent"
+                                className="text-[10px] font-semibold text-gray-700 focus:outline-none bg-transparent"
                             />
                         </div>
                     </div>
@@ -405,7 +405,7 @@ export const ActivityHistoryDashboard: React.FC = () => {
                         <select
                             value={filters.module}
                             onChange={(e) => setFilters({ ...filters, module: e.target.value })}
-                            className="bg-transparent text-[10px] font-black text-gray-700 focus:outline-none uppercase"
+                            className="bg-transparent text-[10px] font-semibold text-gray-700 focus:outline-none uppercase"
                         >
                             <option value="ALL">TODOS LOS MÓDULOS</option>
                             <option value="VENTAS">VENTAS</option>
@@ -427,7 +427,7 @@ export const ActivityHistoryDashboard: React.FC = () => {
                         <select
                             value={filters.role}
                             onChange={(e) => setFilters({ ...filters, role: e.target.value })}
-                            className="bg-transparent text-[10px] font-black text-gray-700 focus:outline-none uppercase"
+                            className="bg-transparent text-[10px] font-semibold text-gray-700 focus:outline-none uppercase"
                         >
                             <option value="ALL">TODOS LOS ROLES</option>
                             <option value="ADMIN">ADMINISTRADOR</option>
@@ -445,7 +445,7 @@ export const ActivityHistoryDashboard: React.FC = () => {
                                 placeholder="BUSCAR POR USUARIO O ACCIÓN..."
                                 value={filters.search}
                                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                                className="w-full bg-white text-gray-800 h-full pl-8 pr-4 border border-gray-300 focus:border-blue-500 focus:outline-none transition-all text-[10px] font-black uppercase tracking-wider shadow-inner"
+                                className="w-full bg-white text-gray-800 h-full pl-8 pr-4 border border-gray-300 focus:border-blue-500 focus:outline-none transition-all text-[10px] font-semibold uppercase tracking-wider shadow-inner"
                             />
                         </div>
                     </form>
@@ -458,26 +458,26 @@ export const ActivityHistoryDashboard: React.FC = () => {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-4 border-y border-gray-200 bg-white divide-x divide-gray-200 shrink-0">
                     <div className="p-4 text-center">
-                        <div className="text-2xl font-black text-gray-800">{logs.length}</div>
-                        <div className="text-[10px] text-gray-500 font-bold uppercase mt-1">Eventos hoy</div>
+                        <div className="text-2xl font-semibold text-gray-800">{logs.length}</div>
+                        <div className="text-[10px] text-gray-500 font-medium uppercase mt-1">Eventos hoy</div>
                     </div>
                     <div className="p-4 text-center">
-                        <div className="text-2xl font-black text-gray-800">
+                        <div className="text-2xl font-semibold text-gray-800">
                             {logs.filter(l => l.action.includes('ORDEN') || l.action.includes('PEDIDO') || l.module === 'MESAS' || l.module === 'CAJA').length}
                         </div>
-                        <div className="text-[10px] text-gray-500 font-bold uppercase mt-1">Órdenes</div>
+                        <div className="text-[10px] text-gray-500 font-medium uppercase mt-1">Órdenes</div>
                     </div>
                     <div className="p-4 text-center">
-                        <div className="text-2xl font-black text-gray-800">
+                        <div className="text-2xl font-semibold text-gray-800">
                             {logs.filter(l => l.details?._financial).length}
                         </div>
-                        <div className="text-[10px] text-gray-500 font-bold uppercase mt-1">Pagos</div>
+                        <div className="text-[10px] text-gray-500 font-medium uppercase mt-1">Pagos</div>
                     </div>
                     <div className="p-4 text-center">
-                        <div className="text-2xl font-black text-gray-800">
+                        <div className="text-2xl font-semibold text-gray-800">
                             {logs.filter(l => l.details?._meta?.severity === 'WARNING' || l.details?._meta?.severity === 'CRITICAL' || l.action.includes('CANCEL') || l.action.includes('ANUL')).length}
                         </div>
-                        <div className="text-[10px] text-gray-500 font-bold uppercase mt-1">Ajustes/Alertas</div>
+                        <div className="text-[10px] text-gray-500 font-medium uppercase mt-1">Ajustes/Alertas</div>
                     </div>
                 </div>
 
@@ -490,7 +490,7 @@ export const ActivityHistoryDashboard: React.FC = () => {
                         </div>
                     ) : logs.length > 0 ? (
                         <div className="flex flex-col">
-                            <div className="bg-gray-100 px-6 py-2 text-[10px] font-black text-gray-500 uppercase tracking-widest border-b border-gray-200 sticky top-0 z-10">
+                            <div className="bg-gray-100 px-6 py-2 text-[10px] font-semibold text-gray-500 uppercase tracking-widest border-b border-gray-200 sticky top-0 z-10">
                                 Recientes
                             </div>
                             
@@ -519,14 +519,14 @@ export const ActivityHistoryDashboard: React.FC = () => {
                                         }`}
                                         onClick={() => setSelectedLog(selectedLog?.id === log.id ? null : log)}
                                     >
-                                        <div className="w-16 shrink-0 text-[11px] font-black text-gray-500">{time}</div>
+                                        <div className="w-16 shrink-0 text-[11px] font-semibold text-gray-500">{time}</div>
                                         
                                         <div className="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shrink-0 border border-orange-200">
-                                            <span className="text-[10px] font-black uppercase">{(log.user_name || 'S').charAt(0)}</span>
+                                            <span className="text-[10px] font-semibold uppercase">{(log.user_name || 'S').charAt(0)}</span>
                                         </div>
 
                                         <div className="flex-1 min-w-0">
-                                            <div className="text-[13px] font-black text-gray-900 truncate capitalize">
+                                            <div className="text-[13px] font-semibold text-gray-900 truncate capitalize">
                                                 {log.details?.description || (log.action ? log.action.replace(/_/g, ' ').toLowerCase() : 'Evento')}
                                             </div>
                                             <div className="text-[11px] text-gray-500 truncate mt-0.5">
@@ -534,12 +534,12 @@ export const ActivityHistoryDashboard: React.FC = () => {
                                             </div>
                                         </div>
 
-                                        <div className={`font-mono text-[12px] font-bold ${financialClass} w-24 text-right shrink-0`}>
+                                        <div className={`font-mono text-[12px] font-medium ${financialClass} w-24 text-right shrink-0`}>
                                             {financialStr}
                                         </div>
 
                                         <div className="shrink-0 w-24 flex justify-end">
-                                            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-orange-50/50 border border-orange-200 text-[9px] font-black text-orange-700 capitalize">
+                                            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-orange-50/50 border border-orange-200 text-[9px] font-semibold text-orange-700 capitalize">
                                                 <div className="w-1 h-1 rounded-sm bg-orange-400"></div>
                                                 {log.module.toLowerCase()}
                                             </span>
@@ -551,7 +551,7 @@ export const ActivityHistoryDashboard: React.FC = () => {
                     ) : (
                         <div className="bg-white border border-gray-200 m-4 rounded-xl p-12 text-center shadow-sm">
                             <Info size={48} className="mx-auto text-gray-300 mb-4" />
-                            <p className="text-sm font-black text-gray-400 uppercase tracking-widest">No se encontraron registros</p>
+                            <p className="text-sm font-semibold text-gray-400 uppercase tracking-widest">No se encontraron registros</p>
                         </div>
                     )}
                 </div>
@@ -561,7 +561,7 @@ export const ActivityHistoryDashboard: React.FC = () => {
                     <div className="text-[11px] text-gray-400">
                         Mostrando {logs.length} eventos · Hoy
                     </div>
-                    <button onClick={() => setShowExportModal(true)} className="flex items-center gap-2 text-[11px] font-bold text-white hover:text-blue-400 transition-colors border border-gray-600 px-3 py-1.5 rounded-md hover:border-blue-400">
+                    <button onClick={() => setShowExportModal(true)} className="flex items-center gap-2 text-[11px] font-medium text-white hover:text-blue-400 transition-colors border border-gray-600 px-3 py-1.5 rounded-md hover:border-blue-400">
                         <Printer size={12} />
                         Exportar log ↗
                     </button>
@@ -573,8 +573,8 @@ export const ActivityHistoryDashboard: React.FC = () => {
                 <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-2xl z-[100] border-l-2 border-[#106ebe] flex flex-col animate-slide-in-right">
                     <div className="p-4 bg-[#f0f0f0] border-b border-gray-300 flex items-center justify-between">
                         <div>
-                            <h3 className="text-[11px] font-black text-[#106ebe] uppercase tracking-wider">DETALLES DEL MOVIMIENTO</h3>
-                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">ID: {selectedLog.id}</p>
+                            <h3 className="text-[11px] font-semibold text-[#106ebe] uppercase tracking-wider">DETALLES DEL MOVIMIENTO</h3>
+                            <p className="text-[9px] font-medium text-gray-400 uppercase tracking-widest leading-none">ID: {selectedLog.id}</p>
                         </div>
                         <button
                             onClick={() => setSelectedLog(null)}
@@ -587,20 +587,20 @@ export const ActivityHistoryDashboard: React.FC = () => {
                         <div className="space-y-6">
                             <div className="bg-gray-50 border border-gray-200 p-4 rounded-xl shadow-inner">
                                 <p className="text-gray-800 text-[13px] leading-relaxed">
-                                    <span className="font-bold text-gray-500">[{dayjs(selectedLog.created_at).format('DD/MMM/YYYY hh:mm A')}]</span>{' '}
-                                    <span className="font-bold text-[#106ebe] capitalize">{selectedLog.user_role} ({selectedLog.user_name})</span>:{' '}
+                                    <span className="font-medium text-gray-500">[{dayjs(selectedLog.created_at).format('DD/MMM/YYYY hh:mm A')}]</span>{' '}
+                                    <span className="font-medium text-[#106ebe] capitalize">{selectedLog.user_role} ({selectedLog.user_name})</span>:{' '}
                                     <span className="text-gray-700">{buildSentence(selectedLog)}</span>
                                 </p>
                             </div>
                             
                             <details className="group" open>
-                                <summary className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-600 transition-colors ml-1 list-none">
+                                <summary className="flex items-center gap-2 text-[10px] font-semibold text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-600 transition-colors ml-1 list-none">
                                     <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
                                     Ver Metadata Técnica (JSON)
                                 </summary>
                                 <div className="mt-3 bg-slate-900 rounded-xl overflow-hidden shadow-md animate-in fade-in slide-in-from-top-2 duration-300 border border-slate-800">
                                     <div className="bg-slate-800/50 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Metadata Cruda</span>
+                                        <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">Metadata Cruda</span>
                                         <div className="flex gap-1.5">
                                             <div className="w-2 h-2 rounded-full bg-slate-700" />
                                             <div className="w-2 h-2 rounded-full bg-slate-700" />
@@ -618,7 +618,7 @@ export const ActivityHistoryDashboard: React.FC = () => {
                             {/* Help Note */}
                             <div className="bg-blue-50 p-3 border border-blue-100 flex gap-2">
                                 <Info className="text-blue-500 shrink-0" size={14} />
-                                <p className="text-[9px] font-bold text-blue-700 leading-tight">
+                                <p className="text-[9px] font-medium text-blue-700 leading-tight">
                                     Este registro es inmutable y forma parte de la cadena de auditoría del sistema.
                                     Solo personal autorizado puede exportar o depurar este historial.
                                 </p>
@@ -635,12 +635,12 @@ export const ActivityHistoryDashboard: React.FC = () => {
                         <div className="bg-[#106ebe] h-10 px-4 flex items-center justify-between shrink-0 shadow-lg z-10">
                             <div className="flex items-center gap-3">
                                 <FileSearch size={18} className="text-white" />
-                                <span className="text-white text-[12px] font-black uppercase tracking-widest">VISUALIZADOR DE AUDITORÍA — LAS PALMAS</span>
+                                <span className="text-white text-[12px] font-semibold uppercase tracking-widest">VISUALIZADOR DE AUDITORÍA — LAS PALMAS</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => window.print()}
-                                    className="h-7 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase flex items-center gap-2 transition-colors shadow-sm"
+                                    className="h-7 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-semibold uppercase flex items-center gap-2 transition-colors shadow-sm"
                                 >
                                     <Printer size={14} />
                                     IMPRIMIR REPORTE
@@ -659,22 +659,22 @@ export const ActivityHistoryDashboard: React.FC = () => {
                             <div className="bg-white w-[8.5in] min-h-[11in] p-[0.75in] shadow-xl origin-top print:m-0 print:shadow-none print:w-full" id="printable-report">
                                 {/* Report Header */}
                                 <div className="text-center border-b-2 border-[#106ebe] pb-4 mb-6">
-                                    <h1 className="text-2xl font-black text-[#106ebe] m-0 tracking-tighter">RESTAURANTE LAS PALMAS — POS</h1>
-                                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mt-1">SISTEMA DE VIGILANCIA TOTAL E HISTORIAL DE ACTIVIDAD</p>
+                                    <h1 className="text-2xl font-semibold text-[#106ebe] m-0 tracking-tighter">RESTAURANTE LAS PALMAS — POS</h1>
+                                    <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-[0.2em] mt-1">SISTEMA DE VIGILANCIA TOTAL E HISTORIAL DE ACTIVIDAD</p>
                                 </div>
 
                                 <div className="flex justify-between items-end mb-6">
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-gray-800 uppercase">
+                                        <p className="text-[10px] font-semibold text-gray-800 uppercase">
                                             <span className="text-gray-400">PERIODO:</span> {dayjs(filters.startDate).format('DD/MM/YYYY')} — {dayjs(filters.endDate).format('DD/MM/YYYY')}
                                         </p>
-                                        <p className="text-[10px] font-black text-gray-800 uppercase">
+                                        <p className="text-[10px] font-semibold text-gray-800 uppercase">
                                             <span className="text-gray-400">FILTROS:</span> MOD: {filters.module} | ROL: {filters.role}
                                         </p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-[9px] font-bold text-gray-400">Generado el: {dayjs().format('DD/MM/YYYY HH:mm:ss')}</p>
-                                        <p className="text-[9px] font-bold text-gray-400">Usuario: {logs[0]?.user_name || 'Admin'}</p>
+                                        <p className="text-[9px] font-medium text-gray-400">Generado el: {dayjs().format('DD/MM/YYYY HH:mm:ss')}</p>
+                                        <p className="text-[9px] font-medium text-gray-400">Usuario: {logs[0]?.user_name || 'Admin'}</p>
                                     </div>
                                 </div>
 
@@ -682,30 +682,30 @@ export const ActivityHistoryDashboard: React.FC = () => {
                                 <table className="w-full border-collapse text-[8.5px] table-fixed">
                                     <thead>
                                         <tr className="bg-gray-100 border border-gray-300">
-                                            <th className="p-1 px-2 text-left border-r border-gray-300 font-black text-gray-600 w-20">FECHA/HORA</th>
-                                            <th className="p-1 px-2 text-left border-r border-gray-300 font-black text-gray-600 w-28">USUARIO</th>
-                                            <th className="p-1 px-2 text-left border-r border-gray-300 font-black text-gray-600 w-16">MÓDULO</th>
-                                            <th className="p-1 px-2 text-left border-r border-gray-300 font-black text-gray-600">ACCIÓN / MOVIMIENTO</th>
+                                            <th className="p-1 px-2 text-left border-r border-gray-300 font-semibold text-gray-600 w-20">FECHA/HORA</th>
+                                            <th className="p-1 px-2 text-left border-r border-gray-300 font-semibold text-gray-600 w-28">USUARIO</th>
+                                            <th className="p-1 px-2 text-left border-r border-gray-300 font-semibold text-gray-600 w-16">MÓDULO</th>
+                                            <th className="p-1 px-2 text-left border-r border-gray-300 font-semibold text-gray-600">ACCIÓN / MOVIMIENTO</th>
                                         </tr>
                                     </thead>
                                     <tbody className="border-x border-b border-gray-300">
                                         {logs.map((log) => (
                                             <tr key={log.id} className="border-b border-gray-200 hover:bg-slate-50">
                                                 <td className="p-1 px-2 border-r border-gray-200 align-top">
-                                                    <div className="font-bold">{dayjs(log.created_at).format('DD/MM/YYYY')}</div>
+                                                    <div className="font-medium">{dayjs(log.created_at).format('DD/MM/YYYY')}</div>
                                                     <div className="text-[7px] text-gray-400">{dayjs(log.created_at).format('HH:mm:ss')}</div>
                                                 </td>
                                                 <td className="p-1 px-2 border-r border-gray-200 align-top">
-                                                    <div className="font-black text-gray-800 uppercase text-[8px]">{log.user_name}</div>
-                                                    <div className="text-[7px] font-bold text-blue-600 uppercase">{log.user_role}</div>
+                                                    <div className="font-semibold text-gray-800 uppercase text-[8px]">{log.user_name}</div>
+                                                    <div className="text-[7px] font-medium text-blue-600 uppercase">{log.user_role}</div>
                                                 </td>
                                                 <td className="p-1 px-2 border-r border-gray-200 align-top">
-                                                    <span className="px-1 py-0 bg-slate-100 border border-slate-200 text-[7px] font-black uppercase text-slate-600 rounded-sm">
+                                                    <span className="px-1 py-0 bg-slate-100 border border-slate-200 text-[7px] font-semibold uppercase text-slate-600 rounded-sm">
                                                         {log.module}
                                                     </span>
                                                 </td>
                                                 <td className="p-1 px-2 align-top">
-                                                    <div className="font-black text-[#106ebe] uppercase text-[8px] mb-0.5">{log.action}</div>
+                                                    <div className="font-semibold text-[#106ebe] uppercase text-[8px] mb-0.5">{log.action}</div>
                                                     <div className="text-[8px] text-gray-600 leading-tight mt-1">
                                                         {buildSentence(log)}
                                                     </div>
@@ -718,14 +718,14 @@ export const ActivityHistoryDashboard: React.FC = () => {
                                 {/* Footer */}
                                 <div className="mt-8 pt-4 border-t border-gray-200 text-center">
                                     <div className="flex justify-center gap-20 my-12">
-                                        <div className="w-48 border-t border-gray-400 pt-2 text-[8px] font-bold uppercase text-gray-400">
+                                        <div className="w-48 border-t border-gray-400 pt-2 text-[8px] font-medium uppercase text-gray-400">
                                             Sello de Auditoría Digital
                                         </div>
-                                        <div className="w-48 border-t border-gray-400 pt-2 text-[8px] font-bold uppercase text-gray-400">
+                                        <div className="w-48 border-t border-gray-400 pt-2 text-[8px] font-medium uppercase text-gray-400">
                                             Firma Responsable
                                         </div>
                                     </div>
-                                    <p className="text-[6px] font-bold text-gray-300 uppercase tracking-[0.3em] mt-4">
+                                    <p className="text-[6px] font-medium text-gray-300 uppercase tracking-[0.3em] mt-4">
                                         REGISTRO INMUTABLE — CADENA DE CUSTODIA DE DATOS LAS PALMAS POS — ID: {logs[0]?.id || 'AUTO'}
                                     </p>
                                 </div>
@@ -736,13 +736,13 @@ export const ActivityHistoryDashboard: React.FC = () => {
                         <div className="bg-white border-t border-gray-300 p-3 flex justify-end gap-3 shrink-0">
                             <button
                                 onClick={() => setShowExportModal(false)}
-                                className="h-8 px-5 border border-gray-400 text-gray-600 text-[10px] font-black uppercase hover:bg-gray-100 transition-colors"
+                                className="h-8 px-5 border border-gray-400 text-gray-600 text-[10px] font-semibold uppercase hover:bg-gray-100 transition-colors"
                             >
                                 CANCELAR
                             </button>
                             <button
                                 onClick={() => window.print()}
-                                className="h-8 px-6 bg-[#106ebe] text-white text-[10px] font-black uppercase flex items-center gap-2 hover:bg-[#0d599a] transition-all shadow-md"
+                                className="h-8 px-6 bg-[#106ebe] text-white text-[10px] font-semibold uppercase flex items-center gap-2 hover:bg-[#0d599a] transition-all shadow-md"
                             >
                                 <Printer size={14} />
                                 CONFIRMAR IMPRESIÓN

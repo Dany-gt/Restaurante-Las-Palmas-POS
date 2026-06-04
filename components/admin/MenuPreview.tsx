@@ -6,10 +6,10 @@ import { DraggableWindow } from './AdminPortal';
 
 const PlaceholderLogo = () => (
     <div className="w-full h-full flex flex-col items-center justify-center opacity-40 transition-opacity">
-        <span className="text-[6px] font-black tracking-widest text-orange-400">RESTAURANTE</span>
-        <span className="text-[8px] font-black tracking-widest text-[#94a3b8]">LAS PALMAS</span>
+        <span className="text-[6px] font-semibold tracking-widest text-orange-400">RESTAURANTE</span>
+        <span className="text-[8px] font-semibold tracking-widest text-[#94a3b8]">LAS PALMAS</span>
         <div className="h-px w-6 bg-red-500 my-1"></div>
-        <span className="text-[10px] font-black tracking-widest text-white">POS</span>
+        <span className="text-[10px] font-semibold tracking-widest text-white">POS</span>
     </div>
 );
 
@@ -30,13 +30,13 @@ const ProductCard: React.FC<{ product: Product, currency: string }> = ({ product
             )}
         </div>
         <div className="w-full flex-col flex items-center justify-center">
-            <span className="text-center text-[9px] font-black uppercase tracking-wide text-gray-200 leading-tight line-clamp-2 px-1">
+            <span className="text-center text-[9px] font-semibold uppercase tracking-wide text-gray-200 leading-tight line-clamp-2 px-1">
                 {product.short_name || product.name}
             </span>
-            <span className="text-[10px] font-bold text-indigo-300 mt-0.5">{currency}{product.price.toFixed(2)}</span>
+            <span className="text-[10px] font-medium text-indigo-300 mt-0.5">{currency}{product.price.toFixed(2)}</span>
         </div>
         {product.is_enabled === false && (
-            <div className="absolute top-1 right-1 bg-red-500 text-white text-[7px] font-bold px-1 py-0.5 rounded shadow uppercase tracking-wider">Agotado</div>
+            <div className="absolute top-1 right-1 bg-red-500 text-white text-[7px] font-medium px-1 py-0.5 rounded shadow uppercase tracking-wider">Agotado</div>
         )}
     </div>
 );
@@ -81,7 +81,7 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
                 <div className="bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 modal-header cursor-move select-none">
                     <div className="flex items-center gap-2">
                         <Monitor size={14} className="text-white fill-white/20" />
-                        <h4 className="text-[10px] font-bold uppercase tracking-widest">Vista Previa de Menú</h4>
+                        <h4 className="text-[10px] font-medium uppercase tracking-widest">Vista Previa de Menú</h4>
                     </div>
                     <div className="flex items-center">
                         <button onClick={onClose} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 transition-colors">
@@ -94,12 +94,12 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
                 <div className="bg-[#f0f2f5] border-b border-gray-300 p-2 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
-                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">Sucursal</span>
+                            <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight">Sucursal</span>
                             <div className="relative">
                                 <select
                                     value={selectedBranch}
                                     onChange={e => setSelectedBranch(e.target.value)}
-                                    className="bg-white border border-gray-300 rounded px-2 py-1 text-[10px] font-bold text-slate-700 outline-none focus:border-[#106ebe] min-w-[280px] appearance-none cursor-pointer pr-8"
+                                    className="bg-white border border-gray-300 rounded px-2 py-1 text-[10px] font-medium text-slate-700 outline-none focus:border-[#106ebe] min-w-[280px] appearance-none cursor-pointer pr-8"
                                 >
                                     {branches.map(b => (
                                         <option key={b.id} value={b.id}>{b.name}</option>
@@ -116,7 +116,7 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
                 <div className="bg-[#eaeff5] px-4 py-2 border-b border-[#c5cdd9]">
                     <div className="flex items-center gap-2">
                         <Layers size={14} className="text-[#106ebe]" />
-                        <h5 className="text-[11px] font-black text-[#106ebe] uppercase tracking-wider">Detalle de Menú</h5>
+                        <h5 className="text-[11px] font-semibold text-[#106ebe] uppercase tracking-wider">Detalle de Menú</h5>
                     </div>
                 </div>
 
@@ -125,7 +125,7 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
                     {loading ? (
                         <div className="flex-1 flex flex-col items-center justify-center py-20">
                             <Loader2 size={32} className="text-[#106ebe] animate-spin mb-4" />
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Cargando Menú...</span>
+                            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em]">Cargando Menú...</span>
                         </div>
                     ) : (
                         <div className="max-w-5xl mx-auto w-full">
@@ -133,7 +133,7 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
                             {(selectedCat || selectedSubCat) && (
                                 <button
                                     onClick={() => selectedSubCat ? setSelectedSubCat(null) : setSelectedCat(null)}
-                                    className="mb-6 flex items-center gap-2 text-[10px] font-black text-[#106ebe] uppercase hover:underline transition-all"
+                                    className="mb-6 flex items-center gap-2 text-[10px] font-semibold text-[#106ebe] uppercase hover:underline transition-all"
                                 >
                                     <ChevronLeft size={16} /> Regresar a Categorías
                                 </button>
@@ -157,7 +157,7 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
                                                 <PlaceholderLogo />
                                             )}
                                         </div>
-                                        <span className="w-full text-center text-[10px] font-black uppercase tracking-widest text-white leading-tight pb-1 truncate">{cat.nombre}</span>
+                                        <span className="w-full text-center text-[10px] font-semibold uppercase tracking-widest text-white leading-tight pb-1 truncate">{cat.nombre}</span>
                                     </button>
                                 ))}
 
@@ -180,7 +180,7 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
                                                         <PlaceholderLogo />
                                                     )}
                                                 </div>
-                                                <span className="w-full text-center text-[10px] font-black uppercase tracking-widest text-white leading-tight pb-1 truncate">{sub.nombre}</span>
+                                                <span className="w-full text-center text-[10px] font-semibold uppercase tracking-widest text-white leading-tight pb-1 truncate">{sub.nombre}</span>
                                             </button>
                                         ))}
                                         {categories.filter(c => c.parent_id === selectedCat.id).length === 0 && (
@@ -201,8 +201,8 @@ export const MenuPreview: React.FC<MenuPreviewProps> = ({ onClose }) => {
 
                 {/* Status Bar */}
                 <div className="bg-[#f0f2f5] border-t border-gray-300 px-4 py-1.5 flex justify-between items-center shrink-0">
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Restaurante Las Palmas POS - Plataforma de Gestión de Menú</span>
-                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">{categories.length} Categorías | {products.length} Platillos</span>
+                    <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest italic">Restaurante Las Palmas POS - Plataforma de Gestión de Menú</span>
+                    <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight">{categories.length} Categorías | {products.length} Platillos</span>
                 </div>
             </div>
         </DraggableWindow>

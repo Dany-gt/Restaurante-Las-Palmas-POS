@@ -74,7 +74,7 @@ export const AppUpdater = () => {
             >
                 <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-emerald-500 border-l-[10px] border-l-transparent pointer-events-none" />
                 <RefreshCw size={14} className="text-gray-400 group-hover:text-emerald-400 mb-1 transition-colors" />
-                <span className="text-[9px] font-black text-gray-400 group-hover:text-white uppercase tracking-wider text-center transition-colors leading-tight">
+                <span className="text-[9px] font-semibold text-gray-400 group-hover:text-white uppercase tracking-wider text-center transition-colors leading-tight">
                     BUSCAR<br/>ACTUALIZACIÓN
                 </span>
             </button>
@@ -92,20 +92,20 @@ export const AppUpdater = () => {
             {status === 'checking' && (
                 <div className="flex flex-col items-center">
                     <RefreshCw size={14} className="animate-spin text-blue-400 mb-1" />
-                    <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest leading-tight">BUSCANDO...</span>
+                    <span className="text-[9px] font-semibold text-blue-400 uppercase tracking-widest leading-tight">BUSCANDO...</span>
                 </div>
             )}
             
             {status === 'available' && (
                 <div className="flex flex-col items-center">
                     <Download size={14} className="animate-bounce text-yellow-400 mb-1" />
-                    <span className="text-[9px] font-black text-yellow-400 uppercase tracking-widest leading-tight">INICIANDO...</span>
+                    <span className="text-[9px] font-semibold text-yellow-400 uppercase tracking-widest leading-tight">INICIANDO...</span>
                 </div>
             )}
 
             {status === 'downloading' && (
                 <div className="flex flex-col items-center w-full px-2">
-                    <span className="text-[9px] font-black text-green-400 uppercase tracking-widest mb-1">
+                    <span className="text-[9px] font-semibold text-green-400 uppercase tracking-widest mb-1">
                         DESCARGANDO {progress?.percent?.toFixed(0) || 0}%
                     </span>
                     <div className="w-full h-1.5 bg-black/50 rounded-full overflow-hidden">
@@ -120,21 +120,21 @@ export const AppUpdater = () => {
             {status === 'downloaded' && (
                 <div className="flex flex-col items-center">
                     <CheckCircle size={14} className="text-emerald-400 mb-1" />
-                    <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest leading-tight">LISTA PARA<br/>INSTALAR</span>
+                    <span className="text-[9px] font-semibold text-emerald-400 uppercase tracking-widest leading-tight">LISTA PARA<br/>INSTALAR</span>
                 </div>
             )}
 
             {status === 'up_to_date' && (
                 <div className="flex flex-col items-center">
                     <CheckCircle size={14} className="text-emerald-400 mb-1" />
-                    <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest leading-tight">ACTUALIZADO</span>
+                    <span className="text-[9px] font-semibold text-emerald-400 uppercase tracking-widest leading-tight">ACTUALIZADO</span>
                 </div>
             )}
 
             {status === 'error' && (
                 <div className="flex flex-col items-center">
                     <AlertCircle size={14} className="text-red-400 mb-1" />
-                    <span className="text-[8px] font-black text-red-400 uppercase tracking-tight leading-tight px-1 text-center line-clamp-2">
+                    <span className="text-[8px] font-semibold text-red-400 uppercase tracking-tight leading-tight px-1 text-center line-clamp-2">
                         {errorMessage || 'ERROR'}
                     </span>
                 </div>

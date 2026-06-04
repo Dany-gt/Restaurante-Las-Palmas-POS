@@ -37,10 +37,10 @@ export const MobileTableCard: React.FC<MobileTableCardProps> = ({
         >
             {/* Header Section */}
             <div className="flex justify-between items-start mb-3">
-                <h4 className="text-[13px] font-bold text-slate-800 uppercase tracking-tight truncate max-w-[60%]">
+                <h4 className="text-[13px] font-medium text-slate-800 uppercase tracking-tight truncate max-w-[60%]">
                     {title}
                 </h4>
-                <span className="text-[14px] font-black text-[#4f46e5] tabular-nums">
+                <span className="text-[14px] font-semibold text-[#4f46e5] tabular-nums">
                     {value}
                 </span>
             </div>
@@ -49,10 +49,10 @@ export const MobileTableCard: React.FC<MobileTableCardProps> = ({
             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                 {details.map((field, idx) => (
                     <div key={idx} className="flex flex-col">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
+                        <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest leading-none mb-1">
                             {field.label}
                         </span>
-                        <span className={`text-[12px] font-bold ${field.color || 'text-slate-700'} tabular-nums`}>
+                        <span className={`text-[12px] font-medium ${field.color || 'text-slate-700'} tabular-nums`}>
                             {field.value}
                         </span>
                     </div>

@@ -66,7 +66,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                     {/* Title Bar */}
                     <div className="bg-[#106ebe] h-7 px-2 flex justify-between items-center text-white shrink-0 modal-header cursor-move select-none">
                         <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold uppercase tracking-tight">{title}</span>
+                            <span className="text-[10px] font-medium uppercase tracking-tight">{title}</span>
                         </div>
                         <button onClick={onCancel} className="h-full px-2 hover:bg-red-500 transition-colors flex items-center">
                             <X size={14} />
@@ -79,7 +79,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                             {getIcon()}
                         </div>
                         <div className="flex-1 space-y-2">
-                            <h3 className="text-[12px] font-black text-slate-800 leading-tight uppercase">
+                            <h3 className="text-[12px] font-semibold text-slate-800 leading-tight uppercase">
                                 {message}
                             </h3>
                             {description && (
@@ -94,14 +94,14 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                     <div className="bg-[#e1e5eb] p-3 flex justify-end gap-2 border-t border-gray-300">
                         <button 
                             onClick={onConfirm}
-                            className="px-6 h-7 bg-[#106ebe] text-white text-[10px] font-black uppercase shadow-sm hover:bg-[#0d5aa0] transition-colors flex items-center gap-2"
+                            className="px-6 h-7 bg-[#106ebe] text-white text-[10px] font-semibold uppercase shadow-sm hover:bg-[#0d5aa0] transition-colors flex items-center gap-2"
                         >
                             <Check size={12} />
                             {confirmText}
                         </button>
                         <button 
                             onClick={onCancel}
-                            className="px-6 h-7 bg-white border border-gray-400 text-slate-600 text-[10px] font-black uppercase shadow-sm hover:bg-gray-50 transition-colors"
+                            className="px-6 h-7 bg-white border border-gray-400 text-slate-600 text-[10px] font-semibold uppercase shadow-sm hover:bg-gray-50 transition-colors"
                         >
                             {cancelText}
                         </button>

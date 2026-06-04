@@ -46,7 +46,7 @@ export const WindowsConfirmModal: React.FC<Props> = ({
             >
                 {/* Title Bar - NEUTRALIZED */}
                 <div className="flex justify-between items-center bg-[#222] text-white px-3 py-1.5 select-none">
-                    <span className="text-[12px] font-bold whitespace-nowrap overflow-hidden text-ellipsis uppercase tracking-wider">{title}</span>
+                    <span className="text-[12px] font-medium whitespace-nowrap overflow-hidden text-ellipsis uppercase tracking-wider">{title}</span>
                     {onCancel && (
                         <button
                             onClick={onCancel}
@@ -64,7 +64,7 @@ export const WindowsConfirmModal: React.FC<Props> = ({
                     {/* Neutralized Icon */}
                     <div className="w-[42px] h-[42px] min-w-[42px] rounded-xl bg-[#333] flex justify-center items-center relative text-white border border-white/20  shrink-0">
                         {isAlert ? (
-                            <span className="text-[22px] font-black">!</span>
+                            <span className="text-[22px] font-semibold">!</span>
                         ) : (
                             <span className="text-[24px] font-medium" style={{ fontFamily: 'Times New Roman, serif', marginTop: '-1px' }}>?</span>
                         )}
@@ -80,7 +80,7 @@ export const WindowsConfirmModal: React.FC<Props> = ({
                     <button
                         ref={confirmBtnRef}
                         onClick={onConfirm}
-                        className="min-w-[90px] h-[28px] bg-[#333] hover:bg-[#444] border border-[#000] text-white text-[11px] font-black uppercase tracking-widest focus:outline-none relative group transition-all active:scale-95 "
+                        className="min-w-[90px] h-[28px] bg-[#333] hover:bg-[#444] border border-[#000] text-white text-[11px] font-semibold uppercase tracking-widest focus:outline-none relative group transition-all active:scale-95 "
                     >
                         {/* Inner focus dotted line */}
                         <div className="absolute inset-[2px] border border-dotted border-white/30 opacity-0 group-focus:opacity-100 pointer-events-none"></div>
@@ -90,7 +90,7 @@ export const WindowsConfirmModal: React.FC<Props> = ({
                     {!isAlert && onDeny && (
                         <button
                             onClick={onDeny}
-                            className="min-w-[90px] h-[28px] bg-[#e1e1e1] hover:bg-[#d5d5d5] border border-[#adadad] text-black text-[11px] font-black uppercase tracking-widest focus:outline-none relative group transition-all active:scale-95 "
+                            className="min-w-[90px] h-[28px] bg-[#e1e1e1] hover:bg-[#d5d5d5] border border-[#adadad] text-black text-[11px] font-semibold uppercase tracking-widest focus:outline-none relative group transition-all active:scale-95 "
                         >
                             <div className="absolute inset-[2px] border border-dotted border-black/30 opacity-0 group-focus:opacity-100 pointer-events-none"></div>
                             NO
@@ -100,7 +100,7 @@ export const WindowsConfirmModal: React.FC<Props> = ({
                     {!isAlert && onCancel && (
                         <button
                             onClick={onCancel}
-                            className="min-w-[90px] h-[28px] bg-[#e1e1e1] hover:bg-[#d5d5d5] border border-[#adadad] text-black text-[11px] font-black uppercase tracking-widest focus:outline-none relative group transition-all active:scale-95 "
+                            className="min-w-[90px] h-[28px] bg-[#e1e1e1] hover:bg-[#d5d5d5] border border-[#adadad] text-black text-[11px] font-semibold uppercase tracking-widest focus:outline-none relative group transition-all active:scale-95 "
                         >
                             <div className="absolute inset-[2px] border border-dotted border-black/30 opacity-0 group-focus:opacity-100 pointer-events-none"></div>
                             CANCELAR

@@ -229,7 +229,7 @@ export const ConfigPlatforms: React.FC = () => {
             </div>
 
             {/* Grid Header */}
-            <div className="grid grid-cols-[1fr_160px_120px_100px] bg-[#e8e8e8] border-b border-gray-400 font-bold text-black text-[10px] select-none shrink-0 uppercase">
+            <div className="grid grid-cols-[1fr_160px_120px_100px] bg-[#e8e8e8] border-b border-gray-400 font-medium text-black text-[10px] select-none shrink-0 uppercase">
                 <div className="py-2.5 px-6 border-r border-gray-300 text-left tracking-tight">Plataforma</div>
                 <div className="py-2.5 px-6 border-r border-gray-300 text-center tracking-tight">Cuenta por Cobrar</div>
                 <div className="py-2.5 px-6 border-r border-gray-300 text-center tracking-tight">Porcentaje Servicio</div>
@@ -272,14 +272,14 @@ export const ConfigPlatforms: React.FC = () => {
                         <tbody>
                             {platforms.length === 0 ? (
                                 <tr>
-                                    <td colSpan={4} className="py-20 text-center text-slate-500 font-bold italic text-[11px]">
+                                    <td colSpan={4} className="py-20 text-center text-slate-500 font-medium italic text-[11px]">
                                         No hay plataformas configuradas.<br />
                                         Haz clic derecho para crear una nueva.
                                     </td>
                                 </tr>
                             ) : filtered.length === 0 ? (
                                 <tr>
-                                    <td colSpan={4} className="py-20 text-center text-slate-500 font-bold italic text-[11px]">
+                                    <td colSpan={4} className="py-20 text-center text-slate-500 font-medium italic text-[11px]">
                                         No se encontraron resultados para "{searchTerm}".
                                     </td>
                                 </tr>
@@ -302,15 +302,15 @@ export const ConfigPlatforms: React.FC = () => {
                                                     ) : (
                                                         <Globe size={12} className={isSelected ? 'text-white' : 'text-slate-400'} />
                                                     )}
-                                                    <span className="uppercase font-bold text-[10px] tracking-tight">{plat.name}</span>
+                                                    <span className="uppercase font-medium text-[10px] tracking-tight">{plat.name}</span>
                                                 </div>
                                             </td>
                                             {/* Cuenta por Cobrar */}
-                                            <td className="px-4 border-r border-gray-100 text-[10px] font-bold truncate text-center">
+                                            <td className="px-4 border-r border-gray-100 text-[10px] font-medium truncate text-center">
                                                 {acct?.name || ''}
                                             </td>
                                             {/* Porcentaje Servicio */}
-                                            <td className="px-4 border-r border-gray-100 text-right text-[10px] font-black tracking-tight">
+                                            <td className="px-4 border-r border-gray-100 text-right text-[10px] font-semibold tracking-tight">
                                                 {plat.commission_percentage != null
                                                     ? `${plat.commission_percentage % 1 === 0 ? plat.commission_percentage : Number(plat.commission_percentage).toFixed(2)}%`
                                                     : ''}
@@ -344,7 +344,7 @@ export const ConfigPlatforms: React.FC = () => {
                 >
                     <button
                         onClick={() => { setContextMenu({ ...contextMenu, visible: false }); openModal(null); }}
-                        className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-slate-900"
+                        className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-slate-900"
                     >
                         <Plus size={14} className="group-hover:text-white text-emerald-600" /> Nuevo Registro
                     </button>
@@ -353,13 +353,13 @@ export const ConfigPlatforms: React.FC = () => {
                             <div className="h-px bg-gray-200 my-1" />
                             <button
                                 onClick={() => { setContextMenu({ ...contextMenu, visible: false }); openModal(contextMenu.item); }}
-                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-slate-900"
+                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-slate-900"
                             >
                                 <Edit2 size={14} className="text-[#106ebe] group-hover:text-white" /> Modificar
                             </button>
                             <button
                                 onClick={() => { setContextMenu({ ...contextMenu, visible: false }); setConfirmDelete(contextMenu.item); }}
-                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-slate-900"
+                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-slate-900"
                             >
                                 <Trash2 size={14} className="text-red-500 group-hover:text-white" /> Eliminar
                             </button>
@@ -377,7 +377,7 @@ export const ConfigPlatforms: React.FC = () => {
                             <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move select-none shrink-0">
                                 <div className="flex items-center gap-2">
                                     <Globe size={14} className="text-white/80" />
-                                    <span className="text-white text-[12px] font-bold tracking-wide">
+                                    <span className="text-white text-[12px] font-medium tracking-wide">
                                         Mantenimiento de Plataformas de Pedidos
                                     </span>
                                 </div>
@@ -399,7 +399,7 @@ export const ConfigPlatforms: React.FC = () => {
                                 {/* Left: form fields */}
                                 <div className="flex-1">
                                     <div className="border border-gray-400 p-3 pt-4 relative bg-[#f0f0f0] rounded-sm">
-                                        <span className="text-[11px] text-slate-800 font-bold px-1 absolute -top-2.5 left-2 bg-[#f0f0f0]">Datos de la Plataforma</span>
+                                        <span className="text-[11px] text-slate-800 font-medium px-1 absolute -top-2.5 left-2 bg-[#f0f0f0]">Datos de la Plataforma</span>
 
                                         <div className="space-y-3">
                                             {/* Nombre */}

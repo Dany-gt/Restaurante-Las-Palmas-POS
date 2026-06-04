@@ -70,14 +70,14 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
                     <button onClick={onBack} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all">
                         <ChevronLeft size={24} />
                     </button>
-                    <span className="text-sm font-black tracking-widest uppercase text-gray-400">RESTAURANTE LAS PALMAS POS</span>
+                    <span className="text-sm font-semibold tracking-widest uppercase text-gray-400">RESTAURANTE LAS PALMAS POS</span>
                 </div>
                 <div className="flex flex-col items-center">
-                    <span className="text-xs font-black uppercase tracking-[0.3em] text-indigo-400">Cuenta por Cobrar</span>
+                    <span className="text-xs font-semibold uppercase tracking-[0.3em] text-indigo-400">Cuenta por Cobrar</span>
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="flex flex-col items-end">
-                        <span className="text-xs text-indigo-400 font-black uppercase tracking-widest">Vale Al Crédito</span>
+                        <span className="text-xs text-indigo-400 font-semibold uppercase tracking-widest">Vale Al Crédito</span>
                     </div>
                 </div>
             </header>
@@ -93,7 +93,7 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
                                 placeholder="Buscar cliente..."
-                                className="w-full bg-[#1e212b] border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold focus:border-indigo-500/50 outline-none transition-all placeholder:text-gray-600 uppercase"
+                                className="w-full bg-[#1e212b] border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm font-medium focus:border-indigo-500/50 outline-none transition-all placeholder:text-gray-600 uppercase"
                             />
                         </div>
                     </div>
@@ -118,11 +118,11 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
                                             <User size={16} />
                                         </div>
                                         <div className="flex flex-col min-w-0">
-                                            <span className="text-[11px] font-black uppercase truncate group-hover:text-white transition-colors leading-tight">
+                                            <span className="text-[11px] font-semibold uppercase truncate group-hover:text-white transition-colors leading-tight">
                                                 {customer.name}
                                             </span>
                                             {customer.nit && (
-                                                <span className={`text-[9px] font-bold uppercase tracking-widest ${selectedCustomer?.id === customer.id ? 'text-white/60' : 'text-gray-500'}`}>
+                                                <span className={`text-[9px] font-medium uppercase tracking-widest ${selectedCustomer?.id === customer.id ? 'text-white/60' : 'text-gray-500'}`}>
                                                     NIT: {customer.nit}
                                                 </span>
                                             )}
@@ -131,11 +131,11 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
 
                                     <div className="mt-auto flex justify-between items-end">
                                         <div className="flex flex-col gap-0.5">
-                                            <div className={`flex items-center gap-1.5 text-[9px] font-bold ${selectedCustomer?.id === customer.id ? 'text-white/60' : 'text-gray-500'}`}>
+                                            <div className={`flex items-center gap-1.5 text-[9px] font-medium ${selectedCustomer?.id === customer.id ? 'text-white/60' : 'text-gray-500'}`}>
                                                 <Phone size={10} />
                                                 <span>{customer.phone || '---'}</span>
                                             </div>
-                                            <div className={`text-xs font-black tabular-nums transition-colors ${selectedCustomer?.id === customer.id ? 'text-white' : (customer.current_balance > 0 ? 'text-amber-400' : 'text-emerald-400')}`}>
+                                            <div className={`text-xs font-semibold tabular-nums transition-colors ${selectedCustomer?.id === customer.id ? 'text-white' : (customer.current_balance > 0 ? 'text-amber-400' : 'text-emerald-400')}`}>
                                                 {currency}{customer.current_balance.toFixed(2)}
                                             </div>
                                         </div>
@@ -170,27 +170,27 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
                 <div className="w-[360px] bg-[#16191f] flex flex-col border-l border-white/5">
                     <div className="p-6 flex flex-col gap-6 flex-1 overflow-y-auto custom-scrollbar">
                         <section>
-                            <h3 className="text-[9px] font-black uppercase tracking-[0.3em] text-gray-600 mb-4">Cuenta por Cobrar</h3>
+                            <h3 className="text-[9px] font-semibold uppercase tracking-[0.3em] text-gray-600 mb-4">Cuenta por Cobrar</h3>
                             <div className="space-y-3">
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-[9px] font-black uppercase tracking-widest text-indigo-400/80">Aplicar a:</label>
-                                    <div className="h-12 flex items-center px-4 bg-white/5 rounded-xl border border-white/10 text-sm font-black uppercase">
+                                    <label className="text-[9px] font-semibold uppercase tracking-widest text-indigo-400/80">Aplicar a:</label>
+                                    <div className="h-12 flex items-center px-4 bg-white/5 rounded-xl border border-white/10 text-sm font-semibold uppercase">
                                         {selectedCustomer?.name || '---'}
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="flex flex-col gap-0.5">
-                                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-600">Desc. Autorizado</label>
-                                        <div className="text-xs font-black text-amber-500">{(selectedCustomer?.authorized_discount || 0).toFixed(2)} %</div>
+                                        <label className="text-[9px] font-semibold uppercase tracking-widest text-gray-600">Desc. Autorizado</label>
+                                        <div className="text-xs font-semibold text-amber-500">{(selectedCustomer?.authorized_discount || 0).toFixed(2)} %</div>
                                     </div>
                                     <div className="flex flex-col gap-0.5 text-right">
-                                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-600">Límite Crédito</label>
-                                        <div className="text-xs font-black text-white">{currency}{(selectedCustomer?.credit_limit || 0).toFixed(2)}</div>
+                                        <label className="text-[9px] font-semibold uppercase tracking-widest text-gray-600">Límite Crédito</label>
+                                        <div className="text-xs font-semibold text-white">{currency}{(selectedCustomer?.credit_limit || 0).toFixed(2)}</div>
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-0.5 text-right">
-                                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-600">Saldo Actual</label>
-                                    <div className="text-sm font-black text-white/90">{currency}{(selectedCustomer?.current_balance || 0).toFixed(2)}</div>
+                                    <label className="text-[9px] font-semibold uppercase tracking-widest text-gray-600">Saldo Actual</label>
+                                    <div className="text-sm font-semibold text-white/90">{currency}{(selectedCustomer?.current_balance || 0).toFixed(2)}</div>
                                 </div>
                             </div>
                         </section>
@@ -198,21 +198,21 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
                         <div className="h-px bg-white/5"></div>
 
                         <section>
-                            <h3 className="text-[9px] font-black uppercase tracking-[0.3em] text-gray-600 mb-4">Datos Orden</h3>
+                            <h3 className="text-[9px] font-semibold uppercase tracking-[0.3em] text-gray-600 mb-4">Datos Orden</h3>
                             <div className="space-y-2">
-                                <div className="flex justify-between text-xs font-bold text-gray-500">
+                                <div className="flex justify-between text-xs font-medium text-gray-500">
                                     <span>SUB-TOTAL</span>
                                     <span>{currency}{order.subtotal.toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between text-xs font-bold text-gray-500">
+                                <div className="flex justify-between text-xs font-medium text-gray-500">
                                     <span>DESCUENTO (-)</span>
                                     <span className={discountAmount > 0 ? "text-emerald-400" : ""}>{currency}{discountAmount.toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between text-xs font-bold text-gray-500">
+                                <div className="flex justify-between text-xs font-medium text-gray-500">
                                     <span>PROPINA (+)</span>
                                     <span>{currency}{(order as any).tip_amount?.toFixed(2) || '0.00'}</span>
                                 </div>
-                                <div className="flex justify-between text-lg font-black text-white uppercase tracking-widest pt-1 border-t border-white/5">
+                                <div className="flex justify-between text-lg font-semibold text-white uppercase tracking-widest pt-1 border-t border-white/5">
                                     <span>TOTAL</span>
                                     <span>{currency}{orderTotal.toFixed(2)}</span>
                                 </div>
@@ -222,22 +222,22 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
                         <div className="h-px bg-white/5"></div>
 
                         <section>
-                            <h3 className="text-[9px] font-black uppercase tracking-[0.3em] text-gray-600 mb-4">Datos Crédito</h3>
+                            <h3 className="text-[9px] font-semibold uppercase tracking-[0.3em] text-gray-600 mb-4">Datos Crédito</h3>
                             <div className="space-y-2">
-                                <div className="flex justify-between text-[11px] font-bold text-gray-600">
+                                <div className="flex justify-between text-[11px] font-medium text-gray-600">
                                     <span>EFEC. TAR. OTROS. (-)</span>
                                     <span>{currency}0.00</span>
                                 </div>
-                                <div className="flex justify-between text-xs font-black text-amber-500 uppercase tracking-widest">
+                                <div className="flex justify-between text-xs font-semibold text-amber-500 uppercase tracking-widest">
                                     <span>TOTAL AL CRÉDITO</span>
                                     <span>{currency}{orderTotal.toFixed(2)}</span>
                                 </div>
-                                <div className={`flex justify-between text-base font-black uppercase tracking-widest pt-2 border-t border-white/5 ${isOverLimit ? 'text-red-500 animate-pulse' : 'text-emerald-400'}`}>
+                                <div className={`flex justify-between text-base font-semibold uppercase tracking-widest pt-2 border-t border-white/5 ${isOverLimit ? 'text-red-500 animate-pulse' : 'text-emerald-400'}`}>
                                     <span>NUEVO SALDO</span>
                                     <span>{currency}{newBalance.toFixed(2)}</span>
                                 </div>
                                 {isOverLimit && (
-                                    <div className="mt-1 text-[8px] font-black uppercase text-red-500 text-center tracking-widest">
+                                    <div className="mt-1 text-[8px] font-semibold uppercase text-red-500 text-center tracking-widest">
                                         ⚠️ EL SALDO SUPERA EL LÍMITE DE CRÉDITO
                                     </div>
                                 )}
@@ -272,7 +272,7 @@ export const CreditSelector: React.FC<CreditSelectorProps> = ({ order, onSelect,
                                     onSelect(selectedCustomer, orderTotal);
                                 }
                             }}
-                            className={`w-full h-16 rounded-2xl flex items-center justify-center text-lg font-black uppercase tracking-[0.2em] transition-all active:scale-95 shadow-2xl ${selectedCustomer && !isOverLimit
+                            className={`w-full h-16 rounded-2xl flex items-center justify-center text-lg font-semibold uppercase tracking-[0.2em] transition-all active:scale-95 shadow-2xl ${selectedCustomer && !isOverLimit
                                 ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-600/20'
                                 : 'bg-white/5 text-gray-700 border border-white/10 cursor-not-allowed opacity-50'
                                 }`}

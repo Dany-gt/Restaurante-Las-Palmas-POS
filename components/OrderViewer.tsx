@@ -274,7 +274,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                         <button onClick={onBack} className="absolute left-3 p-1.5 hover:bg-white/5 rounded-sm text-gray-400">
                             <ArrowRight className="rotate-180" size={18} />
                         </button>
-                        <h2 className="text-[11px] font-black tracking-widest uppercase">RESTAURANTE LAS PALMAS POS</h2>
+                        <h2 className="text-[11px] font-semibold tracking-widest uppercase">RESTAURANTE LAS PALMAS POS</h2>
                     </div>
 
                     <div className="p-3 bg-[#2d2e3d]">
@@ -285,7 +285,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                 placeholder="BUSCAR ORDEN / MESA..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-black/40 border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-black placeholder:text-gray-500 outline-none focus:border-white/50 focus:bg-black/60 transition-all uppercase tracking-widest text-white "
+                                className="w-full bg-black/40 border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-semibold placeholder:text-gray-500 outline-none focus:border-white/50 focus:bg-black/60 transition-all uppercase tracking-widest text-white "
                             />
                         </div>
                     </div>
@@ -298,14 +298,14 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                         ) : filteredOrders.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center opacity-10">
                                 <FileText size={40} />
-                                <span className="text-[10px] font-black uppercase tracking-widest mt-2">Sin registros</span>
+                                <span className="text-[10px] font-semibold uppercase tracking-widest mt-2">Sin registros</span>
                             </div>
                         ) : (
                             <div className="max-w-6xl space-y-8">
                                 {/* DINE IN SECTION */}
                                 {filteredOrders.some(o => o.order_type === 'DINE_IN' || !o.order_type) && (
                                     <div>
-                                        <h3 className="text-[9px] font-black uppercase tracking-[0.3em] text-white mb-4 flex items-center gap-2">
+                                        <h3 className="text-[9px] font-semibold uppercase tracking-[0.3em] text-white mb-4 flex items-center gap-2">
                                             <Utensils size={12} className="opacity-50" /> Comer Aquí
                                             <div className="h-px flex-1 bg-white/5" />
                                         </h3>
@@ -325,7 +325,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                 {/* TAKEOUT SECTION */}
                                 {filteredOrders.some(o => o.order_type === 'TAKEOUT') && (
                                     <div>
-                                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white mb-6 flex items-center gap-3">
+                                        <h3 className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white mb-6 flex items-center gap-3">
                                             <Package size={14} className="opacity-50" /> Para Llevar
                                             <div className="h-px flex-1 bg-white/5" />
                                         </h3>
@@ -345,7 +345,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                 {/* DELIVERY SECTION */}
                                 {filteredOrders.some(o => o.order_type === 'DELIVERY') && (
                                     <div>
-                                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white mb-6 flex items-center gap-3">
+                                        <h3 className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white mb-6 flex items-center gap-3">
                                             <Truck size={14} className="opacity-50" /> A Domicilio
                                             <div className="h-px flex-1 bg-white/5" />
                                         </h3>
@@ -377,21 +377,21 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                 <div className="w-[400px] flex flex-col bg-[#2d2e3d] shrink-0 h-full border-l border-[#1e1f2b]">
                     <div className="bg-[#3a3b4d] h-10 flex items-center justify-center shrink-0  gap-2">
                         <FileText size={14} className="text-white/30" />
-                        <h2 className="text-[11px] font-bold tracking-widest uppercase">INFORMACIÓN</h2>
+                        <h2 className="text-[11px] font-medium tracking-widest uppercase">INFORMACIÓN</h2>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
                         {selectedOrder ? (
                             <>
-                                <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 mb-4 text-center">Artículos en la Orden</h4>
+                                <h4 className="text-[10px] font-medium uppercase tracking-[0.2em] text-gray-500 mb-4 text-center">Artículos en la Orden</h4>
                                 <div className="space-y-3">
                                     {selectedOrder.order_items?.map((item: any) => (
                                         <div key={item.id} className="bg-[#3a3b4d] rounded-sm p-3 text-sm  border border-white/[0.03]">
                                             <div className="flex justify-between items-start">
                                                 <div className="flex gap-3">
-                                                    <span className="font-bold text-white/50">{item.quantity}</span>
+                                                    <span className="font-medium text-white/50">{item.quantity}</span>
                                                     <div className="flex flex-col gap-1">
-                                                        <span className="font-bold uppercase tracking-tight leading-tight text-white/80">{item.products?.name}</span>
+                                                        <span className="font-medium uppercase tracking-tight leading-tight text-white/80">{item.products?.name}</span>
                                                         {(item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim()) && (
                                                             <span className="text-[10px] text-gray-400 uppercase leading-tight italic">
                                                                 {item.notes.replace('*NO IMPRIMIR*', '').trim()}
@@ -402,7 +402,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                                         )}
                                                     </div>
                                                 </div>
-                                                <span className="font-bold tabular-nums tracking-tighter shrink-0 ml-2 text-white/90">Q{((item.unit_price || 0) * (item.quantity || 0)).toFixed(2)}</span>
+                                                <span className="font-medium tabular-nums tracking-tighter shrink-0 ml-2 text-white/90">Q{((item.unit_price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                                             </div>
                                         </div>
                                     ))}
@@ -413,8 +413,8 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                 <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10 ">
                                     <FileText size={48} className="text-white/30" strokeWidth={1} />
                                 </div>
-                                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white/60 text-center mb-2">SIN SELECCIÓN</h3>
-                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest text-center">
+                                <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-white/60 text-center mb-2">SIN SELECCIÓN</h3>
+                                <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest text-center">
                                     Selecciona una cuenta de la lista
                                 </p>
                             </div>
@@ -428,20 +428,20 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                             <div className="p-4 shrink-0 border-t border-white/5 bg-[#2d2e3d] ">
                                 <div className="ml-auto w-full max-w-[220px] space-y-1">
                                     <div className="flex justify-between text-[10px]">
-                                        <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Sub-Total</span>
-                                        <span className="font-black tabular-nums text-white/80">Q{computed.subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                        <span className="text-gray-500 font-medium uppercase tracking-widest leading-none self-end pb-0.5">Sub-Total</span>
+                                        <span className="font-semibold tabular-nums text-white/80">Q{computed.subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                     </div>
                                     <div className="flex justify-between text-[10px]">
-                                        <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Descuento</span>
-                                        <span className="font-black tabular-nums text-white/80">-Q{computed.discount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                        <span className="text-gray-500 font-medium uppercase tracking-widest leading-none self-end pb-0.5">Descuento</span>
+                                        <span className="font-semibold tabular-nums text-white/80">-Q{computed.discount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                     </div>
                                     <div className="flex justify-between text-[10px]">
-                                        <span className="text-gray-500 font-bold uppercase tracking-widest leading-none self-end pb-0.5">Propina</span>
-                                        <span className="font-black tabular-nums text-white/80">Q{computed.tip.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                        <span className="text-gray-500 font-medium uppercase tracking-widest leading-none self-end pb-0.5">Propina</span>
+                                        <span className="font-semibold tabular-nums text-white/80">Q{computed.tip.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                     </div>
                                     <div className="mt-3 pt-3 border-t border-white/10 flex justify-between items-baseline">
-                                        <span className="text-[11px] font-black text-white/40 uppercase tracking-widest leading-none">Total</span>
-                                        <span className="text-2xl font-black tabular-nums text-white leading-none">Q{computed.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                        <span className="text-[11px] font-semibold text-white/40 uppercase tracking-widest leading-none">Total</span>
+                                        <span className="text-2xl font-semibold tabular-nums text-white leading-none">Q{computed.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                     </div>
                                 </div>
                             </div>
@@ -492,7 +492,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                 </button>
                                 <button
                                     onClick={() => onOpenOrder && onOpenOrder(selectedOrder.id)}
-                                    className="flex-1 bg-white hover:bg-gray-100 text-black py-3 rounded-sm text-[10px] font-black uppercase tracking-widest  active:scale-[0.98] transition-all"
+                                    className="flex-1 bg-white hover:bg-gray-100 text-black py-3 rounded-sm text-[10px] font-semibold uppercase tracking-widest  active:scale-[0.98] transition-all"
                                 >
                                     ABRIR ORDEN
                                 </button>
@@ -508,7 +508,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
 const TabButton = ({ active, onClick, label, color }: any) => (
     <button
         onClick={onClick}
-        className={`px-6 py-4 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all  ${color} ${active ? 'opacity-100 scale-105 ring-1 ring-white/10' : 'opacity-60 grayscale-[0.5] hover:opacity-80'}`}
+        className={`px-6 py-4 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all  ${color} ${active ? 'opacity-100 scale-105 ring-1 ring-white/10' : 'opacity-60 grayscale-[0.5] hover:opacity-80'}`}
     >
         {label}
     </button>
@@ -529,15 +529,15 @@ const OrderCard = ({ order, isSelected, onClick }: any) => {
             <div className="flex justify-between items-start mb-1.5">
                 <div className="flex items-center gap-1.5">
                     <FileText size={12} className="opacity-70" />
-                    <span className="text-[11px] font-bold">{order.order_number}</span>
+                    <span className="text-[11px] font-medium">{order.order_number}</span>
                 </div>
-                <span className="text-[11px] font-black tabular-nums">Q{parseFloat(order.total || 0).toLocaleString()}</span>
+                <span className="text-[11px] font-semibold tabular-nums">Q{parseFloat(order.total || 0).toLocaleString()}</span>
             </div>
             <div className="flex items-center gap-2 mb-2">
                 <div className="w-3.5 h-3.5 bg-white/20 rounded flex items-center justify-center">
                     <div className="w-2 h-2 bg-white rounded-sm opacity-50" />
                 </div>
-                <span className="text-[11px] font-bold uppercase tracking-tight truncate">
+                <span className="text-[11px] font-medium uppercase tracking-tight truncate">
                     {order.order_type === 'DINE_IN' || !order.order_type ? (
                         `${order.tables?.section || 'MESA'} ${order.tables?.number || '?'}`
                     ) : order.order_type === 'TAKEOUT' ? (
@@ -550,7 +550,7 @@ const OrderCard = ({ order, isSelected, onClick }: any) => {
                 {(order.order_type === 'DINE_IN' || !order.order_type) && (
                     <div className="ml-auto flex items-center gap-1 opacity-70">
                         <User size={12} />
-                        <span className="text-[10px] font-bold">{order.pax_count || 0}</span>
+                        <span className="text-[10px] font-medium">{order.pax_count || 0}</span>
                     </div>
                 )}
             </div>
@@ -561,13 +561,13 @@ const OrderCard = ({ order, isSelected, onClick }: any) => {
             {(order.item_counts?.pending > 0 || order.item_counts?.preparing > 0 || order.item_counts?.ready > 0) && (
                 <div className="mt-1.5 flex flex-col gap-0.5 border-t border-white/5 pt-1.5">
                     {order.item_counts?.pending > 0 && (
-                        <span className="text-[9px] font-black text-gray-400">🕐 {order.item_counts.pending} en espera</span>
+                        <span className="text-[9px] font-semibold text-gray-400">🕐 {order.item_counts.pending} en espera</span>
                     )}
                     {order.item_counts?.preparing > 0 && (
-                        <span className="text-[9px] font-black text-amber-400">🔥 {order.item_counts.preparing} en preparación</span>
+                        <span className="text-[9px] font-semibold text-amber-400">🔥 {order.item_counts.preparing} en preparación</span>
                     )}
                     {order.item_counts?.ready > 0 && (
-                        <span className="text-[9px] font-black text-emerald-400">✅ {order.item_counts.ready} listo</span>
+                        <span className="text-[9px] font-semibold text-emerald-400">✅ {order.item_counts.ready} listo</span>
                     )}
                 </div>
             )}

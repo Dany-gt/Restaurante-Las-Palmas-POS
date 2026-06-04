@@ -49,15 +49,15 @@ const ShiftsPrintPreview: React.FC<{
                 <div className="bg-[#f0f0f0] border-2 border-[#106ebe] shadow-2xl flex flex-col w-[95vw] max-w-6xl h-[90vh] overflow-hidden font-sans rounded-sm">
                     {/* Toolbar */}
                     <div className="modal-header bg-[#106ebe] h-10 px-4 flex justify-between items-center text-white shrink-0 cursor-move border-b border-black">
-                        <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest">
+                        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest">
                             <Printer size={16} className="text-emerald-400" />
                             <span>Contingencia y Auditoría - Vista Previa de Cortes de Caja</span>
                         </div>
                         <div className="flex items-center gap-1">
-                            <button onClick={onExportExcel} className="h-7 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-sm text-[10px] font-black uppercase flex items-center gap-2 transition-colors border border-emerald-400/30">
+                            <button onClick={onExportExcel} className="h-7 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-sm text-[10px] font-semibold uppercase flex items-center gap-2 transition-colors border border-emerald-400/30">
                                 <FileSpreadsheet size={12} strokeWidth={3} /> EXCEL (.XLSX)
                             </button>
-                            <button onClick={() => handlePrint()} className="h-7 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-sm text-[10px] font-black uppercase flex items-center gap-2 transition-colors border border-blue-400/30 ml-2">
+                            <button onClick={() => handlePrint()} className="h-7 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-sm text-[10px] font-semibold uppercase flex items-center gap-2 transition-colors border border-blue-400/30 ml-2">
                                 <Printer size={12} strokeWidth={3} /> IMPRIMIR PDF
                             </button>
                             <button onClick={onClose} className="h-8 w-8 flex items-center justify-center hover:bg-red-500 transition-colors text-white ml-2 rounded-sm">
@@ -76,49 +76,49 @@ const ShiftsPrintPreview: React.FC<{
 
                             {/* Header */}
                             <div className="text-center mb-10 border-b-2 border-slate-900 pb-8 relative z-10">
-                                <h1 className="text-4xl font-black uppercase tracking-tighter mb-1 font-sans">RESTAURANTE LAS PALMAS</h1>
-                                <p className="text-[12px] font-black uppercase text-slate-400 tracking-[0.4em] mb-4 font-sans">Auditoría Operativa de Turnos y Cajas</p>
+                                <h1 className="text-4xl font-semibold uppercase tracking-tighter mb-1 font-sans">RESTAURANTE LAS PALMAS</h1>
+                                <p className="text-[12px] font-semibold uppercase text-slate-400 tracking-[0.4em] mb-4 font-sans">Auditoría Operativa de Turnos y Cajas</p>
 
                                 <div className="flex justify-between items-end bg-slate-50 p-6 border border-slate-200 mt-6 font-sans">
                                     <div className="text-left">
-                                        <h2 className="text-2xl font-black uppercase text-slate-800 tracking-tight leading-none">REPORTE DE CORTES DE CAJA</h2>
+                                        <h2 className="text-2xl font-semibold uppercase text-slate-800 tracking-tight leading-none">REPORTE DE CORTES DE CAJA</h2>
                                         <div className="mt-2 space-y-0.5">
-                                            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Sucursal: <span className="text-slate-900">{filters?.branch || 'GENERAL'}</span></p>
-                                            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Periodo: <span className="text-slate-900">{filters?.start} al {filters?.end}</span></p>
+                                            <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Sucursal: <span className="text-slate-900">{filters?.branch || 'GENERAL'}</span></p>
+                                            <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Periodo: <span className="text-slate-900">{filters?.start} al {filters?.end}</span></p>
                                         </div>
                                     </div>
                                     <div className="text-right">
                                         <div className="inline-block border-l-4 border-slate-900 pl-4 text-right">
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 font-sans">Venta Neta Consolidada</p>
-                                            <div className="text-3xl font-black text-slate-900 tracking-tighter font-sans">Q{formatCurr(totals?.ventas || 0)}</div>
+                                            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1 font-sans">Venta Neta Consolidada</p>
+                                            <div className="text-3xl font-semibold text-slate-900 tracking-tighter font-sans">Q{formatCurr(totals?.ventas || 0)}</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Resumen Financiero */}
-                            <div className="grid grid-cols-4 gap-4 mb-10 font-sans relative z-10 text-[11px] font-bold">
+                            <div className="grid grid-cols-4 gap-4 mb-10 font-sans relative z-10 text-[11px] font-medium">
                                 <div className="border border-slate-200 p-4 bg-slate-50">
-                                    <span className="text-[9px] font-black text-slate-400 uppercase block mb-1">TOTAL VENTAS</span>
-                                    <div className="text-xl font-black">Q{formatCurr(totals?.ventas || 0)}</div>
+                                    <span className="text-[9px] font-semibold text-slate-400 uppercase block mb-1">TOTAL VENTAS</span>
+                                    <div className="text-xl font-semibold">Q{formatCurr(totals?.ventas || 0)}</div>
                                 </div>
                                 <div className="border border-slate-200 p-4 bg-white">
-                                    <span className="text-[9px] font-black text-blue-400 uppercase block mb-1">ABONOS CRÉDITOS</span>
-                                    <div className="text-xl font-black text-blue-700">Q{formatCurr(totals?.abonos || 0)}</div>
+                                    <span className="text-[9px] font-semibold text-blue-400 uppercase block mb-1">ABONOS CRÉDITOS</span>
+                                    <div className="text-xl font-semibold text-blue-700">Q{formatCurr(totals?.abonos || 0)}</div>
                                 </div>
                                 <div className="border border-slate-200 p-4 bg-white">
-                                    <span className="text-[9px] font-black text-emerald-400 uppercase block mb-1">PROPINAS ACUM.</span>
-                                    <div className="text-xl font-black text-emerald-700">Q{formatCurr(totals?.propinas || 0)}</div>
+                                    <span className="text-[9px] font-semibold text-emerald-400 uppercase block mb-1">PROPINAS ACUM.</span>
+                                    <div className="text-xl font-semibold text-emerald-700">Q{formatCurr(totals?.propinas || 0)}</div>
                                 </div>
                                 <div className="border border-slate-200 p-4 bg-red-50/30">
-                                    <span className="text-[9px] font-black text-red-400 uppercase block mb-1">GASTOS OPERATIVOS</span>
-                                    <div className="text-xl font-black text-red-700">Q{formatCurr(totals?.gastos || 0)}</div>
+                                    <span className="text-[9px] font-semibold text-red-400 uppercase block mb-1">GASTOS OPERATIVOS</span>
+                                    <div className="text-xl font-semibold text-red-700">Q{formatCurr(totals?.gastos || 0)}</div>
                                 </div>
                             </div>
 
                             {/* Tabla de Detalle */}
                             <div className="mb-12 relative z-10">
-                                <div className="bg-slate-800 text-white px-4 py-2 text-[10px] font-black uppercase tracking-widest mb-4 flex justify-between items-center font-sans">
+                                <div className="bg-slate-800 text-white px-4 py-2 text-[10px] font-semibold uppercase tracking-widest mb-4 flex justify-between items-center font-sans">
                                     <div className="flex items-center gap-2">
                                         <ClipboardList size={14} />
                                         <span>Detalle Cronológico de Turnos</span>
@@ -128,7 +128,7 @@ const ShiftsPrintPreview: React.FC<{
 
                                 <table className="w-full border-collapse font-sans text-[10px]">
                                     <thead>
-                                        <tr className="bg-slate-100 border-b-2 border-slate-900 font-black uppercase text-slate-600">
+                                        <tr className="bg-slate-100 border-b-2 border-slate-900 font-semibold uppercase text-slate-600">
                                             <th className="px-2 py-3 text-left">APERTURA</th>
                                             <th className="px-2 py-3 text-left">CIERRE</th>
                                             <th className="px-2 py-3 text-left">CAJA / TURNO</th>
@@ -140,7 +140,7 @@ const ShiftsPrintPreview: React.FC<{
                                             <th className="px-2 py-3 text-right">BALANCE</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-100 font-bold">
+                                    <tbody className="divide-y divide-slate-100 font-medium">
                                         {data?.map((s, i) => (
                                             <tr key={i} className="h-9">
                                                 <td className="px-2 whitespace-nowrap">{s.start_time ? new Date(s.start_time).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '---'}</td>
@@ -151,12 +151,12 @@ const ShiftsPrintPreview: React.FC<{
                                                 <td className="px-2 text-right text-blue-500">Q{formatCurr(Number(s.end_amount || 0))}</td>
                                                 <td className="px-2 text-right">Q{formatCurr(s.ventas)}</td>
                                                 <td className="px-2 text-right text-red-500">Q{formatCurr(s.gastos)}</td>
-                                                <td className="px-2 text-right font-black">Q{formatCurr(Number(s.ventas || 0) + Number(s.abonos || 0) - Number(s.gastos || 0))}</td>
+                                                <td className="px-2 text-right font-semibold">Q{formatCurr(Number(s.ventas || 0) + Number(s.abonos || 0) - Number(s.gastos || 0))}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                     <tfoot>
-                                        <tr className="border-t-2 border-slate-900 bg-slate-50 h-10 font-black uppercase">
+                                        <tr className="border-t-2 border-slate-900 bg-slate-50 h-10 font-semibold uppercase">
                                             <td colSpan={4} className="px-2 text-right">Sumatoria de Auditoría:</td>
                                             <td className="px-2 text-right">Q{formatCurr(data?.reduce((acc, curr) => acc + (Number(curr.start_amount) || 0), 0) || 0)}</td>
                                             <td className="px-2 text-right text-blue-600">Q{formatCurr(data?.reduce((acc, curr) => acc + (Number(curr.end_amount) || 0), 0) || 0)}</td>
@@ -171,16 +171,16 @@ const ShiftsPrintPreview: React.FC<{
                             {/* Footer Firmas */}
                             <div className="mt-24 grid grid-cols-3 gap-10 px-6 font-sans relative z-10">
                                 <div className="border-t border-slate-900 pt-4 text-center">
-                                    <p className="text-[9px] font-black uppercase text-slate-900">FIRMA CAJERO(A)</p>
-                                    <p className="text-[8px] text-slate-400 font-bold mt-1 uppercase">Responsable de Turno</p>
+                                    <p className="text-[9px] font-semibold uppercase text-slate-900">FIRMA CAJERO(A)</p>
+                                    <p className="text-[8px] text-slate-400 font-medium mt-1 uppercase">Responsable de Turno</p>
                                 </div>
                                 <div className="border-t border-slate-900 pt-4 text-center">
-                                    <p className="text-[9px] font-black uppercase text-slate-900">ADMINISTRACIÓN</p>
-                                    <p className="text-[8px] text-slate-400 font-bold mt-1 uppercase">Validación de Valores</p>
+                                    <p className="text-[9px] font-semibold uppercase text-slate-900">ADMINISTRACIÓN</p>
+                                    <p className="text-[8px] text-slate-400 font-medium mt-1 uppercase">Validación de Valores</p>
                                 </div>
                                 <div className="border-t border-slate-900 pt-4 text-center">
-                                    <p className="text-[9px] font-black uppercase text-slate-900">AUDITORÍA INTERNA</p>
-                                    <p className="text-[8px] text-slate-400 font-bold mt-1 uppercase">Control de Ingresos</p>
+                                    <p className="text-[9px] font-semibold uppercase text-slate-900">AUDITORÍA INTERNA</p>
+                                    <p className="text-[8px] text-slate-400 font-medium mt-1 uppercase">Control de Ingresos</p>
                                 </div>
                             </div>
 
@@ -386,7 +386,7 @@ export const ReportCaja: React.FC = () => {
 
             {/* 2. Toolbar de Filtros (Sucursal) */}
             <div className="p-2 flex items-center gap-4 bg-[#f0f0f0] border-b border-gray-300">
-                <span className="font-bold text-black">Sucursal</span>
+                <span className="font-medium text-black">Sucursal</span>
                 <select
                     value={selectedBranch}
                     onChange={(e) => setSelectedBranch(e.target.value)}
@@ -400,7 +400,7 @@ export const ReportCaja: React.FC = () => {
             {/* 3. Panel de Fechas */}
             <div className="p-3 bg-[#f0f0f0]">
                 <div className="border border-gray-300 rounded pb-3 relative">
-                    <span className="absolute -top-2 left-4 bg-[#f0f0f0] px-2 font-bold text-gray-700">Fechas</span>
+                    <span className="absolute -top-2 left-4 bg-[#f0f0f0] px-2 font-medium text-gray-700">Fechas</span>
                     <div className="mt-4 px-4 flex items-center justify-between">
                         <div className="flex items-center gap-8">
                             <div className="flex items-center gap-2">
@@ -410,10 +410,10 @@ export const ReportCaja: React.FC = () => {
                                 <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="h-6 border border-gray-400 px-2 text-black bg-white" />
                             </div>
                             <div className="flex items-center gap-2">
-                                <button onClick={handleGenerate} className="h-7 px-8 bg-white border border-gray-400 hover:bg-gray-100 flex items-center gap-2 shadow-sm font-bold text-black text-[12px]">
+                                <button onClick={handleGenerate} className="h-7 px-8 bg-white border border-gray-400 hover:bg-gray-100 flex items-center gap-2 shadow-sm font-medium text-black text-[12px]">
                                     Generar
                                 </button>
-                                <button onClick={handlePrintExport} className="h-7 px-6 bg-white border border-gray-400 hover:bg-gray-100 flex items-center gap-2 shadow-sm font-bold text-black text-[12px]">
+                                <button onClick={handlePrintExport} className="h-7 px-6 bg-white border border-gray-400 hover:bg-gray-100 flex items-center gap-2 shadow-sm font-medium text-black text-[12px]">
                                     <Printer size={14} className="text-blue-600" /> Vista Previa
                                 </button>
                             </div>
@@ -428,7 +428,7 @@ export const ReportCaja: React.FC = () => {
                                 onChange={e => setSearchTerm(e.target.value)}
                                 className="h-7 w-[200px] border border-gray-400 px-2 italic outline-none text-black bg-white"
                             />
-                            <button className="h-7 px-4 bg-white border border-gray-400 hover:bg-gray-100 font-bold text-black shadow-sm">Buscar</button>
+                            <button className="h-7 px-4 bg-white border border-gray-400 hover:bg-gray-100 font-medium text-black shadow-sm">Buscar</button>
                         </div>
                     </div>
                 </div>
@@ -440,18 +440,18 @@ export const ReportCaja: React.FC = () => {
                     <thead className="sticky top-0 z-20">
                         {/* Headers Principales */}
                         <tr className="bg-[#f0f0f0] h-9">
-                            <th className="border border-gray-300 px-2 font-bold text-center w-32 text-black">Apertura</th>
-                            <th className="border border-gray-300 px-2 font-bold text-center w-32 text-black">Cierre</th>
-                            <th className="border border-gray-300 px-2 font-bold text-center w-32 text-black">Caja</th>
-                            <th className="border border-gray-300 px-2 font-bold text-center w-24 text-black">Turno No.</th>
-                            <th className="border border-gray-300 px-2 font-bold text-center w-48 text-black">Aperturado Por</th>
-                            <th className="border border-gray-300 px-2 font-bold text-center w-48 text-black">Cerrado Por</th>
-                            <th className="border border-gray-300 px-2 font-bold text-center w-32 text-black bg-emerald-50">Monto Inicial</th>
-                            <th className="border border-gray-300 px-2 font-bold text-center w-32 text-black bg-blue-50">Monto Final</th>
-                            <th className="border border-gray-300 px-2 font-bold text-center w-32 text-black">Ventas</th>
-                            <th className="border border-gray-300 px-2 font-bold text-center w-32 text-black">Abonos Créditos</th>
-                            <th className="border border-gray-300 px-2 font-bold text-center w-32 text-black">Propinas</th>
-                            <th className="border border-gray-300 px-2 font-bold text-center w-32 text-black">Gastos</th>
+                            <th className="border border-gray-300 px-2 font-medium text-center w-32 text-black">Apertura</th>
+                            <th className="border border-gray-300 px-2 font-medium text-center w-32 text-black">Cierre</th>
+                            <th className="border border-gray-300 px-2 font-medium text-center w-32 text-black">Caja</th>
+                            <th className="border border-gray-300 px-2 font-medium text-center w-24 text-black">Turno No.</th>
+                            <th className="border border-gray-300 px-2 font-medium text-center w-48 text-black">Aperturado Por</th>
+                            <th className="border border-gray-300 px-2 font-medium text-center w-48 text-black">Cerrado Por</th>
+                            <th className="border border-gray-300 px-2 font-medium text-center w-32 text-black bg-emerald-50">Monto Inicial</th>
+                            <th className="border border-gray-300 px-2 font-medium text-center w-32 text-black bg-blue-50">Monto Final</th>
+                            <th className="border border-gray-300 px-2 font-medium text-center w-32 text-black">Ventas</th>
+                            <th className="border border-gray-300 px-2 font-medium text-center w-32 text-black">Abonos Créditos</th>
+                            <th className="border border-gray-300 px-2 font-medium text-center w-32 text-black">Propinas</th>
+                            <th className="border border-gray-300 px-2 font-medium text-center w-32 text-black">Gastos</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
@@ -463,21 +463,21 @@ export const ReportCaja: React.FC = () => {
                             >
                                 <td className="border border-gray-200 px-2 text-black">{s.start_time ? new Date(s.start_time).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '---'}</td>
                                 <td className="border border-gray-200 px-2 text-black">{s.end_time ? new Date(s.end_time).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'ABIERTO'}</td>
-                                <td className="border border-gray-200 px-2 font-bold text-black text-center">{s.cash_registers?.name || '---'}</td>
+                                <td className="border border-gray-200 px-2 font-medium text-black text-center">{s.cash_registers?.name || '---'}</td>
                                 <td className="border border-gray-200 px-2 text-center text-black font-semibold">{s.shift_number || '1'}</td>
                                 <td className="border border-gray-200 px-2 uppercase font-semibold text-black text-center">{s.profiles?.full_name || s.profiles?.name || '---'}</td>
                                 <td className="border border-gray-200 px-2 text-black font-semibold uppercase text-center">{s.profiles?.full_name || s.profiles?.name || '---'}</td>
-                                <td className="border border-gray-200 px-2 font-bold text-black bg-emerald-50/50"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.start_amount || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
-                                <td className="border border-gray-200 px-2 font-bold text-black bg-blue-50/50"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.end_amount || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
-                                <td className="border border-gray-200 px-2 font-bold text-black"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.ventas || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                                <td className="border border-gray-200 px-2 font-medium text-black bg-emerald-50/50"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.start_amount || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                                <td className="border border-gray-200 px-2 font-medium text-black bg-blue-50/50"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.end_amount || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                                <td className="border border-gray-200 px-2 font-medium text-black"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.ventas || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
                                 <td className="border border-gray-200 px-2 text-black"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.abonos || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
                                 <td className="border border-gray-200 px-2 text-black"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.propinas || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
-                                <td className="border border-gray-200 px-2 font-bold text-black"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.gastos || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                                <td className="border border-gray-200 px-2 font-medium text-black"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span>{Number(s.gastos || 0).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
                             </tr>
                         ))}
                         <tr className="h-auto"><td colSpan={12}></td></tr>
                     </tbody>
-                    <tfoot className="sticky bottom-0 z-20 bg-white border-t-2 border-gray-300 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] uppercase font-bold text-[11px] text-slate-800">
+                    <tfoot className="sticky bottom-0 z-20 bg-white border-t-2 border-gray-300 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] uppercase font-medium text-[11px] text-slate-800">
                         <tr className="h-8">
                             <td colSpan={5} className="border-r border-gray-200 px-2"></td>
                             <td className="px-2 text-right text-slate-500 tracking-tight border-r border-gray-200">TOTALES:</td>
@@ -486,7 +486,7 @@ export const ReportCaja: React.FC = () => {
                             <td className="px-2 border-r border-gray-200"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-slate-900">{totals.ventas.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
                             <td className="px-2 border-r border-gray-200"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-slate-900">{totals.abonos.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
                             <td className="px-2 border-r border-gray-200"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-slate-900">{totals.propinas.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
-                            <td className="px-2 font-black"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-slate-900">{totals.gastos.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
+                            <td className="px-2 font-semibold"><div className="flex justify-between w-full"><span className="text-gray-400 font-normal">Q</span><span className="tabular-nums text-slate-900">{totals.gastos.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span></div></td>
                         </tr>
                     </tfoot>
                 </table>

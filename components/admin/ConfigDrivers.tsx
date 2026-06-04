@@ -213,7 +213,7 @@ export const ConfigDrivers: React.FC = () => {
             </div>
 
             {/* Grid Header */}
-            <div className="grid grid-cols-[1fr_150px_280px_100px] bg-[#e8e8e8] border-b border-gray-400 font-bold text-black text-[10px] select-none shrink-0 uppercase">
+            <div className="grid grid-cols-[1fr_150px_280px_100px] bg-[#e8e8e8] border-b border-gray-400 font-medium text-black text-[10px] select-none shrink-0 uppercase">
                 <div className="py-2 px-6 border-r border-gray-300 text-left tracking-tight">Repartidor</div>
                 <div className="py-2 px-6 border-r border-gray-300 text-left tracking-tight">Teléfono</div>
                 <div className="py-2 px-6 border-r border-gray-300 text-left tracking-tight">Sucursal</div>
@@ -256,7 +256,7 @@ export const ConfigDrivers: React.FC = () => {
                         <tbody>
                             {filtered.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="py-20 text-center text-slate-500 font-bold italic text-[11px]">
+                                    <td colSpan={5} className="py-20 text-center text-slate-500 font-medium italic text-[11px]">
                                         No se encontraron repartidores.<br />
                                         Haz clic derecho para crear uno nuevo.
                                     </td>
@@ -282,15 +282,15 @@ export const ConfigDrivers: React.FC = () => {
                                                         )}
                                                     </div>
                                                     <div className="flex flex-col">
-                                                        <span className="uppercase font-bold text-[10px] leading-tight tracking-tight">{driver.name}</span>
-                                                        <span className={`uppercase text-[8px] font-bold tracking-tighter ${isSelected ? 'text-blue-100' : 'text-slate-400'}`}>{driver.vehicle_info || 'SIN VEHÍCULO'}</span>
+                                                        <span className="uppercase font-medium text-[10px] leading-tight tracking-tight">{driver.name}</span>
+                                                        <span className={`uppercase text-[8px] font-medium tracking-tighter ${isSelected ? 'text-blue-100' : 'text-slate-400'}`}>{driver.vehicle_info || 'SIN VEHÍCULO'}</span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-4 border-r border-gray-100 text-[10px] font-bold tracking-tight">
+                                            <td className="px-4 border-r border-gray-100 text-[10px] font-medium tracking-tight">
                                                 {driver.phone || ''}
                                             </td>
-                                            <td className="px-4 border-r border-gray-100 text-[10px] font-bold truncate tracking-tight">
+                                            <td className="px-4 border-r border-gray-100 text-[10px] font-medium truncate tracking-tight">
                                                 {driver.branch?.name || ''}
                                             </td>
                                             <td className="px-4">
@@ -321,7 +321,7 @@ export const ConfigDrivers: React.FC = () => {
                 >
                     <button
                         onClick={() => { setContextMenu({ ...contextMenu, visible: false }); openModal(null); }}
-                        className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-slate-900"
+                        className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-slate-900"
                     >
                         <Plus size={14} className="group-hover:text-white text-emerald-600" /> Nuevo Repartidor
                     </button>
@@ -330,19 +330,19 @@ export const ConfigDrivers: React.FC = () => {
                             <div className="h-px bg-gray-200 my-1" />
                             <button
                                 onClick={() => { setContextMenu({ ...contextMenu, visible: false }); openModal(contextMenu.item); }}
-                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-slate-900"
+                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-slate-900"
                             >
                                 <Edit2 size={14} className="text-[#106ebe] group-hover:text-white" /> Modificar
                             </button>
                             <button
                                 onClick={() => { setContextMenu({ ...contextMenu, visible: false }); handleSendTracking(contextMenu.item); }}
-                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-slate-900"
+                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-slate-900"
                             >
                                 <MapPin size={14} className="text-indigo-500 group-hover:text-white" /> Enviar Rastreo
                             </button>
                             <button
                                 onClick={() => { setContextMenu({ ...contextMenu, visible: false }); setConfirmDelete(contextMenu.item); }}
-                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-slate-900"
+                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-slate-900"
                             >
                                 <Trash2 size={14} className="text-red-500 group-hover:text-white" /> Eliminar
                             </button>
@@ -360,7 +360,7 @@ export const ConfigDrivers: React.FC = () => {
                             <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move select-none shrink-0">
                                 <div className="flex items-center gap-2">
                                     <Bike size={14} className="text-white/80" />
-                                    <span className="text-white text-[12px] font-bold tracking-wide">
+                                    <span className="text-white text-[12px] font-medium tracking-wide">
                                         Mantenimiento de Repartidores
                                     </span>
                                 </div>
@@ -380,7 +380,7 @@ export const ConfigDrivers: React.FC = () => {
                             {/* Modal Body */}
                             <div className="p-4 bg-[#f0f0f0] flex flex-col gap-4">
                                 <div className="border border-gray-400 p-3 pt-4 relative bg-[#f0f0f0] rounded-sm">
-                                    <span className="text-[11px] text-slate-800 font-bold px-1 absolute -top-2.5 left-2 bg-[#f0f0f0]">Datos de Repartidor</span>
+                                    <span className="text-[11px] text-slate-800 font-medium px-1 absolute -top-2.5 left-2 bg-[#f0f0f0]">Datos de Repartidor</span>
 
                                     <div className="space-y-3">
                                         {/* Nombre */}
@@ -469,7 +469,7 @@ export const ConfigDrivers: React.FC = () => {
                                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-md border transition-all ${form.is_verified ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-rose-50 border-rose-200 text-rose-700'}`}
                                             >
                                                 {form.is_verified ? <VerifiedScooterIcon size={24} /> : <UnverifiedScooterIcon size={24} />}
-                                                <span className="text-[10px] font-black uppercase tracking-widest">
+                                                <span className="text-[10px] font-semibold uppercase tracking-widest">
                                                     {form.is_verified ? 'Vehículo Verificado' : 'No Verificado'}
                                                 </span>
                                             </button>
@@ -481,9 +481,9 @@ export const ConfigDrivers: React.FC = () => {
                                 <div className="bg-indigo-50 border border-indigo-200 rounded-sm p-3">
                                     <div className="flex items-center gap-2 mb-1.5">
                                         <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
-                                        <span className="text-[10px] font-black text-indigo-700 uppercase tracking-widest">Rastreo GPS Activo</span>
+                                        <span className="text-[10px] font-semibold text-indigo-700 uppercase tracking-widest">Rastreo GPS Activo</span>
                                     </div>
-                                    <p className="text-[9px] font-bold text-indigo-600/70 uppercase leading-relaxed tracking-wider">
+                                    <p className="text-[9px] font-medium text-indigo-600/70 uppercase leading-relaxed tracking-wider">
                                         "EL SISTEMA REGISTRA LA UBICACIÓN GPS DEL REPARTIDOR CADA 45 SEGUNDOS. ASEGÚRESE QUE EL REPARTIDOR TENGA INTERNET Y ACTIVA SU SESIÓN DE RASTREO."
                                     </p>
                                 </div>

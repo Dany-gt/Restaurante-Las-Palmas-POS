@@ -637,19 +637,19 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
             {/* Controls */}
             <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-3">
-                    <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Periodo:</label>
-                    <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="border border-gray-300 rounded px-3 py-1.5 text-[11px] font-bold text-gray-900 bg-white" />
+                    <label className="text-[10px] font-semibold uppercase text-slate-500 tracking-widest">Periodo:</label>
+                    <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="border border-gray-300 rounded px-3 py-1.5 text-[11px] font-medium text-gray-900 bg-white" />
                     <button onClick={fetchData} className="p-1.5 hover:bg-slate-100 rounded text-slate-600"><RefreshCw size={13} /></button>
                     {loading && <Loader2 size={14} className="animate-spin text-teal-500" />}
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
-                        <label className="text-[9px] font-black uppercase text-slate-400">Alerta si saldo &lt;</label>
+                        <label className="text-[9px] font-semibold uppercase text-slate-400">Alerta si saldo &lt;</label>
                         <input type="number" value={alertThreshold} onChange={e => setAlertThreshold(Number(e.target.value))}
-                            className="w-24 border border-slate-200 rounded px-2 py-1 text-[10px] font-bold" />
+                            className="w-24 border border-slate-200 rounded px-2 py-1 text-[10px] font-medium" />
                     </div>
                     <button onClick={() => { setShowForm(true); setForm(EMPTY); }}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-[#106ebe] hover:bg-blue-800 text-white text-[10px] font-black uppercase rounded transition-all">
+                        className="flex items-center gap-1 px-3 py-1.5 bg-[#106ebe] hover:bg-blue-800 text-white text-[10px] font-semibold uppercase rounded transition-all">
                         <Plus size={12} /> Registrar Movimiento
                     </button>
                 </div>
@@ -665,18 +665,18 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
 
             {saldoFinal < alertThreshold && saldoFinal >= 0 && (
                 <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-lg px-4 py-2">
-                    <span className="text-red-600 text-[10px] font-black uppercase">⚠ Alerta: Saldo por debajo del umbral mínimo ({fmtQ(alertThreshold)})</span>
+                    <span className="text-red-600 text-[10px] font-semibold uppercase">⚠ Alerta: Saldo por debajo del umbral mínimo ({fmtQ(alertThreshold)})</span>
                 </div>
             )}
 
             {/* SECCIÓN A — Movimientos Diarios */}
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="bg-[#106ebe] px-4 py-3">
-                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Sección A — Movimientos Diarios — {dayjs(month + '-01').format('MMMM YYYY')}</span>
+                    <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Sección A — Movimientos Diarios — {dayjs(month + '-01').format('MMMM YYYY')}</span>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-[10px]">
-                        <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-black text-black uppercase tracking-wider">
+                        <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-semibold text-black uppercase tracking-wider">
                             <tr>
                                 <th className="px-3 py-2">Fecha</th>
                                 <th className="px-3 py-2">Concepto</th>
@@ -689,15 +689,15 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {rows.length === 0 ? (
-                                <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-400 text-[10px] font-bold">Sin movimientos registrados</td></tr>
+                                <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-400 text-[10px] font-medium">Sin movimientos registrados</td></tr>
                             ) : rows.map(r => (
-                                <tr key={r.id} className={`hover:bg-slate-50 transition-colors text-black font-black ${r.balance < alertThreshold ? 'bg-red-50/30' : ''}`}>
+                                <tr key={r.id} className={`hover:bg-slate-50 transition-colors text-black font-semibold ${r.balance < alertThreshold ? 'bg-red-50/30' : ''}`}>
                                     <td className="px-3 py-2 font-mono text-black">{dayjs(r.flow_date).format('DD/MM')}</td>
-                                    <td className="px-3 py-2 font-black text-black">{r.concept}</td>
+                                    <td className="px-3 py-2 font-semibold text-black">{r.concept}</td>
                                     <td className="px-3 py-2 text-black">{r.category}</td>
-                                    <td className="px-3 py-2 text-right font-black text-black">{r.entry_amount > 0 ? fmtQ(r.entry_amount) : '—'}</td>
-                                    <td className="px-3 py-2 text-right font-black text-black">{r.exit_amount > 0 ? fmtQ(r.exit_amount) : '—'}</td>
-                                    <td className={`px-3 py-2 text-right font-black text-black`}>{fmtQ(r.balance)}</td>
+                                    <td className="px-3 py-2 text-right font-semibold text-black">{r.entry_amount > 0 ? fmtQ(r.entry_amount) : '—'}</td>
+                                    <td className="px-3 py-2 text-right font-semibold text-black">{r.exit_amount > 0 ? fmtQ(r.exit_amount) : '—'}</td>
+                                    <td className={`px-3 py-2 text-right font-semibold text-black`}>{fmtQ(r.balance)}</td>
                                     <td className="px-3 py-2"><button onClick={() => del(r.id!)} className="p-1 hover:text-red-500 text-slate-300"><Trash2 size={11} /></button></td>
                                 </tr>
                             ))}
@@ -709,11 +709,11 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
             {/* SECCIÓN B — Resumen Semanal */}
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="bg-[#106ebe] px-4 py-3">
-                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Sección B — Resumen Semanal</span>
+                    <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Sección B — Resumen Semanal</span>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-[10px]">
-                        <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-black text-black uppercase tracking-wider">
+                        <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-semibold text-black uppercase tracking-wider">
                             <tr>
                                 <th className="px-4 py-2">Semana</th>
                                 <th className="px-4 py-2">Días</th>
@@ -727,24 +727,24 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                             {weeks.map(w => {
                                 weekAccum += w.neto;
                                 return (
-                                    <tr key={w.week} className="hover:bg-slate-50 text-black font-black">
-                                        <td className="px-4 py-2.5 font-black">Semana {w.week}</td>
+                                    <tr key={w.week} className="hover:bg-slate-50 text-black font-semibold">
+                                        <td className="px-4 py-2.5 font-semibold">Semana {w.week}</td>
                                         <td className="px-4 py-2.5">{(w.week - 1) * 7 + 1} – {Math.min(w.week * 7, dayjs(month + '-01').daysInMonth())}</td>
-                                        <td className="px-4 py-2.5 text-right font-black">{fmtQ(w.entradas)}</td>
-                                        <td className="px-4 py-2.5 text-right font-black">{fmtQ(w.salidas)}</td>
-                                        <td className={`px-4 py-2.5 text-right font-black text-black`}>{fmtQ(w.neto)}</td>
-                                        <td className={`px-4 py-2.5 text-right font-black text-black`}>{fmtQ(weekAccum)}</td>
+                                        <td className="px-4 py-2.5 text-right font-semibold">{fmtQ(w.entradas)}</td>
+                                        <td className="px-4 py-2.5 text-right font-semibold">{fmtQ(w.salidas)}</td>
+                                        <td className={`px-4 py-2.5 text-right font-semibold text-black`}>{fmtQ(w.neto)}</td>
+                                        <td className={`px-4 py-2.5 text-right font-semibold text-black`}>{fmtQ(weekAccum)}</td>
                                     </tr>
                                 );
                             })}
                         </tbody>
-                        <tfoot className="bg-teal-50 border-t-2 border-teal-200 text-black font-black">
+                        <tfoot className="bg-teal-50 border-t-2 border-teal-200 text-black font-semibold">
                             <tr>
-                                <td colSpan={2} className="px-4 py-2 text-[10px] font-black uppercase">Total Mes</td>
-                                <td className="px-4 py-2 text-right font-black">{fmtQ(totalEntradas)}</td>
-                                <td className="px-4 py-2 text-right font-black">{fmtQ(totalSalidas)}</td>
-                                <td className="px-4 py-2 text-right font-black">{fmtQ(flujoNeto)}</td>
-                                <td className="px-4 py-2 text-right font-black">{fmtQ(saldoFinal)}</td>
+                                <td colSpan={2} className="px-4 py-2 text-[10px] font-semibold uppercase">Total Mes</td>
+                                <td className="px-4 py-2 text-right font-semibold">{fmtQ(totalEntradas)}</td>
+                                <td className="px-4 py-2 text-right font-semibold">{fmtQ(totalSalidas)}</td>
+                                <td className="px-4 py-2 text-right font-semibold">{fmtQ(flujoNeto)}</td>
+                                <td className="px-4 py-2 text-right font-semibold">{fmtQ(saldoFinal)}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -753,31 +753,31 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
 
             {/* SECCIÓN C — Proyección 30/60 días */}
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-5">
-                <h3 className="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-3">Sección C — Proyección de Flujo (basada en promedios del mes)</h3>
+                <h3 className="text-[10px] font-semibold uppercase text-slate-500 tracking-widest mb-3">Sección C — Proyección de Flujo (basada en promedios del mes)</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="p-4 rounded-lg bg-teal-50 border border-teal-200">
-                        <p className="text-[9px] font-black uppercase text-teal-600 mb-1">Saldo Actual</p>
-                        <p className="text-xl font-black text-teal-900">{fmtQ(saldoFinal)}</p>
+                        <p className="text-[9px] font-semibold uppercase text-teal-600 mb-1">Saldo Actual</p>
+                        <p className="text-xl font-semibold text-teal-900">{fmtQ(saldoFinal)}</p>
                     </div>
                     <div className={`p-4 rounded-lg border ${proj30 < alertThreshold ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200'}`}>
-                        <p className="text-[9px] font-black uppercase text-slate-500 mb-1">Proyección 30 días</p>
-                        <p className={`text-xl font-black ${proj30 < alertThreshold ? 'text-red-700' : 'text-slate-800'}`}>{fmtQ(proj30)}</p>
+                        <p className="text-[9px] font-semibold uppercase text-slate-500 mb-1">Proyección 30 días</p>
+                        <p className={`text-xl font-semibold ${proj30 < alertThreshold ? 'text-red-700' : 'text-slate-800'}`}>{fmtQ(proj30)}</p>
                         <p className="text-[8px] text-slate-400 mt-1">{proj30 < alertThreshold ? '⚠ Por debajo del umbral' : '✓ Por encima del umbral'}</p>
                     </div>
                     <div className={`p-4 rounded-lg border ${proj60 < alertThreshold ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200'}`}>
-                        <p className="text-[9px] font-black uppercase text-slate-500 mb-1">Proyección 60 días</p>
-                        <p className={`text-xl font-black ${proj60 < alertThreshold ? 'text-red-700' : 'text-slate-800'}`}>{fmtQ(proj60)}</p>
+                        <p className="text-[9px] font-semibold uppercase text-slate-500 mb-1">Proyección 60 días</p>
+                        <p className={`text-xl font-semibold ${proj60 < alertThreshold ? 'text-red-700' : 'text-slate-800'}`}>{fmtQ(proj60)}</p>
                         <p className="text-[8px] text-slate-400 mt-1">{proj60 < alertThreshold ? '⚠ Por debajo del umbral' : '✓ Por encima del umbral'}</p>
                     </div>
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-3">
                     <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                        <span className="text-[9px] font-black text-slate-500 uppercase">Ingreso promedio diario</span>
-                        <span className="text-[11px] font-black text-emerald-700">{fmtQ(dailyAvgIncome)}</span>
+                        <span className="text-[9px] font-semibold text-slate-500 uppercase">Ingreso promedio diario</span>
+                        <span className="text-[11px] font-semibold text-emerald-700">{fmtQ(dailyAvgIncome)}</span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                        <span className="text-[9px] font-black text-slate-500 uppercase">Gasto promedio diario</span>
-                        <span className="text-[11px] font-black text-red-600">{fmtQ(dailyAvgExpense)}</span>
+                        <span className="text-[9px] font-semibold text-slate-500 uppercase">Gasto promedio diario</span>
+                        <span className="text-[11px] font-semibold text-red-600">{fmtQ(dailyAvgExpense)}</span>
                     </div>
                 </div>
             </div>
@@ -790,15 +790,15 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                             <Building2 size={28} />
                         </div>
                         <div>
-                            <h2 className="text-white font-black uppercase tracking-tighter text-base leading-none">Conciliación Bancaria</h2>
+                            <h2 className="text-white font-semibold uppercase tracking-tighter text-base leading-none">Conciliación Bancaria</h2>
                             <div className="flex items-center gap-4 mt-2">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-white/60 text-[10px] font-bold uppercase">Periodo:</span>
-                                    <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="bg-white/10 border border-white/20 text-white rounded px-2 py-0.5 text-[10px] font-black outline-none" />
+                                    <span className="text-white/60 text-[10px] font-medium uppercase">Periodo:</span>
+                                    <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="bg-white/10 border border-white/20 text-white rounded px-2 py-0.5 text-[10px] font-semibold outline-none" />
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-white/60 text-[10px] font-bold uppercase">Banco:</span>
-                                    <select value={selectedBank} onChange={e => setSelectedBank(e.target.value)} className="bg-white/10 border border-white/20 text-white rounded px-2 py-0.5 text-[10px] font-black outline-none [&>option]:text-black">
+                                    <span className="text-white/60 text-[10px] font-medium uppercase">Banco:</span>
+                                    <select value={selectedBank} onChange={e => setSelectedBank(e.target.value)} className="bg-white/10 border border-white/20 text-white rounded px-2 py-0.5 text-[10px] font-semibold outline-none [&>option]:text-black">
                                         <option value="BI">Banco Industrial</option>
                                         <option value="BAC">BAC Credomatic</option>
                                         <option value="BANRURAL">Banrural</option>
@@ -811,7 +811,7 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                     <div className="flex items-center gap-3">
                         <div className="relative group mt-1">
                             <input type="file" onChange={handleFileUpload} className="hidden" id="bank-upload" accept=".pdf,.xls,.xlsx,.csv" />
-                            <label htmlFor="bank-upload" className="flex items-center gap-2 px-6 py-2.5 bg-white text-[#106EBE] text-[11px] font-black uppercase rounded-lg cursor-pointer transition-all shadow-xl hover:bg-slate-50 active:scale-95">
+                            <label htmlFor="bank-upload" className="flex items-center gap-2 px-6 py-2.5 bg-white text-[#106EBE] text-[11px] font-semibold uppercase rounded-lg cursor-pointer transition-all shadow-xl hover:bg-slate-50 active:scale-95">
                                 <FileUp size={16} /> 📁 Subir Estado de Cuenta (+ PDF/XLS)
                             </label>
                         </div>
@@ -823,37 +823,37 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                     <div className="bg-slate-50 border border-slate-200 rounded-2xl p-8 mb-8">
                         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                             <div className="lg:col-span-1 space-y-4 pr-8 border-r border-slate-200">
-                                <h3 className="text-[11px] font-black uppercase text-slate-400 tracking-widest border-b border-slate-200 pb-2">Resumen de Conciliación</h3>
+                                <h3 className="text-[11px] font-semibold uppercase text-slate-400 tracking-widest border-b border-slate-200 pb-2">Resumen de Conciliación</h3>
                                 <div className="space-y-4">
                                     <div className="flex flex-col">
-                                        <span className="text-[9px] font-black text-slate-500 uppercase">Saldo según Banco</span>
-                                        <span className="text-xl font-black text-slate-900">
+                                        <span className="text-[9px] font-semibold text-slate-500 uppercase">Saldo según Banco</span>
+                                        <span className="text-xl font-semibold text-slate-900">
                                             {bankMovements.length > 0
                                                 ? fmtQ(bankMovements.reduce((a, m) => a + m.credito - m.debito, 0))
                                                 : 'Q 0.00'}
                                         </span>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[9px] font-black text-slate-500 uppercase">Saldo según Sistema</span>
-                                        <span className="text-xl font-black text-[#106ebe]">{fmtQ(saldoFinal)}</span>
+                                        <span className="text-[9px] font-semibold text-slate-500 uppercase">Saldo según Sistema</span>
+                                        <span className="text-xl font-semibold text-[#106ebe]">{fmtQ(saldoFinal)}</span>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[9px] font-black text-slate-500 uppercase">Total Créditos Banco</span>
-                                        <span className="text-xl font-black text-emerald-600">
+                                        <span className="text-[9px] font-semibold text-slate-500 uppercase">Total Créditos Banco</span>
+                                        <span className="text-xl font-semibold text-emerald-600">
                                             {fmtQ(bankMovements.reduce((a, m) => a + m.credito, 0))}
                                         </span>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[9px] font-black text-slate-500 uppercase">Total Débitos Banco</span>
-                                        <span className="text-xl font-black text-red-600">
+                                        <span className="text-[9px] font-semibold text-slate-500 uppercase">Total Débitos Banco</span>
+                                        <span className="text-xl font-semibold text-red-600">
                                             {fmtQ(bankMovements.reduce((a, m) => a + m.debito, 0))}
                                         </span>
                                     </div>
                                     <div className="flex flex-col border-t border-slate-200 pt-3">
-                                        <span className="text-[9px] font-black text-slate-500 uppercase">Diferencia Sist vs Banco</span>
+                                        <span className="text-[9px] font-semibold text-slate-500 uppercase">Diferencia Sist vs Banco</span>
                                         <div className="flex items-center gap-2 mt-1">
-                                            <span className={`text-lg font-black ${Math.abs(diff) < 1 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(diff)}</span>
-                                            <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase ${Math.abs(diff) < 1 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                                            <span className={`text-lg font-semibold ${Math.abs(diff) < 1 ? 'text-emerald-600' : 'text-red-500'}`}>{fmtQ(diff)}</span>
+                                            <span className={`px-2 py-0.5 rounded text-[8px] font-semibold uppercase ${Math.abs(diff) < 1 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
                                                 {Math.abs(diff) < 1 ? '✓ Cuadrado' : '⚠ Descuadre'}
                                             </span>
                                         </div>
@@ -881,14 +881,14 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                             <button 
                                 onClick={autoMatch}
                                 disabled={isMatching || bankMovements.length === 0}
-                                className="flex items-center gap-2 px-5 py-2 bg-[#106ebe] hover:bg-blue-800 text-white text-[10px] font-black uppercase rounded shadow-lg transition-all disabled:opacity-50"
+                                className="flex items-center gap-2 px-5 py-2 bg-[#106ebe] hover:bg-blue-800 text-white text-[10px] font-semibold uppercase rounded shadow-lg transition-all disabled:opacity-50"
                             >
                                 {isMatching ? <Loader2 size={14} className="animate-spin"/> : <RefreshCw size={14}/>} Cruce Automático
                             </button>
-                            <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase rounded shadow-lg transition-all">
+                            <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-semibold uppercase rounded shadow-lg transition-all">
                                 <CheckCircle2 size={14}/> Aprobar Conciliados
                             </button>
-                            <button onClick={exportToPDF} className="flex items-center gap-2 px-4 py-2 border-2 border-slate-200 hover:bg-slate-50 text-slate-700 text-[10px] font-black uppercase rounded transition-all">
+                            <button onClick={exportToPDF} className="flex items-center gap-2 px-4 py-2 border-2 border-slate-200 hover:bg-slate-50 text-slate-700 text-[10px] font-semibold uppercase rounded transition-all">
                                 Exportar PDF Conciliación
                             </button>
                         </div>
@@ -897,7 +897,7 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                     {/* TABLA DE MOVIMIENTOS BANCARIOS */}
                     <div className="overflow-hidden border border-slate-200 rounded-xl bg-white shadow-inner">
                         <table className="w-full text-left">
-                            <thead className="bg-[#f8fafc] border-b border-slate-200 text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                            <thead className="bg-[#f8fafc] border-b border-slate-200 text-[9px] font-semibold text-slate-500 uppercase tracking-widest">
                                 <tr>
                                     <th className="px-5 py-3">Fecha</th>
                                     <th className="px-5 py-3">Descripción Banco</th>
@@ -909,21 +909,21 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {bankLoading ? (
-                                    <tr><td colSpan={7} className="px-10 py-20 text-center"><Loader2 size={30} className="animate-spin text-teal-600 mx-auto mb-4" /><p className="text-[10px] font-black uppercase text-slate-400">Analizando Estado de Cuenta...</p></td></tr>
+                                    <tr><td colSpan={7} className="px-10 py-20 text-center"><Loader2 size={30} className="animate-spin text-teal-600 mx-auto mb-4" /><p className="text-[10px] font-semibold uppercase text-slate-400">Analizando Estado de Cuenta...</p></td></tr>
                                 ) : bankMovements.length === 0 ? (
-                                    <tr><td colSpan={7} className="px-10 py-20 text-center"><CloudUpload size={40} className="text-slate-200 mx-auto mb-4" /><p className="text-[10px] font-black uppercase text-slate-400">Sube un PDF para comenzar la conciliación</p></td></tr>
+                                    <tr><td colSpan={7} className="px-10 py-20 text-center"><CloudUpload size={40} className="text-slate-200 mx-auto mb-4" /><p className="text-[10px] font-semibold uppercase text-slate-400">Sube un PDF para comenzar la conciliación</p></td></tr>
                                 ) : (filter === 'sin_banco' ? (
                                     items.filter(i => !bankMovements.find(m => m.cash_flow_id === i.id)).map(i => (
                                         <tr key={i.id} className="bg-amber-50/20 hover:bg-amber-50/40 transition-all italic">
-                                            <td className="px-5 py-3 font-mono text-[10px] text-slate-500 font-bold">{dayjs(i.flow_date).format('DD/MM/YYYY')}</td>
-                                            <td className="px-5 py-3 text-[10px] font-bold text-amber-700 uppercase">En Sistema — {i.concept}</td>
-                                            <td className={`px-5 py-3 text-right font-black text-[11px] ${i.flow_type === 'entry' ? 'text-emerald-700' : 'text-red-600'}`}>
+                                            <td className="px-5 py-3 font-mono text-[10px] text-slate-500 font-medium">{dayjs(i.flow_date).format('DD/MM/YYYY')}</td>
+                                            <td className="px-5 py-3 text-[10px] font-medium text-amber-700 uppercase">En Sistema — {i.concept}</td>
+                                            <td className={`px-5 py-3 text-right font-semibold text-[11px] ${i.flow_type === 'entry' ? 'text-emerald-700' : 'text-red-600'}`}>
                                                 {i.flow_type === 'entry' ? `+${fmtQ(i.entry_amount)}` : `-${fmtQ(i.exit_amount)}`}
                                             </td>
-                                            <td className="px-5 py-3 text-[10px] font-bold text-slate-300">—</td>
-                                            <td className="px-5 py-3 text-[10px] font-bold text-slate-700 underline decoration-amber-300">No en Banco ℹ</td>
+                                            <td className="px-5 py-3 text-[10px] font-medium text-slate-300">—</td>
+                                            <td className="px-5 py-3 text-[10px] font-medium text-slate-700 underline decoration-amber-300">No en Banco ℹ</td>
                                             <td className="px-5 py-3 text-center">
-                                                <span className="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-amber-100 text-amber-700 border border-amber-200">
+                                                <span className="px-3 py-1 rounded-full text-[8px] font-semibold uppercase tracking-widest bg-amber-100 text-amber-700 border border-amber-200">
                                                     NO EN BANCO
                                                 </span>
                                             </td>
@@ -946,20 +946,20 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                                                            m.color_cat === 'slate' ? 'bg-slate-50 text-slate-700' : 'bg-white';
                                             return (
                                                 <tr key={m.id || m.secuencia} className={`hover:bg-teal-50/30 transition-all ${bgClass}`}>
-                                                    <td className="px-5 py-4 font-mono text-[10px] font-black text-slate-500">{dayjs(m.fecha).format('DD/MM/YYYY')}</td>
+                                                    <td className="px-5 py-4 font-mono text-[10px] font-semibold text-slate-500">{dayjs(m.fecha).format('DD/MM/YYYY')}</td>
                                                     <td className="px-5 py-4">
                                                         <div className="flex flex-col">
-                                                            <p className="text-[10px] font-black uppercase leading-none text-slate-900 flex items-center gap-2">
+                                                            <p className="text-[10px] font-semibold uppercase leading-none text-slate-900 flex items-center gap-2">
                                                                 {m.descripcion}
-                                                                {m.categoria === 'NEONET' && <span className="px-1.5 py-0.5 rounded text-[8px] bg-emerald-100 text-emerald-700 font-bold border border-emerald-200 shadow-sm">LQ Neonet</span>}
+                                                                {m.categoria === 'NEONET' && <span className="px-1.5 py-0.5 rounded text-[8px] bg-emerald-100 text-emerald-700 font-medium border border-emerald-200 shadow-sm">LQ Neonet</span>}
                                                             </p>
-                                                            {m.adenda && <span className="text-[8px] font-black text-slate-400 mt-1 max-w-xs truncate">{m.adenda}</span>}
+                                                            {m.adenda && <span className="text-[8px] font-semibold text-slate-400 mt-1 max-w-xs truncate">{m.adenda}</span>}
                                                             {m.categoria === 'NEONET' && (
-                                                                <span className="text-[8px] font-bold text-emerald-600 mt-1">Ventas brutas est: {fmtQ(m.credito / (1 - 0.05))}</span>
+                                                                <span className="text-[8px] font-medium text-emerald-600 mt-1">Ventas brutas est: {fmtQ(m.credito / (1 - 0.05))}</span>
                                                             )}
                                                         </div>
                                                     </td>
-                                                    <td className="px-5 py-4 text-right font-black text-[11px]">
+                                                    <td className="px-5 py-4 text-right font-semibold text-[11px]">
                                                         {m.credito > 0
                                                             ? <span className="text-emerald-700">+{fmtQ(m.credito)}</span>
                                                             : <span className="text-red-600">-{fmtQ(m.debito)}</span>}
@@ -968,14 +968,14 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                                                         {m.cash_flow_id ? (
                                                             <div className="flex items-center gap-2">
                                                                 <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-sm"><Check size={12} strokeWidth={4}/></div>
-                                                                <span className="text-[10px] font-bold text-slate-700">Sistema Conectado</span>
+                                                                <span className="text-[10px] font-medium text-slate-700">Sistema Conectado</span>
                                                             </div>
                                                         ) : (
-                                                            <span className="text-[10px] font-bold text-slate-300 italic">No vinculado</span>
+                                                            <span className="text-[10px] font-medium text-slate-300 italic">No vinculado</span>
                                                         )}
                                                     </td>
                                                     <td className="px-5 py-4 text-center">
-                                                        <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${
+                                                        <span className={`px-3 py-1 rounded-full text-[8px] font-semibold uppercase tracking-widest ${
                                                             m.estado === 'conciliado' ? 'bg-emerald-500 text-white shadow-sm' :
                                                             m.estado === 'pendiente' ? 'bg-amber-400 text-white shadow-sm' :
                                                             'bg-slate-200 text-slate-500'
@@ -986,7 +986,7 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                                                     <td className="px-5 py-4">
                                                         <button 
                                                             onClick={() => { setSelectedMovement(m); setShowAssignModal(true); }}
-                                                            className="px-3 py-1 bg-white border border-slate-200 hover:border-[#106EBE] hover:text-[#106EBE] rounded text-[9px] font-black uppercase transition-all shadow-sm"
+                                                            className="px-3 py-1 bg-white border border-slate-200 hover:border-[#106EBE] hover:text-[#106EBE] rounded text-[9px] font-semibold uppercase transition-all shadow-sm"
                                                         >
                                                             {m.estado === 'conciliado' ? 'Ver' : 'Asignar'}
                                                         </button>
@@ -1004,13 +1004,13 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                     <button
                         onClick={aprobarConciliados}
                         disabled={savingConcil}
-                        className="flex items-center gap-1.5 px-8 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-black uppercase rounded transition-all shadow-lg disabled:opacity-50">
+                        className="flex items-center gap-1.5 px-8 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-semibold uppercase rounded transition-all shadow-lg disabled:opacity-50">
                         <CheckCircle2 size={13}/> Aprobar Conciliados
                     </button>
                     <button
                         onClick={saveConciliacion}
                         disabled={savingConcil}
-                        className="flex items-center gap-1.5 px-8 py-2.5 bg-slate-900 text-white text-[10px] font-black uppercase rounded hover:bg-black transition-all shadow-lg active:translate-y-0.5 disabled:opacity-50">
+                        className="flex items-center gap-1.5 px-8 py-2.5 bg-slate-900 text-white text-[10px] font-semibold uppercase rounded hover:bg-black transition-all shadow-lg active:translate-y-0.5 disabled:opacity-50">
                         {savingConcil ? <Loader2 size={13} className="animate-spin"/> : <Save size={13}/>} Guardar Conciliación
                     </button>
                 </div>
@@ -1025,7 +1025,7 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move select-none shrink-0">
                                 <div className="flex items-center gap-2">
                                     <Link2 size={14} className="text-white" />
-                                    <span className="text-white text-[12px] font-bold tracking-wide">Asignar Movimiento: {selectedMovement.id?.substring(0,8)}</span>
+                                    <span className="text-white text-[12px] font-medium tracking-wide">Asignar Movimiento: {selectedMovement.id?.substring(0,8)}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <button className="w-6 h-6 flex items-center justify-center text-white/80 hover:bg-white/10 rounded transition-all"><Minus size={14}/></button>
@@ -1038,20 +1038,20 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                             <div className="p-4 flex flex-col gap-4">
                                 <div className="bg-white border border-gray-300 p-4 shadow-sm flex items-center justify-between">
                                     <div className="max-w-[70%]">
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block leading-none mb-1">Concepto Bancario</span>
-                                        <p className="text-[12px] font-black text-slate-900 uppercase break-words leading-tight">{selectedMovement.descripcion}</p>
-                                        <p className="text-[9px] font-bold text-slate-500 mt-2 uppercase tracking-tighter">Fecha: {dayjs(selectedMovement.fecha).format('DD/MM/YYYY')} · Adenda: {selectedMovement.adenda || 'N/A'}</p>
+                                        <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest block leading-none mb-1">Concepto Bancario</span>
+                                        <p className="text-[12px] font-semibold text-slate-900 uppercase break-words leading-tight">{selectedMovement.descripcion}</p>
+                                        <p className="text-[9px] font-medium text-slate-500 mt-2 uppercase tracking-tighter">Fecha: {dayjs(selectedMovement.fecha).format('DD/MM/YYYY')} · Adenda: {selectedMovement.adenda || 'N/A'}</p>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Monto Liquido</span>
-                                        <p className={`text-xl font-black tabular-nums ${selectedMovement.tipo === 'credito' ? 'text-emerald-700' : 'text-red-600'}`}>
+                                        <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest block mb-1">Monto Liquido</span>
+                                        <p className={`text-xl font-semibold tabular-nums ${selectedMovement.tipo === 'credito' ? 'text-emerald-700' : 'text-red-600'}`}>
                                             {selectedMovement.tipo === 'credito' ? `+${fmtQ(selectedMovement.credito)}` : `-${fmtQ(selectedMovement.debito)}`}
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="border-2 border-gray-300 p-4 relative pt-6 bg-white/50">
-                                    <span className="absolute -top-3 left-3 bg-[#f0f0f0] px-2 text-[10px] font-black text-slate-600 uppercase border border-gray-300 shadow-sm">Clasificación de Destino</span>
+                                    <span className="absolute -top-3 left-3 bg-[#f0f0f0] px-2 text-[10px] font-semibold text-slate-600 uppercase border border-gray-300 shadow-sm">Clasificación de Destino</span>
                                     <div className="grid grid-cols-2 gap-2">
                                         <AssignOption onClick={() => setAssignType('COMPRA MATERIA PRIMA')} icon={<CreditCard size={14}/>} label="Compra Materia Prima" active={assignType === 'COMPRA MATERIA Prima' || assignType === 'COMPRA MATERIA PRIMA'} />
                                         <AssignOption onClick={() => setAssignType('GASTO OPERATIVO')} icon={<Briefcase size={14}/>} label="Gasto Operativo" active={assignType === 'GASTO OPERATIVO'} />
@@ -1075,27 +1075,27 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="flex flex-col gap-1">
-                                        <label className="text-[10px] font-black text-slate-800 uppercase tracking-tight">Cuenta Contable</label>
-                                        <select className="h-7 bg-white border border-gray-400 text-[11px] font-black text-slate-900 px-2 outline-none focus:border-[#106EBE]">
-                                            <option className="text-slate-900 font-bold">5.1.01.01 · Compras materia prima</option>
-                                            <option className="text-slate-900 font-bold">5.1.02.04 · Combustibles y lubricantes</option>
-                                            <option className="text-slate-900 font-bold">5.2.01.10 · Otros gastos de venta</option>
+                                        <label className="text-[10px] font-semibold text-slate-800 uppercase tracking-tight">Cuenta Contable</label>
+                                        <select className="h-7 bg-white border border-gray-400 text-[11px] font-semibold text-slate-900 px-2 outline-none focus:border-[#106EBE]">
+                                            <option className="text-slate-900 font-medium">5.1.01.01 · Compras materia prima</option>
+                                            <option className="text-slate-900 font-medium">5.1.02.04 · Combustibles y lubricantes</option>
+                                            <option className="text-slate-900 font-medium">5.2.01.10 · Otros gastos de venta</option>
                                         </select>
                                     </div>
                                     <div className="flex flex-col gap-1">
-                                        <label className="text-[10px] font-black text-slate-800 uppercase tracking-tight">Referencia Doc.</label>
-                                        <input type="text" className="h-7 bg-white border border-gray-400 text-[11px] font-black text-slate-900 px-2 outline-none focus:border-[#106EBE] placeholder:text-slate-300" placeholder="P Ej. NCF-001..." />
+                                        <label className="text-[10px] font-semibold text-slate-800 uppercase tracking-tight">Referencia Doc.</label>
+                                        <input type="text" className="h-7 bg-white border border-gray-400 text-[11px] font-semibold text-slate-900 px-2 outline-none focus:border-[#106EBE] placeholder:text-slate-300" placeholder="P Ej. NCF-001..." />
                                     </div>
                                 </div>
 
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-black text-slate-800 uppercase tracking-tight">Observaciones para Contabilidad</label>
-                                    <textarea className="h-20 bg-white border border-gray-400 text-[11px] font-black text-slate-900 p-2 outline-none focus:border-[#106EBE] resize-none placeholder:text-slate-300" placeholder="Escribe el motivo de la asignación aquí..."></textarea>
+                                    <label className="text-[10px] font-semibold text-slate-800 uppercase tracking-tight">Observaciones para Contabilidad</label>
+                                    <textarea className="h-20 bg-white border border-gray-400 text-[11px] font-semibold text-slate-900 p-2 outline-none focus:border-[#106EBE] resize-none placeholder:text-slate-300" placeholder="Escribe el motivo de la asignación aquí..."></textarea>
                                 </div>
                             </div>
 
                             <div className="bg-[#e1e1e1] px-4 py-3 flex justify-end gap-2 border-t border-gray-300 shadow-[inset_0_1px_0_#fff]">
-                                <button onClick={() => setShowAssignModal(false)} className="h-7 px-4 bg-white border border-gray-400 text-[10px] font-bold uppercase hover:bg-gray-50 flex items-center justify-center shadow-sm">Cancelar</button>
+                                <button onClick={() => setShowAssignModal(false)} className="h-7 px-4 bg-white border border-gray-400 text-[10px] font-medium uppercase hover:bg-gray-50 flex items-center justify-center shadow-sm">Cancelar</button>
                                 <WindowsSaveButton onClick={() => {}} title="Confirmar Asignación" />
                             </div>
                         </div>
@@ -1112,7 +1112,7 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move select-none shrink-0">
                                 <div className="flex items-center gap-2">
                                     <Plus size={14} className="text-white" />
-                                    <span className="text-white text-[12px] font-bold tracking-wide">Nuevo Movimiento</span>
+                                    <span className="text-white text-[12px] font-medium tracking-wide">Nuevo Movimiento</span>
                                 </div>
                                 <button onClick={() => setShowForm(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white ml-1">
                                     <X size={18} strokeWidth={2.5} />
@@ -1122,13 +1122,13 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                             <div className="p-4 flex flex-col gap-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="flex flex-col gap-1">
-                                        <label className="text-[10px] font-black text-slate-800 uppercase">Fecha</label>
-                                        <input type="date" value={form.flow_date} onChange={e => setForm(p => ({ ...p, flow_date: e.target.value }))} className="h-7 border border-gray-400 text-[11px] px-2 outline-none font-black text-slate-900" />
+                                        <label className="text-[10px] font-semibold text-slate-800 uppercase">Fecha</label>
+                                        <input type="date" value={form.flow_date} onChange={e => setForm(p => ({ ...p, flow_date: e.target.value }))} className="h-7 border border-gray-400 text-[11px] px-2 outline-none font-semibold text-slate-900" />
                                     </div>
                                     <div className="flex flex-col gap-1">
-                                        <label className="text-[10px] font-black text-slate-800 uppercase">Tipo</label>
+                                        <label className="text-[10px] font-semibold text-slate-800 uppercase">Tipo</label>
                                         <select value={form.flow_type} onChange={e => setForm(p => ({ ...p, flow_type: e.target.value as any, category: e.target.value === 'entry' ? ENTRY_CATEGORIES[0] : EXIT_CATEGORIES[0] }))}
-                                            className="h-7 border border-gray-400 text-[11px] px-2 outline-none font-black text-slate-900">
+                                            className="h-7 border border-gray-400 text-[11px] px-2 outline-none font-semibold text-slate-900">
                                             <option value="entry">Entrada (+)</option>
                                             <option value="exit">Salida (-)</option>
                                         </select>
@@ -1136,28 +1136,28 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
                                 </div>
 
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-black text-slate-800 uppercase">Concepto / Descripción</label>
-                                    <input type="text" value={form.concept} onChange={e => setForm(p => ({ ...p, concept: e.target.value }))} className="h-7 border border-gray-400 text-[11px] px-2 outline-none font-black text-slate-900" />
+                                    <label className="text-[10px] font-semibold text-slate-800 uppercase">Concepto / Descripción</label>
+                                    <input type="text" value={form.concept} onChange={e => setForm(p => ({ ...p, concept: e.target.value }))} className="h-7 border border-gray-400 text-[11px] px-2 outline-none font-semibold text-slate-900" />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="flex flex-col gap-1">
-                                        <label className="text-[10px] font-black text-slate-800 uppercase">Categoría</label>
-                                        <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} className="h-7 border border-gray-400 text-[11px] px-2 outline-none font-black text-slate-900">
+                                        <label className="text-[10px] font-semibold text-slate-800 uppercase">Categoría</label>
+                                        <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} className="h-7 border border-gray-400 text-[11px] px-2 outline-none font-semibold text-slate-900">
                                             {(form.flow_type === 'entry' ? ENTRY_CATEGORIES : EXIT_CATEGORIES).map(c => <option key={c}>{c}</option>)}
                                         </select>
                                     </div>
                                     <div className="flex flex-col gap-1">
-                                        <label className="text-[10px] font-black text-slate-800 uppercase tracking-tighter">Monto en Quetzales</label>
+                                        <label className="text-[10px] font-semibold text-slate-800 uppercase tracking-tighter">Monto en Quetzales</label>
                                         <input type="number" value={form.flow_type === 'entry' ? form.entry_amount : form.exit_amount}
                                             onChange={e => setForm(p => form.flow_type === 'entry' ? ({ ...p, entry_amount: Number(e.target.value) }) : ({ ...p, exit_amount: Number(e.target.value) }))}
-                                            className="h-7 border border-gray-400 text-[11px] px-2 outline-none font-black text-emerald-700" />
+                                            className="h-7 border border-gray-400 text-[11px] px-2 outline-none font-semibold text-emerald-700" />
                                     </div>
                                 </div>
                             </div>
 
                             <div className="bg-[#e1e1e1] px-4 py-3 flex justify-end gap-2 border-t border-gray-300">
-                                <button onClick={() => setShowForm(false)} className="h-7 px-4 bg-white border border-gray-400 text-[10px] font-black uppercase text-slate-600">Cerrar</button>
+                                <button onClick={() => setShowForm(false)} className="h-7 px-4 bg-white border border-gray-400 text-[10px] font-semibold uppercase text-slate-600">Cerrar</button>
                                 <WindowsSaveButton onClick={save} title="Guardar Registro" />
                             </div>
                         </div>
@@ -1171,8 +1171,8 @@ export const TabFlujoCaja: React.FC<{ accentColor: string }> = ({ accentColor })
 
 const ReconcilRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (
     <div className="flex items-center justify-between text-[11px]">
-        <span className="font-bold text-slate-500 uppercase tracking-tight">{label}</span>
-        <span className="font-black text-slate-900">{value}</span>
+        <span className="font-medium text-slate-500 uppercase tracking-tight">{label}</span>
+        <span className="font-semibold text-slate-900">{value}</span>
     </div>
 );
 
@@ -1184,18 +1184,18 @@ const StatusBadge: React.FC<{ label: string; count: number; amount: number; colo
                 {icon}
             </div>
             <div className="flex flex-col">
-                <span className={`text-[11px] font-black uppercase tracking-widest ${color === 'emerald' ? 'text-emerald-700' : color === 'red' ? 'text-red-700' : 'text-amber-700'}`}>{label}</span>
-                <span className="text-[10px] font-bold text-slate-500">{count} movimientos clasificados</span>
+                <span className={`text-[11px] font-semibold uppercase tracking-widest ${color === 'emerald' ? 'text-emerald-700' : color === 'red' ? 'text-red-700' : 'text-amber-700'}`}>{label}</span>
+                <span className="text-[10px] font-medium text-slate-500">{count} movimientos clasificados</span>
             </div>
         </div>
-        <span className="text-lg font-black text-slate-800 tabular-nums">{fmtQ(amount)}</span>
+        <span className="text-lg font-semibold text-slate-800 tabular-nums">{fmtQ(amount)}</span>
     </div>
 );
 
 const FilterBtn: React.FC<{ active: boolean; onClick: () => void; label: string }> = ({ active, onClick, label }) => (
     <button 
         onClick={onClick}
-        className={`px-4 py-1.5 rounded-md text-[9px] font-black uppercase tracking-widest transition-all ${
+        className={`px-4 py-1.5 rounded-md text-[9px] font-semibold uppercase tracking-widest transition-all ${
             active ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'
         }`}
     >
@@ -1208,15 +1208,15 @@ const AssignOption: React.FC<{ icon: React.ReactNode; label: string; active?: bo
         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${active ? 'bg-[#106EBE] text-white' : 'bg-slate-100 text-slate-400'}`}>
             {icon}
         </div>
-        <span className="text-[10px] font-black uppercase tracking-tighter leading-none">{label}</span>
+        <span className="text-[10px] font-semibold uppercase tracking-tighter leading-none">{label}</span>
     </button>
 );
 
 const KPIBox: React.FC<{ label: string; value: string; color: string; alert?: boolean }> = ({ label, value, color, alert }) => {
     return (
         <div className={`p-4 rounded-xl border-2 bg-white border-slate-200 text-black ${alert ? 'animate-pulse border-red-500' : ''}`}>
-            <p className="text-[9px] font-black uppercase tracking-widest mb-1">{label}</p>
-            <p className="text-lg font-black tabular-nums">{value}</p>
+            <p className="text-[9px] font-semibold uppercase tracking-widest mb-1">{label}</p>
+            <p className="text-lg font-semibold tabular-nums">{value}</p>
         </div>
     );
 };

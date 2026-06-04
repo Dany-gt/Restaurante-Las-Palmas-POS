@@ -109,9 +109,9 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
                                     style={{ paddingLeft: `${depth * 10}px` }}
                                     className={`truncate leading-none uppercase pr-1 ${
                                         isSelected 
-                                            ? 'text-white font-bold text-[10px]' 
+                                            ? 'text-white font-medium text-[10px]' 
                                             : depth === 0 
-                                                ? 'text-slate-800 font-black text-[11px] tracking-wide' 
+                                                ? 'text-slate-800 font-semibold text-[11px] tracking-wide' 
                                                 : 'text-slate-600 text-[10px]'
                                     }`}
                                 >
@@ -137,7 +137,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
         >
             {/* Cabecera gris */}
             <div className="bg-[#f0f0f0] border-b border-gray-300 px-2 py-1 shrink-0">
-                <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">{title}</span>
+                <span className="text-[10px] font-medium text-gray-600 uppercase tracking-widest">{title}</span>
             </div>
 
             {showSearch && (

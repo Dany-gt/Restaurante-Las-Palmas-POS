@@ -98,15 +98,15 @@ export const DashboardSales: React.FC = () => {
                     <div className="w-16 h-16 md:w-20 md:h-20 bg-indigo-600 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center text-white mb-4 md:mb-6 shadow-xl shadow-indigo-600/20">
                         <TrendingUp size={32} className="md:w-10 md:h-10" />
                     </div>
-                    <span className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em] mb-2 block">Progreso Objetivos</span>
-                    <span className="text-4xl md:text-5xl font-black tracking-tighter mb-4 text-slate-800">{stats.growth}%</span>
-                    <p className="text-[11px] md:text-xs text-slate-400 font-bold max-w-[200px] leading-relaxed">Rendimiento positivo detectado en el periodo actual.</p>
+                    <span className="text-[10px] font-semibold text-indigo-600 uppercase tracking-[0.3em] mb-2 block">Progreso Objetivos</span>
+                    <span className="text-4xl md:text-5xl font-semibold tracking-tighter mb-4 text-slate-800">{stats.growth}%</span>
+                    <p className="text-[11px] md:text-xs text-slate-400 font-medium max-w-[200px] leading-relaxed">Rendimiento positivo detectado en el periodo actual.</p>
                 </div>
             </div>
 
             <div className="admin-card p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] border border-slate-200 shadow-sm overflow-hidden">
                 <div className="flex items-center justify-between mb-8 md:mb-10">
-                    <h3 className="text-[9px] md:text-xs font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-slate-500">Rendimiento de Ventas Diarias (Mes Actual)</h3>
+                    <h3 className="text-[9px] md:text-xs font-semibold uppercase tracking-[0.2em] md:tracking-[0.3em] text-slate-500">Rendimiento de Ventas Diarias (Mes Actual)</h3>
                 </div>
                 <div className="h-48 md:h-64 flex items-end gap-1 px-1 md:gap-1.5 md:px-4">
                     {stats.history.map((h, i) => (
@@ -124,9 +124,9 @@ export const DashboardSales: React.FC = () => {
                     ))}
                 </div>
                 <div className="flex justify-between mt-4 px-2 md:px-4">
-                    <span className="text-[7px] md:text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Día 1</span>
-                    <span className="text-[7px] md:text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Día 15</span>
-                    <span className="text-[7px] md:text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Día 30</span>
+                    <span className="text-[7px] md:text-[8px] font-medium text-slate-400 uppercase tracking-tighter">Día 1</span>
+                    <span className="text-[7px] md:text-[8px] font-medium text-slate-400 uppercase tracking-tighter">Día 15</span>
+                    <span className="text-[7px] md:text-[8px] font-medium text-slate-400 uppercase tracking-tighter">Día 30</span>
                 </div>
             </div>
         </div>
@@ -138,9 +138,9 @@ const SaleMetric = ({ label, value, trend, icon: Icon, color }: any) => (
         <div className={`w-10 h-10 md:w-12 md:h-12 bg-slate-50 rounded-xl md:rounded-2xl flex items-center justify-center ${color} mb-4 md:mb-6 md:group-hover:scale-110 transition-transform`}>
             <Icon size={20} className="md:w-6 md:h-6" />
         </div>
-        <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">{label}</span>
-        <span className="text-xl md:text-2xl font-black text-slate-800">{value}</span>
-        <div className="mt-3 md:mt-4 flex items-center gap-1 text-[9px] md:text-[10px] font-black text-emerald-500 bg-emerald-50 w-fit px-2 py-0.5 rounded-full">
+        <span className="text-[9px] md:text-[10px] font-semibold text-slate-400 uppercase tracking-widest block mb-1">{label}</span>
+        <span className="text-xl md:text-2xl font-semibold text-slate-800">{value}</span>
+        <div className="mt-3 md:mt-4 flex items-center gap-1 text-[9px] md:text-[10px] font-semibold text-emerald-500 bg-emerald-50 w-fit px-2 py-0.5 rounded-full">
             <ArrowUpRight size={10} className="md:w-[12px]" /> {trend}
         </div>
     </div>

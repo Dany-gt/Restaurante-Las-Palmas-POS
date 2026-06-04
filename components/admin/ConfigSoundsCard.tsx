@@ -367,7 +367,7 @@ export const ConfigSoundsCard: React.FC = () => {
             <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-wrap items-center gap-6">
                 <div className="flex items-center gap-3">
                     <label className="flex items-center gap-3 cursor-pointer">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Alertas KDS</span>
+                        <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Alertas KDS</span>
                         <div
                             onClick={() => setSettings(prev => ({ ...prev, enabled: !prev.enabled }))}
                             className={`w-9 h-5 rounded-full p-0.5 transition-all duration-300 ${settings.enabled ? 'bg-[#106ebe]' : 'bg-gray-200'}`}
@@ -380,8 +380,8 @@ export const ConfigSoundsCard: React.FC = () => {
                 <div className="flex items-center gap-4 flex-1 max-w-lg">
                     <div className="flex flex-col flex-1 gap-1">
                         <div className="flex justify-between items-center">
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Altavoz</span>
-                            <span className="text-[10px] font-bold text-[#106ebe]">{Math.round(settings.volume * 100)}%</span>
+                            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Altavoz</span>
+                            <span className="text-[10px] font-medium text-[#106ebe]">{Math.round(settings.volume * 100)}%</span>
                         </div>
                         <input
                             type="range"
@@ -395,8 +395,8 @@ export const ConfigSoundsCard: React.FC = () => {
                     </div>
                     <div className="flex flex-col flex-1 gap-1">
                         <div className="flex justify-between items-center">
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Voz IA</span>
-                            <span className="text-[10px] font-bold text-[#106ebe]">{Math.round(settings.voiceVolume * 2 * 100) / 2}%</span>
+                            <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Voz IA</span>
+                            <span className="text-[10px] font-medium text-[#106ebe]">{Math.round(settings.voiceVolume * 2 * 100) / 2}%</span>
                         </div>
                         <input
                             type="range"
@@ -412,22 +412,22 @@ export const ConfigSoundsCard: React.FC = () => {
 
                 <div className="flex items-center gap-4 w-full md:w-auto">
                     <div className="flex flex-col gap-1 w-full md:w-64">
-                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-1">Frase IA (Nueva Orden)</span>
+                        <span className="text-[9px] font-medium text-gray-400 uppercase tracking-widest px-1">Frase IA (Nueva Orden)</span>
                         <input
                             type="text"
                             value={settings.voicePhrase}
                             onChange={(e) => setSettings(prev => ({ ...prev, voicePhrase: e.target.value }))}
-                            className="bg-gray-50 border border-gray-100 rounded-lg py-1.5 px-3 text-[11px] font-bold text-gray-700 outline-none focus:ring-2 focus:ring-[#106ebe]/10"
+                            className="bg-gray-50 border border-gray-100 rounded-lg py-1.5 px-3 text-[11px] font-medium text-gray-700 outline-none focus:ring-2 focus:ring-[#106ebe]/10"
                             placeholder="Ej: Nueva orden en camino"
                         />
                     </div>
 
                     <div className="flex flex-col gap-1">
-                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-1">Cocina (Default)</span>
+                        <span className="text-[9px] font-medium text-gray-400 uppercase tracking-widest px-1">Cocina (Default)</span>
                         <select
                             value={settings.defaultSoundId}
                             onChange={(e) => setSettings(prev => ({ ...prev, defaultSoundId: e.target.value }))}
-                            className="bg-gray-50 border border-gray-100 rounded-lg py-1 px-3 text-[11px] font-bold text-gray-700 outline-none focus:ring-2 focus:ring-[#106ebe]/10"
+                            className="bg-gray-50 border border-gray-100 rounded-lg py-1 px-3 text-[11px] font-medium text-gray-700 outline-none focus:ring-2 focus:ring-[#106ebe]/10"
                         >
                             <option value="">Sin sonido</option>
                             {sounds.map(sound => (
@@ -437,11 +437,11 @@ export const ConfigSoundsCard: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col gap-1">
-                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-1">Mesero (Listo)</span>
+                        <span className="text-[9px] font-medium text-gray-400 uppercase tracking-widest px-1">Mesero (Listo)</span>
                         <select
                             value={settings.waiterSoundId}
                             onChange={(e) => setSettings(prev => ({ ...prev, waiterSoundId: e.target.value }))}
-                            className="bg-gray-50 border border-gray-100 rounded-lg py-1 px-3 text-[11px] font-bold text-gray-700 outline-none focus:ring-2 focus:ring-[#106ebe]/10"
+                            className="bg-gray-50 border border-gray-100 rounded-lg py-1 px-3 text-[11px] font-medium text-gray-700 outline-none focus:ring-2 focus:ring-[#106ebe]/10"
                         >
                             <option value="">Original (Ding)</option>
                             {sounds.map(sound => (
@@ -451,11 +451,11 @@ export const ConfigSoundsCard: React.FC = () => {
                     </div>
                     
                     <div className="flex flex-col gap-1">
-                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-1">Notificaciones POS</span>
+                        <span className="text-[9px] font-medium text-gray-400 uppercase tracking-widest px-1">Notificaciones POS</span>
                         <select
                             value={settings.posNotificationSoundId}
                             onChange={(e) => setSettings(prev => ({ ...prev, posNotificationSoundId: e.target.value }))}
-                            className="bg-gray-50 border border-gray-100 rounded-lg py-1 px-3 text-[11px] font-bold text-gray-700 outline-none focus:ring-2 focus:ring-[#106ebe]/10"
+                            className="bg-gray-50 border border-gray-100 rounded-lg py-1 px-3 text-[11px] font-medium text-gray-700 outline-none focus:ring-2 focus:ring-[#106ebe]/10"
                         >
                             <option value="">Sin sonido</option>
                             {sounds.map(sound => (
@@ -465,11 +465,11 @@ export const ConfigSoundsCard: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col gap-1">
-                        <span className="text-[9px] font-bold text-red-400 uppercase tracking-widest px-1">Advertencias POS</span>
+                        <span className="text-[9px] font-medium text-red-400 uppercase tracking-widest px-1">Advertencias POS</span>
                         <select
                             value={settings.posWarningSoundId}
                             onChange={(e) => setSettings(prev => ({ ...prev, posWarningSoundId: e.target.value }))}
-                            className="bg-red-50/50 border border-red-100 rounded-lg py-1 px-3 text-[11px] font-bold text-red-700 outline-none focus:ring-2 focus:ring-red-500/10"
+                            className="bg-red-50/50 border border-red-100 rounded-lg py-1 px-3 text-[11px] font-medium text-red-700 outline-none focus:ring-2 focus:ring-red-500/10"
                         >
                             <option value="">Igual a Notif.</option>
                             {sounds.map(sound => (
@@ -490,10 +490,10 @@ export const ConfigSoundsCard: React.FC = () => {
             <div className="flex items-center justify-between px-2">
                 <div className="flex items-center gap-2">
                     <Volume2 size={16} className="text-[#106ebe]" />
-                    <span className="text-[11px] font-bold text-gray-600 uppercase tracking-widest">Librería de Sonidos</span>
+                    <span className="text-[11px] font-medium text-gray-600 uppercase tracking-widest">Librería de Sonidos</span>
                 </div>
 
-                <label className={`flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-600 transition-all cursor-pointer active:scale-95 ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <label className={`flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-xl text-[10px] font-semibold uppercase tracking-widest hover:bg-green-600 transition-all cursor-pointer active:scale-95 ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <input
                         type="file"
                         accept="audio/mpeg,audio/wav,audio/ogg"
@@ -510,7 +510,7 @@ export const ConfigSoundsCard: React.FC = () => {
             <div className="flex-1 overflow-auto bg-white rounded-2xl border border-gray-100 shadow-sm relative">
                 <table className="w-full border-collapse text-[11px]">
                     <thead className="sticky top-0 z-20">
-                        <tr className="bg-gray-50/80 backdrop-blur-md border-b border-gray-100 font-bold">
+                        <tr className="bg-gray-50/80 backdrop-blur-md border-b border-gray-100 font-medium">
                             <th className="py-2 px-4 text-left text-gray-400 uppercase tracking-widest w-[8%]">Tipo</th>
                             <th className="py-2 px-4 text-left text-gray-400 uppercase tracking-widest w-[62%]">Nombre</th>
                             <th className="py-2 px-4 text-left text-gray-400 uppercase tracking-widest w-[15%]">Tamaño</th>
@@ -520,7 +520,7 @@ export const ConfigSoundsCard: React.FC = () => {
                     <tbody className="divide-y divide-gray-50">
                         {sounds.length === 0 ? (
                             <tr>
-                                <td colSpan={4} className="py-12 text-center text-gray-400 font-bold uppercase tracking-widest opacity-50">
+                                <td colSpan={4} className="py-12 text-center text-gray-400 font-medium uppercase tracking-widest opacity-50">
                                     No hay sonidos registrados
                                 </td>
                             </tr>
@@ -581,7 +581,7 @@ export const ConfigSoundsCard: React.FC = () => {
                                                 </button>
                                             </div>
                                         ) : (
-                                            <span className="font-bold">{sound.name}</span>
+                                            <span className="font-medium">{sound.name}</span>
                                         )}
                                     </td>
                                     <td className="py-2 px-4 text-gray-500">{formatFileSize(sound.file_size)}</td>
@@ -605,7 +605,7 @@ export const ConfigSoundsCard: React.FC = () => {
                             setContextMenu(null);
                         }}
                         disabled={playing === contextMenu.sound.id}
-                        className="w-full text-left px-4 py-2 text-[10px] font-bold text-gray-700 hover:bg-gray-50 hover:text-green-600 flex items-center gap-3 transition-colors uppercase tracking-widest"
+                        className="w-full text-left px-4 py-2 text-[10px] font-medium text-gray-700 hover:bg-gray-50 hover:text-green-600 flex items-center gap-3 transition-colors uppercase tracking-widest"
                     >
                         {playing === contextMenu.sound.id ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} fill="currentColor" />}
                         <span>Probar Sonido</span>
@@ -616,7 +616,7 @@ export const ConfigSoundsCard: React.FC = () => {
                             setEditName(contextMenu.sound.name);
                             setContextMenu(null);
                         }}
-                        className="w-full text-left px-4 py-2 text-[10px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#106ebe] flex items-center gap-3 transition-colors uppercase tracking-widest"
+                        className="w-full text-left px-4 py-2 text-[10px] font-medium text-gray-700 hover:bg-gray-50 hover:text-[#106ebe] flex items-center gap-3 transition-colors uppercase tracking-widest"
                     >
                         <Edit2 size={12} />
                         <span>Renombrar</span>
@@ -627,7 +627,7 @@ export const ConfigSoundsCard: React.FC = () => {
                             setConfirmDeleteId(contextMenu.sound.id);
                             setContextMenu(null);
                         }}
-                        className="w-full text-left px-4 py-2 text-[10px] font-bold text-red-500 hover:bg-red-50 flex items-center gap-3 transition-colors uppercase tracking-widest"
+                        className="w-full text-left px-4 py-2 text-[10px] font-medium text-red-500 hover:bg-red-50 flex items-center gap-3 transition-colors uppercase tracking-widest"
                     >
                         <Trash2 size={12} />
                         <span>Eliminar</span>
@@ -647,10 +647,10 @@ export const ConfigSoundsCard: React.FC = () => {
 
             {/* FOOTER */}
             <div className="bg-gray-50/50 px-4 py-2 border-t border-gray-100 flex justify-between items-center rounded-b-2xl">
-                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                <span className="text-[9px] font-medium text-gray-400 uppercase tracking-widest">
                     {sounds.length} Sonidos Disponibles
                 </span>
-                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                <span className="text-[9px] font-medium text-gray-400 uppercase tracking-widest">
                     Configuración de Estaciones KDS
                 </span>
             </div>

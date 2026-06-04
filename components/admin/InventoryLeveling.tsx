@@ -679,7 +679,7 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                         <div className="p-2 bg-white border border-slate-200 rounded-xl text-slate-600 shadow-sm">
                             <ClipboardList size={18} />
                         </div>
-                        <h2 className="text-sm font-black text-slate-700 uppercase tracking-tight leading-none">Nivelación de Existencia</h2>
+                        <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-tight leading-none">Nivelación de Existencia</h2>
                     </div>
 
                     <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -689,7 +689,7 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                             <select
                                 value={selectedBranch}
                                 onChange={e => setSelectedBranch(e.target.value)}
-                                className="bg-transparent outline-none text-[10px] font-black uppercase text-slate-700 w-full"
+                                className="bg-transparent outline-none text-[10px] font-semibold uppercase text-slate-700 w-full"
                             >
                                 {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
                             </select>
@@ -704,20 +704,20 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                 <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 md:pb-0">
                     <button
                         onClick={() => setShowPrintModal(true)}
-                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3 py-2 rounded-xl font-black text-[9px] tracking-widest uppercase transition-all whitespace-nowrap shadow-sm"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3 py-2 rounded-xl font-semibold text-[9px] tracking-widest uppercase transition-all whitespace-nowrap shadow-sm"
                     >
                         <FileText size={14} /> <span className="hidden sm:inline">Hoja de Conteo</span><span className="inline sm:hidden">Hoja</span>
                     </button>
                     <button
                         onClick={handlePrintCierre}
-                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-[#106ebe] hover:bg-slate-700 text-white px-3 py-2 rounded-xl font-black text-[9px] tracking-widest uppercase transition-all whitespace-nowrap"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-[#106ebe] hover:bg-slate-700 text-white px-3 py-2 rounded-xl font-semibold text-[9px] tracking-widest uppercase transition-all whitespace-nowrap"
                     >
                         <Printer size={14} /> <span className="hidden sm:inline">Cierre de Inventario</span><span className="inline sm:hidden">Cierre</span>
                     </button>
                     <button
                         onClick={handleConfirmOpen}
                         disabled={loading}
-                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-4 py-2 rounded-xl font-black text-[9px] tracking-widest uppercase shadow-lg transition-all whitespace-nowrap"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-4 py-2 rounded-xl font-semibold text-[9px] tracking-widest uppercase shadow-lg transition-all whitespace-nowrap"
                     >
                         <Save size={14} /> <span className="hidden sm:inline">Procesar Nivelación</span><span className="inline sm:hidden">Procesar</span>
                     </button>
@@ -734,11 +734,11 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                         placeholder="Buscar por nombre o código..."
                         value={search}
                         onChange={e => setSearch(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-400 transition-all shadow-sm"
+                        className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 outline-none focus:border-indigo-400 transition-all shadow-sm"
                     />
                 </div>
                 {!isMobile && (
-                    <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <div className="flex items-center gap-2 text-[10px] font-medium text-slate-400 uppercase tracking-widest">
                         <TrendingUp size={14} /> {filteredRows.length} items filtrados
                     </div>
                 )}
@@ -751,8 +751,8 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                         <ClipboardList size={14} />
                     </div>
                     <div className="overflow-hidden">
-                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block truncate">Sesión</span>
-                        <span className="text-xs font-black text-slate-800 tabular-nums">{auditedCount} / {rows.length}</span>
+                        <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest block truncate">Sesión</span>
+                        <span className="text-xs font-semibold text-slate-800 tabular-nums">{auditedCount} / {rows.length}</span>
                     </div>
                 </div>
                 <div className="bg-white p-3 rounded-2xl border border-rose-100 shadow-sm flex items-center gap-3 min-w-[140px]">
@@ -760,8 +760,8 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                         <TrendingDown size={14} />
                     </div>
                     <div className="overflow-hidden">
-                        <span className="text-[8px] font-black text-rose-400 uppercase tracking-widest block truncate">Pérdida (-)</span>
-                        <span className="text-xs font-black text-rose-500 tabular-nums">Q{mermas.toFixed(2)}</span>
+                        <span className="text-[8px] font-semibold text-rose-400 uppercase tracking-widest block truncate">Pérdida (-)</span>
+                        <span className="text-xs font-semibold text-rose-500 tabular-nums">Q{mermas.toFixed(2)}</span>
                     </div>
                 </div>
                 <div className="bg-white p-3 rounded-2xl border border-emerald-100 shadow-sm flex items-center gap-3 min-w-[140px]">
@@ -769,8 +769,8 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                         <TrendingUp size={14} />
                     </div>
                     <div className="overflow-hidden">
-                        <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest block truncate">Sobrantes (+)</span>
-                        <span className="text-xs font-black text-emerald-500 tabular-nums">Q{sobrantes.toFixed(2)}</span>
+                        <span className="text-[8px] font-semibold text-emerald-500 uppercase tracking-widest block truncate">Sobrantes (+)</span>
+                        <span className="text-xs font-semibold text-emerald-500 tabular-nums">Q{sobrantes.toFixed(2)}</span>
                     </div>
                 </div>
                 <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3 min-w-[140px]">
@@ -778,8 +778,8 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                         <BarChart3 size={14} />
                     </div>
                     <div className="overflow-hidden">
-                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block truncate">Diferencia</span>
-                        <span className={`text-xs font-black tabular-nums ${sobrantes - mermas < 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
+                        <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest block truncate">Diferencia</span>
+                        <span className={`text-xs font-semibold tabular-nums ${sobrantes - mermas < 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
                             Q{(sobrantes - mermas).toFixed(2)}
                         </span>
                     </div>
@@ -793,12 +793,12 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                         {loading ? (
                             <div className="flex flex-col items-center justify-center h-full gap-4 text-slate-300 py-20">
                                 <Loader2 size={48} className="animate-spin text-indigo-500" />
-                                <span className="text-[11px] font-black uppercase tracking-widest">Cargando inventario...</span>
+                                <span className="text-[11px] font-semibold uppercase tracking-widest">Cargando inventario...</span>
                             </div>
                         ) : !isMobile ? (
                             <table className="w-full text-left border-collapse min-w-[800px] bg-white">
                                 <thead className="sticky top-0 bg-[#eaeff5] z-10 border-b border-slate-300 shadow-sm">
-                                    <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-700 h-10">
+                                    <tr className="text-[10px] font-medium uppercase tracking-widest text-slate-700 h-10">
                                         <th className="px-4 py-1">Código</th>
                                         <th className="px-4 py-1">Producto</th>
                                         <th className="px-4 py-1 text-center">U. Medida</th>
@@ -815,7 +815,7 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                             <td colSpan={8} className="py-24 text-center">
                                                 <div className="flex flex-col items-center gap-4 text-slate-200">
                                                     <Package size={64} className="opacity-20" />
-                                                    <span className="text-[12px] font-black uppercase tracking-widest text-slate-400">
+                                                    <span className="text-[12px] font-semibold uppercase tracking-widest text-slate-400">
                                                         {search ? 'Sin resultados para tu búsqueda' : 'No hay productos en esta sucursal'}
                                                     </span>
                                                 </div>
@@ -844,15 +844,15 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                         }`}
                                                 >
                                                     <td className="px-4 py-1 whitespace-nowrap">
-                                                        <span className="text-[9px] font-black text-slate-500">
+                                                        <span className="text-[9px] font-semibold text-slate-500">
                                                             {row.code || '--'}
                                                         </span>
                                                     </td>
                                                     <td className="px-4 py-1">
                                                         <div className="flex flex-col">
-                                                            <span className="text-[11px] font-black text-slate-800 uppercase leading-tight">{row.name}</span>
+                                                            <span className="text-[11px] font-semibold text-slate-800 uppercase leading-tight">{row.name}</span>
                                                             <div className="flex items-center gap-2">
-                                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
+                                                                <span className="text-[8px] font-medium text-slate-400 uppercase tracking-widest">
                                                                     {row.category_name}
                                                                 </span>
                                                             </div>
@@ -860,15 +860,15 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                     </td>
                                                     <td className="px-4 py-1 text-center">
                                                         <div className="flex flex-col items-center gap-0.5">
-                                                            <span className="text-[9px] font-black text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 uppercase">
+                                                            <span className="text-[9px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 uppercase">
                                                                 {row.display_unit}
                                                             </span>
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-1 text-center">
                                                         <div className="flex flex-col items-center">
-                                                            <span className="font-black text-[11px] text-[#106ebe] tabular-nums" title="Stock actual en esta sucursal (Kardex)">{row.system_stock}</span>
-                                                            <span className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter">Global: {(row as any).global_stock || 0}</span>
+                                                            <span className="font-semibold text-[11px] text-[#106ebe] tabular-nums" title="Stock actual en esta sucursal (Kardex)">{row.system_stock}</span>
+                                                            <span className="text-[7px] font-medium text-slate-400 uppercase tracking-tighter">Global: {(row as any).global_stock || 0}</span>
                                                             <span className="text-[6px] text-slate-300 uppercase leading-none mt-0.5">Dato de Inventario</span>
                                                         </div>
                                                     </td>
@@ -880,7 +880,7 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                             placeholder="0"
                                                             value={row.physical_stock === '' ? '' : row.physical_stock}
                                                             onChange={e => handlePhysicalChange(row.item_id, e.target.value)}
-                                                            className={`w-20 text-center font-black text-[11px] rounded border h-7 px-2 outline-none transition-all
+                                                            className={`w-20 text-center font-semibold text-[11px] rounded border h-7 px-2 outline-none transition-all
                                                                 ${isEdited
                                                                     ? diff < 0 ? 'border-rose-400 bg-rose-50 text-rose-700' :
                                                                         diff > 0 ? 'border-emerald-400 bg-emerald-50 text-emerald-700' :
@@ -891,17 +891,17 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                     </td>
                                                     <td className="px-4 py-1 text-center">
                                                         {isEdited ? (
-                                                            <span className={`inline-flex items-center gap-1 font-black text-[10px] tabular-nums
+                                                            <span className={`inline-flex items-center gap-1 font-semibold text-[10px] tabular-nums
                                                                 ${diff < 0 ? 'text-rose-600' :
                                                                     diff > 0 ? 'text-emerald-600' :
                                                                         'text-indigo-600'}`}>
                                                                 {diff > 0 ? '+' : ''}{diff}
                                                             </span>
-                                                        ) : <span className="text-slate-200 font-bold tracking-widest">—</span>}
+                                                        ) : <span className="text-slate-200 font-medium tracking-widest">—</span>}
                                                     </td>
                                                     <td className="px-4 py-1 text-right">
                                                         <div className="flex flex-col items-center text-right">
-                                                            <span className="text-[10px] font-bold text-slate-500 tabular-nums">
+                                                            <span className="text-[10px] font-medium text-slate-500 tabular-nums">
                                                                 Q{unitCost.toFixed(2)}
                                                             </span>
                                                             {(() => {
@@ -914,7 +914,7 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                     </td>
                                                     <td className="px-4 py-1 text-right pr-6">
                                                         {isEdited ? (
-                                                            <span className={`text-[11px] font-black tabular-nums
+                                                            <span className={`text-[11px] font-semibold tabular-nums
                                                                 ${valueDiff < 0 ? 'text-rose-600' : valueDiff > 0 ? 'text-emerald-600' : 'text-indigo-600'}`}>
                                                                 {valueDiff > 0 ? '+' : ''}Q{valueDiff.toFixed(2)}
                                                             </span>
@@ -932,7 +932,7 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                 {filteredRows.length === 0 ? (
                                     <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center flex flex-col items-center gap-4">
                                         <Package size={48} className="text-slate-200" />
-                                        <span className="text-xs font-black uppercase text-slate-400 tracking-widest">Sin productos</span>
+                                        <span className="text-xs font-semibold uppercase text-slate-400 tracking-widest">Sin productos</span>
                                     </div>
                                 ) : (
                                     filteredRows.map(row => {
@@ -946,8 +946,8 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                 <div className="flex justify-between items-start gap-3">
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex justify-between items-center bg-gray-50/50 p-2 rounded mb-3">
-                                                            <span className="text-[10px] text-slate-500 uppercase font-bold">Precio Ref</span>
-                                                            <span className="text-xs font-black text-slate-800">
+                                                            <span className="text-[10px] text-slate-500 uppercase font-medium">Precio Ref</span>
+                                                            <span className="text-xs font-semibold text-slate-800">
                                                                 Q{(() => {
                                                                     const cleanUnit = row.display_unit.toUpperCase().trim();
                                                                     const isBox = cleanUnit === 'CAJA' || cleanUnit === 'BOLSA' || cleanUnit === 'PAQUETE';
@@ -957,17 +957,17 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                             </span>
                                                         </div>
                                                         <div className="flex items-center gap-2 mb-1">
-                                                            <span className="text-[8px] font-black text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 uppercase">{row.code || 'S/C'}</span>
-                                                            <span className="text-[9px] font-bold text-indigo-500 uppercase tracking-widest">{row.presentation}</span>
+                                                            <span className="text-[8px] font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 uppercase">{row.code || 'S/C'}</span>
+                                                            <span className="text-[9px] font-medium text-indigo-500 uppercase tracking-widest">{row.presentation}</span>
                                                         </div>
-                                                        <h3 className="text-xs font-black text-slate-800 uppercase leading-snug">{row.name}</h3>
+                                                        <h3 className="text-xs font-semibold text-slate-800 uppercase leading-snug">{row.name}</h3>
                                                     </div>
                                                     <div className="text-right shrink-0">
-                                                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Existencia Global</div>
-                                                        <div className="text-sm font-black text-[#106ebe] tabular-nums">
+                                                        <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Existencia Global</div>
+                                                        <div className="text-sm font-semibold text-[#106ebe] tabular-nums">
                                                             {row.system_stock} <span className="text-[9px] text-slate-400">{row.unit}</span>
                                                         </div>
-                                                        <div className="text-[8px] font-bold text-slate-400 uppercase">
+                                                        <div className="text-[8px] font-medium text-slate-400 uppercase">
                                                             Global: {(row as any).global_stock || 0}
                                                         </div>
                                                     </div>
@@ -975,14 +975,14 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
 
                                                 <div className="grid grid-cols-2 gap-3 items-end">
                                                     <div className="flex flex-col gap-1.5">
-                                                        <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Conteo Real</label>
+                                                        <label className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest ml-1">Conteo Real</label>
                                                         <input
                                                             type="number"
                                                             inputMode="decimal"
                                                             placeholder="Ingrese cantidad..."
                                                             value={row.physical_stock === '' ? '' : row.physical_stock}
                                                             onChange={e => handlePhysicalChange(row.item_id, e.target.value)}
-                                                            className={`w-full py-3 px-4 rounded-2xl border text-center font-black text-sm outline-none transition-all shadow-inner
+                                                            className={`w-full py-3 px-4 rounded-2xl border text-center font-semibold text-sm outline-none transition-all shadow-inner
                                                                 ${isEdited
                                                                     ? 'bg-white border-indigo-400 text-indigo-700'
                                                                     : 'bg-slate-50 border-slate-100 text-slate-700 focus:bg-white focus:border-indigo-400'}`}
@@ -993,14 +993,14 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                                             <>
                                                                 <div className={`p-2 rounded-2xl flex items-center gap-2 w-full justify-center ${diff < 0 ? 'bg-rose-100/50 text-rose-700' : diff > 0 ? 'bg-emerald-100/50 text-emerald-700' : 'bg-indigo-100/50 text-indigo-700'}`}>
                                                                     {diff > 0 ? <TrendingUp size={16} /> : diff < 0 ? <TrendingDown size={16} /> : null}
-                                                                    <span className="text-xs font-black tabular-nums">{diff > 0 ? '+' : ''}{diff}</span>
+                                                                    <span className="text-xs font-semibold tabular-nums">{diff > 0 ? '+' : ''}{diff}</span>
                                                                 </div>
-                                                                <div className={`text-[11px] font-black ${valueDiff < 0 ? 'text-rose-500' : valueDiff > 0 ? 'text-emerald-500' : 'text-indigo-500'}`}>
+                                                                <div className={`text-[11px] font-semibold ${valueDiff < 0 ? 'text-rose-500' : valueDiff > 0 ? 'text-emerald-500' : 'text-indigo-500'}`}>
                                                                     {valueDiff > 0 ? '+' : ''}Q{valueDiff.toFixed(2)}
                                                                 </div>
                                                             </>
                                                         ) : (
-                                                            <div className="h-[60px] flex items-center justify-center text-slate-200 font-bold opacity-50">
+                                                            <div className="h-[60px] flex items-center justify-center text-slate-200 font-medium opacity-50">
                                                                 PENDIENTE
                                                             </div>
                                                         )}
@@ -1027,8 +1027,8 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                     <AlertTriangle size={24} />
                                 </div>
                                 <div>
-                                    <h3 className="text-base font-black text-white uppercase tracking-tight">Confirmar Nivelación</h3>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                                    <h3 className="text-base font-semibold text-white uppercase tracking-tight">Confirmar Nivelación</h3>
+                                    <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-1">
                                         {sessionRows.length} items · {branchName}
                                     </p>
                                 </div>
@@ -1046,12 +1046,12 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                         return (
                                             <div key={r.item_id} className="bg-white p-3 rounded-2xl border border-slate-100 flex items-center justify-between shadow-sm">
                                                 <div className="flex-1 overflow-hidden pr-4">
-                                                    <h4 className="text-[11px] font-black text-slate-700 uppercase leading-none truncate mb-1.5">{r.name}</h4>
-                                                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                                    <h4 className="text-[11px] font-semibold text-slate-700 uppercase leading-none truncate mb-1.5">{r.name}</h4>
+                                                    <div className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">
                                                         Existencia: {r.system_stock} → <span className="text-slate-600">{phys}</span>
                                                     </div>
                                                 </div>
-                                                <div className={`text-[11px] font-black px-3 py-1.5 rounded-xl tabular-nums shadow-sm ${diff < 0 ? 'text-rose-600 bg-rose-50 border border-rose-100' : diff > 0 ? 'text-emerald-600 bg-emerald-50 border border-emerald-100' : 'text-indigo-600 bg-indigo-50 border border-indigo-100'}`}>
+                                                <div className={`text-[11px] font-semibold px-3 py-1.5 rounded-xl tabular-nums shadow-sm ${diff < 0 ? 'text-rose-600 bg-rose-50 border border-rose-100' : diff > 0 ? 'text-emerald-600 bg-emerald-50 border border-emerald-100' : 'text-indigo-600 bg-indigo-50 border border-indigo-100'}`}>
                                                     {diff > 0 ? '+' : ''}{diff}
                                                 </div>
                                             </div>
@@ -1062,7 +1062,7 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
 
                             {/* Notes — mandatory */}
                             <div className="px-6 py-5 bg-white border-t border-slate-50">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block mb-3 flex items-center gap-2">
+                                <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-[0.2em] block mb-3 flex items-center gap-2">
                                     <Info size={12} className="text-indigo-400" />
                                     Justificación del Ajuste <span className="text-rose-500 ml-auto">* Requerido</span>
                                 </label>
@@ -1071,10 +1071,10 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                     onChange={e => { setNotes(e.target.value); setNotesError(false); }}
                                     placeholder="Describa el motivo de las diferencias encontradas..."
                                     rows={2}
-                                    className={`w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 text-xs font-bold text-slate-700 outline-none transition-all resize-none ${notesError ? 'border-rose-400 bg-rose-50 shadow-inner' : 'border-slate-100 focus:border-indigo-400 focus:bg-white focus:shadow-lg focus:shadow-indigo-500/5'}`}
+                                    className={`w-full bg-slate-50 border-2 rounded-2xl px-5 py-4 text-xs font-medium text-slate-700 outline-none transition-all resize-none ${notesError ? 'border-rose-400 bg-rose-50 shadow-inner' : 'border-slate-100 focus:border-indigo-400 focus:bg-white focus:shadow-lg focus:shadow-indigo-500/5'}`}
                                 />
                                 {notesError && (
-                                    <p className="text-[10px] font-black text-rose-500 uppercase mt-2 flex items-center gap-1.5 animate-pulse">
+                                    <p className="text-[10px] font-semibold text-rose-500 uppercase mt-2 flex items-center gap-1.5 animate-pulse">
                                         <AlertTriangle size={12} /> Debe ingresar un motivo válido
                                     </p>
                                 )}
@@ -1086,7 +1086,7 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                     <button
                                         disabled={saving}
                                         onClick={() => setShowConfirm(false)}
-                                        className="px-6 py-3 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all"
+                                        className="px-6 py-3 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-2xl font-semibold text-[11px] uppercase tracking-widest transition-all"
                                     >
                                         Cerrar
                                     </button>
@@ -1094,7 +1094,7 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                 <button
                                     disabled={saving}
                                     onClick={handleSave}
-                                    className={`flex-1 flex items-center gap-3 bg-[#106ebe] hover:bg-[#106ebe] hover:brightness-110 disabled:opacity-50 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.1em] shadow-xl shadow-blue-900/20 active:scale-95 transition-all justify-center ${saving ? 'cursor-not-allowed' : ''}`}
+                                    className={`flex-1 flex items-center gap-3 bg-[#106ebe] hover:bg-[#106ebe] hover:brightness-110 disabled:opacity-50 text-white px-8 py-4 rounded-2xl font-semibold text-xs uppercase tracking-[0.1em] shadow-xl shadow-blue-900/20 active:scale-95 transition-all justify-center ${saving ? 'cursor-not-allowed' : ''}`}
                                 >
                                     {saving ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={18} />}
                                     {saving ? 'Sincronizando...' : 'Confirmar Cambios'}
@@ -1114,20 +1114,20 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                     <FileText size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-black text-white tracking-tight uppercase">Generar Hoja Físico</h3>
-                                    <p className="text-[10px] uppercase tracking-widest text-blue-200/60 font-bold mt-0.5">Opciones de Impresión PDF</p>
+                                    <h3 className="text-sm font-semibold text-white tracking-tight uppercase">Generar Hoja Físico</h3>
+                                    <p className="text-[10px] uppercase tracking-widest text-blue-200/60 font-medium mt-0.5">Opciones de Impresión PDF</p>
                                 </div>
                             </div>
                             <div className="p-6">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Agrupar Lista Por:</label>
+                                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3 block">Agrupar Lista Por:</label>
                                 <div className="flex flex-col gap-3">
                                     <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${printFormat === 'CATEGORIA' ? 'border-indigo-600 bg-indigo-50/50' : 'border-slate-100 hover:border-slate-200'}`}>
                                         <input type="radio" checked={printFormat === 'CATEGORIA'} onChange={() => setPrintFormat('CATEGORIA')} className="w-4 h-4 text-indigo-600" />
-                                        <span className={`text-[11px] font-black uppercase tracking-tight ${printFormat === 'CATEGORIA' ? 'text-indigo-700' : 'text-slate-600'}`}>Por Categoría (Recomendado)</span>
+                                        <span className={`text-[11px] font-semibold uppercase tracking-tight ${printFormat === 'CATEGORIA' ? 'text-indigo-700' : 'text-slate-600'}`}>Por Categoría (Recomendado)</span>
                                     </label>
                                     <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${printFormat === 'SUCURSAL' ? 'border-indigo-600 bg-indigo-50/50' : 'border-slate-100 hover:border-slate-200'}`}>
                                         <input type="radio" checked={printFormat === 'SUCURSAL'} onChange={() => setPrintFormat('SUCURSAL')} className="w-4 h-4 text-indigo-600" />
-                                        <span className={`text-[11px] font-black uppercase tracking-tight ${printFormat === 'SUCURSAL' ? 'text-indigo-700' : 'text-slate-600'}`}>Todos Alfabéticamente</span>
+                                        <span className={`text-[11px] font-semibold uppercase tracking-tight ${printFormat === 'SUCURSAL' ? 'text-indigo-700' : 'text-slate-600'}`}>Todos Alfabéticamente</span>
                                     </label>
                                 </div>
                                 <p className="text-[10px] text-slate-500 mt-4 leading-relaxed font-semibold">
@@ -1135,10 +1135,10 @@ export const InventoryLeveling: React.FC<{ currentUser?: any }> = ({ currentUser
                                 </p>
                             </div>
                             <div className="p-5 flex gap-2 border-t border-slate-100 bg-slate-50">
-                                <button onClick={() => setShowPrintModal(false)} className="flex-1 bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 rounded-xl py-3 text-[11px] font-black uppercase tracking-widest transition-all">
+                                <button onClick={() => setShowPrintModal(false)} className="flex-1 bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 rounded-xl py-3 text-[11px] font-semibold uppercase tracking-widest transition-all">
                                     Cancelar
                                 </button>
-                                <button onClick={handlePrintPhysicalSheet} className="flex-1 bg-[#106ebe] hover:bg-[#106ebe] hover:brightness-110 text-white shadow-lg shadow-blue-900/20 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2">
+                                <button onClick={handlePrintPhysicalSheet} className="flex-1 bg-[#106ebe] hover:bg-[#106ebe] hover:brightness-110 text-white shadow-lg shadow-blue-900/20 py-3 rounded-xl text-[11px] font-semibold uppercase tracking-widest transition-all flex items-center justify-center gap-2">
                                     <Printer size={14} /> Generar
                                 </button>
                             </div>

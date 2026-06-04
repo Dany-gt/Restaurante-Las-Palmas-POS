@@ -449,9 +449,9 @@ export const TabIVA: React.FC<{
             {/* Header Controls */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Periodo:</label>
+                    <label className="text-[10px] font-semibold uppercase text-slate-500 tracking-widest">Periodo:</label>
                     <input type="month" value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)}
-                        className="border border-gray-300 rounded px-3 py-1.5 text-[11px] font-bold text-gray-900 bg-white" />
+                        className="border border-gray-300 rounded px-3 py-1.5 text-[11px] font-medium text-gray-900 bg-white" />
                     <button onClick={fetchData} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors">
                         <RefreshCw size={13} />
                     </button>
@@ -459,21 +459,21 @@ export const TabIVA: React.FC<{
                 <div className="flex gap-2">
                     <button
                         onClick={() => setShowDeclaraguate(true)}
-                        className="flex items-center gap-2 px-3 py-1.5 text-[10px] font-black uppercase bg-[#1e6091] text-white rounded hover:bg-black transition-all shadow-sm"
+                        className="flex items-center gap-2 px-3 py-1.5 text-[10px] font-semibold uppercase bg-[#1e6091] text-white rounded hover:bg-black transition-all shadow-sm"
                     >
                         <FileText size={12} /> Borrador Declaraguate
                     </button>
                     <button
                         onClick={handleExportVentas}
                         disabled={exportingVentas}
-                        className="flex items-center gap-2 px-3 py-1.5 text-[10px] font-black uppercase border border-slate-200 rounded text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-50"
+                        className="flex items-center gap-2 px-3 py-1.5 text-[10px] font-semibold uppercase border border-slate-200 rounded text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-50"
                     >
                         {exportingVentas ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />} Libro Ventas
                     </button>
                     <button
                         onClick={handleExportCompras}
                         disabled={exportingCompras}
-                        className="flex items-center gap-2 px-3 py-1.5 text-[10px] font-black uppercase border border-slate-200 rounded text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-50"
+                        className="flex items-center gap-2 px-3 py-1.5 text-[10px] font-semibold uppercase border border-slate-200 rounded text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-50"
                     >
                         {exportingCompras ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />} Libro Compras
                     </button>
@@ -484,28 +484,28 @@ export const TabIVA: React.FC<{
                 {/* DÉBITO FISCAL */}
                 <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                     <div className="bg-[#106ebe] px-4 py-3">
-                        <span className="text-[10px] font-black text-white uppercase tracking-widest">Débito Fiscal — IVA sobre Ventas</span>
+                        <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Débito Fiscal — IVA sobre Ventas</span>
                     </div>
                     <div className="p-4 space-y-3">
                         <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Total Ventas Brutas</span>
-                                <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 text-[8px] font-black rounded border border-blue-100 flex items-center gap-1">
+                                <span className="text-[10px] font-semibold uppercase text-slate-500 tracking-widest">Total Ventas Brutas</span>
+                                <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 text-[8px] font-semibold rounded border border-blue-100 flex items-center gap-1">
                                     <RefreshCw size={8} /> SAT SYNC
                                 </span>
                             </div>
-                            <span className="text-[12px] font-black text-black">{fmtQ(salesData.gross)}</span>
+                            <span className="text-[12px] font-semibold text-black">{fmtQ(salesData.gross)}</span>
                         </div>
                         <Row label="IVA Incluido (÷1.12 × 0.12)" value={fmtQ(debitoFiscal)} highlight />
                         <Row label="Ventas Netas sin IVA" value={fmtQ(ventasNetas)} />
                         <div className="pt-2 border-t border-slate-100">
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Por Canal</p>
+                            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-2">Por Canal</p>
                             <Row label="Salón" value={fmtQ(salesData.byChannel.salon)} small />
                             <Row label="Delivery" value={fmtQ(salesData.byChannel.delivery)} small />
                             <Row label="Para Llevar" value={fmtQ(salesData.byChannel.takeout)} small />
                         </div>
                         <div className="pt-2 border-t border-slate-100">
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Por Forma de Pago</p>
+                            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-2">Por Forma de Pago</p>
                             <Row label="Efectivo" value={fmtQ(salesData.byPayment.cash)} small />
                             <Row label="Tarjeta" value={fmtQ(salesData.byPayment.card)} small />
                         </div>
@@ -515,15 +515,15 @@ export const TabIVA: React.FC<{
                 {/* CRÉDITO FISCAL */}
                 <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                     <div className="bg-[#106ebe] px-4 py-3 flex items-center justify-between">
-                        <span className="text-[10px] font-black text-white uppercase tracking-widest">Crédito Fiscal — IVA Compras</span>
+                        <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Crédito Fiscal — IVA Compras</span>
                         <button onClick={() => { setShowForm(true); setEditingId(null); setEditForm(EMPTY_INVOICE); }}
-                            className="flex items-center gap-1 px-3 py-1 bg-white/20 hover:bg-white/30 text-white text-[9px] font-black uppercase rounded transition-all">
+                            className="flex items-center gap-1 px-3 py-1 bg-white/20 hover:bg-white/30 text-white text-[9px] font-semibold uppercase rounded transition-all">
                             <Plus size={11} /> Agregar
                         </button>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-[10px]">
-                            <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-black text-black uppercase tracking-wider">
+                            <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-semibold text-black uppercase tracking-wider">
                                 <tr>
                                     <th className="px-3 py-2">Fecha</th>
                                     <th className="px-3 py-2">Proveedor</th>
@@ -537,23 +537,23 @@ export const TabIVA: React.FC<{
                                 {loading ? (
                                     <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400"><Loader2 size={16} className="animate-spin mx-auto" /></td></tr>
                                 ) : invoices.length === 0 ? (
-                                    <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400 text-[10px] font-bold">Sin facturas registradas</td></tr>
+                                    <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400 text-[10px] font-medium">Sin facturas registradas</td></tr>
                                 ) : invoices.map(inv => {
                                     const isAnulado = inv.status?.toLowerCase() === 'anulado' || inv.status?.toLowerCase() === 'annulled' || inv.status === 'A';
                                     const isExcluded = ['FPEQ', 'RECI', 'RDON'].includes(inv.tipo_dte || '') || isAnulado || (inv.description || '').includes('ANULADO');
                                     return (
-                                        <tr key={inv.id} className={`hover:bg-slate-50 transition-colors text-black font-black ${isExcluded ? 'opacity-50 grayscale bg-red-50/10' : ''}`}>
+                                        <tr key={inv.id} className={`hover:bg-slate-50 transition-colors text-black font-semibold ${isExcluded ? 'opacity-50 grayscale bg-red-50/10' : ''}`}>
                                             <td className="px-3 py-2 font-mono text-black">
                                                 <div className="flex flex-col">
                                                     <span>{dayjs(inv.invoice_date).format('DD/MM')}</span>
-                                                    <span className="text-[7px] font-black uppercase text-slate-400">{inv.tipo_dte || 'FACT'}</span>
+                                                    <span className="text-[7px] font-semibold uppercase text-slate-400">{inv.tipo_dte || 'FACT'}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-3 py-2 font-black truncate max-w-[120px] text-black">
+                                            <td className="px-3 py-2 font-semibold truncate max-w-[120px] text-black">
                                                 <div className="flex flex-col">
                                                     <span className="truncate">{inv.supplier_name}</span>
-                                                    {isExcluded && <span className="text-[7px] font-black uppercase text-red-600">No Deducible</span>}
-                                                    {inv.idp_monto && inv.idp_monto !== 0 && <span className="text-[7px] font-black uppercase text-amber-600">IDP: {fmtQ(inv.idp_monto)}</span>}
+                                                    {isExcluded && <span className="text-[7px] font-semibold uppercase text-red-600">No Deducible</span>}
+                                                    {inv.idp_monto && inv.idp_monto !== 0 && <span className="text-[7px] font-semibold uppercase text-amber-600">IDP: {fmtQ(inv.idp_monto)}</span>}
                                                 </div>
                                             </td>
                                             <td className="px-3 py-2 text-black">
@@ -562,10 +562,10 @@ export const TabIVA: React.FC<{
                                                     {inv.uuid_referencia && <span className="text-[7px] text-blue-600 truncate max-w-[50px]">Ref: {inv.uuid_referencia.slice(0, 8)}</span>}
                                                 </div>
                                             </td>
-                                            <td className={`px-3 py-2 text-right font-black ${inv.total_amount < 0 ? 'text-red-600' : 'text-black'}`}>
+                                            <td className={`px-3 py-2 text-right font-semibold ${inv.total_amount < 0 ? 'text-red-600' : 'text-black'}`}>
                                                 {fmtQ(inv.total_amount)}
                                             </td>
-                                            <td className={`px-3 py-2 text-right font-black ${isExcluded ? 'text-slate-400 strike-through' : (inv.iva_amount < 0 ? 'text-red-600' : 'text-black')}`}>
+                                            <td className={`px-3 py-2 text-right font-semibold ${isExcluded ? 'text-slate-400 strike-through' : (inv.iva_amount < 0 ? 'text-red-600' : 'text-black')}`}>
                                                 {isExcluded ? 'Q 0.00' : fmtQ(inv.iva_amount)}
                                             </td>
                                             <td className="px-3 py-2 text-right">
@@ -578,10 +578,10 @@ export const TabIVA: React.FC<{
                                     );
                                 })}
                             </tbody>
-                            <tfoot className="bg-blue-50 border-t-2 border-blue-200 text-black font-black">
+                            <tfoot className="bg-blue-50 border-t-2 border-blue-200 text-black font-semibold">
                                 <tr>
-                                    <td colSpan={4} className="px-3 py-2 text-[10px] font-black uppercase">Total Crédito Fiscal</td>
-                                    <td className="px-3 py-2 text-right text-[12px] font-black">{fmtQ(creditoFiscal)}</td>
+                                    <td colSpan={4} className="px-3 py-2 text-[10px] font-semibold uppercase">Total Crédito Fiscal</td>
+                                    <td className="px-3 py-2 text-right text-[12px] font-semibold">{fmtQ(creditoFiscal)}</td>
                                     <td></td>
                                 </tr>
                             </tfoot>
@@ -595,10 +595,10 @@ export const TabIVA: React.FC<{
                 <div className="bg-[#106EBE] px-5 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <FileText size={16} className="text-white/80" />
-                        <h3 className="text-[11px] font-black text-white uppercase tracking-widest">Declaraguate — Formulario IVA General (SAT-2048)</h3>
+                        <h3 className="text-[11px] font-semibold text-white uppercase tracking-widest">Declaraguate — Formulario IVA General (SAT-2048)</h3>
                     </div>
                     <div className="flex items-center gap-4">
-                        <span className="text-[10px] font-bold text-white/90">Periodo: <span className="underline decoration-white/30">{dayjs(selectedMonth + '-01').format('MMMM YYYY')}</span></span>
+                        <span className="text-[10px] font-medium text-white/90">Periodo: <span className="underline decoration-white/30">{dayjs(selectedMonth + '-01').format('MMMM YYYY')}</span></span>
                         <button onClick={fetchData} className="p-1.5 hover:bg-white/10 rounded-full text-white transition-all"><RefreshCw size={12} /></button>
                     </div>
                 </div>
@@ -606,7 +606,7 @@ export const TabIVA: React.FC<{
                 <div className="p-5 grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4">
                     {/* DÉBITO FISCAL */}
                     <div className="space-y-3">
-                        <h4 className="text-[9px] font-black uppercase text-[#106EBE] border-b border-[#106EBE]/20 pb-1 flex items-center gap-2">
+                        <h4 className="text-[9px] font-semibold uppercase text-[#106EBE] border-b border-[#106EBE]/20 pb-1 flex items-center gap-2">
                             <span className="w-4 h-4 bg-[#106EBE] text-white rounded flex items-center justify-center text-[8px]">1</span>
                             DÉBITO FISCAL (VENTAS)
                         </h4>
@@ -620,7 +620,7 @@ export const TabIVA: React.FC<{
 
                     {/* CRÉDITO FISCAL */}
                     <div className="space-y-3">
-                        <h4 className="text-[9px] font-black uppercase text-emerald-700 border-b border-emerald-100 pb-1 flex items-center gap-2">
+                        <h4 className="text-[9px] font-semibold uppercase text-emerald-700 border-b border-emerald-100 pb-1 flex items-center gap-2">
                             <span className="w-4 h-4 bg-emerald-700 text-white rounded flex items-center justify-center text-[8px]">5</span>
                             CRÉDITO FISCAL (COMPRAS)
                         </h4>
@@ -629,16 +629,16 @@ export const TabIVA: React.FC<{
                             
                             <div className="flex items-center justify-between gap-3 py-1 px-2 rounded border-b border-[#106EBE]/10 bg-amber-50/30">
                                 <div className="flex items-center gap-2.5">
-                                    <span className="w-6 h-6 rounded-full bg-white border border-slate-200 text-[#106EBE] text-[8px] font-black flex items-center justify-center italic shrink-0">6</span>
-                                    <span className="text-[9.5px] font-bold uppercase tracking-tight text-slate-800">Saldo Crédito Mes Anterior (Editable)</span>
+                                    <span className="w-6 h-6 rounded-full bg-white border border-slate-200 text-[#106EBE] text-[8px] font-semibold flex items-center justify-center italic shrink-0">6</span>
+                                    <span className="text-[9.5px] font-medium uppercase tracking-tight text-slate-800">Saldo Crédito Mes Anterior (Editable)</span>
                                 </div>
                                 <div className="relative">
-                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-400">Q</span>
+                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[9px] font-semibold text-slate-400">Q</span>
                                     <input 
                                         type="number" 
                                         value={declaraguateData.saldoAnterior || ''} 
                                         onChange={e => setDeclaraguateData(p => ({ ...p, saldoAnterior: parseFloat(e.target.value) || 0 }))}
-                                        className="w-24 bg-white border border-slate-200 rounded px-5 py-0.5 text-right font-black text-[10px] outline-none focus:border-[#106EBE]"
+                                        className="w-24 bg-white border border-slate-200 rounded px-5 py-0.5 text-right font-semibold text-[10px] outline-none focus:border-[#106EBE]"
                                         placeholder="0.00"
                                     />
                                 </div>
@@ -655,25 +655,25 @@ export const TabIVA: React.FC<{
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col justify-center space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[9px] font-black uppercase text-slate-500">Casilla 10: IVA a Pagar</span>
-                                    <span className={`text-[11px] font-black ${!declaraguateData.isSaldoFavor ? 'text-red-600' : 'text-slate-300'}`}>
+                                    <span className="text-[9px] font-semibold uppercase text-slate-500">Casilla 10: IVA a Pagar</span>
+                                    <span className={`text-[11px] font-semibold ${!declaraguateData.isSaldoFavor ? 'text-red-600' : 'text-slate-300'}`}>
                                         {declaraguateData.isSaldoFavor ? fmtQ(0) : fmtQ(declaraguateData.ivaLiquidacion)}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[9px] font-black uppercase text-slate-500">Casilla 11: Saldo a Favor Mes Sig.</span>
-                                    <span className={`text-[11px] font-black ${declaraguateData.isSaldoFavor ? 'text-emerald-600' : 'text-slate-300'}`}>
+                                    <span className="text-[9px] font-semibold uppercase text-slate-500">Casilla 11: Saldo a Favor Mes Sig.</span>
+                                    <span className={`text-[11px] font-semibold ${declaraguateData.isSaldoFavor ? 'text-emerald-600' : 'text-slate-300'}`}>
                                         {declaraguateData.isSaldoFavor ? fmtQ(declaraguateData.ivaLiquidacion) : fmtQ(0)}
                                     </span>
                                 </div>
                             </div>
 
                             <div className="flex flex-col justify-center items-end text-right">
-                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Resultado Liquidez SAT-2048</p>
-                                <h2 className={`text-lg font-black mb-1 ${declaraguateData.isSaldoFavor ? 'text-emerald-600' : 'text-[#106EBE]'}`}>
+                                <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest mb-0.5">Resultado Liquidez SAT-2048</p>
+                                <h2 className={`text-lg font-semibold mb-1 ${declaraguateData.isSaldoFavor ? 'text-emerald-600' : 'text-[#106EBE]'}`}>
                                     {declaraguateData.isSaldoFavor ? 'REMANENTE CRÉDITO' : 'OBLIGACIÓN DE PAGO'}
                                 </h2>
-                                <div className="text-3xl font-black text-slate-900 border-t-2 border-slate-900 pt-1 leading-none">
+                                <div className="text-3xl font-semibold text-slate-900 border-t-2 border-slate-900 pt-1 leading-none">
                                     {fmtQ(declaraguateData.ivaLiquidacion)}
                                 </div>
                             </div>
@@ -687,15 +687,15 @@ export const TabIVA: React.FC<{
                         <DeadlineSemaphore monthStr={selectedMonth} />
                     </div>
                     <div className="flex items-center gap-2">
-                        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded font-black uppercase text-[9px] transition-all border border-white/10">
+                        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded font-semibold uppercase text-[9px] transition-all border border-white/10">
                             <Download size={12} /> Exportar PDF
                         </button>
                         {declaredStatus === 'pending' ? (
-                            <button onClick={markDeclared} disabled={declaring} className="flex items-center gap-2 px-6 py-2 bg-[#106EBE] hover:bg-blue-600 text-white rounded font-black uppercase text-[9px] transition-all shadow-[0_3px_8px_rgba(16,110,190,0.3)]">
+                            <button onClick={markDeclared} disabled={declaring} className="flex items-center gap-2 px-6 py-2 bg-[#106EBE] hover:bg-blue-600 text-white rounded font-semibold uppercase text-[9px] transition-all shadow-[0_3px_8px_rgba(16,110,190,0.3)]">
                                 {declaring ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Marcar como Declarado
                             </button>
                         ) : (
-                            <div className="flex items-center gap-2 px-6 py-2 bg-emerald-600/20 text-emerald-400 rounded font-black uppercase text-[9px] border border-emerald-500/50">
+                            <div className="flex items-center gap-2 px-6 py-2 bg-emerald-600/20 text-emerald-400 rounded font-semibold uppercase text-[9px] border border-emerald-500/50">
                                 <CheckCircle2 size={12} /> Mes Declarado
                             </div>
                         )}
@@ -708,7 +708,7 @@ export const TabIVA: React.FC<{
                 <div className="fixed inset-0 z-[500] bg-black/40 flex items-center justify-center p-4">
                     <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg border border-slate-200">
                         <div className="bg-[#106ebe] px-5 py-3 flex items-center justify-between rounded-t-xl">
-                            <span className="text-[11px] font-black text-white uppercase tracking-widest">
+                            <span className="text-[11px] font-semibold text-white uppercase tracking-widest">
                                 {editingId ? 'Editar Factura' : 'Nueva Factura de Compra'}
                             </span>
                             <button onClick={() => setShowForm(false)} className="text-white/60 hover:text-white"><X size={16} /></button>
@@ -733,7 +733,7 @@ export const TabIVA: React.FC<{
                                 <input type="number" value={editForm.total_amount} onChange={e => handleTotalChange(Number(e.target.value))} className="input-std" />
                             </FormField>
                             <FormField label="IVA Calculado (Q)" colSpan={1}>
-                                <input type="number" value={editForm.iva_amount} readOnly className="input-std bg-slate-50 text-black font-black" />
+                                <input type="number" value={editForm.iva_amount} readOnly className="input-std bg-slate-50 text-black font-semibold" />
                             </FormField>
                             <FormField label="Monto sin IVA (Q)" colSpan={1}>
                                 <input type="number" value={editForm.net_amount} readOnly className="input-std bg-slate-50" />
@@ -745,8 +745,8 @@ export const TabIVA: React.FC<{
                             </FormField>
                         </div>
                         <div className="px-5 pb-5 flex justify-end gap-2">
-                            <button onClick={() => setShowForm(false)} className="px-4 py-2 text-[10px] font-black uppercase text-slate-600 hover:bg-slate-100 rounded transition-all">Cancelar</button>
-                            <button onClick={saveInvoice} className="flex items-center gap-2 px-5 py-2 bg-[#106ebe] text-white text-[10px] font-black uppercase rounded hover:bg-black transition-all">
+                            <button onClick={() => setShowForm(false)} className="px-4 py-2 text-[10px] font-semibold uppercase text-slate-600 hover:bg-slate-100 rounded transition-all">Cancelar</button>
+                            <button onClick={saveInvoice} className="flex items-center gap-2 px-5 py-2 bg-[#106ebe] text-white text-[10px] font-semibold uppercase rounded hover:bg-black transition-all">
                                 <Save size={12} /> Guardar
                             </button>
                         </div>
@@ -763,7 +763,7 @@ export const TabIVA: React.FC<{
                             <div className="modal-header bg-[#106EBE] h-9 px-4 flex justify-between items-center cursor-move select-none">
                                 <div className="flex items-center gap-3">
                                     <CheckCircle2 size={16} className="text-[#a8d0f0]" />
-                                    <span className="text-white font-black uppercase tracking-widest text-[11px]">Borrador SAT-2048 (IVA General)</span>
+                                    <span className="text-white font-semibold uppercase tracking-widest text-[11px]">Borrador SAT-2048 (IVA General)</span>
                                 </div>
                                 <button 
                                     onClick={() => setShowDeclaraguate(false)} 
@@ -777,7 +777,7 @@ export const TabIVA: React.FC<{
                                 <div className="grid grid-cols-2 gap-12">
                                     {/* DÉBITO FISCAL */}
                                     <div className="space-y-6">
-                                        <h4 className="text-[11px] font-black uppercase text-[#106EBE] border-b-2 border-[#106EBE] pb-1">Determinación del Débito Fiscal (Ventas)</h4>
+                                        <h4 className="text-[11px] font-semibold uppercase text-[#106EBE] border-b-2 border-[#106EBE] pb-1">Determinación del Débito Fiscal (Ventas)</h4>
                                         <div className="space-y-3">
                                             <TaxBox label="Suma de Ventas Brutas" val={declaraguateData.ventasBrutas} satBox="1" help={`Total ventas gravadas (${declaraguateData.ventasCount} facturas)`} />
                                             <TaxBox label="Ventas Netas (Base Imponible)" val={declaraguateData.ventasNetas || declaraguateData.ventasBrutas / 1.12} satBox="2" />
@@ -787,7 +787,7 @@ export const TabIVA: React.FC<{
 
                                     {/* CRÉDITO FISCAL */}
                                     <div className="space-y-6">
-                                        <h4 className="text-[11px] font-black uppercase text-emerald-700 border-b-2 border-emerald-700 pb-1">Determinación del Crédito Fiscal (Compras)</h4>
+                                        <h4 className="text-[11px] font-semibold uppercase text-emerald-700 border-b-2 border-emerald-700 pb-1">Determinación del Crédito Fiscal (Compras)</h4>
                                         <div className="space-y-3">
                                             <TaxBox label="Compras Brutas (Gravadas)" val={declaraguateData.comprasBrutas} satBox="14" help={`Total compras locales (${declaraguateData.comprasCount} facturas)`} />
                                             <TaxBox label="CRÉDITO FISCAL (IVA COMPRAS)" val={declaraguateData.creditoFiscalNeto} satBox="15" highlight color="emerald" />
@@ -799,24 +799,24 @@ export const TabIVA: React.FC<{
                                 <div className="mt-8 p-5 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Resumen de Liquidación</p>
-                                            <h3 className="text-lg font-black text-slate-800 mt-1">
+                                            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Resumen de Liquidación</p>
+                                            <h3 className="text-lg font-semibold text-slate-800 mt-1">
                                                 {declaraguateData.isSaldoFavor ? 'REMANENTE CRÉDITO FISCAL' : 'IVA A PAGAR ESTE MES'}
                                             </h3>
                                         </div>
-                                        <div className={`text-2xl font-black tabular-nums ${!declaraguateData.isSaldoFavor ? 'text-[#106EBE]' : 'text-emerald-600'}`}>
+                                        <div className={`text-2xl font-semibold tabular-nums ${!declaraguateData.isSaldoFavor ? 'text-[#106EBE]' : 'text-emerald-600'}`}>
                                             {fmtQ(declaraguateData.ivaLiquidacion)}
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="mt-8 flex justify-between items-center text-[9px] text-slate-400 font-bold uppercase tracking-widest italic">
+                                <div className="mt-8 flex justify-between items-center text-[9px] text-slate-400 font-medium uppercase tracking-widest italic">
                                     <span>* Borrador generado automáticamente con datos del POS y Auditoría SAT Sync.</span>
                                     <div className="flex gap-3">
-                                        <button onClick={() => window.print()} className="flex items-center gap-2 px-5 py-2.5 border-2 border-slate-200 rounded-md hover:bg-slate-50 transition-all text-slate-700 font-bold uppercase text-[10px]">
+                                        <button onClick={() => window.print()} className="flex items-center gap-2 px-5 py-2.5 border-2 border-slate-200 rounded-md hover:bg-slate-50 transition-all text-slate-700 font-medium uppercase text-[10px]">
                                             <Download size={13} /> Imprimir Borrador
                                         </button>
-                                        <button onClick={() => setShowDeclaraguate(false)} className="px-8 py-2.5 bg-slate-900 text-white rounded-md hover:bg-black transition-all font-bold uppercase text-[10px]">
+                                        <button onClick={() => setShowDeclaraguate(false)} className="px-8 py-2.5 bg-slate-900 text-white rounded-md hover:bg-black transition-all font-medium uppercase text-[10px]">
                                             Cerrar Vista
                                         </button>
                                     </div>
@@ -847,10 +847,10 @@ export const TabIVA: React.FC<{
 const FormRow: React.FC<{ label: string; value: string; sat: string; highlight?: boolean; color?: 'blue' | 'emerald' | 'red' }> = ({ label, value, sat, highlight, color }) => (
     <div className={`flex items-center justify-between gap-3 py-1.5 px-2 rounded border-b border-transparent transition-all hover:bg-slate-50 ${highlight ? 'bg-slate-50 border-slate-100' : ''}`}>
         <div className="flex items-center gap-2.5">
-            <span className="w-6 h-6 rounded-full bg-white border border-slate-200 text-slate-400 text-[8px] font-black flex items-center justify-center italic shrink-0">{sat}</span>
-            <span className={`text-[9.5px] font-bold uppercase tracking-tight ${highlight ? 'text-black font-black' : 'text-slate-600'}`}>{label}</span>
+            <span className="w-6 h-6 rounded-full bg-white border border-slate-200 text-slate-400 text-[8px] font-semibold flex items-center justify-center italic shrink-0">{sat}</span>
+            <span className={`text-[9.5px] font-medium uppercase tracking-tight ${highlight ? 'text-black font-semibold' : 'text-slate-600'}`}>{label}</span>
         </div>
-        <span className={`text-[11px] font-black tabular-nums transition-all ${color === 'blue' ? 'text-[#106EBE]' : color === 'emerald' ? 'text-emerald-600' : color === 'red' ? 'text-red-500' : 'text-black'}`}>{value}</span>
+        <span className={`text-[11px] font-semibold tabular-nums transition-all ${color === 'blue' ? 'text-[#106EBE]' : color === 'emerald' ? 'text-emerald-600' : color === 'red' ? 'text-red-500' : 'text-black'}`}>{value}</span>
     </div>
 );
 
@@ -882,10 +882,10 @@ const DeadlineSemaphore: React.FC<{ monthStr: string }> = ({ monthStr }) => {
         <div className="flex flex-col">
             <div className="flex items-center gap-2 mb-0.5">
                 <div className={`w-2 h-2 rounded-full ${dot}`} />
-                <span className={`text-[10px] font-black uppercase tracking-widest ${color}`}>{label}</span>
+                <span className={`text-[10px] font-semibold uppercase tracking-widest ${color}`}>{label}</span>
             </div>
-            <div className="text-[9px] font-bold text-white/50 uppercase">
-                Fecha límite: <span className="text-white/80 font-black">{deadline.format('DD [de] MMMM')}</span>
+            <div className="text-[9px] font-medium text-white/50 uppercase">
+                Fecha límite: <span className="text-white/80 font-semibold">{deadline.format('DD [de] MMMM')}</span>
                 {diff >= 0 && <span className="ml-2">— {diff} días restantes</span>}
             </div>
         </div>
@@ -893,22 +893,22 @@ const DeadlineSemaphore: React.FC<{ monthStr: string }> = ({ monthStr }) => {
 };
 
 const Row: React.FC<{ label: string; value: string; highlight?: boolean; small?: boolean }> = ({ label, value, highlight, small }) => (
-    <div className={`flex justify-between items-center py-1.5 ${highlight ? 'bg-blue-50/50 -mx-4 px-4 border-y border-blue-100 font-bold' : ''}`}>
-        <span className={`${small ? 'text-[9px]' : 'text-[10px]'} font-bold text-slate-600 uppercase tracking-tight`}>{label}</span>
-        <span className={`${small ? 'text-[10px]' : 'text-[11px]'} font-black text-black tabular-nums`}>{value}</span>
+    <div className={`flex justify-between items-center py-1.5 ${highlight ? 'bg-blue-50/50 -mx-4 px-4 border-y border-blue-100 font-medium' : ''}`}>
+        <span className={`${small ? 'text-[9px]' : 'text-[10px]'} font-medium text-slate-600 uppercase tracking-tight`}>{label}</span>
+        <span className={`${small ? 'text-[10px]' : 'text-[11px]'} font-semibold text-black tabular-nums`}>{value}</span>
     </div>
 );
 
 const TaxBox: React.FC<{ label: string; val: number; satBox: string; highlight?: boolean; color?: 'blue' | 'emerald'; help?: string }> = ({ label, val, satBox, highlight, color, help }) => (
     <div className={`flex items-center justify-between p-3 rounded-lg border ${highlight ? (color === 'blue' ? 'bg-blue-50 border-blue-200' : 'bg-emerald-50 border-emerald-200') : 'bg-white border-slate-100'}`}>
         <div className="flex flex-col">
-            <span className="text-[10px] font-black text-slate-800 uppercase tracking-tight">{label}</span>
-            {help && <span className="text-[8px] font-bold text-slate-400">{help}</span>}
+            <span className="text-[10px] font-semibold text-slate-800 uppercase tracking-tight">{label}</span>
+            {help && <span className="text-[8px] font-medium text-slate-400">{help}</span>}
         </div>
         <div className="flex items-center gap-6">
-            <span className={`text-[13px] font-black tabular-nums shrink-0 ${highlight ? (color === 'blue' ? 'text-[#1e6091]' : 'text-emerald-700') : 'text-slate-700'}`}>{fmtQ(val)}</span>
+            <span className={`text-[13px] font-semibold tabular-nums shrink-0 ${highlight ? (color === 'blue' ? 'text-[#1e6091]' : 'text-emerald-700') : 'text-slate-700'}`}>{fmtQ(val)}</span>
             <div className="w-9 h-9 rounded bg-[#f8fafc] flex items-center justify-center border-2 border-slate-200 shadow-sm shrink-0 ml-4">
-                <span className="text-[12px] font-black text-slate-600">{satBox}</span>
+                <span className="text-[12px] font-semibold text-slate-600">{satBox}</span>
             </div>
         </div>
     </div>
@@ -918,15 +918,15 @@ const SummaryBox: React.FC<{ label: string; value: string; color: string; large?
     const colors: Record<string, string> = { blue: 'bg-blue-50 border-blue-200 text-blue-800', indigo: 'bg-indigo-50 border-indigo-200 text-indigo-800', orange: 'bg-orange-50 border-orange-200 text-orange-800', emerald: 'bg-emerald-50 border-emerald-200 text-emerald-800' };
     return (
         <div className={`p-4 rounded-lg border-2 ${colors[color]}`}>
-            <p className="text-[9px] font-black uppercase tracking-widest opacity-70 mb-1">{label}</p>
-            <p className={`${large ? 'text-2xl' : 'text-xl'} font-black tabular-nums`}>{value}</p>
+            <p className="text-[9px] font-semibold uppercase tracking-widest opacity-70 mb-1">{label}</p>
+            <p className={`${large ? 'text-2xl' : 'text-xl'} font-semibold tabular-nums`}>{value}</p>
         </div>
     );
 };
 
 const FormField: React.FC<{ label: string; colSpan?: number; children: React.ReactNode }> = ({ label, colSpan = 1, children }) => (
     <div style={{ gridColumn: `span ${colSpan}` }}>
-        <label className="block text-[9px] font-black uppercase text-slate-500 tracking-widest mb-1">{label}</label>
+        <label className="block text-[9px] font-semibold uppercase text-slate-500 tracking-widest mb-1">{label}</label>
         {children}
     </div>
 );
@@ -936,9 +936,9 @@ const PrintFormSAT2048: React.FC<{ data: any; period: string }> = ({ data, perio
     return (
         <div id="print-sat-2048" className="hidden print:block p-10 font-serif text-black leading-tight bg-white">
             <div className="text-center border-b-2 border-black pb-4 mb-6">
-                <h1 className="text-xl font-bold uppercase">SUPERINTENDENCIA DE ADMINISTRACIÓN TRIBUTARIA</h1>
-                <h2 className="text-lg font-bold">DECLARACIÓN DEL IMPUESTO AL VALOR AGREGADO</h2>
-                <h3 className="text-md font-bold italic">Formulario SAT-2048 (IVA General)</h3>
+                <h1 className="text-xl font-medium uppercase">SUPERINTENDENCIA DE ADMINISTRACIÓN TRIBUTARIA</h1>
+                <h2 className="text-lg font-medium">DECLARACIÓN DEL IMPUESTO AL VALOR AGREGADO</h2>
+                <h3 className="text-md font-medium italic">Formulario SAT-2048 (IVA General)</h3>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-8 text-[12px] border p-4 border-black">
@@ -975,7 +975,7 @@ const PrintFormSAT2048: React.FC<{ data: any; period: string }> = ({ data, perio
             <div className="mt-24 flex flex-col items-center">
                 <p className="text-[10px] italic mb-12">Declaro bajo juramento que los datos contenidos en esta declaración son verídicos.</p>
                 <div className="w-64 border-t border-black mb-1"></div>
-                <p className="text-[11px] font-bold">Firma del Contribuyente o Representante Legal</p>
+                <p className="text-[11px] font-medium">Firma del Contribuyente o Representante Legal</p>
                 <p className="text-[10px]">NIT del Declarante: 9188766-6</p>
             </div>
 
@@ -990,9 +990,9 @@ const PrintFormSAT2048: React.FC<{ data: any; period: string }> = ({ data, perio
 const PrintRow: React.FC<{ label: string; val: any; highlight?: boolean }> = ({ label, val, highlight }) => {
     const numericVal = parseFloat(val) || 0;
     return (
-        <div className={`flex justify-between items-center py-1.5 border-b border-slate-100 ${highlight ? 'bg-slate-100 font-bold' : ''}`}>
+        <div className={`flex justify-between items-center py-1.5 border-b border-slate-100 ${highlight ? 'bg-slate-100 font-medium' : ''}`}>
             <span className="text-[10px] uppercase tracking-tight">{label}</span>
-            <span className="text-[11px] font-black font-mono">
+            <span className="text-[11px] font-semibold font-mono">
                 Q {numericVal.toLocaleString('es-GT', { minimumFractionDigits: 2 })}
             </span>
         </div>

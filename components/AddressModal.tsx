@@ -92,7 +92,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, onS
                 className="w-full max-w-[400px] bg-[#2d2e3d] rounded-sm border border-white/10 overflow-hidden flex flex-col cursor-default"
             >
                 <div className="bg-[#3a3b4d] h-10 flex items-center justify-center relative shrink-0 border-b border-white/5 cursor-grab active:cursor-grabbing select-none">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-white">
+                    <h3 className="text-[10px] font-semibold uppercase tracking-[0.25em] text-white">
                         DATOS DIRECCIÓN
                     </h3>
                     <button onClick={onClose} className="absolute right-3 text-white/40 hover:text-white transition-colors">
@@ -108,7 +108,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, onS
                             type="text"
                             readOnly
                             value={customerName || (addressToEdit ? 'CARGANDO...' : 'CLIENTE')}
-                            className="w-full bg-black/40 border border-white/20 rounded-sm py-2 pl-9 pr-3 text-[10px] font-black text-white outline-none uppercase tracking-widest cursor-not-allowed"
+                            className="w-full bg-black/40 border border-white/20 rounded-sm py-2 pl-9 pr-3 text-[10px] font-semibold text-white outline-none uppercase tracking-widest cursor-not-allowed"
                         />
                     </div>
 
@@ -118,7 +118,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, onS
                             autoFocus
                             value={address}
                             onChange={e => setAddress(e.target.value)}
-                            className="w-full bg-black/40 border border-white/20 rounded-sm py-2 pl-9 pr-3 text-[10px] font-black placeholder:text-white/40 outline-none focus:border-white tracking-widest text-white "
+                            className="w-full bg-black/40 border border-white/20 rounded-sm py-2 pl-9 pr-3 text-[10px] font-semibold placeholder:text-white/40 outline-none focus:border-white tracking-widest text-white "
                             placeholder="DIRECCIÓN"
                         />
                     </div>
@@ -128,7 +128,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, onS
                         <input
                             value={reference}
                             onChange={e => setReference(e.target.value)}
-                            className="w-full bg-black/40 border border-white/20 rounded-sm py-2 pl-9 pr-3 text-[10px] font-black placeholder:text-white/40 outline-none focus:border-white tracking-widest text-white "
+                            className="w-full bg-black/40 border border-white/20 rounded-sm py-2 pl-9 pr-3 text-[10px] font-semibold placeholder:text-white/40 outline-none focus:border-white tracking-widest text-white "
                             placeholder="REFERENCIA"
                         />
                     </div>
@@ -137,14 +137,14 @@ export const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, onS
                 <div className="p-4 bg-[#2d2e3d] border-t border-white/5 flex gap-3">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-2.5 border border-white/20 hover:bg-white/10 rounded-sm font-black uppercase tracking-[0.2em] text-[9px] text-white transition-all"
+                        className="flex-1 py-2.5 border border-white/20 hover:bg-white/10 rounded-sm font-semibold uppercase tracking-[0.2em] text-[9px] text-white transition-all"
                     >
                         CANCELAR
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={loading || !address}
-                        className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-white/10 disabled:text-white/20 rounded-sm font-black uppercase tracking-[0.2em] text-[9px] text-white  transition-all"
+                        className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-white/10 disabled:text-white/20 rounded-sm font-semibold uppercase tracking-[0.2em] text-[9px] text-white  transition-all"
                     >
                         {loading ? '...' : 'ACEPTAR'}
                     </button>

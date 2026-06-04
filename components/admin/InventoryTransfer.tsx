@@ -136,7 +136,7 @@ export const InventoryTransfer: React.FC = () => {
                     placeholder="Introduzca el texto a buscar..."
                     className="bg-white border border-gray-400 px-2 h-6 w-64 text-[11px] outline-none shadow-inner"
                 />
-                <button className="h-6 bg-[#f0f0f0] border border-gray-400 px-3 text-[11px] font-bold hover:bg-[#e1e1e1] active:bg-[#d1d1d1] text-black leading-none flex items-center">
+                <button className="h-6 bg-[#f0f0f0] border border-gray-400 px-3 text-[11px] font-medium hover:bg-[#e1e1e1] active:bg-[#d1d1d1] text-black leading-none flex items-center">
                     Buscar
                 </button>
             </div>
@@ -146,23 +146,23 @@ export const InventoryTransfer: React.FC = () => {
                 <table className="w-full border-collapse table-fixed min-w-[800px]">
                     <thead className="bg-[#e8e8e8] select-none text-black sticky top-0 z-10">
                         <tr className="h-6.5 border-b border-gray-400">
-                            <th className="w-[8%] text-left px-2 font-bold border-r border-gray-300 uppercase text-[10px]">
+                            <th className="w-[8%] text-left px-2 font-medium border-r border-gray-300 uppercase text-[10px]">
                                 <div className="flex items-center justify-between">Número <ChevronDown size={10} className="opacity-30" /></div>
                             </th>
-                            <th className="w-[10%] text-left px-2 font-bold border-r border-gray-300 uppercase text-[10px]">
+                            <th className="w-[10%] text-left px-2 font-medium border-r border-gray-300 uppercase text-[10px]">
                                 <div className="flex items-center justify-between">Fecha <ChevronDown size={10} className="opacity-30" /></div>
                             </th>
-                            <th className="w-[30%] text-left px-2 font-bold border-r border-gray-300 uppercase text-[10px]">
+                            <th className="w-[30%] text-left px-2 font-medium border-r border-gray-300 uppercase text-[10px]">
                                 <div className="flex items-center justify-between">Traslado {type === 'hacia' ? 'Hacia' : 'Desde'} <ChevronDown size={10} className="opacity-30" /></div>
                             </th>
-                            <th className="w-[14%] text-left px-2 font-bold border-r border-gray-300 uppercase text-[10px]">
+                            <th className="w-[14%] text-left px-2 font-medium border-r border-gray-300 uppercase text-[10px]">
                                 <div className="flex items-center justify-between">Creado Por <ChevronDown size={10} className="opacity-30" /></div>
                             </th>
-                            <th className="w-[18%] text-left px-2 font-bold border-r border-gray-300 uppercase text-[10px]">
+                            <th className="w-[18%] text-left px-2 font-medium border-r border-gray-300 uppercase text-[10px]">
                                 <div className="flex items-center justify-between text-[9px] leading-tight">Procesado / Anulado Por <ChevronDown size={10} className="opacity-30" /></div>
                             </th>
-                            <th className="w-[10%] text-center px-1 font-bold border-r border-gray-300 uppercase text-[10px]">Procesado</th>
-                            <th className="w-[10%] text-center px-1 font-bold uppercase text-[10px]">Anulado</th>
+                            <th className="w-[10%] text-center px-1 font-medium border-r border-gray-300 uppercase text-[10px]">Procesado</th>
+                            <th className="w-[10%] text-center px-1 font-medium uppercase text-[10px]">Anulado</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -177,7 +177,7 @@ export const InventoryTransfer: React.FC = () => {
                                 }}
                                 className={`h-6 border-b border-gray-100 cursor-pointer text-[11px] text-black transition-colors group ${i % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#f2f7fb]`}
                             >
-                                <td className="px-2 border-r border-gray-200 font-bold">{item.id}</td>
+                                <td className="px-2 border-r border-gray-200 font-medium">{item.id}</td>
                                 <td className="px-2 border-r border-gray-200">{item.date}</td>
                                 <td className="px-2 border-r border-gray-200 uppercase truncate text-gray-800">{item.to}</td>
                                 <td className="px-2 border-r border-gray-200 truncate">{item.createdBy}</td>
@@ -222,12 +222,12 @@ export const InventoryTransfer: React.FC = () => {
         <div ref={containerRef} className="flex flex-col w-full h-full bg-[#f0f0f0] text-black overflow-hidden relative">
             {/* Sucursal Bar: Larger and better aligned */}
             <div className="bg-[#f0f0f0] px-4 py-1 border-b border-gray-300 flex items-center gap-3 shrink-0 h-10 shadow-sm">
-                <span className="text-[11px] font-bold uppercase whitespace-nowrap text-gray-700">Sucursal</span>
+                <span className="text-[11px] font-medium uppercase whitespace-nowrap text-gray-700">Sucursal</span>
                 <div className="relative w-96 flex items-center">
                     <select
                         value={selectedBranch}
                         onChange={(e) => setSelectedBranch(e.target.value)}
-                        className="w-full h-7 bg-white border border-gray-400 outline-none text-[12px] px-3 font-bold appearance-none cursor-pointer leading-none text-black hover:border-blue-400 focus:border-blue-500 transition-colors"
+                        className="w-full h-7 bg-white border border-gray-400 outline-none text-[12px] px-3 font-medium appearance-none cursor-pointer leading-none text-black hover:border-blue-400 focus:border-blue-500 transition-colors"
                     >
                         {branches.map(branch => (
                             <option key={branch.id} value={branch.id}>{branch.name}</option>
@@ -241,7 +241,7 @@ export const InventoryTransfer: React.FC = () => {
                 {/* Sent Transfers */}
                 <div className="flex-1 flex flex-col min-h-0">
                     <div className="bg-[#e2e8f0] px-3 border border-gray-300 border-b-0 rounded-t-sm flex items-center h-6 shrink-0">
-                        <h2 className="text-[11px] font-black text-[#106ebe] uppercase tracking-wide">Traslados Enviados</h2>
+                        <h2 className="text-[11px] font-semibold text-[#106ebe] uppercase tracking-wide">Traslados Enviados</h2>
                     </div>
                     {renderTable(sentTransfers, 'hacia')}
                 </div>
@@ -249,14 +249,14 @@ export const InventoryTransfer: React.FC = () => {
                 {/* Received Transfers */}
                 <div className="flex-1 flex flex-col min-h-0">
                     <div className="bg-[#e2e8f0] px-3 border border-gray-300 border-b-0 rounded-t-sm flex items-center h-6 shrink-0">
-                        <h2 className="text-[11px] font-black text-[#106ebe] uppercase tracking-wide">Traslados Recibidos</h2>
+                        <h2 className="text-[11px] font-semibold text-[#106ebe] uppercase tracking-wide">Traslados Recibidos</h2>
                     </div>
                     {renderTable(receivedTransfers, 'desde')}
                 </div>
 
                 {/* Footer Note */}
                 <div className="px-2 shrink-0 h-5 flex items-center">
-                    <p className="text-[10px] font-bold text-gray-400">* Doble Clic sobre un Traslado para recibirlo.</p>
+                    <p className="text-[10px] font-medium text-gray-400">* Doble Clic sobre un Traslado para recibirlo.</p>
                 </div>
             </div>
 
@@ -265,7 +265,7 @@ export const InventoryTransfer: React.FC = () => {
                 <div className="fixed inset-0 z-[120000] flex items-center justify-center pointer-events-none">
                     <div className="bg-[#f0f0f0] border border-gray-400 shadow-2xl w-[350px] relative rounded-sm overflow-hidden animate-in zoom-in-95 pointer-events-auto">
                         <div className="bg-[#106ebe] px-3 py-1 flex items-center justify-between text-white shrink-0">
-                            <span className="text-[10px] font-bold uppercase tracking-wider">Confirmar Eliminación</span>
+                            <span className="text-[10px] font-medium uppercase tracking-wider">Confirmar Eliminación</span>
                             <button onClick={() => setShowDeleteConfirm(null)} className="hover:bg-red-600 px-1">
                                 <X size={14} />
                             </button>
@@ -275,21 +275,21 @@ export const InventoryTransfer: React.FC = () => {
                                 <Trash2 size={24} />
                             </div>
                             <div className="text-center">
-                                <p className="text-[12px] font-bold text-gray-800">¿Está seguro de eliminar este traslado?</p>
-                                <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase">Esta acción no se puede deshacer</p>
+                                <p className="text-[12px] font-medium text-gray-800">¿Está seguro de eliminar este traslado?</p>
+                                <p className="text-[10px] font-medium text-gray-400 mt-1 uppercase">Esta acción no se puede deshacer</p>
                             </div>
                         </div>
                         <div className="bg-[#f0f0f0] border-t border-gray-300 p-3 flex justify-center gap-3">
                             <button
                                 onClick={() => setShowDeleteConfirm(null)}
-                                className="px-6 h-8 border border-gray-400 text-[10px] font-bold text-gray-600 hover:bg-gray-200 uppercase transition-colors"
+                                className="px-6 h-8 border border-gray-400 text-[10px] font-medium text-gray-600 hover:bg-gray-200 uppercase transition-colors"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={confirmDelete}
                                 disabled={isDeleting}
-                                className="px-6 h-8 bg-red-600 text-white text-[10px] font-bold hover:bg-red-700 uppercase shadow-md flex items-center gap-2 disabled:opacity-50"
+                                className="px-6 h-8 bg-red-600 text-white text-[10px] font-medium hover:bg-red-700 uppercase shadow-md flex items-center gap-2 disabled:opacity-50"
                             >
                                 {isDeleting ? <Loader2 size={12} className="animate-spin" /> : 'Eliminar'}
                             </button>
@@ -307,7 +307,7 @@ export const InventoryTransfer: React.FC = () => {
                 >
                     <button
                         onClick={handleNew}
-                        className="w-full text-left px-4 py-1.5 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors"
+                        className="w-full text-left px-4 py-1.5 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors"
                     >
                         <Plus size={14} className="text-gray-400 group-hover:text-white" /> Nuevo Traslado
                     </button>
@@ -316,21 +316,21 @@ export const InventoryTransfer: React.FC = () => {
                             <div className="h-px bg-gray-100 my-1"></div>
                             <button
                                 onClick={() => handleEdit(contextMenu.item)}
-                                className="w-full text-left px-4 py-1.5 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors group"
+                                className="w-full text-left px-4 py-1.5 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors group"
                             >
                                 <Edit2 size={14} className="text-[#106ebe] group-hover:text-white" /> Editar Traslado
                             </button>
                             <div className="h-px bg-gray-100 my-1"></div>
                             <button
                                 onClick={() => handleDelete(contextMenu.item)}
-                                className="w-full text-left px-4 py-1.5 text-[11px] font-bold text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-3 transition-colors group"
+                                className="w-full text-left px-4 py-1.5 text-[11px] font-medium text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-3 transition-colors group"
                             >
                                 <Trash2 size={14} className="group-hover:text-white" /> Eliminar Traslado
                             </button>
                             <div className="h-px bg-gray-100 my-1"></div>
                             <button
                                 onClick={() => { /* Logic to open Kardex */ }}
-                                className="w-full text-left px-4 py-1.5 text-[11px] font-bold text-[#106ebe] hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors group"
+                                className="w-full text-left px-4 py-1.5 text-[11px] font-medium text-[#106ebe] hover:bg-[#106ebe] hover:text-white flex items-center gap-3 transition-colors group"
                             >
                                 <History size={14} className="group-hover:text-white" /> Ver Kardex / Historial
                             </button>

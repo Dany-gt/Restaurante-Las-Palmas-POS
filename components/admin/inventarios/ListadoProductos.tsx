@@ -131,7 +131,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
         >
             {/* Toolbar Superior */}
             <div className="h-8 bg-[#f5f5f5] border-b border-gray-300 flex items-center justify-between px-2 shrink-0">
-                <span className="text-[11px] font-bold text-slate-800 uppercase tracking-tighter">Listado de Productos / Insumos</span>
+                <span className="text-[11px] font-medium text-slate-800 uppercase tracking-tighter">Listado de Productos / Insumos</span>
                 <div className="flex items-center gap-1">
                     <div className="relative flex items-center h-5">
                         <input 
@@ -141,7 +141,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                             onChange={(e) => setSearch(e.target.value)}
                             className="bg-white border border-gray-400 h-full px-2 text-[10px] w-56 outline-none focus:border-[#106ebe]"
                         />
-                        <button className="bg-[#f0f0f0] border border-gray-400 h-full px-4 text-[9px] font-bold border-l-0 hover:bg-white transition-colors active:bg-gray-200 text-black">
+                        <button className="bg-[#f0f0f0] border border-gray-400 h-full px-4 text-[9px] font-medium border-l-0 hover:bg-white transition-colors active:bg-gray-200 text-black">
                             BUSCAR
                         </button>
                     </div>
@@ -161,20 +161,20 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                 <table className="w-full border-collapse border-spacing-0 min-w-max">
                     <thead className="sticky top-0 z-10">
                         <tr className="bg-[#f5f5f5] border-b border-gray-300 h-7 select-none">
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-32">Código</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-[280px]">Categoría</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 min-w-[500px]">Producto / Insumo</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-200 w-32">Existencia</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-72">Presentación</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center border-r border-gray-300 w-40">Precio Costo</th>
-                            <th className="px-4 text-[10px] font-bold text-slate-700 text-center w-32">Habilitado</th>
+                            <th className="px-4 text-[10px] font-medium text-slate-700 text-center border-r border-gray-300 w-32">Código</th>
+                            <th className="px-4 text-[10px] font-medium text-slate-700 text-center border-r border-gray-300 w-[280px]">Categoría</th>
+                            <th className="px-4 text-[10px] font-medium text-slate-700 text-center border-r border-gray-300 min-w-[500px]">Producto / Insumo</th>
+                            <th className="px-4 text-[10px] font-medium text-slate-700 text-center border-r border-gray-200 w-32">Existencia</th>
+                            <th className="px-4 text-[10px] font-medium text-slate-700 text-center border-r border-gray-300 w-72">Presentación</th>
+                            <th className="px-4 text-[10px] font-medium text-slate-700 text-center border-r border-gray-300 w-40">Precio Costo</th>
+                            <th className="px-4 text-[10px] font-medium text-slate-700 text-center w-32">Habilitado</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white">
                         {loading ? (
-                            <tr><td colSpan={7} className="py-20 text-center text-[10px] uppercase font-bold text-slate-400 font-sans">Sincronizando Inventario...</td></tr>
+                            <tr><td colSpan={7} className="py-20 text-center text-[10px] uppercase font-medium text-slate-400 font-sans">Sincronizando Inventario...</td></tr>
                         ) : filtered.length === 0 ? (
-                            <tr><td colSpan={7} className="py-20 text-center text-[10px] uppercase font-bold text-slate-400 font-sans">No se encontraron productos</td></tr>
+                            <tr><td colSpan={7} className="py-20 text-center text-[10px] uppercase font-medium text-slate-400 font-sans">No se encontraron productos</td></tr>
                         ) : (
                             filtered.map((item, index) => (
                                 <tr 
@@ -187,7 +187,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                     onContextMenu={(e) => handleContextMenu(e, item)}
                                     className={`
                                         h-6 cursor-pointer transition-colors
-                                        ${selectedId === item.id ? 'bg-[#106ebe] text-white font-bold' : index % 2 === 0 ? 'bg-white hover:bg-blue-50 text-slate-800' : 'bg-[#f5f5f5] hover:bg-blue-50 text-slate-800'}
+                                        ${selectedId === item.id ? 'bg-[#106ebe] text-white font-medium' : index % 2 === 0 ? 'bg-white hover:bg-blue-50 text-slate-800' : 'bg-[#f5f5f5] hover:bg-blue-50 text-slate-800'}
                                     `}
                                 >
                                     <td className="px-4 text-[10px] border-r border-gray-100 tabular-nums">{item.codigo || '---'}</td>
@@ -195,7 +195,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                         {item.categoria}
                                     </td>
                                     <td className="px-4 text-[10px] uppercase truncate">{item.nombre}</td>
-                                    <td className={`px-4 text-[10px] border-x border-gray-100 text-center tabular-nums font-black ${selectedId === item.id ? 'text-white' : item.existencia <= 0 ? 'text-red-600' : 'text-emerald-700'}`}>
+                                    <td className={`px-4 text-[10px] border-x border-gray-100 text-center tabular-nums font-semibold ${selectedId === item.id ? 'text-white' : item.existencia <= 0 ? 'text-red-600' : 'text-emerald-700'}`}>
                                         {item.existencia?.toFixed(2) || '0.00'}
                                     </td>
                                     <td className="px-4 text-[10px] border-r border-gray-100 uppercase text-center">{item.presentacion || 'UNIDAD'}</td>
@@ -223,7 +223,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
 
             {/* Footer */}
             <div className="h-6 bg-[#f0f0f0] border-t border-gray-300 px-2 flex items-center shrink-0">
-                <span className="text-[10px] font-bold text-slate-800 uppercase tracking-tighter">Productos: {filtered.length}</span>
+                <span className="text-[10px] font-medium text-slate-800 uppercase tracking-tighter">Productos: {filtered.length}</span>
             </div>
 
             {/* Context Menu Portal */}
@@ -240,7 +240,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                 className="w-full h-7 flex items-center gap-2.5 px-3 hover:bg-[#106ebe] hover:text-white transition-none group text-slate-800"
                             >
                                 {iconTheme === 'premium' ? <PremiumIcon icon={ICON_MAP.PLUS} size={18} color="currentColor" /> : <Plus size={15} className="group-hover:text-white text-[#106ebe]" />}
-                                <span className="text-[11px] font-bold uppercase tracking-tight">Nuevo</span>
+                                <span className="text-[11px] font-medium uppercase tracking-tight">Nuevo</span>
                             </button>
 
                             <button 
@@ -254,7 +254,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                 className={`w-full h-7 flex items-center gap-2.5 px-3 transition-none group ${!contextMenu.product ? 'opacity-40 cursor-not-allowed text-gray-400' : 'hover:bg-[#106ebe] hover:text-white text-slate-800'}`}
                             >
                                 {iconTheme === 'premium' ? <PremiumIcon icon={ICON_MAP.EDIT} size={18} color="currentColor" /> : <Edit2 size={13} className={!contextMenu.product ? 'text-gray-400' : 'text-gray-500 group-hover:text-white'} />}
-                                <span className="text-[11px] font-bold uppercase tracking-tight">Editar</span>
+                                <span className="text-[11px] font-medium uppercase tracking-tight">Editar</span>
                             </button>
 
                             <button 
@@ -268,7 +268,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                 className={`w-full h-7 flex items-center gap-2.5 px-3 transition-none group ${!contextMenu.product ? 'opacity-40 cursor-not-allowed text-gray-400' : 'hover:bg-[#106ebe] hover:text-white text-slate-800'}`}
                             >
                                 {iconTheme === 'premium' ? <PremiumIcon icon={ICON_MAP.TRASH} size={18} color="currentColor" /> : <Trash2 size={14} className={!contextMenu.product ? 'text-gray-400' : 'text-red-500 group-hover:text-white'} />}
-                                <span className="text-[11px] font-bold uppercase tracking-tight">Eliminar</span>
+                                <span className="text-[11px] font-medium uppercase tracking-tight">Eliminar</span>
                             </button>
 
                             <div className="h-px bg-gray-300 my-1 mx-2"></div>
@@ -278,7 +278,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                 className="w-full h-7 flex items-center gap-2.5 px-3 hover:bg-[#106ebe] hover:text-white transition-none group text-slate-800"
                             >
                                 {iconTheme === 'premium' ? <PremiumIcon icon={ICON_MAP.REFRESH} size={18} color="currentColor" /> : <RefreshCw size={14} className="text-gray-500 group-hover:text-white" />}
-                                <span className="text-[11px] font-bold uppercase tracking-tight">Refrescar</span>
+                                <span className="text-[11px] font-medium uppercase tracking-tight">Refrescar</span>
                             </button>
 
 
@@ -294,7 +294,7 @@ export const ListadoProductos: React.FC<ListadoProductosProps> = ({
                                 className={`w-full h-7 flex items-center gap-2.5 px-3 transition-none group ${!contextMenu.product ? 'opacity-40 cursor-not-allowed text-gray-400' : 'hover:bg-[#106ebe] hover:text-white text-slate-800'}`}
                             >
                                 {iconTheme === 'premium' ? <PremiumIcon icon={ICON_MAP.BOX} size={16} color="currentColor" /> : <Package size={14} className={!contextMenu.product ? 'text-gray-400' : 'text-blue-500 group-hover:text-white'} />}
-                                <span className="text-[11px] font-bold uppercase tracking-tight">Ver Kardex</span>
+                                <span className="text-[11px] font-medium uppercase tracking-tight">Ver Kardex</span>
                             </button>
                         </div>
                     </div>

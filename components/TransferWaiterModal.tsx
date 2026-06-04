@@ -42,8 +42,8 @@ export const TransferWaiterModal: React.FC<TransferWaiterModalProps> = ({ isOpen
 
                 {/* Header */}
                 <div className="px-8 py-5 border-b border-white/5 flex flex-col items-center justify-center shrink-0 bg-black/20">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 mb-1">USUARIOS</h3>
-                    <h4 className="text-lg font-black text-white uppercase tracking-tight leading-none">SELECCIONAR</h4>
+                    <h3 className="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/40 mb-1">USUARIOS</h3>
+                    <h4 className="text-lg font-semibold text-white uppercase tracking-tight leading-none">SELECCIONAR</h4>
                 </div>
 
                 {/* List - Grid Design */}
@@ -61,10 +61,10 @@ export const TransferWaiterModal: React.FC<TransferWaiterModalProps> = ({ isOpen
                                         : 'bg-white/5 border-white/5 hover:bg-white/10'
                                         }`}
                                 >
-                                    <span className={`block text-[11px] font-black uppercase tracking-tight mb-0.5 truncate w-full text-left ${selectedWaiterId === waiter.id ? 'text-black' : 'text-white'}`}>
+                                    <span className={`block text-[11px] font-semibold uppercase tracking-tight mb-0.5 truncate w-full text-left ${selectedWaiterId === waiter.id ? 'text-black' : 'text-white'}`}>
                                         {waiter.name}
                                     </span>
-                                    <span className={`text-[8px] font-bold uppercase tracking-widest ${selectedWaiterId === waiter.id ? 'text-black/60' : 'text-gray-500'}`}>
+                                    <span className={`text-[8px] font-medium uppercase tracking-widest ${selectedWaiterId === waiter.id ? 'text-black/60' : 'text-gray-500'}`}>
                                         {waiter.role || 'USUARIO'}
                                     </span>
 
@@ -77,7 +77,7 @@ export const TransferWaiterModal: React.FC<TransferWaiterModalProps> = ({ isOpen
                     ) : (
                         <div className="py-12 text-center opacity-40 flex flex-col items-center">
                             <UserPlus size={32} className="mb-2 text-gray-500" />
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">No hay usuarios</p>
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400">No hay usuarios</p>
                         </div>
                     )}
                 </div>
@@ -86,14 +86,14 @@ export const TransferWaiterModal: React.FC<TransferWaiterModalProps> = ({ isOpen
                 <div className="px-8 py-6 flex gap-4 mt-auto bg-black/40 border-t border-white/5 shrink-0">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-3.5 bg-white/5 border border-white/10 rounded-xl font-black uppercase tracking-[0.2em] text-[10px] text-white hover:bg-white/10 transition-all active:scale-95"
+                        className="flex-1 py-3.5 bg-white/5 border border-white/10 rounded-xl font-semibold uppercase tracking-[0.2em] text-[10px] text-white hover:bg-white/10 transition-all active:scale-95"
                     >
                         CANCELAR
                     </button>
                     <button
                         disabled={!selectedWaiterId}
                         onClick={() => selectedWaiterId && onTransfer(selectedWaiterId)}
-                        className="flex-1 py-3.5 bg-white text-black disabled:bg-white/5 disabled:text-gray-600 disabled:border-white/5 rounded-xl font-black uppercase tracking-[0.2em] text-[10px]  /40 transition-all active:scale-95"
+                        className="flex-1 py-3.5 bg-white text-black disabled:bg-white/5 disabled:text-gray-600 disabled:border-white/5 rounded-xl font-semibold uppercase tracking-[0.2em] text-[10px]  /40 transition-all active:scale-95"
                     >
                         ACEPTAR
                     </button>

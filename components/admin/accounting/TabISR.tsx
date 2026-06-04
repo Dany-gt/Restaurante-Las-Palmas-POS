@@ -213,18 +213,18 @@ export const TabISR: React.FC<{
     const isrNeto = Math.max(0, totalISR - totalNeonet);
 
     const statusBadge = (s: string) => {
-        if (s === 'paid') return <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-black uppercase rounded-full flex items-center gap-1"><CheckCircle2 size={9} />Pagado</span>;
-        if (s === 'overdue') return <span className="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 text-[9px] font-black uppercase rounded-full flex items-center gap-1"><AlertTriangle size={9} />Vencido</span>;
-        return <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-black uppercase rounded-full flex items-center gap-1"><Clock size={9} />Pendiente</span>;
+        if (s === 'paid') return <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-semibold uppercase rounded-full flex items-center gap-1"><CheckCircle2 size={9} />Pagado</span>;
+        if (s === 'overdue') return <span className="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 text-[9px] font-semibold uppercase rounded-full flex items-center gap-1"><AlertTriangle size={9} />Vencido</span>;
+        return <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-semibold uppercase rounded-full flex items-center gap-1"><Clock size={9} />Pendiente</span>;
     };
 
     return (
         <div className="h-full overflow-y-auto p-4 space-y-4 custom-scrollbar text-gray-900">
             {/* Controls */}
             <div className="flex items-center gap-3">
-                <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Año:</label>
+                <label className="text-[10px] font-semibold uppercase text-slate-500 tracking-widest">Año:</label>
                 <input type="number" value={year} onChange={e => setYear(Number(e.target.value))} min={2020} max={2030}
-                    className="border border-gray-300 rounded px-3 py-1.5 text-[11px] font-black text-black w-24" />
+                    className="border border-gray-300 rounded px-3 py-1.5 text-[11px] font-semibold text-black w-24" />
                 <button onClick={fetchData} className="p-1.5 hover:bg-slate-100 rounded text-slate-600 transition-colors">
                     <RefreshCw size={13} />
                 </button>
@@ -234,11 +234,11 @@ export const TabISR: React.FC<{
             {/* SECCIÓN A — Pagos Trimestrales */}
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="bg-[#106ebe] px-4 py-3">
-                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Sección A — Pagos Trimestrales ISR (5%)</span>
+                    <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Sección A — Pagos Trimestrales ISR (5%)</span>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-[10px]">
-                        <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-black text-black uppercase tracking-wider">
+                        <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-semibold text-black uppercase tracking-wider">
                             <tr>
                                 <th className="px-4 py-2">Trim.</th>
                                 <th className="px-4 py-2">Periodo</th>
@@ -253,19 +253,19 @@ export const TabISR: React.FC<{
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {quarters.map((q, i) => (
-                                <tr key={i} className="hover:bg-slate-50 transition-colors text-black font-black">
-                                    <td className="px-4 py-3 font-black">{q.label}</td>
-                                    <td className="px-4 py-3 font-black">{q.period}</td>
+                                <tr key={i} className="hover:bg-slate-50 transition-colors text-black font-semibold">
+                                    <td className="px-4 py-3 font-semibold">{q.label}</td>
+                                    <td className="px-4 py-3 font-semibold">{q.period}</td>
                                     <td className="px-4 py-3 text-right font-mono">{fmtQ(q.ingresos)}</td>
                                     <td className="px-4 py-3 text-right font-mono">{fmtQ(q.gastos)}</td>
                                     <td className="px-4 py-3 text-right font-mono">{fmtQ(q.baseISR)}</td>
-                                    <td className="px-4 py-3 text-right font-black">{fmtQ(q.monto)}</td>
+                                    <td className="px-4 py-3 text-right font-semibold">{fmtQ(q.monto)}</td>
                                     <td className="px-4 py-3">{q.dueDate}</td>
                                     <td className="px-4 py-3">{statusBadge(q.status)}</td>
                                     <td className="px-4 py-3">
                                         {q.status !== 'paid' && (
                                             <button onClick={() => markQuarterPaid(i)}
-                                                className="px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white text-[9px] font-black uppercase rounded transition-all">
+                                                className="px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white text-[9px] font-semibold uppercase rounded transition-all">
                                                 Marcar Pagado
                                             </button>
                                         )}
@@ -280,11 +280,11 @@ export const TabISR: React.FC<{
             {/* SECCIÓN B — Retenciones Neonet */}
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="bg-[#106ebe] px-4 py-3">
-                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Sección B — Retenciones Neonet (ISR Tarjetas)</span>
+                    <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Sección B — Retenciones Neonet (ISR Tarjetas)</span>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-[10px]">
-                        <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-black text-black uppercase tracking-wider">
+                        <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-semibold text-black uppercase tracking-wider">
                             <tr>
                                 <th className="px-4 py-2">Mes</th>
                                 <th className="px-4 py-2 text-right">Ventas Tarjeta</th>
@@ -296,8 +296,8 @@ export const TabISR: React.FC<{
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {neonetRows.map((r, i) => (
-                                <tr key={i} className="hover:bg-slate-50 transition-colors text-black font-black">
-                                    <td className="px-4 py-2 font-black">{r.month}</td>
+                                <tr key={i} className="hover:bg-slate-50 transition-colors text-black font-semibold">
+                                    <td className="px-4 py-2 font-semibold">{r.month}</td>
                                     <td className="px-4 py-2 text-right font-mono">{fmtQ(r.cardSales)}</td>
                                     <td className="px-4 py-2 text-center">
                                         <input type="number" defaultValue={r.retentionPct} step="0.1"
@@ -307,21 +307,21 @@ export const TabISR: React.FC<{
                                                 updated[i].retainedAmount = r.cardSales * (Number(e.target.value) / 100);
                                                 setNeonetRows(updated);
                                             }}
-                                            className="w-14 text-center border border-slate-200 rounded px-1 py-0.5 text-[10px] font-black outline-none text-black" />
-                                        <span className="text-black font-black">%</span>
+                                            className="w-14 text-center border border-slate-200 rounded px-1 py-0.5 text-[10px] font-semibold outline-none text-black" />
+                                        <span className="text-black font-semibold">%</span>
                                     </td>
-                                    <td className="px-4 py-2 text-right font-black text-black">{fmtQ(r.retainedAmount)}</td>
-                                    <td className="px-4 py-2 text-black font-black">{r.bank}</td>
+                                    <td className="px-4 py-2 text-right font-semibold text-black">{fmtQ(r.retainedAmount)}</td>
+                                    <td className="px-4 py-2 text-black font-semibold">{r.bank}</td>
                                     <td className="px-4 py-2">
-                                        <span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 text-[9px] font-black uppercase rounded-full">Retenido</span>
+                                        <span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 text-[9px] font-semibold uppercase rounded-full">Retenido</span>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                         <tfoot className="bg-slate-100 border-t-2 border-slate-200 text-black">
                             <tr>
-                                <td colSpan={3} className="px-4 py-2 text-[10px] font-black uppercase">Total Retenciones Acumuladas</td>
-                                <td className="px-4 py-2 text-right text-[12px] font-black">{fmtQ(totalNeonet)}</td>
+                                <td colSpan={3} className="px-4 py-2 text-[10px] font-semibold uppercase">Total Retenciones Acumuladas</td>
+                                <td className="px-4 py-2 text-right text-[12px] font-semibold">{fmtQ(totalNeonet)}</td>
                                 <td colSpan={2}></td>
                             </tr>
                         </tfoot>
@@ -331,7 +331,7 @@ export const TabISR: React.FC<{
 
             {/* SECCIÓN C — ISR Anual */}
             <div className="bg-white rounded-xl border-2 border-orange-200 shadow-sm p-5">
-                <h3 className="text-[11px] font-black text-black uppercase tracking-widest mb-4">Sección C — ISR Anual {year}</h3>
+                <h3 className="text-[11px] font-semibold text-black uppercase tracking-widest mb-4">Sección C — ISR Anual {year}</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <AnnualCard label="Total Ingresos del Año" value={fmtQ(totalIngresos)} color="bg-slate-50 text-slate-800" />
                     <AnnualCard label="Total Gastos Deducibles" value={fmtQ(totalOpex * 12)} color="bg-slate-50 text-slate-800" />
@@ -339,42 +339,42 @@ export const TabISR: React.FC<{
                     <AnnualCard label="Retenciones Neonet" value={`- ${fmtQ(totalNeonet)}`} color="bg-blue-50 text-blue-800" />
                     <AnnualCard label="ISR Neto a Pagar" value={fmtQ(isrNeto)} color="bg-red-50 text-red-800" large />
                 </div>
-                <p className="text-[9px] font-bold text-slate-400 mt-4">* Cálculo estimado bajo régimen optativo sobre utilidades. Consulta con contador certificado.</p>
+                <p className="text-[9px] font-medium text-slate-400 mt-4">* Cálculo estimado bajo régimen optativo sobre utilidades. Consulta con contador certificado.</p>
             </div>
 
             {/* SECCIÓN D — Impuesto de Solidaridad (ISO) */}
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="bg-[#106ebe] px-5 py-3 flex items-center justify-between">
-                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Sección D — Cálculo de Impuesto de Solidaridad (ISO)</span>
-                    <span className="text-[9px] font-black text-white/50 uppercase tracking-wider">Tasa Anual : 1.0%</span>
+                    <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Sección D — Cálculo de Impuesto de Solidaridad (ISO)</span>
+                    <span className="text-[9px] font-semibold text-white/50 uppercase tracking-wider">Tasa Anual : 1.0%</span>
                 </div>
                 <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div className="space-y-4">
                         <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 shadow-inner">
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Parámetros del Periodo Fiscal Anterior</p>
+                            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-4">Parámetros del Periodo Fiscal Anterior</p>
                             <div className="space-y-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-[9px] font-black text-slate-600 uppercase">Ingresos Brutos Anuales:</label>
+                                    <label className="text-[9px] font-semibold text-slate-600 uppercase">Ingresos Brutos Anuales:</label>
                                     <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-black text-slate-400">Q</span>
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-slate-400">Q</span>
                                         <input type="number" value={isoIncome || ''} onChange={e => setIsoIncome(Number(e.target.value))}
                                             placeholder="0.00"
-                                            className="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 text-[12px] font-black outline-none focus:ring-2 focus:ring-[#106ebe]/20 focus:border-[#106ebe] transition-all" />
+                                            className="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 text-[12px] font-semibold outline-none focus:ring-2 focus:ring-[#106ebe]/20 focus:border-[#106ebe] transition-all" />
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-[9px] font-black text-slate-600 uppercase">Activo Neto Anual:</label>
+                                    <label className="text-[9px] font-semibold text-slate-600 uppercase">Activo Neto Anual:</label>
                                     <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-black text-slate-400">Q</span>
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-slate-400">Q</span>
                                         <input type="number" value={isoNetAsset || ''} onChange={e => setIsoNetAsset(Number(e.target.value))}
                                             placeholder="0.00"
-                                            className="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 text-[12px] font-black outline-none focus:ring-2 focus:ring-[#106ebe]/20 focus:border-[#106ebe] transition-all" />
+                                            className="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 text-[12px] font-semibold outline-none focus:ring-2 focus:ring-[#106ebe]/20 focus:border-[#106ebe] transition-all" />
                                     </div>
                                 </div>
                             </div>
                             <div className="mt-6 flex items-center gap-2 p-3 bg-amber-50 text-amber-700 rounded-lg border border-amber-100">
                                 <AlertTriangle size={14} className="shrink-0" />
-                                <p className="text-[9px] font-bold leading-tight uppercase">La ley establece que se debe utilizar la base que sea mayor entre Ingresos y Activos.</p>
+                                <p className="text-[9px] font-medium leading-tight uppercase">La ley establece que se debe utilizar la base que sea mayor entre Ingresos y Activos.</p>
                             </div>
                         </div>
                     </div>
@@ -383,31 +383,31 @@ export const TabISR: React.FC<{
                         {isoResult ? (
                             <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-500">
                                 <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                                    <span className="text-[10px] font-black uppercase text-slate-400">Base Aplicada:</span>
-                                    <span className="px-2 py-0.5 bg-blue-50 text-[#106ebe] text-[9px] font-black uppercase rounded border border-blue-100">{isoResult.baseUtilizada}</span>
+                                    <span className="text-[10px] font-semibold uppercase text-slate-400">Base Aplicada:</span>
+                                    <span className="px-2 py-0.5 bg-blue-50 text-[#106ebe] text-[9px] font-semibold uppercase rounded border border-blue-100">{isoResult.baseUtilizada}</span>
                                 </div>
                                 
                                 <div className="bg-white rounded-2xl p-7 border-2 border-[#106ebe] shadow-xl relative overflow-hidden group">
                                     <div className="absolute top-0 right-0 p-2 opacity-5 scale-150 rotate-12">
                                         <TrendingUp size={120} />
                                     </div>
-                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 relative z-10">Pago Trimestral ISO</p>
-                                    <p className="text-4xl font-black text-black tracking-tighter relative z-10">{fmtQ(isoResult.pagoTrimestral)}</p>
+                                    <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1 relative z-10">Pago Trimestral ISO</p>
+                                    <p className="text-4xl font-semibold text-black tracking-tighter relative z-10">{fmtQ(isoResult.pagoTrimestral)}</p>
                                     
                                     <div className="mt-8 pt-6 border-t border-slate-100 grid grid-cols-2 gap-6 relative z-10">
                                         <div>
-                                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-wider mb-1">Monto Base Anual</p>
-                                            <p className="text-[12px] font-black text-black">{fmtQ(isoResult.montoBase)}</p>
+                                            <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Monto Base Anual</p>
+                                            <p className="text-[12px] font-semibold text-black">{fmtQ(isoResult.montoBase)}</p>
                                         </div>
                                         <div>
-                                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-wider mb-1">Impuesto Anual (1%)</p>
-                                            <p className="text-[12px] font-black text-black">{fmtQ(isoResult.impuestoAnualTotal)}</p>
+                                            <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Impuesto Anual (1%)</p>
+                                            <p className="text-[12px] font-semibold text-black">{fmtQ(isoResult.impuestoAnualTotal)}</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                    <p className="text-[9px] font-bold text-slate-500 leading-relaxed italic">
+                                    <p className="text-[9px] font-medium text-slate-500 leading-relaxed italic">
                                         Este monto de {fmtQ(isoResult.pagoTrimestral)} coincide con la boleta de pago generada por el sistema. El ISO pagado puede acreditarse al ISR en el futuro.
                                     </p>
                                 </div>
@@ -415,9 +415,9 @@ export const TabISR: React.FC<{
                         ) : (
                             <div className="flex flex-col items-center justify-center p-12 text-slate-300 border-2 border-dashed border-slate-100 rounded-2xl bg-slate-50/50">
                                 <TrendingUp size={48} className="mb-4 opacity-10" />
-                                <p className="text-[11px] font-black uppercase tracking-widest text-center">
+                                <p className="text-[11px] font-semibold uppercase tracking-widest text-center">
                                     Ingrese datos fiscales anuales<br/>
-                                    <span className="text-[9px] font-bold opacity-60">Para proyectar el pago del trimestre</span>
+                                    <span className="text-[9px] font-medium opacity-60">Para proyectar el pago del trimestre</span>
                                 </p>
                             </div>
                         )}
@@ -428,27 +428,27 @@ export const TabISR: React.FC<{
             {/* SECCIÓN E — Retenciones Facturas Especiales (FESP) */}
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="bg-[#106ebe] px-4 py-3">
-                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Sección E — Retenciones Facturas Especiales (FESP)</span>
+                    <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Sección E — Retenciones Facturas Especiales (FESP)</span>
                 </div>
                 <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 border-b border-slate-100">
                     <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-100">
-                      <p className="text-[9px] font-black text-emerald-800 uppercase mb-1">Total ISR Retenido (5%)</p>
-                      <p className="text-xl font-black text-emerald-900">{fmtQ(fespRows.reduce((a,r) => a + r.isrRetained, 0))}</p>
+                      <p className="text-[9px] font-semibold text-emerald-800 uppercase mb-1">Total ISR Retenido (5%)</p>
+                      <p className="text-xl font-semibold text-emerald-900">{fmtQ(fespRows.reduce((a,r) => a + r.isrRetained, 0))}</p>
                     </div>
                     <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                      <p className="text-[9px] font-black text-blue-800 uppercase mb-1">Total IVA Retenido (12%)</p>
-                      <p className="text-xl font-black text-blue-900">{fmtQ(fespRows.reduce((a,r) => a + r.ivaRetained, 0))}</p>
+                      <p className="text-[9px] font-semibold text-blue-800 uppercase mb-1">Total IVA Retenido (12%)</p>
+                      <p className="text-xl font-semibold text-blue-900">{fmtQ(fespRows.reduce((a,r) => a + r.ivaRetained, 0))}</p>
                     </div>
                     <div className="col-span-2 flex items-center p-4 bg-slate-50 rounded-lg border border-slate-100">
                         <AlertTriangle size={18} className="text-amber-500 mr-3" />
-                        <p className="text-[10px] font-bold text-slate-600 leading-tight">
+                        <p className="text-[10px] font-medium text-slate-600 leading-tight">
                             IMPORTANTE: Estas retenciones deben declararse y pagarse a la SAT en el formulario SAT-2311 y SAT-2000 respectivamente dentro de los primeros 10 días hábiles del mes siguiente.
                         </p>
                     </div>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-[10px]">
-                        <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-black text-black uppercase tracking-wider">
+                        <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-semibold text-black uppercase tracking-wider">
                             <tr>
                                 <th className="px-4 py-2">Fecha</th>
                                 <th className="px-4 py-2">Proveedor/Servicio</th>
@@ -460,16 +460,16 @@ export const TabISR: React.FC<{
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {fespRows.length === 0 ? (
-                                <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400 font-bold uppercase">No se detectaron facturas especiales</td></tr>
+                                <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400 font-medium uppercase">No se detectaron facturas especiales</td></tr>
                             ) : fespRows.map(f => (
-                                <tr key={f.id} className="hover:bg-slate-50 transition-colors text-black font-black">
+                                <tr key={f.id} className="hover:bg-slate-50 transition-colors text-black font-semibold">
                                     <td className="px-4 py-3">{dayjs(f.date).format('DD/MM/YYYY')}</td>
                                     <td className="px-4 py-3">{f.supplier}</td>
                                     <td className="px-4 py-3 text-right">{fmtQ(f.amount)}</td>
                                     <td className="px-4 py-3 text-right text-emerald-700">{fmtQ(f.isrRetained)}</td>
                                     <td className="px-4 py-3 text-right text-blue-700">{fmtQ(f.ivaRetained)}</td>
                                     <td className="px-4 py-3 text-center">
-                                        <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 text-[8px] font-black uppercase rounded-full">Por Enterar</span>
+                                        <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 text-[8px] font-semibold uppercase rounded-full">Por Enterar</span>
                                     </td>
                                 </tr>
                             ))}
@@ -483,7 +483,7 @@ export const TabISR: React.FC<{
 
 const AnnualCard: React.FC<{ label: string; value: string; color: string; large?: boolean }> = ({ label, value, color, large }) => (
     <div className={`p-4 rounded-lg bg-white border border-slate-200 text-black`}>
-        <p className="text-[9px] font-black uppercase tracking-widest mb-1">{label}</p>
-        <p className={`${large ? 'text-2xl' : 'text-lg'} font-black tabular-nums`}>{value}</p>
+        <p className="text-[9px] font-semibold uppercase tracking-widest mb-1">{label}</p>
+        <p className={`${large ? 'text-2xl' : 'text-lg'} font-semibold tabular-nums`}>{value}</p>
     </div>
 );

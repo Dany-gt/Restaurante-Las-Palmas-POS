@@ -24,7 +24,7 @@ export const WindowsTaskbar: React.FC = () => {
                         <div className="text-[#106ebe] shrink-0 opacity-80">
                             {modal.icon || <Layers size={14} />}
                         </div>
-                        <span className={`text-[10px] font-black uppercase tracking-tight truncate max-w-[120px] ${
+                        <span className={`text-[10px] font-semibold uppercase tracking-tight truncate max-w-[120px] ${
                             modal.status === 'open' ? 'text-slate-900' : 'text-slate-400'
                         }`}>
                             {modal.title}
@@ -47,7 +47,7 @@ export const WindowsTaskbar: React.FC = () => {
             
             {/* Indicador de número de ventanas */}
             <div className="flex items-center gap-2 pl-2">
-                <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{modals.length} VENTANAS</span>
+                <span className="text-[10px] font-semibold text-slate-300 uppercase tracking-widest">{modals.length} VENTANAS</span>
             </div>
         </div>
     );

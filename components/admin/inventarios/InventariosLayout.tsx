@@ -806,11 +806,11 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 {/* Ribbon Fino de Sucursal */}
                 <div className="h-8 bg-[#f5f5f5] border-b border-gray-300 px-2 flex items-center gap-4 shrink-0 select-none">
                     <div className="flex items-center gap-2 ml-1">
-                        <span className="text-[10px] font-bold text-gray-500 uppercase">Sucursal:</span>
+                        <span className="text-[10px] font-medium text-gray-500 uppercase">Sucursal:</span>
                         <select
                             value={selectedBranch}
                             onChange={(e) => setSelectedBranch(e.target.value)}
-                            className="bg-white border border-gray-300 h-5 px-1 text-[10px] font-bold outline-none min-w-[200px]"
+                            className="bg-white border border-gray-300 h-5 px-1 text-[10px] font-medium outline-none min-w-[200px]"
                         >
                             <option value="all">--- TODAS LAS SUCURSALES ---</option>
                             {branches.map(b => (
@@ -822,7 +822,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                     <div className="flex items-center gap-2 ml-auto">
                         <button
                             onClick={() => { setSelectedMenuIds(new Set()); setSelectedProdIds(new Set()); }}
-                            className="px-4 h-5 bg-[#106ebe] text-white text-[9px] font-black uppercase hover:bg-[#0d5aa0] shadow-sm transition-all"
+                            className="px-4 h-5 bg-[#106ebe] text-white text-[9px] font-semibold uppercase hover:bg-[#0d5aa0] shadow-sm transition-all"
                         >
                             Mostrar Todos
                         </button>
@@ -915,7 +915,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                         <div className="p-1 bg-white/10 rounded">
                                             {showQuickModal === 'category' ? <Folder size={14} className="text-white" /> : <ChefHat size={14} className="text-white" />}
                                         </div>
-                                        <h3 className="text-[11px] font-bold text-white tracking-tight">
+                                        <h3 className="text-[11px] font-medium text-white tracking-tight">
                                             {showQuickModal === 'category' ? 'Seleccione una Categoría' : 'Seleccione Estación de Cocina'}
                                         </h3>
                                     </div>
@@ -926,13 +926,13 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                 <div className="p-4 max-h-[350px] overflow-y-auto custom-scrollbar bg-white m-1 border border-gray-300">
                                     <div className="bg-white border border-gray-400 p-5 shadow-inner">
                                         <div className="mb-2">
-                                            <h4 className="text-[12px] font-bold text-slate-800 mb-4 tracking-tight">Categorias</h4>
+                                            <h4 className="text-[12px] font-medium text-slate-800 mb-4 tracking-tight">Categorias</h4>
                                             <div className="flex items-center gap-4 px-2">
-                                                <label className="text-[11px] font-bold text-slate-600 min-w-[70px]">Categoria</label>
+                                                <label className="text-[11px] font-medium text-slate-600 min-w-[70px]">Categoria</label>
                                                 <div className="flex-1 relative">
                                                     <button 
                                                         onClick={() => setShowDropdownList(!showDropdownList)}
-                                                        className="w-full h-6 border border-gray-400 bg-white text-[11px] px-2 flex items-center justify-between font-bold uppercase outline-none focus:border-[#106ebe] shadow-sm text-slate-900"
+                                                        className="w-full h-6 border border-gray-400 bg-white text-[11px] px-2 flex items-center justify-between font-medium uppercase outline-none focus:border-[#106ebe] shadow-sm text-slate-900"
                                                     >
                                                         <span className="truncate text-slate-950">
                                                             {(showQuickModal === 'category' ? 
@@ -955,7 +955,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                                         setQuickSelectedId(item.id);
                                                                         setShowDropdownList(false);
                                                                     }}
-                                                                    className={`px-2 py-1.5 text-[11px] font-bold uppercase cursor-pointer hover:bg-[#106ebe] hover:text-white transition-colors border-b border-gray-100 last:border-0 ${quickSelectedId === item.id ? 'bg-blue-100 text-[#106ebe]' : 'text-slate-900'}`}
+                                                                    className={`px-2 py-1.5 text-[11px] font-medium uppercase cursor-pointer hover:bg-[#106ebe] hover:text-white transition-colors border-b border-gray-100 last:border-0 ${quickSelectedId === item.id ? 'bg-blue-100 text-[#106ebe]' : 'text-slate-900'}`}
                                                                 >
                                                                     {item.name}
                                                                 </div>
@@ -986,7 +986,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                         alert('Error al actualizar: ' + error.message);
                                                     }
                                                 }}
-                                                className="bg-[#106ebe] text-white px-12 py-1.5 text-[11px] font-bold border border-[#0d5aa0] hover:bg-[#0d5aa0] shadow-md uppercase tracking-wider"
+                                                className="bg-[#106ebe] text-white px-12 py-1.5 text-[11px] font-medium border border-[#0d5aa0] hover:bg-[#0d5aa0] shadow-md uppercase tracking-wider"
                                             >
                                                 Aceptar
                                             </button>
@@ -996,7 +996,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                 <div className="px-4 py-2 bg-[#f5f5f5] border-t border-gray-300 flex justify-end">
                                     <button
                                         onClick={() => setShowQuickModal(null)}
-                                        className="px-6 py-1 bg-white border border-gray-400 text-[10px] font-bold uppercase hover:bg-gray-100 shadow-sm"
+                                        className="px-6 py-1 bg-white border border-gray-400 text-[10px] font-medium uppercase hover:bg-gray-100 shadow-sm"
                                     >
                                         Cancelar
                                     </button>
@@ -1066,7 +1066,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                 >
                     <button
                         onClick={() => { setSearchModal({ visible: true, type: optionsContextMenu.type, query: '' }); setOptionsContextMenu({ ...optionsContextMenu, visible: false }); }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white text-left"
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white text-left"
                     >
                         <Plus size={14} className="text-green-600" />
                         <span>Agregar {optionsContextMenu.type === 'options' ? 'Opciones' : 'Modificadores'}</span>
@@ -1081,7 +1081,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                 }
                                 setOptionsContextMenu({ ...optionsContextMenu, visible: false });
                             }}
-                            className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white text-left"
+                            className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white text-left"
                         >
                             <X size={14} className="text-orange-500" />
                             <span>Quitar {optionsContextMenu.type === 'options' ? 'Opción' : 'Modificador'}</span>
@@ -1093,7 +1093,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                             else setAssignedModifierGroups([]);
                             setOptionsContextMenu({ ...optionsContextMenu, visible: false });
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white text-left"
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white text-left"
                     >
                         <Trash2 size={14} className="text-red-600" />
                         <span>Quitar {optionsContextMenu.type === 'options' ? 'Opciones' : 'Modificadores'}</span>
@@ -1112,11 +1112,11 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                 <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 select-none relative group cursor-move">
                                     <div className="flex items-center gap-2 relative z-10 font-[Arial]">
                                         <Search size={14} className="text-blue-100" />
-                                        <span className="text-[10px] font-black uppercase tracking-tight">
+                                        <span className="text-[10px] font-semibold uppercase tracking-tight">
                                             {searchModal.type === 'inventory' ? 'EXPLORADOR DE INSUMOS' : searchModal.type === 'options' ? 'LISTADO DE OPCIONES' : 'LISTADO DE MODIFICADORES'}
                                         </span>
                                     </div>
-                                    <button onClick={() => setSearchModal({ visible: false, type: null, query: '' })} className="hover:bg-red-500 w-8 h-8 flex items-center justify-center transition-colors font-bold text-[16px] relative z-10">✕</button>
+                                    <button onClick={() => setSearchModal({ visible: false, type: null, query: '' })} className="hover:bg-red-500 w-8 h-8 flex items-center justify-center transition-colors font-medium text-[16px] relative z-10">✕</button>
                                 </div>
                                 <div className="p-3 bg-[#f0f0f0] flex gap-2 border-b border-gray-300 items-center">
                                     <div className="relative flex-1 flex bg-white border border-gray-400 p-0.5 shadow-inner">
@@ -1127,7 +1127,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                             type="text"
                                             autoFocus
                                             placeholder="INTRODUZCA EL TEXTO A BUSCAR (CODIGO O NOMBRE)..."
-                                            className="grow h-8 bg-transparent text-[11px] font-bold text-[#106ebe] outline-none placeholder:text-gray-300 placeholder:font-normal uppercase"
+                                            className="grow h-8 bg-transparent text-[11px] font-medium text-[#106ebe] outline-none placeholder:text-gray-300 placeholder:font-normal uppercase"
                                             value={searchModal.query}
                                             onChange={e => setSearchModal({ ...searchModal, query: e.target.value.toUpperCase() })}
                                         />
@@ -1139,16 +1139,16 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                     >
                                         <RefreshCw size={16} />
                                     </button>
-                                    <button className="bg-[#106ebe] text-white px-6 h-9 text-[11px] font-black uppercase hover:bg-[#004578] transition-colors shadow-md">Buscar</button>
+                                    <button className="bg-[#106ebe] text-white px-6 h-9 text-[11px] font-semibold uppercase hover:bg-[#004578] transition-colors shadow-md">Buscar</button>
                                 </div>
                                 <div className="flex-1 h-[400px] overflow-auto bg-white m-3 border border-gray-300 custom-scrollbar shadow-inner">
                                     <table className="w-full border-collapse">
                                         <thead className="bg-[#f0f0f0] sticky top-0 border-b border-gray-300 z-10 shadow-sm">
                                             <tr className="h-8">
-                                                <th className="w-20 px-4 text-left text-[9px] font-black text-slate-800 tracking-tight uppercase">CÓDIGO</th>
-                                                <th className="px-4 text-left text-[9px] font-black text-slate-800 tracking-tight uppercase border-l border-gray-200">PRODUCTO / INSUMO</th>
-                                                <th className="w-32 px-4 text-left text-[9px] font-black text-slate-800 tracking-tight uppercase border-l border-gray-200">PRESENTACIÓN</th>
-                                                <th className="w-64 px-4 text-left text-[9px] font-black text-slate-800 tracking-tight uppercase border-l border-gray-200">PROVEEDOR</th>
+                                                <th className="w-20 px-4 text-left text-[9px] font-semibold text-slate-800 tracking-tight uppercase">CÓDIGO</th>
+                                                <th className="px-4 text-left text-[9px] font-semibold text-slate-800 tracking-tight uppercase border-l border-gray-200">PRODUCTO / INSUMO</th>
+                                                <th className="w-32 px-4 text-left text-[9px] font-semibold text-slate-800 tracking-tight uppercase border-l border-gray-200">PRESENTACIÓN</th>
+                                                <th className="w-64 px-4 text-left text-[9px] font-semibold text-slate-800 tracking-tight uppercase border-l border-gray-200">PROVEEDOR</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
@@ -1176,24 +1176,24 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                             }
                                                         }}
                                                     >
-                                                        <td className="px-4 font-bold text-slate-400 text-[9px] uppercase tracking-tighter shrink-0">{item.product_code || item.codigo || 'S/C'}</td>
-                                                        <td className="px-4 font-black text-slate-700 uppercase group-hover:text-[#106ebe] text-[10px] break-words">{item.name || item.nombre}</td>
-                                                        <td className="px-4 text-left font-bold text-slate-500 text-[9px] uppercase">{item.unit_measure || item.presentacion || 'Unidad'}</td>
-                                                        <td className="px-4 text-left font-bold text-slate-600 text-[9px] uppercase border-l border-transparent group-hover:border-gray-200 truncate max-w-[250px]">{suppliers.find(s => s.id === item.supplier_id)?.name || 'Sin Proveedor'}</td>
+                                                        <td className="px-4 font-medium text-slate-400 text-[9px] uppercase tracking-tighter shrink-0">{item.product_code || item.codigo || 'S/C'}</td>
+                                                        <td className="px-4 font-semibold text-slate-700 uppercase group-hover:text-[#106ebe] text-[10px] break-words">{item.name || item.nombre}</td>
+                                                        <td className="px-4 text-left font-medium text-slate-500 text-[9px] uppercase">{item.unit_measure || item.presentacion || 'Unidad'}</td>
+                                                        <td className="px-4 text-left font-medium text-slate-600 text-[9px] uppercase border-l border-transparent group-hover:border-gray-200 truncate max-w-[250px]">{suppliers.find(s => s.id === item.supplier_id)?.name || 'Sin Proveedor'}</td>
                                                     </tr>
                                                 ))}
                                         </tbody>
                                     </table>
                                 </div>
                                 <div className="p-3 px-6 bg-[#f8fafc] border-t border-gray-200 flex justify-between items-center shadow-inner">
-                                    <span className="text-[9px] font-black text-[#106ebe] uppercase tracking-wider opacity-60">* Doble clic sobre el insumo para configurar cantidad</span>
+                                    <span className="text-[9px] font-semibold text-[#106ebe] uppercase tracking-wider opacity-60">* Doble clic sobre el insumo para configurar cantidad</span>
                                     <div className="flex items-center gap-3">
-                                        <span className="text-[10px] font-black text-[#106ebe] uppercase tracking-tighter">
+                                        <span className="text-[10px] font-semibold text-[#106ebe] uppercase tracking-tighter">
                                             {(searchModal.type === 'inventory' ? inventoryItems : searchModal.type === 'options' ? optionGroups : modifierGroups).length} Registros
                                         </span>
                                         <button
                                             onClick={() => setSearchModal({ visible: false, type: null, query: '' })}
-                                            className="bg-[#106ebe] text-white px-6 h-8 text-[11px] font-black uppercase hover:bg-[#004578] transition-colors shadow-lg"
+                                            className="bg-[#106ebe] text-white px-6 h-8 text-[11px] font-semibold uppercase hover:bg-[#004578] transition-colors shadow-lg"
                                         >Salir / Cancelar</button>
                                     </div>
                                 </div>
@@ -1215,7 +1215,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                     <div className="flex flex-col">
                                         <div className="flex items-center gap-2">
                                             <ChefHat size={18} className="text-white" />
-                                            <span className="text-[13px] font-bold uppercase tracking-wide">Ficha Técnica y Receta Estandarizada</span>
+                                            <span className="text-[13px] font-medium uppercase tracking-wide">Ficha Técnica y Receta Estandarizada</span>
                                         </div>
                                         <span className="text-[9px] font-semibold text-blue-100 uppercase ml-[26px] leading-tight">{newProduct.name || 'Nuevo Platillo'}</span>
                                     </div>
@@ -1228,9 +1228,9 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                             className="flex items-center gap-1.5 text-white hover:text-gray-300 transition-colors"
                                         >
                                             <Printer size={18} />
-                                            <span className="text-[11px] font-bold uppercase tracking-wide">Imprimir</span>
+                                            <span className="text-[11px] font-medium uppercase tracking-wide">Imprimir</span>
                                         </button>
-                                        <button onClick={() => setShowTechnicalModal(false)} className="flex items-center justify-center text-white hover:text-red-300 font-black text-[22px] transition-colors ml-2" title="Cerrar">✕</button>
+                                        <button onClick={() => setShowTechnicalModal(false)} className="flex items-center justify-center text-white hover:text-red-300 font-semibold text-[22px] transition-colors ml-2" title="Cerrar">✕</button>
                                     </div>
                                 </div>
 
@@ -1240,45 +1240,45 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                         {/* SECTION: ESPECIFICACIONES */}
                                         <div className="bg-white border border-[#ced4da] shrink-0">
                                             <div className="bg-[#f1f5f9] px-3 py-1.5 border-b border-[#ced4da] flex items-center">
-                                                <h4 className="text-[11px] font-bold text-[#106ebe] uppercase tracking-wide">Especificaciones del Platillo</h4>
+                                                <h4 className="text-[11px] font-medium text-[#106ebe] uppercase tracking-wide">Especificaciones del Platillo</h4>
                                             </div>
                                             <div className="p-3 space-y-3">
                                                 <div className="grid grid-cols-2 gap-x-8 gap-y-2">
                                                     {/* left col */}
                                                     <div className="space-y-2">
                                                         <div className="flex items-center">
-                                                            <label className="text-[11px] font-bold text-[#64748b] w-[130px] shrink-0 uppercase">Clasificación</label>
-                                                            <input type="text" placeholder="EJ. PLATILLO FUERTE" className="flex-1 h-[26px] bg-white border border-[#ced4da] px-2 text-[10px] font-bold text-slate-700 uppercase outline-none focus:border-[#106ebe]" value={newProduct.classification || ''} onChange={e => setNewProduct({ ...newProduct, classification: e.target.value.toUpperCase() })} />
+                                                            <label className="text-[11px] font-medium text-[#64748b] w-[130px] shrink-0 uppercase">Clasificación</label>
+                                                            <input type="text" placeholder="EJ. PLATILLO FUERTE" className="flex-1 h-[26px] bg-white border border-[#ced4da] px-2 text-[10px] font-medium text-slate-700 uppercase outline-none focus:border-[#106ebe]" value={newProduct.classification || ''} onChange={e => setNewProduct({ ...newProduct, classification: e.target.value.toUpperCase() })} />
                                                         </div>
                                                         <div className="flex items-center">
-                                                            <label className="text-[11px] font-bold text-[#64748b] w-[130px] shrink-0 uppercase">Núm. Porciones</label>
+                                                            <label className="text-[11px] font-medium text-[#64748b] w-[130px] shrink-0 uppercase">Núm. Porciones</label>
                                                             <div className="flex-1 relative flex">
-                                                                <input type="text" className="w-full h-[26px] bg-white border border-[#ced4da] px-2 text-[10px] font-bold text-center text-[#106ebe] uppercase outline-none focus:border-[#106ebe] border-r-0" value={newProduct.portions || '1'} onChange={e => setNewProduct({ ...newProduct, portions: e.target.value })} />
-                                                                <div className="h-[26px] px-2 bg-[#f8fafc] border border-[#ced4da] text-[8px] font-bold text-[#94a3b8] flex items-center justify-center pointer-events-none">UNID</div>
+                                                                <input type="text" className="w-full h-[26px] bg-white border border-[#ced4da] px-2 text-[10px] font-medium text-center text-[#106ebe] uppercase outline-none focus:border-[#106ebe] border-r-0" value={newProduct.portions || '1'} onChange={e => setNewProduct({ ...newProduct, portions: e.target.value })} />
+                                                                <div className="h-[26px] px-2 bg-[#f8fafc] border border-[#ced4da] text-[8px] font-medium text-[#94a3b8] flex items-center justify-center pointer-events-none">UNID</div>
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center">
-                                                            <label className="text-[11px] font-bold text-[#64748b] w-[130px] shrink-0 uppercase">Temp. Servicio</label>
-                                                            <input type="text" className="flex-1 h-[26px] bg-white border border-[#ced4da] px-2 text-[10px] font-bold text-slate-700 uppercase outline-none focus:border-[#106ebe]" value={newProduct.serving_temp || ''} onChange={e => setNewProduct({ ...newProduct, serving_temp: e.target.value.toUpperCase() })} />
+                                                            <label className="text-[11px] font-medium text-[#64748b] w-[130px] shrink-0 uppercase">Temp. Servicio</label>
+                                                            <input type="text" className="flex-1 h-[26px] bg-white border border-[#ced4da] px-2 text-[10px] font-medium text-slate-700 uppercase outline-none focus:border-[#106ebe]" value={newProduct.serving_temp || ''} onChange={e => setNewProduct({ ...newProduct, serving_temp: e.target.value.toUpperCase() })} />
                                                         </div>
                                                         <div className="flex items-center">
-                                                            <label className="text-[11px] font-bold text-[#64748b] w-[130px] shrink-0 uppercase">Elaborado Por</label>
-                                                            <input type="text" className="flex-1 h-[26px] bg-white border border-[#ced4da] px-2 text-[10px] font-bold text-slate-700 uppercase outline-none focus:border-[#106ebe]" value={newProduct.prepared_by || ''} onChange={e => setNewProduct({ ...newProduct, prepared_by: e.target.value.toUpperCase() })} />
+                                                            <label className="text-[11px] font-medium text-[#64748b] w-[130px] shrink-0 uppercase">Elaborado Por</label>
+                                                            <input type="text" className="flex-1 h-[26px] bg-white border border-[#ced4da] px-2 text-[10px] font-medium text-slate-700 uppercase outline-none focus:border-[#106ebe]" value={newProduct.prepared_by || ''} onChange={e => setNewProduct({ ...newProduct, prepared_by: e.target.value.toUpperCase() })} />
                                                         </div>
                                                     </div>
                                                     {/* right col */}
                                                     <div className="space-y-2">
                                                         <div className="flex items-center">
-                                                            <label className="text-[11px] font-bold text-[#64748b] w-[130px] shrink-0 uppercase">No. de Receta</label>
-                                                            <input type="text" placeholder="EJ. 001" className="flex-1 h-[26px] bg-white border border-[#ced4da] px-2 text-[10px] font-bold text-[#106ebe] uppercase outline-none focus:border-[#106ebe]" value={newProduct.recipe_no || ''} onChange={e => setNewProduct({ ...newProduct, recipe_no: e.target.value.toUpperCase() })} />
+                                                            <label className="text-[11px] font-medium text-[#64748b] w-[130px] shrink-0 uppercase">No. de Receta</label>
+                                                            <input type="text" placeholder="EJ. 001" className="flex-1 h-[26px] bg-white border border-[#ced4da] px-2 text-[10px] font-medium text-[#106ebe] uppercase outline-none focus:border-[#106ebe]" value={newProduct.recipe_no || ''} onChange={e => setNewProduct({ ...newProduct, recipe_no: e.target.value.toUpperCase() })} />
                                                         </div>
                                                         <div className="flex items-center">
-                                                            <label className="text-[11px] font-bold text-[#64748b] w-[130px] shrink-0 uppercase">Tamaño Porción</label>
-                                                            <input type="text" className="flex-1 h-[26px] bg-white border border-[#ced4da] px-2 text-[10px] font-bold text-slate-700 uppercase outline-none focus:border-[#106ebe]" value={newProduct.portion_size || ''} onChange={e => setNewProduct({ ...newProduct, portion_size: e.target.value.toUpperCase() })} />
+                                                            <label className="text-[11px] font-medium text-[#64748b] w-[130px] shrink-0 uppercase">Tamaño Porción</label>
+                                                            <input type="text" className="flex-1 h-[26px] bg-white border border-[#ced4da] px-2 text-[10px] font-medium text-slate-700 uppercase outline-none focus:border-[#106ebe]" value={newProduct.portion_size || ''} onChange={e => setNewProduct({ ...newProduct, portion_size: e.target.value.toUpperCase() })} />
                                                         </div>
                                                         <div className="flex items-center">
-                                                            <label className="text-[11px] font-bold text-[#64748b] w-[130px] shrink-0 uppercase">Tiempo Elab.</label>
-                                                            <input type="text" className="flex-1 h-[26px] bg-white border border-[#ced4da] px-2 text-[10px] font-bold text-slate-700 uppercase outline-none focus:border-[#106ebe]" value={newProduct.prep_time || ''} onChange={e => setNewProduct({ ...newProduct, prep_time: e.target.value.toUpperCase() })} />
+                                                            <label className="text-[11px] font-medium text-[#64748b] w-[130px] shrink-0 uppercase">Tiempo Elab.</label>
+                                                            <input type="text" className="flex-1 h-[26px] bg-white border border-[#ced4da] px-2 text-[10px] font-medium text-slate-700 uppercase outline-none focus:border-[#106ebe]" value={newProduct.prep_time || ''} onChange={e => setNewProduct({ ...newProduct, prep_time: e.target.value.toUpperCase() })} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1286,23 +1286,23 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                 <div className="grid grid-cols-2 gap-4 pt-1">
                                                     <div className="space-y-1">
                                                         <div className="flex justify-between items-center mb-1">
-                                                            <label className="text-[11px] font-bold text-[#64748b] uppercase tracking-wide">Preparación / Procedimiento</label>
+                                                            <label className="text-[11px] font-medium text-[#64748b] uppercase tracking-wide">Preparación / Procedimiento</label>
                                                             <button onClick={() => handleImproveText('prep_procedure')} disabled={isImproving} className="text-amber-500 px-1 border border-gray-200 flex items-center gap-1 bg-[#fcfeff] rounded-[2px]" title="Mejorar redacción con IA">
                                                                 {isImproving ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} className="text-amber-400" />}
-                                                                <span className="text-[9px] font-bold text-[#106ebe] uppercase tracking-tighter">IA</span>
+                                                                <span className="text-[9px] font-medium text-[#106ebe] uppercase tracking-tighter">IA</span>
                                                             </button>
                                                         </div>
-                                                        <textarea className="w-full h-[70px] p-2 bg-white border border-[#ced4da] text-[10px] font-bold text-[#64748b] hover:border-[#106ebe] outline-none focus:border-[#106ebe] resize-none uppercase placeholder:text-gray-400 placeholder:font-normal" placeholder="PASOS DE PREPARACIÓN..." value={newProduct.prep_procedure || ''} onChange={e => setNewProduct({ ...newProduct, prep_procedure: e.target.value })}></textarea>
+                                                        <textarea className="w-full h-[70px] p-2 bg-white border border-[#ced4da] text-[10px] font-medium text-[#64748b] hover:border-[#106ebe] outline-none focus:border-[#106ebe] resize-none uppercase placeholder:text-gray-400 placeholder:font-normal" placeholder="PASOS DE PREPARACIÓN..." value={newProduct.prep_procedure || ''} onChange={e => setNewProduct({ ...newProduct, prep_procedure: e.target.value })}></textarea>
                                                     </div>
                                                     <div className="space-y-1">
                                                         <div className="flex justify-between items-center mb-1">
-                                                            <label className="text-[11px] font-bold text-[#64748b] uppercase tracking-wide">Observaciones Adicionales</label>
+                                                            <label className="text-[11px] font-medium text-[#64748b] uppercase tracking-wide">Observaciones Adicionales</label>
                                                             <button onClick={() => handleImproveText('observations')} disabled={isImproving} className="text-amber-500 px-1 border border-gray-200 flex items-center gap-1 bg-[#fcfeff] rounded-[2px]" title="Mejorar redacción con IA">
                                                                 {isImproving ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} className="text-amber-400" />}
-                                                                <span className="text-[9px] font-bold text-[#106ebe] uppercase tracking-tighter">IA</span>
+                                                                <span className="text-[9px] font-medium text-[#106ebe] uppercase tracking-tighter">IA</span>
                                                             </button>
                                                         </div>
-                                                        <textarea className="w-full h-[70px] p-2 bg-white border border-[#ced4da] text-[10px] font-bold text-[#64748b] hover:border-[#106ebe] outline-none focus:border-[#106ebe] resize-none uppercase placeholder:text-gray-400 placeholder:font-normal" placeholder="NOTAS ADICIONALES..." value={newProduct.observations || ''} onChange={e => setNewProduct({ ...newProduct, observations: e.target.value })}></textarea>
+                                                        <textarea className="w-full h-[70px] p-2 bg-white border border-[#ced4da] text-[10px] font-medium text-[#64748b] hover:border-[#106ebe] outline-none focus:border-[#106ebe] resize-none uppercase placeholder:text-gray-400 placeholder:font-normal" placeholder="NOTAS ADICIONALES..." value={newProduct.observations || ''} onChange={e => setNewProduct({ ...newProduct, observations: e.target.value })}></textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1312,10 +1312,10 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                         <div className="bg-white border border-[#ced4da] flex flex-col relative group">
                                             <div className="bg-[#f1f5f9] px-3 py-1 border-b border-[#ced4da] flex items-center justify-between">
                                                 <div className="flex items-center gap-2">
-                                                    <h4 className="text-[11px] font-bold text-[#106ebe] uppercase tracking-wide">Ingredientes y Costeo</h4>
-                                                    <span className="bg-[#106ebe] text-white text-[10px] font-bold px-1.5 rounded-[3px] leading-none">{recipeItems.length}</span>
+                                                    <h4 className="text-[11px] font-medium text-[#106ebe] uppercase tracking-wide">Ingredientes y Costeo</h4>
+                                                    <span className="bg-[#106ebe] text-white text-[10px] font-medium px-1.5 rounded-[3px] leading-none">{recipeItems.length}</span>
                                                 </div>
-                                                <span className="text-[9px] font-bold text-[#94a3b8] uppercase">* Clic derecho para buscar</span>
+                                                <span className="text-[9px] font-medium text-[#94a3b8] uppercase">* Clic derecho para buscar</span>
                                             </div>
                                             <div
                                                 className="min-h-[160px] max-h-[250px] overflow-auto custom-scrollbar relative bg-white"
@@ -1332,16 +1332,16 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                 {recipeItems.length === 0 ? (
                                                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-[#cbd5e1] pointer-events-none">
                                                         <Plus size={24} strokeWidth={1} />
-                                                        <span className="text-[9px] font-bold uppercase opacity-80">No hay ingredientes - Clic derecho para buscar</span>
+                                                        <span className="text-[9px] font-medium uppercase opacity-80">No hay ingredientes - Clic derecho para buscar</span>
                                                     </div>
                                                 ) : (
                                                     <table className="w-full border-collapse">
                                                         <thead className="bg-[#f8fafc] sticky top-0 border-b border-gray-200 z-10 shadow-sm">
                                                             <tr className="h-8">
-                                                                <th className="px-4 text-left text-[9px] font-black text-slate-500 uppercase tracking-widest">Insumo / Ingrediente</th>
-                                                                <th className="w-24 text-center text-[9px] font-black text-slate-500 uppercase tracking-widest">Cantidad</th>
-                                                                <th className="w-24 text-center text-[9px] font-black text-slate-500 uppercase tracking-widest">Unidad</th>
-                                                                <th className="w-28 text-right text-[9px] font-black text-slate-500 uppercase tracking-widest px-4">Subtotal Factura</th>
+                                                                <th className="px-4 text-left text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Insumo / Ingrediente</th>
+                                                                <th className="w-24 text-center text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Cantidad</th>
+                                                                <th className="w-24 text-center text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Unidad</th>
+                                                                <th className="w-28 text-right text-[9px] font-semibold text-slate-500 uppercase tracking-widest px-4">Subtotal Factura</th>
                                                                 <th className="w-10"></th>
                                                             </tr>
                                                         </thead>
@@ -1424,11 +1424,11 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                                             });
                                                                         }}
                                                                     >
-                                                                        <td className="px-4 font-bold text-slate-700 uppercase group-hover/row:text-[#106ebe]">{ri.inventory_items?.name}</td>
+                                                                        <td className="px-4 font-medium text-slate-700 uppercase group-hover/row:text-[#106ebe]">{ri.inventory_items?.name}</td>
                                                                         <td className="px-2">
                                                                             <input
                                                                                 type="text"
-                                                                                className="w-full text-center bg-gray-50/50 group-hover/row:bg-white border border-gray-200 group-hover/row:border-[#106ebe]/30 font-black text-[#106ebe] outline-none h-6 transition-all"
+                                                                                className="w-full text-center bg-gray-50/50 group-hover/row:bg-white border border-gray-200 group-hover/row:border-[#106ebe]/30 font-semibold text-[#106ebe] outline-none h-6 transition-all"
                                                                                 value={ri.quantity}
                                                                                 onChange={e => {
                                                                                     const n = [...recipeItems];
@@ -1437,11 +1437,11 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                                                 }}
                                                                             />
                                                                         </td>
-                                                                        <td className="px-4 text-center text-slate-400 font-bold uppercase">{ri.unit_measure || 'unidad'}</td>
+                                                                        <td className="px-4 text-center text-slate-400 font-medium uppercase">{ri.unit_measure || 'unidad'}</td>
                                                                         <td className="px-4 text-right">
                                                                             <div className="flex justify-between items-baseline opacity-80 group-hover/row:opacity-100 transition-opacity">
                                                                                 <span className="text-[8px] text-slate-300">Q</span>
-                                                                                <span className="font-black text-slate-700">{subtotal.toFixed(2)}</span>
+                                                                                <span className="font-semibold text-slate-700">{subtotal.toFixed(2)}</span>
                                                                             </div>
                                                                         </td>
                                                                         <td className="px-2 text-center w-0 p-0 overflow-hidden invisible">
@@ -1458,16 +1458,16 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                 <div className="flex flex-col gap-1">
                                                     <div className="flex items-center gap-2">
                                                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Resumen de Costos</span>
+                                                        <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">Resumen de Costos</span>
                                                     </div>
-                                                    <span className="text-[10px] font-bold text-[#106ebe]/60 uppercase tracking-tight">Valores sincronizados en tiempo real</span>
+                                                    <span className="text-[10px] font-medium text-[#106ebe]/60 uppercase tracking-tight">Valores sincronizados en tiempo real</span>
                                                 </div>
                                                 <div className="flex items-center gap-6">
                                                     <div className="flex flex-col items-end">
-                                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest opacity-60">Costo Total (Factura)</span>
+                                                        <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest opacity-60">Costo Total (Factura)</span>
                                                         <div className="flex items-baseline gap-1">
-                                                            <span className="text-[12px] font-black text-[#106ebe]">Q</span>
-                                                            <span className="text-[24px] font-black text-[#106ebe] drop-shadow-sm tabular-nums">
+                                                            <span className="text-[12px] font-semibold text-[#106ebe]">Q</span>
+                                                            <span className="text-[24px] font-semibold text-[#106ebe] drop-shadow-sm tabular-nums">
                                                                 {(() => {
                                                                     const isNormalContributor = costingConfig?.is_normal_contributor !== false;
                                                                     const IVA_FACTOR = 1.12;
@@ -1550,12 +1550,12 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                             {/* Header Title Block */}
                                             <div className="border-b-2 border-black p-2 flex justify-between items-center bg-white relative">
                                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                                    <h1 className="text-xl font-black uppercase underline decoration-double">{newProduct.name || 'PLATILLO SIN NOMBRE'}</h1>
+                                                    <h1 className="text-xl font-semibold uppercase underline decoration-double">{newProduct.name || 'PLATILLO SIN NOMBRE'}</h1>
                                                 </div>
                                                 <div className="z-10 bg-white px-2">
                                                     {/* Empty for spacing or logo */}
                                                 </div>
-                                                <div className="z-10 bg-white px-2 text-sm font-black">
+                                                <div className="z-10 bg-white px-2 text-sm font-semibold">
                                                     NO. {newProduct.recipe_no || '---'}
                                                 </div>
                                             </div>
@@ -1569,7 +1569,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                     ) : (
                                                         <div className="w-full h-full border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-300">
                                                             <ImageIcon size={32} strokeWidth={1} />
-                                                            <span className="text-[8px] font-black uppercase mt-1">FOTOGRAFÍA</span>
+                                                            <span className="text-[8px] font-semibold uppercase mt-1">FOTOGRAFÍA</span>
                                                         </div>
                                                     )}
                                                 </div>
@@ -1587,8 +1587,8 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                                 { label: 'Elaborado por:', value: newProduct.prepared_by }
                                                             ].map((row, i) => (
                                                                 <tr key={i} className="border-b border-black last:border-b-0 h-7">
-                                                                    <td className="w-40 px-3 text-[10px] font-bold uppercase border-r border-black bg-gray-50/30 whitespace-nowrap">{row.label}</td>
-                                                                    <td className="px-4 text-[10px] font-black uppercase text-left">{row.value || ''}</td>
+                                                                    <td className="w-40 px-3 text-[10px] font-medium uppercase border-r border-black bg-gray-50/30 whitespace-nowrap">{row.label}</td>
+                                                                    <td className="px-4 text-[10px] font-semibold uppercase text-left">{row.value || ''}</td>
                                                                 </tr>
                                                             ))}
                                                         </tbody>
@@ -1599,7 +1599,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                             {/* Ingredients Table */}
                                             <table className="w-full border-collapse">
                                                 <thead>
-                                                    <tr className="bg-gray-200 border-b-2 border-black text-[10px] font-black uppercase">
+                                                    <tr className="bg-gray-200 border-b-2 border-black text-[10px] font-semibold uppercase">
                                                         <th className="border-r border-black p-1 w-20 text-center">Cantidad</th>
                                                         <th className="border-r border-black p-1 w-32 text-center">Unidad de Medida</th>
                                                         <th className="border-r border-black p-1 text-center">Ingrediente</th>
@@ -1610,9 +1610,9 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                     {/* Actual Items */}
                                                     {recipeItems.map((item, idx) => (
                                                         <tr key={idx} className="border-b border-black text-[10px] h-7">
-                                                            <td className="border-r border-black text-center font-bold">{item.quantity}</td>
+                                                            <td className="border-r border-black text-center font-medium">{item.quantity}</td>
                                                             <td className="border-r border-black text-center uppercase">{item.unit_measure || '---'}</td>
-                                                            <td className="border-r border-black px-2 uppercase font-black">{item.inventory_items?.name}</td>
+                                                            <td className="border-r border-black px-2 uppercase font-semibold">{item.inventory_items?.name}</td>
                                                             <td className="px-2 text-[9px] text-gray-600">---</td>
                                                         </tr>
                                                     ))}
@@ -1630,7 +1630,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
 
                                             {/* Preparación Section */}
                                             <div className="bg-gray-200 border-y-2 border-black text-center py-1">
-                                                <h3 className="text-[10px] font-black uppercase tracking-widest">Preparación</h3>
+                                                <h3 className="text-[10px] font-semibold uppercase tracking-widest">Preparación</h3>
                                             </div>
                                             <div className="p-3 min-h-[150px] border-b-2 border-black">
                                                 <p className="text-[10px] leading-relaxed text-left whitespace-pre-wrap uppercase font-medium">
@@ -1641,7 +1641,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                             {/* Observations Section */}
                                             <div className="p-3">
                                                 <div className="flex gap-2">
-                                                    <span className="text-[10px] font-black uppercase">Observaciones:</span>
+                                                    <span className="text-[10px] font-semibold uppercase">Observaciones:</span>
                                                     <div className="flex-1 border-b border-black min-h-[60px]">
                                                         <p className="text-[9px] uppercase text-gray-700">
                                                             {newProduct.observations || ''}
@@ -1652,7 +1652,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                         </div>
 
                                         {/* Footer Print Info */}
-                                        <div className="mt-4 flex justify-between text-[8px] font-bold text-gray-400 uppercase">
+                                        <div className="mt-4 flex justify-between text-[8px] font-medium text-gray-400 uppercase">
                                             <span>Documento Técnico de Receta</span>
                                             <span>Restaurante Las Palmas • Guatemala</span>
                                         </div>
@@ -1662,9 +1662,9 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                 <div className="px-4 py-2 bg-[#e1e5eb] border-t border-gray-300 flex justify-between items-center shrink-0 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
                                     <div className="flex items-center gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
-                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Ficha Técnica Pro v2.0</span>
+                                        <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Ficha Técnica Pro v2.0</span>
                                     </div>
-                                    <button onClick={() => setShowTechnicalModal(false)} className="px-6 h-8 bg-white border border-gray-400 text-slate-500 text-[9px] font-black uppercase shadow-sm hover:bg-gray-50 transition-all hover:border-gray-500 active:bg-gray-100">Cerrar Ventana</button>
+                                    <button onClick={() => setShowTechnicalModal(false)} className="px-6 h-8 bg-white border border-gray-400 text-slate-500 text-[9px] font-semibold uppercase shadow-sm hover:bg-gray-50 transition-all hover:border-gray-500 active:bg-gray-100">Cerrar Ventana</button>
                                 </div>
                             </div>
                         </DraggableWindow>
@@ -1688,7 +1688,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                         <div className="w-5 h-5 bg-white/10 rounded-sm flex items-center justify-center">
                                             <Settings size={12} className="text-blue-100" />
                                         </div>
-                                        <span className="text-[11px] font-black uppercase tracking-wider">Configuración</span>
+                                        <span className="text-[11px] font-semibold uppercase tracking-wider">Configuración</span>
                                     </div>
                                     <div className="flex items-center gap-0.5">
                                         <WindowsSaveButton
@@ -1707,7 +1707,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                         />
                                         <button
                                             onClick={() => setConfigModal(null)}
-                                            className="w-8 h-8 flex items-center justify-center hover:bg-red-500 transition-colors text-white font-black text-sm"
+                                            className="w-8 h-8 flex items-center justify-center hover:bg-red-500 transition-colors text-white font-semibold text-sm"
                                         >✕</button>
                                     </div>
                                 </div>
@@ -1715,18 +1715,18 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                 <div className="p-4 space-y-4">
                                     <div className="bg-white border border-gray-300 p-3 space-y-3 shadow-sm rounded-sm">
                                         <div className="flex flex-col gap-1.5">
-                                            <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                            <label className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
                                                 <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
                                                 Insumo Seleccionado
                                             </label>
                                             <div className="h-7 bg-[#f8fafc] border border-gray-200 px-2 flex items-center">
-                                                <span className="text-[11px] font-bold text-slate-700 uppercase truncate opacity-80">{configModal.item.name || configModal.item.nombre}</span>
+                                                <span className="text-[11px] font-medium text-slate-700 uppercase truncate opacity-80">{configModal.item.name || configModal.item.nombre}</span>
                                             </div>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4 pt-1">
                                             <div className="flex flex-col gap-1.5">
-                                                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                                <label className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
                                                     <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
                                                     Cantidad neta
                                                 </label>
@@ -1734,7 +1734,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                     autoFocus
                                                     onFocus={(e) => e.target.select()}
                                                     type="text"
-                                                    className="w-full h-8 bg-white border border-gray-400 px-3 text-[13px] font-black text-[#106ebe] outline-none text-center focus:border-[#106ebe] focus:ring-1 focus:ring-[#106ebe]/20 transition-all shadow-inner"
+                                                    className="w-full h-8 bg-white border border-gray-400 px-3 text-[13px] font-semibold text-[#106ebe] outline-none text-center focus:border-[#106ebe] focus:ring-1 focus:ring-[#106ebe]/20 transition-all shadow-inner"
                                                     value={configModal.quantity}
                                                     onChange={e => setConfigModal({ ...configModal, quantity: e.target.value.replace(/[^0-9.]/g, '') })}
                                                     onKeyDown={e => {
@@ -1752,12 +1752,12 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                 />
                                             </div>
                                             <div className="flex flex-col gap-1.5">
-                                                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                                <label className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
                                                     <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
                                                     Unidad de Receta
                                                 </label>
                                                 <select
-                                                    className="w-full h-8 bg-white border border-gray-400 text-[11px] font-black text-slate-700 outline-none px-2 focus:border-[#106ebe] cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%23106ebe%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m3%205%203%203%203-3%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_8px_center] bg-no-repeat shadow-inner"
+                                                    className="w-full h-8 bg-white border border-gray-400 text-[11px] font-semibold text-slate-700 outline-none px-2 focus:border-[#106ebe] cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%23106ebe%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m3%205%203%203%203-3%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_8px_center] bg-no-repeat shadow-inner"
                                                     value={configModal.unit}
                                                     onChange={e => setConfigModal({ ...configModal, unit: e.target.value })}
                                                 >
@@ -1781,7 +1781,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                                 setConfigModal(null);
                                                 setSearchModal({ ...searchModal, visible: false, type: null, query: '' });
                                             }}
-                                            className="w-full h-8 bg-[#106ebe] text-white text-[10px] font-black uppercase flex items-center justify-center gap-2 hover:bg-[#0d5aa0] active:scale-95 transition-all shadow-md group"
+                                            className="w-full h-8 bg-[#106ebe] text-white text-[10px] font-semibold uppercase flex items-center justify-center gap-2 hover:bg-[#0d5aa0] active:scale-95 transition-all shadow-md group"
                                         >
                                             <Plus size={14} className="group-hover:rotate-90 transition-transform" />
                                             AGREGAR
@@ -1791,7 +1791,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                     <div className="flex justify-between items-center px-1">
                                         <div className="flex items-center gap-1.5">
                                             <div className="w-1 h-1 rounded-full bg-[#106ebe]"></div>
-                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Basado en {configModal.item.unit_measure}</span>
+                                            <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest">Basado en {configModal.item.unit_measure}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1811,7 +1811,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                 <div className="modal-header px-4 py-2 bg-[#106ebe] flex items-center justify-between cursor-move select-none">
                                     <div className="flex items-center gap-2">
                                         <FolderPlus size={14} className="text-white" />
-                                        <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">Nueva Categoría ({modalType === 'platillo' ? 'Venta' : 'Inventario'})</h3>
+                                        <h3 className="text-[10px] font-medium text-white uppercase tracking-widest">Nueva Categoría ({modalType === 'platillo' ? 'Venta' : 'Inventario'})</h3>
                                     </div>
                                     <button onClick={() => setShowQuickCatModal(false)} className="text-white/60 hover:text-white hover:bg-red-500 w-6 h-6 flex items-center justify-center transition-all">
                                         <X size={16} />
@@ -1819,11 +1819,11 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                 </div>
                                 <div className="p-4 bg-white m-1 border border-gray-300 space-y-4">
                                     <div>
-                                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Nombre de Categoría</label>
+                                        <label className="block text-[10px] font-medium text-gray-500 uppercase mb-1">Nombre de Categoría</label>
                                         <input
                                             autoFocus
                                             type="text"
-                                            className="w-full h-8 bg-white border border-gray-300 px-3 text-[11px] font-black uppercase outline-none focus:border-[#106ebe]"
+                                            className="w-full h-8 bg-white border border-gray-300 px-3 text-[11px] font-semibold uppercase outline-none focus:border-[#106ebe]"
                                             value={newCatName}
                                             onChange={e => setNewCatName(e.target.value)}
                                             onKeyDown={e => e.key === 'Enter' && handleSaveQuickCategory()}
@@ -1832,12 +1832,12 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => setShowQuickCatModal(false)}
-                                            className="flex-1 py-1.5 bg-white border border-gray-400 text-[10px] font-bold uppercase hover:bg-gray-100 shadow-sm"
+                                            className="flex-1 py-1.5 bg-white border border-gray-400 text-[10px] font-medium uppercase hover:bg-gray-100 shadow-sm"
                                         >Cancelar</button>
                                         <button
                                             onClick={handleSaveQuickCategory}
                                             disabled={isSaving || !newCatName.trim()}
-                                            className="flex-1 py-1.5 bg-[#106ebe] text-white text-[10px] font-black uppercase hover:bg-[#0d5aa0] shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+                                            className="flex-1 py-1.5 bg-[#106ebe] text-white text-[10px] font-semibold uppercase hover:bg-[#0d5aa0] shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
                                         >
                                             {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Guardar
                                         </button>
@@ -1863,7 +1863,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                 setSearchModal({ visible: true, type: 'inventory', query: '' });
                                 setRecipeContextMenu({ ...recipeContextMenu, visible: false });
                             }}
-                            className="w-full flex items-center gap-3 px-3 py-1.5 text-[10px] font-bold text-slate-700 hover:bg-[#106ebe] hover:text-white transition-none group"
+                            className="w-full flex items-center gap-3 px-3 py-1.5 text-[10px] font-medium text-slate-700 hover:bg-[#106ebe] hover:text-white transition-none group"
                         >
                             <Plus size={14} className="text-[#106ebe] group-hover:text-white" />
                             <span className="uppercase tracking-tight">Agregar</span>
@@ -1876,7 +1876,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                                 }
                                 setRecipeContextMenu({ ...recipeContextMenu, visible: false });
                             }}
-                            className={`w-full flex items-center gap-3 px-3 py-1.5 text-[10px] font-bold transition-none group ${recipeContextMenu.itemIdx === undefined ? 'opacity-30 cursor-not-allowed text-gray-400' : 'text-slate-700 hover:bg-[#106ebe] hover:text-white'}`}
+                            className={`w-full flex items-center gap-3 px-3 py-1.5 text-[10px] font-medium transition-none group ${recipeContextMenu.itemIdx === undefined ? 'opacity-30 cursor-not-allowed text-gray-400' : 'text-slate-700 hover:bg-[#106ebe] hover:text-white'}`}
                         >
                             <Trash2 size={13} className={recipeContextMenu.itemIdx === undefined ? 'text-gray-300' : 'text-red-500 group-hover:text-white'} />
                             <span className="uppercase tracking-tight">Quitar</span>
@@ -1895,7 +1895,7 @@ export const InventariosLayout: React.FC<InventariosLayoutProps> = ({ initialTab
                             <div className="modal-header bg-[#106EBE] h-9 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
                                 <div className="flex items-center gap-2">
                                     <Package size={16} className="text-white" />
-                                    <span className="text-white text-[11px] font-bold uppercase tracking-wider">Kardex de Inventario - Consulta Específica</span>
+                                    <span className="text-white text-[11px] font-medium uppercase tracking-wider">Kardex de Inventario - Consulta Específica</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <button

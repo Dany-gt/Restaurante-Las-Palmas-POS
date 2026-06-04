@@ -153,13 +153,13 @@ export const AdminRoles: React.FC = () => {
                     placeholder="Buscar permisos..."
                     className="flex-1 px-2 py-1 text-[11px] outline-none border border-gray-200"
                 />
-                {!isMobile && <button className="bg-[#f5f5f5] border border-gray-300 px-4 py-1 text-[11px] font-bold hover:bg-gray-200 text-gray-700">Buscar</button>}
+                {!isMobile && <button className="bg-[#f5f5f5] border border-gray-300 px-4 py-1 text-[11px] font-medium hover:bg-gray-200 text-gray-700">Buscar</button>}
             </div>
 
             {/* Permissions Tree Area */}
             <div className="flex-1 bg-white border border-gray-300 overflow-y-auto p-2">
                 <div className="space-y-1">
-                    <span className="text-[11px] font-bold text-gray-700 block border-b border-gray-100 pb-1 mb-2">Módulos y Acciones</span>
+                    <span className="text-[11px] font-medium text-gray-700 block border-b border-gray-100 pb-1 mb-2">Módulos y Acciones</span>
                     {PERMISSIONS_STRUCTURE
                         .filter(m =>
                             m.module.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -183,8 +183,8 @@ export const AdminRoles: React.FC = () => {
                                             onChange={(e) => { e.stopPropagation(); handleToggleModule(module.module); }}
                                             className="w-4 h-4 accent-[#106ebe]"
                                         />
-                                        <span className={`font-black uppercase tracking-tight ${isExpanded ? 'text-[#106ebe]' : 'text-gray-500'}`}>{module.module}</span>
-                                        <span className="text-[9px] font-bold text-gray-400 ml-auto">({module.actions.length})</span>
+                                        <span className={`font-semibold uppercase tracking-tight ${isExpanded ? 'text-[#106ebe]' : 'text-gray-500'}`}>{module.module}</span>
+                                        <span className="text-[9px] font-medium text-gray-400 ml-auto">({module.actions.length})</span>
                                     </div>
 
                                     {isExpanded && (
@@ -206,7 +206,7 @@ export const AdminRoles: React.FC = () => {
                                                                 onChange={() => { }} // Controlled by parent onClick
                                                                 className="w-4 h-4 accent-[#106ebe]"
                                                             />
-                                                            <span className={`text-[11px] font-bold ${isSelected ? 'text-blue-700' : 'text-gray-600'}`}>{action}</span>
+                                                            <span className={`text-[11px] font-medium ${isSelected ? 'text-blue-700' : 'text-gray-600'}`}>{action}</span>
                                                         </div>
                                                     );
                                                 })}
@@ -225,13 +225,13 @@ export const AdminRoles: React.FC = () => {
                         const allPerms = PERMISSIONS_STRUCTURE.flatMap(m => m.actions.map(a => `${m.module}:${a}`));
                         setRoleForm(prev => ({ ...prev, permissions: allPerms }));
                     }}
-                    className="bg-[#f5f5f5] border border-gray-300 py-2 text-[10px] font-black text-gray-700 hover:bg-gray-200 uppercase tracking-tighter"
+                    className="bg-[#f5f5f5] border border-gray-300 py-2 text-[10px] font-semibold text-gray-700 hover:bg-gray-200 uppercase tracking-tighter"
                 >
                     Marcar Todo
                 </button>
                 <button
                     onClick={() => setRoleForm(prev => ({ ...prev, permissions: [] }))}
-                    className="bg-[#f5f5f5] border border-gray-300 py-2 text-[10px] font-black text-gray-700 hover:bg-gray-200 uppercase tracking-tighter"
+                    className="bg-[#f5f5f5] border border-gray-300 py-2 text-[10px] font-semibold text-gray-700 hover:bg-gray-200 uppercase tracking-tighter"
                 >
                     Desmarcar Todo
                 </button>
@@ -258,7 +258,7 @@ export const AdminRoles: React.FC = () => {
                     onContextMenu={(e) => handleContextMenu(e)}
                 >
                     <div className="bg-gray-50/80 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
-                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Roles del Sistema</span>
+                        <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Roles del Sistema</span>
                         {isMobile && (
                             <button
                                 onClick={startNewRole}
@@ -280,10 +280,10 @@ export const AdminRoles: React.FC = () => {
                                     >
                                         <div className="flex justify-between items-start pr-8">
                                             <div className="flex flex-col gap-0.5">
-                                                <span className="font-bold text-[13px] uppercase tracking-tight">{role.name}</span>
+                                                <span className="font-medium text-[13px] uppercase tracking-tight">{role.name}</span>
                                                 <span className="text-[10px] opacity-60 font-medium">{role.description || 'Sin descripción'}</span>
                                             </div>
-                                            <div className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${editingRole?.id === role.id ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-600'}`}>
+                                            <div className={`px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase ${editingRole?.id === role.id ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-600'}`}>
                                                 Habilitado
                                             </div>
                                         </div>
@@ -304,7 +304,7 @@ export const AdminRoles: React.FC = () => {
                                             <MoreVertical size={18} />
                                         </button>
 
-                                        <div className="mt-2 text-[10px] font-black opacity-60 flex items-center gap-2">
+                                        <div className="mt-2 text-[10px] font-semibold opacity-60 flex items-center gap-2">
                                             <ShieldCheck size={10} className={editingRole?.id === role.id ? 'text-white' : 'text-indigo-500'} />
                                             <span>{(role.permissions || []).length} PERMISOS ASIGNADOS</span>
                                         </div>
@@ -315,8 +315,8 @@ export const AdminRoles: React.FC = () => {
                             <table className="w-full border-collapse text-[11px]">
                                 <thead className="bg-[#e8e8e8] sticky top-0 z-10 border-b border-gray-400 select-none">
                                     <tr className="h-10">
-                                        <th className="py-2.5 px-6 text-left font-bold text-black uppercase w-[75%] border-r border-gray-300 text-[10px]">ROL</th>
-                                        <th className="py-2.5 px-6 text-center font-bold text-black uppercase w-[25%] text-[10px]">HABILITADO</th>
+                                        <th className="py-2.5 px-6 text-left font-medium text-black uppercase w-[75%] border-r border-gray-300 text-[10px]">ROL</th>
+                                        <th className="py-2.5 px-6 text-center font-medium text-black uppercase w-[25%] text-[10px]">HABILITADO</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -330,7 +330,7 @@ export const AdminRoles: React.FC = () => {
                                                 : 'text-slate-900 even:bg-slate-50/50'
                                                 }`}
                                         >
-                                            <td className="px-4 font-bold flex items-center gap-2 h-6 border-r border-gray-100">
+                                            <td className="px-4 font-medium flex items-center gap-2 h-6 border-r border-gray-100">
                                                 <ShieldCheck size={12} className={editingRole?.id === role.id ? 'text-white' : 'text-slate-400'} />
                                                 <span className="uppercase tracking-tight text-[10px]">{role.name}</span>
                                             </td>
@@ -347,7 +347,7 @@ export const AdminRoles: React.FC = () => {
                             </table>
                         )}
                     </div>
-                    <div className="p-2 text-[10px] font-bold text-gray-400 bg-gray-50 border-t border-gray-200 uppercase tracking-tighter">
+                    <div className="p-2 text-[10px] font-medium text-gray-400 bg-gray-50 border-t border-gray-200 uppercase tracking-tighter">
                         {roles.length} registros cargados. Haga clic derecho en la lista para acciones.
                     </div>
                 </div>
@@ -356,7 +356,7 @@ export const AdminRoles: React.FC = () => {
                 {!isMobile && (
                     <div className="w-[450px] flex flex-col overflow-hidden bg-[#f0f0f0] border-l border-gray-300 shrink-0">
                         <div className="bg-[#e9e9e9] px-4 py-1.5 border-b border-gray-300 flex items-center justify-between">
-                            <span className="text-[11px] font-bold text-gray-600 uppercase tracking-wider">
+                            <span className="text-[11px] font-medium text-gray-600 uppercase tracking-wider">
                                 {editingRole ? `Editando: ${roleForm.name}` : roleForm.name ? 'Nuevo Rol' : 'Configuración de Permisos'}
                             </span>
                         </div>
@@ -374,8 +374,8 @@ export const AdminRoles: React.FC = () => {
                                 <div className="flex items-center gap-2">
                                     <ShieldCheck size={18} />
                                     <div className="flex flex-col">
-                                        <span className="text-[11px] font-black uppercase tracking-widest leading-none">Permisos</span>
-                                        <span className="text-[10px] opacity-70 font-bold">{editingRole.name}</span>
+                                        <span className="text-[11px] font-semibold uppercase tracking-widest leading-none">Permisos</span>
+                                        <span className="text-[10px] opacity-70 font-medium">{editingRole.name}</span>
                                     </div>
                                 </div>
                                 <button
@@ -428,7 +428,7 @@ export const AdminRoles: React.FC = () => {
                             {can('Eliminar') && (
                             <button
                                 onClick={() => setConfirmDelete(contextMenu.role.id)}
-                                className="w-full text-left px-4 py-2 text-[11px] hover:bg-red-600 hover:text-white flex items-center gap-3 text-red-600 font-bold group transition-colors"
+                                className="w-full text-left px-4 py-2 text-[11px] hover:bg-red-600 hover:text-white flex items-center gap-3 text-red-600 font-medium group transition-colors"
                             >
                                 <Trash2 size={14} className="text-red-500 group-hover:text-white" />
                                 <span>Eliminar Registro</span>
@@ -448,13 +448,13 @@ export const AdminRoles: React.FC = () => {
                             <div className="bg-[#106ebe] px-3 py-1.5 flex items-center justify-between text-white modal-header cursor-default select-none">
                                 <div className="flex items-center gap-2">
                                     <Shield size={16} />
-                                    <span className="text-[11px] font-bold uppercase tracking-wider">Mantenimiento de Roles</span>
+                                    <span className="text-[11px] font-medium uppercase tracking-wider">Mantenimiento de Roles</span>
                                 </div>
                                 <X size={18} className="cursor-pointer hover:bg-white/10 p-0.5" onClick={() => setShowRoleModal(false)} />
                             </div>
                             <div className="p-6 bg-[#fcfdfe]">
                                 <div className="flex items-center gap-4 mb-8">
-                                    <label className="text-[11px] font-bold text-gray-500 w-12 text-right">Rol</label>
+                                    <label className="text-[11px] font-medium text-gray-500 w-12 text-right">Rol</label>
                                     <input
                                         autoFocus
                                         type="text"
@@ -464,14 +464,14 @@ export const AdminRoles: React.FC = () => {
                                     />
                                     <div className="flex items-center gap-2 ml-2">
                                         <input type="checkbox" defaultChecked className="accent-[#106ebe] w-4 h-4" />
-                                        <span className="text-[11px] font-bold text-gray-500">Habilitado</span>
+                                        <span className="text-[11px] font-medium text-gray-500">Habilitado</span>
                                     </div>
                                 </div>
                                 <div className="flex justify-center gap-4">
                                     <WindowsSaveButton onClick={handleSave} loading={isSaving} title="Guardar Rol" />
                                     <button onClick={() => setShowRoleModal(false)} className="bg-gray-100 hover:bg-gray-200 text-gray-700 min-w-[120px] py-1.5 px-4 flex items-center justify-center gap-2 rounded-sm shadow-md transition-all border border-gray-300">
                                         <XCircle size={16} />
-                                        <span className="text-[12px] font-bold uppercase">Cancelar</span>
+                                        <span className="text-[12px] font-medium uppercase">Cancelar</span>
                                     </button>
                                 </div>
                             </div>

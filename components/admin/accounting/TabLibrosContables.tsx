@@ -503,7 +503,7 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
 
             {/* ── Toast ─────────────────────────────────────────────── */}
             {toast && (
-                <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[99999] flex items-center gap-3 px-5 py-2.5 rounded-xl shadow-2xl text-white text-[11px] font-black uppercase tracking-widest transition-all animate-in slide-in-from-top-4
+                <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[99999] flex items-center gap-3 px-5 py-2.5 rounded-xl shadow-2xl text-white text-[11px] font-semibold uppercase tracking-widest transition-all animate-in slide-in-from-top-4
                     ${toast.type==='ok'?'bg-emerald-600':'bg-red-600'}`}>
                     {toast.type==='ok'?<CheckCircle2 size={14}/>:<AlertCircle size={14}/>}
                     {toast.msg}
@@ -513,9 +513,9 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
             {/* ── Barra Superior ─────────────────────────────────────── */}
             <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-3">
-                    <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Periodo:</label>
+                    <label className="text-[10px] font-semibold uppercase text-slate-500 tracking-widest">Periodo:</label>
                     <input type="month" value={month} onChange={e=>setMonth(e.target.value)}
-                        className="border border-gray-300 rounded px-3 py-1.5 text-[11px] font-bold bg-white"/>
+                        className="border border-gray-300 rounded px-3 py-1.5 text-[11px] font-medium bg-white"/>
                     <button onClick={cargarDesdeDB} className="p-1.5 hover:bg-slate-100 rounded text-slate-600">
                         <RefreshCw size={13}/>
                     </button>
@@ -523,7 +523,7 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
                     {dbInfo && (
                         <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1">
                             <Save size={10} className="text-emerald-600"/>
-                            <span className="text-[9px] font-black text-emerald-700 uppercase">{dbInfo.count} asientos en BD</span>
+                            <span className="text-[9px] font-semibold text-emerald-700 uppercase">{dbInfo.count} asientos en BD</span>
                         </div>
                     )}
                 </div>
@@ -531,20 +531,20 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
                 {/* Botones de acción */}
                 <div className="flex items-center gap-2 flex-wrap">
                     <button onClick={generarYGuardar} disabled={saving}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-black uppercase rounded-lg shadow-lg transition-all disabled:opacity-60 active:scale-95">
+                        className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-semibold uppercase rounded-lg shadow-lg transition-all disabled:opacity-60 active:scale-95">
                         {saving ? <Loader2 size={13} className="animate-spin"/> : <Zap size={13}/>}
                         Generar Asientos Automáticos
                     </button>
                     <button onClick={printDiario}
-                        className="flex items-center gap-1 px-3 py-2 bg-blue-700 hover:bg-blue-800 text-white text-[10px] font-black uppercase rounded-lg transition-all">
+                        className="flex items-center gap-1 px-3 py-2 bg-blue-700 hover:bg-blue-800 text-white text-[10px] font-semibold uppercase rounded-lg transition-all">
                         <Printer size={12}/> PDF Diario
                     </button>
                     <button onClick={printMayor}
-                        className="flex items-center gap-1 px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white text-[10px] font-black uppercase rounded-lg transition-all">
+                        className="flex items-center gap-1 px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white text-[10px] font-semibold uppercase rounded-lg transition-all">
                         <Printer size={12}/> PDF Mayor
                     </button>
                     <button onClick={exportBalanzaCSV}
-                        className="flex items-center gap-1 px-3 py-2 border-2 border-slate-300 hover:bg-slate-50 text-slate-700 text-[10px] font-black uppercase rounded-lg transition-all">
+                        className="flex items-center gap-1 px-3 py-2 border-2 border-slate-300 hover:bg-slate-50 text-slate-700 text-[10px] font-semibold uppercase rounded-lg transition-all">
                         <Download size={12}/> Balanza CSV
                     </button>
                 </div>
@@ -554,7 +554,7 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
             <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-fit">
                 {SUB_TABS.map(t=>(
                     <button key={t.id} onClick={()=>setBookTab(t.id)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all
                             ${bookTab===t.id?'bg-white text-slate-900 shadow-sm':'text-slate-400 hover:text-slate-600'}`}>
                         {t.icon}{t.label}
                     </button>
@@ -563,10 +563,10 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
 
             {/* Sin datos */}
             {asientos.length===0 && !loading && (
-                <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 text-[10px] font-bold text-amber-800">
+                <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 text-[10px] font-medium text-amber-800">
                     <AlertCircle size={16} className="shrink-0"/>
                     <div>
-                        <p className="font-black">Sin asientos para este periodo.</p>
+                        <p className="font-semibold">Sin asientos para este periodo.</p>
                         <p className="mt-0.5">Haz clic en <strong>Generar Asientos Automáticos</strong> para leer ventas, compras y planilla del sistema y guardarlos en la base de datos.</p>
                     </div>
                 </div>
@@ -578,10 +578,10 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
             {bookTab==='diario' && (
                 <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                     <div className="bg-[#106ebe] px-4 py-3 flex items-center justify-between">
-                        <span className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+                        <span className="text-[10px] font-semibold text-white uppercase tracking-widest flex items-center gap-2">
                             <BookOpen size={14}/> LIBRO DIARIO — {dayjs(month+'-01').format('MMMM YYYY').toUpperCase()}
                         </span>
-                        <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase ${cuadraDiario?'bg-emerald-500':'bg-red-500'} text-white`}>
+                        <span className={`px-3 py-1 rounded-full text-[8px] font-semibold uppercase ${cuadraDiario?'bg-emerald-500':'bg-red-500'} text-white`}>
                             {cuadraDiario?'✓ CUADRA':'⚠ DESCUADRE'}
                         </span>
                     </div>
@@ -589,26 +589,26 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
                     {/* Filtros */}
                     <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center gap-3 flex-wrap">
                         <Filter size={12} className="text-slate-400"/>
-                        <label className="text-[9px] font-black text-slate-400 uppercase">Filtros:</label>
+                        <label className="text-[9px] font-semibold text-slate-400 uppercase">Filtros:</label>
                         <input type="date" value={filtFecha} onChange={e=>setFiltFecha(e.target.value)}
-                            className="border border-slate-200 rounded px-2 py-1 text-[10px] font-bold bg-white"/>
+                            className="border border-slate-200 rounded px-2 py-1 text-[10px] font-medium bg-white"/>
                         <input type="text" maxLength={4} value={filtCuenta} onChange={e=>setFiltCuenta(e.target.value)}
-                            className="border border-slate-200 rounded px-2 py-1 text-[10px] font-bold bg-white w-20" placeholder="Cuenta"/>
+                            className="border border-slate-200 rounded px-2 py-1 text-[10px] font-medium bg-white w-20" placeholder="Cuenta"/>
                         <select value={filtTipo} onChange={e=>setFiltTipo(e.target.value)}
-                            className="border border-slate-200 rounded px-2 py-1 text-[10px] font-bold bg-white">
+                            className="border border-slate-200 rounded px-2 py-1 text-[10px] font-medium bg-white">
                             <option value="">Todos los tipos</option>
                             {['VENTAS','COMPRAS','PLANILLA','IGSS','IVA','GASTO'].map(t=><option key={t} value={t}>{t}</option>)}
                         </select>
                         {(filtFecha||filtCuenta||filtTipo) && (
                             <button onClick={()=>{setFiltFecha('');setFiltCuenta('');setFiltTipo('');}}
-                                className="text-[9px] font-black text-red-500 uppercase hover:underline">✕ Limpiar</button>
+                                className="text-[9px] font-semibold text-red-500 uppercase hover:underline">✕ Limpiar</button>
                         )}
-                        <span className="ml-auto text-[9px] font-bold text-slate-400">{lineasFiltradas.length} líneas</span>
+                        <span className="ml-auto text-[9px] font-medium text-slate-400">{lineasFiltradas.length} líneas</span>
                     </div>
 
                     <div className="overflow-x-auto max-h-[620px] overflow-y-auto custom-scrollbar">
                         <table className="w-full text-left text-[10px] min-w-[900px]">
-                            <thead className="bg-slate-50 text-[8px] font-black text-slate-500 uppercase tracking-widest sticky top-0 border-b border-slate-200">
+                            <thead className="bg-slate-50 text-[8px] font-semibold text-slate-500 uppercase tracking-widest sticky top-0 border-b border-slate-200">
                                 <tr>
                                     <th className="px-3 py-2 w-8">N°</th>
                                     <th className="px-3 py-2 w-20">Fecha</th>
@@ -630,7 +630,7 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
                                     return (
                                         <React.Fragment key={dia}>
                                             <tr className="bg-slate-100 border-t-2 border-slate-300">
-                                                <td colSpan={9} className="px-3 py-1.5 text-[9px] font-black text-slate-600 uppercase">
+                                                <td colSpan={9} className="px-3 py-1.5 text-[9px] font-semibold text-slate-600 uppercase">
                                                     {dayjs(dia).format('dddd DD [de] MMMM [de] YYYY').toUpperCase()}
                                                 </td>
                                             </tr>
@@ -642,36 +642,36 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
                                                         <td className="px-3 py-1.5 text-slate-400 font-mono text-[8px] text-center">{li}</td>
                                                         <td className="px-3 py-1.5 font-mono text-slate-500">{dayjs(f.fecha).format('DD/MM/YYYY')}</td>
                                                         <td className="px-3 py-1.5">
-                                                            <span className={`px-1.5 py-0.5 rounded text-[6px] font-black uppercase ${TIPO_COLORS[f.tipoAs]||'bg-slate-100 text-slate-600'}`}>{f.tipoAs}</span>
+                                                            <span className={`px-1.5 py-0.5 rounded text-[6px] font-semibold uppercase ${TIPO_COLORS[f.tipoAs]||'bg-slate-100 text-slate-600'}`}>{f.tipoAs}</span>
                                                         </td>
-                                                        <td className={`px-3 py-1.5 font-black font-mono ${eh?'text-slate-500 pl-7':'text-[#106ebe]'}`}>{f.cuenta}</td>
-                                                        <td className={`px-3 py-1.5 font-bold text-slate-800 ${eh?'pl-5':''}`}>{f.nombreCuenta}</td>
+                                                        <td className={`px-3 py-1.5 font-semibold font-mono ${eh?'text-slate-500 pl-7':'text-[#106ebe]'}`}>{f.cuenta}</td>
+                                                        <td className={`px-3 py-1.5 font-medium text-slate-800 ${eh?'pl-5':''}`}>{f.nombreCuenta}</td>
                                                         <td className="px-3 py-1.5 text-slate-400 text-[9px] max-w-[200px] truncate">{f.concepto}</td>
                                                         <td className="px-3 py-1.5 text-right text-slate-500">{f.parcial?fmtQ(f.parcial):'—'}</td>
-                                                        <td className="px-3 py-1.5 text-right font-black text-emerald-700">{f.debe?fmtQ(f.debe):'—'}</td>
-                                                        <td className="px-3 py-1.5 text-right font-black text-red-600">{f.haber?fmtQ(f.haber):'—'}</td>
+                                                        <td className="px-3 py-1.5 text-right font-semibold text-emerald-700">{f.debe?fmtQ(f.debe):'—'}</td>
+                                                        <td className="px-3 py-1.5 text-right font-semibold text-red-600">{f.haber?fmtQ(f.haber):'—'}</td>
                                                     </tr>
                                                 );
                                             })}
                                             <tr className="bg-emerald-50/60 border-b-2 border-emerald-200">
-                                                <td colSpan={6} className="px-3 py-1 text-right text-[8px] font-black text-slate-600 uppercase">Subtotal {dayjs(dia).format('DD/MM')}</td>
+                                                <td colSpan={6} className="px-3 py-1 text-right text-[8px] font-semibold text-slate-600 uppercase">Subtotal {dayjs(dia).format('DD/MM')}</td>
                                                 <td className="px-3 py-1"></td>
-                                                <td className="px-3 py-1 text-right font-black text-emerald-700 text-[9px]">{fmtQ(dD)}</td>
-                                                <td className="px-3 py-1 text-right font-black text-red-600 text-[9px]">{fmtQ(dH)}</td>
+                                                <td className="px-3 py-1 text-right font-semibold text-emerald-700 text-[9px]">{fmtQ(dD)}</td>
+                                                <td className="px-3 py-1 text-right font-semibold text-red-600 text-[9px]">{fmtQ(dH)}</td>
                                             </tr>
                                         </React.Fragment>
                                     );
                                 })}
                             </tbody>
                             <tfoot className="sticky bottom-0">
-                                <tr className="bg-slate-800 text-white text-[9px] font-black">
+                                <tr className="bg-slate-800 text-white text-[9px] font-semibold">
                                     <td colSpan={6} className="px-3 py-2 uppercase tracking-widest">Total Periodo — Debe = Haber</td>
                                     <td></td>
                                     <td className="px-3 py-2 text-right">{fmtQ(totalDebe)}</td>
                                     <td className="px-3 py-2 text-right">{fmtQ(totalHaber)}</td>
                                 </tr>
                                 <tr className={cuadraDiario?'bg-emerald-700':'bg-red-700'}>
-                                    <td colSpan={9} className="px-3 py-1 text-center text-white text-[8px] font-black uppercase">
+                                    <td colSpan={9} className="px-3 py-1 text-center text-white text-[8px] font-semibold uppercase">
                                         {cuadraDiario
                                             ? `✓ CUADRADO — Total Debe ${fmtQ(totalDebe)} = Total Haber ${fmtQ(totalHaber)}`
                                             : `⚠ DESCUADRE — Diferencia de ${fmtQ(Math.abs(totalDebe-totalHaber))}`}
@@ -690,7 +690,7 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                     <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                         <div className="bg-[#106ebe] px-4 py-3">
-                            <span className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+                            <span className="text-[10px] font-semibold text-white uppercase tracking-widest flex items-center gap-2">
                                 <BarChart2 size={14}/> Cuentas Activas
                             </span>
                         </div>
@@ -701,11 +701,11 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
                                     className={`w-full flex items-center justify-between p-3 hover:bg-slate-50 text-left
                                         ${selectedMayor===c.cuenta?'bg-blue-50 border-l-4 border-[#106ebe]':''}`}>
                                     <div>
-                                        <div className="text-[7px] font-black text-slate-400 uppercase">{c.cuenta}</div>
-                                        <div className="text-[10px] font-black text-slate-800">{c.nombre}</div>
+                                        <div className="text-[7px] font-semibold text-slate-400 uppercase">{c.cuenta}</div>
+                                        <div className="text-[10px] font-semibold text-slate-800">{c.nombre}</div>
                                     </div>
                                     <div className="text-right">
-                                        <div className={`text-[9px] font-black ${c.saldo>=0?'text-emerald-700':'text-red-600'}`}>{fmtQ(Math.abs(c.saldo))}</div>
+                                        <div className={`text-[9px] font-semibold ${c.saldo>=0?'text-emerald-700':'text-red-600'}`}>{fmtQ(Math.abs(c.saldo))}</div>
                                         <div className="text-[7px] text-slate-400">{c.saldo>=0?'Deudor':'Acreedor'}</div>
                                     </div>
                                 </button>
@@ -717,32 +717,32 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
                         {mayorSel ? (
                             <>
                                 <div className="border-b-2 border-slate-800 px-5 py-4 bg-slate-50">
-                                    <div className="text-[8px] font-black text-slate-400 uppercase">{EMPRESA.nombre} · NIT {EMPRESA.nit} · {dayjs(month+'-01').format('MMMM YYYY').toUpperCase()}</div>
+                                    <div className="text-[8px] font-semibold text-slate-400 uppercase">{EMPRESA.nombre} · NIT {EMPRESA.nit} · {dayjs(month+'-01').format('MMMM YYYY').toUpperCase()}</div>
                                     <div className="mt-2 flex items-center justify-between">
                                         <div>
-                                            <div className="text-[9px] font-black text-slate-500 uppercase">Cuenta</div>
-                                            <div className="text-[15px] font-black text-slate-900 uppercase">{mayorSel.cuenta} — {mayorSel.nombre}</div>
+                                            <div className="text-[9px] font-semibold text-slate-500 uppercase">Cuenta</div>
+                                            <div className="text-[15px] font-semibold text-slate-900 uppercase">{mayorSel.cuenta} — {mayorSel.nombre}</div>
                                         </div>
                                         <div className="flex gap-6">
                                             <div className="text-center">
-                                                <div className="text-[8px] font-black text-slate-400 uppercase">Total Débitos</div>
-                                                <div className="text-[13px] font-black text-emerald-700">{fmtQ(mayorSel.totalDebe)}</div>
+                                                <div className="text-[8px] font-semibold text-slate-400 uppercase">Total Débitos</div>
+                                                <div className="text-[13px] font-semibold text-emerald-700">{fmtQ(mayorSel.totalDebe)}</div>
                                             </div>
                                             <div className="text-center">
-                                                <div className="text-[8px] font-black text-slate-400 uppercase">Total Créditos</div>
-                                                <div className="text-[13px] font-black text-red-600">{fmtQ(mayorSel.totalHaber)}</div>
+                                                <div className="text-[8px] font-semibold text-slate-400 uppercase">Total Créditos</div>
+                                                <div className="text-[13px] font-semibold text-red-600">{fmtQ(mayorSel.totalHaber)}</div>
                                             </div>
                                             <div className="text-center border-l border-slate-200 pl-6">
-                                                <div className="text-[8px] font-black text-slate-400 uppercase">Saldo Final</div>
-                                                <div className={`text-[15px] font-black ${mayorSel.saldo>=0?'text-slate-900':'text-amber-700'}`}>{fmtQ(Math.abs(mayorSel.saldo))}</div>
-                                                <div className={`text-[8px] font-black uppercase ${mayorSel.saldo>=0?'text-emerald-600':'text-amber-600'}`}>{mayorSel.saldo>=0?'DEUDOR':'ACREEDOR'}</div>
+                                                <div className="text-[8px] font-semibold text-slate-400 uppercase">Saldo Final</div>
+                                                <div className={`text-[15px] font-semibold ${mayorSel.saldo>=0?'text-slate-900':'text-amber-700'}`}>{fmtQ(Math.abs(mayorSel.saldo))}</div>
+                                                <div className={`text-[8px] font-semibold uppercase ${mayorSel.saldo>=0?'text-emerald-600':'text-amber-600'}`}>{mayorSel.saldo>=0?'DEUDOR':'ACREEDOR'}</div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="overflow-x-auto max-h-[500px] overflow-y-auto custom-scrollbar">
                                     <table className="w-full text-left text-[10px]">
-                                        <thead className="bg-slate-800 text-white text-[8px] font-black uppercase sticky top-0">
+                                        <thead className="bg-slate-800 text-white text-[8px] font-semibold uppercase sticky top-0">
                                             <tr>
                                                 <th className="px-4 py-2 w-24">Fecha</th>
                                                 <th className="px-4 py-2 w-16">Referencia</th>
@@ -756,11 +756,11 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
                                             {mayorSel.movimientos.map((m,i)=>(
                                                 <tr key={i} className="hover:bg-slate-50">
                                                     <td className="px-4 py-2.5 font-mono text-slate-500">{dayjs(m.fecha).format('DD/MM/YYYY')}</td>
-                                                    <td className="px-4 py-2.5 font-mono text-[9px] text-[#106ebe] font-black">As.#{m.asiento}</td>
-                                                    <td className="px-4 py-2.5 text-slate-700 font-bold text-[9px] max-w-[260px] truncate">{m.desc}</td>
-                                                    <td className="px-4 py-2.5 text-right font-black text-emerald-700">{m.debe?fmtQ(m.debe):'—'}</td>
-                                                    <td className="px-4 py-2.5 text-right font-black text-red-600">{m.haber?fmtQ(m.haber):'—'}</td>
-                                                    <td className={`px-4 py-2.5 text-right font-black ${m.saldo>=0?'text-slate-800':'text-amber-700'}`}>
+                                                    <td className="px-4 py-2.5 font-mono text-[9px] text-[#106ebe] font-semibold">As.#{m.asiento}</td>
+                                                    <td className="px-4 py-2.5 text-slate-700 font-medium text-[9px] max-w-[260px] truncate">{m.desc}</td>
+                                                    <td className="px-4 py-2.5 text-right font-semibold text-emerald-700">{m.debe?fmtQ(m.debe):'—'}</td>
+                                                    <td className="px-4 py-2.5 text-right font-semibold text-red-600">{m.haber?fmtQ(m.haber):'—'}</td>
+                                                    <td className={`px-4 py-2.5 text-right font-semibold ${m.saldo>=0?'text-slate-800':'text-amber-700'}`}>
                                                         {fmtQ(Math.abs(m.saldo))} <span className="text-[8px] opacity-50">{m.saldo>=0?'D':'A'}</span>
                                                     </td>
                                                 </tr>
@@ -768,10 +768,10 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
                                         </tbody>
                                         <tfoot className="bg-slate-100 border-t-2 border-slate-800">
                                             <tr>
-                                                <td colSpan={3} className="px-4 py-2.5 text-[9px] font-black uppercase text-slate-600 text-right">SALDO FINAL</td>
-                                                <td className="px-4 py-2.5 text-right font-black text-emerald-700">{fmtQ(mayorSel.totalDebe)}</td>
-                                                <td className="px-4 py-2.5 text-right font-black text-red-600">{fmtQ(mayorSel.totalHaber)}</td>
-                                                <td className={`px-4 py-2.5 text-right text-[12px] font-black ${mayorSel.saldo>=0?'text-slate-900':'text-amber-700'}`}>
+                                                <td colSpan={3} className="px-4 py-2.5 text-[9px] font-semibold uppercase text-slate-600 text-right">SALDO FINAL</td>
+                                                <td className="px-4 py-2.5 text-right font-semibold text-emerald-700">{fmtQ(mayorSel.totalDebe)}</td>
+                                                <td className="px-4 py-2.5 text-right font-semibold text-red-600">{fmtQ(mayorSel.totalHaber)}</td>
+                                                <td className={`px-4 py-2.5 text-right text-[12px] font-semibold ${mayorSel.saldo>=0?'text-slate-900':'text-amber-700'}`}>
                                                     {fmtQ(Math.abs(mayorSel.saldo))} {mayorSel.saldo>=0?'D':'A'}
                                                 </td>
                                             </tr>
@@ -782,7 +782,7 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
                         ) : (
                             <div className="flex flex-col items-center justify-center h-80 text-center opacity-30">
                                 <BarChart2 size={56} className="text-slate-200 mb-4"/>
-                                <p className="text-[11px] font-black uppercase tracking-widest text-slate-400">Selecciona una cuenta del panel izquierdo</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Selecciona una cuenta del panel izquierdo</p>
                             </div>
                         )}
                     </div>
@@ -797,10 +797,10 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
                     <div className={`flex items-center gap-4 px-6 py-4 rounded-xl border-2 ${cuadrado?'bg-emerald-50 border-emerald-500 text-emerald-800':'bg-red-50 border-red-500 text-red-800'}`}>
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-xl shadow-lg shrink-0 ${cuadrado?'bg-emerald-500':'bg-red-500'}`}>●</div>
                         <div>
-                            <p className="text-[13px] font-black uppercase tracking-wide">
+                            <p className="text-[13px] font-semibold uppercase tracking-wide">
                                 {cuadrado ? '● VERDE — CUADRE CONTABLE CORRECTO' : '● ROJO — DESCUADRE CONTABLE DETECTADO'}
                             </p>
-                            <p className="text-[10px] font-bold mt-0.5">
+                            <p className="text-[10px] font-medium mt-0.5">
                                 {cuadrado
                                     ? `Saldo Deudor ${fmtQ(sumDeudor)} = Saldo Acreedor ${fmtQ(sumAcreedor)} — Partida doble OK`
                                     : `Diferencia de ${fmtQ(Math.abs(sumDeudor-sumAcreedor))} — Revisar asientos descuadrados`}
@@ -810,14 +810,14 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
 
                     <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                         <div className="bg-[#106ebe] px-4 py-3 flex items-center justify-between">
-                            <span className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+                            <span className="text-[10px] font-semibold text-white uppercase tracking-widest flex items-center gap-2">
                                 <Scale size={14}/> BALANZA DE COMPROBACIÓN — {dayjs(month+'-01').format('MMMM YYYY').toUpperCase()}
                             </span>
-                            <span className="text-white/60 text-[9px] font-bold">NIT {EMPRESA.nit}</span>
+                            <span className="text-white/60 text-[9px] font-medium">NIT {EMPRESA.nit}</span>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left text-[10px]">
-                                <thead className="bg-slate-800 text-white text-[8px] font-black uppercase tracking-widest">
+                                <thead className="bg-slate-800 text-white text-[8px] font-semibold uppercase tracking-widest">
                                     <tr>
                                         <th className="px-4 py-2 w-16">Código</th>
                                         <th className="px-4 py-2">Nombre de Cuenta</th>
@@ -830,27 +830,27 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
                                     {balanza.length===0 && <tr><td colSpan={5} className="px-4 py-10 text-center text-slate-400">Sin datos para este periodo</td></tr>}
                                     {balanza.map((r,i)=>(
                                         <tr key={r.cuenta} className={`hover:bg-slate-50 ${i%2===0?'bg-white':'bg-slate-50/30'}`}>
-                                            <td className="px-4 py-2.5 font-mono font-black text-[#106ebe] text-[11px]">{r.cuenta}</td>
-                                            <td className="px-4 py-2.5 font-bold text-slate-800">{r.nombre}</td>
+                                            <td className="px-4 py-2.5 font-mono font-semibold text-[#106ebe] text-[11px]">{r.cuenta}</td>
+                                            <td className="px-4 py-2.5 font-medium text-slate-800">{r.nombre}</td>
                                             <td className="px-4 py-2.5">
-                                                <span className={`px-2 py-0.5 rounded text-[7px] font-black uppercase
+                                                <span className={`px-2 py-0.5 rounded text-[7px] font-semibold uppercase
                                                     ${r.tipo==='ACTIVO'?'bg-emerald-100 text-emerald-800':r.tipo==='PASIVO'?'bg-red-100 text-red-800':
                                                       r.tipo==='PATRIMONIO'?'bg-purple-100 text-purple-800':r.tipo==='INGRESO'?'bg-blue-100 text-blue-800':
                                                       r.tipo==='COSTO'?'bg-orange-100 text-orange-800':'bg-slate-100 text-slate-600'}`}>{r.tipo}</span>
                                             </td>
-                                            <td className="px-4 py-2.5 text-right font-black text-emerald-700 bg-emerald-50/20">{r.saldoDeudor>0?fmtQ(r.saldoDeudor):'—'}</td>
-                                            <td className="px-4 py-2.5 text-right font-black text-red-600 bg-red-50/20">{r.saldoAcreedor>0?fmtQ(r.saldoAcreedor):'—'}</td>
+                                            <td className="px-4 py-2.5 text-right font-semibold text-emerald-700 bg-emerald-50/20">{r.saldoDeudor>0?fmtQ(r.saldoDeudor):'—'}</td>
+                                            <td className="px-4 py-2.5 text-right font-semibold text-red-600 bg-red-50/20">{r.saldoAcreedor>0?fmtQ(r.saldoAcreedor):'—'}</td>
                                         </tr>
                                     ))}
                                 </tbody>
                                 <tfoot>
-                                    <tr className="bg-slate-800 text-white font-black">
+                                    <tr className="bg-slate-800 text-white font-semibold">
                                         <td colSpan={3} className="px-4 py-3 text-[9px] uppercase tracking-widest">TOTALES</td>
                                         <td className="px-4 py-3 text-right text-[12px] text-emerald-400">{fmtQ(sumDeudor)}</td>
                                         <td className="px-4 py-3 text-right text-[12px] text-red-400">{fmtQ(sumAcreedor)}</td>
                                     </tr>
                                     <tr className={cuadrado?'bg-emerald-700':'bg-red-700'}>
-                                        <td colSpan={5} className="px-4 py-2 text-center text-white text-[9px] font-black uppercase tracking-widest">
+                                        <td colSpan={5} className="px-4 py-2 text-center text-white text-[9px] font-semibold uppercase tracking-widest">
                                             {cuadrado
                                                 ? `● VERDE — Saldo Deudor ${fmtQ(sumDeudor)} = Saldo Acreedor ${fmtQ(sumAcreedor)} — ✓ Cuadre correcto`
                                                 : `● ROJO — Diferencia ${fmtQ(Math.abs(sumDeudor-sumAcreedor))} — Revisar asientos`}
@@ -867,8 +867,8 @@ export const TabLibrosContables: React.FC<{ accentColor: string }> = () => {
                                 const cm: Record<string,string>={ACTIVO:'border-emerald-300 bg-emerald-50',PASIVO:'border-red-300 bg-red-50',PATRIMONIO:'border-purple-300 bg-purple-50',INGRESO:'border-blue-300 bg-blue-50',COSTO:'border-orange-300 bg-orange-50',GASTO:'border-slate-200 bg-slate-50'};
                                 return (
                                     <div key={tipo} className={`p-3 rounded-xl border-2 ${cm[tipo]}`}>
-                                        <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">{tipo}</p>
-                                        <p className="text-[13px] font-black text-slate-900">{fmtQ(Math.abs(total))}</p>
+                                        <p className="text-[8px] font-semibold text-slate-500 uppercase tracking-widest mb-1">{tipo}</p>
+                                        <p className="text-[13px] font-semibold text-slate-900">{fmtQ(Math.abs(total))}</p>
                                         <p className="text-[8px] text-slate-400">{rows.length} cuenta(s)</p>
                                     </div>
                                 );

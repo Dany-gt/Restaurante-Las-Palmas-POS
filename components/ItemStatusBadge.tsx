@@ -17,7 +17,7 @@ export const ItemStatusBadge: React.FC<ItemStatusBadgeProps> = ({ item, serverOf
 
     if (item.is_offline) {
         return (
-            <span className="flex items-center gap-1 bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded font-black uppercase tracking-tighter text-[10px] animate-pulse">
+            <span className="flex items-center gap-1 bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded font-semibold uppercase tracking-tighter text-[10px] animate-pulse">
                 <Clock size={12} /> SINCRONIZANDO... (Local)
             </span>
         );
@@ -89,7 +89,7 @@ export const ItemStatusBadge: React.FC<ItemStatusBadgeProps> = ({ item, serverOf
         }
 
         return (
-            <span className="flex items-center gap-1 bg-emerald-500/10 text-emerald-500 px-1.5 py-0.5 rounded font-black uppercase tracking-tighter text-[10px] animate-pulse">
+            <span className="flex items-center gap-1 bg-emerald-500/10 text-emerald-500 px-1.5 py-0.5 rounded font-semibold uppercase tracking-tighter text-[10px] animate-pulse">
                 <CheckCircle2 size={12} /> ¡LISTO!{durationStr}
             </span>
         );
@@ -97,7 +97,7 @@ export const ItemStatusBadge: React.FC<ItemStatusBadgeProps> = ({ item, serverOf
 
     if (item.status === 'preparing') {
         return (
-            <span className="flex items-center gap-1 bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded font-black uppercase tracking-tighter text-[10px]">
+            <span className="flex items-center gap-1 bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded font-semibold uppercase tracking-tighter text-[10px]">
                 <Flame size={12} className="animate-pulse" /> EN PREPARACIÓN ({formatTime(elapsedSeconds)})
             </span>
         );
@@ -105,7 +105,7 @@ export const ItemStatusBadge: React.FC<ItemStatusBadgeProps> = ({ item, serverOf
 
     // Default: Pendiente
     return (
-        <span className="flex items-center gap-1 bg-gray-700/50 text-gray-400 px-1.5 py-0.5 rounded font-black uppercase tracking-tighter text-[10px]">
+        <span className="flex items-center gap-1 bg-gray-700/50 text-gray-400 px-1.5 py-0.5 rounded font-semibold uppercase tracking-tighter text-[10px]">
             <Clock size={12} /> EN ESPERA ({formatTime(elapsedSeconds)})
         </span>
     );

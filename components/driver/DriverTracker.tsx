@@ -103,10 +103,10 @@ export const DriverTracker: React.FC = () => {
                 <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center text-red-500 mb-6">
                     <AlertTriangle size={40} />
                 </div>
-                <h2 className="text-2xl font-bold mb-2">Error de Rastreo</h2>
+                <h2 className="text-2xl font-medium mb-2">Error de Rastreo</h2>
                 <p className="text-gray-400">{errorMsg}</p>
                 {driverId && (
-                    <button onClick={() => window.location.reload()} className="mt-8 px-6 py-3 bg-white/10 rounded-xl font-bold">
+                    <button onClick={() => window.location.reload()} className="mt-8 px-6 py-3 bg-white/10 rounded-xl font-medium">
                         Reintentar
                     </button>
                 )}
@@ -117,8 +117,8 @@ export const DriverTracker: React.FC = () => {
     return (
         <div className="min-h-screen bg-[#111] text-white flex flex-col items-center pt-20 px-6">
             <div className="mb-10 text-center">
-                <h1 className="text-sm font-bold tracking-[0.3em] uppercase text-gray-500 mb-2">LAS PALMAS LOGISTICS</h1>
-                <h2 className="text-3xl font-black italic uppercase text-indigo-400">{driverName || 'Conductor'}</h2>
+                <h1 className="text-sm font-medium tracking-[0.3em] uppercase text-gray-500 mb-2">LAS PALMAS LOGISTICS</h1>
+                <h2 className="text-3xl font-semibold italic uppercase text-indigo-400">{driverName || 'Conductor'}</h2>
             </div>
 
             <div className={`w-40 h-40 rounded-full flex items-center justify-center mb-10 transition-all duration-500 ${status === 'TRACKING' ? 'bg-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.3)]' : 'bg-gray-800'}`}>
@@ -135,14 +135,14 @@ export const DriverTracker: React.FC = () => {
             {status === 'IDLE' ? (
                 <button
                     onClick={startTracking}
-                    className="w-full max-w-xs py-5 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-black uppercase tracking-widest shadow-xl transition-all active:scale-95 text-sm"
+                    className="w-full max-w-xs py-5 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-semibold uppercase tracking-widest shadow-xl transition-all active:scale-95 text-sm"
                 >
                     Iniciar Turno / Rastreo
                 </button>
             ) : (
                 <div className="w-full max-w-xs flex flex-col gap-4">
                     <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl text-center">
-                        <p className="text-emerald-400 font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                        <p className="text-emerald-400 font-medium text-sm uppercase tracking-wider flex items-center justify-center gap-2">
                             <CheckCircle size={16} /> Rastreando Activo
                         </p>
                         {lastUpdate && (
@@ -154,7 +154,7 @@ export const DriverTracker: React.FC = () => {
 
                     <button
                         onClick={stopTracking}
-                        className="w-full py-5 bg-gray-800 hover:bg-gray-700 rounded-2xl font-black uppercase tracking-widest shadow-lg transition-all active:scale-95 text-sm text-gray-400"
+                        className="w-full py-5 bg-gray-800 hover:bg-gray-700 rounded-2xl font-semibold uppercase tracking-widest shadow-lg transition-all active:scale-95 text-sm text-gray-400"
                     >
                         Detener Rastreo
                     </button>

@@ -160,18 +160,18 @@ export const OrganizationsAdmin: React.FC = () => {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                 <div>
-                    <h1 className="text-[14px] font-black text-slate-800 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <h1 className="text-[14px] font-semibold text-slate-800 uppercase tracking-[0.2em] flex items-center gap-2">
                         <Building className="text-[#106ebe]" size={18} />
                         Gestión de Organizaciones
                     </h1>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1 ml-7">Administración Multi-Empresa & Grupos</p>
+                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest mt-1 ml-7">Administración Multi-Empresa & Grupos</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="relative">
                         <input
                             type="text"
                             placeholder="Buscar organización..."
-                            className="bg-slate-100 border-none text-[11px] font-bold px-4 py-2 pl-9 rounded-lg w-64 focus:ring-2 focus:ring-[#106ebe] transition-all"
+                            className="bg-slate-100 border-none text-[11px] font-medium px-4 py-2 pl-9 rounded-lg w-64 focus:ring-2 focus:ring-[#106ebe] transition-all"
                         />
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                     </div>
@@ -191,10 +191,10 @@ export const OrganizationsAdmin: React.FC = () => {
                     <table className="w-full text-left border-collapse">
                         <thead className="sticky top-0 z-10 bg-[#f0f0f0] border-b border-gray-300">
                             <tr>
-                                <th className="py-2 px-4 text-[10px] font-bold text-slate-800 tracking-tight uppercase">#</th>
-                                <th className="py-2 px-4 text-[10px] font-bold text-slate-800 tracking-tight uppercase">Nombre de la Empresa</th>
-                                <th className="py-2 px-4 text-[10px] font-bold text-slate-800 tracking-tight uppercase text-center">Fecha Registro</th>
-                                <th className="py-2 px-4 text-[10px] font-bold text-slate-800 tracking-tight uppercase text-center">Estado de Pago</th>
+                                <th className="py-2 px-4 text-[10px] font-medium text-slate-800 tracking-tight uppercase">#</th>
+                                <th className="py-2 px-4 text-[10px] font-medium text-slate-800 tracking-tight uppercase">Nombre de la Empresa</th>
+                                <th className="py-2 px-4 text-[10px] font-medium text-slate-800 tracking-tight uppercase text-center">Fecha Registro</th>
+                                <th className="py-2 px-4 text-[10px] font-medium text-slate-800 tracking-tight uppercase text-center">Estado de Pago</th>
                                 <th className="w-10"></th>
                             </tr>
                         </thead>
@@ -219,15 +219,15 @@ export const OrganizationsAdmin: React.FC = () => {
                                                 <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-[#106ebe] group-hover:scale-110 transition-transform">
                                                     <Building size={14} />
                                                 </div>
-                                                <span className="text-[11px] font-black text-slate-700 uppercase tracking-tight">{org.name}</span>
+                                                <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-tight">{org.name}</span>
                                             </div>
                                         </td>
-                                        <td className="py-2 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">
+                                        <td className="py-2 px-4 text-[10px] font-medium text-slate-400 uppercase tracking-widest text-center">
                                             {new Date(org.created_at).toLocaleDateString()}
                                         </td>
                                         <td className="py-2 px-4 text-center">
                                             <div className="flex flex-col items-center gap-1">
-                                                <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-sm border border-transparent transition-all ${(org.subscription_status || 'active') === 'active'
+                                                <span className={`text-[9px] font-semibold uppercase px-2 py-0.5 rounded-sm border border-transparent transition-all ${(org.subscription_status || 'active') === 'active'
                                                     ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
                                                     : 'bg-red-50 text-red-600 border-red-100 animate-pulse'
                                                     }`}>
@@ -252,7 +252,7 @@ export const OrganizationsAdmin: React.FC = () => {
                             )}
                             {organizations.length === 0 && !loading && (
                                 <tr>
-                                    <td colSpan={4} className="py-20 text-center text-slate-300 font-bold uppercase tracking-widest">No hay organizaciones registradas</td>
+                                    <td colSpan={4} className="py-20 text-center text-slate-300 font-medium uppercase tracking-widest">No hay organizaciones registradas</td>
                                 </tr>
                             )}
                         </tbody>
@@ -260,7 +260,7 @@ export const OrganizationsAdmin: React.FC = () => {
                 </div>
 
                 {/* Status Bar Section Table */}
-                <div className="h-7 bg-[#f0f0f0] border-t border-gray-300 flex items-center justify-between px-4 text-[9px] font-bold text-slate-500 shrink-0">
+                <div className="h-7 bg-[#f0f0f0] border-t border-gray-300 flex items-center justify-between px-4 text-[9px] font-medium text-slate-500 shrink-0">
                     <div className="flex items-center gap-4">
                         <span className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-blue-500" /> TOTAL: {organizations.length} EMPRESAS</span>
                         <div className="w-px h-3 bg-gray-300" />
@@ -280,7 +280,7 @@ export const OrganizationsAdmin: React.FC = () => {
                         style={{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }}
                     >
                         <div className="p-2 px-3 border-b border-gray-100 bg-[#106ebe] text-white flex items-center justify-between">
-                            <span className="text-[9px] font-black uppercase tracking-[0.2em] block opacity-80">Menú de Gestión</span>
+                            <span className="text-[9px] font-semibold uppercase tracking-[0.2em] block opacity-80">Menú de Gestión</span>
                         </div>
                         <div className="p-1 bg-white">
                             <button
@@ -290,7 +290,7 @@ export const OrganizationsAdmin: React.FC = () => {
                                     setNewOrgName('');
                                     setShowModal(true);
                                 }}
-                                className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-slate-700 hover:bg-slate-100 transition-all group rounded-sm mb-0.5"
+                                className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-medium text-slate-700 hover:bg-slate-100 transition-all group rounded-sm mb-0.5"
                             >
                                 <Plus size={16} className="text-emerald-600" />
                                 <span className="uppercase tracking-tight underline-offset-4 group-hover:underline">Crear Nueva Empresa</span>
@@ -304,7 +304,7 @@ export const OrganizationsAdmin: React.FC = () => {
                                             setContextMenu({ ...contextMenu, visible: false });
                                             handleEdit(contextMenu.org);
                                         }}
-                                        className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all group rounded-sm mb-0.5"
+                                        className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-medium text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all group rounded-sm mb-0.5"
                                     >
                                         <Edit3 size={16} className="text-[#106ebe] group-hover:text-white shrink-0" />
                                         <span className="uppercase tracking-tight">Editar Propiedades / Pago</span>
@@ -314,7 +314,7 @@ export const OrganizationsAdmin: React.FC = () => {
                                             setContextMenu({ ...contextMenu, visible: false });
                                             handleManageBranches(contextMenu.org);
                                         }}
-                                        className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-slate-700 hover:bg-slate-100 transition-all group rounded-sm mb-0.5"
+                                        className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-medium text-slate-700 hover:bg-slate-100 transition-all group rounded-sm mb-0.5"
                                     >
                                         <MapPin size={16} className="text-indigo-600 shrink-0" />
                                         <span className="uppercase tracking-tight">Gestionar Sucursales</span>
@@ -325,7 +325,7 @@ export const OrganizationsAdmin: React.FC = () => {
                                             setContextMenu({ ...contextMenu, visible: false });
                                             handleDeactivate(contextMenu.org);
                                         }}
-                                        className="w-full flex items-center gap-3 px-3 py-2 text-[11px] font-bold text-red-600 hover:bg-red-50 transition-all group rounded-sm mb-0.5"
+                                        className="w-full flex items-center gap-3 px-3 py-2 text-[11px] font-medium text-red-600 hover:bg-red-50 transition-all group rounded-sm mb-0.5"
                                     >
                                         <Power size={16} />
                                         <span className="uppercase">{contextMenu.org.status === 'active' ? 'Suspender Temporalmente' : 'Reactivar Empresa'}</span>
@@ -347,7 +347,7 @@ export const OrganizationsAdmin: React.FC = () => {
                             <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
                                 <div className="flex items-center gap-2">
                                     <Building size={14} className="text-white" />
-                                    <span className="text-white text-[11px] font-bold tracking-wide uppercase">{editingOrg ? 'Propiedades de Empresa' : 'Alta de Nueva Empresa'}</span>
+                                    <span className="text-white text-[11px] font-medium tracking-wide uppercase">{editingOrg ? 'Propiedades de Empresa' : 'Alta de Nueva Empresa'}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <WindowsSaveButton onClick={handleSave} loading={isSaving} variant="minimal" title="Confirmar" />
@@ -365,18 +365,18 @@ export const OrganizationsAdmin: React.FC = () => {
                                             <CheckCircle size={32} />
                                         </div>
                                         <div>
-                                            <h3 className="text-[14px] font-black text-slate-800 uppercase tracking-tight">¡Empresa Registrada!</h3>
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Proporciona este token al instalador:</p>
+                                            <h3 className="text-[14px] font-semibold text-slate-800 uppercase tracking-tight">¡Empresa Registrada!</h3>
+                                            <p className="text-[10px] text-slate-400 font-medium uppercase mt-1">Proporciona este token al instalador:</p>
                                         </div>
 
                                         <div className="w-full bg-white border-2 border-dashed border-emerald-200 p-4 rounded-xl flex flex-col items-center gap-2 select-text group relative">
-                                            <span className="text-[24px] font-mono font-black text-[#106ebe] tracking-[0.2em]">{generatedToken}</span>
+                                            <span className="text-[24px] font-mono font-semibold text-[#106ebe] tracking-[0.2em]">{generatedToken}</span>
                                             <button
                                                 onClick={() => {
                                                     navigator.clipboard.writeText(generatedToken);
                                                     notify.success('Token copiado al portapapeles');
                                                 }}
-                                                className="text-[9px] font-bold text-blue-500 hover:underline uppercase flex items-center gap-1"
+                                                className="text-[9px] font-medium text-blue-500 hover:underline uppercase flex items-center gap-1"
                                             >
                                                 Copiar Código de Licencia
                                             </button>
@@ -387,7 +387,7 @@ export const OrganizationsAdmin: React.FC = () => {
                                                 setShowModal(false);
                                                 setGeneratedToken(null);
                                             }}
-                                            className="w-full h-10 bg-[#106ebe] text-white text-[11px] font-black uppercase rounded-lg hover:bg-[#106ebe] transition-all shadow-lg"
+                                            className="w-full h-10 bg-[#106ebe] text-white text-[11px] font-semibold uppercase rounded-lg hover:bg-[#106ebe] transition-all shadow-lg"
                                         >
                                             Entendido y Cerrar
                                         </button>
@@ -395,13 +395,13 @@ export const OrganizationsAdmin: React.FC = () => {
                                 ) : (
                                     <>
                                         <div className="flex flex-col gap-1">
-                                            <label className="text-[10px] font-bold text-slate-800 uppercase tracking-tight">Nombre Comercial / Organización</label>
+                                            <label className="text-[10px] font-medium text-slate-800 uppercase tracking-tight">Nombre Comercial / Organización</label>
                                             <div className="relative group">
                                                 <input
                                                     autoFocus
                                                     value={newOrgName}
                                                     onChange={e => setNewOrgName(e.target.value)}
-                                                    className="w-full bg-white border border-gray-400 text-[11px] font-bold px-3 py-1.5 focus:border-[#106ebe] shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] outline-none uppercase transition-all"
+                                                    className="w-full bg-white border border-gray-400 text-[11px] font-medium px-3 py-1.5 focus:border-[#106ebe] shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] outline-none uppercase transition-all"
                                                     placeholder="EJ. RESTAURANTE LAS PALMAS MATRIZ"
                                                 />
                                             </div>
@@ -411,7 +411,7 @@ export const OrganizationsAdmin: React.FC = () => {
                                             <div className="mt-4 p-3 bg-slate-50 border border-gray-300 rounded-lg">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <CreditCard size={14} className="text-[#106ebe]" />
-                                                    <label className="text-[10px] font-black text-[#106ebe] uppercase tracking-widest">Estado Contable / Suscripción</label>
+                                                    <label className="text-[10px] font-semibold text-[#106ebe] uppercase tracking-widest">Estado Contable / Suscripción</label>
                                                 </div>
                                                 <select
                                                     value={editingOrg.subscription_status || 'active'}
@@ -429,7 +429,7 @@ export const OrganizationsAdmin: React.FC = () => {
                                                             fetchOrgs();
                                                         }
                                                     }}
-                                                    className={`w-full text-[11px] font-black uppercase px-3 py-2 border rounded-md shadow-sm focus:outline-none transition-all cursor-pointer ${(editingOrg.subscription_status || 'active') === 'active'
+                                                    className={`w-full text-[11px] font-semibold uppercase px-3 py-2 border rounded-md shadow-sm focus:outline-none transition-all cursor-pointer ${(editingOrg.subscription_status || 'active') === 'active'
                                                         ? 'bg-emerald-50 border-emerald-500/30 text-emerald-700'
                                                         : 'bg-red-50 border-red-500/30 text-red-700'
                                                         }`}
@@ -438,7 +438,7 @@ export const OrganizationsAdmin: React.FC = () => {
                                                     <option value="suspended">✗ SUSPENDIDO - FALTA DE PAGO</option>
                                                     <option value="past_due">⚠ PAGO ATRASADO - AVISO</option>
                                                 </select>
-                                                <p className="text-[8px] text-slate-400 mt-2 font-bold uppercase tracking-tighter">
+                                                <p className="text-[8px] text-slate-400 mt-2 font-medium uppercase tracking-tighter">
                                                     Nota: Si el estado no es "ACTIVO", el sistema se bloqueará para todos los dispositivos de esta empresa.
                                                 </p>
                                             </div>
@@ -448,24 +448,24 @@ export const OrganizationsAdmin: React.FC = () => {
                                             <div className="mt-2 pt-4 border-t border-gray-300 space-y-4">
                                                 <div className="flex items-center gap-2 text-[#106ebe] mb-1">
                                                     <User size={14} strokeWidth={2.5} />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest underline decoration-blue-200">Credenciales del Administrador</span>
+                                                    <span className="text-[10px] font-semibold uppercase tracking-widest underline decoration-blue-200">Credenciales del Administrador</span>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-3">
                                                     <div className="flex flex-col gap-1">
-                                                        <label className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">Nombre del Contacto</label>
+                                                        <label className="text-[10px] font-medium text-slate-600 uppercase tracking-tight">Nombre del Contacto</label>
                                                         <input
                                                             value={newAdminName}
                                                             onChange={e => setNewAdminName(e.target.value)}
-                                                            className="w-full bg-white border border-gray-400 text-[11px] font-bold px-3 py-1.5 focus:border-[#106ebe] shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] outline-none uppercase"
+                                                            className="w-full bg-white border border-gray-400 text-[11px] font-medium px-3 py-1.5 focus:border-[#106ebe] shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] outline-none uppercase"
                                                             placeholder="JUAN PÉREZ"
                                                         />
                                                     </div>
                                                     <div className="flex flex-col gap-1">
-                                                        <label className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">Email Administrador</label>
+                                                        <label className="text-[10px] font-medium text-slate-600 uppercase tracking-tight">Email Administrador</label>
                                                         <input
                                                             value={newAdminEmail}
                                                             onChange={e => setNewAdminEmail(e.target.value.toLowerCase())}
-                                                            className="w-full bg-white border border-gray-400 text-[11px] font-bold px-3 py-1.5 focus:border-[#106ebe] shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] outline-none"
+                                                            className="w-full bg-white border border-gray-400 text-[11px] font-medium px-3 py-1.5 focus:border-[#106ebe] shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] outline-none"
                                                             placeholder="admin@sucursal.com"
                                                         />
                                                     </div>
@@ -481,7 +481,7 @@ export const OrganizationsAdmin: React.FC = () => {
                             </div>
 
                             {/* Footer / Info */}
-                            <div className="bg-[#e1e1e1] px-4 py-2 flex items-center justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                            <div className="bg-[#e1e1e1] px-4 py-2 flex items-center justify-between text-[9px] font-medium text-slate-400 uppercase tracking-widest">
                                 <span>{isSaving ? 'Guardando en la nube...' : 'Certificado por Antigravity v4.2'}</span>
                                 <div className="flex items-center gap-3">
                                     <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Multi-SaaS</span>
@@ -503,7 +503,7 @@ export const OrganizationsAdmin: React.FC = () => {
                             <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
                                 <div className="flex items-center gap-2">
                                     <ListFilter size={14} className="text-white" />
-                                    <span className="text-white text-[11px] font-bold tracking-wide uppercase">Sucursales del Grupo: {viewingBranchesOrg.name}</span>
+                                    <span className="text-white text-[11px] font-medium tracking-wide uppercase">Sucursales del Grupo: {viewingBranchesOrg.name}</span>
                                 </div>
                                 <button onClick={() => setViewingBranchesOrg(null)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white transition-all ml-1" title="Cerrar">
                                     <X size={18} strokeWidth={2.5} />
@@ -517,7 +517,7 @@ export const OrganizationsAdmin: React.FC = () => {
                                 ) : (
                                     <div className="grid grid-cols-1 gap-2">
                                         {orgBranches.length === 0 ? (
-                                            <div className="bg-white p-10 border border-gray-300 text-center text-slate-400 font-bold uppercase tracking-widest text-[9px]">
+                                            <div className="bg-white p-10 border border-gray-300 text-center text-slate-400 font-medium uppercase tracking-widest text-[9px]">
                                                 No hay registros vinculados
                                             </div>
                                         ) : (
@@ -528,9 +528,9 @@ export const OrganizationsAdmin: React.FC = () => {
                                                             <MapIcon size={16} />
                                                         </div>
                                                         <div>
-                                                            <p className="text-[11px] font-bold text-slate-800 uppercase tracking-tight">{branch.name}</p>
+                                                            <p className="text-[11px] font-medium text-slate-800 uppercase tracking-tight">{branch.name}</p>
                                                             <div className="flex items-center gap-2 mt-0.5">
-                                                                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none">{branch.location || 'UBICACIÓN NO DEFINIDA'}</p>
+                                                                <p className="text-[9px] text-slate-400 font-medium uppercase tracking-widest leading-none">{branch.location || 'UBICACIÓN NO DEFINIDA'}</p>
                                                                 <div className="w-px h-2 bg-gray-200" />
                                                                 <div
                                                                     onClick={() => {
@@ -539,7 +539,7 @@ export const OrganizationsAdmin: React.FC = () => {
                                                                             notify.success(`Token para "${branch.name}" copiado.`);
                                                                         }
                                                                     }}
-                                                                    className="flex items-center gap-1 text-[9px] font-black text-blue-600 bg-blue-100/50 px-1.5 py-0.5 border border-blue-200 rounded-sm hover:bg-[#106ebe] hover:text-white cursor-pointer hover:shadow-md transition-all active:scale-95 group/token"
+                                                                    className="flex items-center gap-1 text-[9px] font-semibold text-blue-600 bg-blue-100/50 px-1.5 py-0.5 border border-blue-200 rounded-sm hover:bg-[#106ebe] hover:text-white cursor-pointer hover:shadow-md transition-all active:scale-95 group/token"
                                                                     title="Clic para copiar token"
                                                                 >
                                                                     <Baseline size={8} />
@@ -550,7 +550,7 @@ export const OrganizationsAdmin: React.FC = () => {
                                                     </div>
                                                     <div className="flex items-center gap-3">
                                                         {branch.is_main && (
-                                                            <div className="flex items-center gap-1 text-[8px] font-black text-[#106ebe] bg-blue-50 px-1.5 py-0.5 border border-blue-200 uppercase">
+                                                            <div className="flex items-center gap-1 text-[8px] font-semibold text-[#106ebe] bg-blue-50 px-1.5 py-0.5 border border-blue-200 uppercase">
                                                                 <CheckCircle size={8} /> Matriz
                                                             </div>
                                                         )}
@@ -564,7 +564,7 @@ export const OrganizationsAdmin: React.FC = () => {
                             </div>
 
                             {/* Footer Status */}
-                            <div className="bg-[#e1e1e1] px-4 h-6 flex items-center justify-between text-[9px] font-bold text-slate-500 border-t border-gray-300">
+                            <div className="bg-[#e1e1e1] px-4 h-6 flex items-center justify-between text-[9px] font-medium text-slate-500 border-t border-gray-300">
                                 <span>{orgBranches.length} SUCURSALES ENCONTRADAS</span>
                                 <span className="text-blue-600">SISTEMA MULTI-TENANT ACTIVO</span>
                             </div>

@@ -320,12 +320,12 @@ export const DishesOptions: React.FC = () => {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Introduzca el texto a buscar..."
-                            className="w-full pl-3 pr-4 py-1.5 bg-white border border-gray-300 text-[10px] font-bold text-slate-700 uppercase tracking-wide outline-none focus:border-[#106ebe] transition-all shadow-sm"
+                            className="w-full pl-3 pr-4 py-1.5 bg-white border border-gray-300 text-[10px] font-medium text-slate-700 uppercase tracking-wide outline-none focus:border-[#106ebe] transition-all shadow-sm"
                         />
                     </div>
                     <button
                         onClick={() => { }}
-                        className="px-6 h-7 bg-[#106ebe] text-white border border-[#001a33] text-[10px] font-bold uppercase hover:bg-[#002244] active:bg-[#001a33] transition-all shadow-sm"
+                        className="px-6 h-7 bg-[#106ebe] text-white border border-[#001a33] text-[10px] font-medium uppercase hover:bg-[#002244] active:bg-[#001a33] transition-all shadow-sm"
                     >
                         Buscar
                     </button>
@@ -340,18 +340,18 @@ export const DishesOptions: React.FC = () => {
                 {loading && items.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-slate-400 gap-4">
                         <Loader2 size={32} className="animate-spin text-[#106ebe]" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Cargando Grupos...</span>
+                        <span className="text-[10px] font-semibold uppercase tracking-widest">Cargando Grupos...</span>
                     </div>
                 ) : (
                     <table className="w-full border-collapse text-left">
                         <thead className="sticky top-0 bg-[#e8e8e8] z-10 select-none shadow-sm text-slate-700">
-                            <tr className="h-9 border-b border-gray-400 text-[10px] font-bold uppercase">
+                            <tr className="h-9 border-b border-gray-400 text-[10px] font-medium uppercase">
                                 <th className="px-6 py-1 border-r border-gray-300 w-1/2">Nombre</th>
                                 <th className="px-6 py-1 border-r border-gray-300 w-1/3">Prompt</th>
                                 <th className="px-6 py-1 text-center w-32">Habilitado</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 font-bold">
+                        <tbody className="divide-y divide-gray-100 font-medium">
                             {filteredItems.map(item => {
                                 const isSelected = selectedId === item.id;
                                 return (
@@ -387,7 +387,7 @@ export const DishesOptions: React.FC = () => {
 
             {/* Footer Status Bar */}
             <div className="h-6 bg-[#f0f0f0] border-t border-gray-300 flex items-center px-4 shrink-0">
-                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                <span className="text-[9px] font-medium text-slate-500 uppercase tracking-widest">
                     {filteredItems.length} Registros Encontrados
                 </span>
             </div>
@@ -398,22 +398,22 @@ export const DishesOptions: React.FC = () => {
                     className="fixed z-[999999] bg-white border border-gray-400 shadow-xl py-1 min-w-[160px] font-sans"
                     style={{ left: contextMenu.x, top: contextMenu.y }}
                 >
-                    <button onClick={handleNew} className="w-full flex items-center gap-3 px-4 py-2 text-[10px] font-black text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all text-left uppercase text-left">
+                    <button onClick={handleNew} className="w-full flex items-center gap-3 px-4 py-2 text-[10px] font-semibold text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all text-left uppercase text-left">
                         <Plus size={14} className="text-emerald-500" /> Nuevo Grupo
                     </button>
                     {contextMenu.item && (
                         <>
-                            <button onClick={() => handleEdit(contextMenu.item)} className="w-full flex items-center gap-3 px-4 py-2 text-[10px] font-black text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all text-left uppercase text-left">
+                            <button onClick={() => handleEdit(contextMenu.item)} className="w-full flex items-center gap-3 px-4 py-2 text-[10px] font-semibold text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all text-left uppercase text-left">
                                 <Edit3 size={14} className="text-blue-500" /> Editar Grupo
                             </button>
                             <div className="h-px bg-gray-200 my-1" />
-                            <button onClick={() => handleDelete(contextMenu.item.id)} className="w-full flex items-center gap-3 px-4 py-2 text-[10px] font-black text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all text-left uppercase text-left">
+                            <button onClick={() => handleDelete(contextMenu.item.id)} className="w-full flex items-center gap-3 px-4 py-2 text-[10px] font-semibold text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all text-left uppercase text-left">
                                 <Trash2 size={14} className="text-red-500" /> Eliminar Grupo
                             </button>
                         </>
                     )}
                     <div className="h-px bg-gray-200 my-1" />
-                    <button onClick={fetchData} className="w-full flex items-center gap-3 px-4 py-2 text-[10px] font-black text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all text-left uppercase">
+                    <button onClick={fetchData} className="w-full flex items-center gap-3 px-4 py-2 text-[10px] font-semibold text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all text-left uppercase">
                         <RotateCcw size={14} className="text-slate-400" /> Refrescar
                     </button>
                 </div>,
@@ -432,14 +432,14 @@ export const DishesOptions: React.FC = () => {
                             fetchPickerItems();
                             setShowPicker(true);
                         }}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-[10px] font-black text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all text-left uppercase"
+                        className="w-full flex items-center gap-3 px-4 py-2 text-[10px] font-semibold text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all text-left uppercase"
                     >
                         <Plus size={14} className="text-emerald-500" /> Agregar Opción
                     </button>
                     {configContextMenu.item && (
                         <button
                             onClick={() => handleRemoveItemFromConfig(configContextMenu.item.id)}
-                            className="w-full flex items-center gap-3 px-4 py-2 text-[10px] font-black text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all text-left uppercase"
+                            className="w-full flex items-center gap-3 px-4 py-2 text-[10px] font-semibold text-slate-700 hover:bg-[#106ebe] hover:text-white transition-all text-left uppercase"
                         >
                             <Trash2 size={14} className="text-red-500" /> Quitar Opción
                         </button>
@@ -457,7 +457,7 @@ export const DishesOptions: React.FC = () => {
                             <div className="w-[700px] bg-[#f0f0f0] border border-[#106ebe] shadow-2xl overflow-hidden flex flex-col">
                                 {/* Title Bar */}
                                 <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move text-white shrink-0">
-                                    <div className="flex items-center gap-2 text-[11px] font-bold tracking-tight">
+                                    <div className="flex items-center gap-2 text-[11px] font-medium tracking-tight">
                                         Mantenimiento de Opciones
                                     </div>
                                     <div className="flex items-center gap-1">
@@ -481,41 +481,41 @@ export const DishesOptions: React.FC = () => {
                                 <div className="p-4 space-y-4">
                                     <div className="bg-white border border-gray-300 shadow-sm overflow-hidden rounded-sm">
                                         <div className="bg-[#e1e5eb] h-6 px-3 flex items-center border-b border-gray-300">
-                                            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Datos Grupo</span>
+                                            <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Datos Grupo</span>
                                         </div>
                                         <div className="p-4 space-y-3">
                                             <div className="flex items-center gap-4">
-                                                <label className="w-16 text-[10px] font-bold text-slate-500 uppercase">Nombre</label>
+                                                <label className="w-16 text-[10px] font-medium text-slate-500 uppercase">Nombre</label>
                                                 <input
                                                     type="text"
                                                     value={form.name}
                                                     onChange={e => setForm({ ...form, name: e.target.value })}
-                                                    className="flex-1 h-7 border border-gray-300 px-2 text-[11px] font-bold text-slate-700 uppercase outline-none focus:border-[#106ebe] bg-[#e3edfd]"
+                                                    className="flex-1 h-7 border border-gray-300 px-2 text-[11px] font-medium text-slate-700 uppercase outline-none focus:border-[#106ebe] bg-[#e3edfd]"
                                                 />
                                             </div>
                                             <div className="flex items-center gap-4">
-                                                <label className="w-16 text-[10px] font-bold text-slate-500 uppercase">Prompt</label>
+                                                <label className="w-16 text-[10px] font-medium text-slate-500 uppercase">Prompt</label>
                                                 <input
                                                     type="text"
                                                     value={form.group_prompt}
                                                     onChange={e => setForm({ ...form, group_prompt: e.target.value })}
-                                                    className="flex-1 h-7 border border-gray-300 px-2 text-[11px] font-bold text-slate-700 uppercase outline-none focus:border-[#106ebe]"
+                                                    className="flex-1 h-7 border border-gray-300 px-2 text-[11px] font-medium text-slate-700 uppercase outline-none focus:border-[#106ebe]"
                                                 />
                                             </div>
                                             <div className="flex items-center gap-4">
-                                                <label className="w-16 text-[10px] font-bold text-slate-500 uppercase">Mínimo</label>
+                                                <label className="w-16 text-[10px] font-medium text-slate-500 uppercase">Mínimo</label>
                                                 <input
                                                     type="number"
                                                     value={form.min_selection}
                                                     onChange={e => setForm({ ...form, min_selection: parseInt(e.target.value) || 0 })}
-                                                    className="flex-1 h-7 border border-gray-300 px-2 text-[11px] font-bold text-slate-700 outline-none text-center"
+                                                    className="flex-1 h-7 border border-gray-300 px-2 text-[11px] font-medium text-slate-700 outline-none text-center"
                                                 />
-                                                <label className="w-16 text-[10px] font-bold text-slate-500 uppercase text-center">Máximo</label>
+                                                <label className="w-16 text-[10px] font-medium text-slate-500 uppercase text-center">Máximo</label>
                                                 <input
                                                     type="number"
                                                     value={form.max_selection}
                                                     onChange={e => setForm({ ...form, max_selection: parseInt(e.target.value) || 0 })}
-                                                    className="flex-1 h-7 border border-gray-300 px-2 text-[11px] font-bold text-slate-700 outline-none text-center"
+                                                    className="flex-1 h-7 border border-gray-300 px-2 text-[11px] font-medium text-slate-700 outline-none text-center"
                                                 />
                                             </div>
                                             <div className="flex items-center justify-end gap-2 pr-2">
@@ -525,26 +525,26 @@ export const DishesOptions: React.FC = () => {
                                                     onChange={e => setForm({ ...form, is_enabled: e.target.checked })}
                                                     className="w-3.5 h-3.5 border-gray-300 rounded"
                                                 />
-                                                <span className="text-[10px] font-bold text-slate-600 uppercase">Habilitado</span>
+                                                <span className="text-[10px] font-medium text-slate-600 uppercase">Habilitado</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="bg-white border border-gray-300 shadow-sm overflow-hidden rounded-sm flex flex-col h-64">
                                         <div className="bg-[#e1e5eb] h-6 flex items-end border-b border-gray-300">
-                                            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest px-3 py-1">Configuración</span>
+                                            <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest px-3 py-1">Configuración</span>
                                         </div>
                                         {/* Tabs */}
                                         <div className="flex bg-[#f4f4f4] border-b border-gray-300">
                                             <div 
                                                 onClick={() => setActiveTab('platillos')}
-                                                className={`px-6 py-1.5 border-t-2 ${activeTab === 'platillos' ? 'bg-white border-[#106ebe] border-r border-gray-300 text-slate-700' : 'bg-[#f4f4f4] border-transparent text-slate-500 hover:bg-white'} text-[10px] font-bold cursor-pointer transition-colors`}
+                                                className={`px-6 py-1.5 border-t-2 ${activeTab === 'platillos' ? 'bg-white border-[#106ebe] border-r border-gray-300 text-slate-700' : 'bg-[#f4f4f4] border-transparent text-slate-500 hover:bg-white'} text-[10px] font-medium cursor-pointer transition-colors`}
                                             >
                                                 Platillos
                                             </div>
                                             <div 
                                                 onClick={() => setActiveTab('sucursales')}
-                                                className={`px-6 py-1.5 border-t-2 ${activeTab === 'sucursales' ? 'bg-white border-[#106ebe] border-x border-gray-300 text-slate-700' : 'bg-[#f4f4f4] border-transparent text-slate-500 hover:bg-white'} text-[10px] font-bold cursor-pointer transition-colors -ml-[1px]`}
+                                                className={`px-6 py-1.5 border-t-2 ${activeTab === 'sucursales' ? 'bg-white border-[#106ebe] border-x border-gray-300 text-slate-700' : 'bg-[#f4f4f4] border-transparent text-slate-500 hover:bg-white'} text-[10px] font-medium cursor-pointer transition-colors -ml-[1px]`}
                                             >
                                                 Sucursales
                                             </div>
@@ -555,7 +555,7 @@ export const DishesOptions: React.FC = () => {
                                         >
                                             {activeTab === 'platillos' ? (
                                                 <table className="w-full border-collapse text-left">
-                                                    <thead className="sticky top-0 bg-[#f4f4f4] z-10 text-[10px] font-black uppercase shadow-sm border-b border-gray-300 text-slate-700">
+                                                    <thead className="sticky top-0 bg-[#f4f4f4] z-10 text-[10px] font-semibold uppercase shadow-sm border-b border-gray-300 text-slate-700">
                                                         <tr className="h-7 text-center">
                                                             <th className="px-4 text-left border-r border-gray-300">Plato</th>
                                                             <th className="px-4 border-r border-gray-300">Precio Venta</th>
@@ -574,7 +574,7 @@ export const DishesOptions: React.FC = () => {
                                                                         e.preventDefault();
                                                                         handleConfigContextMenu(e, { id: 'empty' });
                                                                     }}
-                                                                    className="px-4 py-8 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest"
+                                                                    className="px-4 py-8 text-center text-[10px] font-semibold text-slate-300 uppercase tracking-widest"
                                                                 >
                                                                     Haga clic derecho para agregar
                                                                 </td>
@@ -584,7 +584,7 @@ export const DishesOptions: React.FC = () => {
                                                                 key={mi.id}
                                                                 onContextMenu={(e) => handleConfigContextMenu(e, mi)}
                                                                 onClick={() => setSelectedModalItemId(mi.id)}
-                                                                className={`h-7 border-b border-gray-50 text-[10px] font-bold uppercase cursor-default ${selectedModalItemId === mi.id ? 'bg-[#106ebe] text-white' : 'hover:bg-gray-100 text-slate-600'}`}
+                                                                className={`h-7 border-b border-gray-50 text-[10px] font-medium uppercase cursor-default ${selectedModalItemId === mi.id ? 'bg-[#106ebe] text-white' : 'hover:bg-gray-100 text-slate-600'}`}
                                                             >
                                                                 <td className="px-4 border-r border-gray-200">{mi.products?.name || '—'}</td>
                                                                 <td className="px-4 border-r border-gray-200 text-center">Q{parseFloat(mi.products?.price || 0).toFixed(2)}</td>
@@ -596,7 +596,7 @@ export const DishesOptions: React.FC = () => {
                                                 </table>
                                             ) : (
                                                 <table className="w-full border-collapse text-left">
-                                                    <thead className="sticky top-0 bg-[#f4f4f4] z-10 text-[10px] font-black uppercase shadow-sm border-b border-gray-300 text-slate-700">
+                                                    <thead className="sticky top-0 bg-[#f4f4f4] z-10 text-[10px] font-semibold uppercase shadow-sm border-b border-gray-300 text-slate-700">
                                                         <tr className="h-7 text-center">
                                                             <th className="px-4 text-left border-r border-gray-300">Sucursal</th>
                                                             <th className="px-4 border-r border-gray-300 w-[150px]">Habilitado</th>
@@ -608,7 +608,7 @@ export const DishesOptions: React.FC = () => {
                                                             const assign = branchAssignments[b.id] ?? { is_enabled: true, is_assigned: true };
                                                             return (
                                                                 <tr key={b.id} className="h-7 hover:bg-gray-100 text-slate-600 border-b border-gray-50">
-                                                                    <td className="px-4 text-[10px] font-bold uppercase border-r border-gray-200">{b.name}</td>
+                                                                    <td className="px-4 text-[10px] font-medium uppercase border-r border-gray-200">{b.name}</td>
                                                                     <td className="px-4 text-center border-r border-gray-200">
                                                                         <input 
                                                                             type="checkbox" 
@@ -641,7 +641,7 @@ export const DishesOptions: React.FC = () => {
                                     </div>
 
                                     <div className="px-1 py-1">
-                                        <p className="text-[9px] font-bold text-slate-500 leading-tight">
+                                        <p className="text-[9px] font-medium text-slate-500 leading-tight">
                                             Los cambios en la Configuración afectarán a todas las sucursales que contengan esta Opción en su menú.
                                         </p>
                                     </div>
@@ -668,7 +668,7 @@ export const DishesOptions: React.FC = () => {
                         <DraggableWindow>
                             <div className="w-[850px] bg-[#f0f0f0] border border-[#106ebe] shadow-2xl overflow-hidden flex flex-col">
                                 <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move text-white shrink-0">
-                                    <span className="text-[11px] font-bold tracking-tight uppercase text-white">Listado de Textos de Opciones</span>
+                                    <span className="text-[11px] font-medium tracking-tight uppercase text-white">Listado de Textos de Opciones</span>
                                     <button
                                         onClick={() => setShowPicker(false)}
                                         className="w-7 h-7 flex items-center justify-center bg-red-600 hover:bg-red-700 transition-all text-white"
@@ -685,15 +685,15 @@ export const DishesOptions: React.FC = () => {
                                                 value={pickerSearch}
                                                 onChange={e => setPickerSearch(e.target.value)}
                                                 placeholder="Introduzca el texto a buscar..."
-                                                className="w-full h-8 border border-gray-300 px-3 text-[11px] font-bold text-slate-700 uppercase outline-none focus:border-[#106ebe]"
+                                                className="w-full h-8 border border-gray-300 px-3 text-[11px] font-medium text-slate-700 uppercase outline-none focus:border-[#106ebe]"
                                             />
                                         </div>
-                                        <button className="px-6 h-8 bg-[#f0f0f0] border border-gray-400 text-[11px] font-bold uppercase text-slate-700 hover:bg-white active:bg-gray-200">Buscar</button>
+                                        <button className="px-6 h-8 bg-[#f0f0f0] border border-gray-400 text-[11px] font-medium uppercase text-slate-700 hover:bg-white active:bg-gray-200">Buscar</button>
                                     </div>
 
                                     <div className="bg-white border border-gray-300 h-80 overflow-auto">
                                         <table className="w-full border-collapse text-left">
-                                            <thead className="sticky top-0 bg-[#e8e8e8] z-10 text-[10px] font-black uppercase shadow-sm text-slate-700">
+                                            <thead className="sticky top-0 bg-[#e8e8e8] z-10 text-[10px] font-semibold uppercase shadow-sm text-slate-700">
                                                 <tr className="h-8 border-b border-gray-300">
                                                     <th className="px-4 border-r border-gray-300">Platillo</th>
                                                     <th className="px-4 border-r border-gray-300">Categoría</th>
@@ -702,7 +702,7 @@ export const DishesOptions: React.FC = () => {
                                                     <th className="px-4 text-center">Precio Plataformas</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="text-[11px] font-bold uppercase text-slate-600">
+                                            <tbody className="text-[11px] font-medium uppercase text-slate-600">
                                                 {loadingPicker ? (
                                                     <tr><td colSpan={4} className="p-8 text-center"><Loader2 size={32} className="animate-spin inline text-[#106ebe]" /></td></tr>
                                                 ) : filteredPickerItems.map(item => (
@@ -723,8 +723,8 @@ export const DishesOptions: React.FC = () => {
                                     </div>
 
                                     <div className="space-y-0.5">
-                                        <p className="text-[10px] font-bold text-slate-500">* Doble Clic o Enter sobre cualquier Platillo para enviarlo a la configuración.</p>
-                                        <p className="text-[10px] font-bold text-slate-500">* ESC - Para cerrar la ventana.</p>
+                                        <p className="text-[10px] font-medium text-slate-500">* Doble Clic o Enter sobre cualquier Platillo para enviarlo a la configuración.</p>
+                                        <p className="text-[10px] font-medium text-slate-500">* ESC - Para cerrar la ventana.</p>
                                     </div>
                                 </div>
                             </div>

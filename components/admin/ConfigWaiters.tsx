@@ -194,7 +194,7 @@ export const ConfigWaiters: React.FC = () => {
             <div className="bg-[#f0f0f0] border-b border-gray-300 p-2 space-y-2">
                 <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                        <span className="text-slate-900 font-bold">Sucursal</span>
+                        <span className="text-slate-900 font-medium">Sucursal</span>
                         <select
                             value={branchFilter}
                             onChange={(e) => setBranchFilter(e.target.value)}
@@ -217,7 +217,7 @@ export const ConfigWaiters: React.FC = () => {
                         />
                         <button
                             onClick={fetchData}
-                            className="bg-[#e1e1e1] border border-gray-400 px-6 py-1 text-[11px] font-bold hover:bg-[#d0d0d0] text-slate-900 shadow-sm rounded-sm transition-colors active:scale-95"
+                            className="bg-[#e1e1e1] border border-gray-400 px-6 py-1 text-[11px] font-medium hover:bg-[#d0d0d0] text-slate-900 shadow-sm rounded-sm transition-colors active:scale-95"
                         >
                             Buscar
                         </button>
@@ -234,13 +234,13 @@ export const ConfigWaiters: React.FC = () => {
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-[#e8e8e8] sticky top-0 z-10 border-b border-gray-400 select-none">
                             <tr className="h-8">
-                                <th scope="col" className="px-6 py-2 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[50%]">
+                                <th scope="col" className="px-6 py-2 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[50%]">
                                     Estación
                                 </th>
-                                <th scope="col" className="px-6 py-2 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[40%]">
+                                <th scope="col" className="px-6 py-2 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[40%]">
                                     Dirección MAC
                                 </th>
-                                <th scope="col" className="px-6 py-2 text-center text-[10px] font-bold text-black uppercase w-[10%]">
+                                <th scope="col" className="px-6 py-2 text-center text-[10px] font-medium text-black uppercase w-[10%]">
                                     Habilitado
                                 </th>
                             </tr>
@@ -248,20 +248,20 @@ export const ConfigWaiters: React.FC = () => {
                         <tbody className="bg-white divide-y divide-gray-100">
                             {loading && filteredTerminals.length === 0 ? (
                                 <tr>
-                                    <td colSpan={3} className="py-20 text-center text-slate-500 font-bold italic">
+                                    <td colSpan={3} className="py-20 text-center text-slate-500 font-medium italic">
                                         <Loader2 className="animate-spin text-[#106ebe] mx-auto" size={24} />
                                     </td>
                                 </tr>
                             ) : terminals.length === 0 ? (
                                 <tr>
-                                    <td colSpan={3} className="py-20 text-center text-slate-500 font-bold italic">
+                                    <td colSpan={3} className="py-20 text-center text-slate-500 font-medium italic">
                                         No hay estaciones de meseros creadas. <br />
                                         Haz clic derecho para registrar una nueva.
                                     </td>
                                 </tr>
                             ) : filteredTerminals.length === 0 ? (
                                 <tr>
-                                    <td colSpan={3} className="py-20 text-center text-slate-500 font-bold italic">
+                                    <td colSpan={3} className="py-20 text-center text-slate-500 font-medium italic">
                                         No se encontraron resultados para "{searchTerm}".
                                     </td>
                                 </tr>
@@ -279,7 +279,7 @@ export const ConfigWaiters: React.FC = () => {
                                                 : 'text-slate-900 even:bg-slate-50/50 hover:bg-[#cce8ff]'
                                                 }`}
                                         >
-                                            <td className="px-4 font-bold flex items-center gap-2 h-6 border-r border-gray-100">
+                                            <td className="px-4 font-medium flex items-center gap-2 h-6 border-r border-gray-100">
                                                 <Monitor size={12} className={isSelected ? 'text-white' : 'text-slate-400'} />
                                                 <span className="uppercase tracking-tight text-[10px]">{item.name}</span>
                                             </td>
@@ -313,7 +313,7 @@ export const ConfigWaiters: React.FC = () => {
                             setContextMenu({ ...contextMenu, visible: false });
                             openModal(null);
                         }}
-                        className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-slate-900"
+                        className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-slate-900"
                     >
                         <Plus size={14} className="group-hover:text-white text-emerald-600" /> Nuevo Registro
                     </button>
@@ -326,7 +326,7 @@ export const ConfigWaiters: React.FC = () => {
                                     setContextMenu({ ...contextMenu, visible: false });
                                     openModal(contextMenu.terminal);
                                 }}
-                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-slate-900"
+                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-slate-900"
                             >
                                 <Edit2 size={14} className="text-[#106ebe] group-hover:text-white" /> Modificar
                             </button>
@@ -335,7 +335,7 @@ export const ConfigWaiters: React.FC = () => {
                                     setContextMenu({ ...contextMenu, visible: false });
                                     setConfirmDelete(contextMenu.terminal);
                                 }}
-                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-slate-900"
+                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-slate-900"
                             >
                                 <Trash2 size={14} className="text-red-500 group-hover:text-white" /> Eliminar
                             </button>
@@ -350,7 +350,7 @@ export const ConfigWaiters: React.FC = () => {
                     <DraggableWindow>
                         <div className="w-[500px] bg-[#f0f0f0] shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden border border-[#106ebe] flex flex-col animate-slide-up pointer-events-auto">
                             <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
-                                <h3 className="text-[12px] font-bold text-white tracking-wide flex items-center gap-2">
+                                <h3 className="text-[12px] font-medium text-white tracking-wide flex items-center gap-2">
                                     Mantenimiento de Estaciones
                                 </h3>
                                 <div className="flex items-center gap-1">
@@ -373,7 +373,7 @@ export const ConfigWaiters: React.FC = () => {
                             <div className="p-4 bg-[#f0f0f0] flex flex-col gap-4 border-b border-gray-300">
                                 {/* Datos de Estación Fieldset */}
                                 <div className="border border-gray-400 p-3 pt-4 relative bg-[#f0f0f0] rounded-sm">
-                                    <span className="text-[11px] text-slate-800 font-bold px-1 absolute -top-2.5 left-2 bg-[#f0f0f0]">Datos de Estación</span>
+                                    <span className="text-[11px] text-slate-800 font-medium px-1 absolute -top-2.5 left-2 bg-[#f0f0f0]">Datos de Estación</span>
 
                                     <div className="space-y-2.5">
                                         <div className="flex items-center gap-2">
@@ -415,7 +415,7 @@ export const ConfigWaiters: React.FC = () => {
 
                                 {/* Lector de Huella Fieldset */}
                                 <div className="border border-gray-400 p-3 pt-4 relative bg-[#e6e6e6] rounded-sm">
-                                    <span className="text-[11px] text-slate-800 font-bold px-1 absolute -top-2.5 left-2 bg-[#e6e6e6]">Lector de Huella</span>
+                                    <span className="text-[11px] text-slate-800 font-medium px-1 absolute -top-2.5 left-2 bg-[#e6e6e6]">Lector de Huella</span>
 
                                     <div className="space-y-2.5">
                                         <div className="flex items-center gap-2">

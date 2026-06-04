@@ -219,7 +219,7 @@ export const NotificationContainer: React.FC = () => {
                     <div className="flex items-start gap-4 p-4 pr-10">
                         {getIcon(n.type)}
                         <div className="flex flex-col text-white pt-1">
-                            <span className="text-[14px] font-bold leading-none mb-1.5 shadow-sm tracking-wide">
+                            <span className="text-[14px] font-medium leading-none mb-1.5 shadow-sm tracking-wide">
                                 {getTitle(n.type)}
                             </span>
                             <span className="text-[13px] leading-tight font-normal opacity-95">

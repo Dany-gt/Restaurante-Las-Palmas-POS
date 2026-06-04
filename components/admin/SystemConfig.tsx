@@ -361,7 +361,7 @@ export const SystemConfig: React.FC<{
     if (loading) return (
         <div className="flex flex-col items-center justify-center h-full gap-4 text-indigo-500">
             <Loader2 className="animate-spin" size={48} />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Cargando Configuración...</span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em]">Cargando Configuración...</span>
         </div>
     );
 
@@ -372,10 +372,10 @@ export const SystemConfig: React.FC<{
                 <div className="modal-header bg-[#106ebe] px-4 py-2.5 flex items-center justify-between text-white shrink-0 cursor-default select-none">
                     <div className="flex items-center gap-3">
                         <Settings2 size={16} />
-                        <span className="text-xs font-bold uppercase tracking-widest">Configuración de Sistema</span>
+                        <span className="text-xs font-medium uppercase tracking-widest">Configuración de Sistema</span>
                     </div>
                     <div className="flex items-center gap-0.5">
-                        <button className="p-1 px-3 hover:bg-white/10 rounded transition-colors text-[10px] uppercase font-black tracking-widest border border-white/20 mr-2">
+                        <button className="p-1 px-3 hover:bg-white/10 rounded transition-colors text-[10px] uppercase font-semibold tracking-widest border border-white/20 mr-2">
                             Anular Registro de Licencia
                         </button>
                         <WindowsSaveButton onClick={handleSave} loading={saving} title="Guardar Configuración" />
@@ -394,14 +394,14 @@ export const SystemConfig: React.FC<{
                     {/* Datos Generales Section */}
                     <div className="flex flex-col md:flex-row gap-8">
                         <div className="flex-1 space-y-3">
-                            <h2 className="text-[12px] font-black uppercase text-[#106ebe] tracking-widest mb-4 border-b border-blue-100 pb-1">Datos Generales</h2>
+                            <h2 className="text-[12px] font-semibold uppercase text-[#106ebe] tracking-widest mb-4 border-b border-blue-100 pb-1">Datos Generales</h2>
 
                             <div className="grid grid-cols-[100px_1fr] md:grid-cols-[100px_1fr] grid-responsive-form items-center gap-3">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase">Sucursal</label>
+                                <label className="text-[10px] font-medium text-gray-400 uppercase">Sucursal</label>
                                 <select
                                     value={config.sucursal_id || ''}
                                     onChange={e => setConfig({ ...config, sucursal_id: e.target.value })}
-                                    className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                    className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                 >
                                     <option value="">Seleccionar Sucursal...</option>
                                     {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -409,54 +409,54 @@ export const SystemConfig: React.FC<{
                             </div>
 
                             <div className="grid grid-cols-[100px_1fr] md:grid-cols-[100px_1fr] grid-responsive-form items-center gap-3">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase">Nombre</label>
+                                <label className="text-[10px] font-medium text-gray-400 uppercase">Nombre</label>
                                 <input
                                     value={config.restaurant_name}
                                     onChange={e => setConfig({ ...config, restaurant_name: e.target.value })}
-                                    className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                    className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                 />
                             </div>
 
                             <div className="grid grid-cols-[100px_1fr] md:grid-cols-[100px_1fr] grid-responsive-form items-center gap-3">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase">Direccion</label>
+                                <label className="text-[10px] font-medium text-gray-400 uppercase">Direccion</label>
                                 <input
                                     value={config.address}
                                     onChange={e => setConfig({ ...config, address: e.target.value })}
-                                    className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                    className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                 />
                             </div>
 
                             <div className="grid grid-cols-[100px_1fr] md:grid-cols-[100px_1fr] grid-responsive-form items-center gap-3">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase">Correo</label>
+                                <label className="text-[10px] font-medium text-gray-400 uppercase">Correo</label>
                                 <input
                                     value={config.email}
                                     onChange={e => setConfig({ ...config, email: e.target.value })}
-                                    className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                    className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                 />
                             </div>
 
                             <div className="grid grid-cols-[100px_1fr] md:grid-cols-[100px_1fr] grid-responsive-form items-center gap-3">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase">Telefono</label>
+                                <label className="text-[10px] font-medium text-gray-400 uppercase">Telefono</label>
                                 <div className="flex gap-2">
                                     <input
                                         value={config.phone}
                                         onChange={e => setConfig({ ...config, phone: e.target.value })}
-                                        className="flex-1 bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                        className="flex-1 bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                     />
                                     <input
                                         placeholder="Otro Tel..."
-                                        className="w-24 bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                        className="w-24 bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                     />
                                 </div>
                             </div>
 
 
                             <div className="grid grid-cols-[100px_1fr] md:grid-cols-[100px_1fr] grid-responsive-form items-center gap-3">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase">Sitio Web</label>
+                                <label className="text-[10px] font-medium text-gray-400 uppercase">Sitio Web</label>
                                 <input
                                     value={config.website}
                                     onChange={e => setConfig({ ...config, website: e.target.value })}
-                                    className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                    className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                 />
                             </div>
                         </div>
@@ -474,11 +474,11 @@ export const SystemConfig: React.FC<{
                                     </div>
                                 )}
                             </div>
-                            <label className="w-full bg-[#106ebe] hover:bg-[#106ebe] hover:brightness-110 text-white text-[10px] font-black uppercase text-center py-2.5 rounded-lg cursor-pointer transition-all shadow-lg mb-2 active:scale-95">
+                            <label className="w-full bg-[#106ebe] hover:bg-[#106ebe] hover:brightness-110 text-white text-[10px] font-semibold uppercase text-center py-2.5 rounded-lg cursor-pointer transition-all shadow-lg mb-2 active:scale-95">
                                 Subir Logotipo
                                 <input type="file" onChange={handleFileUpload} className="hidden" />
                             </label>
-                            <button onClick={() => setConfig({ ...config, logo_url: '' })} className="w-full bg-white border border-gray-200 text-gray-500 text-[10px] font-bold uppercase py-2 rounded-lg hover:bg-red-50 hover:text-red-500 transition-all active:scale-95">
+                            <button onClick={() => setConfig({ ...config, logo_url: '' })} className="w-full bg-white border border-gray-200 text-gray-500 text-[10px] font-medium uppercase py-2 rounded-lg hover:bg-red-50 hover:text-red-500 transition-all active:scale-95">
                                 Quitar Imagen
                             </button>
                         </div>
@@ -489,25 +489,25 @@ export const SystemConfig: React.FC<{
                         <div className="flex admin-tabs-scroll scrollbar-hide">
                             <button
                                 onClick={() => setActiveTab('ENVIRONMENT')}
-                                className={`px-6 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-t-xl border-x border-t ${activeTab === 'ENVIRONMENT' ? 'bg-white border-gray-200 text-[#106ebe]' : 'bg-gray-100/50 border-transparent text-gray-400 hover:text-gray-600'}`}
+                                className={`px-6 py-2.5 text-[10px] font-semibold uppercase tracking-widest transition-all rounded-t-xl border-x border-t ${activeTab === 'ENVIRONMENT' ? 'bg-white border-gray-200 text-[#106ebe]' : 'bg-gray-100/50 border-transparent text-gray-400 hover:text-gray-600'}`}
                             >
                                 Variables de Entorno
                             </button>
                             <button
                                 onClick={() => setActiveTab('BILLING')}
-                                className={`px-6 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-t-xl border-x border-t ${activeTab === 'BILLING' ? 'bg-white border-gray-200 text-[#106ebe]' : 'bg-gray-100/50 border-transparent text-gray-400 hover:text-gray-600'}`}
+                                className={`px-6 py-2.5 text-[10px] font-semibold uppercase tracking-widest transition-all rounded-t-xl border-x border-t ${activeTab === 'BILLING' ? 'bg-white border-gray-200 text-[#106ebe]' : 'bg-gray-100/50 border-transparent text-gray-400 hover:text-gray-600'}`}
                             >
                                 Facturación Electrónica
                             </button>
                             <button
                                 onClick={() => setActiveTab('PERSONALIZATION')}
-                                className={`px-6 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-t-xl border-x border-t ${activeTab === 'PERSONALIZATION' ? 'bg-white border-gray-200 text-[#106ebe]' : 'bg-gray-100/50 border-transparent text-gray-400 hover:text-gray-600'}`}
+                                className={`px-6 py-2.5 text-[10px] font-semibold uppercase tracking-widest transition-all rounded-t-xl border-x border-t ${activeTab === 'PERSONALIZATION' ? 'bg-white border-gray-200 text-[#106ebe]' : 'bg-gray-100/50 border-transparent text-gray-400 hover:text-gray-600'}`}
                             >
                                 Personalización
                             </button>
                             <button
                                 onClick={() => setActiveTab('SMTP')}
-                                className={`px-6 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-t-xl border-x border-t ${activeTab === 'SMTP' ? 'bg-white border-gray-200 text-[#106ebe]' : 'bg-gray-100/50 border-transparent text-gray-400 hover:text-gray-600'}`}
+                                className={`px-6 py-2.5 text-[10px] font-semibold uppercase tracking-widest transition-all rounded-t-xl border-x border-t ${activeTab === 'SMTP' ? 'bg-white border-gray-200 text-[#106ebe]' : 'bg-gray-100/50 border-transparent text-gray-400 hover:text-gray-600'}`}
                             >
                                 Servidor SMTP
                             </button>
@@ -517,31 +517,31 @@ export const SystemConfig: React.FC<{
                             {activeTab === 'ENVIRONMENT' && (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-3">
                                     <div className="col-span-2 mb-4">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">Correos Destinatarios de Corte de Caja (separados por coma)</label>
+                                        <label className="text-[10px] font-semibold text-gray-400 uppercase block mb-1">Correos Destinatarios de Corte de Caja (separados por coma)</label>
                                         <input
                                             value={config.cashier_emails}
                                             onChange={e => setConfig({ ...config, cashier_emails: e.target.value })}
-                                            className="w-full bg-gray-50 border border-gray-100 text-[11px] font-bold px-3 py-2 rounded-lg outline-none focus:bg-white focus:border-blue-300 transition-all"
+                                            className="w-full bg-gray-50 border border-gray-100 text-[11px] font-medium px-3 py-2 rounded-lg outline-none focus:bg-white focus:border-blue-300 transition-all"
                                             placeholder="ejemplo@correo.com, admin@restaurante.com"
                                         />
                                     </div>
 
                                     <div className="col-span-2 mb-4">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">IP Servidor PC (KDS Local - Modo Offline)</label>
+                                        <label className="text-[10px] font-semibold text-gray-400 uppercase block mb-1">IP Servidor PC (KDS Local - Modo Offline)</label>
                                         <input
                                             value={config.local_kds_ip || ''}
                                             onChange={e => setConfig({ ...config, local_kds_ip: e.target.value })}
-                                            className="w-full bg-gray-50 border border-gray-100 text-[11px] font-bold px-3 py-2 rounded-lg outline-none focus:bg-white focus:border-blue-300 transition-all"
+                                            className="w-full bg-gray-50 border border-gray-100 text-[11px] font-medium px-3 py-2 rounded-lg outline-none focus:bg-white focus:border-blue-300 transition-all"
                                             placeholder="Ej: 192.168.1.100"
                                         />
                                     </div>
 
                                     <div className="col-span-2 mb-4">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">Punto de Impresión Principal (Tickets de Gasto, Turnos, etc)</label>
+                                        <label className="text-[10px] font-semibold text-gray-400 uppercase block mb-1">Punto de Impresión Principal (Tickets de Gasto, Turnos, etc)</label>
                                         <select
                                             value={config.main_printer_id || ''}
                                             onChange={e => setConfig({ ...config, main_printer_id: e.target.value })}
-                                            className="w-full bg-gray-50 border border-gray-100 text-[11px] font-bold px-3 py-2 rounded-lg outline-none focus:bg-white focus:border-blue-300 transition-all"
+                                            className="w-full bg-gray-50 border border-gray-100 text-[11px] font-medium px-3 py-2 rounded-lg outline-none focus:bg-white focus:border-blue-300 transition-all"
                                         >
                                             <option value="">SELECCIONAR PUNTO DE IMPRESIÓN...</option>
                                             {printers.map(p => (
@@ -560,9 +560,9 @@ export const SystemConfig: React.FC<{
                                                 <input
                                                     value={config.suggested_tip}
                                                     onChange={e => setConfig({ ...config, suggested_tip: e.target.value })}
-                                                    className="w-14 bg-gray-50 border border-gray-100 text-[11px] font-black p-1 rounded text-center"
+                                                    className="w-14 bg-gray-50 border border-gray-100 text-[11px] font-semibold p-1 rounded text-center"
                                                 />
-                                                <span className="text-[10px] font-black text-gray-400">%</span>
+                                                <span className="text-[10px] font-semibold text-gray-400">%</span>
                                             </div>
                                         </div>
                                         <div className="flex items-center bg-white border border-gray-50 p-2 rounded-lg">
@@ -579,7 +579,7 @@ export const SystemConfig: React.FC<{
                                     </div>
 
                                     <div className="space-y-3 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
-                                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-4 border-b border-gray-200 pb-1">Configuración Operativa de Tickets</label>
+                                        <label className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest block mb-4 border-b border-gray-200 pb-1">Configuración Operativa de Tickets</label>
                                         <Toggle label="Activar Venta Rápida (para restaurantes de Food Court)" value={config.enable_quick_sale} onChange={(v: boolean) => setConfig({ ...config, enable_quick_sale: v })} />
                                         <Toggle label="Permitir abrir una Orden únicamente al Mesero / Cajero que la creó" value={config.limit_order_access} onChange={(v: boolean) => setConfig({ ...config, limit_order_access: v })} />
                                         <Toggle label="Imprimir ticket de Gasto de caja" value={config.print_expense_ticket} onChange={(v: boolean) => setConfig({ ...config, print_expense_ticket: v })} />
@@ -592,23 +592,23 @@ export const SystemConfig: React.FC<{
                                     </div>
 
                                     <div className="space-y-3 bg-blue-50/30 p-4 rounded-xl border border-blue-100/50">
-                                        <label className="text-[9px] font-black text-[#106ebe] uppercase tracking-widest block mb-4 border-b border-blue-200/50 pb-1">Credenciales SAT — Agencia Virtual</label>
+                                        <label className="text-[9px] font-semibold text-[#106ebe] uppercase tracking-widest block mb-4 border-b border-blue-200/50 pb-1">Credenciales SAT — Agencia Virtual</label>
                                         <div className="grid grid-cols-[140px_1fr] items-center gap-3">
-                                            <label className="text-[10px] font-bold text-gray-500 uppercase">Usuario SAT</label>
+                                            <label className="text-[10px] font-medium text-gray-500 uppercase">Usuario SAT</label>
                                             <input
                                                 value={config.sat_username}
                                                 onChange={e => setConfig({ ...config, sat_username: e.target.value })}
-                                                className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                 placeholder="NIT o usuario de Agencia Virtual"
                                             />
                                         </div>
                                         <div className="grid grid-cols-[140px_1fr] items-center gap-3">
-                                            <label className="text-[10px] font-bold text-gray-500 uppercase">Contraseña SAT</label>
+                                            <label className="text-[10px] font-medium text-gray-500 uppercase">Contraseña SAT</label>
                                             <input
                                                 type="password"
                                                 value={config.sat_password}
                                                 onChange={e => setConfig({ ...config, sat_password: e.target.value })}
-                                                className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                 placeholder="••••••••"
                                             />
                                         </div>
@@ -630,12 +630,12 @@ export const SystemConfig: React.FC<{
                                         <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-5">
                                             <div className="grid grid-cols-2 gap-8">
                                                 <div className="grid grid-cols-[140px_1fr] md:grid-cols-[140px_1fr] grid-responsive-form items-center gap-3">
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase">Copias a Imprimir</label>
+                                                    <label className="text-[10px] font-medium text-gray-400 uppercase">Copias a Imprimir</label>
                                                     <input
                                                         type="number"
                                                         value={config.billing_copies}
                                                         onChange={e => setConfig({ ...config, billing_copies: e.target.value })}
-                                                        className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                        className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                     />
                                                 </div>
                                                 <div className="flex items-center py-1">
@@ -648,75 +648,75 @@ export const SystemConfig: React.FC<{
                                             </div>
 
                                             <div className="grid grid-cols-[140px_1fr] items-center gap-3">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase">Nombre Comercial</label>
+                                                <label className="text-[10px] font-medium text-gray-400 uppercase">Nombre Comercial</label>
                                                 <input
                                                     value={config.commercial_name}
                                                     onChange={e => setConfig({ ...config, commercial_name: e.target.value })}
-                                                    className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                    className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                 />
                                             </div>
 
                                             <div className="grid grid-cols-[140px_1fr] items-center gap-3">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase">Razón Social</label>
+                                                <label className="text-[10px] font-medium text-gray-400 uppercase">Razón Social</label>
                                                 <input
                                                     value={config.legal_name}
                                                     onChange={e => setConfig({ ...config, legal_name: e.target.value })}
-                                                    className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                    className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                 />
                                             </div>
 
                                             <div className="grid grid-cols-2 gap-8">
                                                 <div className="grid grid-cols-[140px_1fr] md:grid-cols-[140px_1fr] grid-responsive-form items-center gap-3">
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase">NIT</label>
+                                                    <label className="text-[10px] font-medium text-gray-400 uppercase">NIT</label>
                                                     <input
                                                         value={config.nit}
                                                         onChange={e => setConfig({ ...config, nit: e.target.value })}
-                                                        className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                        className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                     />
                                                 </div>
                                                 <div className="grid grid-cols-[140px_1fr] md:grid-cols-[140px_1fr] grid-responsive-form items-center gap-3">
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase">Correo</label>
+                                                    <label className="text-[10px] font-medium text-gray-400 uppercase">Correo</label>
                                                     <input
                                                         value={config.billing_email}
                                                         onChange={e => setConfig({ ...config, billing_email: e.target.value })}
-                                                        className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                        className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                     />
                                                 </div>
                                             </div>
 
                                             <div className="grid grid-cols-[140px_1fr] items-center gap-3">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase">Dirección 1</label>
+                                                <label className="text-[10px] font-medium text-gray-400 uppercase">Dirección 1</label>
                                                 <input
                                                     value={config.billing_address_1}
                                                     onChange={e => setConfig({ ...config, billing_address_1: e.target.value })}
-                                                    className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                    className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                 />
                                             </div>
 
                                             <div className="grid grid-cols-[140px_1fr] items-center gap-3">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase">Dirección 2</label>
+                                                <label className="text-[10px] font-medium text-gray-400 uppercase">Dirección 2</label>
                                                 <input
                                                     value={config.billing_address_2}
                                                     onChange={e => setConfig({ ...config, billing_address_2: e.target.value })}
-                                                    className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                    className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                 />
                                             </div>
 
                                             <div className="grid grid-cols-2 gap-8">
                                                 <div className="grid grid-cols-[140px_1fr] md:grid-cols-[140px_1fr] grid-responsive-form items-center gap-3">
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase">Municipio</label>
+                                                    <label className="text-[10px] font-medium text-gray-400 uppercase">Municipio</label>
                                                     <input
                                                         value={config.municipality}
                                                         onChange={e => setConfig({ ...config, municipality: e.target.value })}
-                                                        className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                        className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                     />
                                                 </div>
                                                 <div className="grid grid-cols-[140px_1fr] md:grid-cols-[140px_1fr] grid-responsive-form items-center gap-3">
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase">Departamento</label>
+                                                    <label className="text-[10px] font-medium text-gray-400 uppercase">Departamento</label>
                                                     <select
                                                         value={config.department}
                                                         onChange={e => setConfig({ ...config, department: e.target.value })}
-                                                        className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                        className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                     >
                                                         <option value="">Seleccionar...</option>
                                                         <option value="Retalhuleu">Retalhuleu</option>
@@ -728,73 +728,73 @@ export const SystemConfig: React.FC<{
 
                                             <div className="grid grid-cols-3 gap-4">
                                                 <div className="grid grid-cols-[100px_1fr] items-center gap-3">
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase">Cod. Sucursal</label>
+                                                    <label className="text-[10px] font-medium text-gray-400 uppercase">Cod. Sucursal</label>
                                                     <input
                                                         value={config.branch_code}
                                                         onChange={e => setConfig({ ...config, branch_code: e.target.value })}
-                                                        className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                        className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                     />
                                                 </div>
                                                 <div className="grid grid-cols-[100px_1fr] items-center gap-3">
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase">ID Sucursal</label>
+                                                    <label className="text-[10px] font-medium text-gray-400 uppercase">ID Sucursal</label>
                                                     <input
                                                         value={config.branch_id}
                                                         onChange={e => setConfig({ ...config, branch_id: e.target.value })}
-                                                        className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                        className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                     />
                                                 </div>
                                                 <div className="grid grid-cols-[100px_1fr] items-center gap-3">
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase">Escenario</label>
+                                                    <label className="text-[10px] font-medium text-gray-400 uppercase">Escenario</label>
                                                     <input
                                                         value={config.scenario_code}
                                                         onChange={e => setConfig({ ...config, scenario_code: e.target.value })}
-                                                        className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                        className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                     />
                                                 </div>
                                             </div>
 
                                             <div className="grid grid-cols-[140px_1fr] items-center gap-3">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase">Prefijo WS</label>
+                                                <label className="text-[10px] font-medium text-gray-400 uppercase">Prefijo WS</label>
                                                 <input
                                                     value={config.ws_prefix}
                                                     onChange={e => setConfig({ ...config, ws_prefix: e.target.value })}
-                                                    className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                    className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                 />
                                             </div>
 
                                             <div className="grid grid-cols-[140px_1fr] items-center gap-3">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase">Llave WS</label>
+                                                <label className="text-[10px] font-medium text-gray-400 uppercase">Llave WS</label>
                                                 <input
                                                     value={config.ws_key}
                                                     onChange={e => setConfig({ ...config, ws_key: e.target.value })}
-                                                    className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                    className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                 />
                                             </div>
 
                                             <div className="grid grid-cols-[140px_1fr] items-center gap-3">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase">Token Signer</label>
+                                                <label className="text-[10px] font-medium text-gray-400 uppercase">Token Signer</label>
                                                 <input
                                                     value={config.signer_token}
                                                     onChange={e => setConfig({ ...config, signer_token: e.target.value })}
-                                                    className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                    className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                 />
                                             </div>
 
                                             <div className="grid grid-cols-[140px_1fr] items-center gap-3">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase">Frases Factura</label>
+                                                <label className="text-[10px] font-medium text-gray-400 uppercase">Frases Factura</label>
                                                 <input
                                                     value={config.invoice_phrases}
                                                     onChange={e => setConfig({ ...config, invoice_phrases: e.target.value })}
-                                                    className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                    className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                 />
                                             </div>
 
                                             <div className="grid grid-cols-[140px_1fr] items-center gap-3">
-                                                <label className="text-[10px] font-bold text-gray-400 uppercase">Leyenda Certificador</label>
+                                                <label className="text-[10px] font-medium text-gray-400 uppercase">Leyenda Certificador</label>
                                                 <input
                                                     value={config.certifier_legend}
                                                     onChange={e => setConfig({ ...config, certifier_legend: e.target.value })}
-                                                    className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                    className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                 />
                                             </div>
 
@@ -813,16 +813,16 @@ export const SystemConfig: React.FC<{
                                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-6">
-                                            <h3 className="text-[11px] font-black text-[#106ebe] uppercase tracking-widest border-b border-blue-50 pb-2">Gestión de Meseros</h3>
+                                            <h3 className="text-[11px] font-semibold text-[#106ebe] uppercase tracking-widest border-b border-blue-50 pb-2">Gestión de Meseros</h3>
                                             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-4">
                                                 <div className="grid grid-cols-[140px_1fr] md:grid-cols-[140px_1fr] grid-responsive-form items-center gap-3">
-                                                    <label className="text-[10px] font-bold text-gray-400 uppercase">Ordenes Máx / Mesero</label>
+                                                    <label className="text-[10px] font-medium text-gray-400 uppercase">Ordenes Máx / Mesero</label>
                                                     <div className="flex flex-col gap-3 w-full">
                                                         <input
                                                             type="number"
                                                             value={config.max_active_orders_per_waiter}
                                                             onChange={e => setConfig({ ...config, max_active_orders_per_waiter: parseInt(e.target.value) || 0 })}
-                                                            className="w-full bg-white border border-gray-100 text-[11px] font-bold px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                            className="w-full bg-white border border-gray-100 text-[11px] font-medium px-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                             placeholder="0 = Ilimitado"
                                                         />
                                                         <div className="pt-1">
@@ -834,19 +834,19 @@ export const SystemConfig: React.FC<{
                                                 {/* Meta de Ventas con interruptor */}
                                                 <div className="border border-gray-100 rounded-lg p-3 space-y-2 bg-gray-50/50">
                                                     <div className="flex items-center justify-between">
-                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Meta Ventas Mes</label>
+                                                        <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Meta Ventas Mes</label>
                                                         <SwitchToggle
                                                             value={config.waiter_goal_enabled}
                                                             onChange={(v: boolean) => setConfig({ ...config, waiter_goal_enabled: v })}
                                                         />
                                                     </div>
                                                     <div className={`relative transition-opacity ${config.waiter_goal_enabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
-                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400">{config.currency}</span>
+                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-medium text-gray-400">{config.currency}</span>
                                                         <input
                                                             type="number"
                                                             value={config.monthly_waiter_goal}
                                                             onChange={e => setConfig({ ...config, monthly_waiter_goal: parseFloat(e.target.value) || 0 })}
-                                                            className="w-full bg-white border border-gray-100 text-[11px] font-bold pl-8 pr-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                            className="w-full bg-white border border-gray-100 text-[11px] font-medium pl-8 pr-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                             placeholder="0.00"
                                                         />
                                                     </div>
@@ -855,19 +855,19 @@ export const SystemConfig: React.FC<{
                                                 {/* Meta por Unidades con interruptor */}
                                                 <div className="border border-gray-100 rounded-lg p-3 space-y-2 bg-gray-50/50">
                                                     <div className="flex items-center justify-between">
-                                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Meta por Unidades Mes</label>
+                                                        <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Meta por Unidades Mes</label>
                                                         <SwitchToggle
                                                             value={config.waiter_units_goal_enabled}
                                                             onChange={(v: boolean) => setConfig({ ...config, waiter_units_goal_enabled: v })}
                                                         />
                                                     </div>
                                                     <div className={`relative transition-opacity ${config.waiter_units_goal_enabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
-                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400">#</span>
+                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-medium text-gray-400">#</span>
                                                         <input
                                                             type="number"
                                                             value={config.monthly_waiter_units_goal}
                                                             onChange={e => setConfig({ ...config, monthly_waiter_units_goal: parseInt(e.target.value) || 0 })}
-                                                            className="w-full bg-white border border-gray-100 text-[11px] font-bold pl-8 pr-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
+                                                            className="w-full bg-white border border-gray-100 text-[11px] font-medium pl-8 pr-3 py-1.5 rounded-lg outline-none focus:border-[#106ebe] shadow-sm"
                                                             placeholder="0 unidades"
                                                         />
                                                     </div>
@@ -875,7 +875,7 @@ export const SystemConfig: React.FC<{
                                             </div>
 
                                             {/* Icon Theme Toggle */}
-                                            <h3 className="text-[11px] font-black text-[#106ebe] uppercase tracking-widest border-b border-blue-50 pb-2 pt-2">Iconografía del Sistema</h3>
+                                            <h3 className="text-[11px] font-semibold text-[#106ebe] uppercase tracking-widest border-b border-blue-50 pb-2 pt-2">Iconografía del Sistema</h3>
                                             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-4">
                                                 <div className="grid grid-cols-2 gap-3">
                                                     <button
@@ -883,14 +883,14 @@ export const SystemConfig: React.FC<{
                                                         className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2 ${config.icon_theme === 'classic' ? 'border-[#106ebe] bg-blue-50/50' : 'border-gray-100 hover:border-blue-200 bg-white'}`}
                                                     >
                                                         <Layers size={24} className={config.icon_theme === 'classic' ? 'text-[#106ebe]' : 'text-gray-400'} />
-                                                        <span className={`text-[10px] font-black uppercase ${config.icon_theme === 'classic' ? 'text-[#106ebe]' : 'text-gray-500'}`}>Clásico (Lucide)</span>
+                                                        <span className={`text-[10px] font-semibold uppercase ${config.icon_theme === 'classic' ? 'text-[#106ebe]' : 'text-gray-500'}`}>Clásico (Lucide)</span>
                                                     </button>
                                                     <button
                                                         onClick={() => setConfig({ ...config, icon_theme: 'premium' })}
                                                         className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2 ${config.icon_theme === 'premium' ? 'border-[#106ebe] bg-blue-50/50' : 'border-gray-100 hover:border-blue-200 bg-white'}`}
                                                     >
                                                         <Baseline size={24} className={config.icon_theme === 'premium' ? 'text-[#106ebe]' : 'text-gray-400'} />
-                                                        <span className={`text-[10px] font-black uppercase ${config.icon_theme === 'premium' ? 'text-[#106ebe]' : 'text-gray-500'}`}>Premium (Iconify)</span>
+                                                        <span className={`text-[10px] font-semibold uppercase ${config.icon_theme === 'premium' ? 'text-[#106ebe]' : 'text-gray-500'}`}>Premium (Iconify)</span>
                                                     </button>
                                                 </div>
                                                 <p className="text-[9px] text-gray-400 italic text-center">El tema Premium utiliza iconos Flat Business de alta fidelidad. Requiere reinicio de la vista para aplicar cambios globales.</p>
@@ -898,7 +898,7 @@ export const SystemConfig: React.FC<{
                                         </div>
 
                                         <div className="space-y-6">
-                                            <h3 className="text-[11px] font-black text-[#106ebe] uppercase tracking-widest border-b border-blue-50 pb-2">Fondo de Pantalla (Login)</h3>
+                                            <h3 className="text-[11px] font-semibold text-[#106ebe] uppercase tracking-widest border-b border-blue-50 pb-2">Fondo de Pantalla (Login)</h3>
                                             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-4">
                                                 <div className="w-full aspect-video bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 overflow-hidden relative group">
                                                     {config.login_background_url ? (
@@ -906,16 +906,16 @@ export const SystemConfig: React.FC<{
                                                     ) : (
                                                         <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-300 gap-2">
                                                             <Globe size={48} className="stroke-[1]" />
-                                                            <span className="text-[10px] font-bold uppercase">Sin imagen de fondo</span>
+                                                            <span className="text-[10px] font-medium uppercase">Sin imagen de fondo</span>
                                                         </div>
                                                     )}
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-2">
-                                                    <label className="bg-[#106ebe] hover:bg-[#106ebe] hover:brightness-110 text-white text-[10px] font-black uppercase text-center py-2.5 rounded-lg cursor-pointer transition-all shadow-sm active:scale-95">
+                                                    <label className="bg-[#106ebe] hover:bg-[#106ebe] hover:brightness-110 text-white text-[10px] font-semibold uppercase text-center py-2.5 rounded-lg cursor-pointer transition-all shadow-sm active:scale-95">
                                                         Cambiar Fondo
                                                         <input type="file" onChange={handleBackgroundUpload} className="hidden" />
                                                     </label>
-                                                    <button onClick={() => setConfig({ ...config, login_background_url: '' })} className="bg-white border border-gray-100 text-gray-400 text-[10px] font-bold uppercase py-2 rounded-lg hover:bg-red-50 hover:text-red-500 transition-all active:scale-95">
+                                                    <button onClick={() => setConfig({ ...config, login_background_url: '' })} className="bg-white border border-gray-100 text-gray-400 text-[10px] font-medium uppercase py-2 rounded-lg hover:bg-red-50 hover:text-red-500 transition-all active:scale-95">
                                                         Quitar Fondo
                                                     </button>
                                                 </div>
@@ -932,58 +932,58 @@ export const SystemConfig: React.FC<{
                                             <Mail size={20} />
                                         </div>
                                         <div>
-                                            <h4 className="text-[11px] font-black text-blue-700 uppercase tracking-widest leading-none mb-1">Configuración de Mensajería</h4>
+                                            <h4 className="text-[11px] font-semibold text-blue-700 uppercase tracking-widest leading-none mb-1">Configuración de Mensajería</h4>
                                             <p className="text-[10px] font-medium text-[#106ebe]/70">Configure su servidor propio para el envío de reportes y notificaciones automáticas.</p>
                                         </div>
                                     </div>
 
                                     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-6 max-w-2xl mx-auto">
                                         <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                                            <label className="text-[10px] font-black text-gray-400 uppercase">Servidor Host</label>
+                                            <label className="text-[10px] font-semibold text-gray-400 uppercase">Servidor Host</label>
                                             <input
                                                 value={config.smtp_host}
                                                 onChange={e => setConfig({ ...config, smtp_host: e.target.value })}
-                                                className="w-full bg-gray-50/50 border border-gray-100 text-[11px] font-bold px-4 py-2 rounded-lg outline-none focus:bg-white focus:border-[#106ebe] shadow-sm transition-all"
+                                                className="w-full bg-gray-50/50 border border-gray-100 text-[11px] font-medium px-4 py-2 rounded-lg outline-none focus:bg-white focus:border-[#106ebe] shadow-sm transition-all"
                                                 placeholder="smtp.gmail.com"
                                             />
                                         </div>
                                         <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                                            <label className="text-[10px] font-black text-gray-400 uppercase">Puerto</label>
+                                            <label className="text-[10px] font-semibold text-gray-400 uppercase">Puerto</label>
                                             <input
                                                 value={config.smtp_port}
                                                 onChange={e => setConfig({ ...config, smtp_port: e.target.value })}
-                                                className="w-full bg-gray-50/50 border border-gray-100 text-[11px] font-bold px-4 py-2 rounded-lg outline-none focus:bg-white focus:border-[#106ebe] shadow-sm transition-all"
+                                                className="w-full bg-gray-50/50 border border-gray-100 text-[11px] font-medium px-4 py-2 rounded-lg outline-none focus:bg-white focus:border-[#106ebe] shadow-sm transition-all"
                                                 placeholder="587 / 465"
                                             />
                                         </div>
                                         <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                                            <label className="text-[10px] font-black text-gray-400 uppercase">Usuario / Email</label>
+                                            <label className="text-[10px] font-semibold text-gray-400 uppercase">Usuario / Email</label>
                                             <input
                                                 value={config.smtp_user}
                                                 onChange={e => setConfig({ ...config, smtp_user: e.target.value })}
-                                                className="w-full bg-gray-50/50 border border-gray-100 text-[11px] font-bold px-4 py-2 rounded-lg outline-none focus:bg-white focus:border-[#106ebe] shadow-sm transition-all"
+                                                className="w-full bg-gray-50/50 border border-gray-100 text-[11px] font-medium px-4 py-2 rounded-lg outline-none focus:bg-white focus:border-[#106ebe] shadow-sm transition-all"
                                                 placeholder="info@empresa.com"
                                             />
                                         </div>
                                         <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                                            <label className="text-[10px] font-black text-gray-400 uppercase">Contraseña</label>
+                                            <label className="text-[10px] font-semibold text-gray-400 uppercase">Contraseña</label>
                                             <input
                                                 type="password"
                                                 value={config.smtp_pass}
                                                 onChange={e => setConfig({ ...config, smtp_pass: e.target.value })}
-                                                className="w-full bg-gray-50/50 border border-gray-100 text-[11px] font-bold px-4 py-2 rounded-lg outline-none focus:bg-white focus:border-[#106ebe] shadow-sm transition-all"
+                                                className="w-full bg-gray-50/50 border border-gray-100 text-[11px] font-medium px-4 py-2 rounded-lg outline-none focus:bg-white focus:border-[#106ebe] shadow-sm transition-all"
                                             />
                                         </div>
                                         <div className="pt-4 border-t border-gray-50 flex flex-col items-end gap-3">
                                             {testSmtpMsg && (
-                                                <p className={`text-[10px] font-bold ${testingSmtp === 'ok' ? 'text-green-600' : 'text-red-500'}`}>
+                                                <p className={`text-[10px] font-medium ${testingSmtp === 'ok' ? 'text-green-600' : 'text-red-500'}`}>
                                                     {testSmtpMsg}
                                                 </p>
                                             )}
                                             <button
                                                 onClick={handleTestSmtp}
                                                 disabled={testingSmtp === 'loading'}
-                                                className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all active:scale-95 border shadow-sm flex items-center gap-2 ${
+                                                className={`px-6 py-2 text-[10px] font-semibold uppercase tracking-widest rounded-lg transition-all active:scale-95 border shadow-sm flex items-center gap-2 ${
                                                     testingSmtp === 'ok' ? 'bg-green-50 text-green-700 border-green-200' :
                                                     testingSmtp === 'error' ? 'bg-red-50 text-red-600 border-red-200' :
                                                     'bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-600 hover:text-white'
@@ -1003,7 +1003,7 @@ export const SystemConfig: React.FC<{
                 </div>
 
                 {/* Status Bar */}
-                <div className="bg-[#f1f3f5] px-4 py-1.5 flex items-center justify-between text-[10px] font-black text-gray-400 uppercase tracking-widest shrink-0 border-t border-gray-200">
+                <div className="bg-[#f1f3f5] px-4 py-1.5 flex items-center justify-between text-[10px] font-semibold text-gray-400 uppercase tracking-widest shrink-0 border-t border-gray-200">
                     <div className="flex gap-4">
                         <span>Versión: {packageJson.version}</span>
                         <span className="text-blue-300">|</span>

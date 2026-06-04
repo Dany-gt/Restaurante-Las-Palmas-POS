@@ -77,20 +77,20 @@ export const SupplyCategorySidebar: React.FC<SupplyCategorySidebarProps> = ({ se
                 <div className="bg-[#106ebe] h-[26px] px-2 flex items-center justify-between border-b border-[#004578] shrink-0">
                     <div className="flex items-center gap-1.5">
                         <ShoppingCart size={10} className="text-white/80" />
-                        <span className="text-[9px] font-bold text-white uppercase tracking-tight">Suministros</span>
+                        <span className="text-[9px] font-medium text-white uppercase tracking-tight">Suministros</span>
                     </div>
                     <button onClick={() => setForm({ id: null, nombre: '' })}
-                        className="w-5 h-5 flex items-center justify-center hover:bg-white/20 rounded transition-colors text-white font-bold text-[14px] leading-none"
+                        className="w-5 h-5 flex items-center justify-center hover:bg-white/20 rounded transition-colors text-white font-medium text-[14px] leading-none"
                         title="Nueva categoría de suministros">+</button>
                 </div>
 
                 <div className="bg-[#f0f0f0] h-6 px-2 flex items-center border-b border-gray-300 shrink-0">
-                    <span className="text-[9px] font-bold text-gray-500 uppercase">Categoría</span>
+                    <span className="text-[9px] font-medium text-gray-500 uppercase">Categoría</span>
                 </div>
 
                 <div className="flex-1 overflow-y-auto">
                     <div
-                        className={`flex items-center h-[22px] px-3 cursor-pointer ${!selectedId ? 'bg-blue-50 text-[#106ebe] font-bold' : 'hover:bg-[#cce8ff] text-slate-700'}`}
+                        className={`flex items-center h-[22px] px-3 cursor-pointer ${!selectedId ? 'bg-blue-50 text-[#106ebe] font-medium' : 'hover:bg-[#cce8ff] text-slate-700'}`}
                         onClick={() => onSelect(null)}
                     >
                         <span className="uppercase text-[10px]">— Todos los Insumos —</span>
@@ -102,7 +102,7 @@ export const SupplyCategorySidebar: React.FC<SupplyCategorySidebarProps> = ({ se
                         categories.map(cat => (
                             <div
                                 key={cat.id}
-                                className={`flex items-center h-[22px] px-3 cursor-pointer group ${selectedId === cat.id ? 'bg-blue-50 text-[#106ebe] font-black' : 'hover:bg-[#cce8ff] text-slate-800'}`}
+                                className={`flex items-center h-[22px] px-3 cursor-pointer group ${selectedId === cat.id ? 'bg-blue-50 text-[#106ebe] font-semibold' : 'hover:bg-[#cce8ff] text-slate-800'}`}
                                 onClick={() => onSelect(cat.id)}
                                 onDoubleClick={(e) => {
                                     e.stopPropagation();
@@ -126,7 +126,7 @@ export const SupplyCategorySidebar: React.FC<SupplyCategorySidebarProps> = ({ se
                 </div>
 
                 <div className="h-5 bg-[#f0f0f0] border-t border-gray-300 px-2 flex items-center shrink-0">
-                    <span className="text-[8px] font-bold text-gray-400 italic">Módulo: Insumos y Suministros</span>
+                    <span className="text-[8px] font-medium text-gray-400 italic">Módulo: Insumos y Suministros</span>
                 </div>
             </div>
 
@@ -153,7 +153,7 @@ export const SupplyCategorySidebar: React.FC<SupplyCategorySidebarProps> = ({ se
                         <div className="bg-[#106ebe] h-8 px-3 flex items-center justify-between text-white">
                             <div className="flex items-center gap-2">
                                 <ShoppingCart size={13} />
-                                <span className="text-[11px] font-bold uppercase">{form.id ? 'Editar' : 'Nueva'} Cat. de Suministros</span>
+                                <span className="text-[11px] font-medium uppercase">{form.id ? 'Editar' : 'Nueva'} Cat. de Suministros</span>
                             </div>
                             <button onClick={() => setForm(null)} className="hover:bg-red-500 w-7 h-7 flex items-center justify-center">
                                 <X size={14} />
@@ -161,18 +161,18 @@ export const SupplyCategorySidebar: React.FC<SupplyCategorySidebarProps> = ({ se
                         </div>
                         <div className="p-4 space-y-3">
                             <div>
-                                <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">Nombre de Categoría</label>
+                                <label className="block text-[10px] font-medium text-gray-600 uppercase mb-1">Nombre de Categoría</label>
                                 <input autoFocus type="text" value={form.nombre}
                                     onChange={e => setForm({ ...form, nombre: e.target.value })}
                                     onKeyDown={e => e.key === 'Enter' && handleSave()}
-                                    className="w-full h-8 bg-white border border-gray-400 px-3 text-[11px] font-black uppercase outline-none focus:border-[#106ebe]"
+                                    className="w-full h-8 bg-white border border-gray-400 px-3 text-[11px] font-semibold uppercase outline-none focus:border-[#106ebe]"
                                     placeholder="ej. DESECHABLES" />
                             </div>
                             <div className="flex gap-2 pt-1">
                                 <button onClick={() => setForm(null)}
-                                    className="flex-1 h-8 bg-white border border-gray-400 text-[10px] font-bold uppercase hover:bg-gray-100">Cancelar</button>
+                                    className="flex-1 h-8 bg-white border border-gray-400 text-[10px] font-medium uppercase hover:bg-gray-100">Cancelar</button>
                                 <button onClick={handleSave} disabled={isSaving || !form.nombre.trim()}
-                                    className="flex-1 h-8 bg-[#106ebe] text-white text-[10px] font-black uppercase hover:bg-[#004578] disabled:opacity-50 flex items-center justify-center gap-2">
+                                    className="flex-1 h-8 bg-[#106ebe] text-white text-[10px] font-semibold uppercase hover:bg-[#004578] disabled:opacity-50 flex items-center justify-center gap-2">
                                     {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Guardar
                                 </button>
                             </div>

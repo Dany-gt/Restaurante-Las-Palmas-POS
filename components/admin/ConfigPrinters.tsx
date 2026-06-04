@@ -173,11 +173,11 @@ export const ConfigPrinters: React.FC = () => {
             {/* Toolbar Principal - Estilo ERP */}
             <div className="bg-white border-b border-gray-300 p-2 flex flex-wrap items-center gap-4 shrink-0 shadow-sm">
                 <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold text-gray-500 uppercase tracking-tighter">Sucursal</span>
+                    <span className="text-[11px] font-medium text-gray-500 uppercase tracking-tighter">Sucursal</span>
                     <select
                         value={selectedBranchFilter}
                         onChange={(e) => setSelectedBranchFilter(e.target.value)}
-                        className="h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-bold text-[#106ebe] outline-none min-w-[280px]"
+                        className="h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-medium text-[#106ebe] outline-none min-w-[280px]"
                     >
                         <option value="ALL">TODAS LAS SUCURSALES</option>
                         {branches.map(b => (
@@ -190,7 +190,7 @@ export const ConfigPrinters: React.FC = () => {
                     <button 
                         onClick={detectPrinters}
                         disabled={isDetecting}
-                        className="h-7 px-3 bg-blue-50 text-[#106ebe] hover:bg-[#106ebe] hover:text-white text-[10px] font-bold uppercase rounded border border-blue-200 flex items-center gap-2 transition-all disabled:opacity-50"
+                        className="h-7 px-3 bg-blue-50 text-[#106ebe] hover:bg-[#106ebe] hover:text-white text-[10px] font-medium uppercase rounded border border-blue-200 flex items-center gap-2 transition-all disabled:opacity-50"
                     >
                         {isDetecting ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
                         Detectar Drivers
@@ -208,7 +208,7 @@ export const ConfigPrinters: React.FC = () => {
                         />
                         <Search size={14} className="absolute left-2.5 top-1.5 text-gray-400" />
                     </div>
-                    <button className="h-7 px-4 bg-gray-100 hover:bg-[#106ebe] hover:text-white text-gray-600 text-[10px] font-black uppercase tracking-widest rounded transition-all border border-gray-200">
+                    <button className="h-7 px-4 bg-gray-100 hover:bg-[#106ebe] hover:text-white text-gray-600 text-[10px] font-semibold uppercase tracking-widest rounded transition-all border border-gray-200">
                         Buscar
                     </button>
                 </div>
@@ -229,10 +229,10 @@ export const ConfigPrinters: React.FC = () => {
                     <table className="w-full border-collapse text-[11px]">
                         <thead className="sticky top-0 z-20 bg-[#e8e8e8] select-none">
                             <tr className="border-b border-gray-400 h-10">
-                                <th className="px-6 py-2 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[35%] transition-all">Nombre</th>
-                                <th className="px-6 py-2 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[35%]">Impresora</th>
-                                <th className="px-6 py-2 text-center text-[10px] font-bold text-black uppercase w-[15%]">Habilitado</th>
-                                <th className="px-6 py-2 text-center text-[10px] font-bold text-black uppercase w-[15%]">Acciones</th>
+                                <th className="px-6 py-2 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[35%] transition-all">Nombre</th>
+                                <th className="px-6 py-2 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[35%]">Impresora</th>
+                                <th className="px-6 py-2 text-center text-[10px] font-medium text-black uppercase w-[15%]">Habilitado</th>
+                                <th className="px-6 py-2 text-center text-[10px] font-medium text-black uppercase w-[15%]">Acciones</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -254,12 +254,12 @@ export const ConfigPrinters: React.FC = () => {
                                             : index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'
                                     } text-slate-900`}
                                 >
-                                    <td className="px-4 font-bold flex items-center gap-2 h-6 border-r border-gray-100">
+                                    <td className="px-4 font-medium flex items-center gap-2 h-6 border-r border-gray-100">
                                         <Printer size={12} className={selectedPrinterId === p.id ? 'text-white' : 'text-slate-400'} />
                                         <span className="uppercase tracking-tight text-[10px]">{p.name}</span>
                                     </td>
                                     <td className="px-4 border-r border-gray-100">
-                                        <span className={`uppercase tracking-tight text-[10px] ${selectedPrinterId === p.id ? 'text-blue-100' : 'text-slate-500 font-bold'}`}>
+                                        <span className={`uppercase tracking-tight text-[10px] ${selectedPrinterId === p.id ? 'text-blue-100' : 'text-slate-500 font-medium'}`}>
                                             {p.connection_type === 'SYSTEM' ? p.name : (p.address || 'LOCAL/USB')}
                                         </span>
                                     </td>
@@ -311,7 +311,7 @@ export const ConfigPrinters: React.FC = () => {
                                                         notify.error('Error: ' + err.message);
                                                     }
                                                 }}
-                                                className={`px-2 py-0.5 rounded text-[9px] font-black uppercase transition-all ${
+                                                className={`px-2 py-0.5 rounded text-[9px] font-semibold uppercase transition-all ${
                                                     selectedPrinterId === p.id 
                                                         ? 'bg-white text-[#106ebe] hover:bg-blue-50' 
                                                         : 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm'
@@ -336,7 +336,7 @@ export const ConfigPrinters: React.FC = () => {
                 >
                     <button
                         onClick={() => { setEditingPrinter(null); setFormData(defaultFormData); setShowModal(true); setContextMenu(null); }}
-                        className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                        className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
                     >
                         <Plus size={14} className="text-emerald-500 group-hover:text-white" /> Nuevo Registro
                     </button>
@@ -345,14 +345,14 @@ export const ConfigPrinters: React.FC = () => {
                         <>
                             <button
                                 onClick={() => { openEdit(contextMenu.printer); setContextMenu(null); }}
-                                className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                                className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
                             >
                                 <Edit3 size={14} className="text-[#106ebe] group-hover:text-white" /> Editar Configuración
                             </button>
                             <div className="h-px bg-gray-100 my-1"></div>
                             <button
                                 onClick={() => { setConfirmDelete(contextMenu.printer); setContextMenu(null); }}
-                                className="w-full text-left px-4 py-2 text-[11px] font-bold text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-3 group transition-colors"
+                                className="w-full text-left px-4 py-2 text-[11px] font-medium text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-3 group transition-colors"
                             >
                                 <Trash2 size={14} className="text-red-500 group-hover:text-white" /> Eliminar Registro
                             </button>
@@ -361,7 +361,7 @@ export const ConfigPrinters: React.FC = () => {
                     )}
                     <button
                         onClick={() => { fetchData(); setContextMenu(null); }}
-                        className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                        className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
                     >
                         <RefreshCw size={14} className="text-gray-400 group-hover:text-white" /> Refrescar
                     </button>
@@ -377,7 +377,7 @@ export const ConfigPrinters: React.FC = () => {
                             <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
                                 <div className="flex items-center gap-2">
                                     <Printer size={14} className="text-white" />
-                                    <span className="text-white text-[12px] font-bold tracking-wide">Mantenimiento de Punto de Impresión</span>
+                                    <span className="text-white text-[12px] font-medium tracking-wide">Mantenimiento de Punto de Impresión</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <WindowsSaveButton
@@ -396,7 +396,7 @@ export const ConfigPrinters: React.FC = () => {
                                 {/* Datos del Punto de Impresión */}
                                 <div className="bg-white border border-gray-300 shadow-sm overflow-hidden">
                                     <div className="bg-[#cbd5e1] px-3 py-1 border-b border-gray-300">
-                                        <span className="text-[11px] font-bold text-[#106ebe] uppercase tracking-tighter">Datos Punto de Impresión</span>
+                                        <span className="text-[11px] font-medium text-[#106ebe] uppercase tracking-tighter">Datos Punto de Impresión</span>
                                     </div>
                                     <div className="p-4 space-y-3">
                                         <div className="grid grid-cols-[100px_1fr] items-center gap-4">
@@ -407,12 +407,12 @@ export const ConfigPrinters: React.FC = () => {
                                                     onChange={e => setFormData({ ...formData, name: formData.connection_type === 'SYSTEM' ? e.target.value : e.target.value.toUpperCase() })}
                                                     type="text"
                                                     placeholder="Nombre descriptivo o Driver..."
-                                                    className="flex-1 h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-bold text-[#106ebe] outline-none focus:border-[#106ebe]"
+                                                    className="flex-1 h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-medium text-[#106ebe] outline-none focus:border-[#106ebe]"
                                                 />
                                                 {formData.connection_type === 'SYSTEM' && systemPrinters.length > 0 && (
                                                     <select
                                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                        className="w-[200px] h-7 bg-emerald-50 border border-emerald-200 rounded px-1 text-[10px] font-black text-emerald-700 outline-none"
+                                                        className="w-[200px] h-7 bg-emerald-50 border border-emerald-200 rounded px-1 text-[10px] font-semibold text-emerald-700 outline-none"
                                                     >
                                                         <option value="">USAR DRIVER DETECTADO...</option>
                                                         {systemPrinters.map(p => (
@@ -429,7 +429,7 @@ export const ConfigPrinters: React.FC = () => {
                                                 <select
                                                     value={formData.connection_type}
                                                     onChange={e => setFormData({ ...formData, connection_type: e.target.value })}
-                                                    className="h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-bold text-[#106ebe] outline-none"
+                                                    className="h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-medium text-[#106ebe] outline-none"
                                                 >
                                                     <option value="SYSTEM">SISTEMA (WINDOWS)</option>
                                                     <option value="NETWORK">RED (IP)</option>
@@ -442,14 +442,14 @@ export const ConfigPrinters: React.FC = () => {
                                                             onChange={e => setFormData({ ...formData, address: e.target.value })}
                                                             type="text"
                                                             placeholder="192.168.1.100"
-                                                            className="flex-1 h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-bold text-[#106ebe] outline-none"
+                                                            className="flex-1 h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-medium text-[#106ebe] outline-none"
                                                         />
                                                         <input
                                                             value={formData.port}
                                                             onChange={e => setFormData({ ...formData, port: parseInt(e.target.value) || 9100 })}
                                                             type="number"
                                                             placeholder="9100"
-                                                            className="w-20 h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-bold text-[#106ebe] outline-none"
+                                                            className="w-20 h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-medium text-[#106ebe] outline-none"
                                                         />
                                                         <button
                                                             onClick={async () => {
@@ -457,7 +457,7 @@ export const ConfigPrinters: React.FC = () => {
                                                                 if (ok) notify.success('Conexión exitosa');
                                                                 else notify.error('No se pudo establecer conexión');
                                                             }}
-                                                            className="px-2 h-7 bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase rounded border border-indigo-100"
+                                                            className="px-2 h-7 bg-indigo-50 text-indigo-600 text-[9px] font-semibold uppercase rounded border border-indigo-100"
                                                         >
                                                             Probar
                                                         </button>
@@ -467,7 +467,7 @@ export const ConfigPrinters: React.FC = () => {
                                                         {formData.connection_type === 'SYSTEM' ? (
                                                             <button 
                                                                 onClick={detectPrinters}
-                                                                className="text-[#106ebe] hover:underline font-bold"
+                                                                className="text-[#106ebe] hover:underline font-medium"
                                                             >
                                                                 Refrescar drivers instalados
                                                             </button>
@@ -482,7 +482,7 @@ export const ConfigPrinters: React.FC = () => {
                                             <select
                                                 value={formData.paper_width}
                                                 onChange={e => setFormData({ ...formData, paper_width: e.target.value })}
-                                                className="h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-bold text-[#106ebe] outline-none w-[120px]"
+                                                className="h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-medium text-[#106ebe] outline-none w-[120px]"
                                             >
                                                 <option value="80mm">80MM (ESTÁNDAR)</option>
                                                 <option value="58mm">58MM (MINI)</option>
@@ -495,7 +495,7 @@ export const ConfigPrinters: React.FC = () => {
                                                 <select
                                                     value={formData.branch_id}
                                                     onChange={e => setFormData({ ...formData, branch_id: e.target.value })}
-                                                    className="h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-bold text-[#106ebe] outline-none flex-1 min-w-[280px]"
+                                                    className="h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-medium text-[#106ebe] outline-none flex-1 min-w-[280px]"
                                                 >
                                                     <option value="">SELECCIONAR SUCURSAL...</option>
                                                     {branches.map(branch => (
@@ -526,7 +526,7 @@ export const ConfigPrinters: React.FC = () => {
                                                         {formData.opens_cash_drawer && <Check size={12} strokeWidth={4} />}
                                                     </div>
                                                     <div className="flex flex-col">
-                                                        <span className="text-[11px] font-bold text-[#106ebe] uppercase tracking-tighter">Gaveta de Dinero</span>
+                                                        <span className="text-[11px] font-medium text-[#106ebe] uppercase tracking-tighter">Gaveta de Dinero</span>
                                                         <span className="text-[9px] text-gray-500">Activa el pulso de apertura al imprimir</span>
                                                     </div>
                                                 </label>

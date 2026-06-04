@@ -110,9 +110,9 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
                 <div className="flex items-center gap-4">
                     <button onClick={onClose} className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 transition-colors flex items-center gap-2">
                         <X size={18} />
-                        <span className="text-xs font-bold uppercase tracking-wider">Cerrar Arqueo</span>
+                        <span className="text-xs font-medium uppercase tracking-wider">Cerrar Arqueo</span>
                     </button>
-                    <h2 className="text-sm font-bold text-gray-400 uppercase tracking-[0.2em]">{title || 'PALADAR POS - Arqueo de Caja'}</h2>
+                    <h2 className="text-sm font-medium text-gray-400 uppercase tracking-[0.2em]">{title || 'PALADAR POS - Arqueo de Caja'}</h2>
                 </div>
             </header>
 
@@ -123,26 +123,26 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
                     {/* COL 1: Monedas */}
                     <div className="flex flex-col gap-4">
                         <div className="bg-[#303343] py-2 rounded-t-lg border-b border-white/5 text-center">
-                            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Monedas</h3>
+                            <h3 className="text-xs font-medium text-white uppercase tracking-widest">Monedas</h3>
                         </div>
                         <div className="space-y-2">
                             {DENOMINATIONS.monedas.map(d => (
                                 <div key={d.id} className="flex h-10">
                                     <button
                                         onClick={() => handleInputClick(d.id)}
-                                        className="w-16 bg-[#303343] hover:bg-[#3d4154] transition-colors rounded-l-md flex items-center justify-center text-xs font-bold text-gray-300 border border-white/5 cursor-pointer"
+                                        className="w-16 bg-[#303343] hover:bg-[#3d4154] transition-colors rounded-l-md flex items-center justify-center text-xs font-medium text-gray-300 border border-white/5 cursor-pointer"
                                     >
                                         {d.label}
                                     </button>
                                     <div
-                                        className={`flex-1 flex items-center justify-center font-bold text-sm transition-all border-y border-white/5 ${activeInput === d.id
+                                        className={`flex-1 flex items-center justify-center font-medium text-sm transition-all border-y border-white/5 ${activeInput === d.id
                                             ? 'bg-white text-black'
                                             : 'bg-[#1f1d2b] text-white'
                                             }`}
                                     >
                                         {counts[d.id] || 0}
                                     </div>
-                                    <div className="w-20 bg-[#303343] rounded-r-md flex items-center justify-center text-xs font-mono font-bold text-gray-400 border border-white/5">
+                                    <div className="w-20 bg-[#303343] rounded-r-md flex items-center justify-center text-xs font-mono font-medium text-gray-400 border border-white/5">
                                         Q{calculateSubtotal(d.val, counts[d.id] || 0).toFixed(2)}
                                     </div>
                                 </div>
@@ -152,12 +152,12 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
                         {/* Totals Summary */}
                         <div className="mt-8 space-y-4">
                             {!isBlind && expectedAmount !== undefined && (
-                                <div className="flex justify-between items-center text-xs font-bold text-gray-400">
+                                <div className="flex justify-between items-center text-xs font-medium text-gray-400">
                                     <span>A Cuadrar</span>
                                     <span className="font-mono text-white">Q{expectedAmount.toFixed(2)}</span>
                                 </div>
                             )}
-                            <div className="flex justify-between items-center text-sm font-bold text-white">
+                            <div className="flex justify-between items-center text-sm font-medium text-white">
                                 <span>Total Arqueo</span>
                                 <span className="font-mono text-lg">Q{totalArqueo.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span>
                             </div>
@@ -167,26 +167,26 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
                     {/* COL 2: Billetes */}
                     <div className="flex flex-col gap-4">
                         <div className="bg-[#303343] py-2 rounded-t-lg border-b border-white/5 text-center">
-                            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Billetes</h3>
+                            <h3 className="text-xs font-medium text-white uppercase tracking-widest">Billetes</h3>
                         </div>
                         <div className="space-y-2">
                             {DENOMINATIONS.billetes.map(d => (
                                 <div key={d.id} className="flex h-10">
                                     <button
                                         onClick={() => handleInputClick(d.id)}
-                                        className="w-16 bg-[#303343] hover:bg-[#3d4154] transition-colors rounded-l-md flex items-center justify-center text-xs font-bold text-gray-300 border border-white/5 cursor-pointer"
+                                        className="w-16 bg-[#303343] hover:bg-[#3d4154] transition-colors rounded-l-md flex items-center justify-center text-xs font-medium text-gray-300 border border-white/5 cursor-pointer"
                                     >
                                         {d.label}
                                     </button>
                                     <div
-                                        className={`flex-1 flex items-center justify-center font-bold text-sm transition-all border-y border-white/5 ${activeInput === d.id
+                                        className={`flex-1 flex items-center justify-center font-medium text-sm transition-all border-y border-white/5 ${activeInput === d.id
                                             ? 'bg-white text-black'
                                             : 'bg-[#1f1d2b] text-white'
                                             }`}
                                     >
                                         {counts[d.id] || 0}
                                     </div>
-                                    <div className="w-20 bg-[#303343] rounded-r-md flex items-center justify-center text-xs font-mono font-bold text-gray-400 border border-white/5">
+                                    <div className="w-20 bg-[#303343] rounded-r-md flex items-center justify-center text-xs font-mono font-medium text-gray-400 border border-white/5">
                                         Q{calculateSubtotal(d.val, counts[d.id] || 0).toFixed(2)}
                                     </div>
                                 </div>
@@ -198,10 +198,10 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
                     <div className="flex flex-col gap-4">
                         {/* Display Screen */}
                         <div className="h-14 bg-[#1f1d2b] border border-white/5 rounded-md flex flex-col justify-center px-4 text-right">
-                             <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                             <span className="text-[9px] font-medium text-gray-500 uppercase tracking-widest">
                                 {activeInput === 'MANUAL' ? 'MONTO MANUAL' : (activeInput ? `CANTIDAD DE ${[...DENOMINATIONS.monedas, ...DENOMINATIONS.billetes].find(d => d.id === activeInput)?.label || activeInput}` : 'SELECCIONE DENOMINACIÓN')}
                             </span>
-                            <span className="text-lg font-bold text-white tracking-widest">
+                            <span className="text-lg font-medium text-white tracking-widest">
                                 {activeInput ? (tempValue || '0') : ''}
                             </span>
                         </div>
@@ -209,14 +209,14 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
                         {/* Numpad */}
                         <div className="bg-[#303343] p-2 rounded-md grid grid-cols-3 gap-1">
                             {[7, 8, 9, 4, 5, 6, 1, 2, 3].map(n => (
-                                <button key={n} onClick={() => handleKeyPad(n.toString())} className="h-14 bg-[#303343] border border-white/5 hover:bg-[#3d4154] text-white font-bold text-sm transition-colors rounded-sm">
+                                <button key={n} onClick={() => handleKeyPad(n.toString())} className="h-14 bg-[#303343] border border-white/5 hover:bg-[#3d4154] text-white font-medium text-sm transition-colors rounded-sm">
                                     {n}
                                 </button>
                             ))}
-                            <button onClick={() => handleKeyPad('0')} className="h-14 bg-[#303343] border border-white/5 hover:bg-[#3d4154] text-white font-bold text-sm transition-colors rounded-sm">
+                            <button onClick={() => handleKeyPad('0')} className="h-14 bg-[#303343] border border-white/5 hover:bg-[#3d4154] text-white font-medium text-sm transition-colors rounded-sm">
                                 0
                             </button>
-                            <button onClick={() => handleKeyPad('DOT')} className="h-14 bg-[#303343] border border-white/5 hover:bg-[#3d4154] text-white font-bold text-sm transition-colors rounded-sm">
+                            <button onClick={() => handleKeyPad('DOT')} className="h-14 bg-[#303343] border border-white/5 hover:bg-[#3d4154] text-white font-medium text-sm transition-colors rounded-sm">
                                 .
                             </button>
                             <button onClick={() => handleKeyPad('BACKSPACE')} className="h-14 bg-[#303343] border border-white/5 hover:bg-rose-500/20 text-gray-400 hover:text-rose-400 flex items-center justify-center transition-colors rounded-sm">
@@ -226,12 +226,12 @@ export const ArqueoModal: React.FC<ArqueoModalProps> = ({ onClose, onSave, expec
 
                         {/* Action Buttons */}
                         <div className="flex flex-col gap-2 mt-2">
-                             <button onClick={confirmValue} className="h-12 bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-widest rounded-md transition-colors flex items-center justify-center gap-2">
+                             <button onClick={confirmValue} className="h-12 bg-white/5 hover:bg-white/10 text-white font-medium text-xs uppercase tracking-widest rounded-md transition-colors flex items-center justify-center gap-2">
                                 <Check size={16} /> Confirmar Monto
                             </button>
                             <button
                                 onClick={() => onSave(totalArqueo, counts)}
-                                className="h-12 bg-[#6b72ff] hover:bg-[#5a60e0] text-white font-bold text-xs uppercase tracking-widest rounded-md transition-colors mt-2"
+                                className="h-12 bg-[#6b72ff] hover:bg-[#5a60e0] text-white font-medium text-xs uppercase tracking-widest rounded-md transition-colors mt-2"
                             >
                                 Guardar Arqueo
                             </button>

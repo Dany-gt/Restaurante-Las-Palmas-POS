@@ -349,7 +349,7 @@ export const ConfigReceivable: React.FC = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full bg-white border border-gray-300 focus:border-[#106ebe] px-2 py-1 text-[11px] outline-none pr-12"
                         />
-                        <button className="absolute right-0 top-0 bottom-0 px-4 bg-[#106ebe] text-white border-l border-[#002244] text-[10px] font-bold hover:bg-[#002244] uppercase transition-colors">
+                        <button className="absolute right-0 top-0 bottom-0 px-4 bg-[#106ebe] text-white border-l border-[#002244] text-[10px] font-medium hover:bg-[#002244] uppercase transition-colors">
                             Buscar
                         </button>
                     </div>
@@ -362,13 +362,13 @@ export const ConfigReceivable: React.FC = () => {
                     <table className="w-full min-w-[1000px] border-collapse relative text-[11px] font-sans">
                         <thead className="bg-[#e8e8e8] sticky top-0 z-10 select-none">
                             <tr className="border-b border-gray-400 h-8">
-                                <th className="text-left px-3 font-bold border-r border-gray-300 text-black uppercase text-[10px]">Nombre</th>
-                                <th className="text-left px-3 font-bold border-r border-gray-300 text-black uppercase text-[10px]">Correo</th>
-                                <th className="text-left px-3 font-bold border-r border-gray-300 text-black uppercase text-[10px]">Teléfono</th>
-                                <th className="text-left px-3 font-bold border-r border-gray-300 text-black uppercase text-[10px]">Límite de Crédito</th>
-                                <th className="text-left px-3 font-bold border-r border-gray-300 text-black uppercase text-[10px]">Descuento</th>
-                                <th className="text-left px-3 font-bold border-r border-gray-300 text-black uppercase text-[10px]">Saldo</th>
-                                <th className="text-center px-3 font-bold text-black uppercase text-[10px]">Habilitado</th>
+                                <th className="text-left px-3 font-medium border-r border-gray-300 text-black uppercase text-[10px]">Nombre</th>
+                                <th className="text-left px-3 font-medium border-r border-gray-300 text-black uppercase text-[10px]">Correo</th>
+                                <th className="text-left px-3 font-medium border-r border-gray-300 text-black uppercase text-[10px]">Teléfono</th>
+                                <th className="text-left px-3 font-medium border-r border-gray-300 text-black uppercase text-[10px]">Límite de Crédito</th>
+                                <th className="text-left px-3 font-medium border-r border-gray-300 text-black uppercase text-[10px]">Descuento</th>
+                                <th className="text-left px-3 font-medium border-r border-gray-300 text-black uppercase text-[10px]">Saldo</th>
+                                <th className="text-center px-3 font-medium text-black uppercase text-[10px]">Habilitado</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -377,7 +377,7 @@ export const ConfigReceivable: React.FC = () => {
                                     <td colSpan={7} className="py-20 text-center">
                                         <div className="flex flex-col items-center justify-center text-slate-400">
                                             {loading ? <Loader2 size={24} className="animate-spin mb-2" /> : <Receipt size={24} className="mb-2 opacity-30" />}
-                                            <p className="text-[10px] uppercase font-bold">{loading ? 'Cargando datos...' : 'No se encontraron clientes'}</p>
+                                            <p className="text-[10px] uppercase font-medium">{loading ? 'Cargando datos...' : 'No se encontraron clientes'}</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -465,7 +465,7 @@ export const ConfigReceivable: React.FC = () => {
                             <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
                                 <div className="flex items-center gap-2">
                                     <CreditCard size={14} className="text-white" />
-                                    <span className="text-white text-[11px] font-bold tracking-wide uppercase">Registrar Abono</span>
+                                    <span className="text-white text-[11px] font-medium tracking-wide uppercase">Registrar Abono</span>
                                 </div>
                                 <div className="flex items-center">
                                     <WindowsSaveButton
@@ -482,29 +482,29 @@ export const ConfigReceivable: React.FC = () => {
 
                             <div className="p-4 space-y-4">
                                 <div className="bg-white p-3 border border-gray-300 shadow-inner">
-                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight block mb-1">Saldo Pendiente actual</span>
-                                    <span className="text-xl font-black text-rose-600">Q{parseFloat(selectedAccount.saldo.toString()).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span>
+                                    <span className="text-[9px] font-medium text-slate-500 uppercase tracking-tight block mb-1">Saldo Pendiente actual</span>
+                                    <span className="text-xl font-semibold text-rose-600">Q{parseFloat(selectedAccount.saldo.toString()).toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span>
                                 </div>
 
                                 <div className="grid grid-cols-[100px_1fr] items-center gap-y-3 gap-x-4">
-                                    <label className="text-[10px] font-bold text-slate-700 uppercase">Monto Abono:</label>
+                                    <label className="text-[10px] font-medium text-slate-700 uppercase">Monto Abono:</label>
                                     <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">Q</span>
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium text-xs">Q</span>
                                         <input
                                             value={paymentForm.amount}
                                             onChange={e => setPaymentForm({ ...paymentForm, amount: e.target.value })}
                                             type="number"
                                             step="0.01"
-                                            className="w-full bg-white border border-gray-300 rounded-none px-3 pl-7 h-8 text-[11px] text-slate-800 font-bold focus:border-[#106ebe] outline-none"
+                                            className="w-full bg-white border border-gray-300 rounded-none px-3 pl-7 h-8 text-[11px] text-slate-800 font-medium focus:border-[#106ebe] outline-none"
                                             placeholder="0.00"
                                         />
                                     </div>
 
-                                    <label className="text-[10px] font-bold text-slate-700 uppercase">Método:</label>
+                                    <label className="text-[10px] font-medium text-slate-700 uppercase">Método:</label>
                                     <select
                                         value={paymentForm.payment_method}
                                         onChange={e => setPaymentForm({ ...paymentForm, payment_method: e.target.value })}
-                                        className="w-full bg-white border border-gray-300 rounded-none px-3 h-8 text-[11px] text-slate-800 font-bold focus:border-[#106ebe] outline-none appearance-none"
+                                        className="w-full bg-white border border-gray-300 rounded-none px-3 h-8 text-[11px] text-slate-800 font-medium focus:border-[#106ebe] outline-none appearance-none"
                                     >
                                         <option value="EFECTIVO">EFECTIVO</option>
                                         <option value="TARJETA">TARJETA</option>
@@ -512,12 +512,12 @@ export const ConfigReceivable: React.FC = () => {
                                         <option value="CHEQUE">CHEQUE</option>
                                     </select>
 
-                                    <label className="text-[10px] font-bold text-slate-700 uppercase">Descripción:</label>
+                                    <label className="text-[10px] font-medium text-slate-700 uppercase">Descripción:</label>
                                     <input
                                         value={paymentForm.description}
                                         onChange={e => setPaymentForm({ ...paymentForm, description: e.target.value })}
                                         type="text"
-                                        className="w-full bg-white border border-gray-300 rounded-none px-3 h-8 text-[11px] text-slate-800 font-bold focus:border-[#106ebe] outline-none"
+                                        className="w-full bg-white border border-gray-300 rounded-none px-3 h-8 text-[11px] text-slate-800 font-medium focus:border-[#106ebe] outline-none"
                                         placeholder="Referencia o nota..."
                                     />
                                 </div>
@@ -526,14 +526,14 @@ export const ConfigReceivable: React.FC = () => {
                             <div className="p-3 bg-gray-50 border-t border-gray-200 flex justify-end gap-2 shrink-0">
                                 <button
                                     onClick={() => { setShowPaymentModal(false); setSelectedAccount(null); }}
-                                    className="px-4 py-1.5 border border-gray-300 bg-white hover:bg-gray-50 text-slate-700 text-[11px] font-bold uppercase"
+                                    className="px-4 py-1.5 border border-gray-300 bg-white hover:bg-gray-50 text-slate-700 text-[11px] font-medium uppercase"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     onClick={handlePayment}
                                     disabled={!paymentForm.amount || loading}
-                                    className="px-6 py-1.5 bg-[#155724] hover:bg-[#1e7e34] text-white text-[11px] font-bold uppercase shadow-sm disabled:opacity-50 flex items-center gap-2"
+                                    className="px-6 py-1.5 bg-[#155724] hover:bg-[#1e7e34] text-white text-[11px] font-medium uppercase shadow-sm disabled:opacity-50 flex items-center gap-2"
                                 >
                                     {loading ? <Loader2 className="animate-spin" size={14} /> : <Check size={14} />}
                                     Registrar Pago
@@ -552,7 +552,7 @@ export const ConfigReceivable: React.FC = () => {
                         <div className="w-[600px] bg-[#f0f0f0] border border-[#106ebe] shadow-[0_4px_20px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col animate-slide-up">
                             {/* Title Bar */}
                             <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
-                                <span className="text-white text-[11px] font-bold tracking-tight uppercase">Mantenimiento de Cuentas por Cobrar</span>
+                                <span className="text-white text-[11px] font-medium tracking-tight uppercase">Mantenimiento de Cuentas por Cobrar</span>
                                 <div className="flex items-center gap-1">
                                     <WindowsSaveButton
                                         onClick={handleSaveCustomer}
@@ -568,7 +568,7 @@ export const ConfigReceivable: React.FC = () => {
 
                             {/* Modal Content */}
                             <div className="p-4 bg-white m-4 border border-gray-300">
-                                <div className="text-[#106ebe] text-[12px] font-bold mb-3 border-b border-gray-100 pb-1 flex items-center gap-2 uppercase tracking-wide">
+                                <div className="text-[#106ebe] text-[12px] font-medium mb-3 border-b border-gray-100 pb-1 flex items-center gap-2 uppercase tracking-wide">
                                     Datos de Cuenta Corriente
                                 </div>
 
@@ -666,7 +666,7 @@ export const ConfigReceivable: React.FC = () => {
                             <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
                                 <div className="flex items-center gap-2">
                                     <FileText size={14} className="text-white" />
-                                    <span className="text-white text-[11px] font-bold tracking-tight uppercase">Movimientos de Cuenta</span>
+                                    <span className="text-white text-[11px] font-medium tracking-tight uppercase">Movimientos de Cuenta</span>
                                 </div>
                                 <button onClick={() => { setShowDetailModal(false); setSelectedAccount(null); }} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white transition-all ml-1" title="Cerrar">
                                     <X size={18} strokeWidth={2.5} />
@@ -677,34 +677,34 @@ export const ConfigReceivable: React.FC = () => {
                                 {/* Filter & Info Section */}
                                 <div className="grid grid-cols-[1fr_350px] gap-4">
                                     <fieldset className="border border-gray-300 p-4 pt-2 bg-white">
-                                        <legend className="px-2 text-[10px] font-bold text-gray-700 uppercase">Datos</legend>
+                                        <legend className="px-2 text-[10px] font-medium text-gray-700 uppercase">Datos</legend>
                                         <div className="grid grid-cols-[100px_1fr] items-center gap-y-2 gap-x-4">
-                                            <label className="text-[11px] font-bold text-slate-800">Nombre:</label>
-                                            <div className="border border-gray-400 px-2 h-5 text-[11px] font-bold flex items-center uppercase text-black bg-white">{selectedAccount.customer_name}</div>
+                                            <label className="text-[11px] font-medium text-slate-800">Nombre:</label>
+                                            <div className="border border-gray-400 px-2 h-5 text-[11px] font-medium flex items-center uppercase text-black bg-white">{selectedAccount.customer_name}</div>
 
-                                            <label className="text-[11px] font-bold text-slate-800">Teléfono:</label>
-                                            <div className="border border-gray-400 px-2 h-5 text-[11px] font-bold flex items-center uppercase text-black bg-white">{selectedAccount.telephone || ''}</div>
+                                            <label className="text-[11px] font-medium text-slate-800">Teléfono:</label>
+                                            <div className="border border-gray-400 px-2 h-5 text-[11px] font-medium flex items-center uppercase text-black bg-white">{selectedAccount.telephone || ''}</div>
 
-                                            <label className="text-[11px] font-bold text-slate-800">Límite de Crédito:</label>
+                                            <label className="text-[11px] font-medium text-slate-800">Límite de Crédito:</label>
                                             <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-center">
-                                                <div className="border border-gray-400 px-2 h-5 text-[11px] font-bold flex items-center justify-end font-mono text-black bg-white">Q{parseFloat(selectedAccount.limite_credito.toString()).toFixed(2)}</div>
-                                                <label className="text-[11px] font-bold text-slate-800">Descuento Autorizado:</label>
-                                                <div className="border border-gray-400 px-2 h-5 text-[11px] font-bold flex items-center justify-end font-mono text-black bg-white">{parseFloat(selectedAccount.descuento?.toString() || '0').toFixed(2)}%</div>
+                                                <div className="border border-gray-400 px-2 h-5 text-[11px] font-medium flex items-center justify-end font-mono text-black bg-white">Q{parseFloat(selectedAccount.limite_credito.toString()).toFixed(2)}</div>
+                                                <label className="text-[11px] font-medium text-slate-800">Descuento Autorizado:</label>
+                                                <div className="border border-gray-400 px-2 h-5 text-[11px] font-medium flex items-center justify-end font-mono text-black bg-white">{parseFloat(selectedAccount.descuento?.toString() || '0').toFixed(2)}%</div>
                                             </div>
                                         </div>
                                     </fieldset>
 
                                     <fieldset className="border border-gray-300 p-4 pt-2 bg-white">
-                                        <legend className="px-2 text-[10px] font-bold text-gray-700 uppercase">Fechas</legend>
+                                        <legend className="px-2 text-[10px] font-medium text-gray-700 uppercase">Fechas</legend>
                                         <div className="grid grid-cols-[40px_1fr] items-center gap-y-2 gap-x-2">
-                                            <label className="text-[11px] font-bold text-black">Del:</label>
-                                            <input type="date" className="w-full border border-gray-400 px-2 h-6 text-[11px] font-bold outline-none text-black bg-white" defaultValue={new Date().toISOString().split('T')[0]} />
+                                            <label className="text-[11px] font-medium text-black">Del:</label>
+                                            <input type="date" className="w-full border border-gray-400 px-2 h-6 text-[11px] font-medium outline-none text-black bg-white" defaultValue={new Date().toISOString().split('T')[0]} />
 
-                                            <label className="text-[11px] font-bold text-black">Al:</label>
-                                            <input type="date" className="w-full border border-gray-400 px-2 h-6 text-[11px] font-bold outline-none text-black bg-white" defaultValue={new Date().toISOString().split('T')[0]} />
+                                            <label className="text-[11px] font-medium text-black">Al:</label>
+                                            <input type="date" className="w-full border border-gray-400 px-2 h-6 text-[11px] font-medium outline-none text-black bg-white" defaultValue={new Date().toISOString().split('T')[0]} />
 
                                             <div></div>
-                                            <button className="w-full bg-[#106ebe] hover:bg-[#002244] text-white text-[11px] font-bold h-6 transition-colors shadow-sm uppercase">Filtrar</button>
+                                            <button className="w-full bg-[#106ebe] hover:bg-[#002244] text-white text-[11px] font-medium h-6 transition-colors shadow-sm uppercase">Filtrar</button>
                                         </div>
                                     </fieldset>
                                 </div>
@@ -714,7 +714,7 @@ export const ConfigReceivable: React.FC = () => {
                                     <div className="overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
                                         <table className="w-full border-collapse">
                                             <thead>
-                                                <tr className="bg-[#e8e8e8] text-[10px] text-black font-bold border-b border-gray-400 sticky top-0 z-10 select-none">
+                                                <tr className="bg-[#e8e8e8] text-[10px] text-black font-medium border-b border-gray-400 sticky top-0 z-10 select-none">
                                                     <th className="px-2 py-1.5 border-r border-gray-300 text-left w-24 uppercase">Fecha</th>
                                                     <th className="px-2 py-1.5 border-r border-gray-300 text-left w-28 uppercase">Tipo Docto.</th>
                                                     <th className="px-2 py-1.5 border-r border-gray-300 text-left w-24 uppercase">No. Docto.</th>
@@ -731,7 +731,7 @@ export const ConfigReceivable: React.FC = () => {
                                                         <td colSpan={8} className="p-10 text-center">
                                                             <div className="flex flex-col items-center opacity-60">
                                                                 <FileText size={48} className="text-slate-400" />
-                                                                <span className="text-[12px] font-bold uppercase mt-2 text-slate-600">Sin registros de movimientos</span>
+                                                                <span className="text-[12px] font-medium uppercase mt-2 text-slate-600">Sin registros de movimientos</span>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -752,7 +752,7 @@ export const ConfigReceivable: React.FC = () => {
                                                             <td className="px-2 border-r border-gray-300 text-right font-mono">
                                                                 {tx.transaction_type === 'PAYMENT' ? parseFloat(tx.monto).toFixed(2) : ''}
                                                             </td>
-                                                            <td className="px-2 border-r border-gray-300 text-right font-mono font-bold">
+                                                            <td className="px-2 border-r border-gray-300 text-right font-mono font-medium">
                                                                 {/* Simplified: showing current balance since we don't have running balance in tx data easily */}
                                                                 -
                                                             </td>
@@ -765,7 +765,7 @@ export const ConfigReceivable: React.FC = () => {
                                     </div>
 
                                     {/* Table Totals Row */}
-                                    <div className="bg-[#e8e8e8] border-t border-gray-400 flex justify-end font-mono text-[11px] font-black p-1 gap-0 text-black select-none">
+                                    <div className="bg-[#e8e8e8] border-t border-gray-400 flex justify-end font-mono text-[11px] font-semibold p-1 gap-0 text-black select-none">
                                         <div className="w-24 text-right px-2 border-r border-gray-300">
                                             {transactions.reduce((sum, tx) => sum + (tx.transaction_type === 'CHARGE' ? parseFloat(tx.monto) : 0), 0).toFixed(2)}
                                         </div>

@@ -884,7 +884,7 @@ export const KitchenView: React.FC = () => {
     <div className="h-full flex items-center justify-center bg-[#2d2e3d]">
       <div className="flex flex-col items-center gap-4">
         <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
-        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500">Sincronizando Cocina...</span>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.4em] text-gray-500">Sincronizando Cocina...</span>
       </div>
     </div>
   );
@@ -899,11 +899,11 @@ export const KitchenView: React.FC = () => {
           </div>
           <div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-500/80 mb-1">Restaurante Las Palmas</span>
-              <h1 className="text-4xl font-black tracking-tighter uppercase leading-none text-white/90">KDS</h1>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.4em] text-indigo-500/80 mb-1">Restaurante Las Palmas</span>
+              <h1 className="text-4xl font-semibold tracking-tighter uppercase leading-none text-white/90">KDS</h1>
             </div>
             <div className="flex items-center gap-3 mt-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">
                 {filter === 'delivered' ? `${filteredOrders.length} Entregas Recientes` : `${filteredOrders.length} Comandas Activas`}
               </span>
             </div>
@@ -922,8 +922,8 @@ export const KitchenView: React.FC = () => {
                 <ChevronLeft size={16} />
               </button>
               <div className="px-3 flex flex-col items-center">
-                <span className="text-[9px] font-black tracking-tighter text-indigo-400">PÁGINA {currentPage + 1}</span>
-                <span className="text-[7px] font-bold text-gray-500 uppercase tracking-widest">{Math.ceil(filteredOrders.length / ordersPerPage)} TOTAL</span>
+                <span className="text-[9px] font-semibold tracking-tighter text-indigo-400">PÁGINA {currentPage + 1}</span>
+                <span className="text-[7px] font-medium text-gray-500 uppercase tracking-widest">{Math.ceil(filteredOrders.length / ordersPerPage)} TOTAL</span>
               </div>
               <button
                 disabled={(currentPage + 1) * ordersPerPage >= filteredOrders.length}
@@ -938,7 +938,7 @@ export const KitchenView: React.FC = () => {
           {/* AUDIO UNLOCK BUTTON */}
           <button
             onClick={unlockAudio}
-            className={`flex items-center gap-3 px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${audioUnlocked
+            className={`flex items-center gap-3 px-6 py-2.5 rounded-xl text-[9px] font-semibold uppercase tracking-widest transition-all border ${audioUnlocked
               ? 'bg-indigo-600/10 border-indigo-500/20 text-indigo-400'
               : 'bg-red-600 border-red-400 text-white  -600/40 animate-pulse'
               }`}
@@ -952,8 +952,8 @@ export const KitchenView: React.FC = () => {
 
           <div className="flex items-center gap-4 px-4">
             <div className="flex flex-col items-end">
-              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">ÁREA:</span>
-              <span className="text-2xl font-black text-white uppercase tracking-tighter leading-none">
+              <span className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">ÁREA:</span>
+              <span className="text-2xl font-semibold text-white uppercase tracking-tighter leading-none">
                 {localStorage.getItem('current_kds_station_name') || 'VISTA GENERAL'}
               </span>
             </div>
@@ -980,7 +980,7 @@ export const KitchenView: React.FC = () => {
                 <div className="p-3 border-b border-white/10 flex justify-between items-start transition-colors bg-white/[0.03]">
                   <div>
                     <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-lg font-black tracking-tighter uppercase flex items-center gap-2">
+                      <span className="text-lg font-semibold tracking-tighter uppercase flex items-center gap-2">
                         {order.order_number && (
                           <span className="text-indigo-400">
                             ORDEN #{order.order_number}
@@ -991,7 +991,7 @@ export const KitchenView: React.FC = () => {
                         </span>
                       </span>
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">{order.section} • {order.waiter_name}</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">{order.section} • {order.waiter_name}</span>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button
@@ -1010,7 +1010,7 @@ export const KitchenView: React.FC = () => {
                 {/* TIMERS ROW */}
                 <div className="grid grid-cols-2 border-b border-white/5 bg-black/40">
                   <div className="py-2 px-1 text-center border-r border-white/5 flex flex-col justify-center bg-black/40">
-                    <span className="text-[8px] font-black text-white/50 uppercase tracking-widest mb-1.5">EN ESPERA</span>
+                    <span className="text-[8px] font-semibold text-white/50 uppercase tracking-widest mb-1.5">EN ESPERA</span>
                     <KitchenTimer
                       startDate={order.ticketStartTime}
                       endDate={order.truePrepStartISO || order.stationReadyAt}
@@ -1020,7 +1020,7 @@ export const KitchenView: React.FC = () => {
                     />
                   </div>
                   <div className="py-1.5 px-1 text-center flex flex-col justify-center bg-black/40">
-                    <span className="text-[7px] font-black text-white/50 uppercase tracking-widest mb-1.5">PREPARACIÓN</span>
+                    <span className="text-[7px] font-semibold text-white/50 uppercase tracking-widest mb-1.5">PREPARACIÓN</span>
                     {order.truePrepStartISO ? (
                       <KitchenTimer
                         startDate={order.truePrepStartISO}
@@ -1030,7 +1030,7 @@ export const KitchenView: React.FC = () => {
                         tick={tick}
                       />
                     ) : (
-                      <span className="text-[10px] font-black text-gray-600 tracking-widest">--:--</span>
+                      <span className="text-[10px] font-semibold text-gray-600 tracking-widest">--:--</span>
                     )}
                   </div>
                 </div>
@@ -1045,8 +1045,8 @@ export const KitchenView: React.FC = () => {
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0 flex flex-col">
                           <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-black uppercase tracking-tight leading-none text-white">{item.product_name}</span>
-                            <span className="text-[12px] font-black text-white bg-black/20 px-2.5 py-0.5 rounded-md">{item.quantity}</span>
+                            <span className="text-[11px] font-semibold uppercase tracking-tight leading-none text-white">{item.product_name}</span>
+                            <span className="text-[12px] font-semibold text-white bg-black/20 px-2.5 py-0.5 rounded-md">{item.quantity}</span>
                           </div>
                           {(() => {
                             const { mods, obs, hasNotes } = parseKitchenNotes(item.notes);
@@ -1055,7 +1055,7 @@ export const KitchenView: React.FC = () => {
                               <div className="mt-2 flex flex-col gap-1">
                                 {mods && (
                                   <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg h-auto min-h-min">
-                                    <div className="text-[10px] text-indigo-400 font-bold uppercase leading-relaxed break-words whitespace-pre-wrap">
+                                    <div className="text-[10px] text-indigo-400 font-medium uppercase leading-relaxed break-words whitespace-pre-wrap">
                                       {mods}
                                     </div>
                                   </div>
@@ -1064,9 +1064,9 @@ export const KitchenView: React.FC = () => {
                                   <div className="p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
                                     <div className="flex items-center gap-1.5 mb-1">
                                       <AlertCircle size={10} className="text-amber-500 flex-shrink-0" />
-                                      <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest">Indicaciones:</span>
+                                      <span className="text-[8px] font-semibold text-amber-500 uppercase tracking-widest">Indicaciones:</span>
                                     </div>
-                                    <p className="text-[11px] text-[#ff7675] font-bold uppercase leading-snug break-words">
+                                    <p className="text-[11px] text-[#ff7675] font-medium uppercase leading-snug break-words">
                                       "{obs}"
                                     </p>
                                   </div>
@@ -1080,7 +1080,7 @@ export const KitchenView: React.FC = () => {
                           {filter === 'delivered' ? (
                             <button
                               onClick={(e) => { e.stopPropagation(); updateItemStatus(item.id, 'ready'); }}
-                              className="px-2 py-1 bg-amber-500/10 text-amber-500/80 hover:bg-amber-500 hover:text-white rounded-lg text-[7px] font-black uppercase tracking-tighter flex items-center justify-center border border-amber-500/20 transition-all"
+                              className="px-2 py-1 bg-amber-500/10 text-amber-500/80 hover:bg-amber-500 hover:text-white rounded-lg text-[7px] font-semibold uppercase tracking-tighter flex items-center justify-center border border-amber-500/20 transition-all"
                             >
                               <ChevronLeft size={8} className="mr-1" /> RETORNAR
                             </button>
@@ -1089,19 +1089,19 @@ export const KitchenView: React.FC = () => {
                               {item.status === 'pending' ? (
                                 <button
                                   onClick={(e) => { e.stopPropagation(); updateItemStatus(item.id, 'preparing'); }}
-                                  className="w-16 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-[7px] font-black uppercase tracking-tighter flex items-center justify-center gap-1 border border-indigo-400/50 transition-all active:scale-95  -900/30"
+                                  className="w-16 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-[7px] font-semibold uppercase tracking-tighter flex items-center justify-center gap-1 border border-indigo-400/50 transition-all active:scale-95  -900/30"
                                 >
                                   <Play size={8} /> INICIAR
                                 </button>
                               ) : item.status === 'preparing' ? (
                                 <button
                                   onClick={(e) => { e.stopPropagation(); updateItemStatus(item.id, 'ready'); }}
-                                  className="w-16 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-[7px] font-black uppercase tracking-tighter flex items-center justify-center gap-1 border border-emerald-400/50 transition-all active:scale-95  -900/30"
+                                  className="w-16 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-[7px] font-semibold uppercase tracking-tighter flex items-center justify-center gap-1 border border-emerald-400/50 transition-all active:scale-95  -900/30"
                                 >
                                   <Check size={8} /> LISTO
                                 </button>
                               ) : (
-                                <div className="w-16 py-1 bg-white/10 text-white rounded-md text-[7px] font-black uppercase tracking-tighter flex items-center justify-center border border-white/20 ">
+                                <div className="w-16 py-1 bg-white/10 text-white rounded-md text-[7px] font-semibold uppercase tracking-tighter flex items-center justify-center border border-white/20 ">
                                   <CheckCircle2 size={8} className="mr-1 text-emerald-400" /> LISTO
                                 </div>
                               )}
@@ -1150,7 +1150,7 @@ export const KitchenView: React.FC = () => {
                             if (error) console.error("Error batch delivering:", error);
                             fetchKDSData(true);
                           }}
-                          className="w-full py-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-xl font-black text-[9px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 active:scale-95  -900/10"
+                          className="w-full py-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-xl font-semibold text-[9px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 active:scale-95  -900/10"
                         >
                           <CheckCircle2 size={12} /> ENTREGAR
                         </button>
@@ -1191,7 +1191,7 @@ export const KitchenView: React.FC = () => {
 
                           fetchKDSData(true);
                         }}
-                        className="w-full py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 hover:text-indigo-300 rounded-lg font-black text-[8px] uppercase tracking-[0.2em] border border-indigo-500/20 transition-all flex items-center justify-center gap-2"
+                        className="w-full py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 hover:text-indigo-300 rounded-lg font-semibold text-[8px] uppercase tracking-[0.2em] border border-indigo-500/20 transition-all flex items-center justify-center gap-2"
                       >
                         <Flame size={12} className="animate-pulse" /> SERVIR
                       </button>
@@ -1207,7 +1207,7 @@ export const KitchenView: React.FC = () => {
               {filteredOrders.length === 0 && i === 2 && (
                 <div className="flex flex-col items-center opacity-5">
                   <ChefHat size={40} className="mb-2" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-center">Sin Pedidos</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-center">Sin Pedidos</span>
                 </div>
               )}
             </div>
@@ -1226,11 +1226,11 @@ export const KitchenView: React.FC = () => {
                     <ChefHat size={32} className="text-indigo-400" />
                   </div>
                   <div>
-                    <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">
+                    <h2 className="text-4xl font-semibold uppercase tracking-tighter leading-none">
                       {selectedOrder.order_number ? `#${selectedOrder.order_number}` : ''} {selectedOrder.table_number.length < 4 ? `MESA ${selectedOrder.table_number}` : selectedOrder.table_number}
                     </h2>
                     <div className="flex items-center gap-4 mt-2">
-                      <p className="text-xs font-black uppercase text-gray-500 tracking-widest">{selectedOrder.section} • {selectedOrder.waiter_name}</p>
+                      <p className="text-xs font-semibold uppercase text-gray-500 tracking-widest">{selectedOrder.section} • {selectedOrder.waiter_name}</p>
                       <div className="flex gap-2">
                         {(() => {
                           const prepStart = selectedOrder.items.find(i => i.preparing_at)?.preparing_at;
@@ -1241,11 +1241,11 @@ export const KitchenView: React.FC = () => {
 
                           return (
                             <>
-                              <div className={`px-2 py-1 rounded-lg border text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${getWaitColor(Math.floor(waitSeconds / 60))}`}>
+                              <div className={`px-2 py-1 rounded-lg border text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2 ${getWaitColor(Math.floor(waitSeconds / 60))}`}>
                                 <Clock size={12} /> ESPERA: {formatTimeDiff(waitSeconds)}
                               </div>
                               {prepSeconds > 0 && (
-                                <div className="px-2 py-1 rounded-lg border border-indigo-500/30 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                                <div className="px-2 py-1 rounded-lg border border-indigo-500/30 bg-indigo-500/10 text-indigo-400 text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2">
                                   <Flame size={12} className="animate-pulse" /> PREP: {formatTimeDiff(prepSeconds)}
                                 </div>
                               )}
@@ -1270,8 +1270,8 @@ export const KitchenView: React.FC = () => {
                     <div className="flex justify-between items-start gap-6">
                       <div className="flex-1 flex flex-col">
                         <div className="flex items-baseline gap-4 mb-2">
-                          <span className="text-2xl font-black uppercase tracking-tight">{item.product_name}</span>
-                          <span className="text-base font-black text-indigo-400 bg-indigo-400/10 px-3.5 py-1 rounded-md">{item.quantity}</span>
+                          <span className="text-2xl font-semibold uppercase tracking-tight">{item.product_name}</span>
+                          <span className="text-base font-semibold text-indigo-400 bg-indigo-400/10 px-3.5 py-1 rounded-md">{item.quantity}</span>
                         </div>
                         {(() => {
                           const { mods, obs, hasNotes } = parseKitchenNotes(item.notes);
@@ -1280,13 +1280,13 @@ export const KitchenView: React.FC = () => {
                             <div className="mt-3 flex flex-col gap-2">
                               {mods && (
                                 <div className="p-3 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 h-auto min-h-min">
-                                  <p className="text-base text-indigo-400 font-bold uppercase leading-relaxed break-words whitespace-pre-wrap">{mods}</p>
+                                  <p className="text-base text-indigo-400 font-medium uppercase leading-relaxed break-words whitespace-pre-wrap">{mods}</p>
                                 </div>
                               )}
                               {obs && (
                                 <div className="flex items-start gap-3 bg-black/40 p-4 rounded-2xl border border-amber-500/10">
                                   <AlertCircle size={18} className="text-amber-500 mt-1 flex-shrink-0" />
-                                  <p className="text-base text-amber-500 font-black uppercase leading-relaxed">"{obs}"</p>
+                                  <p className="text-base text-amber-500 font-semibold uppercase leading-relaxed">"{obs}"</p>
                                 </div>
                               )}
                             </div>
@@ -1298,7 +1298,7 @@ export const KitchenView: React.FC = () => {
                         {item.status === 'pending' && (
                           <button
                             onClick={() => updateItemStatus(item.id, 'preparing')}
-                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-[2rem] font-black uppercase text-xs tracking-widest transition-all flex items-center gap-3"
+                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-[2rem] font-semibold uppercase text-xs tracking-widest transition-all flex items-center gap-3"
                           >
                             <Play size={14} /> EMPEZAR
                           </button>
@@ -1306,13 +1306,13 @@ export const KitchenView: React.FC = () => {
                         {item.status === 'preparing' && (
                           <button
                             onClick={() => updateItemStatus(item.id, 'ready')}
-                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-[2rem] font-black uppercase text-xs tracking-widest transition-all flex items-center gap-3"
+                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-[2rem] font-semibold uppercase text-xs tracking-widest transition-all flex items-center gap-3"
                           >
                             <Check size={18} /> SERVIR
                           </button>
                         )}
                         {item.status === 'ready' && (
-                          <div className="flex items-center gap-3 px-8 py-4 bg-white/10 text-white rounded-2xl border border-white/20 font-black uppercase text-xs tracking-widest">
+                          <div className="flex items-center gap-3 px-8 py-4 bg-white/10 text-white rounded-2xl border border-white/20 font-semibold uppercase text-xs tracking-widest">
                             <CheckCircle2 size={24} className="text-indigo-400" /> LISTO
                           </div>
                         )}
@@ -1333,7 +1333,7 @@ export const KitchenView: React.FC = () => {
                     fetchKDSData();
                     setSelectedOrder(null);
                   }}
-                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-20 disabled:grayscale text-white rounded-md font-black text-sm uppercase tracking-[0.3em]  transition-all flex items-center justify-center gap-4"
+                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-20 disabled:grayscale text-white rounded-md font-semibold text-sm uppercase tracking-[0.3em]  transition-all flex items-center justify-center gap-4"
                 >
                   <CheckCircle2 size={24} /> ENTREGAR COMANDA COMPLETA
                 </button>
@@ -1349,7 +1349,7 @@ export const KitchenView: React.FC = () => {
 const FilterButton = ({ label, active, onClick, icon: Icon }: { label: string, active: boolean, onClick: () => void, icon?: any }) => (
   <button
     onClick={onClick}
-    className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border flex items-center gap-2 ${active
+    className={`px-6 py-2.5 rounded-xl text-[9px] font-semibold uppercase tracking-widest transition-all border flex items-center gap-2 ${active
       ? 'bg-indigo-500/30 border-indigo-400 text-white  scale-105'
       : 'bg-white/5 border-white/5 text-gray-500 hover:bg-white/10 hover:text-gray-300'
       }`}

@@ -214,18 +214,18 @@ export const DashboardFacturacion: React.FC = () => {
                         {/* FILTRO FECHAS */}
                         <div className="border-b border-slate-200">
                             <div className="flex items-center px-3 py-2 bg-white">
-                                <h3 className="text-[10px] font-bold text-slate-700 flex items-center gap-2">
+                                <h3 className="text-[10px] font-medium text-slate-700 flex items-center gap-2">
                                     <Calendar size={12} className="text-slate-400" />
                                     Filtro Fechas
                                 </h3>
                             </div>
                             <div className="p-3 space-y-2">
                                 <div className="space-y-1">
-                                    <label className="text-[9px] text-slate-500 font-bold block px-1">Fecha Inicial</label>
+                                    <label className="text-[9px] text-slate-500 font-medium block px-1">Fecha Inicial</label>
                                     <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full h-8 bg-white border border-slate-200 rounded px-2 text-[10px] outline-none focus:border-blue-400 transition-colors" />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[9px] text-slate-500 font-bold block px-1">Fecha Final</label>
+                                    <label className="text-[9px] text-slate-500 font-medium block px-1">Fecha Final</label>
                                     <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full h-8 bg-white border border-slate-200 rounded px-2 text-[10px] outline-none focus:border-blue-400 transition-colors" />
                                 </div>
                             </div>
@@ -234,7 +234,7 @@ export const DashboardFacturacion: React.FC = () => {
                         {/* FILTRO NIT */}
                         <div className="border-b border-slate-200">
                             <div className="flex items-center px-3 py-2 bg-white">
-                                <h3 className="text-[10px] font-bold text-slate-700 flex items-center gap-2">
+                                <h3 className="text-[10px] font-medium text-slate-700 flex items-center gap-2">
                                     <CreditCard size={12} className="text-slate-400" />
                                     Filtro NIT
                                 </h3>
@@ -258,7 +258,7 @@ export const DashboardFacturacion: React.FC = () => {
                                             onChange={() => setSelectedNITs(selectedNITs.length === nitOptions.length ? [] : [...nitOptions])}
                                             className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-0"
                                         />
-                                        <span className="text-[10px] text-blue-600 font-bold">(Todos)</span>
+                                        <span className="text-[10px] text-blue-600 font-medium">(Todos)</span>
                                     </label>
                                     {nitOptions.map(n => (
                                         <label key={n} className="flex items-center gap-2 cursor-pointer group pl-2">
@@ -278,7 +278,7 @@ export const DashboardFacturacion: React.FC = () => {
                         {/* FILTRO CLIENTE */}
                         <div className="border-b border-slate-200">
                             <div className="flex items-center px-3 py-2 bg-white">
-                                <h3 className="text-[10px] font-bold text-slate-700 flex items-center gap-2">
+                                <h3 className="text-[10px] font-medium text-slate-700 flex items-center gap-2">
                                     <Users size={12} className="text-slate-400" />
                                     Filtro Nombre Cliente
                                 </h3>
@@ -302,7 +302,7 @@ export const DashboardFacturacion: React.FC = () => {
                                             onChange={() => setSelectedClients(selectedClients.length === clientOptions.length ? [] : [...clientOptions])}
                                             className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-0"
                                         />
-                                        <span className="text-[10px] text-blue-600 font-bold">(Todos)</span>
+                                        <span className="text-[10px] text-blue-600 font-medium">(Todos)</span>
                                     </label>
                                     {clientOptions.map(c => (
                                         <label key={c} className="flex items-center gap-2 cursor-pointer group pl-2">
@@ -325,7 +325,7 @@ export const DashboardFacturacion: React.FC = () => {
                     <div className="p-3 bg-white border-t border-slate-200">
                         <button
                             onClick={handleGenerate}
-                            className="w-full h-9 bg-[#1a1b26] text-white rounded flex items-center justify-center gap-2 font-bold uppercase tracking-widest shadow-sm active:scale-95 transition-all text-[9px] hover:bg-[#106ebe]"
+                            className="w-full h-9 bg-[#1a1b26] text-white rounded flex items-center justify-center gap-2 font-medium uppercase tracking-widest shadow-sm active:scale-95 transition-all text-[9px] hover:bg-[#106ebe]"
                         >
                             {loading ? <Loader2 size={12} className="animate-spin" /> : 'Sincronizar Datos'}
                         </button>
@@ -337,7 +337,7 @@ export const DashboardFacturacion: React.FC = () => {
             <main className="flex-1 overflow-y-auto bg-[#f1f3f6] p-4 pb-64 custom-scrollbar scroll-smooth">
                 {/* TÍTULO */}
                 <div className="text-center mb-4">
-                    <h1 className="text-[14px] font-black text-slate-800 uppercase tracking-widest">Facturación</h1>
+                    <h1 className="text-[14px] font-semibold text-slate-800 uppercase tracking-widest">Facturación</h1>
                 </div>
 
                 {/* TABS */}
@@ -346,7 +346,7 @@ export const DashboardFacturacion: React.FC = () => {
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-[#1a1b26] text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`flex items-center gap-2 px-6 py-2 rounded-xl text-[9px] font-semibold uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-[#1a1b26] text-white shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                             <tab.icon size={13} className={activeTab === tab.id ? 'text-teal-400' : 'text-slate-400'} />
                             {tab.label}
@@ -369,22 +369,22 @@ export const DashboardFacturacion: React.FC = () => {
                                 {/* KPI Cards */}
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
-                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Gran Total Facturado</p>
-                                        <p className="text-2xl font-black text-teal-600 tabular-nums">{formatCurrency(stats.totalMonto)}</p>
+                                        <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Gran Total Facturado</p>
+                                        <p className="text-2xl font-semibold text-teal-600 tabular-nums">{formatCurrency(stats.totalMonto)}</p>
                                     </div>
                                     <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
-                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Total DTE Emitidos</p>
-                                        <p className="text-2xl font-black text-orange-500 tabular-nums">{stats.totalDTE}</p>
+                                        <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Total DTE Emitidos</p>
+                                        <p className="text-2xl font-semibold text-orange-500 tabular-nums">{stats.totalDTE}</p>
                                     </div>
                                 </div>
 
                                 {/* Facturación Por Día */}
                                 <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                     <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200 flex justify-between items-center">
-                                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Facturación Por Día</h3>
+                                        <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Facturación Por Día</h3>
                                         <div className="flex gap-4">
-                                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-teal-500 rounded-sm" /> <span className="text-[9px] font-bold text-slate-500">Total</span></div>
-                                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-orange-500 rounded-sm" /> <span className="text-[9px] font-bold text-slate-500">Cantidad de DTE</span></div>
+                                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-teal-500 rounded-sm" /> <span className="text-[9px] font-medium text-slate-500">Total</span></div>
+                                            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-orange-500 rounded-sm" /> <span className="text-[9px] font-medium text-slate-500">Cantidad de DTE</span></div>
                                         </div>
                                     </div>
                                     <div className="h-[300px] p-4">
@@ -410,7 +410,7 @@ export const DashboardFacturacion: React.FC = () => {
                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                     <div className="lg:col-span-2 bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Análisis Por Mes</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Análisis Por Mes</h3>
                                         </div>
                                         <div className="h-[280px] p-4">
                                             <ResponsiveContainer width="100%" height="100%">
@@ -434,12 +434,12 @@ export const DashboardFacturacion: React.FC = () => {
                                     {/* Resumen Por Día (tabla pequeña) */}
                                     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Resumen Por Día</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Resumen Por Día</h3>
                                         </div>
                                         <div className="overflow-y-auto max-h-[300px] custom-scrollbar">
                                             <table className="w-full text-[9px]">
                                                 <thead className="sticky top-0 bg-white">
-                                                    <tr className="border-b border-slate-200 text-[8px] font-black text-slate-500 uppercase tracking-widest">
+                                                    <tr className="border-b border-slate-200 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">
                                                         <th className="px-3 py-2 text-left">Fecha</th>
                                                         <th className="px-3 py-2 text-right">Gran Total</th>
                                                         <th className="px-3 py-2 text-right">DTE</th>
@@ -448,14 +448,14 @@ export const DashboardFacturacion: React.FC = () => {
                                                 <tbody className="divide-y divide-slate-100">
                                                     {dailyGrid.map((day: any, idx: number) => (
                                                         <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                                                            <td className="px-3 py-1.5 text-slate-500 font-bold">{dayjs(day.date).format('DD/MM/YYYY')}</td>
-                                                            <td className="px-3 py-1.5 text-right font-bold text-teal-600 tabular-nums">{formatCurrency(day.total)}</td>
-                                                            <td className="px-3 py-1.5 text-right font-bold text-orange-500 tabular-nums"
+                                                            <td className="px-3 py-1.5 text-slate-500 font-medium">{dayjs(day.date).format('DD/MM/YYYY')}</td>
+                                                            <td className="px-3 py-1.5 text-right font-medium text-teal-600 tabular-nums">{formatCurrency(day.total)}</td>
+                                                            <td className="px-3 py-1.5 text-right font-medium text-orange-500 tabular-nums"
                                                                 style={{ backgroundColor: `rgba(249, 115, 22, ${0.05 + (day.intensity || 0) * 0.12})` }}
                                                             >{day.dte}</td>
                                                         </tr>
                                                     ))}
-                                                    <tr className="bg-[#106ebe] text-white font-black text-[10px]">
+                                                    <tr className="bg-[#106ebe] text-white font-semibold text-[10px]">
                                                         <td className="px-3 py-2 uppercase tracking-tighter">Gran Total</td>
                                                         <td className="px-3 py-2 text-right tabular-nums text-teal-400">{formatCurrency(stats.totalMonto)}</td>
                                                         <td className="px-3 py-2 text-right tabular-nums text-orange-400">{stats.totalDTE}</td>
@@ -475,12 +475,12 @@ export const DashboardFacturacion: React.FC = () => {
                                     {/* Tabla Top Clientes */}
                                     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Ranking de Clientes</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Ranking de Clientes</h3>
                                         </div>
                                         <div className="overflow-y-auto max-h-[500px] custom-scrollbar">
                                             <table className="w-full text-[10px]">
                                                 <thead className="sticky top-0 bg-[#f8f9fa]">
-                                                    <tr className="border-b border-slate-200 text-[8px] font-black text-slate-500 uppercase tracking-widest">
+                                                    <tr className="border-b border-slate-200 text-[8px] font-semibold text-slate-500 uppercase tracking-widest">
                                                         <th className="px-4 py-2 text-left">#</th>
                                                         <th className="px-4 py-2 text-left">Cliente</th>
                                                         <th className="px-4 py-2 text-left">NIT</th>
@@ -488,14 +488,14 @@ export const DashboardFacturacion: React.FC = () => {
                                                         <th className="px-4 py-2 text-right">Total</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-slate-100 font-bold text-slate-600">
+                                                <tbody className="divide-y divide-slate-100 font-medium text-slate-600">
                                                     {(stats.topClients as any[]).map((c: any, idx: number) => (
                                                         <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                                                            <td className="px-4 py-2 text-slate-400 font-black">{idx + 1}</td>
+                                                            <td className="px-4 py-2 text-slate-400 font-semibold">{idx + 1}</td>
                                                             <td className="px-4 py-2 uppercase text-[9px] tracking-tight max-w-[200px] truncate">{c.cliente}</td>
                                                             <td className="px-4 py-2 text-slate-400 tabular-nums">{c.nit}</td>
                                                             <td className="px-4 py-2 text-right text-orange-500 tabular-nums">{c.facturas}</td>
-                                                            <td className="px-4 py-2 text-right text-teal-600 tabular-nums font-black">{formatCurrency(c.total)}</td>
+                                                            <td className="px-4 py-2 text-right text-teal-600 tabular-nums font-semibold">{formatCurrency(c.total)}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -506,7 +506,7 @@ export const DashboardFacturacion: React.FC = () => {
                                     {/* Gráfico de Dona: Participación */}
                                     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm flex flex-col">
                                         <div className="bg-[#f8f9fa] px-4 py-2 border-b border-slate-200">
-                                            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Distribución Por Cliente</h3>
+                                            <h3 className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest">Distribución Por Cliente</h3>
                                         </div>
                                         <div className="flex-1 min-h-[400px] flex items-center justify-center p-4">
                                             <ResponsiveContainer width="100%" height="100%">
@@ -537,7 +537,7 @@ export const DashboardFacturacion: React.FC = () => {
                                 <div className="bg-white rounded-t-xl border border-slate-200 border-b-0 overflow-hidden shadow-sm flex-1 overflow-y-auto overflow-x-auto custom-scrollbar">
                                     <table className="w-full text-[10px] border-collapse min-w-[900px]">
                                         <thead className="sticky top-0 z-10">
-                                            <tr className="bg-[#f8f9fa] border-b border-slate-200 font-black text-slate-500 uppercase tracking-widest text-[8px]">
+                                            <tr className="bg-[#f8f9fa] border-b border-slate-200 font-semibold text-slate-500 uppercase tracking-widest text-[8px]">
                                                 <th className="px-3 py-3 text-left border-r border-slate-200">Fecha</th>
                                                 <th className="px-3 py-3 text-left border-r border-slate-200">NIT</th>
                                                 <th className="px-3 py-3 text-left border-r border-slate-200">Cliente</th>
@@ -548,7 +548,7 @@ export const DashboardFacturacion: React.FC = () => {
                                                 <th className="px-3 py-3 text-right bg-teal-50/50">Total</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="font-bold text-slate-600 divide-y divide-slate-100">
+                                        <tbody className="font-medium text-slate-600 divide-y divide-slate-100">
                                             {filteredData.map((inv: any, idx: number) => (
                                                 <tr key={idx} className="hover:bg-slate-50 transition-colors">
                                                     <td className="px-3 py-2 text-slate-500 border-r border-slate-100 text-[9px] whitespace-nowrap">{dayjs(inv.fecha).format('DD/MM/YYYY')}</td>
@@ -558,14 +558,14 @@ export const DashboardFacturacion: React.FC = () => {
                                                     <td className="px-3 py-2 text-center border-r border-slate-100 text-slate-400">{inv.serie}</td>
                                                     <td className="px-3 py-2 text-center border-r border-slate-100 tabular-nums">{inv.numero}</td>
                                                     <td className="px-3 py-2 text-center border-r border-slate-100 tabular-nums text-orange-500">{inv.dte}</td>
-                                                    <td className="px-3 py-2 text-right font-black tabular-nums text-teal-700">{formatCurrency(inv.monto)}</td>
+                                                    <td className="px-3 py-2 text-right font-semibold tabular-nums text-teal-700">{formatCurrency(inv.monto)}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
                                 </div>
                                 {/* FOOTER FIJO */}
-                                <div className="bg-[#106ebe] rounded-b-xl border border-slate-700 flex text-white font-black text-[10px] shrink-0">
+                                <div className="bg-[#106ebe] rounded-b-xl border border-slate-700 flex text-white font-semibold text-[10px] shrink-0">
                                     <div className="flex-1 px-3 py-3 uppercase tracking-tighter">Gran Total Periodo</div>
                                     <div className="px-3 py-3 text-center tabular-nums text-orange-400 border-l border-slate-700" style={{ minWidth: '80px' }}>Suma = {stats.totalDTE}</div>
                                     <div className="px-3 py-3 text-right tabular-nums text-white bg-[#1a1b26] border-l border-slate-700 rounded-br-xl" style={{ minWidth: '120px' }}>Suma = {formatCurrency(stats.totalMonto)}</div>

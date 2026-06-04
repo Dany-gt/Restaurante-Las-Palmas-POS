@@ -188,25 +188,25 @@ export const KitchenPerformanceReport: React.FC = () => {
 
             <div className="bg-white border-b border-gray-200 px-6 py-4 flex flex-wrap items-end gap-4 shrink-0">
                 <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-gray-400 uppercase flex items-center gap-1"><Calendar size={10} /> Inicio</label>
-                    <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="border border-gray-200 rounded px-2 py-1.5 text-[11px] font-bold outline-none" />
+                    <label className="text-[9px] font-medium text-gray-400 uppercase flex items-center gap-1"><Calendar size={10} /> Inicio</label>
+                    <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="border border-gray-200 rounded px-2 py-1.5 text-[11px] font-medium outline-none" />
                 </div>
                 <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-gray-400 uppercase flex items-center gap-1"><Calendar size={10} /> Fin</label>
-                    <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="border border-gray-200 rounded px-2 py-1.5 text-[11px] font-bold outline-none" />
+                    <label className="text-[9px] font-medium text-gray-400 uppercase flex items-center gap-1"><Calendar size={10} /> Fin</label>
+                    <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="border border-gray-200 rounded px-2 py-1.5 text-[11px] font-medium outline-none" />
                 </div>
                 <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-gray-400 uppercase flex items-center gap-1"><Filter size={10} /> Área</label>
-                    <select value={selectedStationId} onChange={e => setSelectedStationId(e.target.value)} className="border border-gray-200 rounded px-2 py-1.5 text-[11px] font-bold outline-none min-w-[140px]">
+                    <label className="text-[9px] font-medium text-gray-400 uppercase flex items-center gap-1"><Filter size={10} /> Área</label>
+                    <select value={selectedStationId} onChange={e => setSelectedStationId(e.target.value)} className="border border-gray-200 rounded px-2 py-1.5 text-[11px] font-medium outline-none min-w-[140px]">
                         <option value="">— Todas —</option>
                         {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
                 </div>
                 <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-gray-400 uppercase flex items-center gap-1"><Target size={10} /> Objetivo (min)</label>
-                    <input type="number" value={globalPrepMinutes} onChange={e => setGlobalPrepMinutes(Number(e.target.value))} className="border border-gray-200 rounded px-2 py-1.5 text-[11px] font-bold outline-none w-16 text-center" />
+                    <label className="text-[9px] font-medium text-gray-400 uppercase flex items-center gap-1"><Target size={10} /> Objetivo (min)</label>
+                    <input type="number" value={globalPrepMinutes} onChange={e => setGlobalPrepMinutes(Number(e.target.value))} className="border border-gray-200 rounded px-2 py-1.5 text-[11px] font-medium outline-none w-16 text-center" />
                 </div>
-                <button onClick={fetchReport} disabled={loading} className="bg-[#106ebe] hover:bg-black text-white px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all">
+                <button onClick={fetchReport} disabled={loading} className="bg-[#106ebe] hover:bg-black text-white px-5 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2 transition-all">
                     {loading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />} Consultar
                 </button>
                 {searched && preps.length > 0 && (
@@ -218,7 +218,7 @@ export const KitchenPerformanceReport: React.FC = () => {
             </div>
 
             <div className="bg-white border-b border-gray-100 px-6 py-2 flex items-center gap-6 shrink-0">
-                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Semáforo:</span>
+                <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest">Semáforo:</span>
                 <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[9px] text-gray-500">A tiempo</span></div>
                 <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-amber-400" /><span className="text-[9px] text-gray-500">Retraso (-50%)</span></div>
                 <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-rose-500" /><span className="text-[9px] text-gray-500">Crítico (+50%)</span></div>
@@ -229,7 +229,7 @@ export const KitchenPerformanceReport: React.FC = () => {
                     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                         <div className="bg-indigo-50 px-5 py-2 border-b border-indigo-100 flex items-center gap-2">
                             <TrendingUp size={13} className="text-indigo-500" />
-                            <span className="text-[10px] font-black text-indigo-700 uppercase tracking-widest">
+                            <span className="text-[10px] font-semibold text-indigo-700 uppercase tracking-widest">
                                 {sorted.length} preparaciones individuales encontradas en {selectedStationLabel}
                             </span>
                         </div>
@@ -244,27 +244,27 @@ export const KitchenPerformanceReport: React.FC = () => {
                                             { key: 'target_seconds' as SortKey, label: 'OBJETIVO' },
                                             { key: 'cook_seconds' as SortKey, label: 'TIEMPO REAL' },
                                         ].map(col => (
-                                            <th key={col.label} onClick={() => col.key && handleSort(col.key)} className={`text-left px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400 ${col.key ? 'cursor-pointer hover:text-gray-700 select-none' : ''}`}>
+                                            <th key={col.label} onClick={() => col.key && handleSort(col.key)} className={`text-left px-4 py-3 text-[9px] font-semibold uppercase tracking-widest text-gray-400 ${col.key ? 'cursor-pointer hover:text-gray-700 select-none' : ''}`}>
                                                 {col.label}{col.key && <SortIcon col={col.key} />}
                                             </th>
                                         ))}
-                                        <th className="text-left px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">ESTADO</th>
+                                        <th className="text-left px-4 py-3 text-[9px] font-semibold uppercase tracking-widest text-gray-400">ESTADO</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {sorted.map((row, i) => (
                                         <tr key={row.id} className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
-                                            <td className="px-4 py-3 text-[10px] font-bold text-gray-500 whitespace-nowrap">{fmtDateTime(row.created_at)}</td>
-                                            <td className="px-4 py-3 text-[11px] font-bold text-gray-800">{row.product_name}</td>
-                                            <td className="px-4 py-3"><span className="text-[9px] font-black bg-[#106ebe]/10 text-[#106ebe] px-2 py-0.5 rounded-full uppercase">{row.station_name}</span></td>
-                                            <td className="px-4 py-3"><span className="text-[10px] font-bold text-gray-400">{fmtTime(row.target_seconds)}</span></td>
+                                            <td className="px-4 py-3 text-[10px] font-medium text-gray-500 whitespace-nowrap">{fmtDateTime(row.created_at)}</td>
+                                            <td className="px-4 py-3 text-[11px] font-medium text-gray-800">{row.product_name}</td>
+                                            <td className="px-4 py-3"><span className="text-[9px] font-semibold bg-[#106ebe]/10 text-[#106ebe] px-2 py-0.5 rounded-full uppercase">{row.station_name}</span></td>
+                                            <td className="px-4 py-3"><span className="text-[10px] font-medium text-gray-400">{fmtTime(row.target_seconds)}</span></td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`text-[11px] font-black px-2 py-1 rounded-md ${perfColor(row.cook_seconds, row.target_seconds)}`}>
+                                                    <span className={`text-[11px] font-semibold px-2 py-1 rounded-md ${perfColor(row.cook_seconds, row.target_seconds)}`}>
                                                         {fmtTime(row.cook_seconds)}
                                                     </span>
                                                     {row.cook_seconds > row.target_seconds && (
-                                                        <span className="text-[8px] text-rose-400 font-bold">+{fmtTime(row.cook_seconds - row.target_seconds)}</span>
+                                                        <span className="text-[8px] text-rose-400 font-medium">+{fmtTime(row.cook_seconds - row.target_seconds)}</span>
                                                     )}
                                                 </div>
                                             </td>
@@ -280,14 +280,14 @@ export const KitchenPerformanceReport: React.FC = () => {
                 {searched && !loading && preps.length === 0 && (
                     <div className="flex flex-col items-center justify-center h-64 text-center gap-3">
                         <AlertTriangle size={28} className="text-amber-400" />
-                        <p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest">No hay preparaciones registradas para este periodo.</p>
+                        <p className="text-[11px] text-gray-500 font-medium uppercase tracking-widest">No hay preparaciones registradas para este periodo.</p>
                     </div>
                 )}
 
                 {!searched && (
                     <div className="flex flex-col items-center justify-center h-64 text-center gap-4 opacity-40">
                         <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center"><Clock size={32} className="text-gray-400" /></div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest">Presiona Consultar para ver el rendimiento individual</p>
+                        <p className="text-[10px] font-medium uppercase tracking-widest">Presiona Consultar para ver el rendimiento individual</p>
                     </div>
                 )}
             </div>

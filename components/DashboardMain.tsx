@@ -591,7 +591,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
                       <mod.icon size={54} className="text-gray-400 group-hover:text-white" strokeWidth={1} />
                     )}
                   </div>
-                  <span className="text-base font-black tracking-widest text-white uppercase">{mod.label}</span>
+                  <span className="text-base font-semibold tracking-widest text-white uppercase">{mod.label}</span>
                 </button>
               ))}
             </div>
@@ -611,15 +611,15 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
                       <div className="flex flex-col gap-4 relative z-10">
                         <div className="flex justify-between items-end">
                           <div className="flex flex-col">
-                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-1">Mi Meta de Ventas</span>
+                            <span className="text-[10px] font-semibold text-indigo-400 uppercase tracking-[0.2em] mb-1">Mi Meta de Ventas</span>
                             <div className="flex items-baseline gap-2">
-                              <span className="text-xl font-black text-white">{settings?.currency || 'Q'}{monthTotal.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span>
-                              <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">de {settings?.currency || 'Q'}{monthlyGoal.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span>
+                              <span className="text-xl font-semibold text-white">{settings?.currency || 'Q'}{monthTotal.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span>
+                              <span className="text-xs font-medium text-gray-500 uppercase tracking-widest">de {settings?.currency || 'Q'}{monthlyGoal.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span>
                             </div>
                           </div>
                           <div className="flex flex-col items-end">
-                            <span className="text-lg font-black text-indigo-400">{Math.min(100, Math.round((monthTotal / monthlyGoal) * 100))}%</span>
-                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Progreso Mensual</span>
+                            <span className="text-lg font-semibold text-indigo-400">{Math.min(100, Math.round((monthTotal / monthlyGoal) * 100))}%</span>
+                            <span className="text-[9px] font-medium text-gray-500 uppercase tracking-widest">Progreso Mensual</span>
                           </div>
                         </div>
                         <div className="h-4 bg-black/40 rounded-full p-1 border border-white/5 overflow-hidden">
@@ -631,12 +631,12 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
                           </div>
                         </div>
                         <div className="flex justify-between items-center px-1">
-                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                          <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">
                             {monthTotal >= monthlyGoal ? '\u00a1Meta Alcanzada! \uD83C\uDF89' : `Faltan ${settings?.currency || 'Q'}${(monthlyGoal - monthTotal).toLocaleString('es-GT', { minimumFractionDigits: 2 })}`}
                           </span>
                           <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
-                            <span className="text-[9px] font-black text-indigo-400 lowercase tracking-widest">actualizado en tiempo real</span>
+                            <span className="text-[9px] font-semibold text-indigo-400 lowercase tracking-widest">actualizado en tiempo real</span>
                           </div>
                         </div>
                       </div>
@@ -651,15 +651,15 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
                       <div className="flex flex-col gap-4 relative z-10">
                         <div className="flex justify-between items-end">
                           <div className="flex flex-col">
-                            <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-1">Mi Meta de Unidades</span>
+                            <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-[0.2em] mb-1">Mi Meta de Unidades</span>
                             <div className="flex items-baseline gap-2">
-                              <span className="text-xl font-black text-white">{monthUnits.toLocaleString('es-GT')}</span>
-                              <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">de {monthlyUnitsGoal.toLocaleString('es-GT')}</span>
+                              <span className="text-xl font-semibold text-white">{monthUnits.toLocaleString('es-GT')}</span>
+                              <span className="text-xs font-medium text-gray-500 uppercase tracking-widest">de {monthlyUnitsGoal.toLocaleString('es-GT')}</span>
                             </div>
                           </div>
                           <div className="flex flex-col items-end">
-                            <span className="text-lg font-black text-emerald-400">{Math.min(100, Math.round((monthUnits / monthlyUnitsGoal) * 100))}%</span>
-                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Progreso Mensual</span>
+                            <span className="text-lg font-semibold text-emerald-400">{Math.min(100, Math.round((monthUnits / monthlyUnitsGoal) * 100))}%</span>
+                            <span className="text-[9px] font-medium text-gray-500 uppercase tracking-widest">Progreso Mensual</span>
                           </div>
                         </div>
                         <div className="h-4 bg-black/40 rounded-full p-1 border border-white/5 overflow-hidden">
@@ -671,12 +671,12 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
                           </div>
                         </div>
                         <div className="flex justify-between items-center px-1">
-                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                          <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">
                             {monthUnits >= monthlyUnitsGoal ? '\u00a1Meta Alcanzada! \uD83C\uDF89' : `Faltan ${(monthlyUnitsGoal - monthUnits).toLocaleString('es-GT')} unidades`}
                           </span>
                           <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                            <span className="text-[9px] font-black text-emerald-400 lowercase tracking-widest">actualizado en tiempo real</span>
+                            <span className="text-[9px] font-semibold text-emerald-400 lowercase tracking-widest">actualizado en tiempo real</span>
                           </div>
                         </div>
                       </div>
@@ -698,7 +698,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
             <button
               type="button"
               onClick={() => onNavigate('HISTORY')}
-              className="w-52 py-3 bg-blue-600/40 border border-blue-500/30 rounded-lg text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] transition-all shadow-md shadow-black/20 active:scale-95 hover:bg-blue-600/60 hover:text-white"
+              className="w-52 py-3 bg-blue-600/40 border border-blue-500/30 rounded-lg text-[10px] font-semibold text-blue-400 uppercase tracking-[0.2em] transition-all shadow-md shadow-black/20 active:scale-95 hover:bg-blue-600/60 hover:text-white"
             >
               VISOR DE ORDENES
             </button>
@@ -706,7 +706,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
               type="button"
               onClick={() => onRefreshMenu?.('config')}
               disabled={isSyncing}
-              className={`w-52 py-3 bg-[#1a1b23] border border-white/10 rounded-lg text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] transition-all shadow-md shadow-black/20 active:scale-95 hover:text-white hover:bg-[#22232e] ${isSyncing ? 'opacity-50' : ''}`}
+              className={`w-52 py-3 bg-[#1a1b23] border border-white/10 rounded-lg text-[9px] font-semibold text-gray-500 uppercase tracking-[0.2em] transition-all shadow-md shadow-black/20 active:scale-95 hover:text-white hover:bg-[#22232e] ${isSyncing ? 'opacity-50' : ''}`}
             >
               {syncType === 'config' ? 'ACTUALIZANDO...' : 'ACTUALIZAR CONFIGURACION'}
             </button>
@@ -714,7 +714,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
               type="button"
               onClick={() => onRefreshMenu?.('images')}
               disabled={isSyncing}
-              className={`w-52 py-3 bg-[#1a1b23] border border-white/10 rounded-lg text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] transition-all shadow-md shadow-black/20 active:scale-95 hover:text-white hover:bg-[#22232e] ${isSyncing ? 'opacity-50' : ''}`}
+              className={`w-52 py-3 bg-[#1a1b23] border border-white/10 rounded-lg text-[10px] font-semibold text-gray-500 uppercase tracking-[0.2em] transition-all shadow-md shadow-black/20 active:scale-95 hover:text-white hover:bg-[#22232e] ${isSyncing ? 'opacity-50' : ''}`}
             >
               {syncType === 'images' ? 'ACTUALIZANDO...' : 'ACTUALIZAR IMAGENES'}
             </button>
@@ -787,7 +787,7 @@ const DashboardButton = ({ label, color, onClick, disabled }: { label: string, c
     disabled={disabled}
     className={`relative w-40 h-16 bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg transition-all active:scale-95 group focus:outline-none flex items-center justify-center p-2 overflow-hidden shadow-none ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
   >
-    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-300 group-hover:text-white text-center leading-[1.1]">{label}</span>
+    <span className="text-[10px] font-medium uppercase tracking-wider text-gray-300 group-hover:text-white text-center leading-[1.1]">{label}</span>
   </button>
 );
 
@@ -801,17 +801,17 @@ const ShiftClosureSummary = ({ data, onPrint, onFinish }: { data: any, onPrint: 
           <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-400">
             <CheckCircle size={32} className="animate-bounce-slow" />
           </div>
-          <h2 className="text-2xl font-black uppercase tracking-tighter mb-1">{data.type === 'X' ? 'Corte X Generado' : 'Turno Cerrado'}</h2>
-          <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">{data.type === 'X' ? 'El reporte parcial se ha generado' : 'El reporte de cierre ha sido generado'}</p>
+          <h2 className="text-2xl font-semibold uppercase tracking-tighter mb-1">{data.type === 'X' ? 'Corte X Generado' : 'Turno Cerrado'}</h2>
+          <p className="text-gray-500 font-medium uppercase tracking-widest text-[10px]">{data.type === 'X' ? 'El reporte parcial se ha generado' : 'El reporte de cierre ha sido generado'}</p>
 
           <div className="grid grid-cols-2 gap-3 mt-6 mb-8">
             <div className="bg-white/5 p-4 rounded-lg border border-white/5">
-              <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest block mb-1">Efectivo Contado</span>
-              <span className="text-xl font-black tabular-nums tracking-tighter">Q{data.countedCash.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span>
+              <span className="text-[9px] font-semibold text-gray-500 uppercase tracking-widest block mb-1">Efectivo Contado</span>
+              <span className="text-xl font-semibold tabular-nums tracking-tighter">Q{data.countedCash.toLocaleString('es-GT', { minimumFractionDigits: 2 })}</span>
             </div>
             <div className={`p-4 rounded-lg border ${data.difference === 0 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
-              <span className="text-[9px] font-black uppercase tracking-widest block mb-1 opacity-60">Diferencia</span>
-              <span className="text-xl font-black tabular-nums tracking-tighter">{data.difference === 0 ? 'CUADRADO' : `Q${data.difference.toFixed(2)}`}</span>
+              <span className="text-[9px] font-semibold uppercase tracking-widest block mb-1 opacity-60">Diferencia</span>
+              <span className="text-xl font-semibold tabular-nums tracking-tighter">{data.difference === 0 ? 'CUADRADO' : `Q${data.difference.toFixed(2)}`}</span>
             </div>
           </div>
 
@@ -823,13 +823,13 @@ const ShiftClosureSummary = ({ data, onPrint, onFinish }: { data: any, onPrint: 
                 setTimeout(() => setIsEmailing(false), 3000);
               }}
               disabled={isEmailing}
-              className={`w-full py-4 bg-white/5 hover:bg-white/10 rounded-lg font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-2 border border-white/10 ${isEmailing ? 'opacity-50' : ''}`}
+              className={`w-full py-4 bg-white/5 hover:bg-white/10 rounded-lg font-semibold uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-2 border border-white/10 ${isEmailing ? 'opacity-50' : ''}`}
             >
               <Printer size={16} /> {isEmailing ? 'ENVIANDO CORREO Y GENERANDO...' : `IMPRIMIR ${data.type === 'X' ? 'CORTE X' : 'REPORTE Z'}`}
             </button>
             <button
               onClick={onFinish}
-              className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-black uppercase tracking-widest text-[11px] shadow-md transition-all"
+              className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold uppercase tracking-widest text-[11px] shadow-md transition-all"
             >
               {data.type === 'X' ? 'CONTINUAR OPERACIÓN' : 'FINALIZAR Y SALIR'}
             </button>

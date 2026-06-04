@@ -153,7 +153,7 @@ export const SoldDishesModal: React.FC<SoldDishesModalProps> = ({ onClose }) => 
                                 <button
                                     key={cat.id}
                                     onClick={() => setSelectedCategory(cat.id)}
-                                    className={`h-[60px] flex items-center justify-center rounded-sm font-bold text-center transition-all text-xs text-white
+                                    className={`h-[60px] flex items-center justify-center rounded-sm font-medium text-center transition-all text-xs text-white
                                         ${selectedCategory === cat.id
                                             ? 'bg-[#4a4e69] '
                                             : 'bg-[#383b4d] hover:bg-[#42465c]'
@@ -214,14 +214,14 @@ export const SoldDishesModal: React.FC<SoldDishesModalProps> = ({ onClose }) => 
                         <div className="flex flex-col gap-3 mt-6">
                             <button
                                 onClick={handlePrint}
-                                className="w-full py-3 bg-[#383b4d] hover:bg-[#42465c] text-white rounded-sm font-bold uppercase tracking-widest text-[10px] transition-all relative overflow-hidden"
+                                className="w-full py-3 bg-[#383b4d] hover:bg-[#42465c] text-white rounded-sm font-medium uppercase tracking-widest text-[10px] transition-all relative overflow-hidden"
                             >
                                 IMPRIMIR
                                 <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-yellow-500 border-l-[8px] border-l-transparent pointer-events-none" />
                             </button>
                             <button
                                 onClick={onClose}
-                                className="w-full py-3 bg-[#383b4d] hover:bg-[#42465c] text-white rounded-sm font-bold uppercase tracking-widest text-[10px] transition-all relative overflow-hidden"
+                                className="w-full py-3 bg-[#383b4d] hover:bg-[#42465c] text-white rounded-sm font-medium uppercase tracking-widest text-[10px] transition-all relative overflow-hidden"
                             >
                                 CERRAR
                                 <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-red-500 border-l-[8px] border-l-transparent pointer-events-none" />

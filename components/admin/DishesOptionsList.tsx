@@ -215,7 +215,7 @@ export const DishesOptionsList: React.FC = () => {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Buscar opción..."
-                                className="pl-9 pr-4 py-1.5 bg-white border border-gray-200 rounded-lg text-[10px] font-bold text-slate-700 uppercase tracking-wide w-64 outline-none focus:border-[#106ebe] transition-all shadow-sm"
+                                className="pl-9 pr-4 py-1.5 bg-white border border-gray-200 rounded-lg text-[10px] font-medium text-slate-700 uppercase tracking-wide w-64 outline-none focus:border-[#106ebe] transition-all shadow-sm"
                             />
                         </div>
                         <button
@@ -235,12 +235,12 @@ export const DishesOptionsList: React.FC = () => {
                 {loading ? (
                     <div className="h-full flex flex-col items-center justify-center text-slate-400 gap-4">
                         <Loader2 size={32} className="animate-spin text-[#106ebe]" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Cargando Opciones...</span>
+                        <span className="text-[10px] font-semibold uppercase tracking-widest">Cargando Opciones...</span>
                     </div>
                 ) : (
                     <table className="w-full border-collapse text-left">
                         <thead className="sticky top-0 bg-[#e8e8e8] z-10 select-none shadow-sm text-black">
-                            <tr className="h-9 border-b border-gray-400 text-[10px] font-bold uppercase">
+                            <tr className="h-9 border-b border-gray-400 text-[10px] font-medium uppercase">
                                 <th onClick={() => handleSort('item_name')} className="px-6 py-1 border-r border-gray-300">
                                     Opción
                                 </th>
@@ -257,7 +257,7 @@ export const DishesOptionsList: React.FC = () => {
                                 <th className="px-6 py-1 text-center w-32 uppercase tracking-tighter">Precio Plataformas</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 font-bold text-black">
+                        <tbody className="divide-y divide-gray-100 font-medium text-black">
                             {filteredItems.map((item) => (
                                 <tr
                                     key={item.id}
@@ -285,7 +285,7 @@ export const DishesOptionsList: React.FC = () => {
                                     <td colSpan={5} className="py-20 text-center">
                                         <div className="flex flex-col items-center gap-2 opacity-20">
                                             <Filter size={48} strokeWidth={1} />
-                                            <span className="text-[10px] font-black uppercase tracking-widest">No se encontraron resultados</span>
+                                            <span className="text-[10px] font-semibold uppercase tracking-widest">No se encontraron resultados</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -297,9 +297,9 @@ export const DishesOptionsList: React.FC = () => {
 
             {/* Footer Bar */}
             <div className="bg-[#f1f5f9] border-t border-gray-300 px-6 py-2 flex items-center justify-between shrink-0">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Las Palmas POS - Plataforma de Administración</span>
+                <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">Las Palmas POS - Plataforma de Administración</span>
                 <div className="flex items-center gap-4">
-                    <span className="text-[10px] font-black text-[#106ebe] uppercase">{filteredItems.length} Registros Encontrados</span>
+                    <span className="text-[10px] font-semibold text-[#106ebe] uppercase">{filteredItems.length} Registros Encontrados</span>
                 </div>
             </div>
 
@@ -317,7 +317,7 @@ export const DishesOptionsList: React.FC = () => {
                     >
                         <button
                             onClick={handleNew}
-                            className="w-full h-8 px-4 flex items-center gap-3 hover:bg-[#106ebe] hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
+                            className="w-full h-8 px-4 flex items-center gap-3 hover:bg-[#106ebe] hover:text-white text-slate-700 text-[10px] font-medium uppercase transition-colors group"
                         >
                             <Plus size={14} className="text-green-600 group-hover:text-inherit" />
                             Nuevo
@@ -326,14 +326,14 @@ export const DishesOptionsList: React.FC = () => {
                             <>
                                 <button
                                     onClick={() => handleEdit(contextMenu.item)}
-                                    className="w-full h-8 px-4 flex items-center gap-3 hover:bg-[#106ebe] hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
+                                    className="w-full h-8 px-4 flex items-center gap-3 hover:bg-[#106ebe] hover:text-white text-slate-700 text-[10px] font-medium uppercase transition-colors group"
                                 >
                                     <Edit3 size={14} className="text-blue-600 group-hover:text-inherit" />
                                     Editar
                                 </button>
                                 <button
                                     onClick={() => handleDelete(contextMenu.item)}
-                                    className="w-full h-8 px-4 flex items-center gap-3 hover:bg-red-600 hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
+                                    className="w-full h-8 px-4 flex items-center gap-3 hover:bg-red-600 hover:text-white text-slate-700 text-[10px] font-medium uppercase transition-colors group"
                                 >
                                     <Trash2 size={14} className="text-red-500 group-hover:text-inherit" />
                                     Eliminar
@@ -343,7 +343,7 @@ export const DishesOptionsList: React.FC = () => {
                         <div className="h-px bg-gray-200 my-1 font-normal" />
                         <button
                             onClick={fetchData}
-                            className="w-full h-8 px-4 flex items-center gap-3 hover:bg-[#106ebe] hover:text-white text-slate-700 text-[10px] font-bold uppercase transition-colors group"
+                            className="w-full h-8 px-4 flex items-center gap-3 hover:bg-[#106ebe] hover:text-white text-slate-700 text-[10px] font-medium uppercase transition-colors group"
                         >
                             <RotateCcw size={14} className="text-blue-600 group-hover:text-inherit" />
                             Refrescar
@@ -363,7 +363,7 @@ export const DishesOptionsList: React.FC = () => {
                                 {/* Title Bar */}
                                 <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move text-white shrink-0">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[11px] font-bold tracking-tight">Mantenimiento de Textos de Opciones</span>
+                                        <span className="text-[11px] font-medium tracking-tight">Mantenimiento de Textos de Opciones</span>
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <WindowsSaveButton
@@ -388,11 +388,11 @@ export const DishesOptionsList: React.FC = () => {
                                         {/* Group: Texto de Opción */}
                                         <div className="space-y-2">
                                             <div className="bg-[#e1e5eb] px-3 py-1">
-                                                <span className="text-[10px] font-black text-[#106ebe] uppercase tracking-wider">Texto de Opción</span>
+                                                <span className="text-[10px] font-semibold text-[#106ebe] uppercase tracking-wider">Texto de Opción</span>
                                             </div>
                                             <div className="space-y-1.5 px-2">
                                                 <div className="flex items-center gap-4">
-                                                    <label className="w-20 text-[10px] font-bold text-slate-500">Nombre</label>
+                                                    <label className="w-20 text-[10px] font-medium text-slate-500">Nombre</label>
                                                     <input
                                                         type="text"
                                                         value={form.item_name}
@@ -401,7 +401,7 @@ export const DishesOptionsList: React.FC = () => {
                                                     />
                                                 </div>
                                                 <div className="flex items-center gap-4">
-                                                    <label className="w-20 text-[10px] font-bold text-slate-500">Prompt</label>
+                                                    <label className="w-20 text-[10px] font-medium text-slate-500">Prompt</label>
                                                     <input
                                                         type="text"
                                                         value={form.display_name}
@@ -415,13 +415,13 @@ export const DishesOptionsList: React.FC = () => {
                                         {/* Group: Precios */}
                                         <div className="space-y-0.5">
                                             <div className="bg-[#e1e5eb] px-3 py-1">
-                                                <span className="text-[10px] font-black text-[#106ebe] uppercase tracking-wider">Precios</span>
+                                                <span className="text-[10px] font-semibold text-[#106ebe] uppercase tracking-wider">Precios</span>
                                             </div>
                                             <div className="grid grid-cols-3 bg-gray-100/50 border-x border-b border-gray-200">
                                                 <div className="p-2 border-r border-gray-200">
-                                                    <label className="block text-[8px] font-black text-slate-400 uppercase mb-1 text-center">Precio Venta</label>
+                                                    <label className="block text-[8px] font-semibold text-slate-400 uppercase mb-1 text-center">Precio Venta</label>
                                                     <div className="relative bg-white border border-gray-300 h-7 flex items-center px-2">
-                                                        <span className="text-[9px] font-bold text-slate-400 mr-1">Q</span>
+                                                        <span className="text-[9px] font-medium text-slate-400 mr-1">Q</span>
                                                         <input
                                                             type="text"
                                                             value={form.extra_price}
@@ -431,9 +431,9 @@ export const DishesOptionsList: React.FC = () => {
                                                     </div>
                                                 </div>
                                                 <div className="p-2 border-r border-gray-200">
-                                                    <label className="block text-[8px] font-black text-slate-400 uppercase mb-1 text-center">Precio Domicilio</label>
+                                                    <label className="block text-[8px] font-semibold text-slate-400 uppercase mb-1 text-center">Precio Domicilio</label>
                                                     <div className="relative bg-white border border-gray-300 h-7 flex items-center px-2">
-                                                        <span className="text-[9px] font-bold text-slate-400 mr-1">Q</span>
+                                                        <span className="text-[9px] font-medium text-slate-400 mr-1">Q</span>
                                                         <input
                                                             type="text"
                                                             value={form.delivery_price}
@@ -443,9 +443,9 @@ export const DishesOptionsList: React.FC = () => {
                                                     </div>
                                                 </div>
                                                 <div className="p-2">
-                                                    <label className="block text-[8px] font-black text-slate-400 uppercase mb-1 text-center">Precio Plataformas</label>
+                                                    <label className="block text-[8px] font-semibold text-slate-400 uppercase mb-1 text-center">Precio Plataformas</label>
                                                     <div className="relative bg-white border border-gray-300 h-7 flex items-center px-2">
-                                                        <span className="text-[9px] font-bold text-slate-400 mr-1">Q</span>
+                                                        <span className="text-[9px] font-medium text-slate-400 mr-1">Q</span>
                                                         <input
                                                             type="text"
                                                             value={form.platform_price}

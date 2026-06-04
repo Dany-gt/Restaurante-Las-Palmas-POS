@@ -312,9 +312,9 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                                 ) : (
                                     items.map(item => (
                                         <div key={item.id} className="flex justify-between items-center px-2 py-1 bg-[#3e4153]/40 rounded-md group hover:bg-[#3e4153]/80 transition-colors">
-                                            <span className="text-[11px] font-bold text-gray-300 uppercase truncate flex-1">{item.name}</span>
+                                            <span className="text-[11px] font-medium text-gray-300 uppercase truncate flex-1">{item.name}</span>
                                             <div className="flex items-center gap-2 shrink-0">
-                                                <span className="text-[11px] font-black text-white tabular-nums">Q{item.price.toFixed(2)}</span>
+                                                <span className="text-[11px] font-semibold text-white tabular-nums">Q{item.price.toFixed(2)}</span>
                                                 <button
                                                     onClick={() => handleRemoveItem(item.id)}
                                                     className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -338,8 +338,8 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                                     </span>
                                 </div>
                                 <div className="w-24 flex items-center bg-[#242533] border border-[#3e4153] rounded px-3 py-1.5">
-                                    <span className="text-gray-400 font-bold mr-1.5 text-xs">Q</span>
-                                    <span className="text-white text-xs font-bold whitespace-nowrap overflow-hidden text-ellipsis tabular-nums">
+                                    <span className="text-gray-400 font-medium mr-1.5 text-xs">Q</span>
+                                    <span className="text-white text-xs font-medium whitespace-nowrap overflow-hidden text-ellipsis tabular-nums">
                                         {total.toFixed(2)}
                                     </span>
                                 </div>
@@ -362,14 +362,14 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                         <div className="flex gap-2 pt-1 shrink-0">
                             <button
                                 onClick={onClose}
-                                className="flex-1 py-1.5 text-xs font-bold rounded border border-[#3e4153] text-gray-300 hover:bg-[#3e4153] transition-colors uppercase"
+                                className="flex-1 py-1.5 text-xs font-medium rounded border border-[#3e4153] text-gray-300 hover:bg-[#3e4153] transition-colors uppercase"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={handleSaveExpense}
                                 disabled={items.length === 0 || !selectedCategory || loading}
-                                className={`flex-1 py-1.5 text-xs font-bold rounded transition-colors uppercase ${
+                                className={`flex-1 py-1.5 text-xs font-medium rounded transition-colors uppercase ${
                                     items.length > 0 && selectedCategory && !loading
                                     ? 'bg-[#7a73ff] text-white hover:bg-[#6b64ff] shadow-md shadow-[#7a73ff]/20' 
                                     : 'bg-[#3e4153] text-gray-500 cursor-not-allowed opacity-50'
@@ -386,7 +386,7 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
 
                         {/* Amount display */}
                         <div className="bg-transparent border border-[#4b4e63] rounded h-12 flex items-center justify-center shrink-0">
-                            <span className="text-xl font-bold text-white tabular-nums tracking-wide">Q{itemPrice}</span>
+                            <span className="text-xl font-medium text-white tabular-nums tracking-wide">Q{itemPrice}</span>
                         </div>
 
                         {/* 4-column Numpad */}

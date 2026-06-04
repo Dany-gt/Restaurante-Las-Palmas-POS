@@ -659,7 +659,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                 <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-bold text-gray-700">Sucursal</span>
+                            <span className="text-[11px] font-medium text-gray-700">Sucursal</span>
                             <select
                                 value={selectedBranch}
                                 onChange={e => setSelectedBranch(e.target.value)}
@@ -678,7 +678,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                 onChange={e => setShowAllBranches(e.target.checked)}
                                 className="w-4 h-4"
                             />
-                            <label htmlFor="allBranches" className="text-[11px] font-bold text-gray-700 cursor-pointer">Ver todas las sucursales</label>
+                            <label htmlFor="allBranches" className="text-[11px] font-medium text-gray-700 cursor-pointer">Ver todas las sucursales</label>
                         </div>
                     </div>
 
@@ -686,27 +686,27 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                         <div className={`flex ${isMobile ? 'flex-col' : 'items-center justify-between'} gap-6 w-full`}>
                             <div className="flex items-center gap-6">
                                 <div className={`flex ${isMobile ? 'flex-col items-start' : 'items-center'} gap-4 relative pt-2`}>
-                                    <span className="absolute -top-3.5 left-0 text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Fechas</span>
+                                    <span className="absolute -top-3.5 left-0 text-[10px] font-medium text-gray-500 uppercase tracking-tighter">Fechas</span>
                                     <div className="flex items-center gap-2 w-full">
-                                        <span className="text-[11px] font-bold text-gray-700 w-8">Del:</span>
+                                        <span className="text-[11px] font-medium text-gray-700 w-8">Del:</span>
                                         <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="flex-1 border border-gray-400 bg-white text-[11px] h-7 px-2 outline-none shadow-inner" />
                                         <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="w-[70px] border border-gray-400 bg-white text-[11px] h-7 px-1 outline-none shadow-inner" />
                                     </div>
                                     <div className="flex items-center gap-2 w-full">
-                                        <span className="text-[11px] font-bold text-gray-700 w-8">Al:</span>
+                                        <span className="text-[11px] font-medium text-gray-700 w-8">Al:</span>
                                         <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="flex-1 border border-gray-400 bg-white text-[11px] h-7 px-2 outline-none shadow-inner" />
                                         <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="w-[70px] border border-gray-400 bg-white text-[11px] h-7 px-1 outline-none shadow-inner" />
                                     </div>
                                 </div>
 
                                 <div className="flex gap-2 w-[240px]">
-                                    <button onClick={handleGenerate} disabled={loading} className="flex-1 bg-white border border-gray-400 hover:bg-gray-50 py-1 h-7 text-[10px] font-black uppercase text-gray-700 shadow-sm active:scale-95 flex items-center justify-center gap-2">
+                                    <button onClick={handleGenerate} disabled={loading} className="flex-1 bg-white border border-gray-400 hover:bg-gray-50 py-1 h-7 text-[10px] font-semibold uppercase text-gray-700 shadow-sm active:scale-95 flex items-center justify-center gap-2">
                                         {loading ? <Loader2 size={11} className="animate-spin" /> : <Search size={11} />} Generar
                                     </button>
                                     <button
                                         onClick={() => setShowPrintModal(true)}
                                         disabled={filteredData.length === 0}
-                                        className="flex-1 bg-white border border-gray-400 hover:bg-gray-50 py-1 h-7 text-[10px] font-black uppercase text-gray-700 shadow-sm active:scale-95 flex items-center justify-center gap-1"
+                                        className="flex-1 bg-white border border-gray-400 hover:bg-gray-50 py-1 h-7 text-[10px] font-semibold uppercase text-gray-700 shadow-sm active:scale-95 flex items-center justify-center gap-1"
                                     >
                                         <Printer size={11} className="text-blue-600" /> {isMobile ? 'Vista' : 'Vista Previa'}
                                     </button>
@@ -723,7 +723,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                     className="bg-transparent border-none outline-none text-[10px] text-gray-700 flex-1"
                                 />
                                 <button
-                                    className="bg-[#106ebe] text-white px-3 h-full text-[9px] font-black uppercase hover:bg-black transition-colors"
+                                    className="bg-[#106ebe] text-white px-3 h-full text-[9px] font-semibold uppercase hover:bg-black transition-colors"
                                     onClick={handleGenerate}
                                 >
                                     Buscar
@@ -747,12 +747,12 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                         >
                             <div className="flex justify-between items-start mb-2">
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{row.fecha_full} | {row.apertura}</span>
-                                    <span className="text-sm font-black text-slate-800">#{row.noOrden} <span className="text-[10px] font-bold text-indigo-500 ml-1">({row.tipo})</span></span>
+                                    <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">{row.fecha_full} | {row.apertura}</span>
+                                    <span className="text-sm font-semibold text-slate-800">#{row.noOrden} <span className="text-[10px] font-medium text-indigo-500 ml-1">({row.tipo})</span></span>
                                 </div>
-                                <span className="text-sm font-black text-indigo-600">{formatCurr(row.total)}</span>
+                                <span className="text-sm font-semibold text-indigo-600">{formatCurr(row.total)}</span>
                             </div>
-                            <div className="grid grid-cols-2 gap-y-1 text-[10px] font-bold text-slate-500 uppercase">
+                            <div className="grid grid-cols-2 gap-y-1 text-[10px] font-medium text-slate-500 uppercase">
                                 <div>Atendió: <span className="text-slate-800">{row.atendio}</span></div>
                                 <div>Mesa: <span className="text-slate-800">{row.mesa}</span></div>
                                 <div className="col-span-2">Cliente: <span className="text-slate-800">{row.cliente}</span></div>
@@ -768,60 +768,60 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                             <tr className="border-b border-gray-300">
                                 {mode === 'REP_CREDIT' ? (
                                     <>
-                                        <th onClick={() => requestSort('apertura')} className="px-3 py-2 text-center font-black uppercase text-gray-600 w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Pagada</th>
-                                        <th onClick={() => requestSort('tipo')} className="px-3 py-2 text-center font-black uppercase text-gray-600 w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Tipo</th>
-                                        <th onClick={() => requestSort('noOrden')} className="px-3 py-2 text-center font-black uppercase text-gray-600 w-[80px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">No. Orden</th>
-                                        <th onClick={() => requestSort('mesa')} className="px-3 py-2 text-center font-black uppercase text-gray-600 w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Cuenta</th>
-                                        <th onClick={() => requestSort('cliente')} className="px-3 py-2 text-left font-black uppercase text-gray-600 w-[180px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Cliente</th>
-                                        <th onClick={() => requestSort('atendio')} className="px-3 py-2 text-center font-black uppercase text-gray-600 w-[150px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Operado Por</th>
-                                        <th onClick={() => requestSort('total')} className="px-3 py-2 text-right font-black uppercase text-gray-600 w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Total Cuenta</th>
-                                        <th onClick={() => requestSort('efectivo')} className="px-3 py-2 text-right font-black uppercase text-gray-600 w-[90px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Efectivo</th>
-                                        <th onClick={() => requestSort('tarjeta')} className="px-3 py-2 text-right font-black uppercase text-gray-600 w-[90px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Tarjeta</th>
-                                        <th onClick={() => requestSort('credito')} className="px-3 py-2 text-right font-black uppercase text-gray-600 w-[90px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Crédito</th>
-                                        <th onClick={() => requestSort('otros')} className="px-3 py-2 text-right font-black uppercase text-gray-600 w-[90px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Otros</th>
-                                        <th onClick={() => requestSort('total')} className="px-3 py-2 text-right font-black uppercase text-gray-600 w-[110px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Total Pagado</th>
+                                        <th onClick={() => requestSort('apertura')} className="px-3 py-2 text-center font-semibold uppercase text-gray-600 w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Pagada</th>
+                                        <th onClick={() => requestSort('tipo')} className="px-3 py-2 text-center font-semibold uppercase text-gray-600 w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Tipo</th>
+                                        <th onClick={() => requestSort('noOrden')} className="px-3 py-2 text-center font-semibold uppercase text-gray-600 w-[80px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">No. Orden</th>
+                                        <th onClick={() => requestSort('mesa')} className="px-3 py-2 text-center font-semibold uppercase text-gray-600 w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Cuenta</th>
+                                        <th onClick={() => requestSort('cliente')} className="px-3 py-2 text-left font-semibold uppercase text-gray-600 w-[180px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Cliente</th>
+                                        <th onClick={() => requestSort('atendio')} className="px-3 py-2 text-center font-semibold uppercase text-gray-600 w-[150px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Operado Por</th>
+                                        <th onClick={() => requestSort('total')} className="px-3 py-2 text-right font-semibold uppercase text-gray-600 w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Total Cuenta</th>
+                                        <th onClick={() => requestSort('efectivo')} className="px-3 py-2 text-right font-semibold uppercase text-gray-600 w-[90px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Efectivo</th>
+                                        <th onClick={() => requestSort('tarjeta')} className="px-3 py-2 text-right font-semibold uppercase text-gray-600 w-[90px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Tarjeta</th>
+                                        <th onClick={() => requestSort('credito')} className="px-3 py-2 text-right font-semibold uppercase text-gray-600 w-[90px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Crédito</th>
+                                        <th onClick={() => requestSort('otros')} className="px-3 py-2 text-right font-semibold uppercase text-gray-600 w-[90px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Otros</th>
+                                        <th onClick={() => requestSort('total')} className="px-3 py-2 text-right font-semibold uppercase text-gray-600 w-[110px] cursor-pointer hover:bg-gray-200 border-r border-gray-300 text-[10px]">Total Pagado</th>
                                     </>
                                 ) : mode === 'REP_DELIVERY' ? (
                                     <>
-                                        <th onClick={() => requestSort('apertura')} className="px-3 py-2 text-center font-black uppercase text-slate-700 w-[110px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Fecha</th>
-                                        <th onClick={() => requestSort('noOrden')} className="px-3 py-2 text-center font-black uppercase text-slate-700 w-[80px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">No. Orden</th>
-                                        <th onClick={() => requestSort('tipo')} className="px-3 py-2 text-center font-black uppercase text-slate-700 w-[120px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Tipo de Orden</th>
-                                        <th onClick={() => requestSort('cliente')} className="px-3 py-2 text-left font-black uppercase text-slate-700 w-[180px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Cliente</th>
-                                        <th className="px-3 py-2 text-center font-black uppercase text-slate-700 w-[100px] border-r border-gray-300">Teléfono</th>
-                                        <th className="px-3 py-2 text-center font-black uppercase text-slate-700 w-[150px] border-r border-gray-300">Correo</th>
-                                        <th className="px-3 py-2 text-left font-black uppercase text-slate-700 w-[240px] border-r border-gray-300">Dirección</th>
-                                        <th className="px-3 py-2 text-center font-black uppercase text-slate-700 w-[130px] border-r border-gray-300">Repartidor</th>
-                                        <th onClick={() => requestSort('total')} className="px-3 py-2 text-right font-black uppercase text-slate-700 w-[110px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Total</th>
+                                        <th onClick={() => requestSort('apertura')} className="px-3 py-2 text-center font-semibold uppercase text-slate-700 w-[110px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Fecha</th>
+                                        <th onClick={() => requestSort('noOrden')} className="px-3 py-2 text-center font-semibold uppercase text-slate-700 w-[80px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">No. Orden</th>
+                                        <th onClick={() => requestSort('tipo')} className="px-3 py-2 text-center font-semibold uppercase text-slate-700 w-[120px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Tipo de Orden</th>
+                                        <th onClick={() => requestSort('cliente')} className="px-3 py-2 text-left font-semibold uppercase text-slate-700 w-[180px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Cliente</th>
+                                        <th className="px-3 py-2 text-center font-semibold uppercase text-slate-700 w-[100px] border-r border-gray-300">Teléfono</th>
+                                        <th className="px-3 py-2 text-center font-semibold uppercase text-slate-700 w-[150px] border-r border-gray-300">Correo</th>
+                                        <th className="px-3 py-2 text-left font-semibold uppercase text-slate-700 w-[240px] border-r border-gray-300">Dirección</th>
+                                        <th className="px-3 py-2 text-center font-semibold uppercase text-slate-700 w-[130px] border-r border-gray-300">Repartidor</th>
+                                        <th onClick={() => requestSort('total')} className="px-3 py-2 text-right font-semibold uppercase text-slate-700 w-[110px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Total</th>
                                     </>
                                 ) : (
                                     <>
-                                        <th onClick={() => requestSort('apertura')} className="px-3 py-2 text-center font-black uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">{(mode === 'REP_VOID' || mode === 'REP_DISC') ? 'Creada' : (mode === 'REP_CLOSED_CH' ? 'Cerrada' : 'Apertura')}</th>
-                                        {mode === 'REP_VOID' && <th onClick={() => requestSort('fecha_anulacion')} className="px-3 py-2 text-center font-black uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Anulada</th>}
-                                        <th onClick={() => requestSort('tipo')} className="px-3 py-2 text-center font-black uppercase text-black w-[120px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Tipo</th>
-                                        <th onClick={() => requestSort('noOrden')} className="px-3 py-2 text-center font-black uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">No. Orden</th>
+                                        <th onClick={() => requestSort('apertura')} className="px-3 py-2 text-center font-semibold uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">{(mode === 'REP_VOID' || mode === 'REP_DISC') ? 'Creada' : (mode === 'REP_CLOSED_CH' ? 'Cerrada' : 'Apertura')}</th>
+                                        {mode === 'REP_VOID' && <th onClick={() => requestSort('fecha_anulacion')} className="px-3 py-2 text-center font-semibold uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Anulada</th>}
+                                        <th onClick={() => requestSort('tipo')} className="px-3 py-2 text-center font-semibold uppercase text-black w-[120px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Tipo</th>
+                                        <th onClick={() => requestSort('noOrden')} className="px-3 py-2 text-center font-semibold uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">No. Orden</th>
                                         {mode === 'REP_VOID' || mode === 'REP_DISC' ? (
                                             <>
-                                                <th onClick={() => requestSort('atendio')} className="px-3 py-2 text-center font-black uppercase text-black w-[150px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">{mode === 'REP_VOID' ? 'Autorizado' : 'Autorizado Por'}</th>
-                                                {mode === 'REP_DISC' && <th onClick={() => requestSort('discount_type')} className="px-3 py-2 text-center font-black uppercase text-black w-[150px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Desc. Tipo</th>}
-                                                <th className="px-3 py-2 text-center font-black uppercase text-black w-[200px] border-r border-gray-300">Motivo</th>
+                                                <th onClick={() => requestSort('atendio')} className="px-3 py-2 text-center font-semibold uppercase text-black w-[150px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">{mode === 'REP_VOID' ? 'Autorizado' : 'Autorizado Por'}</th>
+                                                {mode === 'REP_DISC' && <th onClick={() => requestSort('discount_type')} className="px-3 py-2 text-center font-semibold uppercase text-black w-[150px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Desc. Tipo</th>}
+                                                <th className="px-3 py-2 text-center font-semibold uppercase text-black w-[200px] border-r border-gray-300">Motivo</th>
                                             </>
                                         ) : (
                                             <>
-                                                <th onClick={() => requestSort('seccion')} className="px-3 py-2 text-center font-black uppercase text-black w-[150px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Sección</th>
-                                                <th onClick={() => requestSort('mesa')} className="px-3 py-2 text-center font-black uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Mesa No.</th>
-                                                <th onClick={() => requestSort('atendio')} className="px-3 py-2 text-center font-black uppercase text-black w-[150px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Atendió</th>
-                                                {mode !== 'REP_OPEN' && <th onClick={() => requestSort('metodo')} className="px-3 py-2 text-center font-black uppercase text-black w-[130px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Forma de Pago</th>}
+                                                <th onClick={() => requestSort('seccion')} className="px-3 py-2 text-center font-semibold uppercase text-black w-[150px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Sección</th>
+                                                <th onClick={() => requestSort('mesa')} className="px-3 py-2 text-center font-semibold uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Mesa No.</th>
+                                                <th onClick={() => requestSort('atendio')} className="px-3 py-2 text-center font-semibold uppercase text-black w-[150px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Atendió</th>
+                                                {mode !== 'REP_OPEN' && <th onClick={() => requestSort('metodo')} className="px-3 py-2 text-center font-semibold uppercase text-black w-[130px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Forma de Pago</th>}
                                             </>
                                         )}
-                                        {mode === 'REP_DISC' && <th className="px-3 py-2 text-center font-black uppercase text-black w-[100px] border-r border-gray-300">Cuenta</th>}
-                                        <th onClick={() => requestSort('subtotal')} className="px-3 py-2 text-center font-black uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Subtotal</th>
-                                        <th onClick={() => requestSort('propina')} className="px-3 py-2 text-center font-black uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Propina</th>
-                                        <th onClick={() => requestSort('descuento')} className="px-3 py-2 text-center font-black uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Descuento</th>
-                                        <th onClick={() => requestSort('total')} className="px-3 py-2 text-center font-black uppercase text-black w-[120px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Total</th>
+                                        {mode === 'REP_DISC' && <th className="px-3 py-2 text-center font-semibold uppercase text-black w-[100px] border-r border-gray-300">Cuenta</th>}
+                                        <th onClick={() => requestSort('subtotal')} className="px-3 py-2 text-center font-semibold uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Subtotal</th>
+                                        <th onClick={() => requestSort('propina')} className="px-3 py-2 text-center font-semibold uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Propina</th>
+                                        <th onClick={() => requestSort('descuento')} className="px-3 py-2 text-center font-semibold uppercase text-black w-[100px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Descuento</th>
+                                        <th onClick={() => requestSort('total')} className="px-3 py-2 text-center font-semibold uppercase text-black w-[120px] cursor-pointer hover:bg-gray-200 border-r border-gray-300">Total</th>
                                         {mode === 'REP_ALL' && (
                                             <>
-                                                <th className="px-3 py-2 text-center font-black text-black w-[60px] border-r border-gray-300 uppercase text-[10px]">Cerr.</th>
-                                                <th className="px-3 py-2 text-center font-black text-black w-[60px] border-r border-gray-300 uppercase text-[10px]">Anul.</th>
+                                                <th className="px-3 py-2 text-center font-semibold text-black w-[60px] border-r border-gray-300 uppercase text-[10px]">Cerr.</th>
+                                                <th className="px-3 py-2 text-center font-semibold text-black w-[60px] border-r border-gray-300 uppercase text-[10px]">Anul.</th>
                                             </>
                                         )}
                                     </>
@@ -895,9 +895,9 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                             className="bg-[#106ebe] text-white cursor-pointer select-none group"
                                         >
                                             <td colSpan={mode === 'REP_CREDIT' ? 12 : (mode === 'REP_DISC' ? 11 : (mode === 'REP_VOID' ? 10 : (mode === 'REP_ALL' ? 13 : 11)))} className="px-3 py-0.5 flex items-center gap-2">
-                                                <span className="text-[10px] font-black transition-transform duration-200" style={{ transform: collapsedGroups.has(groupName) ? 'rotate(-90deg)' : 'rotate(0deg)' }}>▼</span>
-                                                <span className="text-[11px] font-black uppercase tracking-wider">{groupName}</span>
-                                                <span className="text-[10px] font-bold text-gray-300 bg-white/10 px-2 py-0.5 rounded ml-2">({(items as any[]).length} órdenes)</span>
+                                                <span className="text-[10px] font-semibold transition-transform duration-200" style={{ transform: collapsedGroups.has(groupName) ? 'rotate(-90deg)' : 'rotate(0deg)' }}>▼</span>
+                                                <span className="text-[11px] font-semibold uppercase tracking-wider">{groupName}</span>
+                                                <span className="text-[10px] font-medium text-gray-300 bg-white/10 px-2 py-0.5 rounded ml-2">({(items as any[]).length} órdenes)</span>
                                             </td>
                                         </tr>
                                         {collapsedGroups.has(groupName) ? null : (items as any[]).map((row: any, idx: number) => {
@@ -918,85 +918,85 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                     {mode === 'REP_CREDIT' ? (
                                                         <>
                                                             <td className="px-3 py-0.5 text-center flex flex-col items-center justify-center leading-tight">
-                                                                <span className="text-[10px] font-bold opacity-80">{row.fecha_full}</span>
+                                                                <span className="text-[10px] font-medium opacity-80">{row.fecha_full}</span>
                                                                 <div className="flex items-center gap-1">
                                                                     <Clock size={10} className="opacity-50" />
-                                                                    <span className="text-[11px] font-black">{row.apertura}</span>
+                                                                    <span className="text-[11px] font-semibold">{row.apertura}</span>
                                                                 </div>
                                                             </td>
-                                                            <td className="px-3 py-0.5 text-center font-bold text-[10px]">{row.tipo}</td>
-                                                            <td className="px-3 py-0.5 text-center font-black text-indigo-500 text-[10px]">#{row.noOrden}</td>
+                                                            <td className="px-3 py-0.5 text-center font-medium text-[10px]">{row.tipo}</td>
+                                                            <td className="px-3 py-0.5 text-center font-semibold text-indigo-500 text-[10px]">#{row.noOrden}</td>
                                                             <td className="px-3 py-0.5 text-center uppercase text-[10px]">Cuenta 1</td>
-                                                            <td className="px-3 py-0.5 text-left font-black text-[10px] uppercase truncate max-w-[180px]">{row.cliente}</td>
-                                                            <td className="px-3 py-0.5 text-center font-bold text-[10px] uppercase truncate max-w-[150px]">{row.atendio}</td>
-                                                            <td className="px-3 py-0.5 text-right font-bold text-[10px]">{formatCurr(row.total)}</td>
+                                                            <td className="px-3 py-0.5 text-left font-semibold text-[10px] uppercase truncate max-w-[180px]">{row.cliente}</td>
+                                                            <td className="px-3 py-0.5 text-center font-medium text-[10px] uppercase truncate max-w-[150px]">{row.atendio}</td>
+                                                            <td className="px-3 py-0.5 text-right font-medium text-[10px]">{formatCurr(row.total)}</td>
                                                             <td className="px-3 py-0.5 text-right font-medium text-[10px]">{formatCurr(row.efectivo)}</td>
                                                             <td className="px-3 py-0.5 text-right font-medium text-[10px]">{formatCurr(row.tarjeta)}</td>
-                                                            <td className="px-3 py-0.5 text-right font-black text-blue-600 text-[10px]">{formatCurr(row.credito)}</td>
+                                                            <td className="px-3 py-0.5 text-right font-semibold text-blue-600 text-[10px]">{formatCurr(row.credito)}</td>
                                                             <td className="px-3 py-0.5 text-right font-medium text-[10px]">{formatCurr(row.otros)}</td>
-                                                            <td className="px-3 py-0.5 text-right font-black text-slate-900 text-[11px] bg-blue-50/50">{formatCurr(row.total)}</td>
+                                                            <td className="px-3 py-0.5 text-right font-semibold text-slate-900 text-[11px] bg-blue-50/50">{formatCurr(row.total)}</td>
                                                         </>
                                                     ) : mode === 'REP_DELIVERY' ? (
                                                         <>
                                                             <td className="px-3 py-0.5 text-center flex flex-col items-center justify-center leading-tight">
-                                                                <span className="text-[10px] font-bold opacity-80">{row.fecha_full}</span>
+                                                                <span className="text-[10px] font-medium opacity-80">{row.fecha_full}</span>
                                                                 <div className="flex items-center gap-1">
                                                                     <Clock size={10} className="opacity-50" />
-                                                                    <span className="text-[11px] font-black">{row.apertura}</span>
+                                                                    <span className="text-[11px] font-semibold">{row.apertura}</span>
                                                                 </div>
                                                             </td>
-                                                            <td className="px-3 py-0.5 text-center font-black text-slate-800">#{row.noOrden}</td>
-                                                            <td className="px-3 py-0.5 text-center font-bold text-slate-700">{row.tipo}</td>
-                                                            <td className="px-3 py-0.5 text-left font-black uppercase truncate max-w-[180px] text-slate-800">{row.cliente}</td>
-                                                            <td className="px-3 py-0.5 text-center font-bold text-slate-800 tabular-nums">{row.customer_phone}</td>
+                                                            <td className="px-3 py-0.5 text-center font-semibold text-slate-800">#{row.noOrden}</td>
+                                                            <td className="px-3 py-0.5 text-center font-medium text-slate-700">{row.tipo}</td>
+                                                            <td className="px-3 py-0.5 text-left font-semibold uppercase truncate max-w-[180px] text-slate-800">{row.cliente}</td>
+                                                            <td className="px-3 py-0.5 text-center font-medium text-slate-800 tabular-nums">{row.customer_phone}</td>
                                                             <td className="px-3 py-0.5 text-center text-slate-600 truncate max-w-[150px]">{row.customer_email}</td>
                                                             <td className="px-3 py-0.5 text-left text-slate-700 truncate max-w-[240px]" title={row.delivery_address}>{row.delivery_address}</td>
-                                                            <td className="px-3 py-0.5 text-center font-bold text-slate-800">{row.driver_name}</td>
-                                                            <td className="px-3 py-0.5 text-right font-black text-slate-900 bg-gray-50">{formatCurr(row.total)}</td>
+                                                            <td className="px-3 py-0.5 text-center font-medium text-slate-800">{row.driver_name}</td>
+                                                            <td className="px-3 py-0.5 text-right font-semibold text-slate-900 bg-gray-50">{formatCurr(row.total)}</td>
                                                         </>
                                                     ) : (
                                                         <>
                                                             <td className="px-3 py-0.5 text-center border-r border-gray-200">
                                                                 <div className="flex flex-col items-center justify-center leading-tight">
-                                                                    <span className="text-[10px] font-bold opacity-80">{row.fecha_full}</span>
+                                                                    <span className="text-[10px] font-medium opacity-80">{row.fecha_full}</span>
                                                                     <div className="flex items-center gap-1">
                                                                         <Clock size={10} className="opacity-50" />
-                                                                        <span className="text-[11px] font-black">{row.apertura}</span>
+                                                                        <span className="text-[11px] font-semibold">{row.apertura}</span>
                                                                     </div>
                                                                 </div>
                                                             </td>
                                                             {mode === 'REP_VOID' && (
                                                                 <td className="px-3 py-0.5 text-center border-r border-gray-200">
                                                                     <div className="flex flex-col items-center justify-center leading-tight">
-                                                                        <span className="text-[10px] font-bold opacity-80">{row.fecha_anulacion_full}</span>
+                                                                        <span className="text-[10px] font-medium opacity-80">{row.fecha_anulacion_full}</span>
                                                                         <div className="flex items-center gap-1">
                                                                             <Clock size={10} className="opacity-50" />
-                                                                            <span className="text-[11px] font-black">{row.anulada}</span>
+                                                                            <span className="text-[11px] font-semibold">{row.anulada}</span>
                                                                         </div>
                                                                     </div>
                                                                 </td>
                                                             )}
-                                                            <td className="px-3 py-0.5 text-center font-bold border-r border-gray-200">{row.tipo}</td>
-                                                            <td className="px-3 py-0.5 text-center font-black text-slate-900 border-r border-gray-200">#{row.noOrden}</td>
+                                                            <td className="px-3 py-0.5 text-center font-medium border-r border-gray-200">{row.tipo}</td>
+                                                            <td className="px-3 py-0.5 text-center font-semibold text-slate-900 border-r border-gray-200">#{row.noOrden}</td>
                                                             {mode === 'REP_VOID' || mode === 'REP_DISC' ? (
                                                                 <>
-                                                                    <td className="px-3 py-0.5 text-center uppercase font-bold text-slate-700 border-r border-gray-200">{row.atendio}</td>
-                                                                    {mode === 'REP_DISC' && <td className="px-3 py-0.5 text-center font-bold text-gray-600 border-r border-gray-200">{row.discount_type}</td>}
+                                                                    <td className="px-3 py-0.5 text-center uppercase font-medium text-slate-700 border-r border-gray-200">{row.atendio}</td>
+                                                                    {mode === 'REP_DISC' && <td className="px-3 py-0.5 text-center font-medium text-gray-600 border-r border-gray-200">{row.discount_type}</td>}
                                                                     <td className="px-3 py-0.5 text-left text-gray-500 truncate border-r border-gray-200" title={row.discount_reason}>{row.discount_reason}</td>
                                                                 </>
                                                             ) : (
                                                                 <>
                                                                     <td className="px-3 py-0.5 text-center uppercase border-r border-gray-200">{row.seccion}</td>
-                                                                    <td className="px-3 py-0.5 text-center font-bold border-r border-gray-200">{row.mesa}</td>
-                                                                    <td className="px-3 py-0.5 text-center font-bold border-r border-gray-200">{row.atendio}</td>
-                                                                    {mode !== 'REP_OPEN' && <td className="px-3 py-0.5 text-center font-bold text-[9px] uppercase border-r border-gray-200 text-slate-500">{row.metodo}</td>}
+                                                                    <td className="px-3 py-0.5 text-center font-medium border-r border-gray-200">{row.mesa}</td>
+                                                                    <td className="px-3 py-0.5 text-center font-medium border-r border-gray-200">{row.atendio}</td>
+                                                                    {mode !== 'REP_OPEN' && <td className="px-3 py-0.5 text-center font-medium text-[9px] uppercase border-r border-gray-200 text-slate-500">{row.metodo}</td>}
                                                                 </>
                                                             )}
-                                                            {mode === 'REP_DISC' && <td className="px-3 py-0.5 text-center font-bold text-slate-800 border-r border-gray-200">Cuenta 1</td>}
+                                                            {mode === 'REP_DISC' && <td className="px-3 py-0.5 text-center font-medium text-slate-800 border-r border-gray-200">Cuenta 1</td>}
                                                             <td className="px-3 py-0.5 text-right font-medium text-slate-900 border-r border-gray-200">{formatCurr(row.subtotal)}</td>
                                                             <td className="px-3 py-0.5 text-right font-medium text-slate-900 border-r border-gray-200">{formatCurr(row.propina)}</td>
                                                             <td className="px-3 py-0.5 text-right font-medium text-slate-900 border-r border-gray-200">- {formatCurr(row.descuento)}</td>
-                                                            <td className="px-3 py-0.5 text-right font-black text-slate-900 border-r border-gray-200">{formatCurr(row.total)}</td>
+                                                            <td className="px-3 py-0.5 text-right font-semibold text-slate-900 border-r border-gray-200">{formatCurr(row.total)}</td>
                                                             {mode === 'REP_ALL' && (
                                                                 <>
                                                                     <td className="px-3 py-0.5 text-center text-[10px] border-r border-gray-200">{row.status === 'completed' ? <CheckSquare size={14} className="mx-auto text-green-600" /> : '-'}</td>
@@ -1028,64 +1028,64 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                         {mode === 'REP_DELIVERY' ? (
                                             <>
                                                 <td className="px-3 py-0.5 text-center flex flex-col items-center justify-center leading-tight border-r border-gray-200">
-                                                    <span className="text-[10px] font-bold opacity-80">{row.fecha_full}</span>
+                                                    <span className="text-[10px] font-medium opacity-80">{row.fecha_full}</span>
                                                     <div className="flex items-center gap-1">
                                                         <Clock size={10} className="opacity-50" />
-                                                        <span className="text-[11px] font-black">{row.apertura}</span>
+                                                        <span className="text-[11px] font-semibold">{row.apertura}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-3 py-0.5 text-center font-black text-slate-800 border-r border-gray-200">#{row.noOrden}</td>
-                                                <td className="px-3 py-0.5 text-center font-bold text-slate-700 border-r border-gray-200">{row.tipo}</td>
-                                                <td className="px-3 py-0.5 text-left font-black uppercase truncate max-w-[180px] text-slate-800 border-r border-gray-200">{row.cliente}</td>
-                                                <td className="px-3 py-0.5 text-center font-bold text-slate-800 tabular-nums border-r border-gray-200">{row.customer_phone}</td>
+                                                <td className="px-3 py-0.5 text-center font-semibold text-slate-800 border-r border-gray-200">#{row.noOrden}</td>
+                                                <td className="px-3 py-0.5 text-center font-medium text-slate-700 border-r border-gray-200">{row.tipo}</td>
+                                                <td className="px-3 py-0.5 text-left font-semibold uppercase truncate max-w-[180px] text-slate-800 border-r border-gray-200">{row.cliente}</td>
+                                                <td className="px-3 py-0.5 text-center font-medium text-slate-800 tabular-nums border-r border-gray-200">{row.customer_phone}</td>
                                                 <td className="px-3 py-0.5 text-center text-slate-600 truncate max-w-[150px] border-r border-gray-200">{row.customer_email}</td>
                                                 <td className="px-3 py-0.5 text-left text-slate-700 truncate max-w-[240px] border-r border-gray-200" title={row.delivery_address}>{row.delivery_address}</td>
-                                                <td className="px-3 py-0.5 text-center font-bold text-slate-800 border-r border-gray-200">{row.driver_name}</td>
-                                                <td className="px-3 py-0.5 text-right font-black text-slate-900 bg-gray-50 border-r border-gray-200">{formatCurr(row.total)}</td>
+                                                <td className="px-3 py-0.5 text-center font-medium text-slate-800 border-r border-gray-200">{row.driver_name}</td>
+                                                <td className="px-3 py-0.5 text-right font-semibold text-slate-900 bg-gray-50 border-r border-gray-200">{formatCurr(row.total)}</td>
                                             </>
                                         ) : (
                                             <>
                                                 <td className="px-3 py-0.5 text-center border-r border-gray-200">
                                                     <div className="flex flex-col items-center justify-center leading-tight">
-                                                        <span className="text-[10px] font-bold opacity-80">{row.fecha_full}</span>
+                                                        <span className="text-[10px] font-medium opacity-80">{row.fecha_full}</span>
                                                         <div className="flex items-center gap-1">
                                                             <Clock size={10} className="opacity-50" />
-                                                            <span className="text-[11px] font-black">{row.apertura}</span>
+                                                            <span className="text-[11px] font-semibold">{row.apertura}</span>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 {mode === 'REP_VOID' && (
                                                     <td className="px-3 py-0.5 text-center border-r border-gray-200">
                                                         <div className="flex flex-col items-center justify-center leading-tight">
-                                                            <span className="text-[10px] font-bold opacity-80">{row.fecha_anulacion_full}</span>
+                                                            <span className="text-[10px] font-medium opacity-80">{row.fecha_anulacion_full}</span>
                                                             <div className="flex items-center gap-1">
                                                                 <Clock size={10} className="opacity-50" />
-                                                                <span className="text-[11px] font-black">{row.anulada}</span>
+                                                                <span className="text-[11px] font-semibold">{row.anulada}</span>
                                                             </div>
                                                         </div>
                                                     </td>
                                                 )}
-                                                <td className="px-3 py-0.5 text-center font-bold text-gray-600 border-r border-gray-200">{row.tipo}</td>
-                                                <td className="px-3 py-0.5 text-center font-black text-slate-900 border-r border-gray-200">#{row.noOrden}</td>
+                                                <td className="px-3 py-0.5 text-center font-medium text-gray-600 border-r border-gray-200">{row.tipo}</td>
+                                                <td className="px-3 py-0.5 text-center font-semibold text-slate-900 border-r border-gray-200">#{row.noOrden}</td>
                                                 {mode === 'REP_VOID' || mode === 'REP_DISC' ? (
                                                     <>
-                                                        <td className="px-3 py-0.5 text-center uppercase font-bold text-slate-700 border-r border-gray-200">{row.atendio}</td>
-                                                        {mode === 'REP_DISC' && <td className="px-3 py-0.5 text-center font-bold text-gray-600 border-r border-gray-200">{row.discount_type}</td>}
+                                                        <td className="px-3 py-0.5 text-center uppercase font-medium text-slate-700 border-r border-gray-200">{row.atendio}</td>
+                                                        {mode === 'REP_DISC' && <td className="px-3 py-0.5 text-center font-medium text-gray-600 border-r border-gray-200">{row.discount_type}</td>}
                                                         <td className="px-3 py-0.5 text-left text-gray-500 truncate border-r border-gray-200" title={row.discount_reason}>{row.discount_reason}</td>
                                                     </>
                                                 ) : (
                                                     <>
                                                         <td className="px-3 py-0.5 text-center text-gray-600 uppercase border-r border-gray-200 w-[150px]">{row.seccion}</td>
-                                                        <td className="px-3 py-0.5 text-center font-bold text-slate-800 border-r border-gray-200 w-[100px]">{row.mesa}</td>
-                                                        <td className="px-3 py-0.5 text-center font-bold text-slate-800 border-r border-gray-200 w-[150px] uppercase truncate">{row.atendio}</td>
-                                                        {mode !== 'REP_OPEN' && <td className="px-3 py-0.5 text-center font-bold text-[9px] uppercase text-slate-500 border-r border-gray-200 w-[130px] truncate">{row.metodo}</td>}
+                                                        <td className="px-3 py-0.5 text-center font-medium text-slate-800 border-r border-gray-200 w-[100px]">{row.mesa}</td>
+                                                        <td className="px-3 py-0.5 text-center font-medium text-slate-800 border-r border-gray-200 w-[150px] uppercase truncate">{row.atendio}</td>
+                                                        {mode !== 'REP_OPEN' && <td className="px-3 py-0.5 text-center font-medium text-[9px] uppercase text-slate-500 border-r border-gray-200 w-[130px] truncate">{row.metodo}</td>}
                                                     </>
                                                 )}
-                                                {mode === 'REP_DISC' && <td className="px-3 py-0.5 text-center font-bold text-slate-800 border-r border-gray-200 w-[100px]">Cuenta 1</td>}
+                                                {mode === 'REP_DISC' && <td className="px-3 py-0.5 text-center font-medium text-slate-800 border-r border-gray-200 w-[100px]">Cuenta 1</td>}
                                                 <td className="px-3 py-0.5 text-right font-medium text-slate-900 border-r border-gray-200 w-[100px] tabular-nums">{formatCurr(row.subtotal)}</td>
                                                 <td className="px-3 py-0.5 text-right font-medium text-slate-900 border-r border-gray-200 w-[100px] tabular-nums">{formatCurr(row.propina)}</td>
                                                 <td className="px-3 py-0.5 text-right font-medium text-slate-900 border-r border-gray-200 w-[100px] tabular-nums">- {formatCurr(row.descuento)}</td>
-                                                <td className="px-3 py-0.5 text-right font-black text-slate-900 border-r border-gray-200 w-[120px] tabular-nums bg-gray-50">{formatCurr(row.total)}</td>
+                                                <td className="px-3 py-0.5 text-right font-semibold text-slate-900 border-r border-gray-200 w-[120px] tabular-nums bg-gray-50">{formatCurr(row.total)}</td>
                                                 {mode === 'REP_ALL' && (
                                                     <>
                                                         <td className="px-3 py-0.5 text-center border-r border-gray-200 w-[60px]"><div className="flex items-center justify-center">{row.status === 'completed' ? <CheckSquare size={14} className="text-gray-500" /> : <div className="w-[14px] h-[14px] border border-gray-400 rounded-sm"></div>}</div></td>
@@ -1103,7 +1103,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                     {filteredData.length === 0 && !loading && (
                         <div className="flex flex-col items-center justify-center py-40 opacity-10 select-none">
                             <Search size={64} className="mb-4" />
-                            <span className="text-sm font-black uppercase tracking-[0.5em]">No se encontraron órdenes</span>
+                            <span className="text-sm font-semibold uppercase tracking-[0.5em]">No se encontraron órdenes</span>
                         </div>
                     )}
                 </div>
@@ -1111,15 +1111,15 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
 
             {/* BARRA DE TOTALES FIJA AL FONDO - ESTRUCTURA DE TABLA PARA ALINEACIÓN PERFECTA */}
             <div className="shrink-0 bg-white text-slate-800 border-t-2 border-gray-300 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] z-[60]">
-                <table className="w-full table-fixed uppercase font-bold text-[11px] select-none border-collapse">
+                <table className="w-full table-fixed uppercase font-medium text-[11px] select-none border-collapse">
                     <tbody>
                         <tr className="h-8">
                             {mode === 'REP_CREDIT' ? (
                                 <>
                                     <td className="w-[100px] px-3">
                                         <div className="flex items-center gap-1 h-full text-slate-800">
-                                            <span className="text-[11px] font-bold">Ords.:</span>
-                                            <span className="text-[11px] font-black">{filteredData.length}</span>
+                                            <span className="text-[11px] font-medium">Ords.:</span>
+                                            <span className="text-[11px] font-semibold">{filteredData.length}</span>
                                         </div>
                                     </td>
                                     <td className="w-[120px]"></td>
@@ -1127,16 +1127,16 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                     <td className="w-[150px]"></td>
                                     <td className="w-[100px]"></td>
                                     <td className="w-[150px]"></td>
-                                    <td className="w-[100px] px-3 text-right text-slate-900 font-bold tabular-nums">
+                                    <td className="w-[100px] px-3 text-right text-slate-900 font-medium tabular-nums">
                                         {formatCurr(filteredData.reduce((sum, d) => sum + d.efectivo, 0))}
                                     </td>
-                                    <td className="w-[100px] px-3 text-right text-slate-900 font-bold tabular-nums">
+                                    <td className="w-[100px] px-3 text-right text-slate-900 font-medium tabular-nums">
                                         {formatCurr(filteredData.reduce((sum, d) => sum + d.tarjeta, 0))}
                                     </td>
-                                    <td className="w-[100px] px-3 text-right text-blue-700 font-bold tabular-nums">
+                                    <td className="w-[100px] px-3 text-right text-blue-700 font-medium tabular-nums">
                                         {formatCurr(filteredData.reduce((sum, d) => sum + d.credito, 0))}
                                     </td>
-                                    <td className="w-[120px] px-3 text-right text-slate-900 font-black tabular-nums">
+                                    <td className="w-[120px] px-3 text-right text-slate-900 font-semibold tabular-nums">
                                         {formatCurr(totals.total)}
                                     </td>
                                 </>
@@ -1144,8 +1144,8 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                 <>
                                     <td className="w-[100px] px-3">
                                         <div className="flex items-center gap-1 h-full text-slate-800">
-                                            <span className="text-[11px] font-bold">Ords.:</span>
-                                            <span className="text-[11px] font-black">{filteredData.length}</span>
+                                            <span className="text-[11px] font-medium">Ords.:</span>
+                                            <span className="text-[11px] font-semibold">{filteredData.length}</span>
                                         </div>
                                     </td>
                                     <td className="w-[100px]"></td>
@@ -1155,7 +1155,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                     <td className="w-[150px]"></td>
                                     <td className="w-[240px]"></td>
                                     <td className="w-[130px]"></td>
-                                    <td className="w-[110px] px-3 text-right text-slate-900 font-black tabular-nums">
+                                    <td className="w-[110px] px-3 text-right text-slate-900 font-semibold tabular-nums">
                                         {formatCurr(totals.total)}
                                     </td>
                                 </>
@@ -1163,8 +1163,8 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                 <>
                                     <td className="w-[100px] px-3">
                                         <div className="flex items-center gap-1 h-full text-slate-800">
-                                            <span className="text-[11px] font-bold capitalize">Ords.:</span>
-                                            <span className="text-[11px] font-black">{filteredData.length}</span>
+                                            <span className="text-[11px] font-medium capitalize">Ords.:</span>
+                                            <span className="text-[11px] font-semibold">{filteredData.length}</span>
                                         </div>
                                     </td>
                                     {mode === 'REP_VOID' && <td className="w-[100px]"></td>}
@@ -1185,16 +1185,16 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                         </>
                                     )}
                                     {mode === 'REP_DISC' && <td className="w-[100px]"></td>}
-                                    <td className="w-[100px] px-3 text-right text-slate-900 font-bold tabular-nums">
+                                    <td className="w-[100px] px-3 text-right text-slate-900 font-medium tabular-nums">
                                         {formatCurr(totals.subtotal)}
                                     </td>
-                                    <td className="w-[100px] px-3 text-right text-slate-900 font-bold tabular-nums">
+                                    <td className="w-[100px] px-3 text-right text-slate-900 font-medium tabular-nums">
                                         {formatCurr(totals.propina)}
                                     </td>
-                                    <td className="w-[100px] px-3 text-right text-slate-900 font-bold tabular-nums">
+                                    <td className="w-[100px] px-3 text-right text-slate-900 font-medium tabular-nums">
                                         {formatCurr(totals.descuento)}
                                     </td>
-                                    <td className="w-[120px] px-3 text-right text-slate-900 font-black tabular-nums">
+                                    <td className="w-[120px] px-3 text-right text-slate-900 font-semibold tabular-nums">
                                         {formatCurr(totals.total)}
                                     </td>
                                     {mode === 'REP_ALL' && <td className="w-[120px]"></td>}
@@ -1212,7 +1212,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                     style={{ top: contextMenu.y, left: contextMenu.x }}
                 >
                     <button
-                        className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group"
+                        className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group"
                         onClick={() => {
                             fetchOrderDetails(contextMenu.order);
                             setContextMenu(null);
@@ -1231,7 +1231,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                             <div className={`bg-[#f0f0f0] border border-[#106ebe] shadow-2xl flex flex-col w-full h-full sm:w-[480px] sm:h-auto sm:max-h-[92vh] overflow-hidden select-none font-sans ${isMobile ? '' : 'rounded-sm'}`}>
                                 {/* Title Bar */}
                                 <div className="bg-[#106ebe] h-10 sm:h-8 px-3 flex justify-between items-center cursor-move text-white shrink-0">
-                                    <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-tight px-1">
+                                    <div className="flex items-center gap-1.5 text-[11px] font-medium tracking-tight px-1">
                                         <FileText size={12} className="text-blue-100" strokeWidth={2.5} />
                                         <span>Visor de Ordenes</span>
                                     </div>
@@ -1250,52 +1250,52 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                     {/* Density Optimized Rows */}
                                     <div className="flex items-center justify-between gap-4">
                                         <div className="flex items-center gap-2 flex-1">
-                                            <span className="text-[10px] font-bold text-slate-800 w-24">No. Orden:</span>
-                                            <div className="flex-1 h-6 border border-gray-400 bg-white px-2 flex items-center text-[11px] font-black text-black shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)]">
+                                            <span className="text-[10px] font-medium text-slate-800 w-24">No. Orden:</span>
+                                            <div className="flex-1 h-6 border border-gray-400 bg-white px-2 flex items-center text-[11px] font-semibold text-black shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)]">
                                                 {viewingOrder.noOrden}
                                             </div>
                                         </div>
-                                        <button className="bg-[#e1e1e1] border border-gray-500 px-3 h-6 text-[10px] font-black text-black hover:bg-gray-200 flex items-center gap-1.5 shadow-sm active:bg-gray-300">
+                                        <button className="bg-[#e1e1e1] border border-gray-500 px-3 h-6 text-[10px] font-semibold text-black hover:bg-gray-200 flex items-center gap-1.5 shadow-sm active:bg-gray-300">
                                             IMPRIMIR <Printer size={11} strokeWidth={3} />
                                         </button>
                                     </div>
 
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-bold text-slate-800 w-24">Fecha y Hora:</span>
-                                        <div className="flex-1 h-6 border border-gray-400 bg-white px-2 flex items-center text-[10px] font-bold text-slate-700 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] tabular-nums uppercase">
+                                        <span className="text-[10px] font-medium text-slate-800 w-24">Fecha y Hora:</span>
+                                        <div className="flex-1 h-6 border border-gray-400 bg-white px-2 flex items-center text-[10px] font-medium text-slate-700 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] tabular-nums uppercase">
                                             {viewingOrder.fecha_full || new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })} {viewingOrder.apertura}
                                         </div>
                                     </div>
 
                                     <div className="flex items-center gap-4">
                                         <div className="flex items-center gap-2 flex-1">
-                                            <span className="text-[10px] font-bold text-slate-800 w-24">Sección:</span>
-                                            <div className="flex-1 h-6 border border-gray-400 bg-white px-2 flex items-center text-[10px] font-bold text-black shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] uppercase truncate">
+                                            <span className="text-[10px] font-medium text-slate-800 w-24">Sección:</span>
+                                            <div className="flex-1 h-6 border border-gray-400 bg-white px-2 flex items-center text-[10px] font-medium text-black shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] uppercase truncate">
                                                 {viewingOrder.seccion}
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2 w-24">
-                                            <span className="text-[10px] font-bold text-slate-800">Mesa:</span>
-                                            <div className="flex-1 h-6 border border-gray-400 bg-white px-1 flex items-center justify-center text-[10px] font-black text-black shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)]">
+                                            <span className="text-[10px] font-medium text-slate-800">Mesa:</span>
+                                            <div className="flex-1 h-6 border border-gray-400 bg-white px-1 flex items-center justify-center text-[10px] font-semibold text-black shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)]">
                                                 {viewingOrder.mesa}
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-bold text-slate-800 w-24">Atendió:</span>
-                                        <div className="flex-1 h-6 border border-gray-400 bg-white px-2 flex items-center text-[10px] font-bold text-black shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] uppercase truncate">
+                                        <span className="text-[10px] font-medium text-slate-800 w-24">Atendió:</span>
+                                        <div className="flex-1 h-6 border border-gray-400 bg-white px-2 flex items-center text-[10px] font-medium text-black shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] uppercase truncate">
                                             {viewingOrder.atendio}
                                         </div>
                                     </div>
 
                                     <div className="flex items-center gap-4">
                                         <div className="flex items-center gap-2 flex-1">
-                                            <span className="text-[10px] font-bold text-slate-800 w-24">Cuenta:</span>
+                                            <span className="text-[10px] font-medium text-slate-800 w-24">Cuenta:</span>
                                             <select
                                                 value={selectedAccount}
                                                 onChange={(e) => setSelectedAccount(e.target.value)}
-                                                className="flex-1 h-6 border border-gray-400 bg-white text-[10px] font-black px-1.5 outline-none focus:ring-1 focus:ring-blue-500 shadow-sm uppercase cursor-pointer text-black"
+                                                className="flex-1 h-6 border border-gray-400 bg-white text-[10px] font-semibold px-1.5 outline-none focus:ring-1 focus:ring-blue-500 shadow-sm uppercase cursor-pointer text-black"
                                             >
                                                 <option value="ALL">TODAS LAS CUENTAS</option>
                                                 {uniqueAccounts.map(acc => (
@@ -1305,7 +1305,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                         </div>
                                         <button
                                             onClick={() => setSelectedAccount('ALL')}
-                                            className="bg-[#e1e1e1] border border-gray-500 px-3 h-6 text-[10px] font-black text-black hover:bg-gray-200 shadow-sm active:bg-gray-300"
+                                            className="bg-[#e1e1e1] border border-gray-500 px-3 h-6 text-[10px] font-semibold text-black hover:bg-gray-200 shadow-sm active:bg-gray-300"
                                         >
                                             VER TODOS
                                         </button>
@@ -1313,14 +1313,14 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
 
                                     <div className="flex items-center gap-4">
                                         <div className="flex items-center gap-2 flex-1">
-                                            <span className="text-[10px] font-bold text-slate-800 w-24">Tipo:</span>
-                                            <div className="flex-1 h-6 border border-gray-400 bg-white px-2 flex items-center text-[10px] font-bold text-black shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] uppercase">
+                                            <span className="text-[10px] font-medium text-slate-800 w-24">Tipo:</span>
+                                            <div className="flex-1 h-6 border border-gray-400 bg-white px-2 flex items-center text-[10px] font-medium text-black shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] uppercase">
                                                 {viewingOrder.tipo}
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2 w-44 justify-end shrink-0">
-                                            <span className="text-[10px] font-bold text-slate-800">Estado:</span>
-                                            <div className="w-24 h-6 border border-gray-400 bg-white px-2 flex items-center justify-center text-[10px] font-black text-black shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] uppercase">
+                                            <span className="text-[10px] font-medium text-slate-800">Estado:</span>
+                                            <div className="w-24 h-6 border border-gray-400 bg-white px-2 flex items-center justify-center text-[10px] font-semibold text-black shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] uppercase">
                                                 {viewingOrder.status === 'completed' || !viewingOrder.status ? 'PAGADA' :
                                                     viewingOrder.status === 'cancelled' ? 'ANULADA' : 'PENDIENTE'}
                                             </div>
@@ -1333,7 +1333,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                     {loadingOrderItems ? (
                                         <div className="h-full flex flex-col items-center justify-center gap-2 opacity-50">
                                             <Loader2 className="animate-spin text-slate-600" size={24} strokeWidth={3} />
-                                            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Cargando datos...</span>
+                                            <span className="text-[9px] font-medium uppercase tracking-widest text-slate-500">Cargando datos...</span>
                                         </div>
                                     ) : (
                                         filteredOrderItems.map((item) => {
@@ -1357,16 +1357,16 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                     {/* Header dark bar - ultra compact */}
                                                     <div className="bg-[#5a5a5a] h-7 px-2 flex items-center justify-between text-white shrink-0 border-b border-gray-600">
                                                         <div className="flex items-center gap-3">
-                                                            <span className="text-[12px] font-black w-6 text-center tabular-nums bg-black/10 h-full flex items-center justify-center">{item.quantity}</span>
-                                                            <span className="text-[10px] font-black uppercase tracking-tight">{item.products?.name || item.product_name}</span>
+                                                            <span className="text-[12px] font-semibold w-6 text-center tabular-nums bg-black/10 h-full flex items-center justify-center">{item.quantity}</span>
+                                                            <span className="text-[10px] font-semibold uppercase tracking-tight">{item.products?.name || item.product_name}</span>
                                                         </div>
-                                                        <span className="text-[11px] font-bold tabular-nums">Q{((item.unit_price || item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
+                                                        <span className="text-[11px] font-medium tabular-nums">Q{((item.unit_price || item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                                                     </div>
                                                     {/* Modifiers List - dense */}
                                                     {noteParts.length > 0 && (
                                                         <div className="p-1 px-2 flex flex-col gap-0.5 bg-white">
                                                             {noteParts.map((mod, mIdx) => (
-                                                                <div key={mIdx} className="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-2 ml-8">
+                                                                <div key={mIdx} className="text-[9px] font-medium text-slate-500 uppercase flex items-center gap-2 ml-8">
                                                                     <div className="w-1 h-[0.5px] bg-slate-300" /> {mod}
                                                                 </div>
                                                             ))}
@@ -1381,32 +1381,32 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                 {/* Summary Footer - Compact Matrix */}
                                 <div className="bg-[#f0f0f0] border-t border-gray-400 p-3 pt-2 shrink-0 flex flex-col gap-1 items-end">
                                     <div className="flex items-center gap-3 w-full max-w-[200px]">
-                                        <span className="text-[10px] font-bold text-slate-800 flex-1 text-right">Sub-Total:</span>
-                                        <div className="w-24 h-6 border border-gray-400 bg-white px-2 flex items-center justify-end text-[10px] font-bold text-slate-800 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.05)] tabular-nums">
+                                        <span className="text-[10px] font-medium text-slate-800 flex-1 text-right">Sub-Total:</span>
+                                        <div className="w-24 h-6 border border-gray-400 bg-white px-2 flex items-center justify-end text-[10px] font-medium text-slate-800 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.05)] tabular-nums">
                                             Q{subtotalWithoutTax.toFixed(2)}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3 w-full">
                                         <div className="flex-1 flex items-center justify-end gap-2">
-                                            <span className="text-[10px] font-bold text-slate-800 shrink-0">Descuento aplicado a:</span>
-                                            <div className="flex-1 max-w-[200px] h-6 border border-gray-400 bg-white px-2 flex items-center text-[10px] font-black text-blue-700 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.05)] uppercase truncate min-w-[120px]">
+                                            <span className="text-[10px] font-medium text-slate-800 shrink-0">Descuento aplicado a:</span>
+                                            <div className="flex-1 max-w-[200px] h-6 border border-gray-400 bg-white px-2 flex items-center text-[10px] font-semibold text-blue-700 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.05)] uppercase truncate min-w-[120px]">
                                                 {viewingOrder.discount_reason ? viewingOrder.discount_reason : (viewingOrder.descuento > 0 ? 'DESCUENTO APLICADO' : '')}
                                             </div>
                                         </div>
-                                        <div className="w-24 h-6 border border-gray-400 bg-white px-2 flex items-center justify-end text-[10px] font-bold text-black shadow-[inset_1px_1px_1px_rgba(0,0,0,0.05)] tabular-nums shrink-0">
+                                        <div className="w-24 h-6 border border-gray-400 bg-white px-2 flex items-center justify-end text-[10px] font-medium text-black shadow-[inset_1px_1px_1px_rgba(0,0,0,0.05)] tabular-nums shrink-0">
                                             Q{discount.toFixed(2)}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3 w-full max-w-[200px]">
-                                        <span className="text-[10px] font-bold text-slate-800 flex-1 text-right">Propina:</span>
-                                        <div className="w-24 h-6 border border-gray-400 bg-white px-2 flex items-center justify-end text-[10px] font-bold text-slate-800 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.05)] tabular-nums">
+                                        <span className="text-[10px] font-medium text-slate-800 flex-1 text-right">Propina:</span>
+                                        <div className="w-24 h-6 border border-gray-400 bg-white px-2 flex items-center justify-end text-[10px] font-medium text-slate-800 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.05)] tabular-nums">
                                             Q{tip.toFixed(2)}
                                         </div>
                                     </div>
                                     <div className="h-px bg-gray-400 w-full max-w-[200px] my-0.5" />
                                     <div className="flex items-center gap-3 w-full max-w-[200px]">
-                                        <span className="text-[10px] font-black text-slate-950 flex-1 text-right uppercase">Total:</span>
-                                        <div className="w-24 h-7 border-2 border-gray-600 bg-white px-2 flex items-center justify-end text-[12px] font-black text-slate-900 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.1)] tabular-nums">
+                                        <span className="text-[10px] font-semibold text-slate-950 flex-1 text-right uppercase">Total:</span>
+                                        <div className="w-24 h-7 border-2 border-gray-600 bg-white px-2 flex items-center justify-end text-[12px] font-semibold text-slate-900 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.1)] tabular-nums">
                                             Q{total.toFixed(2)}
                                         </div>
                                     </div>
@@ -1426,21 +1426,21 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                             <div className="bg-[#f0f0f0] border border-[#106ebe] shadow-2xl flex flex-col w-[90vw] max-w-6xl h-[90vh] overflow-hidden select-none font-sans">
                                 {/* Toolbar Modal */}
                                 <div className="bg-[#106ebe] h-10 px-4 flex justify-between items-center text-white shrink-0">
-                                    <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest">
+                                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest">
                                         <Printer size={14} className="text-blue-400" />
                                         <span>Vista Previa de Reporte</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <button
                                             onClick={() => handlePrint()}
-                                            className="h-7 px-4 bg-blue-600 hover:bg-blue-500 rounded text-[10px] font-black uppercase flex items-center gap-2"
+                                            className="h-7 px-4 bg-blue-600 hover:bg-blue-500 rounded text-[10px] font-semibold uppercase flex items-center gap-2"
                                         >
                                             <Printer size={12} /> Imprimir PDF
                                         </button>
                                         <button
                                             onClick={handleExportExcel}
                                             disabled={isExporting}
-                                            className="bg-emerald-50 hover:bg-emerald-100 border border-emerald-400 text-emerald-700 px-4 py-1 text-xs font-bold flex items-center gap-2 transition-colors shadow-sm ml-2"
+                                            className="bg-emerald-50 hover:bg-emerald-100 border border-emerald-400 text-emerald-700 px-4 py-1 text-xs font-medium flex items-center gap-2 transition-colors shadow-sm ml-2"
                                         >
                                             <Download size={14} /> Descargar Excel (.xlsx)
                                         </button>
@@ -1458,19 +1458,19 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                     >
                                         {/* Header Reporte */}
                                         <div className="text-center mb-10 border-b-2 border-gray-900 pb-6">
-                                            <h1 className="text-4xl font-black uppercase tracking-tighter mb-1">RESTAURANTE LAS PALMAS</h1>
-                                            <p className="text-[14px] font-black uppercase tracking-[0.3em] text-gray-600 mb-4">Sistema de Control Administrativo</p>
+                                            <h1 className="text-4xl font-semibold uppercase tracking-tighter mb-1">RESTAURANTE LAS PALMAS</h1>
+                                            <p className="text-[14px] font-semibold uppercase tracking-[0.3em] text-gray-600 mb-4">Sistema de Control Administrativo</p>
                                             <div className="flex justify-between items-end">
                                                 <div className="text-left">
-                                                    <h2 className="text-2xl font-black uppercase text-slate-800">
+                                                    <h2 className="text-2xl font-semibold uppercase text-slate-800">
                                                         {mode === 'REP_CREDIT' ? 'REPORTE DE ÓRDENES AL CRÉDITO' :
                                                             mode === 'REP_CLOSED_CH' ? 'ÓRDENES CERRADAS POR CANAL' :
                                                                 mode === 'REP_VOID' ? 'REPORTE DE ANULACIONES' : 'REPORTE GENERAL DE VENTAS'}
                                                     </h2>
-                                                    <p className="text-[12px] font-bold text-gray-500">Periodo: {startDate} {startTime} - {endDate} {endTime}</p>
+                                                    <p className="text-[12px] font-medium text-gray-500">Periodo: {startDate} {startTime} - {endDate} {endTime}</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-[12px] font-bold text-gray-800">Sucursal: {selectedBranch === 'ALL' ? 'TODAS' : (branches.find(b => b.id === selectedBranch)?.name || 'SALA')}</p>
+                                                    <p className="text-[12px] font-medium text-gray-800">Sucursal: {selectedBranch === 'ALL' ? 'TODAS' : (branches.find(b => b.id === selectedBranch)?.name || 'SALA')}</p>
                                                     <p className="text-[10px] font-mono text-gray-500">Generado el: {new Date().toLocaleString()}</p>
                                                 </div>
                                             </div>
@@ -1479,7 +1479,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                         {/* Tabla Reporte */}
                                         <table className="w-full border-collapse border-b-2 border-gray-900">
                                             <thead>
-                                                <tr className="bg-gray-100 border-y-2 border-gray-900 text-[11px] font-black uppercase text-center">
+                                                <tr className="bg-gray-100 border-y-2 border-gray-900 text-[11px] font-semibold uppercase text-center">
                                                     {mode === 'REP_CREDIT' ? (
                                                         <>
                                                             <th className="px-3 py-0.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100" onClick={() => requestSort('apertura')}>Apertura</th>
@@ -1491,7 +1491,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                             <th className="px-3 py-0.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100 text-right" onClick={() => requestSort('subtotal')}>Subtotal</th>
                                                             <th className="px-3 py-0.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100 text-right" onClick={() => requestSort('propina')}>Propina</th>
                                                             <th className="px-3 py-0.5 border-r border-gray-300 w-[100px] cursor-pointer hover:bg-gray-100 text-right" onClick={() => requestSort('descuento')}>Descuento</th>
-                                                            <th className="px-3 py-0.5 border-r border-gray-300 w-[120px] cursor-pointer hover:bg-gray-100 text-right font-black bg-gray-50 bg-opacity-50" onClick={() => requestSort('total')}>Total</th>
+                                                            <th className="px-3 py-0.5 border-r border-gray-300 w-[120px] cursor-pointer hover:bg-gray-100 text-right font-semibold bg-gray-50 bg-opacity-50" onClick={() => requestSort('total')}>Total</th>
                                                             {mode === 'REP_ALL' && (
                                                                 <>
                                                                     <th className="px-3 py-0.5 border-r border-gray-300 w-[100px] text-center">Cerrada</th>
@@ -1535,7 +1535,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                             <th className="p-2 border-x text-right">Subtotal</th>
                                                             <th className="p-2 border-x text-right">Propina</th>
                                                             <th className="p-2 border-x text-right">Desc.</th>
-                                                            <th className="p-2 border-x text-right font-black">Total</th>
+                                                            <th className="p-2 border-x text-right font-semibold">Total</th>
                                                             <th className="p-2 border-x text-center">Cerrada</th>
                                                             <th className="p-2 border-x text-center">Anulada</th>
                                                         </>
@@ -1548,7 +1548,7 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                             <th className="p-2 border-x text-right">Subtotal</th>
                                                             <th className="p-2 border-x text-right">Propina</th>
                                                             <th className="p-2 border-x text-right">Desc.</th>
-                                                            <th className="p-2 border-x text-right font-black">Total</th>
+                                                            <th className="p-2 border-x text-right font-semibold">Total</th>
                                                         </>
                                                     )}
                                                 </tr>
@@ -1558,74 +1558,74 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                     <tr key={i} className="border-b border-gray-300 odd:bg-white even:bg-gray-50">
                                                         {mode === 'REP_CREDIT' ? (
                                                             <>
-                                                                <td className="px-3 py-0.5 border-r border-gray-300 font-bold bg-gray-100">{row.fecha_full} {row.apertura}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 font-medium bg-gray-100">{row.fecha_full} {row.apertura}</td>
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 text-center">{row.tipo}</td>
-                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center font-bold">#{row.noOrden}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center font-medium">#{row.noOrden}</td>
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 uppercase truncate max-w-[150px]">{row.cliente}</td>
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 text-right">{formatCurr(row.total)}</td>
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 text-right">{formatCurr(row.efectivo)}</td>
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 text-right">{formatCurr(row.tarjeta)}</td>
-                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-right font-black bg-slate-50 text-slate-900">{formatCurr(row.credito)}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-right font-semibold bg-slate-50 text-slate-900">{formatCurr(row.credito)}</td>
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 text-right">{formatCurr(row.otros)}</td>
-                                                                <td className="px-3 py-0.5 text-right font-black bg-gray-50">{formatCurr(row.total)}</td>
+                                                                <td className="px-3 py-0.5 text-right font-semibold bg-gray-50">{formatCurr(row.total)}</td>
                                                             </>
                                                         ) : mode === 'REP_VOID' || mode === 'REP_DISC' ? (
                                                             <>
-                                                                <td className="px-3 py-0.5 border-r border-gray-300 font-bold bg-gray-50">{row.fecha_creacion}</td>
-                                                                {mode === 'REP_VOID' && <td className="px-3 py-0.5 border-r border-gray-300 font-bold text-slate-900 bg-slate-50/30">{row.fecha_anulacion}</td>}
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 font-medium bg-gray-50">{row.fecha_creacion}</td>
+                                                                {mode === 'REP_VOID' && <td className="px-3 py-0.5 border-r border-gray-300 font-medium text-slate-900 bg-slate-50/30">{row.fecha_anulacion}</td>}
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 text-center">{row.tipo}</td>
-                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center font-black text-slate-900">#{row.noOrden}</td>
-                                                                <td className="px-3 py-0.5 border-r border-gray-300 uppercase truncate font-bold text-slate-700">{row.atendio}</td>
-                                                                {mode === 'REP_DISC' && <td className="px-3 py-0.5 border-r border-gray-300 text-center text-gray-500 font-bold">{row.discount_type}</td>}
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center font-semibold text-slate-900">#{row.noOrden}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 uppercase truncate font-medium text-slate-700">{row.atendio}</td>
+                                                                {mode === 'REP_DISC' && <td className="px-3 py-0.5 border-r border-gray-300 text-center text-gray-500 font-medium">{row.discount_type}</td>}
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 text-left text-gray-400 max-w-[250px] truncate" title={row.discount_reason}>{row.discount_reason}</td>
-                                                                {mode === 'REP_DISC' && <td className="px-3 py-0.5 border-r border-gray-300 text-center text-slate-700 font-bold">Cuenta 1</td>}
+                                                                {mode === 'REP_DISC' && <td className="px-3 py-0.5 border-r border-gray-300 text-center text-slate-700 font-medium">Cuenta 1</td>}
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 text-right font-medium">{formatCurr(row.subtotal)}</td>
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 text-right font-medium">{formatCurr(row.propina)}</td>
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 text-right font-medium">-{formatCurr(row.descuento)}</td>
-                                                                <td className="px-3 py-0.5 text-right font-black bg-gray-50 text-slate-900">{formatCurr(row.total)}</td>
+                                                                <td className="px-3 py-0.5 text-right font-semibold bg-gray-50 text-slate-900">{formatCurr(row.total)}</td>
                                                             </>
                                                         ) : mode === 'REP_DELIVERY' ? (
                                                             <>
-                                                                <td className="px-3 py-0.5 border-r border-gray-300 font-bold bg-gray-100">{row.fecha_full} {row.apertura}</td>
-                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center font-bold">#{row.noOrden}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 font-medium bg-gray-100">{row.fecha_full} {row.apertura}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center font-medium">#{row.noOrden}</td>
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 text-center">{row.tipo}</td>
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 uppercase truncate max-w-[150px]">{row.cliente}</td>
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 text-center font-mono">{row.customer_phone}</td>
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 truncate max-w-[120px] text-gray-500">{row.customer_email}</td>
                                                                 <td className="px-3 py-0.5 border-r border-gray-300 text-left truncate max-w-[250px]">{row.delivery_address}</td>
-                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center font-bold text-slate-800">{row.driver_name}</td>
-                                                                <td className="px-3 py-0.5 text-right font-black bg-gray-50">{formatCurr(row.total)}</td>
+                                                                <td className="px-3 py-0.5 border-r border-gray-300 text-center font-medium text-slate-800">{row.driver_name}</td>
+                                                                <td className="px-3 py-0.5 text-right font-semibold bg-gray-50">{formatCurr(row.total)}</td>
                                                             </>
                                                         ) : mode === 'REP_ALL' ? (
                                                             <>
-                                                                <td className="p-2 border-x text-left font-bold">{row.fecha_full} {row.apertura}</td>
-                                                                <td className="p-2 border-x text-center font-bold">{row.tipo}</td>
-                                                                <td className="p-2 border-x text-center font-bold">#{row.noOrden}</td>
+                                                                <td className="p-2 border-x text-left font-medium">{row.fecha_full} {row.apertura}</td>
+                                                                <td className="p-2 border-x text-center font-medium">{row.tipo}</td>
+                                                                <td className="p-2 border-x text-center font-medium">#{row.noOrden}</td>
                                                                 <td className="p-2 border-x text-center uppercase">{row.atendio}</td>
                                                                 <td className="p-2 border-x text-right">{formatCurr(row.subtotal)}</td>
                                                                 <td className="p-2 border-x text-right">{formatCurr(row.propina)}</td>
                                                                 <td className="p-2 border-x text-right text-slate-600">-{formatCurr(row.descuento)}</td>
-                                                                <td className="p-2 border-x text-right font-black bg-gray-100">{formatCurr(row.total)}</td>
+                                                                <td className="p-2 border-x text-right font-semibold bg-gray-100">{formatCurr(row.total)}</td>
                                                                 <td className="p-2 border-x text-center">{row.status === 'completed' ? 'X' : ''}</td>
                                                                 <td className="p-2 border-x text-center">{row.status === 'cancelled' ? 'X' : ''}</td>
                                                             </>
                                                         ) : (
                                                             <>
-                                                                <td className="p-2 border-x text-left font-bold">{row.fecha_full} {row.apertura}</td>
-                                                                <td className="p-2 border-x text-center font-bold">{row.tipo}</td>
-                                                                <td className="p-2 border-x text-center font-bold">#{row.noOrden}</td>
+                                                                <td className="p-2 border-x text-left font-medium">{row.fecha_full} {row.apertura}</td>
+                                                                <td className="p-2 border-x text-center font-medium">{row.tipo}</td>
+                                                                <td className="p-2 border-x text-center font-medium">#{row.noOrden}</td>
                                                                 <td className="p-2 border-x text-center uppercase">{row.atendio}</td>
                                                                 <td className="p-2 border-x text-right">{formatCurr(row.subtotal)}</td>
                                                                 <td className="p-2 border-x text-right">{formatCurr(row.propina)}</td>
                                                                 <td className="p-2 border-x text-right text-slate-600">-{formatCurr(row.descuento)}</td>
-                                                                <td className="p-2 border-x text-right font-black bg-gray-100">{formatCurr(row.total)}</td>
+                                                                <td className="p-2 border-x text-right font-semibold bg-gray-100">{formatCurr(row.total)}</td>
                                                             </>
                                                         )}
                                                     </tr>
                                                 ))}
                                             </tbody>
                                             <tfoot>
-                                                <tr className="bg-gray-200 border-t-2 border-gray-900 font-black text-[12px]">
+                                                <tr className="bg-gray-200 border-t-2 border-gray-900 font-semibold text-[12px]">
                                                     {mode === 'REP_CREDIT' ? (
                                                         <>
                                                             <td colSpan={4} className="p-2 text-right">TOTAL GENERAL:</td>
@@ -1644,10 +1644,10 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                                     ) : (mode === 'REP_VOID' || mode === 'REP_DISC') ? (
                                                         <>
                                                             <td colSpan={mode === 'REP_VOID' ? 6 : 8} className="p-2 text-right">TOTAL GENERAL:</td>
-                                                            <td className="p-2 border-x text-right font-black">{formatCurr(totals.subtotal)}</td>
-                                                            <td className="p-2 border-x text-right font-black">{formatCurr(totals.propina)}</td>
-                                                            <td className="p-2 border-x text-right font-black text-slate-900">-{formatCurr(totals.descuento)}</td>
-                                                            <td className="p-2 border-x text-right text-[14px] bg-gray-300 font-black">{formatCurr(totals.total)}</td>
+                                                            <td className="p-2 border-x text-right font-semibold">{formatCurr(totals.subtotal)}</td>
+                                                            <td className="p-2 border-x text-right font-semibold">{formatCurr(totals.propina)}</td>
+                                                            <td className="p-2 border-x text-right font-semibold text-slate-900">-{formatCurr(totals.descuento)}</td>
+                                                            <td className="p-2 border-x text-right text-[14px] bg-gray-300 font-semibold">{formatCurr(totals.total)}</td>
                                                         </>
                                                     ) : (
                                                         <>
@@ -1666,10 +1666,10 @@ export const ReportOrders: React.FC<ReportOrdersProps> = ({ mode }) => {
                                         {/* Auditoría Footer */}
                                         <div className="mt-12 flex justify-between px-10">
                                             <div className="w-[200px] border-t border-gray-800 text-center pt-2">
-                                                <p className="text-[10px] font-black uppercase">Responsable Operativo</p>
+                                                <p className="text-[10px] font-semibold uppercase">Responsable Operativo</p>
                                             </div>
                                             <div className="w-[200px] border-t border-gray-800 text-center pt-2">
-                                                <p className="text-[10px] font-black uppercase">Autorización Gerencial</p>
+                                                <p className="text-[10px] font-semibold uppercase">Autorización Gerencial</p>
                                             </div>
                                         </div>
                                         <div className="mt-8 text-center text-[8px] font-serif text-gray-400">

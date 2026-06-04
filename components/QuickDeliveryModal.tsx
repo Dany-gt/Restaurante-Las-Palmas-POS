@@ -94,7 +94,7 @@ export const QuickDeliveryModal: React.FC<QuickDeliveryModalProps> = ({ isOpen, 
             >
                 {/* Header */}
                 <div className="p-4 border-b border-gray-700 flex items-center justify-between shrink-0 bg-[#1f2937] z-10">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-gray-200">Datos de Cliente</h3>
+                    <h3 className="text-sm font-medium uppercase tracking-widest text-gray-200">Datos de Cliente</h3>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setIsRaised(r => !r)}
@@ -254,19 +254,19 @@ export const QuickDeliveryModal: React.FC<QuickDeliveryModalProps> = ({ isOpen, 
 
                             {platformId && (
                                 <div className="space-y-2">
-                                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">¿Quién entrega el pedido?</p>
+                                    <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest ml-1">¿Quién entrega el pedido?</p>
                                     <div className="grid grid-cols-2 gap-2">
                                         <button
                                             type="button"
                                             onClick={() => setIsPlatformDriver(false)}
-                                            className={`py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${!isPlatformDriver ? 'bg-indigo-600 text-white ' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}`}
+                                            className={`py-2.5 rounded-xl text-[10px] font-semibold uppercase transition-all ${!isPlatformDriver ? 'bg-indigo-600 text-white ' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}`}
                                         >
                                             REPARTIDOR PROPIO
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setIsPlatformDriver(true)}
-                                            className={`py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${isPlatformDriver ? 'bg-indigo-600 text-white ' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}`}
+                                            className={`py-2.5 rounded-xl text-[10px] font-semibold uppercase transition-all ${isPlatformDriver ? 'bg-indigo-600 text-white ' : 'bg-gray-800 text-gray-500 hover:bg-gray-700'}`}
                                         >
                                             REPARTIDOR EXTERNO
                                         </button>
@@ -281,14 +281,14 @@ export const QuickDeliveryModal: React.FC<QuickDeliveryModalProps> = ({ isOpen, 
                 <div className="p-4 border-t border-gray-700 flex gap-3 shrink-0 bg-[#1f2937] z-10">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-3 bg-transparent border border-gray-600 hover:bg-gray-700 rounded-lg font-bold text-xs uppercase tracking-widest text-gray-400 transition-all"
+                        className="flex-1 py-3 bg-transparent border border-gray-600 hover:bg-gray-700 rounded-lg font-medium text-xs uppercase tracking-widest text-gray-400 transition-all"
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={saving}
-                        className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold text-xs uppercase tracking-widest text-white transition-all active:scale-95  -600/20"
+                        className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-medium text-xs uppercase tracking-widest text-white transition-all active:scale-95  -600/20"
                     >
                         {saving ? 'Guardando...' : 'Aceptar'}
                     </button>

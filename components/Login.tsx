@@ -632,9 +632,9 @@ Generado: ${new Date().toLocaleString('es-GT')}
             /* PASO 1: SELECCIÓN DE ROL (MOBILE) */
             <div className="flex-1 flex flex-col animate-fade-in justify-center pt-10">
               <div className="mb-10 text-center">
-                <h2 className="text-[24px] font-black text-white tracking-tighter uppercase leading-none mb-2">BIENVENIDO</h2>
+                <h2 className="text-[24px] font-semibold text-white tracking-tighter uppercase leading-none mb-2">BIENVENIDO</h2>
                 <div className="w-12 h-1 bg-white rounded-full mx-auto mb-6" />
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Selecciona tu Perfil</p>
+                <p className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.3em]">Selecciona tu Perfil</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto w-full">
@@ -658,7 +658,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-2 transition-colors ${selectedRole === role.id ? 'bg-white/10 text-white' : 'bg-white/5 text-white/40'}`}>
                       {role.icon}
                     </div>
-                    <span className={`text-[11px] font-black uppercase tracking-widest ${selectedRole === role.id ? 'text-white' : 'text-white/60'}`}>{role.label}</span>
+                    <span className={`text-[11px] font-semibold uppercase tracking-widest ${selectedRole === role.id ? 'text-white' : 'text-white/60'}`}>{role.label}</span>
                   </button>
                 ))}
               </div>
@@ -674,8 +674,8 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   <ArrowLeft size={18} />
                 </button>
                 <div>
-                  <h3 className="text-[16px] font-black text-white uppercase tracking-tight leading-none">{selectedRole}</h3>
-                  <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-1">Ingresa tus credenciales</p>
+                  <h3 className="text-[16px] font-semibold text-white uppercase tracking-tight leading-none">{selectedRole}</h3>
+                  <p className="text-[9px] font-medium text-white/40 uppercase tracking-widest mt-1">Ingresa tus credenciales</p>
                 </div>
               </div>
 
@@ -684,7 +684,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-2xl mb-4 overflow-hidden p-3">
                     {branding?.logo_url && <img src={getDirectUrl(branding.logo_url)} className="w-full h-full object-contain" alt="Logo" />}
                   </div>
-                  <h1 className="text-xl font-black text-white tracking-tighter uppercase leading-none">LAS PALMAS</h1>
+                  <h1 className="text-xl font-semibold text-white tracking-tighter uppercase leading-none">LAS PALMAS</h1>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-4">
@@ -705,7 +705,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                             setShowPinPad(true);
                           }
                         }}
-                        className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-base font-bold text-white outline-none focus:border-white transition-all appearance-none"
+                        className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-base font-medium text-white outline-none focus:border-white transition-all appearance-none"
                         required
                       >
                         <option value="" className="bg-[#1a1b23]">SELECCIONAR SUCURSAL</option>
@@ -726,7 +726,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                             inputMode="text"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-base font-bold text-white placeholder:text-gray-600 outline-none focus:border-white transition-all"
+                            className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-base font-medium text-white placeholder:text-gray-600 outline-none focus:border-white transition-all"
                             placeholder="NOMBRE DE USUARIO"
                             autoComplete="username"
                             required
@@ -742,7 +742,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-base font-bold text-white placeholder:text-gray-600 outline-none focus:border-white transition-all"
+                            className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-base font-medium text-white placeholder:text-gray-600 outline-none focus:border-white transition-all"
                             placeholder="CONTRASEÑA"
                             autoComplete="current-password"
                             required
@@ -758,7 +758,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                             setPin('');
                             setShowPinPad(true);
                           }}
-                          className="w-full bg-white hover:bg-white/90 text-black font-black py-6 rounded-2xl text-[16px] shadow-2xl shadow-white/10 active:scale-[0.95] transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                          className="w-full bg-white hover:bg-white/90 text-black font-semibold py-6 rounded-2xl text-[16px] shadow-2xl shadow-white/10 active:scale-[0.95] transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500"
                         >
                           <Calculator size={24} />
                           <span>INGRESAR PIN</span>
@@ -768,7 +768,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   </div>
 
                   {error && (
-                    <div className="py-3 px-4 bg-red-500/10 border border-red-500/20 text-red-500 text-[11px] font-black uppercase text-center rounded-xl animate-shake">
+                    <div className="py-3 px-4 bg-red-500/10 border border-red-500/20 text-red-500 text-[11px] font-semibold uppercase text-center rounded-xl animate-shake">
                       {error}
                     </div>
                   )}
@@ -777,7 +777,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-2xl text-[13px] shadow-xl shadow-indigo-600/20 active:scale-[0.98] transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3 mt-4"
+                      className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-4 rounded-2xl text-[13px] shadow-xl shadow-indigo-600/20 active:scale-[0.98] transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3 mt-4"
                     >
                       {loading ? <Loader2 className="animate-spin text-white" size={20} /> : 'INICIAR SESIÓN'}
                     </button>
@@ -789,7 +789,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
 
           {/* Versión Info */}
           <div className="mt-auto py-6 text-center">
-            <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">v{packageJson.version} - RESTAURANTE LAS PALMAS</span>
+            <span className="text-[10px] font-medium text-gray-600 uppercase tracking-widest">v{packageJson.version} - RESTAURANTE LAS PALMAS</span>
           </div>
         </div>
 
@@ -811,8 +811,8 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 border border-white/20">
                   <Users size={32} />
                 </div>
-                <h3 className="text-[20px] font-black text-white uppercase tracking-tighter">Ingrese su PIN</h3>
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Acceso para Meseros</p>
+                <h3 className="text-[20px] font-semibold text-white uppercase tracking-tighter">Ingrese su PIN</h3>
+                <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-1">Acceso para Meseros</p>
               </div>
 
               {/* PIN Indicator Dots */}
@@ -826,7 +826,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
               </div>
 
               {error && (
-                <div className="mb-8 py-2 px-6 rounded-full bg-red-500/10 text-[10px] font-black text-red-500 uppercase tracking-widest animate-shake">
+                <div className="mb-8 py-2 px-6 rounded-full bg-red-500/10 text-[10px] font-semibold text-red-500 uppercase tracking-widest animate-shake">
                   {error}
                 </div>
               )}
@@ -837,7 +837,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   <button
                     key={num}
                     onClick={() => handlePinInput(num.toString())}
-                    className="h-16 bg-white/5 active:bg-white/20 border border-white/10 rounded-2xl flex items-center justify-center text-2xl font-black text-white transition-all active:scale-95 shadow-lg"
+                    className="h-16 bg-white/5 active:bg-white/20 border border-white/10 rounded-2xl flex items-center justify-center text-2xl font-semibold text-white transition-all active:scale-95 shadow-lg"
                   >
                     {num}
                   </button>
@@ -845,7 +845,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 <div />
                 <button
                   onClick={() => handlePinInput('0')}
-                  className="h-16 bg-white/5 active:bg-white/20 border border-white/10 rounded-2xl flex items-center justify-center text-2xl font-black text-white transition-all active:scale-95 shadow-lg"
+                  className="h-16 bg-white/5 active:bg-white/20 border border-white/10 rounded-2xl flex items-center justify-center text-2xl font-semibold text-white transition-all active:scale-95 shadow-lg"
                 >
                   0
                 </button>
@@ -921,13 +921,13 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 >
                   <ArrowLeft size={26} strokeWidth={2.5} />
                 </button>
-                <span className="text-[11px] font-black text-gray-400 uppercase tracking-[0.25em]">RESTAURANTE LAS PALMAS POS</span>
+                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.25em]">RESTAURANTE LAS PALMAS POS</span>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">0 Ordenes Asignadas</span>
+                <span className="text-[10px] font-medium text-gray-500 uppercase tracking-widest">0 Ordenes Asignadas</span>
                 <div className="flex flex-col items-end">
-                  <span className="text-[11px] font-black text-white uppercase tracking-widest leading-none">{authenticatedUser?.name}</span>
-                  <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mt-0.5">Cajas</span>
+                  <span className="text-[11px] font-semibold text-white uppercase tracking-widest leading-none">{authenticatedUser?.name}</span>
+                  <span className="text-[10px] font-medium text-emerald-400 uppercase tracking-widest mt-0.5">Cajas</span>
                 </div>
               </div>
             </div>
@@ -952,7 +952,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                       <CajaIcon size={50} />
                     </div>
                     {/* Nombre */}
-                    <span className="text-[14px] font-black text-white uppercase tracking-wider text-left whitespace-nowrap">
+                    <span className="text-[14px] font-semibold text-white uppercase tracking-wider text-left whitespace-nowrap">
                       {reg.name}
                     </span>
                   </button>
@@ -972,7 +972,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   {/* Pestañita azul en la esquina superior derecha */}
                   <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-blue-500 border-l-[10px] border-l-transparent pointer-events-none" />
 
-                  <span className="text-[9.5px] font-black text-gray-400 group-hover:text-white uppercase tracking-wider text-center transition-colors leading-tight">
+                  <span className="text-[9.5px] font-semibold text-gray-400 group-hover:text-white uppercase tracking-wider text-center transition-colors leading-tight">
                     {syncType === 'config' ? 'ACTUALIZANDO...' : 'ACTUALIZAR CONFIGURACIÓN'}
                   </span>
                 </button>
@@ -985,7 +985,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   {/* Pestañita azul en la esquina superior derecha */}
                   <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-blue-500 border-l-[10px] border-l-transparent pointer-events-none" />
 
-                  <span className="text-[9.5px] font-black text-gray-400 group-hover:text-white uppercase tracking-wider text-center transition-colors leading-tight">
+                  <span className="text-[9.5px] font-semibold text-gray-400 group-hover:text-white uppercase tracking-wider text-center transition-colors leading-tight">
                     {syncType === 'images' ? 'ACTUALIZANDO...' : 'ACTUALIZAR IMÁGENES DE MENÚ'}
                   </span>
                 </button>
@@ -997,7 +997,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   {/* Pestañita azul en la esquina superior derecha */}
                   <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-blue-500 border-l-[10px] border-l-transparent pointer-events-none" />
 
-                  <span className="text-[9.5px] font-black text-gray-400 group-hover:text-red-400 uppercase tracking-wider text-center transition-colors leading-tight">
+                  <span className="text-[9.5px] font-semibold text-gray-400 group-hover:text-red-400 uppercase tracking-wider text-center transition-colors leading-tight">
                     CIERRE DEL DÍA
                   </span>
                 </button>
@@ -1025,9 +1025,9 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   </div>
                 </div>
                 <div className="text-center">
-                  <span className="text-[7.5px] font-bold text-gray-500 tracking-[0.4em] uppercase">Restaurante</span>
-                  <h1 className="text-lg font-black text-white tracking-tighter leading-none mt-1 font-outfit">LAS PALMAS</h1>
-                  <p className="text-[7px] font-black text-white/40 tracking-[0.5em] mt-1 uppercase">Sistema POS</p>
+                  <span className="text-[7.5px] font-medium text-gray-500 tracking-[0.4em] uppercase">Restaurante</span>
+                  <h1 className="text-lg font-semibold text-white tracking-tighter leading-none mt-1 font-outfit">LAS PALMAS</h1>
+                  <p className="text-[7px] font-semibold text-white/40 tracking-[0.5em] mt-1 uppercase">Sistema POS</p>
                 </div>
               </div>
 
@@ -1042,7 +1042,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                     <select
                       value={selectedBranchId}
                       onChange={(e) => setSelectedBranchId(e.target.value)}
-                      className="w-full bg-[#15161d] border border-white/10 rounded-xl py-2.5 pl-8 pr-4 text-[8px] font-black text-white outline-none focus:border-indigo-500 uppercase tracking-normal"
+                      className="w-full bg-[#15161d] border border-white/10 rounded-xl py-2.5 pl-8 pr-4 text-[8px] font-semibold text-white outline-none focus:border-indigo-500 uppercase tracking-normal"
                       style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
                       required
                     >
@@ -1063,7 +1063,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      className="w-full bg-[#15161d] border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-[11px] font-bold text-white placeholder:text-gray-500 outline-none focus:border-white tracking-widest"
+                      className="w-full bg-[#15161d] border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-[11px] font-medium text-white placeholder:text-gray-500 outline-none focus:border-white tracking-widest"
                       style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
                       placeholder="USUARIO"
                       required
@@ -1078,7 +1078,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-[#15161d] border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-[11px] font-bold text-white placeholder:text-gray-500 outline-none focus:border-indigo-500 tracking-widest"
+                      className="w-full bg-[#15161d] border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-[11px] font-medium text-white placeholder:text-gray-500 outline-none focus:border-indigo-500 tracking-widest"
                       style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
                       placeholder="••••••••"
                       required
@@ -1087,7 +1087,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 </div>
 
                 {error && (
-                  <div className="bg-red-500/15 border border-red-500/30 text-white text-[11px] font-black uppercase text-center py-3 px-4 rounded-xl animate-shake tracking-wide shadow-lg shadow-red-950/20">
+                  <div className="bg-red-500/15 border border-red-500/30 text-white text-[11px] font-semibold uppercase text-center py-3 px-4 rounded-xl animate-shake tracking-wide shadow-lg shadow-red-950/20">
                     {error}
                   </div>
                 )}
@@ -1095,7 +1095,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 text-white font-black py-2.5 rounded-xl text-[10px] shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all uppercase tracking-widest flex items-center justify-center gap-2"
+                  className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 text-white font-semibold py-2.5 rounded-xl text-[10px] shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all uppercase tracking-widest flex items-center justify-center gap-2"
                 >
                   {loading ? <Loader2 className="animate-spin" size={14} /> : 'Iniciar Sesión'}
                 </button>
@@ -1104,7 +1104,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
               {/* Footer Info */}
               <div className="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
                 <div className="flex flex-col">
-                  <span className="text-[8px] font-black text-gray-500 tracking-widest uppercase">Versión {packageJson.version}</span>
+                  <span className="text-[8px] font-semibold text-gray-500 tracking-widest uppercase">Versión {packageJson.version}</span>
                 </div>
               </div>
             </div>
@@ -1123,7 +1123,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
               </div>
 
               <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-5">
-                <span className="text-[9px] font-black text-white uppercase tracking-[0.4em] mb-4 drop-shadow-md">Selecciona tu Perfil</span>
+                <span className="text-[9px] font-semibold text-white uppercase tracking-[0.4em] mb-4 drop-shadow-md">Selecciona tu Perfil</span>
 
                 {/* Roles Grid - DISTRIBUCION 2 - 2 - 1 */}
                 <div className="grid grid-cols-2 gap-3 w-fit mx-auto">
@@ -1150,7 +1150,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                           }`}>
                           {role.icon}
                         </div>
-                        <span className={`text-[10px] font-black uppercase tracking-wider truncate ${isSelected ? 'text-white' : 'text-gray-400'}`}>
+                        <span className={`text-[10px] font-semibold uppercase tracking-wider truncate ${isSelected ? 'text-white' : 'text-gray-400'}`}>
                           {role.label}
                         </span>
                       </button>
@@ -1200,11 +1200,11 @@ Generado: ${new Date().toLocaleString('es-GT')}
               )}
               {/* Center Logo Content */}
               <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
-                <span className="text-white text-[13px] font-bold uppercase tracking-[0.15em] font-sans text-white/60">Restaurante</span>
-                <span className="text-white text-2xl font-bold tracking-wide font-serif mt-1 mb-2 leading-none">Las Palmas</span>
+                <span className="text-white text-[13px] font-medium uppercase tracking-[0.15em] font-sans text-white/60">Restaurante</span>
+                <span className="text-white text-2xl font-medium tracking-wide font-serif mt-1 mb-2 leading-none">Las Palmas</span>
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-[2px] bg-red-500"></div>
-                  <span className="text-white text-xs font-bold uppercase tracking-[0.2em]">POS</span>
+                  <span className="text-white text-xs font-medium uppercase tracking-[0.2em]">POS</span>
                   <div className="w-6 h-[2px] bg-red-500"></div>
                 </div>
               </div>
@@ -1217,7 +1217,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
             {/* DERECHA: TÍTULO, CAMPO PIN Y TECLADO */}
             <div className="flex-1 h-full bg-[#2e303f] rounded-r-[4px] p-6 flex flex-col items-center justify-center gap-4 md:border-l border-white/5">
               <div className="w-[321px]">
-                <h3 className="text-xs font-bold text-white uppercase tracking-[0.15em] text-center mb-3">
+                <h3 className="text-xs font-medium text-white uppercase tracking-[0.15em] text-center mb-3">
                   Ingrese Su PIN
                 </h3>
 
@@ -1235,7 +1235,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                     </div>
                   </div>
                   {error && (
-                    <div className="absolute left-0 right-0 -bottom-5 text-center text-[9px] font-bold text-red-400 uppercase tracking-wider animate-shake">
+                    <div className="absolute left-0 right-0 -bottom-5 text-center text-[9px] font-medium text-red-400 uppercase tracking-wider animate-shake">
                       {error}
                     </div>
                   )}
@@ -1247,19 +1247,19 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 {/* Row 1 */}
                 <button
                   onClick={() => handlePinInput('7')}
-                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                  className="h-full flex items-center justify-center font-medium text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
                 >
                   7
                 </button>
                 <button
                   onClick={() => handlePinInput('8')}
-                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                  className="h-full flex items-center justify-center font-medium text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
                 >
                   8
                 </button>
                 <button
                   onClick={() => handlePinInput('9')}
-                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                  className="h-full flex items-center justify-center font-medium text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
                 >
                   9
                 </button>
@@ -1276,19 +1276,19 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 {/* Row 2 */}
                 <button
                   onClick={() => handlePinInput('4')}
-                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                  className="h-full flex items-center justify-center font-medium text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
                 >
                   4
                 </button>
                 <button
                   onClick={() => handlePinInput('5')}
-                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                  className="h-full flex items-center justify-center font-medium text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
                 >
                   5
                 </button>
                 <button
                   onClick={() => handlePinInput('6')}
-                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                  className="h-full flex items-center justify-center font-medium text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
                 >
                   6
                 </button>
@@ -1296,19 +1296,19 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 {/* Row 3 */}
                 <button
                   onClick={() => handlePinInput('1')}
-                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                  className="h-full flex items-center justify-center font-medium text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
                 >
                   1
                 </button>
                 <button
                   onClick={() => handlePinInput('2')}
-                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                  className="h-full flex items-center justify-center font-medium text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
                 >
                   2
                 </button>
                 <button
                   onClick={() => handlePinInput('3')}
-                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                  className="h-full flex items-center justify-center font-medium text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
                 >
                   3
                 </button>
@@ -1331,13 +1331,13 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 {/* Row 4 */}
                 <button
                   onClick={() => handlePinInput('0')}
-                  className="col-span-2 h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                  className="col-span-2 h-full flex items-center justify-center font-medium text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
                 >
                   0
                 </button>
                 <button
                   onClick={() => handlePinInput('.')}
-                  className="h-full flex items-center justify-center font-bold text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
+                  className="h-full flex items-center justify-center font-medium text-white border-r border-b border-white/10 hover:bg-white/5 active:bg-white/10 transition-colors"
                 >
                   .
                 </button>
@@ -1353,7 +1353,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
             {/* IZQUIERDA: GRILLA DE CAJAS */}
             <div className="flex-[1.5] p-8 border-r border-white/10">
               <div className="bg-[#383b4d] p-2.5 rounded-[4px] text-center mb-6 border border-white/5">
-                <span className="text-white font-bold text-sm tracking-wider">Cajas</span>
+                <span className="text-white font-medium text-sm tracking-wider">Cajas</span>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -1365,7 +1365,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                       : 'bg-[#383b4d] border-white/5 hover:bg-white/5'
                     }`}
                 >
-                  <span className="font-bold text-xs text-white tracking-wide text-center">Todas las Cajas</span>
+                  <span className="font-medium text-xs text-white tracking-wide text-center">Todas las Cajas</span>
                 </button>
 
                 {/* BOTONES POR CADA CAJA REGISTRADA */}
@@ -1378,7 +1378,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                         : 'bg-[#383b4d] border-white/5 hover:bg-white/5'
                       }`}
                   >
-                    <span className="font-bold text-xs text-white tracking-wide leading-tight">{reg.name}</span>
+                    <span className="font-medium text-xs text-white tracking-wide leading-tight">{reg.name}</span>
                   </button>
                 ))}
               </div>
@@ -1392,7 +1392,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
             <div className="flex-1 p-8 flex flex-col justify-center items-center gap-6">
               {/* SELECTOR DE FECHA */}
               <div className="w-full text-center">
-                <label className="block text-[10px] font-bold text-[#ebd69b] uppercase tracking-[0.2em] mb-2">FECHA</label>
+                <label className="block text-[10px] font-medium text-[#ebd69b] uppercase tracking-[0.2em] mb-2">FECHA</label>
                 <div className="relative mx-auto max-w-[200px]">
                   <input
                     type="date"
@@ -1405,7 +1405,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                         console.error('showPicker error:', err);
                       }
                     }}
-                    className="w-full h-10 bg-[#212330] border border-white/10 rounded-[4px] px-4 text-white font-bold text-xs tracking-wider outline-none focus:border-white/20 transition-all text-center custom-calendar-picker cursor-pointer"
+                    className="w-full h-10 bg-[#212330] border border-white/10 rounded-[4px] px-4 text-white font-medium text-xs tracking-wider outline-none focus:border-white/20 transition-all text-center custom-calendar-picker cursor-pointer"
                   />
                 </div>
               </div>
@@ -1414,7 +1414,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
               <div className="w-full space-y-4 max-w-[200px]">
                 <button
                   onClick={handlePrintReport}
-                  className="relative w-full h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-bold text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all shadow-md active:scale-95 overflow-hidden"
+                  className="relative w-full h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-medium text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all shadow-md active:scale-95 overflow-hidden"
                 >
                   IMPRIMIR
                   <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-yellow-500 border-l-[10px] border-l-transparent pointer-events-none" />
@@ -1422,7 +1422,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
 
                 <button
                   onClick={handleSendEmailReport}
-                  className="relative w-full h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-bold text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all shadow-md active:scale-95 overflow-hidden"
+                  className="relative w-full h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-medium text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all shadow-md active:scale-95 overflow-hidden"
                 >
                   ENVIAR CORREO
                   <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-blue-500 border-l-[10px] border-l-transparent pointer-events-none" />
@@ -1433,7 +1433,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
                     setShowCloseDayModal(false);
                     setSelectedRegisterForClose('ALL');
                   }}
-                  className="relative w-full h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-bold text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all shadow-md active:scale-95 overflow-hidden"
+                  className="relative w-full h-11 bg-[#383b4d] border border-white/5 rounded-[4px] flex items-center justify-center text-white font-medium text-[10px] uppercase tracking-[0.25em] hover:bg-white/5 transition-all shadow-md active:scale-95 overflow-hidden"
                 >
                   CERRAR
                   <div className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-red-500 border-l-[10px] border-l-transparent pointer-events-none" />
@@ -1449,7 +1449,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
           <div className="w-full max-w-[450px] bg-[#2e303f] border border-white/10 rounded-xl overflow-hidden shadow-2xl flex flex-col">
             {/* Header */}
             <div className="bg-[#212330] py-3.5 px-4 flex justify-center border-b border-white/5">
-              <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">
+              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.25em]">
                 Restaurante Las Palmas POS
               </span>
             </div>
@@ -1462,7 +1462,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
               
               <button
                 onClick={() => setBoxLockedError(null)}
-                className="w-[150px] h-[38px] bg-[#5c6bc0] hover:bg-[#4c5bb0] text-white font-bold text-[11px] uppercase tracking-[0.2em] rounded-[6px] transition-all active:scale-[0.97] shadow-lg flex items-center justify-center"
+                className="w-[150px] h-[38px] bg-[#5c6bc0] hover:bg-[#4c5bb0] text-white font-medium text-[11px] uppercase tracking-[0.2em] rounded-[6px] transition-all active:scale-[0.97] shadow-lg flex items-center justify-center"
               >
                 ACEPTAR
               </button>

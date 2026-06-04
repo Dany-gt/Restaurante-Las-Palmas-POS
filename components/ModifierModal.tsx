@@ -291,7 +291,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
             <ArrowLeft size={20} />
           </button>
 
-          <div className="flex items-center gap-2 text-[10px] font-bold text-white uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-[10px] font-medium text-white uppercase tracking-wider">
             <span>Orden: #{orderNumber || '000'}</span>
             <span className="text-white/40">|</span>
             <span>{tableName || 'SIN MESA'}</span>
@@ -316,8 +316,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                   <FileEdit size={20} />
                 </div>
                 <div>
-                  <h4 className="text-lg font-black text-white uppercase tracking-tight">Instrucciones Especiales</h4>
-                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Notas opcionales para cocina</p>
+                  <h4 className="text-lg font-semibold text-white uppercase tracking-tight">Instrucciones Especiales</h4>
+                  <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest mt-0.5">Notas opcionales para cocina</p>
                 </div>
               </div>
               <textarea
@@ -330,13 +330,13 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
               <div className="mt-6 flex gap-3">
                 <button
                   onClick={() => setShowNotes(false)}
-                  className="flex-1 bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest py-4 rounded-xl transition-all active:scale-95  /5"
+                  className="flex-1 bg-white/5 hover:bg-white/10 text-white font-semibold uppercase tracking-widest py-4 rounded-xl transition-all active:scale-95  /5"
                 >
                   Confirmar Nota
                 </button>
                 <button
                   onClick={() => { setNotes(''); setShowNotes(false); }}
-                  className="px-6 bg-white/5 hover:bg-white/10 text-gray-400 font-black uppercase tracking-widest py-4 rounded-xl transition-all"
+                  className="px-6 bg-white/5 hover:bg-white/10 text-gray-400 font-semibold uppercase tracking-widest py-4 rounded-xl transition-all"
                 >
                   Limpiar
                 </button>
@@ -351,7 +351,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
             {loading ? (
               <div className="h-full flex flex-col items-center justify-center text-gray-500">
                 <Loader2 className="animate-spin mb-6 text-white/20" size={64} />
-                <span className="text-sm font-black uppercase tracking-[0.3em]">Cargando...</span>
+                <span className="text-sm font-semibold uppercase tracking-[0.3em]">Cargando...</span>
               </div>
             ) : view === 'CATEGORIES' ? (
               <div className="h-full flex flex-col items-center justify-center animate-fade-in py-10 overflow-y-auto custom-scrollbar">
@@ -361,7 +361,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                     <div className="space-y-10">
                       <div className="hidden items-center gap-6">
                         <div className="h-[1px] flex-1 bg-white/5" />
-                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.5em] whitespace-nowrap opacity-60">Opciones Seleccionables</h4>
+                        <h4 className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.5em] whitespace-nowrap opacity-60">Opciones Seleccionables</h4>
                         <div className="h-[1px] flex-1 bg-white/5" />
                       </div>
                       <div className="flex flex-wrap justify-center gap-6">
@@ -380,7 +380,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                                 : 'bg-[#004b79] hover:bg-[#005a8f] shadow-md'
                                 }`}
                             >
-                              <span className={`text-base font-black uppercase tracking-tight transition-transform group-hover:scale-105 text-white`}>
+                              <span className={`text-base font-semibold uppercase tracking-tight transition-transform group-hover:scale-105 text-white`}>
                                 {grp.group_prompt || grp.name}
                               </span>
                               {(() => {
@@ -412,7 +412,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                     <div className="space-y-10">
                       <div className="hidden items-center gap-6">
                         <div className="h-[1px] flex-1 bg-white/5" />
-                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.5em] whitespace-nowrap opacity-60">Modificadores Adicionales</h4>
+                        <h4 className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.5em] whitespace-nowrap opacity-60">Modificadores Adicionales</h4>
                         <div className="h-[1px] flex-1 bg-white/5" />
                       </div>
                       <div className="flex flex-wrap justify-center gap-6">
@@ -428,7 +428,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                                 : 'bg-[#2b6469] hover:bg-[#327379] shadow-md'
                                 }`}
                             >
-                              <span className={`text-base font-black uppercase tracking-tight transition-transform group-hover:scale-105 text-white`}>
+                              <span className={`text-base font-semibold uppercase tracking-tight transition-transform group-hover:scale-105 text-white`}>
                                 {grp.group_prompt || grp.name}
                               </span>
                               {(() => {
@@ -492,19 +492,19 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                                 <img src={item.image_url} alt={item.name} className="max-w-full max-h-full object-contain drop-shadow-md" />
                               ) : (
                                 <div className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center">
-                                  <span className="text-white/20 text-[9px] font-bold uppercase tracking-wider">Img</span>
+                                  <span className="text-white/20 text-[9px] font-medium uppercase tracking-wider">Img</span>
                                 </div>
                               )}
                             </div>
                           )}
                           
                           {/* Text Container */}
-                          <span className={`text-[10px] font-black uppercase tracking-tight text-center leading-tight text-white line-clamp-3 px-1 ${!isMod ? 'mt-2' : ''}`}>
+                          <span className={`text-[10px] font-semibold uppercase tracking-tight text-center leading-tight text-white line-clamp-3 px-1 ${!isMod ? 'mt-2' : ''}`}>
                             {item.display_name || item.name}
                           </span>
 
                           {/* Price */}
-                          <span className={`${isMod ? 'text-[11px]' : 'text-[10px]'} font-bold text-white/80 shrink-0`}>
+                          <span className={`${isMod ? 'text-[11px]' : 'text-[10px]'} font-medium text-white/80 shrink-0`}>
                             {item.extra_price > 0 && !isMod ? '+' : ''}Q{(Number(item.extra_price) || 0).toFixed(2)}
                           </span>
 
@@ -525,20 +525,20 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
               {/* Items Detail Area */}
               <div className="flex-1 overflow-y-auto custom-scrollbar">
                 <div className="bg-[#9093a2] py-2 px-3 flex justify-between items-center shadow-sm mb-1">
-                  <span className="text-xs font-bold text-white uppercase">
+                  <span className="text-xs font-medium text-white uppercase">
                     {itemQuantity > 1 ? `${itemQuantity} ` : ''}{product.name}
                   </span>
-                  <span className="text-xs font-bold text-white">Q{((Number(product.price) || 0) * itemQuantity).toFixed(2)}</span>
+                  <span className="text-xs font-medium text-white">Q{((Number(product.price) || 0) * itemQuantity).toFixed(2)}</span>
                 </div>
 
                 {selectedItems.map(mod => (
                   <div key={mod.id} className="group flex justify-between items-center py-2 px-3 bg-[#3e4153]/40 border-b border-[#3e4153] hover:bg-[#3e4153]/80 transition-colors">
-                    <span className="text-xs font-bold text-white/90 uppercase pl-3 flex items-center gap-2">
+                    <span className="text-xs font-medium text-white/90 uppercase pl-3 flex items-center gap-2">
                       <div className={`w-1.5 h-1.5 rounded-full ${mod.type === 'ADD' ? 'bg-white/60' : 'bg-white/30'}`}></div>
                       {mod.quantity > 1 ? `${mod.quantity} ` : ''}{mod.display_name || mod.name}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-white">
+                      <span className="text-xs font-medium text-white">
                         Q{((Number(mod.extra_price) || 0) * (mod.quantity || 1)).toFixed(2)}
                       </span>
                       <button onClick={() => decrementItem(mod)} className="opacity-0 group-hover:opacity-100 p-1 text-white/50 hover:text-white transition-all">
@@ -551,8 +551,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                 {notes && (
                   <div className="mt-3 p-3 bg-white/5 rounded border border-white/10">
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-[10px] font-bold text-white/50 uppercase">Notas</span>
-                      <button onClick={() => setNotes('')} className="text-[10px] font-bold text-white/40 hover:text-white">Limpiar</button>
+                      <span className="text-[10px] font-medium text-white/50 uppercase">Notas</span>
+                      <button onClick={() => setNotes('')} className="text-[10px] font-medium text-white/40 hover:text-white">Limpiar</button>
                     </div>
                     <p className="text-xs text-white/90">"{notes}"</p>
                   </div>
@@ -608,14 +608,14 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                     <div className="w-12 h-12 border border-white rounded-full flex items-center justify-center mb-1">
                       <Utensils size={28} className="text-white" />
                     </div>
-                    <span className="text-[8px] font-bold text-white uppercase text-center px-1 leading-tight">
+                    <span className="text-[8px] font-medium text-white uppercase text-center px-1 leading-tight">
                       {getValidationErrors().length > 0 ? 'Faltan' : 'Enviar a\nComanda'}
                     </span>
                   </button>
 
                   <div className="text-right flex-1 pl-4">
-                    <p className="text-[10px] font-bold text-white/50 uppercase mb-2 border-b border-white/10 border-dashed pb-1 inline-block min-w-16">Sub-Total</p>
-                    <p className="text-xl font-bold text-white tabular-nums block">
+                    <p className="text-[10px] font-medium text-white/50 uppercase mb-2 border-b border-white/10 border-dashed pb-1 inline-block min-w-16">Sub-Total</p>
+                    <p className="text-xl font-medium text-white tabular-nums block">
                       Q{(calculateTotal() || 0).toFixed(2)}
                     </p>
                   </div>
@@ -624,7 +624,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                 {getValidationErrors().length > 0 && (
                   <div className="space-y-1 mt-1">
                     {getValidationErrors().map((err, i) => (
-                      <p key={i} className="text-[9px] font-bold text-red-400 uppercase flex items-center gap-1">
+                      <p key={i} className="text-[9px] font-medium text-red-400 uppercase flex items-center gap-1">
                         <X size={10} /> {err}
                       </p>
                     ))}

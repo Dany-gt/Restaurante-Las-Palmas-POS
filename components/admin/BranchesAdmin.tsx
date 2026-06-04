@@ -229,12 +229,12 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
                             >
                                 <div className="flex justify-between items-start pr-8">
                                     <div className="flex flex-col gap-0.5">
-                                        <span className="font-bold text-[13px] uppercase tracking-tight">{branch.name}</span>
+                                        <span className="font-medium text-[13px] uppercase tracking-tight">{branch.name}</span>
                                         <div className="flex items-center gap-1.5 opacity-70">
                                             <span className="text-[10px] font-medium">{branch.location || '---'}</span>
                                         </div>
                                     </div>
-                                    <div className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${branch.enable_billing ? (selectedBranchId === branch.id ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-600') : 'bg-gray-100 text-gray-500'}`}>
+                                    <div className={`px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase ${branch.enable_billing ? (selectedBranchId === branch.id ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-600') : 'bg-gray-100 text-gray-500'}`}>
                                         {branch.enable_billing ? 'FEL Activo' : 'FEL Inactivo'}
                                     </div>
                                 </div>
@@ -257,9 +257,9 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
                                     <MoreVertical size={18} />
                                 </button>
 
-                                <div className="mt-2 text-[10px] font-bold opacity-60 flex items-center gap-4">
+                                <div className="mt-2 text-[10px] font-medium opacity-60 flex items-center gap-4">
                                     <span className="flex items-center gap-1"><Phone size={10} /> {branch.phone || 'N/A'}</span>
-                                    {branch.is_main && <span className="text-amber-500 font-black">PRINCIPAL ★</span>}
+                                    {branch.is_main && <span className="text-amber-500 font-semibold">PRINCIPAL ★</span>}
                                     <span className="font-mono text-[9px] bg-slate-100 px-1 rounded ml-auto">{branch.registration_token || '---'}</span>
                                 </div>
                             </div>
@@ -269,12 +269,12 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
                     <table className="w-full border-collapse text-[11px]">
                         <thead className="sticky top-0 z-20 bg-[#e8e8e8] select-none">
                             <tr className="border-b border-gray-400 h-10">
-                                <th className="px-6 py-2 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[20%]">Nombre Sucursal</th>
-                                <th className="px-6 py-2 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[20%]">Ubicación</th>
-                                <th className="px-6 py-2 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[15%]">Contacto</th>
-                                <th className="px-6 py-2 text-center text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[15%]">Token Registro</th>
-                                <th className="px-6 py-2 text-center text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[10%]">FEL</th>
-                                <th className="px-6 py-2 text-center text-[10px] font-bold text-black uppercase w-[10%]">Principal</th>
+                                <th className="px-6 py-2 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[20%]">Nombre Sucursal</th>
+                                <th className="px-6 py-2 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[20%]">Ubicación</th>
+                                <th className="px-6 py-2 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[15%]">Contacto</th>
+                                <th className="px-6 py-2 text-center text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[15%]">Token Registro</th>
+                                <th className="px-6 py-2 text-center text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[10%]">FEL</th>
+                                <th className="px-6 py-2 text-center text-[10px] font-medium text-black uppercase w-[10%]">Principal</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -295,21 +295,21 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
                                         : 'text-slate-900 even:bg-slate-50/50'
                                         }`}
                                 >
-                                    <td className="px-4 font-bold flex items-center gap-2 h-6 border-r border-gray-100">
+                                    <td className="px-4 font-medium flex items-center gap-2 h-6 border-r border-gray-100">
                                         <Building2 size={12} className={selectedBranchId === branch.id ? 'text-white' : 'text-slate-400'} />
                                         <span className="uppercase tracking-tight text-[10px]">{branch.name}</span>
                                     </td>
-                                    <td className="px-4 border-r border-gray-100 text-[9px] font-bold truncate max-w-[200px]" title={branch.location}>
+                                    <td className="px-4 border-r border-gray-100 text-[9px] font-medium truncate max-w-[200px]" title={branch.location}>
                                         {branch.location || '---'}
                                     </td>
-                                    <td className="px-4 border-r border-gray-100 text-[9px] font-bold">
+                                    <td className="px-4 border-r border-gray-100 text-[9px] font-medium">
                                         <div className="flex items-center gap-2">
                                             <span className="flex items-center gap-1"><Phone size={9} className={selectedBranchId === branch.id ? 'text-blue-100' : 'text-gray-300'} /> {branch.phone || 'N/A'}</span>
                                         </div>
                                     </td>
                                     <td className="px-4 border-r border-gray-100 text-center">
                                         <div
-                                            className={`px-2 py-0.5 rounded-sm font-mono text-[9px] font-black cursor-pointer transition-all hover:scale-105 ${selectedBranchId === branch.id ? 'bg-white/20 text-white border border-white/30' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}
+                                            className={`px-2 py-0.5 rounded-sm font-mono text-[9px] font-semibold cursor-pointer transition-all hover:scale-105 ${selectedBranchId === branch.id ? 'bg-white/20 text-white border border-white/30' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 if (branch.registration_token) {
@@ -324,7 +324,7 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
                                     </td>
                                     <td className="px-4 border-r border-gray-100 text-center">
                                         <div className="flex justify-center items-center h-full">
-                                            <span className={`px-1.5 py-0 rounded-sm text-[8px] font-black uppercase inline-flex items-center gap-1 ${branch.enable_billing ? (selectedBranchId === branch.id ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700') : 'bg-gray-100 text-gray-400'}`}>
+                                            <span className={`px-1.5 py-0 rounded-sm text-[8px] font-semibold uppercase inline-flex items-center gap-1 ${branch.enable_billing ? (selectedBranchId === branch.id ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700') : 'bg-gray-100 text-gray-400'}`}>
                                                 {branch.enable_billing ? 'Activado' : 'Inactivo'}
                                             </span>
                                         </div>
@@ -344,7 +344,7 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
             </div>
 
             <div className="flex items-center justify-between shrink-0">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-2 border-l-4 border-[#106ebe]">
+                <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest pl-2 border-l-4 border-[#106ebe]">
                     {filteredBranches.length} Sucursales Configuradas
                 </span>
             </div>
@@ -356,7 +356,7 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
                 >
                     <button
                         onClick={() => { setEditingBranch(null); setNewBranch(defaultBranch); setShowModal(true); setContextMenu(null); }}
-                        className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                        className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
                     >
                         <Plus size={14} className="text-gray-600 group-hover:text-white" /> Agregar Sucursal
                     </button>
@@ -365,13 +365,13 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
                             <div className="h-px bg-gray-100 my-1"></div>
                             <button
                                 onClick={() => { handleEdit(contextMenu.branch); setContextMenu(null); }}
-                                className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                                className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
                             >
                                 <Edit3 size={14} className="text-[#106ebe] group-hover:text-white" /> Editar Configuración
                             </button>
                             <button
                                 onClick={() => { setConfirmDelete(contextMenu.branch.id); setContextMenu(null); }}
-                                className="w-full text-left px-4 py-2 text-[11px] font-bold text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-3 group transition-colors"
+                                className="w-full text-left px-4 py-2 text-[11px] font-medium text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-3 group transition-colors"
                             >
                                 <Trash2 size={14} className="text-red-500 group-hover:text-white" /> Eliminar Sucursal
                             </button>
@@ -389,7 +389,7 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
                             <div className="bg-[#106ebe] h-10 flex items-center justify-between px-4 shrink-0 modal-header cursor-default select-none">
                                 <div className="flex items-center gap-2">
                                     <Building2 size={14} className="text-white text-opacity-80" />
-                                    <span className="text-white text-[11px] font-black uppercase tracking-wider">{editingBranch ? 'Configuración de Sucursal' : 'Registro de Nueva Sucursal'}</span>
+                                    <span className="text-white text-[11px] font-semibold uppercase tracking-wider">{editingBranch ? 'Configuración de Sucursal' : 'Registro de Nueva Sucursal'}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                     <WindowsSaveButton onClick={handleSave} loading={isSaving} title="Guardar Sucursal" />
@@ -401,8 +401,8 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
 
                             {/* Tabs del Modal */}
                             <div className="flex bg-slate-50 border-b border-gray-200 px-4 shrink-0">
-                                <button onClick={() => setModalTab('INFO')} className={`px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all ${modalTab === 'INFO' ? 'text-[#106ebe] border-b-2 border-[#106ebe] bg-white' : 'text-gray-400 hover:text-gray-600'}`}>Información General</button>
-                                <button onClick={() => setModalTab('BILLING')} className={`px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all ${modalTab === 'BILLING' ? 'text-[#106ebe] border-b-2 border-[#106ebe] bg-white' : 'text-gray-400 hover:text-gray-600'}`}>Facturación FEL</button>
+                                <button onClick={() => setModalTab('INFO')} className={`px-5 py-2.5 text-[10px] font-semibold uppercase tracking-widest transition-all ${modalTab === 'INFO' ? 'text-[#106ebe] border-b-2 border-[#106ebe] bg-white' : 'text-gray-400 hover:text-gray-600'}`}>Información General</button>
+                                <button onClick={() => setModalTab('BILLING')} className={`px-5 py-2.5 text-[10px] font-semibold uppercase tracking-widest transition-all ${modalTab === 'BILLING' ? 'text-[#106ebe] border-b-2 border-[#106ebe] bg-white' : 'text-gray-400 hover:text-gray-600'}`}>Facturación FEL</button>
                             </div>
 
                             <div className="p-4 overflow-y-auto bg-white custom-scrollbar">
@@ -410,16 +410,16 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
                                     <div className="space-y-6">
                                         <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 shadow-sm space-y-4">
                                             <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                                                <label className="text-[10px] font-black text-gray-400 uppercase">Nombre Sucursal</label>
+                                                <label className="text-[10px] font-semibold text-gray-400 uppercase">Nombre Sucursal</label>
                                                 <input value={newBranch.name} onChange={e => setNewBranch({ ...newBranch, name: e.target.value.toUpperCase() })} type="text" className="premium-input-field" placeholder="EJ. CENTRO HISTÓRICO" />
                                             </div>
                                             <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                                                <label className="text-[10px] font-black text-gray-400 uppercase">Dirección Física</label>
+                                                <label className="text-[10px] font-semibold text-gray-400 uppercase">Dirección Física</label>
                                                 <input value={newBranch.location} onChange={e => setNewBranch({ ...newBranch, location: e.target.value })} type="text" className="premium-input-field" placeholder="Avenida Central No. 123..." />
                                             </div>
                                             {currentUser?.is_superadmin && (
                                                 <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                                                    <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Organización/Empresa</label>
+                                                    <label className="text-[10px] font-semibold text-indigo-500 uppercase tracking-widest">Organización/Empresa</label>
                                                     <select
                                                         value={newBranch.org_id}
                                                         onChange={e => setNewBranch({ ...newBranch, org_id: e.target.value })}
@@ -434,18 +434,18 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
                                             )}
                                             <div className="grid grid-cols-2 gap-8 pt-2">
                                                 <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                                                    <label className="text-[10px] font-black text-gray-400 uppercase">Teléfono</label>
+                                                    <label className="text-[10px] font-semibold text-gray-400 uppercase">Teléfono</label>
                                                     <input value={newBranch.phone} onChange={e => setNewBranch({ ...newBranch, phone: e.target.value })} type="text" className="premium-input-field" />
                                                 </div>
                                                 <div className="grid grid-cols-[120px_1fr] items-center gap-4">
-                                                    <label className="text-[10px] font-black text-gray-400 uppercase">Email</label>
+                                                    <label className="text-[10px] font-semibold text-gray-400 uppercase">Email</label>
                                                     <input value={newBranch.email} onChange={e => setNewBranch({ ...newBranch, email: e.target.value })} type="email" className="premium-input-field" />
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="bg-blue-50 p-5 rounded-xl border border-blue-100 flex items-center justify-between">
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-black text-[#106ebe] uppercase tracking-widest">Sucursal Principal</span>
+                                                <span className="text-[11px] font-semibold text-[#106ebe] uppercase tracking-widest">Sucursal Principal</span>
                                                 <p className="text-[10px] text-gray-500 font-medium">Marcar como la entidad central de la red de sucursales.</p>
                                             </div>
                                             <div onClick={() => setNewBranch({ ...newBranch, is_main: !newBranch.is_main })} className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-all ${newBranch.is_main ? 'bg-[#106ebe]' : 'bg-gray-200'}`}>
@@ -458,19 +458,19 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
                                             <div className="bg-amber-50 p-5 rounded-xl border border-amber-100 space-y-4">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <Lock size={14} className="text-amber-600" />
-                                                    <span className="text-[11px] font-black text-amber-800 uppercase tracking-widest">Administrador Inicial (Opcional)</span>
+                                                    <span className="text-[11px] font-semibold text-amber-800 uppercase tracking-widest">Administrador Inicial (Opcional)</span>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-8">
                                                     <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                                                        <label className="text-[10px] font-black text-amber-700 uppercase">Nombre Admin</label>
+                                                        <label className="text-[10px] font-semibold text-amber-700 uppercase">Nombre Admin</label>
                                                         <input value={newBranch.admin_name} onChange={e => setNewBranch({ ...newBranch, admin_name: e.target.value.toUpperCase() })} type="text" className="premium-input-field border-amber-200 focus:border-amber-500" placeholder="NOMBRE COMPLETO" />
                                                     </div>
                                                     <div className="grid grid-cols-[120px_1fr] items-center gap-4">
-                                                        <label className="text-[10px] font-black text-amber-700 uppercase">Email Admin</label>
+                                                        <label className="text-[10px] font-semibold text-amber-700 uppercase">Email Admin</label>
                                                         <input value={newBranch.admin_email} onChange={e => setNewBranch({ ...newBranch, admin_email: e.target.value })} type="email" className="premium-input-field border-amber-200 focus:border-amber-500" placeholder="admin@sucursal.com" />
                                                     </div>
                                                 </div>
-                                                <p className="text-[9px] text-amber-600 font-bold italic">Nota: Al crear la sucursal, este usuario tendrá acceso total a esta base de datos vacía.</p>
+                                                <p className="text-[9px] text-amber-600 font-medium italic">Nota: Al crear la sucursal, este usuario tendrá acceso total a esta base de datos vacía.</p>
                                             </div>
                                         )}
                                     </div>
@@ -480,7 +480,7 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center"><Receipt size={20} /></div>
                                                 <div className="flex flex-col gap-0.5">
-                                                    <span className="text-[11px] font-black text-emerald-700 uppercase tracking-widest">Emisión FEL Habilitada</span>
+                                                    <span className="text-[11px] font-semibold text-emerald-700 uppercase tracking-widest">Emisión FEL Habilitada</span>
                                                     <p className="text-[10px] text-emerald-600 text-opacity-70 font-medium">Activa la integración con el certificador para esta sucursal.</p>
                                                 </div>
                                             </div>
@@ -494,44 +494,44 @@ export const BranchesAdmin: React.FC<BranchesAdminProps> = ({ globalSearch = '' 
                                                 <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 space-y-4">
                                                     <div className="grid grid-cols-2 gap-8">
                                                         <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase">Nombre Comercial</label>
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase">Nombre Comercial</label>
                                                             <input value={newBranch.commercial_name} onChange={e => setNewBranch({ ...newBranch, commercial_name: e.target.value })} type="text" className="premium-input-field" />
                                                         </div>
                                                         <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase">Razón Social</label>
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase">Razón Social</label>
                                                             <input value={newBranch.legal_name} onChange={e => setNewBranch({ ...newBranch, legal_name: e.target.value })} type="text" className="premium-input-field" />
                                                         </div>
                                                     </div>
                                                     <div className="grid grid-cols-3 gap-8">
                                                         <div className="grid grid-cols-[100px_1fr] items-center gap-4">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase">NIT Emisor</label>
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase">NIT Emisor</label>
                                                             <input value={newBranch.nit} onChange={e => setNewBranch({ ...newBranch, nit: e.target.value })} type="text" className="premium-input-field" />
                                                         </div>
                                                         <div className="grid grid-cols-[100px_1fr] items-center gap-4">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase">Cód. Estab.</label>
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase">Cód. Estab.</label>
                                                             <input value={newBranch.branch_code} onChange={e => setNewBranch({ ...newBranch, branch_code: e.target.value })} type="text" className="premium-input-field" />
                                                         </div>
                                                         <div className="grid grid-cols-[100px_1fr] items-center gap-4">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase">Email FEL</label>
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase">Email FEL</label>
                                                             <input value={newBranch.billing_email} onChange={e => setNewBranch({ ...newBranch, billing_email: e.target.value })} type="text" className="premium-input-field" />
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <div className="bg-blue-50 p-5 rounded-xl border border-blue-100 space-y-4">
-                                                    <span className="text-[10px] font-black text-[#106ebe] uppercase tracking-[0.2em] mb-2 block border-b border-blue-100 pb-1">Credenciales WebService (INFILE)</span>
+                                                    <span className="text-[10px] font-semibold text-[#106ebe] uppercase tracking-[0.2em] mb-2 block border-b border-blue-100 pb-1">Credenciales WebService (INFILE)</span>
                                                     <div className="grid grid-cols-2 gap-8">
                                                         <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase">Alias Firma</label>
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase">Alias Firma</label>
                                                             <input value={newBranch.ws_prefix} onChange={e => setNewBranch({ ...newBranch, ws_prefix: e.target.value })} type="text" className="premium-input-field" />
                                                         </div>
                                                         <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase">Llave WS</label>
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase">Llave WS</label>
                                                             <input value={newBranch.ws_key} onChange={e => setNewBranch({ ...newBranch, ws_key: e.target.value })} type="password" autoComplete="off" className="premium-input-field" />
                                                         </div>
                                                     </div>
                                                     <div className="grid grid-cols-[140px_1fr] items-center gap-4">
-                                                        <label className="text-[10px] font-black text-gray-400 uppercase">Token Signer</label>
+                                                        <label className="text-[10px] font-semibold text-gray-400 uppercase">Token Signer</label>
                                                         <input value={newBranch.signer_token} onChange={e => setNewBranch({ ...newBranch, signer_token: e.target.value })} type="password" autoComplete="off" className="premium-input-field" />
                                                     </div>
                                                 </div>

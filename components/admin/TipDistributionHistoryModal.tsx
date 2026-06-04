@@ -64,7 +64,7 @@ export const TipDistributionHistoryModal: React.FC<Props> = ({ onClose }) => {
                     <div className="modal-header bg-[#106ebe] h-9 px-4 flex justify-between items-center cursor-move border-b border-black">
                         <div className="flex items-center gap-2 pointer-events-none">
                             <History size={16} className="text-blue-400" />
-                            <span className="text-white text-[11px] font-black uppercase tracking-widest text-[#f0f0f0]">Historial de Liquidaciones</span>
+                            <span className="text-white text-[11px] font-semibold uppercase tracking-widest text-[#f0f0f0]">Historial de Liquidaciones</span>
                         </div>
                         <button onClick={onClose} className="w-8 h-8 flex items-center justify-center hover:bg-red-600 text-white transition-colors">
                             <X size={22} />
@@ -74,7 +74,7 @@ export const TipDistributionHistoryModal: React.FC<Props> = ({ onClose }) => {
                     <div className="flex-1 flex overflow-hidden">
                         <div className="w-1/3 border-r-2 border-slate-200 bg-slate-50 overflow-y-auto">
                             <div className="p-3 bg-slate-200 border-b border-slate-300">
-                                <span className="text-[10px] font-black uppercase text-slate-800 tracking-tighter">Liquidaciones Guardadas</span>
+                                <span className="text-[10px] font-semibold uppercase text-slate-800 tracking-tighter">Liquidaciones Guardadas</span>
                             </div>
                             <div className="divide-y divide-slate-200">
                                 {history.map(item => (
@@ -84,9 +84,9 @@ export const TipDistributionHistoryModal: React.FC<Props> = ({ onClose }) => {
                                         className={`p-3 cursor-pointer hover:bg-white transition-all flex items-center justify-between group ${selectedDist?.id === item.id ? 'bg-white border-l-4 border-blue-600' : ''}`}
                                     >
                                         <div className="flex flex-col gap-0.5">
-                                            <span className="text-[11px] font-black text-slate-800">{dayjs(item.created_at).format('DD/MM/YYYY HH:mm')}</span>
-                                            <span className="text-[9px] font-bold text-slate-400 capitalize">{item.branches?.name || 'Global'}</span>
-                                            <span className="text-[10px] font-black text-emerald-600 font-mono">{formatCurr(item.total_bruta)}</span>
+                                            <span className="text-[11px] font-semibold text-slate-800">{dayjs(item.created_at).format('DD/MM/YYYY HH:mm')}</span>
+                                            <span className="text-[9px] font-medium text-slate-400 capitalize">{item.branches?.name || 'Global'}</span>
+                                            <span className="text-[10px] font-semibold text-emerald-600 font-mono">{formatCurr(item.total_bruta)}</span>
                                         </div>
                                         <ChevronRight size={16} className={`${selectedDist?.id === item.id ? 'text-blue-600' : 'text-slate-300'}`} />
                                     </div>
@@ -99,26 +99,26 @@ export const TipDistributionHistoryModal: React.FC<Props> = ({ onClose }) => {
                                 <>
                                     <div className="p-4 bg-slate-50 border-b-2 border-slate-100 flex justify-between items-center">
                                         <div>
-                                            <h2 className="text-[11px] font-black text-slate-800 uppercase tracking-widest">Liquidación Periodo</h2>
-                                            <p className="text-[9px] font-bold text-slate-500 mt-1 uppercase">
+                                            <h2 className="text-[11px] font-semibold text-slate-800 uppercase tracking-widest">Liquidación Periodo</h2>
+                                            <p className="text-[9px] font-medium text-slate-500 mt-1 uppercase">
                                                 {dayjs(selectedDist.periodo_inicio).format('DD/MM/YY')} al {dayjs(selectedDist.periodo_fin).format('DD/MM/YY')}
                                             </p>
                                         </div>
                                         <div className="text-right">
-                                            <span className="text-[8px] font-black text-slate-400 uppercase">Total Bruto</span>
-                                            <div className="text-sm font-black font-mono text-slate-900">{formatCurr(selectedDist.total_bruta)}</div>
+                                            <span className="text-[8px] font-semibold text-slate-400 uppercase">Total Bruto</span>
+                                            <div className="text-sm font-semibold font-mono text-slate-900">{formatCurr(selectedDist.total_bruta)}</div>
                                         </div>
                                     </div>
                                     <div className="flex-1 overflow-y-auto p-4">
                                         <table className="w-full text-left">
-                                            <thead className="bg-slate-100 text-[9px] font-black text-slate-600 uppercase">
+                                            <thead className="bg-slate-100 text-[9px] font-semibold text-slate-600 uppercase">
                                                 <tr className="border-b border-slate-300">
                                                     <th className="px-3 py-2">Colaborador</th>
                                                     <th className="px-3 py-2 text-center">Tipo</th>
                                                     <th className="px-3 py-2 text-right">Neto Pagado</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-slate-100 text-[11px] font-black text-slate-800 uppercase bg-white">
+                                            <tbody className="divide-y divide-slate-100 text-[11px] font-semibold text-slate-800 uppercase bg-white">
                                                 {details.map((row, idx) => (
                                                     <tr key={idx} className="hover:bg-slate-50">
                                                         <td className="px-3 py-2">{row.employee_name}</td>
@@ -137,7 +137,7 @@ export const TipDistributionHistoryModal: React.FC<Props> = ({ onClose }) => {
                             ) : (
                                 <div className="flex-1 flex flex-col items-center justify-center text-slate-300">
                                     <FileText size={48} className="mb-2 opacity-10" />
-                                    <p className="text-[9px] font-black uppercase tracking-widest">Seleccionar liquidación para ver detalle</p>
+                                    <p className="text-[9px] font-semibold uppercase tracking-widest">Seleccionar liquidación para ver detalle</p>
                                 </div>
                             )}
                         </div>

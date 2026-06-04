@@ -608,8 +608,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                 <button
                                     key={group.id}
                                     onClick={() => setActiveRibbonGroup(group.id)}
-                                    className={`px-5 h-8 flex items-center text-[11px] font-bold transition-all ${activeRibbonGroup === group.id
-                                        ? 'bg-[#f3f4f6] text-[#106ebe] font-black'
+                                    className={`px-5 h-8 flex items-center text-[11px] font-medium transition-all ${activeRibbonGroup === group.id
+                                        ? 'bg-[#f3f4f6] text-[#106ebe] font-semibold'
                                         : 'bg-[#106ebe] text-blue-100 hover:bg-[#1a7bc9]'
                                         }`}
                                 >
@@ -658,7 +658,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                                                         ) : (
                                                                             <IC size={11} strokeWidth={isAct ? 2.5 : 2} className={`shrink-0 ${isAct ? 'text-white' : 'text-gray-400'}`} />
                                                                         )}
-                                                                        <span className="text-[8.5px] font-bold uppercase tracking-tight leading-tight">{item.label}</span>
+                                                                        <span className="text-[8.5px] font-medium uppercase tracking-tight leading-tight">{item.label}</span>
                                                                     </button>
                                                                 );
                                                             })}
@@ -680,7 +680,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                                                         {renderIcon(item, 32)}
                                                                     </div>
                                                                     <div className="flex items-center justify-center w-full px-1 flex-1 min-h-[30px] pb-1">
-                                                                        <span className={`text-[6.8px] font-bold text-center leading-[1] uppercase w-full ${activeTabId === item.id ? 'text-[#106ebe]' : 'text-gray-500 group-hover:text-gray-700'
+                                                                        <span className={`text-[6.8px] font-medium text-center leading-[1] uppercase w-full ${activeTabId === item.id ? 'text-[#106ebe]' : 'text-gray-500 group-hover:text-gray-700'
                                                                             }`}>
                                                                             {item.label}
                                                                         </span>
@@ -690,7 +690,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="mt-2 text-[8px] font-black uppercase text-gray-400 tracking-[0.2em]">{name}</div>
+                                                <div className="mt-2 text-[8px] font-semibold uppercase text-gray-400 tracking-[0.2em]">{name}</div>
                                             </div>
                                             {idx < Object.entries(sections).length - 1 && (
                                                 <div className="w-[1px] self-stretch bg-gray-400/30 mx-1.5 -my-1" />
@@ -710,7 +710,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTabId(tab.id)}
-                                className={`flex items-center gap-2 px-4 h-full text-[10.5px] font-bold transition-all group min-w-[150px] border-r border-gray-300 ${activeTabId === tab.id
+                                className={`flex items-center gap-2 px-4 h-full text-[10.5px] font-medium transition-all group min-w-[150px] border-r border-gray-300 ${activeTabId === tab.id
                                     ? 'bg-white text-[#106ebe] z-10'
                                     : 'bg-[#dcdcdc] text-gray-500 hover:bg-[#d0d0d0]'
                                     }`}
@@ -751,7 +751,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                             /* CATEGORY GRID (3x2) */
                                             <>
                                                 <div className="mb-8">
-                                                    <h2 className="text-[22px] font-black text-slate-800 leading-tight tracking-tight">PORTAL<br />ADMINISTRATIVO</h2>
+                                                    <h2 className="text-[22px] font-semibold text-slate-800 leading-tight tracking-tight">PORTAL<br />ADMINISTRATIVO</h2>
                                                     <div className="w-12 h-1 bg-[#4f46e5] rounded-full mt-3" />
                                                 </div>
 
@@ -768,7 +768,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                                                     return <Icon size={28} />;
                                                                 })()}
                                                             </div>
-                                                            <span className="text-[11px] font-black text-slate-700 uppercase leading-none tracking-tight">
+                                                            <span className="text-[11px] font-semibold text-slate-700 uppercase leading-none tracking-tight">
                                                                 {group.label}
                                                             </span>
                                                         </button>
@@ -786,10 +786,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                                         <X size={24} className="rotate-90" />
                                                     </button>
                                                     <div>
-                                                        <h2 className="text-[18px] font-black text-slate-800 uppercase tracking-tight">
+                                                        <h2 className="text-[18px] font-semibold text-slate-800 uppercase tracking-tight">
                                                             {MENU_STRUCTURE.find(g => g.id === activeMobileGroup)?.label}
                                                         </h2>
-                                                        <span className="text-[10px] font-bold text-[#4f46e5] uppercase tracking-widest leading-none">SELECCIONE MÓDULO</span>
+                                                        <span className="text-[10px] font-medium text-[#4f46e5] uppercase tracking-widest leading-none">SELECCIONE MÓDULO</span>
                                                     </div>
                                                 </div>
 
@@ -810,8 +810,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                                                     )}
                                                                 </div>
                                                                 <div className="flex-1">
-                                                                    <h4 className="text-[13px] font-bold text-slate-800 uppercase leading-none mb-1">{item.label}</h4>
-                                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.section || 'Módulo'}</span>
+                                                                    <h4 className="text-[13px] font-medium text-slate-800 uppercase leading-none mb-1">{item.label}</h4>
+                                                                    <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">{item.section || 'Módulo'}</span>
                                                                 </div>
                                                                 <ChevronDown size={16} className="-rotate-90 text-slate-300" />
                                                             </button>
@@ -824,7 +824,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit, onNavigate, in
                                 ) : (
                                     <>
                                         <Monitor size={64} className="mb-4 opacity-20" />
-                                        <p className="text-xs font-bold uppercase tracking-widest">Seleccione un módulo para comenzar</p>
+                                        <p className="text-xs font-medium uppercase tracking-widest">Seleccione un módulo para comenzar</p>
                                     </>
                                 )}
                             </div>

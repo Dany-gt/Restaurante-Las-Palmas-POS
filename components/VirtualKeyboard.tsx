@@ -425,6 +425,11 @@ export const VirtualKeyboard: React.FC = () => {
 
     const handleClose = () => {
         setIsVisible(false);
+        if (activeElement) {
+            activeElement.blur();
+        } else if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+        }
     };
 
     // Layout Definitions

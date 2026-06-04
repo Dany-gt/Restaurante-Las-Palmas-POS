@@ -150,15 +150,15 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
                     <button onClick={onBack} className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
                         <ArrowLeft size={20} className="text-gray-400" />
                     </button>
-                    <span className="text-xs font-black tracking-[0.2em] text-gray-500 uppercase">RESTAURANTE LAS PALMAS POS</span>
+                    <span className="text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase">RESTAURANTE LAS PALMAS POS</span>
                 </div>
                 <div className="flex items-center gap-6">
-                    <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-3 py-1 rounded-full uppercase tracking-wider">
+                    <span className="text-[10px] font-medium text-amber-500 bg-amber-500/10 px-3 py-1 rounded-full uppercase tracking-wider">
                         0 Ordenes Asignadas
                     </span>
                     <div className="text-right">
-                        <div className="text-sm font-black uppercase tracking-tight">{currentUser.name || 'CAJERO'}</div>
-                        <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Abrir Turno</div>
+                        <div className="text-sm font-semibold uppercase tracking-tight">{currentUser.name || 'CAJERO'}</div>
+                        <div className="text-[10px] font-medium text-emerald-400 uppercase tracking-widest">Abrir Turno</div>
                     </div>
                 </div>
             </header>
@@ -169,11 +169,11 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
                 {/* Left Form */}
                 <div className="w-[340px] flex flex-col gap-6">
                     <div className="flex flex-col gap-2">
-                        <label className="text-center py-2 bg-[#2b2f3a] rounded-t-lg text-xs font-bold text-gray-400 uppercase tracking-widest">Caja</label>
+                        <label className="text-center py-2 bg-[#2b2f3a] rounded-t-lg text-xs font-medium text-gray-400 uppercase tracking-widest">Caja</label>
                         <select
                             value={selectedRegisterId}
                             onChange={(e) => setSelectedRegisterId(e.target.value)}
-                            className="bg-[#16191f] border-none text-center text-lg font-bold text-white py-3 border-b-2 border-white/10 focus:ring-0 rounded-b-lg"
+                            className="bg-[#16191f] border-none text-center text-lg font-medium text-white py-3 border-b-2 border-white/10 focus:ring-0 rounded-b-lg"
                         >
                             {cashRegisters.map(r => (
                                 <option key={r.id} value={r.id}>{r.name}</option>
@@ -182,15 +182,15 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label className="text-center py-2 bg-[#2b2f3a] rounded-t-lg text-xs font-bold text-gray-400 uppercase tracking-widest">Turno</label>
-                        <div className="bg-transparent text-center text-lg font-bold text-white py-3 border-b border-white/10 rounded-b-lg">
+                        <label className="text-center py-2 bg-[#2b2f3a] rounded-t-lg text-xs font-medium text-gray-400 uppercase tracking-widest">Turno</label>
+                        <div className="bg-transparent text-center text-lg font-medium text-white py-3 border-b border-white/10 rounded-b-lg">
                             {shiftCount}
                         </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label className="text-center py-2 bg-[#2b2f3a] rounded-t-lg text-xs font-bold text-gray-400 uppercase tracking-widest">Monto Inicial</label>
-                        <div className="bg-transparent text-center text-xl font-black text-white py-3 border-b border-white/10 rounded-b-lg">
+                        <label className="text-center py-2 bg-[#2b2f3a] rounded-t-lg text-xs font-medium text-gray-400 uppercase tracking-widest">Monto Inicial</label>
+                        <div className="bg-transparent text-center text-xl font-semibold text-white py-3 border-b border-white/10 rounded-b-lg">
                             Q{parseFloat(amount).toFixed(2)}
                         </div>
                     </div>
@@ -198,14 +198,14 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
                     <button
                         onClick={handleOpenShift}
                         disabled={loading}
-                        className="mt-4 bg-[#5c6bff] hover:bg-[#4b59eb] text-white py-4 rounded-xl font-black uppercase tracking-widest  -500/20 active:scale-95 transition-all text-sm"
+                        className="mt-4 bg-[#5c6bff] hover:bg-[#4b59eb] text-white py-4 rounded-xl font-semibold uppercase tracking-widest  -500/20 active:scale-95 transition-all text-sm"
                     >
                         {loading ? 'Abriendo...' : 'Abrir Turno'}
                     </button>
                     {((currentUser.role === 'ADMIN' || currentUser.originalRole === 'ADMIN') && onNavigate) && (
                         <button
                             onClick={() => onNavigate('ADMIN_PORTAL')}
-                            className="mt-2 bg-red-600/20 hover:bg-red-600/30 text-red-500 py-3 rounded-xl font-black uppercase tracking-widest border border-red-500/20 active:scale-95 transition-all text-xs"
+                            className="mt-2 bg-red-600/20 hover:bg-red-600/30 text-red-500 py-3 rounded-xl font-semibold uppercase tracking-widest border border-red-500/20 active:scale-95 transition-all text-xs"
                         >
                             Ir a Panel Admin
                         </button>
@@ -215,7 +215,7 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
                 {/* Right Keypad */}
                 <div className="w-[340px]">
                     <div className="bg-[#222630] rounded-t-2xl p-6 text-right mb-4 border border-white/5">
-                        <span className="text-3xl font-black tracking-tight">Q{parseFloat(amount).toFixed(2)}</span>
+                        <span className="text-3xl font-semibold tracking-tight">Q{parseFloat(amount).toFixed(2)}</span>
                     </div>
 
                     <div className="grid grid-cols-4 gap-3">
@@ -230,7 +230,7 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
                         <KeypadButton val="5" onClick={() => handleKeyPad('5')} />
                         <KeypadButton val="6" onClick={() => handleKeyPad('6')} />
                         <button onClick={() => handleKeyPad('BACKSPACE')} className="bg-[#2b2f3a] hover:bg-white/10 text-gray-400 rounded-xl flex items-center justify-center transition-all border border-white/5">
-                            <span className="text-xs font-black">DEL</span>
+                            <span className="text-xs font-semibold">DEL</span>
                         </button>
 
 
@@ -255,12 +255,12 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
                         <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center text-indigo-400 mb-6 border border-indigo-500/20">
                             <Check size={32} strokeWidth={3} />
                         </div>
-                        <h3 className="text-lg font-black text-white uppercase tracking-widest mb-2">RESTAURANTE LAS PALMAS POS</h3>
-                        <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-8">Turno aperturado con éxito.</p>
+                        <h3 className="text-lg font-semibold text-white uppercase tracking-widest mb-2">RESTAURANTE LAS PALMAS POS</h3>
+                        <p className="text-sm font-medium text-gray-400 uppercase tracking-widest mb-8">Turno aperturado con éxito.</p>
 
                         <button
                             onClick={() => onShiftOpened()}
-                            className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-[0.3em] rounded-xl  -500/20 active:scale-95 transition-all text-xs"
+                            className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold uppercase tracking-[0.3em] rounded-xl  -500/20 active:scale-95 transition-all text-xs"
                         >
                             ACEPTAR
                         </button>
@@ -274,7 +274,7 @@ export const OpenShiftView: React.FC<OpenShiftViewProps> = ({ currentUser, onShi
 const KeypadButton = ({ val, onClick, className = '' }: { val: string, onClick: () => void, className?: string }) => (
     <button
         onClick={onClick}
-        className={`h-16 bg-[#222630] hover:bg-[#2b2f3a] rounded-xl text-xl font-bold transition-all border border-white/5 active:scale-95 ${className}`}
+        className={`h-16 bg-[#222630] hover:bg-[#2b2f3a] rounded-xl text-xl font-medium transition-all border border-white/5 active:scale-95 ${className}`}
     >
         {val}
     </button>

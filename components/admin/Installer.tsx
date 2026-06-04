@@ -89,7 +89,7 @@ export const Installer: React.FC<InstallerProps> = ({ onActivationSuccess }) => 
                 <div className="h-9 bg-[#106ebe] flex items-center justify-between px-3 shrink-0">
                     <div className="flex items-center gap-2">
                         <Smartphone size={16} className="text-white opacity-80" />
-                        <span className="text-[11px] font-black text-white uppercase tracking-[0.15em]">Instalador Las Palmas POS</span>
+                        <span className="text-[11px] font-semibold text-white uppercase tracking-[0.15em]">Instalador Las Palmas POS</span>
                     </div>
                     <div className="flex gap-1">
                         <div className="w-6 h-6 flex items-center justify-center hover:bg-white/10 text-white transition-colors cursor-pointer">
@@ -105,8 +105,8 @@ export const Installer: React.FC<InstallerProps> = ({ onActivationSuccess }) => 
                             <HardDrive size={40} strokeWidth={1.5} />
                         </div>
                         <div>
-                            <h1 className="text-[18px] font-black text-slate-800 uppercase tracking-tight leading-none">Configuración de Licencia</h1>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">Active su sucursal para comenzar</p>
+                            <h1 className="text-[18px] font-semibold text-slate-800 uppercase tracking-tight leading-none">Configuración de Licencia</h1>
+                            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest mt-2">Active su sucursal para comenzar</p>
                         </div>
                     </div>
 
@@ -117,11 +117,11 @@ export const Installer: React.FC<InstallerProps> = ({ onActivationSuccess }) => 
                                 <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4 shadow-sm border border-emerald-200">
                                     <CheckCircle size={32} />
                                 </div>
-                                <h2 className="text-[14px] font-black text-slate-800 uppercase tracking-tight">¡Activación Exitosa!</h2>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase mt-2">Bienvenido a {branchInfo?.branch_name}</p>
+                                <h2 className="text-[14px] font-semibold text-slate-800 uppercase tracking-tight">¡Activación Exitosa!</h2>
+                                <p className="text-[10px] text-slate-400 font-medium uppercase mt-2">Bienvenido a {branchInfo?.branch_name}</p>
                                 <div className="mt-6 flex flex-col items-center gap-2">
                                     <div className="w-12 h-1 bg-emerald-500 rounded-full animate-pulse" />
-                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Cargando Entorno POS...</span>
+                                    <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-[0.3em]">Cargando Entorno POS...</span>
                                 </div>
                             </div>
                         ) : (
@@ -130,7 +130,7 @@ export const Installer: React.FC<InstallerProps> = ({ onActivationSuccess }) => 
                                     <div className="flex flex-col gap-1.5 focus-within:translate-x-1 transition-transform">
                                         <div className="flex items-center gap-2 mb-1">
                                             <Mail size={12} className="text-[#106ebe]" />
-                                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Correo del Administrador</label>
+                                            <label className="text-[10px] font-semibold text-slate-700 uppercase tracking-widest">Correo del Administrador</label>
                                         </div>
                                         <input
                                             type="email"
@@ -138,14 +138,14 @@ export const Installer: React.FC<InstallerProps> = ({ onActivationSuccess }) => 
                                             onChange={e => setEmail(e.target.value)}
                                             placeholder="sucursal@ejemplo.com"
                                             disabled={step === 'VALIDATING'}
-                                            className="w-full bg-white border border-gray-400 text-[12px] font-bold px-4 py-3 focus:border-[#106ebe] text-slate-900 shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] outline-none transition-all placeholder:text-slate-400"
+                                            className="w-full bg-white border border-gray-400 text-[12px] font-medium px-4 py-3 focus:border-[#106ebe] text-slate-900 shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] outline-none transition-all placeholder:text-slate-400"
                                         />
                                     </div>
 
                                     <div className="flex flex-col gap-1.5 focus-within:translate-x-1 transition-transform">
                                         <div className="flex items-center gap-2 mb-1">
                                             <Key size={12} className="text-[#106ebe]" />
-                                            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Token de Sucursal</label>
+                                            <label className="text-[10px] font-semibold text-slate-700 uppercase tracking-widest">Token de Sucursal</label>
                                         </div>
                                         <input
                                             type="text"
@@ -153,13 +153,13 @@ export const Installer: React.FC<InstallerProps> = ({ onActivationSuccess }) => 
                                             onChange={e => setToken(e.target.value)}
                                             placeholder="XXXX-XXXX"
                                             disabled={step === 'VALIDATING'}
-                                            className="w-full font-mono bg-white border border-gray-400 text-[14px] font-black tracking-[0.2em] px-4 py-3 focus:border-[#106ebe] text-[#106ebe] shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] outline-none transition-all placeholder:text-slate-300 uppercase"
+                                            className="w-full font-mono bg-white border border-gray-400 text-[14px] font-semibold tracking-[0.2em] px-4 py-3 focus:border-[#106ebe] text-[#106ebe] shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] outline-none transition-all placeholder:text-slate-300 uppercase"
                                         />
                                     </div>
                                 </div>
 
                                 {error && (
-                                    <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-[10px] font-bold uppercase text-center animate-shake">
+                                    <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-[10px] font-medium uppercase text-center animate-shake">
                                         {error}
                                     </div>
                                 )}
@@ -179,9 +179,9 @@ export const Installer: React.FC<InstallerProps> = ({ onActivationSuccess }) => 
                     <div className="h-8 bg-[#e1e1e1] border-t border-gray-300 flex items-center justify-between px-6 shrink-0 mt-4">
                         <div className="flex items-center gap-2">
                             <ShieldCheck size={12} className="text-slate-400" />
-                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">Conectado a Ecosistema Central</span>
+                            <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest leading-none">Conectado a Ecosistema Central</span>
                         </div>
-                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">v1.2 // Secure Install</span>
+                        <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest">v1.2 // Secure Install</span>
                     </div>
                 </div>
             </div>
@@ -190,8 +190,8 @@ export const Installer: React.FC<InstallerProps> = ({ onActivationSuccess }) => 
             <div className="fixed bottom-6 left-6 text-white/30 flex items-center gap-3">
                 <Building2 size={24} />
                 <div className="flex flex-col">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] leading-none">Las Palmas POS</span>
-                    <span className="text-[8px] font-bold uppercase tracking-widest mt-1 opacity-60 italic">Multi-Tenant Engineering</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.3em] leading-none">Las Palmas POS</span>
+                    <span className="text-[8px] font-medium uppercase tracking-widest mt-1 opacity-60 italic">Multi-Tenant Engineering</span>
                 </div>
             </div>
         </div>

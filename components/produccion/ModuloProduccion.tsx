@@ -457,7 +457,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                     <div className="mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
                         <div className="flex items-center gap-3 mb-6">
                             <Clock size={16} className="text-emerald-500" />
-                            <h2 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em]">Producciones en Curso</h2>
+                            <h2 className="text-[10px] font-semibold text-emerald-500 uppercase tracking-[0.4em]">Producciones en Curso</h2>
                         </div>
                         <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-5">
                             {activeProductions.map((p, idx) => !p.isCompleted && (
@@ -472,14 +472,14 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                                     <div className="absolute top-0 left-0 h-full w-1 bg-emerald-500"></div>
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex flex-col">
-                                            <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest mb-1">{p.chef.nombre}</span>
-                                            <h3 className="text-white font-black text-lg leading-tight">{p.product.nombre}</h3>
+                                            <span className="text-[8px] font-semibold text-emerald-500 uppercase tracking-widest mb-1">{p.chef.nombre}</span>
+                                            <h3 className="text-white font-semibold text-lg leading-tight">{p.product.nombre}</h3>
                                         </div>
-                                        <div className="text-2xl font-black tabular-nums text-white bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
+                                        <div className="text-2xl font-semibold tabular-nums text-white bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
                                             {formatSeconds(p.timerSec)}
                                         </div>
                                     </div>
-                                    <div className="flex items-center justify-between text-[10px] font-bold text-[#7a8499] uppercase">
+                                    <div className="flex items-center justify-between text-[10px] font-medium text-[#7a8499] uppercase">
                                         <span>Iniciado: {p.startTime.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}</span>
                                         <span className="text-emerald-500 animate-pulse flex items-center gap-1">
                                             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
@@ -495,7 +495,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                 {/* --- SECCIÓN: NUEVA PRODUCCIÓN --- */}
                 <div className="flex items-center gap-3 mb-6">
                     <Play size={16} className="text-[#106EBE]" />
-                    <h2 className="text-[10px] font-black text-[#106EBE] uppercase tracking-[0.4em]">Nueva Producción</h2>
+                    <h2 className="text-[10px] font-semibold text-[#106EBE] uppercase tracking-[0.4em]">Nueva Producción</h2>
                 </div>
 
                 {loading && !products.length ? (
@@ -505,7 +505,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
             ) : products.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-[#7a8499] bg-[#141922] rounded-3xl border border-[#106EBE33]">
                     <Layers className="w-16 h-16 mb-4 opacity-20" />
-                    <p className="font-bold uppercase tracking-widest">No hay platillos de producción configurados</p>
+                    <p className="font-medium uppercase tracking-widest">No hay platillos de producción configurados</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-5">
@@ -514,7 +514,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                             key={product.id}
                             className="bg-[#141922] rounded-xl border border-[#106EBE33] border-t-[3px] border-t-[#106EBE] p-6 flex flex-col hover:-translate-y-1 hover:border-[#106EBE] transition-all group relative overflow-hidden"
                         >
-                            <h3 className="text-white font-bold text-xl mb-1 leading-tight">{product.nombre}</h3>
+                            <h3 className="text-white font-medium text-xl mb-1 leading-tight">{product.nombre}</h3>
                             <p className="text-[#7a8499] text-sm mb-6 flex-1 line-clamp-2">{product.descripcion}</p>
 
                             <div className="flex items-center justify-end mt-auto">
@@ -523,7 +523,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                                         setSelectedProduct(product);
                                         setView('PIN');
                                     }}
-                                    className="bg-[#106EBE] text-white font-black text-xs uppercase px-6 py-3 rounded-lg hover:bg-blue-600 transition-all active:scale-95 flex items-center gap-2"
+                                    className="bg-[#106EBE] text-white font-semibold text-xs uppercase px-6 py-3 rounded-lg hover:bg-blue-600 transition-all active:scale-95 flex items-center gap-2"
                                 >
                                     <Play size={14} fill="white" />
                                     INICIAR
@@ -542,8 +542,8 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
         <div className="flex-1 flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in-95 duration-500">
             <div className="w-full max-w-sm bg-[#141922] border border-[#106EBE33] rounded-[32px] p-8 shadow-2xl relative">
                 <div className="text-center mb-10">
-                    <h3 className="text-[18px] font-black text-white uppercase mb-2">{selectedProduct?.nombre}</h3>
-                    <p className="text-[10px] font-bold text-[#7a8499] uppercase tracking-[0.2em]">INGRESA TU PIN DE COCINERO</p>
+                    <h3 className="text-[18px] font-semibold text-white uppercase mb-2">{selectedProduct?.nombre}</h3>
+                    <p className="text-[10px] font-medium text-[#7a8499] uppercase tracking-[0.2em]">INGRESA TU PIN DE COCINERO</p>
                 </div>
 
                 <div className="flex gap-4 justify-center mb-10">
@@ -556,7 +556,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                 </div>
 
                 {pinError && (
-                    <div className="mb-6 flex items-center justify-center gap-2 text-[#e24b4a] font-black text-[10px] uppercase animate-shake">
+                    <div className="mb-6 flex items-center justify-center gap-2 text-[#e24b4a] font-semibold text-[10px] uppercase animate-shake">
                         <AlertCircle size={14} />
                         PIN INCORRECTO
                     </div>
@@ -567,7 +567,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                         <button
                             key={n}
                             onClick={() => handlePinInput(n.toString())}
-                            className="h-12 bg-[#141922] hover:bg-[#106EBE33] border border-[#106EBE33] rounded-[10px] text-xl font-black text-white transition-all active:scale-90"
+                            className="h-12 bg-[#141922] hover:bg-[#106EBE33] border border-[#106EBE33] rounded-[10px] text-xl font-semibold text-white transition-all active:scale-90"
                         >
                             {n}
                         </button>
@@ -575,7 +575,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                     <div />
                     <button
                         onClick={() => handlePinInput('0')}
-                        className="h-12 bg-[#141922] hover:bg-[#106EBE33] border border-[#106EBE33] rounded-[10px] text-xl font-black text-white transition-all active:scale-90"
+                        className="h-12 bg-[#141922] hover:bg-[#106EBE33] border border-[#106EBE33] rounded-[10px] text-xl font-semibold text-white transition-all active:scale-90"
                     >
                         0
                     </button>
@@ -588,7 +588,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                     <button
                         onClick={validatePin}
                         disabled={loading || pin.length < 4}
-                        className="col-span-3 h-12 bg-[#106EBE] hover:bg-blue-600 disabled:opacity-50 text-white font-black uppercase tracking-widest rounded-[10px] transition-all active:scale-95 shadow-lg shadow-blue-950/20"
+                        className="col-span-3 h-12 bg-[#106EBE] hover:bg-blue-600 disabled:opacity-50 text-white font-semibold uppercase tracking-widest rounded-[10px] transition-all active:scale-95 shadow-lg shadow-blue-950/20"
                     >
                         {loading ? <Loader2 className="animate-spin mx-auto" /> : 'ENTRAR'}
                     </button>
@@ -600,7 +600,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                         setPin('');
                         setPinError(false);
                     }}
-                    className="w-full text-center text-[#7a8499] font-bold text-xs uppercase hover:text-white transition-colors"
+                    className="w-full text-center text-[#7a8499] font-medium text-xs uppercase hover:text-white transition-colors"
                 >
                     ← Volver a producciones
                 </button>
@@ -622,21 +622,21 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                         
                         {/* CRONÓMETRO MINI-PANEL */}
                         <div className="bg-[#141922] rounded-2xl p-5 border border-white/5 flex flex-col items-center">
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2 opacity-60">Tiempo de Producción</span>
-                            <div className={`text-4xl font-black tabular-nums tracking-tighter ${currentProd?.isCompleted ? 'text-[#0cf192]' : 'text-white'}`}>
+                            <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-[0.3em] mb-2 opacity-60">Tiempo de Producción</span>
+                            <div className={`text-4xl font-semibold tabular-nums tracking-tighter ${currentProd?.isCompleted ? 'text-[#0cf192]' : 'text-white'}`}>
                                 {formatSeconds(currentProd?.timerSec || 0)}
                             </div>
 
                             <div className="mt-4 w-full">
                                 {currentProd?.isCompleted ? (
-                                    <div className="w-full h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center gap-2 text-[#0cf192] font-black text-[10px] uppercase tracking-widest">
+                                    <div className="w-full h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center gap-2 text-[#0cf192] font-semibold text-[10px] uppercase tracking-widest">
                                         <CheckCircle2 size={16} />
                                         <span>Procesado</span>
                                     </div>
                                 ) : (
                                     <button
                                         onClick={finalizarProduccion}
-                                        className="w-full h-10 bg-[#0cf1921a] hover:bg-[#0cf192] border border-[#0cf19222] hover:border-transparent text-[#0cf192] hover:text-black rounded-xl transition-all font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2"
+                                        className="w-full h-10 bg-[#0cf1921a] hover:bg-[#0cf192] border border-[#0cf19222] hover:border-transparent text-[#0cf192] hover:text-black rounded-xl transition-all font-semibold text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2"
                                     >
                                         <CheckCircle2 size={16} />
                                         <span>Finalizar Tiempo</span>
@@ -649,31 +649,31 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                         <div className="bg-[#141922] rounded-3xl border border-white/5 overflow-hidden flex flex-col shadow-2xl">
                             <div className="bg-white/5 p-6 border-b border-white/5 flex items-center gap-4">
                                 <ClipboardList size={22} className="text-[#106EBE]" />
-                                <span className="text-[12px] font-black text-white uppercase tracking-[0.3em]">Lista General de Insumos</span>
+                                <span className="text-[12px] font-semibold text-white uppercase tracking-[0.3em]">Lista General de Insumos</span>
                             </div>
                             
                             <div className="p-4">
                                 {receta?.receta_ingredientes?.length > 0 ? (
                                     <table className="w-full text-left border-collapse">
                                         <thead>
-                                            <tr className="text-slate-500 text-[10px] uppercase font-black border-b border-white/5">
+                                            <tr className="text-slate-500 text-[10px] uppercase font-semibold border-b border-white/5">
                                                 <th className="p-4 pl-6">Artículo / Especificación Técnica</th>
                                                 <th className="p-4 text-right">Cantidad</th>
                                                 <th className="p-4 pr-6 text-right">U.M.</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="text-[13px] font-bold text-white/90">
+                                        <tbody className="text-[13px] font-medium text-white/90">
                                             {receta.receta_ingredientes.map((ing, i) => (
                                                 <tr key={i} className="border-t border-white/5 hover:bg-white/[0.03] transition-colors group">
-                                                    <td className="p-4 pl-6 font-black uppercase whitespace-nowrap leading-relaxed">{ing.ingrediente_nombre}</td>
-                                                    <td className="p-4 text-right text-[#0cf192] font-black tabular-nums text-lg">{ing.cantidad}</td>
-                                                    <td className="p-4 pr-6 text-right text-slate-600 uppercase text-[10px] font-black">{ing.unidad}</td>
+                                                    <td className="p-4 pl-6 font-semibold uppercase whitespace-nowrap leading-relaxed">{ing.ingrediente_nombre}</td>
+                                                    <td className="p-4 text-right text-[#0cf192] font-semibold tabular-nums text-lg">{ing.cantidad}</td>
+                                                    <td className="p-4 pr-6 text-right text-slate-600 uppercase text-[10px] font-semibold">{ing.unidad}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
                                 ) : (
-                                    <div className="p-12 text-center text-slate-700 text-[11px] uppercase font-black tracking-[0.4em] opacity-40">
+                                    <div className="p-12 text-center text-slate-700 text-[11px] uppercase font-semibold tracking-[0.4em] opacity-40">
                                         No se registran insumos
                                     </div>
                                 )}
@@ -683,7 +683,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                         {/* BOTÓN DE SALIDA (SIEMPRE VISIBLE EN LA COLUMNA DE CONTROL) */}
                         <button 
                             onClick={() => setView('LIST')} 
-                            className="mt-4 self-center text-slate-600 hover:text-white font-black text-[12px] uppercase tracking-[0.4em] transition-all py-3 px-8 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 w-full text-center"
+                            className="mt-4 self-center text-slate-600 hover:text-white font-semibold text-[12px] uppercase tracking-[0.4em] transition-all py-3 px-8 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 w-full text-center"
                         >
                             ← SALIR DEL MÓDULO
                         </button>
@@ -701,13 +701,13 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                                 {/* ENCABEZADO FORMAL */}
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pb-6 border-b border-white/5">
                                     <div className="flex items-center gap-6">
-                                        <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-white font-black text-2xl border border-white/10 shrink-0">
+                                        <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-white font-semibold text-2xl border border-white/10 shrink-0">
                                             {currentProd?.product?.nombre?.charAt(0) || 'P'}
                                         </div>
                                         <div>
-                                            <span className="text-[10px] font-black text-[#106EBE] uppercase tracking-[0.3em] block mb-1">Ficha Técnica Operativa</span>
-                                            <h2 className="text-2xl font-black text-white uppercase tracking-tight leading-tight mb-2">{currentProd?.product?.nombre || '---'}</h2>
-                                            <div className="flex items-center gap-4 text-slate-400 font-bold text-[11px]">
+                                            <span className="text-[10px] font-semibold text-[#106EBE] uppercase tracking-[0.3em] block mb-1">Ficha Técnica Operativa</span>
+                                            <h2 className="text-2xl font-semibold text-white uppercase tracking-tight leading-tight mb-2">{currentProd?.product?.nombre || '---'}</h2>
+                                            <div className="flex items-center gap-4 text-slate-400 font-medium text-[11px]">
                                                 <span className="uppercase">Chef: {currentProd?.chef?.nombre}</span>
                                                 <div className="w-1 h-1 bg-white/10 rounded-full"></div>
                                                 <span className="uppercase">Referencia: {receta?.ficha?.recipe_no || '00'}</span>
@@ -715,8 +715,8 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                                         </div>
                                     </div>
                                     <div className="bg-black/20 p-4 rounded-2xl border border-white/5 text-right min-w-[140px]">
-                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tiempo Estándar</span>
-                                        <span className="text-xl font-black text-white">{receta?.tiempo_preparacion || '0'} <span className="text-sm font-bold text-slate-500">MIN</span></span>
+                                        <span className="text-[9px] font-medium text-slate-500 uppercase tracking-widest block mb-1">Tiempo Estándar</span>
+                                        <span className="text-xl font-semibold text-white">{receta?.tiempo_preparacion || '0'} <span className="text-sm font-medium text-slate-500">MIN</span></span>
                                     </div>
                                 </div>
 
@@ -730,8 +730,8 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                                         { label: 'Temperatura', val: receta?.ficha?.serving_temp }
                                     ].map((spec, i) => (
                                         <div key={i} className="bg-black/20 p-4 rounded-xl border border-white/5 flex flex-col items-center text-center">
-                                            <span className="text-[9px] font-bold text-slate-500 uppercase block mb-1 tracking-widest w-full">{spec.label}</span>
-                                            <span className="text-[11px] font-bold uppercase text-white truncate block w-full">{spec.val || '---'}</span>
+                                            <span className="text-[9px] font-medium text-slate-500 uppercase block mb-1 tracking-widest w-full">{spec.label}</span>
+                                            <span className="text-[11px] font-medium uppercase text-white truncate block w-full">{spec.val || '---'}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -739,7 +739,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                                 {/* ÁREA DE PROCEDIMIENTO (LIMPIA) */}
                                 <div className="mb-8">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <span className="text-[11px] font-black text-white uppercase tracking-widest border-b-2 border-[#106EBE] pb-1">Procedimiento de Elaboración</span>
+                                        <span className="text-[11px] font-semibold text-white uppercase tracking-widest border-b-2 border-[#106EBE] pb-1">Procedimiento de Elaboración</span>
                                     </div>
                                     <div className="bg-black/20 p-6 rounded-2xl border border-white/5 text-[14px] font-normal leading-relaxed text-slate-300 whitespace-pre-line min-h-[200px] max-h-[350px] overflow-y-auto custom-scrollbar">
                                         {receta?.instrucciones || "No se han cargado instrucciones técnicas."}
@@ -749,13 +749,13 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                                 {/* PIE DE FICHA SÓLIDO */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 mt-4 border-t border-white/5">
                                     <div className="bg-white/5 p-4 rounded-xl text-[11px] text-slate-400 font-medium">
-                                        <span className="text-[9px] font-bold text-[#106EBE] uppercase block mb-1">Observaciones:</span>
+                                        <span className="text-[9px] font-medium text-[#106EBE] uppercase block mb-1">Observaciones:</span>
                                         {receta?.ficha?.observations || "Sin notas técnicas adicionales."}
                                     </div>
                                     <div className="bg-black/20 p-4 rounded-xl flex items-center justify-between">
                                         <div>
-                                            <span className="text-[9px] font-bold text-slate-500 uppercase block mb-1">Autorizado por:</span>
-                                            <span className="text-[11px] font-black text-white uppercase">{receta?.ficha?.prepared_by || currentProd?.chef?.nombre}</span>
+                                            <span className="text-[9px] font-medium text-slate-500 uppercase block mb-1">Autorizado por:</span>
+                                            <span className="text-[11px] font-semibold text-white uppercase">{receta?.ficha?.prepared_by || currentProd?.chef?.nombre}</span>
                                         </div>
                                         <div className="text-[10px] font-mono text-slate-600">ID: {currentProd?.instanceId?.slice(0,8) || '---'}</div>
                                     </div>
@@ -766,10 +766,10 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
 
                         {/* BITÁCORA DE EVENTOS (PLANA) */}
                         <div className="bg-[#141922] rounded-2xl p-4 border border-white/5">
-                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-4">Registro de Jornada</span>
+                            <span className="text-[10px] font-medium text-slate-500 uppercase tracking-widest block mb-4">Registro de Jornada</span>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2 max-h-[60px] overflow-y-auto custom-scrollbar">
                                 {currentProd?.logs?.map((log, i) => (
-                                    <div key={i} className="flex items-center gap-3 text-[10px] font-bold text-slate-400">
+                                    <div key={i} className="flex items-center gap-3 text-[10px] font-medium text-slate-400">
                                         <span className="text-slate-600 font-mono">[{log.time}]</span>
                                         <span className="truncate">{log.msg}</span>
                                     </div>
@@ -792,13 +792,13 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                     <div className="w-9 h-9 bg-[#106EBE] rounded-full flex items-center justify-center p-2 shadow-inner">
                         <Layers className="text-white" size={18} />
                     </div>
-                    <span className="text-[11px] font-black tracking-[0.3em] text-[#106EBE] uppercase">Módulo de Producción</span>
+                    <span className="text-[11px] font-semibold tracking-[0.3em] text-[#106EBE] uppercase">Módulo de Producción</span>
                 </div>
 
                 <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2 text-[#7a8499]">
                         <Clock size={16} />
-                        <span className="text-sm font-black tabular-nums">{currentTime}</span>
+                        <span className="text-sm font-semibold tabular-nums">{currentTime}</span>
                     </div>
                     <button
                         onClick={onExit}
@@ -814,7 +814,7 @@ export const ModuloProduccion: React.FC<ModuloProduccionProps> = ({ sucursalId, 
                     <div className="m-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center justify-between text-[#e24b4a]">
                         <div className="flex items-center gap-3">
                             <AlertCircle size={20} />
-                            <span className="text-xs font-bold uppercase tracking-widest">{error}</span>
+                            <span className="text-xs font-medium uppercase tracking-widest">{error}</span>
                         </div>
                         <button onClick={() => setError(null)} className="hover:text-white"><X size={18} /></button>
                     </div>

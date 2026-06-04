@@ -91,7 +91,7 @@ const SmartPriceInput = ({ value, onChange, className = "" }: any) => {
             <input
                 ref={inputRef}
                 type="text"
-                className="w-full h-5 text-[11px] font-bold outline-none bg-transparent text-center text-slate-900 selection:bg-[#3399ff] selection:text-white"
+                className="w-full h-5 text-[11px] font-medium outline-none bg-transparent text-center text-slate-900 selection:bg-[#3399ff] selection:text-white"
                 value={displayValue}
                 onChange={handleChange}
                 onFocus={(e) => {
@@ -245,7 +245,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                     <div className="bg-white border border-[#106ebe] w-[750px]  flex flex-col font-sans animate-in zoom-in-95 duration-100">
                         {/* Windows Title Bar */}
                         <div className="modal-header bg-[#106ebe] h-[34px] flex justify-between items-center pl-3 pr-1 shrink-0 cursor-move active:cursor-grabbing">
-                            <span className="text-white text-[12px] font-bold tracking-wide">Mantenimiento de Productos</span>
+                            <span className="text-white text-[12px] font-medium tracking-wide">Mantenimiento de Productos</span>
                             <div className="flex items-center gap-1">
                                 <WindowsSaveButton 
                                     onClick={handleSave} 
@@ -267,7 +267,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                         <div className="p-3 gap-3 flex flex-col">
                             {/* Datos de Producto Section */}
                             <div className="flex flex-col gap-1">
-                                <span className="text-[#106ebe] text-[13px] font-bold font-[Arial]">Datos de Producto</span>
+                                <span className="text-[#106ebe] text-[13px] font-medium font-[Arial]">Datos de Producto</span>
                                 <div className="flex flex-col gap-2">
                                     <div className="grid grid-cols-[165px_1fr] items-center gap-2 pr-8">
                                         <label className="text-[11px] text-[#202020] font-[Arial]">Código</label>
@@ -350,7 +350,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                 }
                                             }}
                                             onFocus={(e) => setTimeout(() => e.target.select(), 0)}
-                                            className="h-6 border border-gray-400 px-2 text-[11px] text-center outline-none focus:border-blue-500 font-bold selection:bg-[#3399ff] selection:text-white text-black" 
+                                            className="h-6 border border-gray-400 px-2 text-[11px] text-center outline-none focus:border-blue-500 font-medium selection:bg-[#3399ff] selection:text-white text-black" 
                                         />
                                         <label className="text-[11px] text-[#202020] font-[Arial] pl-2">Precio Costo</label>
                                         <SmartPriceInput 
@@ -388,18 +388,18 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
 
                             {/* Configuración Section */}
                             <div className="flex flex-col mt-2 gap-1 mb-1">
-                                <span className="text-[#106ebe] text-[13px] font-bold font-[Arial]">Configuración</span>
+                                <span className="text-[#106ebe] text-[13px] font-medium font-[Arial]">Configuración</span>
                                 <div className="bg-white border-t border-gray-200 flex flex-col gap-0 relative pt-5">
                                     {/* Sub-tabs header superimposed on top padding */}
                                     <div className="absolute top-0 left-0 right-0 h-[24px] flex z-10">
                                         <button 
-                                            className={`px-4 text-[11px] font-[Arial] border border-gray-300 rounded-t-sm transition-all overflow-hidden ${activeTab === 'sucursales' ? 'bg-white font-bold text-black border-b-white border-t-white relative z-20 mt-[-1px] h-[26px]' : 'bg-[#e4e4e4] text-gray-700 hover:bg-[#d4d4d4] border-b-gray-300 mt-[1px] h-[23px]'}`} 
+                                            className={`px-4 text-[11px] font-[Arial] border border-gray-300 rounded-t-sm transition-all overflow-hidden ${activeTab === 'sucursales' ? 'bg-white font-medium text-black border-b-white border-t-white relative z-20 mt-[-1px] h-[26px]' : 'bg-[#e4e4e4] text-gray-700 hover:bg-[#d4d4d4] border-b-gray-300 mt-[1px] h-[23px]'}`} 
                                             onClick={() => setActiveTab('sucursales')}
                                         >
                                             Sucursales
                                         </button>
                                         <button 
-                                            className={`px-4 text-[11px] font-[Arial] border border-gray-300 border-l-0 rounded-t-sm transition-all overflow-hidden ${activeTab === 'receta' ? 'bg-white font-bold text-black border-b-white border-t-white border-l border-l-gray-300 relative z-20 mt-[-1px] h-[26px]' : 'bg-[#e4e4e4] text-gray-700 hover:bg-[#d4d4d4] border-b-gray-300 mt-[1px] h-[23px]'}`} 
+                                            className={`px-4 text-[11px] font-[Arial] border border-gray-300 border-l-0 rounded-t-sm transition-all overflow-hidden ${activeTab === 'receta' ? 'bg-white font-medium text-black border-b-white border-t-white border-l border-l-gray-300 relative z-20 mt-[-1px] h-[26px]' : 'bg-[#e4e4e4] text-gray-700 hover:bg-[#d4d4d4] border-b-gray-300 mt-[1px] h-[23px]'}`} 
                                             onClick={() => setActiveTab('receta')}
                                         >
                                             Receta
@@ -439,7 +439,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                                                     handleUpdateBranchQuantity(b.id, raw);
                                                                                 }
                                                                             }}
-                                                                            className="w-full text-center px-1 text-[11px] font-bold font-[Arial] h-6 bg-transparent outline-none focus:bg-white focus:border focus:border-blue-400"
+                                                                            className="w-full text-center px-1 text-[11px] font-medium font-[Arial] h-6 bg-transparent outline-none focus:bg-white focus:border focus:border-blue-400"
                                                                         />
                                                                     </td>
                                                                     <td className="px-1 border-r border-gray-200">
@@ -452,7 +452,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                                                     handleUpdateBranchReorder(b.id, raw);
                                                                                 }
                                                                             }}
-                                                                            className="w-full text-center px-1 text-[11px] font-bold font-[Arial] h-6 bg-transparent outline-none focus:bg-white focus:border focus:border-blue-400"
+                                                                            className="w-full text-center px-1 text-[11px] font-medium font-[Arial] h-6 bg-transparent outline-none focus:bg-white focus:border focus:border-blue-400"
                                                                         />
                                                                     </td>
                                                                     <td className="px-2 py-0.5 border-r border-gray-200 text-center">
@@ -500,11 +500,11 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                                     <div className="flex items-center justify-between py-1">
                                                                         <div className="flex items-center gap-2">
                                                                             <BookOpen size={13} className="text-[#106ebe]" />
-                                                                            <span className="text-[10px] font-bold text-slate-700 uppercase">Insumos de Receta</span>
+                                                                            <span className="text-[10px] font-medium text-slate-700 uppercase">Insumos de Receta</span>
                                                                         </div>
                                                                         <button 
                                                                             onClick={() => setShowFichaModal(true)}
-                                                                            className="bg-white border border-gray-400 text-slate-700 px-3 h-5 text-[9px] font-bold uppercase tracking-tight flex items-center gap-2 rounded-sm  hover:bg-gray-50"
+                                                                            className="bg-white border border-gray-400 text-slate-700 px-3 h-5 text-[9px] font-medium uppercase tracking-tight flex items-center gap-2 rounded-sm  hover:bg-gray-50"
                                                                         >
                                                                             <FileText size={12} className="text-[#106ebe]" /> Ficha Técnica Pro
                                                                         </button>
@@ -609,13 +609,13 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                                                     setRecipeItems && setRecipeItems(newItems);
                                                                                 }
                                                                             }}
-                                                                            className="w-full text-center px-1 text-[11px] font-bold font-[Arial] h-6 bg-transparent outline-none focus:bg-white focus:border focus:border-blue-400"
+                                                                            className="w-full text-center px-1 text-[11px] font-medium font-[Arial] h-6 bg-transparent outline-none focus:bg-white focus:border focus:border-blue-400"
                                                                         />
                                                                     </td>
                                                                     <td className="px-2 py-1 border-r border-gray-200 text-center text-[10px] text-[#202020] font-[Arial] uppercase">
                                                                         {ri.unit_measure || ri.inventory_items?.unit_measure || 'UNI'}
                                                                     </td>
-                                                                    <td className="px-2 py-1 border-r border-gray-200 text-right text-[11px] text-[#106ebe] font-black font-[Arial] tabular-nums">
+                                                                    <td className="px-2 py-1 border-r border-gray-200 text-right text-[11px] text-[#106ebe] font-semibold font-[Arial] tabular-nums">
                                                                         {lineCost.toFixed(2)}
                                                                     </td>
                                                                     <td className="px-2 py-1 text-center invisible w-0 p-0 overflow-hidden">
@@ -625,9 +625,9 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                             );
                                                             }) : (
                                                                 <tr>
-                                                                    <td colSpan={5} className="py-10 text-center text-[11px] text-gray-400 font-bold uppercase select-none">
+                                                                    <td colSpan={5} className="py-10 text-center text-[11px] text-gray-400 font-medium uppercase select-none">
                                                                         No hay insumos agregados a esta receta.
-                                                                        <div className="text-[9px] mt-1 opacity-60 font-black tracking-widest">[ CLIC DERECHO PARA AGREGAR ]</div>
+                                                                        <div className="text-[9px] mt-1 opacity-60 font-semibold tracking-widest">[ CLIC DERECHO PARA AGREGAR ]</div>
                                                                     </td>
                                                                 </tr>
                                                             )}
@@ -636,8 +636,8 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                 </div>
                                                 {/* Total fijo al fondo */}
                                                 <div className="bg-[#f5f5f5] border-t-2 border-gray-400 h-[26px] flex items-center justify-end px-2 select-none ">
-                                                    <span className="text-[10px] font-black uppercase text-gray-600 mr-4">Total Receta Estimado:</span>
-                                                    <span className="text-[12px] font-black text-[#106ebe] min-w-[120px] text-right">
+                                                    <span className="text-[10px] font-semibold uppercase text-gray-600 mr-4">Total Receta Estimado:</span>
+                                                    <span className="text-[12px] font-semibold text-[#106ebe] min-w-[120px] text-right">
                                                         Q {totalReceta.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                     </span>
                                                 </div>
@@ -657,12 +657,12 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                         <div className="bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 modal-header cursor-move ">
                                             <div className="flex items-center gap-2">
                                                 <ChefHat size={14} className="text-white" />
-                                                <span className="text-[11px] font-bold uppercase tracking-tight">Ficha Técnica: {newProduct.name || 'NUEVA'}</span>
+                                                <span className="text-[11px] font-medium uppercase tracking-tight">Ficha Técnica: {newProduct.name || 'NUEVA'}</span>
                                             </div>
                                             <div className="flex items-center h-full">
                                                 <button
                                                     onClick={() => window.print()}
-                                                    className="h-full px-4 flex items-center gap-2 hover:bg-white/10 text-white border-r border-white/10 text-[9px] font-bold uppercase"
+                                                    className="h-full px-4 flex items-center gap-2 hover:bg-white/10 text-white border-r border-white/10 text-[9px] font-medium uppercase"
                                                 >
                                                     <Printer size={14} /> IMPRIMIR
                                                 </button>
@@ -680,69 +680,69 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                 <div className="grid grid-cols-12 gap-6">
                                                     <div className="col-span-12 grid grid-cols-3 gap-4">
                                                         <div className="flex flex-col gap-1">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Clasificación</label>
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Clasificación</label>
                                                             <input
                                                                 type="text"
                                                                 value={newProduct.classification || ''}
                                                                 onChange={(e) => setNewProduct({ ...newProduct, classification: e.target.value.toUpperCase() })}
-                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
+                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-medium text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
                                                                 placeholder="EJ. PRODUCTO TERMINADO"
                                                             />
                                                         </div>
                                                         <div className="flex flex-col gap-1">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">No. de Receta</label>
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">No. de Receta</label>
                                                             <input
                                                                 type="text"
                                                                 value={newProduct.recipe_no || ''}
                                                                 onChange={(e) => setNewProduct({ ...newProduct, recipe_no: e.target.value.toUpperCase() })}
-                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
+                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-medium text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
                                                                 placeholder="R-001"
                                                             />
                                                         </div>
                                                         <div className="flex flex-col gap-1">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Porciones</label>
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Porciones</label>
                                                             <input
                                                                 type="text"
                                                                 value={newProduct.portions || '1'}
                                                                 onChange={(e) => setNewProduct({ ...newProduct, portions: e.target.value })}
-                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all text-center"
+                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-medium text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all text-center"
                                                             />
                                                         </div>
                                                         <div className="flex flex-col gap-1">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tamaño Porción</label>
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Tamaño Porción</label>
                                                             <input
                                                                 type="text"
                                                                 value={newProduct.portion_size || ''}
                                                                 onChange={(e) => setNewProduct({ ...newProduct, portion_size: e.target.value.toUpperCase() })}
-                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
+                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-medium text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
                                                             />
                                                         </div>
                                                         <div className="flex flex-col gap-1">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Temp. Servicio</label>
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Temp. Servicio</label>
                                                             <input
                                                                 type="text"
                                                                 value={newProduct.serving_temp || ''}
                                                                 onChange={(e) => setNewProduct({ ...newProduct, serving_temp: e.target.value.toUpperCase() })}
-                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
+                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-medium text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
                                                             />
                                                         </div>
                                                         <div className="flex flex-col gap-1">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tiempo Elab.</label>
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Tiempo Elab.</label>
                                                             <input
                                                                 type="text"
                                                                 value={newProduct.prep_time || ''}
                                                                 onChange={(e) => setNewProduct({ ...newProduct, prep_time: e.target.value })}
-                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
+                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-medium text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
                                                                 placeholder="15 MIN"
                                                             />
                                                         </div>
                                                         <div className="flex flex-col gap-1 col-span-3">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-left">Elaborado Por</label>
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest text-left">Elaborado Por</label>
                                                             <input 
                                                                 type="text" 
                                                                 value={newProduct.prepared_by || ''}
                                                                 onChange={e => setNewProduct({...newProduct, prepared_by: e.target.value.toUpperCase()})}
-                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase" 
+                                                                className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-medium text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase" 
                                                             />
                                                         </div>
                                                     </div>
@@ -753,12 +753,12 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                     <div className="flex justify-between items-center border-b-2 border-[#106ebe]/10 pb-2">
                                                         <div className="flex items-center gap-2">
                                                             <Layers size={16} className="text-[#106ebe]" />
-                                                            <h4 className="text-[12px] font-black text-slate-700 uppercase tracking-wider">Procedimientos de Preparación</h4>
+                                                            <h4 className="text-[12px] font-semibold text-slate-700 uppercase tracking-wider">Procedimientos de Preparación</h4>
                                                         </div>
                                                         <button
                                                             onClick={() => handleImproveText('prep_procedure')}
                                                             disabled={isImproving}
-                                                            className="flex items-center gap-2 px-4 py-1.5 bg-[#f0f9ff] text-[#106ebe] border border-blue-200 rounded-full text-[10px] font-black uppercase hover:bg-[#106ebe] hover:text-white transition-all disabled:opacity-50 "
+                                                            className="flex items-center gap-2 px-4 py-1.5 bg-[#f0f9ff] text-[#106ebe] border border-blue-200 rounded-full text-[10px] font-semibold uppercase hover:bg-[#106ebe] hover:text-white transition-all disabled:opacity-50 "
                                                         >
                                                             {isImproving ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />} IA
                                                         </button>
@@ -766,20 +766,20 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                                     <textarea
                                                         value={newProduct.prep_procedure || ''}
                                                         onChange={(e) => setNewProduct({ ...newProduct, prep_procedure: e.target.value.toUpperCase() })}
-                                                        className="w-full h-[200px] p-6 text-[12px] leading-relaxed font-bold text-slate-700 bg-slate-50 border border-slate-200 outline-none focus:border-[#106ebe] focus: transition-all rounded-xl uppercase custom-scrollbar"
+                                                        className="w-full h-[200px] p-6 text-[12px] leading-relaxed font-medium text-slate-700 bg-slate-50 border border-slate-200 outline-none focus:border-[#106ebe] focus: transition-all rounded-xl uppercase custom-scrollbar"
                                                         placeholder="DESCRIPCIÓN DE PASOS..."
                                                     />
                                                 </div>
 
                                                 {/* Observations */}
                                                 <div className="flex flex-col gap-3">
-                                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                                    <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                                         <AlertCircle size={12} /> Observaciones y Notas Técnicas
                                                     </label>
                                                     <textarea
                                                         value={newProduct.observations || ''}
                                                         onChange={(e) => setNewProduct({ ...newProduct, observations: e.target.value.toUpperCase() })}
-                                                        className="w-full h-[80px] p-4 text-[11px] font-bold text-slate-600 bg-amber-50/30 border border-amber-100 outline-none focus:border-amber-400 rounded-lg uppercase custom-scrollbar"
+                                                        className="w-full h-[80px] p-4 text-[11px] font-medium text-slate-600 bg-amber-50/30 border border-amber-100 outline-none focus:border-amber-400 rounded-lg uppercase custom-scrollbar"
                                                         placeholder="NOTAS ADICIONALES..."
                                                     />
                                                 </div>
@@ -791,7 +791,7 @@ export const ProductoModal: React.FC<ProductoModalProps> = ({
                                             <div className="flex items-center gap-3">
                                                 <button
                                                     onClick={() => setShowFichaModal(false)}
-                                                    className="px-12 py-3 bg-[#106ebe] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#002244] transition-all  active:scale-95 flex items-center gap-3"
+                                                    className="px-12 py-3 bg-[#106ebe] text-white text-[11px] font-semibold uppercase tracking-widest hover:bg-[#002244] transition-all  active:scale-95 flex items-center gap-3"
                                                 >
                                                     <Save size={16} /> Guardar Ficha
                                                 </button>

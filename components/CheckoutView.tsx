@@ -1081,18 +1081,18 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     <button onClick={onBack} className="p-2.5 bg-white/5 rounded-xl transition-all">
                         <ChevronLeft size={24} />
                     </button>
-                    <span className="text-sm font-black tracking-widest uppercase text-gray-400">RESTAURANTE LAS PALMAS POS</span>
+                    <span className="text-sm font-semibold tracking-widest uppercase text-gray-400">RESTAURANTE LAS PALMAS POS</span>
                 </div>
                 <div className="flex items-center gap-6">
                     {/* Clock & Date */}
                     <div className="hidden md:flex flex-col items-center leading-none bg-black/40 px-3 py-1.5 rounded-2xl border border-white/5 ">
-                        <span className="text-[13px] font-black tracking-widest text-white/40 tabular-nums">{timeDisplay}</span>
-                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter mt-0.5">{dateDisplay}</span>
+                        <span className="text-[13px] font-semibold tracking-widest text-white/40 tabular-nums">{timeDisplay}</span>
+                        <span className="text-[9px] font-medium text-gray-500 uppercase tracking-tighter mt-0.5">{dateDisplay}</span>
                     </div>
 
                     <div className="flex flex-col items-end">
-                        <span className="text-sm font-bold text-gray-200">{currentUser?.name}</span>
-                        <span className="text-[10px] text-white/40 font-black uppercase tracking-widest">Cobrar Cuenta</span>
+                        <span className="text-sm font-medium text-gray-200">{currentUser?.name}</span>
+                        <span className="text-[10px] text-white/40 font-semibold uppercase tracking-widest">Cobrar Cuenta</span>
                     </div>
                 </div>
 
@@ -1103,23 +1103,23 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 {/* LEFT PANEL: TOTALS & SUMMARY */}
                 <div className="w-[300px] flex flex-col gap-4">
                     <div className="bg-[#1e212b] p-6 flex flex-col gap-3 border border-white/5 ">
-                        <div className="flex justify-between text-gray-400 text-sm font-black uppercase leading-tight">
+                        <div className="flex justify-between text-gray-400 text-sm font-semibold uppercase leading-tight">
                             <span>SUB-TOTAL</span>
                             <span>{currency}{subtotal.toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between text-gray-400 text-sm font-black uppercase leading-tight">
+                        <div className="flex justify-between text-gray-400 text-sm font-semibold uppercase leading-tight">
                             <span>DESCUENTO</span>
                             <span className={discount > 0 ? "text-white" : ""}>{currency}{discount.toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between text-gray-400 text-sm font-black uppercase leading-tight">
+                        <div className="flex justify-between text-gray-400 text-sm font-semibold uppercase leading-tight">
                             <div className="flex flex-col">
                                 <span>PROPINA</span>
-                                {tipMethod && <span className="text-[10px] text-white/40 font-black tracking-widest leading-none">Vía {tipMethod}</span>}
+                                {tipMethod && <span className="text-[10px] text-white/40 font-semibold tracking-widest leading-none">Vía {tipMethod}</span>}
                             </div>
                             <span>{currency}{currentTip.toFixed(2)}</span>
                         </div>
                         <div className="h-px bg-white/10 my-1"></div>
-                        <div className="flex justify-between text-white text-sm font-black uppercase leading-tight">
+                        <div className="flex justify-between text-white text-sm font-semibold uppercase leading-tight">
                             <span>TOTAL</span>
                             <span>{currency}{total.toFixed(2)}</span>
                         </div>
@@ -1129,7 +1129,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                 const methodPayments = payments.filter(p => p.method === method);
                                 const mAmount = methodPayments.reduce((acc, p) => acc + p.amount, 0);
                                 return (
-                                    <div key={method} className="flex justify-between text-white text-xs font-bold uppercase tracking-wider">
+                                    <div key={method} className="flex justify-between text-white text-xs font-medium uppercase tracking-wider">
                                         <span>{method}</span>
                                         <span>{currency}{mAmount.toFixed(2)}</span>
                                     </div>
@@ -1139,17 +1139,17 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
 
                         <div className="h-px bg-white/10 my-3"></div>
 
-                        <div className="flex justify-between text-white text-sm font-black uppercase leading-tight">
+                        <div className="flex justify-between text-white text-sm font-semibold uppercase leading-tight">
                             <span>PAGADO</span>
                             <span>{currency}{totalPaid.toFixed(2)}</span>
                         </div>
 
                         <div className="mt-4 flex flex-col gap-1.5">
-                            <div className="flex justify-between text-white text-sm font-black uppercase leading-tight tracking-tighter">
+                            <div className="flex justify-between text-white text-sm font-semibold uppercase leading-tight tracking-tighter">
                                 <span>RESTANTE</span>
                                 <span>{currency}{Math.max(0, balance).toFixed(2)}</span>
                             </div>
-                            <div className="flex justify-between text-white text-sm font-black uppercase leading-tight tracking-tighter">
+                            <div className="flex justify-between text-white text-sm font-semibold uppercase leading-tight tracking-tighter">
                                 <span>CAMBIO</span>
                                 <span>{currency}{change.toFixed(2)}</span>
                             </div>
@@ -1159,7 +1159,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     {!existingInvoice && !invoiceSuccess && (
                         <button
                             onClick={handleAnticipatedInvoice}
-                            className="w-full py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-95 flex items-center justify-center gap-3  group"
+                            className="w-full py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-semibold uppercase tracking-[0.2em] text-[11px] transition-all active:scale-95 flex items-center justify-center gap-3  group"
                         >
                             <FileText size={22} className="group-hover:scale-110 transition-transform" /> Factura Anticipada
                         </button>
@@ -1170,7 +1170,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 <div className="flex-1 h-[430px] self-start bg-[#1e212b] border border-white/5  overflow-hidden flex flex-col relative">
                     <div className="flex-1 overflow-y-auto p-6 space-y-2">
                         {payments.length === 0 ? (
-                            <div className="h-full flex items-center justify-center text-white/20 font-black uppercase tracking-widest text-sm">
+                            <div className="h-full flex items-center justify-center text-white/20 font-semibold uppercase tracking-widest text-sm">
                                 Sin pagos
                             </div>
                         ) : (
@@ -1184,11 +1184,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                         }`}
                                 >
                                     <div className="flex flex-col">
-                                        <span className="text-sm font-bold text-gray-200 capitalize">{p.method.toLowerCase()}</span>
-                                        <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{p.processor || p.customer_name || p.method}</span>
+                                        <span className="text-sm font-medium text-gray-200 capitalize">{p.method.toLowerCase()}</span>
+                                        <span className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">{p.processor || p.customer_name || p.method}</span>
                                     </div>
                                     <div className="flex items-center gap-4">
-                                        <span className="text-sm font-black text-white">{currency}{p.amount.toFixed(2)}</span>
+                                        <span className="text-sm font-semibold text-white">{currency}{p.amount.toFixed(2)}</span>
                                     </div>
                                 </div>
                             ))
@@ -1216,7 +1216,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 <div className="w-[420px] flex flex-col gap-3 shrink-0">
                     <div className="bg-[#1e212b] p-4 border border-white/5  flex flex-col gap-4">
                         {/* AMOUNT DISPLAY */}
-                        <div className="bg-black/40 rounded-2xl h-16 flex items-center justify-center text-3xl font-bold text-white border border-white/20  relative overflow-hidden">
+                        <div className="bg-black/40 rounded-2xl h-16 flex items-center justify-center text-3xl font-medium text-white border border-white/20  relative overflow-hidden">
                             <span className="tabular-nums">
                                 {currency === 'Q.' ? 'Q' : currency}
                                 {parseFloat(amount || '0').toFixed(2)}
@@ -1230,19 +1230,19 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                 {/* Row 1 */}
                                 <button
                                     onClick={() => handleNumberClick('7')}
-                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-medium flex items-center justify-center transition-all text-white border-0 outline-none"
                                 >
                                     7
                                 </button>
                                 <button
                                     onClick={() => handleNumberClick('8')}
-                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-medium flex items-center justify-center transition-all text-white border-0 outline-none"
                                 >
                                     8
                                 </button>
                                 <button
                                     onClick={() => handleNumberClick('9')}
-                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-medium flex items-center justify-center transition-all text-white border-0 outline-none"
                                 >
                                     9
                                 </button>
@@ -1256,19 +1256,19 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                 {/* Row 2 */}
                                 <button
                                     onClick={() => handleNumberClick('4')}
-                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-medium flex items-center justify-center transition-all text-white border-0 outline-none"
                                 >
                                     4
                                 </button>
                                 <button
                                     onClick={() => handleNumberClick('5')}
-                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-medium flex items-center justify-center transition-all text-white border-0 outline-none"
                                 >
                                     5
                                 </button>
                                 <button
                                     onClick={() => handleNumberClick('6')}
-                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-medium flex items-center justify-center transition-all text-white border-0 outline-none"
                                 >
                                     6
                                 </button>
@@ -1283,19 +1283,19 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                 {/* Row 3 */}
                                 <button
                                     onClick={() => handleNumberClick('1')}
-                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-medium flex items-center justify-center transition-all text-white border-0 outline-none"
                                 >
                                     1
                                 </button>
                                 <button
                                     onClick={() => handleNumberClick('2')}
-                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-medium flex items-center justify-center transition-all text-white border-0 outline-none"
                                 >
                                     2
                                 </button>
                                 <button
                                     onClick={() => handleNumberClick('3')}
-                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-medium flex items-center justify-center transition-all text-white border-0 outline-none"
                                 >
                                     3
                                 </button>
@@ -1311,13 +1311,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                 {/* Row 4 */}
                                 <button
                                     onClick={() => handleNumberClick('0')}
-                                    className="col-span-2 w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                    className="col-span-2 w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-medium flex items-center justify-center transition-all text-white border-0 outline-none"
                                 >
                                     0
                                 </button>
                                 <button
                                     onClick={() => handleNumberClick('.')}
-                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-bold flex items-center justify-center transition-all text-white border-0 outline-none"
+                                    className="w-full h-[72px] bg-[#262b36] hover:bg-[#2d3340] active:bg-[#343b4a] text-3xl font-medium flex items-center justify-center transition-all text-white border-0 outline-none"
                                 >
                                     .
                                 </button>
@@ -1375,7 +1375,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     {/* PAGAR BUTTON */}
                     <button
                         onClick={handleFinalize}
-                        className="w-[291px] ml-4 h-12 rounded-none flex items-center justify-center text-lg font-black uppercase tracking-[0.2em] transition-all active:scale-95 bg-blue-600 text-white hover:bg-blue-500"
+                        className="w-[291px] ml-4 h-12 rounded-none flex items-center justify-center text-lg font-semibold uppercase tracking-[0.2em] transition-all active:scale-95 bg-blue-600 text-white hover:bg-blue-500"
                     >
                         {existingInvoice && totalPaid >= total ? 'FINALIZAR' : 'PAGAR'}
                     </button>
@@ -1387,7 +1387,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[120] flex items-center justify-center p-6 animate-in fade-in duration-200">
                     <div className="bg-[#2d2f3d] w-full max-w-2xl rounded-xl  overflow-hidden flex flex-col">
                         <div className="pt-8 pb-6 flex justify-center items-center">
-                            <h3 className="text-sm font-bold text-white uppercase tracking-wider">SELECCIONE POS</h3>
+                            <h3 className="text-sm font-medium text-white uppercase tracking-wider">SELECCIONE POS</h3>
                         </div>
 
                         <div className="px-10 pb-8">
@@ -1407,7 +1407,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                                 </div>
                                             )}
                                         </div>
-                                        <div className={`w-full h-9 flex items-center justify-center text-[11px] font-bold uppercase transition-all ${selectedTerminal?.id === pos.id ? 'bg-[#43465b] text-white' : 'bg-[#353746] text-white/80'}`}>
+                                        <div className={`w-full h-9 flex items-center justify-center text-[11px] font-medium uppercase transition-all ${selectedTerminal?.id === pos.id ? 'bg-[#43465b] text-white' : 'bg-[#353746] text-white/80'}`}>
                                             {pos.name}
                                         </div>
                                     </button>
@@ -1418,14 +1418,14 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                         <div className="pb-8 flex justify-center gap-4">
                             <button
                                 onClick={() => { setShowPosSelector(false); setSelectedTerminal(null); }}
-                                className="px-8 py-2.5 rounded-md border border-white/20 text-white text-xs font-bold uppercase tracking-wide hover:bg-white/5 transition-all active:scale-95 min-w-[120px]"
+                                className="px-8 py-2.5 rounded-md border border-white/20 text-white text-xs font-medium uppercase tracking-wide hover:bg-white/5 transition-all active:scale-95 min-w-[120px]"
                             >
                                 CANCELAR
                             </button>
                             <button
                                 onClick={() => selectedTerminal && handlePosSelect(selectedTerminal)}
                                 disabled={!selectedTerminal}
-                                className={`px-8 py-2.5 rounded-md text-white text-xs font-bold uppercase tracking-wide transition-all active:scale-95 min-w-[120px] ${selectedTerminal ? 'bg-[#7a73ff] hover:bg-[#6861ff] ' : 'bg-[#7a73ff]/50 cursor-not-allowed opacity-70'}`}
+                                className={`px-8 py-2.5 rounded-md text-white text-xs font-medium uppercase tracking-wide transition-all active:scale-95 min-w-[120px] ${selectedTerminal ? 'bg-[#7a73ff] hover:bg-[#6861ff] ' : 'bg-[#7a73ff]/50 cursor-not-allowed opacity-70'}`}
                             >
                                 ACEPTAR
                             </button>
@@ -1489,7 +1489,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 <div className="fixed inset-0 bg-[#0f1115]/80 backdrop-blur-sm z-[100] flex items-center justify-center">
                     <div className="flex flex-col items-center gap-4">
                         <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
-                        <span className="font-black uppercase tracking-widest text-white/40">Procesando...</span>
+                        <span className="font-semibold uppercase tracking-widest text-white/40">Procesando...</span>
                     </div>
                 </div>
             )}

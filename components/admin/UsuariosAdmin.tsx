@@ -262,7 +262,7 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
   return (
     <div ref={containerRef} className="h-full flex flex-col bg-[#fcfdfe] p-4 gap-4 relative select-none">
       {fetchError && (
-        <div className="p-2 bg-red-50 border-b border-red-100 text-red-600 text-[10px] font-bold uppercase">
+        <div className="p-2 bg-red-50 border-b border-red-100 text-red-600 text-[10px] font-medium uppercase">
           {fetchError}
         </div>
       )}
@@ -288,15 +288,15 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
               >
                 <div className="flex justify-between items-start pr-8">
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-bold text-[13px] uppercase tracking-tight">{user.name}</span>
+                    <span className="font-medium text-[13px] uppercase tracking-tight">{user.name}</span>
                     <div className="flex items-center gap-1.5 opacity-70">
-                      <span className="text-[10px] font-black bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded uppercase">
+                      <span className="text-[10px] font-semibold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded uppercase">
                         {user.role}
                       </span>
                       <span className="text-[10px] font-medium">| {user.branch?.name || 'GLOBAL'}</span>
                     </div>
                   </div>
-                  <div className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${user.is_active ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+                  <div className={`px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase ${user.is_active ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
                     {user.is_active ? 'Activo' : 'Inactivo'}
                   </div>
                 </div>
@@ -319,7 +319,7 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
                   <MoreVertical size={18} />
                 </button>
 
-                <div className="mt-2 text-[10px] font-bold opacity-60 flex items-center gap-4">
+                <div className="mt-2 text-[10px] font-medium opacity-60 flex items-center gap-4">
                   <span>USUARIO: {user.username || '---'}</span>
                   {user.fingerprint_data && <span className="text-emerald-500 flex items-center gap-1">HUELA ✓</span>}
                 </div>
@@ -330,12 +330,12 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
           <table className="w-full border-collapse text-[11px] font-sans">
             <thead className="bg-[#e8e8e8] sticky top-0 z-20 select-none">
               <tr className="border-b border-gray-400 h-8">
-                <th className="py-2 px-4 text-left text-black font-bold uppercase text-[10px] border-r border-gray-300 w-[25%]">Nombre</th>
-                <th className="py-2 px-4 text-left text-black font-bold uppercase text-[10px] border-r border-gray-300 w-[15%]">Usuario</th>
-                <th className="py-2 px-4 text-left text-black font-bold uppercase text-[10px] border-r border-gray-300 w-[15%]">Rol</th>
-                <th className="py-2 px-4 text-left text-black font-bold uppercase text-[10px] border-r border-gray-300 w-[20%]">Sucursal</th>
-                <th className="py-2 px-4 text-center text-black font-bold uppercase text-[10px] border-r border-gray-300 w-[12%]">Multi</th>
-                <th className="py-2 px-4 text-center text-black font-bold uppercase text-[10px] w-[13%]">Habilitado</th>
+                <th className="py-2 px-4 text-left text-black font-medium uppercase text-[10px] border-r border-gray-300 w-[25%]">Nombre</th>
+                <th className="py-2 px-4 text-left text-black font-medium uppercase text-[10px] border-r border-gray-300 w-[15%]">Usuario</th>
+                <th className="py-2 px-4 text-left text-black font-medium uppercase text-[10px] border-r border-gray-300 w-[15%]">Rol</th>
+                <th className="py-2 px-4 text-left text-black font-medium uppercase text-[10px] border-r border-gray-300 w-[20%]">Sucursal</th>
+                <th className="py-2 px-4 text-center text-black font-medium uppercase text-[10px] border-r border-gray-300 w-[12%]">Multi</th>
+                <th className="py-2 px-4 text-center text-black font-medium uppercase text-[10px] w-[13%]">Habilitado</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -356,17 +356,17 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
                     : 'text-slate-900 even:bg-slate-50/50'
                     }`}
                 >
-                  <td className="px-4 font-bold flex items-center gap-2 h-6 border-r border-gray-100">
+                  <td className="px-4 font-medium flex items-center gap-2 h-6 border-r border-gray-100">
                     <User size={12} className={selectedUserId === user.id ? 'text-white' : 'text-slate-400'} />
                     <span className="tracking-tight text-[10px]">{user.name || '---'}</span>
                   </td>
-                  <td className="px-4 text-[10px] border-r border-gray-100 font-bold">{user.username || `#${user.id?.slice(0, 8)}`}</td>
+                  <td className="px-4 text-[10px] border-r border-gray-100 font-medium">{user.username || `#${user.id?.slice(0, 8)}`}</td>
                   <td className="px-4 border-r border-gray-100">
-                    <span className={`px-1.5 py-0 rounded-sm text-[8px] font-black uppercase ${selectedUserId === user.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    <span className={`px-1.5 py-0 rounded-sm text-[8px] font-semibold uppercase ${selectedUserId === user.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
                       {user.role_id ? (roles.find(r => r.id === user.role_id)?.name) : user.role}
                     </span>
                   </td>
-                  <td className="px-4 text-[10px] border-r border-gray-100 font-bold">{user.branch?.name || '--- GLOBAL ---'}</td>
+                  <td className="px-4 text-[10px] border-r border-gray-100 font-medium">{user.branch?.name || '--- GLOBAL ---'}</td>
                   <td className="px-4 text-center border-r border-gray-100">
                     <div className="flex justify-center items-center h-full">
                       <div
@@ -395,7 +395,7 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
       </div>
 
       <div className="flex items-center justify-between gap-2 shrink-0">
-        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-2 border-l-4 border-[#106ebe]">
+        <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest pl-2 border-l-4 border-[#106ebe]">
           {filteredUsers.length} Usuarios Registrados
         </span>
       </div>
@@ -408,7 +408,7 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
           {can('Nuevo') && (
           <button
             onClick={() => { setEditingUser(null); setNewUser({ name: '', role: 'MESERO', role_id: '', pin: '', email: '', phone: '', username: '', password: '', branch_id: '', is_active: true, fingerprint_data: null }); setShowModal(true); setContextMenu(null); }}
-            className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+            className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
           >
             <UserPlus size={14} className="text-gray-600 group-hover:text-white" /> Nuevo Usuario
           </button>
@@ -419,7 +419,7 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
               {can('Editar') && (
               <button
                 onClick={() => { handleEdit(contextMenu.user); setContextMenu(null); }}
-                className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
               >
                 <Edit3 size={14} className="text-[#106ebe] group-hover:text-white" /> Editar Registro
               </button>
@@ -427,7 +427,7 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
               {can('Eliminar') && (
               <button
                 onClick={() => { setConfirmDelete(contextMenu.user.id); setContextMenu(null); }}
-                className="w-full text-left px-4 py-2 text-[11px] font-bold text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-3 group transition-colors"
+                className="w-full text-left px-4 py-2 text-[11px] font-medium text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-3 group transition-colors"
               >
                 <Trash2 size={14} className="text-red-500 group-hover:text-white" /> Eliminar Registro
               </button>
@@ -444,7 +444,7 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
             <div className="w-full h-full md:h-auto md:max-w-2xl bg-white md:rounded-sm shadow-2xl overflow-y-auto animate-in zoom-in-95 duration-200 border-0 md:border border-gray-300 pointer-events-auto relative">
               {/* Cabecera del Modal */}
               <div className="bg-[#106ebe] h-8 flex items-center justify-between px-3 shrink-0 modal-header cursor-default select-none modal-header cursor-default select-none">
-                <span className="text-white text-[11px] font-bold uppercase tracking-wider">Mantenimiento de Usuarios</span>
+                <span className="text-white text-[11px] font-medium uppercase tracking-wider">Mantenimiento de Usuarios</span>
                 <div className="flex items-center gap-1">
                   <WindowsSaveButton onClick={handleSave} loading={saving} title="Guardar Usuario" />
                   <button onClick={() => { setShowModal(false); setEditingUser(null); }} title="Cerrar" className="w-6 h-6 flex items-center justify-center bg-red-600 hover:bg-red-700 text-white transition-all">
@@ -456,13 +456,13 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
               <div className="p-0 overflow-y-auto">
                 {/* Sección: Datos de Usuario */}
                 <div className="bg-slate-100/80 px-4 py-1 border-b border-gray-200">
-                  <span className="text-[#106ebe] text-[10px] font-black uppercase tracking-wider">Datos de Usuario</span>
+                  <span className="text-[#106ebe] text-[10px] font-semibold uppercase tracking-wider">Datos de Usuario</span>
                 </div>
 
                 <div className="p-2.5 space-y-1">
                   {/* Nombre */}
                   <div className="flex items-center gap-4">
-                    <label className="text-[10px] font-bold text-gray-600 w-24 shrink-0">Nombre</label>
+                    <label className="text-[10px] font-medium text-gray-600 w-24 shrink-0">Nombre</label>
                     <input
                       autoFocus
                       value={newUser.name}
@@ -475,7 +475,7 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
                   {/* Correo y Teléfono */}
                   <div className="grid grid-cols-2 gap-8">
                     <div className="flex items-center gap-4">
-                      <label className="text-[10px] font-bold text-gray-600 w-24 shrink-0">Correo</label>
+                      <label className="text-[10px] font-medium text-gray-600 w-24 shrink-0">Correo</label>
                       <input
                         value={newUser.email}
                         onChange={e => setNewUser({ ...newUser, email: e.target.value })}
@@ -484,7 +484,7 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
                       />
                     </div>
                     <div className="flex items-center gap-4">
-                      <label className="text-[10px] font-bold text-gray-600 w-16 shrink-0">Teléfono</label>
+                      <label className="text-[10px] font-medium text-gray-600 w-16 shrink-0">Teléfono</label>
                       <input
                         value={newUser.phone}
                         onChange={e => setNewUser({ ...newUser, phone: e.target.value })}
@@ -496,7 +496,7 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
 
                   {/* Sucursal y Estados */}
                   <div className="flex items-center gap-4">
-                    <label className="text-[10px] font-bold text-gray-600 w-24 shrink-0">Sucursal</label>
+                    <label className="text-[10px] font-medium text-gray-600 w-24 shrink-0">Sucursal</label>
                     <select
                       value={newUser.branch_id}
                       onChange={e => setNewUser({ ...newUser, branch_id: e.target.value })}
@@ -508,11 +508,11 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
                     <div className="flex items-center gap-3 shrink-0 ml-2">
                       <div className="flex items-center gap-1.5">
                         <input type="checkbox" checked={newUser.branch_id === null || newUser.branch_id === ''} onChange={e => { }} className="accent-[#106ebe]" id="chk_multisuc" />
-                        <label htmlFor="chk_multisuc" className="text-[10px] font-bold text-gray-600 cursor-pointer">Multi Sucursal</label>
+                        <label htmlFor="chk_multisuc" className="text-[10px] font-medium text-gray-600 cursor-pointer">Multi Sucursal</label>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <input type="checkbox" checked={newUser.is_active} onChange={e => setNewUser({ ...newUser, is_active: e.target.checked })} className="accent-[#106ebe]" id="chk_active" />
-                        <label htmlFor="chk_active" className="text-[10px] font-bold text-gray-600 cursor-pointer">Habilitado</label>
+                        <label htmlFor="chk_active" className="text-[10px] font-medium text-gray-600 cursor-pointer">Habilitado</label>
                       </div>
                     </div>
                   </div>
@@ -520,24 +520,24 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
 
                 {/* Sección: Datos de Acceso */}
                 <div className="bg-slate-100/80 px-4 py-1 border-y border-gray-200">
-                  <span className="text-[#106ebe] text-[10px] font-black uppercase tracking-wider">Datos de Acceso</span>
+                  <span className="text-[#106ebe] text-[10px] font-semibold uppercase tracking-wider">Datos de Acceso</span>
                 </div>
 
                 <div className="p-2.5 space-y-1">
                   {/* Usuario */}
                   <div className="flex items-center gap-4">
-                    <label className="text-[10px] font-bold text-gray-600 w-24 shrink-0">Usuario</label>
+                    <label className="text-[10px] font-medium text-gray-600 w-24 shrink-0">Usuario</label>
                     <input
                       value={newUser.username}
                       onChange={e => setNewUser({ ...newUser, username: e.target.value })}
                       type="text"
-                      className="flex-1 md:w-[300px] border border-gray-300 h-6 px-2 text-[11px] outline-none focus:border-[#106ebe] font-bold"
+                      className="flex-1 md:w-[300px] border border-gray-300 h-6 px-2 text-[11px] outline-none focus:border-[#106ebe] font-medium"
                     />
                   </div>
 
                   {/* Contraseña */}
                   <div className="flex items-center gap-4">
-                    <label className="text-[10px] font-bold text-gray-600 w-24 shrink-0">Contraseña</label>
+                    <label className="text-[10px] font-medium text-gray-600 w-24 shrink-0">Contraseña</label>
                     <input
                       value={newUser.password}
                       onChange={e => setNewUser({ ...newUser, password: e.target.value })}
@@ -548,19 +548,19 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
 
                   {/* PIN */}
                   <div className="flex items-center gap-4">
-                    <label className="text-[10px] font-bold text-gray-600 w-24 shrink-0">PIN</label>
+                    <label className="text-[10px] font-medium text-gray-600 w-24 shrink-0">PIN</label>
                     <input
                       value={newUser.pin}
                       onChange={e => setNewUser({ ...newUser, pin: e.target.value })}
                       type="text"
                       maxLength={4}
-                      className="flex-1 md:w-[300px] border border-gray-300 h-6 px-2 text-[11px] outline-none focus:border-[#106ebe] font-bold tracking-[4px]"
+                      className="flex-1 md:w-[300px] border border-gray-300 h-6 px-2 text-[11px] outline-none focus:border-[#106ebe] font-medium tracking-[4px]"
                     />
                   </div>
 
                   {/* Rol */}
                   <div className="flex items-center gap-4">
-                    <label className="text-[10px] font-bold text-gray-600 w-24 shrink-0">Rol de Usuario</label>
+                    <label className="text-[10px] font-medium text-gray-600 w-24 shrink-0">Rol de Usuario</label>
                     <select
                       value={newUser.role_id || newUser.role}
                       onChange={e => { const val = e.target.value; const isDynamic = roles.find(r => r.id === val); if (isDynamic) setNewUser({ ...newUser, role_id: val, role: isDynamic.name }); else setNewUser({ ...newUser, role: val, role_id: '' }); }}
@@ -573,15 +573,15 @@ export const UsuariosAdmin: React.FC<UsuariosAdminProps> = ({ globalSearch = '' 
 
                   {/* Fingerprint Footer Area */}
                   <div className="flex items-center gap-4 pt-1">
-                    <span className={`text-[10px] font-bold ${newUser.fingerprint_data ? 'text-green-600' : 'text-red-500'}`}>
+                    <span className={`text-[10px] font-medium ${newUser.fingerprint_data ? 'text-green-600' : 'text-red-500'}`}>
                       {newUser.fingerprint_data ? `Huella Registrada` : 'Sin huella registrada...'}
                     </span>
                     <div className="flex gap-2">
-                      <button onClick={() => setConfirmFingerprint({ type: 'add' })} className="px-3 py-0.5 bg-white border border-gray-300 text-[10px] font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                      <button onClick={() => setConfirmFingerprint({ type: 'add' })} className="px-3 py-0.5 bg-white border border-gray-300 text-[10px] font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                         Agregar Huella
                       </button>
                       {newUser.fingerprint_data && (
-                        <button onClick={() => setConfirmFingerprint({ type: 'remove' })} className="px-3 py-0.5 bg-white border border-gray-300 text-[10px] font-bold text-red-600 hover:bg-red-50">
+                        <button onClick={() => setConfirmFingerprint({ type: 'remove' })} className="px-3 py-0.5 bg-white border border-gray-300 text-[10px] font-medium text-red-600 hover:bg-red-50">
                           Quitar Huella
                         </button>
                       )}

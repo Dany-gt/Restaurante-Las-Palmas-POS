@@ -47,7 +47,7 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
         <div className="fixed inset-0 bg-black/80  z-[110] flex items-center justify-center p-6 animate-in fade-in duration-200">
             <div className="bg-[#2d2f3d] w-full max-w-2xl rounded-xl  /50 overflow-hidden flex flex-col">
                 <div className="pt-8 pb-6 flex justify-center items-center">
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">TIPO DE PAGO</h3>
+                    <h3 className="text-sm font-medium text-white uppercase tracking-wider">TIPO DE PAGO</h3>
                 </div>
 
                 <div className="flex flex-1 px-10 pb-8 gap-8">
@@ -62,7 +62,7 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
                                         : 'bg-[#353746] border-white/5 text-white/80 hover:bg-[#3e4153]'
                                     }`}
                             >
-                                <span className="text-[10px] font-bold tracking-wide leading-tight flex-1 pr-2">
+                                <span className="text-[10px] font-medium tracking-wide leading-tight flex-1 pr-2">
                                     {type.label}
                                 </span>
                                 <div className="text-white/60">
@@ -75,21 +75,21 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
                     {/* RIGHT SIDE: INPUTS */}
                     <div className="flex flex-col gap-4 w-1/2">
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold text-white/80 uppercase tracking-wider">Monto</label>
+                            <label className="text-[10px] font-medium text-white/80 uppercase tracking-wider">Monto</label>
                             <div className="relative flex items-center bg-transparent border border-white/20 rounded-md focus-within:border-white/40 transition-all overflow-hidden">
-                                <span className="pl-3 text-white/60 text-sm font-bold">{currency}</span>
+                                <span className="pl-3 text-white/60 text-sm font-medium">{currency}</span>
                                 <input
                                     type="number"
                                     value={amount}
                                     onChange={e => setAmount(e.target.value)}
-                                    className="w-full bg-transparent py-2 px-3 text-sm font-bold text-white outline-none text-right"
+                                    className="w-full bg-transparent py-2 px-3 text-sm font-medium text-white outline-none text-right"
                                     step="0.01"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold text-white/80 uppercase tracking-wider">Documento No.</label>
+                            <label className="text-[10px] font-medium text-white/80 uppercase tracking-wider">Documento No.</label>
                             <input
                                 type="text"
                                 value={documentNo}
@@ -99,7 +99,7 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
                         </div>
 
                         <div className="space-y-1.5 flex-1 flex flex-col">
-                            <label className="text-[10px] font-bold text-white/80 uppercase tracking-wider">Descripción</label>
+                            <label className="text-[10px] font-medium text-white/80 uppercase tracking-wider">Descripción</label>
                             <textarea
                                 value={description}
                                 onChange={e => setDescription(e.target.value)}
@@ -112,13 +112,13 @@ export const OtherPaymentModal: React.FC<OtherPaymentModalProps> = ({
                 <div className="pb-8 flex justify-center gap-4">
                     <button
                         onClick={onClose}
-                        className="px-8 py-2.5 rounded-md border border-white/20 text-white text-xs font-bold uppercase tracking-wide hover:bg-white/5 transition-all active:scale-95 min-w-[120px]"
+                        className="px-8 py-2.5 rounded-md border border-white/20 text-white text-xs font-medium uppercase tracking-wide hover:bg-white/5 transition-all active:scale-95 min-w-[120px]"
                     >
                         CANCELAR
                     </button>
                     <button
                         onClick={handleConfirm}
-                        className="px-8 py-2.5 rounded-md bg-[#7a73ff] text-white text-xs font-bold uppercase tracking-wide hover:bg-[#6861ff] transition-all  active:scale-95 min-w-[120px]"
+                        className="px-8 py-2.5 rounded-md bg-[#7a73ff] text-white text-xs font-medium uppercase tracking-wide hover:bg-[#6861ff] transition-all  active:scale-95 min-w-[120px]"
                     >
                         ACEPTAR
                     </button>

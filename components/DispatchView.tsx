@@ -66,7 +66,7 @@ const DeliveryTimer = ({ startTime }: { startTime: string }) => {
         return () => clearInterval(interval);
     }, [startTime]);
 
-    return <span className="text-sm font-black font-mono text-white">{elapsed}</span>;
+    return <span className="text-sm font-semibold font-mono text-white">{elapsed}</span>;
 };
 
 const DriverLocationModal = ({ driver, onClose }: { driver: Driver, onClose: () => void }) => {
@@ -115,8 +115,8 @@ const DriverLocationModal = ({ driver, onClose }: { driver: Driver, onClose: () 
             <div className="w-full max-w-2xl bg-[#1e232f] rounded-[2rem] border border-white/10  overflow-hidden flex flex-col">
                 <div className="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-black/20">
                     <div>
-                        <h3 className="text-lg font-black uppercase text-white tracking-tight">Ubicación en Tiempo Real</h3>
-                        <p className="text-[10px] uppercase tracking-widest text-indigo-400 font-bold">{driver.name}</p>
+                        <h3 className="text-lg font-semibold uppercase text-white tracking-tight">Ubicación en Tiempo Real</h3>
+                        <p className="text-[10px] uppercase tracking-widest text-indigo-400 font-medium">{driver.name}</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-xl transition-colors text-white"><X size={20} /></button>
                 </div>
@@ -127,14 +127,14 @@ const DriverLocationModal = ({ driver, onClose }: { driver: Driver, onClose: () 
                             <div className="w-20 h-20 bg-[#4285F4]/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
                                 <MapPin size={40} className="text-[#4285F4]" />
                             </div>
-                            <h4 className="text-white font-black uppercase tracking-wider text-lg mb-2">Ubicación por Google Maps</h4>
+                            <h4 className="text-white font-semibold uppercase tracking-wider text-lg mb-2">Ubicación por Google Maps</h4>
                             <p className="text-gray-400 text-xs mb-8 max-w-xs mx-auto">Este motorista comparte su ubicación mediante enlace directo.</p>
 
                             <a
                                 href={driver.google_location_link}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-8 py-4 bg-[#4285F4] hover:bg-[#3367D6] text-white rounded-2xl font-black uppercase tracking-widest text-xs  -900/20 transition-all hover:scale-105 flex items-center justify-center gap-3"
+                                className="px-8 py-4 bg-[#4285F4] hover:bg-[#3367D6] text-white rounded-2xl font-semibold uppercase tracking-widest text-xs  -900/20 transition-all hover:scale-105 flex items-center justify-center gap-3"
                             >
                                 <MapPin size={18} /> Ver Ubicación en Tiempo Real
                             </a>
@@ -154,7 +154,7 @@ const DriverLocationModal = ({ driver, onClose }: { driver: Driver, onClose: () 
                             <div className="absolute bottom-4 left-4 bg-[#1e232f] p-3 rounded-xl border border-white/10  max-w-xs">
                                 <div className="flex items-center gap-2 mb-1">
                                     <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Señal Recibida</span>
+                                    <span className="text-[10px] font-medium text-emerald-400 uppercase tracking-widest">Señal Recibida</span>
                                 </div>
                                 <p className="text-[10px] text-gray-400">Hace {Math.floor((new Date().getTime() - new Date(location.updated_at).getTime()) / 1000 / 60)} min</p>
                             </div>
@@ -164,7 +164,7 @@ const DriverLocationModal = ({ driver, onClose }: { driver: Driver, onClose: () 
                             <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <MapPin size={32} className="text-gray-600" />
                             </div>
-                            <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">Ubicación no disponible</p>
+                            <p className="text-gray-400 font-medium uppercase tracking-widest text-sm">Ubicación no disponible</p>
                             <p className="text-gray-600 text-[10px] mt-2 max-w-xs mx-auto">El motorista no ha iniciado sesión en el rastreador o no tiene señal GPS.</p>
                         </div>
                     )}
@@ -176,7 +176,7 @@ const DriverLocationModal = ({ driver, onClose }: { driver: Driver, onClose: () 
                             href={`https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px]  flex items-center gap-2"
+                            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold uppercase tracking-widest text-[10px]  flex items-center gap-2"
                         >
                             <MapPin size={14} /> Abrir en Google Maps Externo
                         </a>
@@ -505,10 +505,10 @@ export const DispatchView: React.FC<{
                         {type === 'DELIVERY' ? <ScooterIcon size={20} /> : <Package size={20} strokeWidth={2.5} />}
                     </div>
                     <div>
-                        <h2 className="text-base font-black tracking-tight uppercase text-white leading-none">
+                        <h2 className="text-base font-semibold tracking-tight uppercase text-white leading-none">
                             {type === 'DELIVERY' ? 'Domicilio' : 'Para Llevar'}
                         </h2>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-0.5">Gestión de Despacho</p>
+                        <p className="text-[9px] font-medium uppercase tracking-widest text-gray-500 mt-0.5">Gestión de Despacho</p>
                     </div>
                 </div>
 
@@ -521,7 +521,7 @@ export const DispatchView: React.FC<{
                             placeholder="Buscar por cliente o teléfono..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-black/20 border border-white/5 rounded-xl py-2 pl-10 pr-4 text-[11px] font-bold text-white focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-gray-600"
+                            className="w-full bg-black/20 border border-white/5 rounded-xl py-2 pl-10 pr-4 text-[11px] font-medium text-white focus:outline-none focus:border-indigo-500/30 transition-all placeholder:text-gray-600"
                         />
                     </div>
                 </div>
@@ -530,8 +530,8 @@ export const DispatchView: React.FC<{
 
                     {/* Clock & Date Header Right */}
                     <div className="hidden md:flex flex-col items-end leading-none bg-black/40 px-3 py-1.5 rounded-2xl border border-white/5 ">
-                        <span className="text-[13px] font-black tracking-widest text-indigo-400 tabular-nums">{timeDisplay}</span>
-                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter mt-0.5">{dateDisplay}</span>
+                        <span className="text-[13px] font-semibold tracking-widest text-indigo-400 tabular-nums">{timeDisplay}</span>
+                        <span className="text-[9px] font-medium text-gray-500 uppercase tracking-tighter mt-0.5">{dateDisplay}</span>
                     </div>
                 </div>
 
@@ -540,7 +540,7 @@ export const DispatchView: React.FC<{
             {error && (
                 <div className="mx-8 mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-200 flex items-center gap-3 animate-fade-in">
                     <Info size={20} />
-                    <p className="text-sm font-bold">{error}</p>
+                    <p className="text-sm font-medium">{error}</p>
                 </div>
             )}
 
@@ -597,11 +597,11 @@ export const DispatchView: React.FC<{
 
                         return (
                             <div key={driverId || 'unassigned'} className="mb-12">
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 mb-8 flex flex-col items-center gap-2">
+                                <h3 className="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/40 mb-8 flex flex-col items-center gap-2">
                                     <div className={`w-2 h-2 rounded-full ${driverId ? 'bg-indigo-500  -500/50' : 'bg-rose-500  -500/50'}`} />
                                     <div className="flex items-center gap-2">
                                         <span className="text-white/60">{driverName}</span>
-                                        <span className="bg-white/5 px-2 py-0.5 rounded text-[8px] border border-white/5 font-bold tracking-normal">{driverOrders.length}</span>
+                                        <span className="bg-white/5 px-2 py-0.5 rounded text-[8px] border border-white/5 font-medium tracking-normal">{driverOrders.length}</span>
                                     </div>
                                 </h3>
                                 <div className="flex flex-wrap justify-center gap-6">
@@ -617,12 +617,12 @@ export const DispatchView: React.FC<{
                                                 <div className="flex justify-between items-start mb-1.5">
                                                     <div className="flex items-center gap-1.5 text-gray-400">
                                                         <Clock size={14} />
-                                                        <span className="text-[12px] font-bold tabular-nums">
+                                                        <span className="text-[12px] font-medium tabular-nums">
                                                             {parseDBDate(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                         </span>
                                                     </div>
                                                     {order.order_number && (
-                                                        <span className="text-[11px] font-black text-indigo-400 px-1 uppercase tracking-widest">
+                                                        <span className="text-[11px] font-semibold text-indigo-400 px-1 uppercase tracking-widest">
                                                             ORDEN {order.order_number}
                                                         </span>
                                                     )}
@@ -630,12 +630,12 @@ export const DispatchView: React.FC<{
 
                                                 <div className="mb-2 px-1">
                                                     <div className="flex justify-between items-baseline gap-2">
-                                                        <h4 className="text-white text-[11px] font-black leading-tight truncate uppercase flex-1">
+                                                        <h4 className="text-white text-[11px] font-semibold leading-tight truncate uppercase flex-1">
                                                             {order.customer_name || 'Cliente'}
                                                         </h4>
                                                         <div className="flex items-center gap-1.5 text-indigo-400 shrink-0">
                                                             <Phone size={12} strokeWidth={3} />
-                                                            <span className="text-[12px] font-mono font-black tracking-tighter tabular-nums">{order.customer_phone || '--- ---'}</span>
+                                                            <span className="text-[12px] font-mono font-semibold tracking-tighter tabular-nums">{order.customer_phone || '--- ---'}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -643,7 +643,7 @@ export const DispatchView: React.FC<{
                                                 {type === 'DELIVERY' && order.delivery_address && (
                                                     <div className="mb-1.5 flex gap-1.5 px-1">
                                                         <MapPin size={10} className="text-rose-500 min-w-[10px] mt-0.5" />
-                                                        <p className="text-[8px] text-gray-400 font-bold leading-snug line-clamp-2">
+                                                        <p className="text-[8px] text-gray-400 font-medium leading-snug line-clamp-2">
                                                             {order.delivery_address}
                                                         </p>
                                                     </div>
@@ -661,18 +661,18 @@ export const DispatchView: React.FC<{
                                                                     const drv = drivers.find(d => d.id === order.driver_id);
                                                                     if (drv) setViewingDriver(drv);
                                                                 }}
-                                                                className="px-2 py-1 text-[7px] font-black text-white/70 hover:text-white uppercase flex items-center gap-1 transition-all"
+                                                                className="px-2 py-1 text-[7px] font-semibold text-white/70 hover:text-white uppercase flex items-center gap-1 transition-all"
                                                             >
                                                                 <MapPin size={8} /> Rastrear
                                                             </button>
                                                         </div>
                                                     )}
                                                     <div className="flex items-center justify-between">
-                                                        <span className={`text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${getStatusStyle(order.status)}`}>
+                                                        <span className={`text-[7px] font-semibold uppercase tracking-widest px-1.5 py-0.5 rounded ${getStatusStyle(order.status)}`}>
                                                             {order.status === 'ready' ? 'Listo' : order.status === 'preparing' ? 'Cocina' : order.status === 'delivering' ? 'En Ruta' : 'Espera'}
                                                         </span>
                                                         <div className="text-right">
-                                                            <p className="text-[11px] font-black text-white mix-blend-plus-lighter">Q{order.total.toFixed(2)}</p>
+                                                            <p className="text-[11px] font-semibold text-white mix-blend-plus-lighter">Q{order.total.toFixed(2)}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -687,7 +687,7 @@ export const DispatchView: React.FC<{
                     {!error && orders.length === 0 && (
                         <div className="h-full flex flex-col items-center justify-center text-gray-600 opacity-20 select-none">
                             {type === 'DELIVERY' ? <Truck size={80} strokeWidth={1} /> : <Package size={80} strokeWidth={1} />}
-                            <p className="mt-4 font-black uppercase tracking-[0.2em] text-sm">No hay pedidos pendientes</p>
+                            <p className="mt-4 font-semibold uppercase tracking-[0.2em] text-sm">No hay pedidos pendientes</p>
                         </div>
                     )}
                 </div>
@@ -700,8 +700,8 @@ export const DispatchView: React.FC<{
                                 <div className="p-6 border-b border-white/5 bg-black/10">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="flex-1">
-                                            <p className="text-[10px] text-indigo-400 font-black uppercase tracking-widest mb-1">Orden #{selectedOrder.order_number || '---'}</p>
-                                            <h3 className="text-xl font-black text-white leading-tight break-words">{selectedOrder.customer_name || 'Sin Nombre'}</h3>
+                                            <p className="text-[10px] text-indigo-400 font-semibold uppercase tracking-widest mb-1">Orden #{selectedOrder.order_number || '---'}</p>
+                                            <h3 className="text-xl font-semibold text-white leading-tight break-words">{selectedOrder.customer_name || 'Sin Nombre'}</h3>
                                         </div>
                                     </div>
                                     {type === 'DELIVERY' && selectedOrder.delivery_address && (
@@ -713,11 +713,11 @@ export const DispatchView: React.FC<{
                                     <div className="flex items-center gap-3">
                                         <div className="flex items-center gap-1.5 text-gray-400 bg-black/20 px-2 py-1 rounded-lg">
                                             <Clock size={12} />
-                                            <span className="text-[10px] font-bold">
+                                            <span className="text-[10px] font-medium">
                                                 {parseDBDate(selectedOrder.created_at).toLocaleTimeString()}
                                             </span>
                                         </div>
-                                        <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${getStatusStyle(selectedOrder.status)}`}>
+                                        <span className={`text-[9px] font-semibold uppercase tracking-widest px-2 py-1 rounded-lg ${getStatusStyle(selectedOrder.status)}`}>
                                             {selectedOrder.status === 'ready' ? 'Listo' : selectedOrder.status === 'preparing' ? 'Cocinando' : 'Pendiente'}
                                         </span>
                                     </div>
@@ -725,7 +725,7 @@ export const DispatchView: React.FC<{
 
                                 {/* Order Items */}
                                 <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-white/10">
-                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-4 flex items-center gap-2">
+                                    <h4 className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-4 flex items-center gap-2">
                                         <span className="w-1 h-1 bg-indigo-500 rounded-full" /> Detalle de Productos
                                     </h4>
                                     {loadingItems ? (
@@ -739,28 +739,28 @@ export const DispatchView: React.FC<{
                                                 {orderItems.map((item, idx) => (
                                                     <div key={idx} className="flex justify-between items-start text-sm group">
                                                         <div className="flex gap-3">
-                                                            <span className="font-black text-indigo-400 min-w-[24px]">x{item.quantity}</span>
+                                                            <span className="font-semibold text-indigo-400 min-w-[24px]">x{item.quantity}</span>
                                                             <div className="flex flex-col">
                                                                 <span className="text-gray-200 font-semibold group-hover:text-white transition-colors">{item.products?.name}</span>
                                                                 {item.notes && <span className="text-[10px] text-gray-500 italic mt-0.5">{item.notes}</span>}
                                                             </div>
                                                         </div>
-                                                        <span className="font-bold text-white tabular-nums">Q{(item.quantity * item.unit_price).toFixed(2)}</span>
+                                                        <span className="font-medium text-white tabular-nums">Q{(item.quantity * item.unit_price).toFixed(2)}</span>
                                                     </div>
                                                 ))}
                                             </div>
                                             <div className="pt-6 mt-6 border-t border-white/5 space-y-2">
                                                 <div className="flex justify-between items-center px-1">
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Monto Final</span>
+                                                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-500">Monto Final</span>
                                                     <div className="flex items-baseline gap-1">
-                                                        <span className="text-xl font-black text-indigo-400">Q</span>
-                                                        <span className="text-3xl font-black text-white tracking-tighter">{selectedOrder.total.toFixed(2)}</span>
+                                                        <span className="text-xl font-semibold text-indigo-400">Q</span>
+                                                        <span className="text-3xl font-semibold text-white tracking-tighter">{selectedOrder.total.toFixed(2)}</span>
                                                     </div>
                                                 </div>
                                                 {selectedOrder.payment_method && (
                                                     <div className="bg-emerald-500/5 border border-emerald-500/10 p-2 rounded-lg mt-2">
-                                                        <p className="text-[8px] font-black uppercase text-emerald-500 tracking-widest mb-0.5">Método de Pago</p>
-                                                        <p className="text-white text-[10px] font-bold">{selectedOrder.payment_method}</p>
+                                                        <p className="text-[8px] font-semibold uppercase text-emerald-500 tracking-widest mb-0.5">Método de Pago</p>
+                                                        <p className="text-white text-[10px] font-medium">{selectedOrder.payment_method}</p>
                                                     </div>
                                                 )}
                                             </div>
@@ -771,8 +771,8 @@ export const DispatchView: React.FC<{
                         ) : (
                             <div className="flex-1 flex flex-col items-center justify-center text-gray-600 opacity-20 p-8 text-center select-none overflow-hidden">
                                 <Info size={48} className="mb-4" />
-                                <p className="text-sm font-black uppercase tracking-widest leading-tight">Sin pedido seleccionado</p>
-                                <p className="text-[10px] font-bold mt-2 uppercase">Toca una orden a la izquierda</p>
+                                <p className="text-sm font-semibold uppercase tracking-widest leading-tight">Sin pedido seleccionado</p>
+                                <p className="text-[10px] font-medium mt-2 uppercase">Toca una orden a la izquierda</p>
                             </div>
                         )}
                     </div>
@@ -861,10 +861,10 @@ export const DispatchView: React.FC<{
                             {(!selectedOrder?.dispatched_at && selectedOrder?.driver_id) ? (
                                 <div className="flex items-center gap-2">
                                     <Truck size={18} strokeWidth={2.5} className="animate-pulse" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest">DESPACHAR AHORA</span>
+                                    <span className="text-[10px] font-semibold uppercase tracking-widest">DESPACHAR AHORA</span>
                                 </div>
                             ) : (
-                                <span className="text-[10px] font-black uppercase tracking-widest">ABRIR ORDEN</span>
+                                <span className="text-[10px] font-semibold uppercase tracking-widest">ABRIR ORDEN</span>
                             )}
                         </button>
                     </div>
@@ -891,7 +891,7 @@ export const DispatchView: React.FC<{
                             <Check size={20} className="text-emerald-500" strokeWidth={3} />
                         </div>
                         <div className="flex-1">
-                            <p className="text-[#1e232f] text-[11px] font-bold leading-tight">
+                            <p className="text-[#1e232f] text-[11px] font-medium leading-tight">
                                 {toastMessage}
                             </p>
                         </div>
@@ -923,7 +923,7 @@ const DriverSelectorModal: React.FC<{
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
             <div className="bg-[#2a2b3d] w-full max-w-2xl rounded-lg  border border-white/10 overflow-hidden flex flex-col">
                 <div className="p-6 border-b border-white/5 flex flex-col items-center justify-center">
-                    <h2 className="text-white text-[12px] font-black uppercase tracking-[0.2em]">Repartidores</h2>
+                    <h2 className="text-white text-[12px] font-semibold uppercase tracking-[0.2em]">Repartidores</h2>
                 </div>
 
                 <div className="p-8">
@@ -944,7 +944,7 @@ const DriverSelectorModal: React.FC<{
                                         <UnverifiedScooterIcon size={48} />
                                     )}
                                 </div>
-                                <span className={`text-[9px] font-black uppercase tracking-wider text-left leading-tight ${localSelectedId === driver.id ? 'opacity-100' : 'opacity-70'}`}>
+                                <span className={`text-[9px] font-semibold uppercase tracking-wider text-left leading-tight ${localSelectedId === driver.id ? 'opacity-100' : 'opacity-70'}`}>
                                     {driver.name}
                                 </span>
                             </button>
@@ -955,13 +955,13 @@ const DriverSelectorModal: React.FC<{
                 <div className="p-8 pt-2 flex items-center justify-center gap-4">
                     <button
                         onClick={onClose}
-                        className="px-10 py-3 rounded border border-white/20 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all"
+                        className="px-10 py-3 rounded border border-white/20 text-white text-[10px] font-semibold uppercase tracking-widest hover:bg-white/5 transition-all"
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={() => onSelect(localSelectedId)}
-                        className="px-10 py-3 rounded bg-[#6366f1] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#5558e3] transition-all "
+                        className="px-10 py-3 rounded bg-[#6366f1] text-white text-[10px] font-semibold uppercase tracking-widest hover:bg-[#5558e3] transition-all "
                     >
                         Aceptar
                     </button>

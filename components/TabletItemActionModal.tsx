@@ -127,7 +127,7 @@ export const TabletItemActionModal: React.FC<TabletItemActionModalProps> = ({
                     <div className="flex flex-col gap-4 flex-1">
                         {/* Textarea for comments */}
                         <div className="flex-1 flex flex-col relative min-h-[140px] rounded-xl overflow-hidden border border-white/5 bg-[#1f2229]">
-                            <span className="absolute top-4 left-5 text-[10px] text-gray-500 font-bold uppercase tracking-widest pointer-events-none">
+                            <span className="absolute top-4 left-5 text-[10px] text-gray-500 font-medium uppercase tracking-widest pointer-events-none">
                                 COMENTARIOS
                             </span>
                             <textarea
@@ -145,13 +145,13 @@ export const TabletItemActionModal: React.FC<TabletItemActionModalProps> = ({
                                     onClose(); 
                                     onEditItem(item); 
                                 }}
-                                className="border-r border-b border-white/5 hover:bg-white/10 text-white text-[9px] font-bold uppercase tracking-wider h-16 transition-colors flex items-center justify-center text-center leading-tight"
+                                className="border-r border-b border-white/5 hover:bg-white/10 text-white text-[9px] font-medium uppercase tracking-wider h-16 transition-colors flex items-center justify-center text-center leading-tight"
                             >
                                 EDITAR<br />PLATO
                             </button>
                             <button
                                 onClick={() => { onClose(); onDeleteItem(item); }}
-                                className="border-r border-b border-white/5 hover:bg-white/10 text-white text-[9px] font-bold uppercase tracking-wider h-16 transition-colors flex items-center justify-center text-center leading-tight"
+                                className="border-r border-b border-white/5 hover:bg-white/10 text-white text-[9px] font-medium uppercase tracking-wider h-16 transition-colors flex items-center justify-center text-center leading-tight"
                             >
                                 ELIMINAR<br />PLATO
                             </button>
@@ -160,13 +160,13 @@ export const TabletItemActionModal: React.FC<TabletItemActionModalProps> = ({
                                     onClose(); 
                                     if (onTransferItem) onTransferItem(item); 
                                 }}
-                                className="border-r border-b border-white/5 hover:bg-white/10 text-white text-[9px] font-bold uppercase tracking-wider h-16 transition-colors flex items-center justify-center text-center leading-tight"
+                                className="border-r border-b border-white/5 hover:bg-white/10 text-white text-[9px] font-medium uppercase tracking-wider h-16 transition-colors flex items-center justify-center text-center leading-tight"
                             >
                                 TRASLADAR<br />PLATO
                             </button>
                             <button
                                 onClick={() => toggleNoteTag('*PARA LLEVAR*')}
-                                className={`border-r border-white/5 text-[9px] font-bold uppercase tracking-wider h-16 transition-colors flex items-center justify-center text-center leading-tight ${tempNotes.includes('*PARA LLEVAR*') ? 'bg-indigo-500/20 text-indigo-300' : 'hover:bg-white/10 text-white'}`}
+                                className={`border-r border-white/5 text-[9px] font-medium uppercase tracking-wider h-16 transition-colors flex items-center justify-center text-center leading-tight ${tempNotes.includes('*PARA LLEVAR*') ? 'bg-indigo-500/20 text-indigo-300' : 'hover:bg-white/10 text-white'}`}
                             >
                                 PARA<br />LLEVAR
                             </button>
@@ -187,13 +187,13 @@ export const TabletItemActionModal: React.FC<TabletItemActionModalProps> = ({
                                         onSendWithoutPrinting({ ...item, notes: newNotes + ' *NO IMPRIMIR*' });
                                     }
                                 }}
-                                className={`border-r border-white/5 text-[9px] font-bold uppercase tracking-wider h-16 transition-colors flex items-center justify-center text-center leading-tight hover:bg-white/10 text-white`}
+                                className={`border-r border-white/5 text-[9px] font-medium uppercase tracking-wider h-16 transition-colors flex items-center justify-center text-center leading-tight hover:bg-white/10 text-white`}
                             >
                                 Enviar<br />Sin Imprimir
                             </button>
                             <button
                                 onClick={() => setTempNotes('')}
-                                className="hover:bg-white/10 text-white text-[9px] font-bold uppercase tracking-wider h-16 transition-colors flex items-center justify-center text-center leading-tight"
+                                className="hover:bg-white/10 text-white text-[9px] font-medium uppercase tracking-wider h-16 transition-colors flex items-center justify-center text-center leading-tight"
                             >
                                 LIMPIAR<br />COMENTARIO
                             </button>
@@ -204,7 +204,7 @@ export const TabletItemActionModal: React.FC<TabletItemActionModalProps> = ({
                     <div className="w-[280px] flex flex-col rounded-xl overflow-hidden border border-white/5 bg-[#2d303e]">
                         {/* Header: Cantidad */}
                         <div className="bg-[#1f2229] p-4 text-center border-b border-white/5">
-                            <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">CANTIDAD</div>
+                            <div className="text-[10px] text-gray-500 font-medium uppercase tracking-widest mb-1">CANTIDAD</div>
                             <div className="text-4xl font-semibold text-white">{quantityStr || '1'}</div>
                         </div>
 
@@ -249,13 +249,13 @@ export const TabletItemActionModal: React.FC<TabletItemActionModalProps> = ({
                 <div className="flex justify-center gap-4 mt-4">
                     <button
                         onClick={onClose}
-                        className="w-40 bg-transparent hover:bg-white/5 text-white text-[11px] font-bold uppercase tracking-wider py-3 rounded-xl transition-colors border border-white/10"
+                        className="w-40 bg-transparent hover:bg-white/5 text-white text-[11px] font-medium uppercase tracking-wider py-3 rounded-xl transition-colors border border-white/10"
                     >
                         CANCELAR
                     </button>
                     <button
                         onClick={handleAceptar}
-                        className="w-40 bg-[#6c72ff] hover:bg-[#5a60e0] text-white text-[11px] font-bold uppercase tracking-wider py-3 rounded-xl transition-colors"
+                        className="w-40 bg-[#6c72ff] hover:bg-[#5a60e0] text-white text-[11px] font-medium uppercase tracking-wider py-3 rounded-xl transition-colors"
                     >
                         ACEPTAR
                     </button>

@@ -158,7 +158,7 @@ export const ConfigPosCard: React.FC = () => {
                 {/* Branch Selection Row & Search */}
                 <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                        <span className="text-slate-900 font-bold">Sucursal</span>
+                        <span className="text-slate-900 font-medium">Sucursal</span>
                         <select
                             value={branchFilter}
                             onChange={(e) => setBranchFilter(e.target.value)}
@@ -176,7 +176,7 @@ export const ConfigPosCard: React.FC = () => {
                             placeholder="Introduzca el texto a buscar..."
                             className="bg-white border border-gray-400 rounded-sm px-2 py-1 text-[11px] w-72 outline-none text-slate-900 font-medium focus:border-[#106ebe] shadow-sm transition-all"
                         />
-                        <button className="bg-[#e1e1e1] border border-gray-400 px-6 py-1 text-[11px] font-bold hover:bg-[#d0d0d0] text-slate-900 shadow-sm rounded-sm transition-colors">
+                        <button className="bg-[#e1e1e1] border border-gray-400 px-6 py-1 text-[11px] font-medium hover:bg-[#d0d0d0] text-slate-900 shadow-sm rounded-sm transition-colors">
                             Buscar
                         </button>
                     </div>
@@ -184,7 +184,7 @@ export const ConfigPosCard: React.FC = () => {
             </div>
 
             {/* Data Grid Header */}
-            <div className="grid grid-cols-[1fr_250px] bg-[#e8e8e8] border-b border-gray-400 font-bold text-black select-none">
+            <div className="grid grid-cols-[1fr_250px] bg-[#e8e8e8] border-b border-gray-400 font-medium text-black select-none">
                 <div className="py-2 px-6 border-r border-gray-300 text-left text-[10px] uppercase tracking-wider">POS / Terminal</div>
                 <div className="py-2 px-6 text-center text-[10px] uppercase tracking-wider">Habilitado</div>
             </div>
@@ -215,14 +215,14 @@ export const ConfigPosCard: React.FC = () => {
                         <tbody>
                             {terminals.length === 0 ? (
                                 <tr>
-                                    <td colSpan={2} className="py-20 text-center text-slate-500 font-bold italic">
+                                    <td colSpan={2} className="py-20 text-center text-slate-500 font-medium italic">
                                         No hay terminales vinculadas. <br />
                                         Haz clic derecho para vincular una nueva.
                                     </td>
                                 </tr>
                             ) : filteredTerminals.length === 0 ? (
                                 <tr>
-                                    <td colSpan={2} className="py-20 text-center text-slate-500 font-bold italic">
+                                    <td colSpan={2} className="py-20 text-center text-slate-500 font-medium italic">
                                         No se encontraron resultados para "{searchTerm}".
                                     </td>
                                 </tr>
@@ -241,7 +241,7 @@ export const ConfigPosCard: React.FC = () => {
                                                     : index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'
                                             } text-slate-900`}
                                         >
-                                            <td className="px-4 border-r border-gray-100 uppercase font-bold text-[10px] tracking-tight">
+                                            <td className="px-4 border-r border-gray-100 uppercase font-medium text-[10px] tracking-tight">
                                                 <div className="flex items-center gap-2">
                                                     <CreditCard size={12} className={isSelected ? 'text-white' : 'text-slate-400'} />
                                                     {pos.name}
@@ -271,7 +271,7 @@ export const ConfigPosCard: React.FC = () => {
                         <div className="bg-white w-[750px] shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden border border-[#106ebe] flex flex-col animate-slide-up pointer-events-auto">
                             {/* Status Bar/Header (Blue) */}
                             <div className="modal-header bg-[#106ebe] px-4 py-2 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
-                                <h3 className="text-[12px] font-bold text-white tracking-wide flex items-center gap-2">
+                                <h3 className="text-[12px] font-medium text-white tracking-wide flex items-center gap-2">
                                     <CreditCard size={14} /> Mantenimiento de POS Tarjeta
                                 </h3>
                                 <div className="flex items-center gap-1">
@@ -322,13 +322,13 @@ export const ConfigPosCard: React.FC = () => {
                                 <div className="p-6 bg-white border border-gray-300 shadow-inner flex flex-col lg:flex-row gap-6">
                                     {/* Form Left Side */}
                                     <div className="flex-1">
-                                        <h4 className="text-sm font-bold text-gray-800 mb-6 flex items-center gap-2">
+                                        <h4 className="text-sm font-medium text-gray-800 mb-6 flex items-center gap-2">
                                             Datos POS
                                         </h4>
 
                                         <div className="space-y-4">
                                             <div className="grid grid-cols-[100px_1fr] items-center gap-4">
-                                                <label className="text-[11px] font-bold text-gray-600">Nombre</label>
+                                                <label className="text-[11px] font-medium text-gray-600">Nombre</label>
                                                 <input
                                                     type="text"
                                                     value={editingTerminal?.name || ''}
@@ -338,7 +338,7 @@ export const ConfigPosCard: React.FC = () => {
                                             </div>
 
                                             <div className="grid grid-cols-[100px_1fr] items-center gap-4">
-                                                <label className="text-[11px] font-bold text-gray-600">Sucursal</label>
+                                                <label className="text-[11px] font-medium text-gray-600">Sucursal</label>
                                                 <div className="flex items-center gap-3">
                                                     <select className="flex-1 bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-[12px] font-medium text-gray-900 focus:outline-none focus:border-[#106ebe] shadow-sm min-w-[280px]">
                                                         <option>Cevichería y Rest. Las Palmas</option>
@@ -348,15 +348,15 @@ export const ConfigPosCard: React.FC = () => {
                                                             onClick={() => setEditingTerminal({ ...editingTerminal, status: editingTerminal?.status === 'online' ? 'offline' : 'online' })}
                                                             className={`w-3.5 h-3.5 border border-gray-400 flex items-center justify-center bg-white cursor-pointer`}
                                                         >
-                                                            {editingTerminal?.status === 'online' && <Check size={10} className="text-gray-800 font-bold" />}
+                                                            {editingTerminal?.status === 'online' && <Check size={10} className="text-gray-800 font-medium" />}
                                                         </div>
-                                                        <span className="text-[11px] font-bold text-gray-600">Habilitado</span>
+                                                        <span className="text-[11px] font-medium text-gray-600">Habilitado</span>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div className="grid grid-cols-[100px_1fr] items-center gap-4">
-                                                <label className="text-[11px] font-bold text-gray-600">ID / Serial</label>
+                                                <label className="text-[11px] font-medium text-gray-600">ID / Serial</label>
                                                 <input
                                                     type="text"
                                                     value={editingTerminal?.serial || ''}
@@ -366,13 +366,13 @@ export const ConfigPosCard: React.FC = () => {
                                             </div>
 
                                             <div className="grid grid-cols-[100px_1fr] items-center gap-4">
-                                                <label className="text-[11px] font-bold text-gray-600">Tipo</label>
+                                                <label className="text-[11px] font-medium text-gray-600">Tipo</label>
                                                 <div className="flex gap-1">
                                                     {['Físico', 'Virtual'].map((type) => (
                                                         <button
                                                             key={type}
                                                             onClick={() => setEditingTerminal({ ...editingTerminal, type: type as any })}
-                                                            className={`px-6 py-1 border font-bold text-[11px] transition-all shadow-sm ${editingTerminal?.type === type ? 'bg-[#106ebe] border-[#106ebe] text-white' : 'bg-[#f5f5f5] border-gray-300 text-gray-600 hover:bg-gray-100'}`}
+                                                            className={`px-6 py-1 border font-medium text-[11px] transition-all shadow-sm ${editingTerminal?.type === type ? 'bg-[#106ebe] border-[#106ebe] text-white' : 'bg-[#f5f5f5] border-gray-300 text-gray-600 hover:bg-gray-100'}`}
                                                         >
                                                             {type}
                                                         </button>
@@ -389,7 +389,7 @@ export const ConfigPosCard: React.FC = () => {
                                                 <img src={editingTerminal.logo_url} alt="Logo" className="w-full h-full object-contain" />
                                             ) : (
                                                 <div className="flex flex-wrap justify-center items-center gap-2 opacity-60">
-                                                    <div className="text-blue-700 font-black text-xl italic select-none tracking-tighter">VISA</div>
+                                                    <div className="text-blue-700 font-semibold text-xl italic select-none tracking-tighter">VISA</div>
                                                     <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center relative">
                                                         <div className="w-8 h-8 rounded-full bg-orange-500 absolute left-4 opacity-80" />
                                                     </div>
@@ -399,7 +399,7 @@ export const ConfigPosCard: React.FC = () => {
 
                                         <button
                                             onClick={() => setEditingTerminal({ ...editingTerminal, logo_url: '' })}
-                                            className="w-full py-1.5 bg-[#106ebe] hover:bg-[#005a9e] text-white border border-[#106ebe] rounded-sm text-[11px] font-bold shadow-sm transition-all uppercase"
+                                            className="w-full py-1.5 bg-[#106ebe] hover:bg-[#005a9e] text-white border border-[#106ebe] rounded-sm text-[11px] font-medium shadow-sm transition-all uppercase"
                                         >
                                             Quitar Imagen
                                         </button>
@@ -420,7 +420,7 @@ export const ConfigPosCard: React.FC = () => {
                 >
                     <button
                         onClick={openCreate}
-                        className="w-full text-left px-4 py-2 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-gray-900"
+                        className="w-full text-left px-4 py-2 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-gray-900"
                     >
                         <Plus size={14} className="text-[#106ebe] group-hover:text-white" /> Vincular Nuevo POS
                     </button>
@@ -430,13 +430,13 @@ export const ConfigPosCard: React.FC = () => {
                             <div className="my-1 border-t border-gray-100" />
                             <button
                                 onClick={() => openEdit(contextMenu.terminal!)}
-                                className="w-full text-left px-4 py-2 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-gray-900"
+                                className="w-full text-left px-4 py-2 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-gray-900"
                             >
                                 <Edit3 size={14} className="text-gray-400 group-hover:text-white" /> Editar POS
                             </button>
                             <button
                                 onClick={() => setConfirmDelete(contextMenu.terminal!)}
-                                className="w-full text-left px-4 py-2 hover:bg-rose-600 hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-gray-900"
+                                className="w-full text-left px-4 py-2 hover:bg-rose-600 hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-gray-900"
                             >
                                 <Trash2 size={14} className="text-rose-500 group-hover:text-white" /> Eliminar POS
                             </button>

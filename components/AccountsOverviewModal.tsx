@@ -136,7 +136,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                         >
                             <ArrowLeft size={18} />
                         </button>
-                        <h2 className={`text-[10px] font-black uppercase tracking-widest ${transferMode ? 'text-indigo-400' : 'text-gray-700'}`}>
+                        <h2 className={`text-[10px] font-semibold uppercase tracking-widest ${transferMode ? 'text-indigo-400' : 'text-gray-700'}`}>
                             {transferMode ? `TRASLADAR: ${itemToTransferName}` : 'LAS PALMAS POS'}
                         </h2>
                     </div>
@@ -144,7 +144,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                     {!transferMode && (
                         <button 
                             onClick={() => { setLocalSelectedId(null); onSelectAccount(null); }}
-                            className={`px-8 py-2.5 rounded text-[10px] font-black uppercase tracking-widest transition-all ${
+                            className={`px-8 py-2.5 rounded text-[10px] font-semibold uppercase tracking-widest transition-all ${
                                 localSelectedId === null
                                 ? 'bg-[#7c7ffb] text-white'
                                 : 'bg-[#3a3b4d] text-white/20 hover:bg-[#45465e]'
@@ -159,7 +159,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                 {errorMessage && (
                     <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[120] bg-red-500 text-white px-6 py-3 rounded  /50 flex items-center gap-3 animate-bounce">
                         <AlertTriangle size={20} />
-                        <span className="text-[10px] font-black uppercase tracking-widest">{errorMessage}</span>
+                        <span className="text-[10px] font-semibold uppercase tracking-widest">{errorMessage}</span>
                     </div>
                 )}
 
@@ -178,7 +178,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                             >
                                 <div className="px-4 py-3 border-b border-white/5 flex items-center justify-center gap-3 bg-black/10">
                                     <span className={`w-2 h-2 rounded-full ${localSelectedId === summary.id ? 'bg-green-400 animate-pulse' : 'bg-white/10'}`} />
-                                    <span className={`text-[11px] font-black uppercase tracking-widest ${localSelectedId === summary.id ? 'text-white' : 'text-gray-500'}`}>
+                                    <span className={`text-[11px] font-semibold uppercase tracking-widest ${localSelectedId === summary.id ? 'text-white' : 'text-gray-500'}`}>
                                         {summary.customer_name}
                                     </span>
                                 </div>
@@ -186,20 +186,20 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                                 <div className="p-6">
                                     <div className="grid grid-cols-4 gap-2 mb-3">
                                         <div className="flex flex-col items-center">
-                                            <span className="text-[8px] font-bold text-gray-600 uppercase tracking-tighter">Sub-Total</span>
-                                            <span className="text-[10px] font-black text-gray-400">Q{summary.subtotal.toFixed(2)}</span>
+                                            <span className="text-[8px] font-medium text-gray-600 uppercase tracking-tighter">Sub-Total</span>
+                                            <span className="text-[10px] font-semibold text-gray-400">Q{summary.subtotal.toFixed(2)}</span>
                                         </div>
                                         <div className="flex flex-col items-center">
-                                            <span className="text-[8px] font-bold text-gray-600 uppercase tracking-tighter">Descto.</span>
-                                            <span className="text-[10px] font-black text-gray-400">Q{summary.discount.toFixed(2)}</span>
+                                            <span className="text-[8px] font-medium text-gray-600 uppercase tracking-tighter">Descto.</span>
+                                            <span className="text-[10px] font-semibold text-gray-400">Q{summary.discount.toFixed(2)}</span>
                                         </div>
                                         <div className="flex flex-col items-center">
-                                            <span className="text-[8px] font-bold text-gray-600 uppercase tracking-tighter">Prop.</span>
-                                            <span className="text-[10px] font-black text-gray-400">Q{summary.tip.toFixed(2)}</span>
+                                            <span className="text-[8px] font-medium text-gray-600 uppercase tracking-tighter">Prop.</span>
+                                            <span className="text-[10px] font-semibold text-gray-400">Q{summary.tip.toFixed(2)}</span>
                                         </div>
                                         <div className="flex flex-col items-center">
-                                            <span className="text-[8px] font-bold text-gray-600 uppercase tracking-tighter">Total</span>
-                                            <span className="text-[11px] font-black text-white">Q{summary.total.toFixed(2)}</span>
+                                            <span className="text-[8px] font-medium text-gray-600 uppercase tracking-tighter">Total</span>
+                                            <span className="text-[11px] font-semibold text-white">Q{summary.total.toFixed(2)}</span>
                                         </div>
                                     </div>
                                     <div className="border-t border-dashed border-white/10 w-full" />
@@ -244,7 +244,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                             }
                         }}
                         disabled={transferMode && !localSelectedId}
-                        className="h-14 px-16 bg-[#7c7ffb] text-white hover:bg-[#6b6edb] rounded flex items-center justify-center transition-all text-[11px] font-black uppercase tracking-widest disabled:opacity-50 active:scale-95"
+                        className="h-14 px-16 bg-[#7c7ffb] text-white hover:bg-[#6b6edb] rounded flex items-center justify-center transition-all text-[11px] font-semibold uppercase tracking-widest disabled:opacity-50 active:scale-95"
                     >
                         Aceptar
                     </button>
@@ -256,10 +256,10 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                         <div className="bg-[#2d2e3d] w-full max-w-md p-8 rounded-none border border-white/10 ">
                             <div className="flex items-center gap-3 mb-6 text-red-400">
                                 <MessageSquare size={24} />
-                                <h3 className="text-sm font-black uppercase tracking-[0.2em]">Motivo de Eliminación</h3>
+                                <h3 className="text-sm font-semibold uppercase tracking-[0.2em]">Motivo de Eliminación</h3>
                             </div>
                             
-                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">
+                            <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mb-4">
                                 Explique por qué desea eliminar la cuenta seleccionada. Este comentario quedará registrado.
                             </p>
 
@@ -268,20 +268,20 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                                 value={deleteReason}
                                 onChange={(e) => setDeleteReason(e.target.value)}
                                 placeholder="Escriba el motivo aquí..."
-                                className="w-full h-32 bg-black/20 border border-white/10 rounded p-4 text-xs font-bold text-white focus:outline-none focus:border-[#7c7ffb] transition-all resize-none mb-6 placeholder:text-gray-700"
+                                className="w-full h-32 bg-black/20 border border-white/10 rounded p-4 text-xs font-medium text-white focus:outline-none focus:border-[#7c7ffb] transition-all resize-none mb-6 placeholder:text-gray-700"
                             />
 
                             <div className="flex gap-4">
                                 <button 
                                     onClick={() => setShowDeletePrompt(false)}
-                                    className="flex-1 py-4 bg-[#3a3b4d] hover:bg-[#45465e] text-gray-400 rounded text-[9px] font-black uppercase tracking-widest transition-all"
+                                    className="flex-1 py-4 bg-[#3a3b4d] hover:bg-[#45465e] text-gray-400 rounded text-[9px] font-semibold uppercase tracking-widest transition-all"
                                 >
                                     Cancelar
                                 </button>
                                 <button 
                                     disabled={!deleteReason.trim()}
                                     onClick={confirmDelete}
-                                    className="flex-1 py-4 bg-red-600 hover:bg-red-500 text-white disabled:opacity-20 rounded text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                                    className="flex-1 py-4 bg-red-600 hover:bg-red-500 text-white disabled:opacity-20 rounded text-[9px] font-semibold uppercase tracking-widest transition-all flex items-center justify-center gap-2"
                                 >
                                     <CheckCircle size={14} /> Confirmar Eliminación
                                 </button>

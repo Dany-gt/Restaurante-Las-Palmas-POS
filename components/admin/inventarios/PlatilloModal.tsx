@@ -30,11 +30,11 @@ interface PlatilloModalProps {
 
 const PlaceholderLogo = () => (
     <div className="flex flex-col items-center justify-center h-full w-full bg-[#3a3b4d]">
-        <span className="text-[10px] font-bold tracking-[0.2em] text-gray-400 mb-0.5">RESTAURANTE</span>
-        <span className="text-sm font-black tracking-tighter text-orange-500 uppercase leading-none">LAS PALMAS</span>
+        <span className="text-[10px] font-medium tracking-[0.2em] text-gray-400 mb-0.5">RESTAURANTE</span>
+        <span className="text-sm font-semibold tracking-tighter text-orange-500 uppercase leading-none">LAS PALMAS</span>
         <div className="flex items-center gap-1.5 mt-1">
             <div className="h-[1px] w-4 bg-white/20"></div>
-            <span className="text-[10px] font-black text-white/40 tracking-widest">POS</span>
+            <span className="text-[10px] font-semibold text-white/40 tracking-widest">POS</span>
             <div className="h-[1px] w-4 bg-white/20"></div>
         </div>
     </div>
@@ -59,7 +59,7 @@ const CustomSelect = ({ value, onChange, options, placeholder = "SELECCIONAR..."
                    <div className="absolute top-[calc(100%+2px)] left-0 w-full bg-white border border-[#106ebe]  z-[2000002] max-h-[140px] overflow-y-auto custom-scrollbar">
                        <div 
                            onClick={() => { onChange(''); setIsOpen(false); }} 
-                           className="px-2 py-2 text-[10px] text-gray-400 hover:bg-[#106ebe] hover:text-white cursor-pointer uppercase border-b border-[#f1f5f9] font-bold"
+                           className="px-2 py-2 text-[10px] text-gray-400 hover:bg-[#106ebe] hover:text-white cursor-pointer uppercase border-b border-[#f1f5f9] font-medium"
                        >
                            {placeholder}
                        </div>
@@ -67,7 +67,7 @@ const CustomSelect = ({ value, onChange, options, placeholder = "SELECCIONAR..."
                            <div 
                                key={o.value} 
                                onClick={() => { onChange(o.value); setIsOpen(false); }} 
-                               className={`px-2 py-1.5 text-[11px] text-slate-700 hover:bg-[#106ebe] hover:text-white cursor-pointer uppercase border-b border-[#f8fafc] last:border-none ${value === o.value ? 'bg-blue-50 font-bold text-[#106ebe]' : ''}`}
+                               className={`px-2 py-1.5 text-[11px] text-slate-700 hover:bg-[#106ebe] hover:text-white cursor-pointer uppercase border-b border-[#f8fafc] last:border-none ${value === o.value ? 'bg-blue-50 font-medium text-[#106ebe]' : ''}`}
                            >
                                {o.label}
                            </div>
@@ -106,7 +106,7 @@ const SmartPriceInput = ({ value, onChange, className = "" }: any) => {
             <input
                 ref={inputRef}
                 type="text"
-                className="w-full h-5 text-[11px] font-bold outline-none bg-transparent text-center text-slate-900 selection:bg-[#3399ff] selection:text-white"
+                className="w-full h-5 text-[11px] font-medium outline-none bg-transparent text-center text-slate-900 selection:bg-[#3399ff] selection:text-white"
                 value={displayValue}
                 onChange={handleChange}
                 onFocus={(e) => {
@@ -301,7 +301,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                  <div className="flex-1 h-[28px] border border-gray-400 bg-white flex items-center justify-center ">
                                                      <input
                                                          type="text"
-                                                         className="w-full h-5 bg-transparent text-[11px] font-bold text-slate-800 outline-none text-center"
+                                                         className="w-full h-5 bg-transparent text-[11px] font-medium text-slate-800 outline-none text-center"
                                                          value={newProduct.sort_order || '1'}
                                                          onChange={e => setNewProduct({...newProduct, sort_order: e.target.value})}
                                                          onFocus={e => e.target.select()}
@@ -355,7 +355,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                         <button 
                                             onClick={() => { if (newProduct.image_url) setNewProduct({...newProduct, image_url: ''}); }}
                                             disabled={uploadingImage}
-                                            className="mt-3 w-full h-[28px] bg-[#106ebe] text-white text-[10px] font-bold uppercase hover:bg-[#0d5aa0] transition-colors  flex items-center justify-center gap-2"
+                                            className="mt-3 w-full h-[28px] bg-[#106ebe] text-white text-[10px] font-medium uppercase hover:bg-[#0d5aa0] transition-colors  flex items-center justify-center gap-2"
                                         >
                                             <Trash2 size={12} />
                                             Quitar Imagen
@@ -382,7 +382,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                         </div>
                                     ))}
                                     <button 
-                                        className="h-[28px] bg-[#106ebe] text-white text-[10px] font-bold uppercase hover:bg-[#0d5aa0] transition-colors "
+                                        className="h-[28px] bg-[#106ebe] text-white text-[10px] font-medium uppercase hover:bg-[#0d5aa0] transition-colors "
                                         onClick={() => {
                                             setBranchPrices(branchPrices.map(bp => ({ 
                                                 ...bp, 
@@ -404,19 +404,19 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                     <div className="flex h-full items-center">
                                         <button 
                                             onClick={() => setActiveTab('sucursales')}
-                                            className={`px-5 h-full text-[10px] font-black uppercase transition-all flex items-center gap-2 ${activeTab === 'sucursales' ? 'bg-white text-[#106ebe] border-x border-gray-300 border-t-[3px] border-t-[#106ebe] -mb-[1px] z-10' : 'text-slate-400 border-r border-transparent'}`}
+                                            className={`px-5 h-full text-[10px] font-semibold uppercase transition-all flex items-center gap-2 ${activeTab === 'sucursales' ? 'bg-white text-[#106ebe] border-x border-gray-300 border-t-[3px] border-t-[#106ebe] -mb-[1px] z-10' : 'text-slate-400 border-r border-transparent'}`}
                                         >
                                             Sucursales
                                         </button>
                                         <button 
                                             onClick={() => setActiveTab('opciones')}
-                                            className={`px-5 h-full text-[10px] font-black uppercase transition-all flex items-center gap-2 ${activeTab === 'opciones' ? 'bg-white text-[#106ebe] border-x border-gray-300 border-t-[3px] border-t-[#106ebe] -mb-[1px] z-10' : 'text-slate-400'}`}
+                                            className={`px-5 h-full text-[10px] font-semibold uppercase transition-all flex items-center gap-2 ${activeTab === 'opciones' ? 'bg-white text-[#106ebe] border-x border-gray-300 border-t-[3px] border-t-[#106ebe] -mb-[1px] z-10' : 'text-slate-400'}`}
                                         >
                                             Opciones y Modificadores
                                         </button>
                                     </div>
                                     <button 
-                                        className="h-[24px] px-4 bg-[#106ebe] text-white text-[10px] font-black uppercase flex items-center gap-1.5 hover:bg-[#0d5aa0]  transition-all active:scale-95"
+                                        className="h-[24px] px-4 bg-[#106ebe] text-white text-[10px] font-semibold uppercase flex items-center gap-1.5 hover:bg-[#0d5aa0]  transition-all active:scale-95"
                                         onClick={() => setShowTechnicalModal(true)}
                                     >
                                         <FileText size={13} /> Ficha Técnica
@@ -441,7 +441,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                     <tbody className="divide-y divide-gray-200">
                                                         {branchPrices.map((bp, idx) => (
                                                             <tr key={bp.branch_id} className="h-9 hover:bg-blue-50/30">
-                                                                <td className="px-3 text-[9.5px] font-bold text-slate-800 uppercase border-r border-gray-100 whitespace-nowrap overflow-hidden">
+                                                                <td className="px-3 text-[9.5px] font-medium text-slate-800 uppercase border-r border-gray-100 whitespace-nowrap overflow-hidden">
                                                                     {branches.find(b => b.id === bp.branch_id)?.name || '---'}
                                                                 </td>
                                                                 {[ 'price', 'delivery_price', 'platform_price' ].map(field => (
@@ -514,7 +514,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                     <div className="flex-1 flex flex-col min-h-0">
                                                         <table className="w-full border-collapse sticky top-0 z-10">
                                                             <thead>
-                                                                <tr className="h-8 bg-[#f1f5f9] border-b border-[#ced4da] text-[10px] font-black text-slate-800 uppercase tracking-widest relative z-10">
+                                                                <tr className="h-8 bg-[#f1f5f9] border-b border-[#ced4da] text-[10px] font-semibold text-slate-800 uppercase tracking-widest relative z-10">
                                                                     <th className="text-center px-4 w-full">NOMBRE</th>
                                                                     <th className="text-center px-2 w-[100px]">PRIORIDAD</th>
                                                                 </tr>
@@ -531,7 +531,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                                                 className={`h-8 group cursor-pointer ${selectedRowId === (item.group_id || item.id) ? 'bg-[#106ebe]' : 'hover:bg-blue-50/50'}`}
                                                                                 onClick={() => setSelectedRowId(item.group_id || item.id)}
                                                                             >
-                                                                                <td className={`px-4 text-[10.5px] font-bold uppercase relative z-10 ${selectedRowId === (item.group_id || item.id) ? 'text-white' : 'text-slate-700'}`}>
+                                                                                <td className={`px-4 text-[10.5px] font-medium uppercase relative z-10 ${selectedRowId === (item.group_id || item.id) ? 'text-white' : 'text-slate-700'}`}>
                                                                                     {item.name || item.option_groups?.name || item.modifier_groups?.name || '---'}
                                                                                 </td>
                                                                                 <td className={`px-2 w-[100px] text-center text-[10.5px] font-medium relative z-10 ${selectedRowId === (item.group_id || item.id) ? 'text-blue-100' : 'text-slate-500'}`}>
@@ -561,7 +561,7 @@ export const PlatilloModal: React.FC<PlatilloModalProps> = ({
                                                             ) : (
                                                                 <div className="flex-1 flex flex-col items-center justify-center p-10 select-none opacity-20 pointer-events-none h-full">
                                                                     <Layers size={40} strokeWidth={1} className="text-gray-300 mb-2" />
-                                                                    <p className="text-[9px] font-black tracking-[0.2em] text-gray-400 text-center">CLIC DERECHO PARA AGREGAR</p>
+                                                                    <p className="text-[9px] font-semibold tracking-[0.2em] text-gray-400 text-center">CLIC DERECHO PARA AGREGAR</p>
                                                                 </div>
                                                             )}
                                                         </div>

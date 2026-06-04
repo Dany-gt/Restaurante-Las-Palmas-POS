@@ -31,12 +31,12 @@ const BranchReportPrintPreview: React.FC<{
                 <div className="bg-[#f0f0f0] border-2 border-[#106ebe] shadow-2xl flex flex-col w-[98vw] max-w-7xl h-[95vh] overflow-hidden select-none font-sans rounded-sm">
                     {/* Toolbar */}
                     <div className="modal-header bg-[#106ebe] h-10 px-4 flex justify-between items-center text-white shrink-0 cursor-move border-b border-black">
-                        <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest">
+                        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest">
                             <Printer size={16} className="text-emerald-400" />
                             <span>Contingencia y Auditoría - Vista Previa de Ventas por Sucursal</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <button onClick={() => handlePrint()} className="h-7 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-sm text-[10px] font-black uppercase flex items-center gap-2 transition-colors border border-blue-400/30">
+                            <button onClick={() => handlePrint()} className="h-7 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-sm text-[10px] font-semibold uppercase flex items-center gap-2 transition-colors border border-blue-400/30">
                                 <Printer size={12} strokeWidth={3} /> IMPRIMIR PDF
                             </button>
                             <button onClick={() => {
@@ -51,7 +51,7 @@ const BranchReportPrintPreview: React.FC<{
                                 const wb = XLSX.utils.book_new();
                                 XLSX.utils.book_append_sheet(wb, ws, 'Sucursales');
                                 XLSX.writeFile(wb, `Reporte_Sucursales_${filters.start}.xlsx`);
-                            }} className="h-7 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-sm text-[10px] font-black uppercase flex items-center gap-2 transition-colors border border-emerald-400/30">
+                            }} className="h-7 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-sm text-[10px] font-semibold uppercase flex items-center gap-2 transition-colors border border-emerald-400/30">
                                 <FileSpreadsheet size={12} strokeWidth={3} /> EXCEL
                             </button>
                             <button onClick={onClose} className="h-8 w-8 flex items-center justify-center hover:bg-red-500 transition-colors text-white ml-2 rounded-sm">
@@ -70,53 +70,53 @@ const BranchReportPrintPreview: React.FC<{
 
                             {/* Header */}
                             <div className="text-center mb-10 border-b-2 border-slate-900 pb-8 relative z-10">
-                                <h1 className="text-4xl font-black uppercase tracking-tighter mb-1 font-sans">RESTAURANTE LAS PALMAS</h1>
-                                <p className="text-[12px] font-black uppercase text-slate-400 tracking-[0.4em] mb-4 font-sans">Informe Consolidado de Rendimiento por Sucursal</p>
+                                <h1 className="text-4xl font-semibold uppercase tracking-tighter mb-1 font-sans">RESTAURANTE LAS PALMAS</h1>
+                                <p className="text-[12px] font-semibold uppercase text-slate-400 tracking-[0.4em] mb-4 font-sans">Informe Consolidado de Rendimiento por Sucursal</p>
 
                                 <div className="flex justify-between items-end bg-slate-50 p-6 border border-slate-200 mt-6 font-sans">
                                     <div className="text-left">
-                                        <h2 className="text-2xl font-black uppercase text-slate-800 tracking-tight leading-none">ESTADO DE RESULTADOS OPERATIVOS</h2>
+                                        <h2 className="text-2xl font-semibold uppercase text-slate-800 tracking-tight leading-none">ESTADO DE RESULTADOS OPERATIVOS</h2>
                                         <div className="mt-2 space-y-0.5">
-                                            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Análisis: <span className="text-slate-900">Multisucuarsal Las Palmas</span></p>
-                                            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Periodo: <span className="text-slate-900">{filters?.start} al {filters?.end}</span></p>
+                                            <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Análisis: <span className="text-slate-900">Multisucuarsal Las Palmas</span></p>
+                                            <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Periodo: <span className="text-slate-900">{filters?.start} al {filters?.end}</span></p>
                                         </div>
                                     </div>
                                     <div className="text-right">
                                         <div className="inline-block border-l-4 border-emerald-500 pl-4 text-right">
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 font-sans">Ventas Totales Brutas</p>
-                                            <div className="text-3xl font-black text-slate-900 tracking-tighter font-sans">Q{formatCurrRaw(totals?.totalVentas || 0)}</div>
+                                            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1 font-sans">Ventas Totales Brutas</p>
+                                            <div className="text-3xl font-semibold text-slate-900 tracking-tighter font-sans">Q{formatCurrRaw(totals?.totalVentas || 0)}</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Resumen Financiero */}
-                            <div className="grid grid-cols-5 gap-4 mb-10 font-sans relative z-10 text-[11px] font-bold uppercase tracking-tighter">
+                            <div className="grid grid-cols-5 gap-4 mb-10 font-sans relative z-10 text-[11px] font-medium uppercase tracking-tighter">
                                 <div className="border border-slate-200 p-4 bg-slate-50">
-                                    <span className="text-[8px] font-black text-slate-400 block mb-1">EFECTIVO</span>
-                                    <div className="text-lg font-black tracking-tight text-slate-900">Q{formatCurrRaw(totals?.vEfectivo || 0)}</div>
+                                    <span className="text-[8px] font-semibold text-slate-400 block mb-1">EFECTIVO</span>
+                                    <div className="text-lg font-semibold tracking-tight text-slate-900">Q{formatCurrRaw(totals?.vEfectivo || 0)}</div>
                                 </div>
                                 <div className="border border-slate-200 p-4 bg-white">
-                                    <span className="text-[8px] font-black text-blue-400 block mb-1">TARJETA</span>
-                                    <div className="text-lg font-black tracking-tight text-blue-700">Q{formatCurrRaw(totals?.vTarjeta || 0)}</div>
+                                    <span className="text-[8px] font-semibold text-blue-400 block mb-1">TARJETA</span>
+                                    <div className="text-lg font-semibold tracking-tight text-blue-700">Q{formatCurrRaw(totals?.vTarjeta || 0)}</div>
                                 </div>
                                 <div className="border border-slate-200 p-4 bg-white">
-                                    <span className="text-[8px] font-black text-emerald-400 block mb-1">CRÉDITO</span>
-                                    <div className="text-lg font-black tracking-tight text-emerald-700">Q{formatCurrRaw(totals?.vCredito || 0)}</div>
+                                    <span className="text-[8px] font-semibold text-emerald-400 block mb-1">CRÉDITO</span>
+                                    <div className="text-lg font-semibold tracking-tight text-emerald-700">Q{formatCurrRaw(totals?.vCredito || 0)}</div>
                                 </div>
                                 <div className="border border-slate-300 p-4 bg-slate-100/50">
-                                    <span className="text-[8px] font-black text-slate-400 block mb-1 font-black">UTILIDAD BRUTA (ESTIMADA)</span>
-                                    <div className="text-lg font-black tracking-tighter text-slate-900">Q{formatCurrRaw(totals.totalVentas - totals.totalEgresos)}</div>
+                                    <span className="text-[8px] font-semibold text-slate-400 block mb-1 font-semibold">UTILIDAD BRUTA (ESTIMADA)</span>
+                                    <div className="text-lg font-semibold tracking-tighter text-slate-900">Q{formatCurrRaw(totals.totalVentas - totals.totalEgresos)}</div>
                                 </div>
                                 <div className="border border-red-200 p-4 bg-red-50/30">
-                                    <span className="text-[8px] font-black text-red-400 block mb-1">EGRESOS TOTALES</span>
-                                    <div className="text-lg font-black tracking-tight text-red-700">Q{formatCurrRaw(totals?.totalEgresos || 0)}</div>
+                                    <span className="text-[8px] font-semibold text-red-400 block mb-1">EGRESOS TOTALES</span>
+                                    <div className="text-lg font-semibold tracking-tight text-red-700">Q{formatCurrRaw(totals?.totalEgresos || 0)}</div>
                                 </div>
                             </div>
 
                             {/* Tabla de Detalle */}
                             <div className="mb-12 relative z-10">
-                                <div className="bg-[#106ebe] text-white px-4 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4 flex justify-between items-center font-sans">
+                                <div className="bg-[#106ebe] text-white px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.2em] mb-4 flex justify-between items-center font-sans">
                                     <div className="flex items-center gap-2">
                                         <TrendingUp size={14} />
                                         <span>Desglose por Puntos de Venta</span>
@@ -125,7 +125,7 @@ const BranchReportPrintPreview: React.FC<{
 
                                 <table className="w-full border-collapse font-sans text-[10px]">
                                     <thead>
-                                        <tr className="bg-slate-100 border-b-2 border-slate-900 font-black uppercase text-slate-600 tracking-tighter">
+                                        <tr className="bg-slate-100 border-b-2 border-slate-900 font-semibold uppercase text-slate-600 tracking-tighter">
                                             <th className="px-2 py-3 text-left">SUCURSAL</th>
                                             <th className="px-2 py-3 text-right">EFECTIVO</th>
                                             <th className="px-2 py-3 text-right">TARJETA</th>
@@ -134,20 +134,20 @@ const BranchReportPrintPreview: React.FC<{
                                             <th className="px-2 py-3 text-right">UTILIDAD</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-100 font-bold">
+                                    <tbody className="divide-y divide-slate-100 font-medium">
                                         {data?.map((r, i) => (
                                             <tr key={i} className="h-10">
-                                                <td className="px-2 uppercase font-black">{r.name}</td>
+                                                <td className="px-2 uppercase font-semibold">{r.name}</td>
                                                 <td className="px-2 text-right">Q{formatCurrRaw(r.vEfectivo)}</td>
                                                 <td className="px-2 text-right">Q{formatCurrRaw(r.vTarjeta)}</td>
-                                                <td className="px-2 text-right bg-blue-50/30 font-black">Q{formatCurrRaw(r.totalVentas)}</td>
-                                                <td className="px-2 text-right text-red-500 font-black">Q{formatCurrRaw(r.compras + r.gastos)}</td>
-                                                <td className="px-2 text-right font-black border-l border-slate-200">Q{formatCurrRaw(r.totalVentas - r.totalEgresos)}</td>
+                                                <td className="px-2 text-right bg-blue-50/30 font-semibold">Q{formatCurrRaw(r.totalVentas)}</td>
+                                                <td className="px-2 text-right text-red-500 font-semibold">Q{formatCurrRaw(r.compras + r.gastos)}</td>
+                                                <td className="px-2 text-right font-semibold border-l border-slate-200">Q{formatCurrRaw(r.totalVentas - r.totalEgresos)}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                     <tfoot>
-                                        <tr className="border-t-2 border-slate-900 bg-slate-50 h-11 font-black uppercase text-xs">
+                                        <tr className="border-t-2 border-slate-900 bg-slate-50 h-11 font-semibold uppercase text-xs">
                                             <td className="px-2 text-right tracking-[0.1em]">GRAN TOTAL CONSOLIDADO:</td>
                                             <td className="px-2 text-right">Q{formatCurrRaw(totals?.vEfectivo || 0)}</td>
                                             <td className="px-2 text-right text-blue-600">Q{formatCurrRaw(totals?.vTarjeta || 0)}</td>
@@ -162,12 +162,12 @@ const BranchReportPrintPreview: React.FC<{
                             {/* Footer Firmas */}
                             <div className="mt-24 grid grid-cols-2 gap-20 px-20 font-sans relative z-10">
                                 <div className="border-t-2 border-slate-900 pt-5 text-center">
-                                    <p className="text-[10px] font-black uppercase text-slate-900">ADMINISTRACIÓN GENERAL</p>
-                                    <p className="text-[8px] text-slate-400 font-bold mt-2 uppercase tracking-tight font-serif">Certificación de Resultados Mensuales / Período</p>
+                                    <p className="text-[10px] font-semibold uppercase text-slate-900">ADMINISTRACIÓN GENERAL</p>
+                                    <p className="text-[8px] text-slate-400 font-medium mt-2 uppercase tracking-tight font-serif">Certificación de Resultados Mensuales / Período</p>
                                 </div>
                                 <div className="border-t-2 border-slate-900 pt-5 text-center">
-                                    <p className="text-[10px] font-black uppercase text-slate-900">AUDITORÍA CONTABLE</p>
-                                    <p className="text-[8px] text-slate-400 font-bold mt-2 uppercase tracking-tight font-serif">Verificación de Flujos y Egresos</p>
+                                    <p className="text-[10px] font-semibold uppercase text-slate-900">AUDITORÍA CONTABLE</p>
+                                    <p className="text-[8px] text-slate-400 font-medium mt-2 uppercase tracking-tight font-serif">Verificación de Flujos y Egresos</p>
                                 </div>
                             </div>
 
@@ -336,23 +336,23 @@ export const ReportBranch: React.FC = () => {
                     <div className="flex items-center gap-8">
                         {/* Fechas */}
                         <div className="flex items-center gap-4 relative pt-2">
-                            <span className="absolute -top-3.5 left-0 text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Filtro de Fechas</span>
+                            <span className="absolute -top-3.5 left-0 text-[10px] font-medium text-gray-500 uppercase tracking-tighter">Filtro de Fechas</span>
                             <div className="flex items-center gap-2">
-                                <span className="text-[11px] font-bold text-gray-700">Del:</span>
+                                <span className="text-[11px] font-medium text-gray-700">Del:</span>
                                 <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="border border-gray-400 bg-white text-[11px] h-7 px-2 outline-none focus:border-blue-500 shadow-inner" />
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="text-[11px] font-bold text-gray-700">Al:</span>
+                                <span className="text-[11px] font-medium text-gray-700">Al:</span>
                                 <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="border border-gray-400 bg-white text-[11px] h-7 px-2 outline-none focus:border-blue-500 shadow-inner" />
                             </div>
                         </div>
 
                         {/* Acciones */}
                         <div className="flex items-center gap-2 pt-2">
-                            <button onClick={handleGenerate} disabled={loading} className="bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-6 py-1 text-[11px] font-black uppercase text-gray-700 shadow-sm transition-all active:scale-95 disabled:opacity-50">
+                            <button onClick={handleGenerate} disabled={loading} className="bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-6 py-1 text-[11px] font-semibold uppercase text-gray-700 shadow-sm transition-all active:scale-95 disabled:opacity-50">
                                 {loading ? <Loader2 size={14} className="animate-spin" /> : 'Generar'}
                             </button>
-                            <button onClick={() => setShowPrintPreview(true)} className="bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-6 py-1 text-[11px] font-black uppercase text-gray-700 shadow-sm transition-all active:scale-95">
+                            <button onClick={() => setShowPrintPreview(true)} className="bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-6 py-1 text-[11px] font-semibold uppercase text-gray-700 shadow-sm transition-all active:scale-95">
                                 <Printer size={14} className="text-blue-600 mr-2" /> Imprimir Vista Previa
                             </button>
                         </div>
@@ -369,7 +369,7 @@ export const ReportBranch: React.FC = () => {
                                 onChange={e => setSearchTerm(e.target.value)}
                                 className="bg-transparent border-none outline-none text-[11px] text-gray-700 w-[240px]"
                             />
-                            <button className="bg-[#f0f0f0] border-l border-gray-300 h-full px-4 text-[10px] font-bold hover:bg-gray-200 uppercase tracking-tighter">Buscar</button>
+                            <button className="bg-[#f0f0f0] border-l border-gray-300 h-full px-4 text-[10px] font-medium hover:bg-gray-200 uppercase tracking-tighter">Buscar</button>
                         </div>
                     </div>
                 </div>
@@ -383,31 +383,31 @@ export const ReportBranch: React.FC = () => {
                 <table className="w-full border-collapse text-[11px] select-text">
                     <thead className="sticky top-0 bg-[#f0f0f0] z-20 shadow-sm ring-1 ring-gray-300 ring-inset">
                         <tr className="divide-x divide-gray-300">
-                            <th className="px-4 py-2 text-left font-black uppercase text-gray-600 w-[15%]">Sucursal</th>
-                            <th className="px-4 py-2 text-right font-black uppercase text-gray-600">Ventas Efectivo</th>
-                            <th className="px-4 py-2 text-right font-black uppercase text-gray-600">Ventas Tarjeta</th>
-                            <th className="px-4 py-2 text-right font-black uppercase text-gray-600">Ventas Al Crédito</th>
-                            <th className="px-4 py-2 text-right font-black uppercase text-gray-600">Ventas Otros</th>
-                            <th className="px-4 py-2 text-right font-black uppercase text-gray-600 bg-blue-100/30">Total Ventas</th>
-                            <th className="px-4 py-2 text-right font-black uppercase text-gray-600">Compras</th>
-                            <th className="px-4 py-2 text-right font-black uppercase text-gray-600">Gastos</th>
-                            <th className="px-4 py-2 text-right font-black uppercase text-gray-600">Descuentos</th>
-                            <th className="px-4 py-2 text-right font-black uppercase text-gray-600 bg-red-100/30">Total Egresos</th>
+                            <th className="px-4 py-2 text-left font-semibold uppercase text-gray-600 w-[15%]">Sucursal</th>
+                            <th className="px-4 py-2 text-right font-semibold uppercase text-gray-600">Ventas Efectivo</th>
+                            <th className="px-4 py-2 text-right font-semibold uppercase text-gray-600">Ventas Tarjeta</th>
+                            <th className="px-4 py-2 text-right font-semibold uppercase text-gray-600">Ventas Al Crédito</th>
+                            <th className="px-4 py-2 text-right font-semibold uppercase text-gray-600">Ventas Otros</th>
+                            <th className="px-4 py-2 text-right font-semibold uppercase text-gray-600 bg-blue-100/30">Total Ventas</th>
+                            <th className="px-4 py-2 text-right font-semibold uppercase text-gray-600">Compras</th>
+                            <th className="px-4 py-2 text-right font-semibold uppercase text-gray-600">Gastos</th>
+                            <th className="px-4 py-2 text-right font-semibold uppercase text-gray-600">Descuentos</th>
+                            <th className="px-4 py-2 text-right font-semibold uppercase text-gray-600 bg-red-100/30">Total Egresos</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white">
                         {filteredData.map((row, idx) => (
                             <tr key={idx} className="group hover:bg-blue-50 transition-colors border-b border-gray-200 divide-x divide-gray-100 font-medium">
-                                <td className="px-4 py-2 text-gray-700 font-bold border-l-2 border-l-transparent group-hover:border-l-blue-500">{row.name}</td>
+                                <td className="px-4 py-2 text-gray-700 font-medium border-l-2 border-l-transparent group-hover:border-l-blue-500">{row.name}</td>
                                 <td className="px-4 py-2 text-right text-gray-600">{formatCurr(row.vEfectivo)}</td>
                                 <td className="px-4 py-2 text-right text-gray-600">{formatCurr(row.vTarjeta)}</td>
                                 <td className="px-2 text-right text-gray-600">{formatCurr(row.vCredito)}</td>
                                 <td className="px-4 py-2 text-right text-gray-600">{formatCurr(row.vOtros)}</td>
-                                <td className="px-4 py-2 text-right font-black text-slate-800 bg-blue-50/20">{formatCurr(row.totalVentas)}</td>
+                                <td className="px-4 py-2 text-right font-semibold text-slate-800 bg-blue-50/20">{formatCurr(row.totalVentas)}</td>
                                 <td className="px-4 py-2 text-right text-gray-600">{formatCurr(row.compras)}</td>
                                 <td className="px-4 py-2 text-right text-gray-600">{formatCurr(row.gastos)}</td>
                                 <td className="px-4 py-2 text-right text-gray-600">{formatCurr(row.desc)}</td>
-                                <td className="px-4 py-2 text-right font-black text-slate-800 bg-red-50/20">{formatCurr(row.totalEgresos)}</td>
+                                <td className="px-4 py-2 text-right font-semibold text-slate-800 bg-red-50/20">{formatCurr(row.totalEgresos)}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -416,7 +416,7 @@ export const ReportBranch: React.FC = () => {
                 {data.length === 0 && !loading && (
                     <div className="flex flex-col items-center justify-center py-40 opacity-20 select-none">
                         <BarChart3 size={64} className="mb-4" />
-                        <span className="text-xs font-black uppercase tracking-[0.5em]">Sin Registros</span>
+                        <span className="text-xs font-semibold uppercase tracking-[0.5em]">Sin Registros</span>
                     </div>
                 )}
             </div>
@@ -424,10 +424,10 @@ export const ReportBranch: React.FC = () => {
             {/* Bottom Totals Summary bar */}
             <div className="bg-[#f0f0f0] border-t border-gray-300 flex items-center justify-end px-4 h-10 gap-x-1 divide-x divide-gray-300 shrink-0 select-text overflow-x-auto">
                 <div className="px-6 flex flex-col items-end">
-                    <span className="text-[11px] font-black text-slate-900 leading-tight">{formatCurr(totals.totalVentas)}</span>
+                    <span className="text-[11px] font-semibold text-slate-900 leading-tight">{formatCurr(totals.totalVentas)}</span>
                 </div>
                 <div className="px-6 flex flex-col items-end">
-                    <span className="text-[11px] font-black text-slate-900 leading-tight">{formatCurr(totals.totalEgresos)}</span>
+                    <span className="text-[11px] font-semibold text-slate-900 leading-tight">{formatCurr(totals.totalEgresos)}</span>
                 </div>
             </div>
 

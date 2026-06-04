@@ -483,19 +483,19 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                         <ArrowLeft size={18} strokeWidth={2.5} />
                     </button>
                     <div className="flex flex-col">
-                        <h1 className="text-[11px] font-black tracking-widest text-white uppercase flex items-center gap-2">
+                        <h1 className="text-[11px] font-semibold tracking-widest text-white uppercase flex items-center gap-2">
                             RESTAURANTE LAS PALMAS POS
                         </h1>
-                        <span className="text-[8px] font-bold text-gray-500 tracking-widest uppercase">Visor de Facturas</span>
+                        <span className="text-[8px] font-medium text-gray-500 tracking-widest uppercase">Visor de Facturas</span>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-4">
                     <div className="hidden md:flex flex-col items-end">
-                        <span className="text-xs font-bold">{currentUser?.name || 'Usuario'}</span>
-                        <span className="text-[9px] text-gray-400 font-black uppercase tracking-widest">{currentUser?.role || 'Personal'}</span>
+                        <span className="text-xs font-medium">{currentUser?.name || 'Usuario'}</span>
+                        <span className="text-[9px] text-gray-400 font-semibold uppercase tracking-widest">{currentUser?.role || 'Personal'}</span>
                     </div>
-                    <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white font-medium">
                         {(currentUser?.name || 'U')[0]}
                     </div>
                 </div>
@@ -506,30 +506,30 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                 <div className="w-full lg:w-[320px] xl:w-[360px] flex flex-col border-r border-white/5 bg-[#2d2e3d]  z-10">
                     {/* Header */}
                     <div className="p-3 border-b border-white/5 bg-[#3a3b4d]/30">
-                        <h3 className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Facturas</h3>
+                        <h3 className="text-[9px] font-semibold text-gray-400 uppercase tracking-[0.2em] mb-3">Facturas</h3>
 
                         <div className="grid grid-cols-2 gap-2 mb-3">
                             <div>
-                                <label className="text-[8px] font-black text-gray-600 uppercase tracking-widest mb-1.5 block">Del</label>
+                                <label className="text-[8px] font-semibold text-gray-600 uppercase tracking-widest mb-1.5 block">Del</label>
                                 <div className="relative">
                                     <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/50" size={12} />
                                     <input
                                         type="date"
                                         value={startDate}
                                         onChange={(e) => setStartDate(e.target.value)}
-                                        className="w-full bg-[#3a3b4d] border border-white/5 rounded-sm py-1.5 pl-8 pr-2 text-[10px] font-bold focus:border-white/50 outline-none transition-all"
+                                        className="w-full bg-[#3a3b4d] border border-white/5 rounded-sm py-1.5 pl-8 pr-2 text-[10px] font-medium focus:border-white/50 outline-none transition-all"
                                     />
                                 </div>
                             </div>
                             <div>
-                                <label className="text-[8px] font-black text-gray-600 uppercase tracking-widest mb-1.5 block">Al</label>
+                                <label className="text-[8px] font-semibold text-gray-600 uppercase tracking-widest mb-1.5 block">Al</label>
                                 <div className="relative">
                                     <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/50" size={12} />
                                     <input
                                         type="date"
                                         value={endDate}
                                         onChange={(e) => setEndDate(e.target.value)}
-                                        className="w-full bg-[#3a3b4d] border border-white/5 rounded-sm py-1.5 pl-8 pr-2 text-[10px] font-bold focus:border-white/50 outline-none transition-all"
+                                        className="w-full bg-[#3a3b4d] border border-white/5 rounded-sm py-1.5 pl-8 pr-2 text-[10px] font-medium focus:border-white/50 outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -542,11 +542,11 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                 placeholder="BUSCAR NOMBRE / NIT..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-black/40 border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-black placeholder:text-gray-500 outline-none focus:border-white/50 focus:bg-black/60 transition-all uppercase tracking-widest text-white "
+                                className="w-full bg-black/40 border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-semibold placeholder:text-gray-500 outline-none focus:border-white/50 focus:bg-black/60 transition-all uppercase tracking-widest text-white "
                             />
                         </div>
                         {activeTab === 'CONTINGENCIA' && (
-                            <div className="mt-2 text-[8px] font-black text-white/30 uppercase tracking-[0.2em] text-center border border-white/5 py-1 rounded-sm bg-black/20">
+                            <div className="mt-2 text-[8px] font-semibold text-white/30 uppercase tracking-[0.2em] text-center border border-white/5 py-1 rounded-sm bg-black/20">
                                 Viendo solo registros de HOY
                             </div>
                         )}
@@ -561,7 +561,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                         ) : records.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center py-20 opacity-30 text-center">
                                 <FileText size={40} strokeWidth={1} />
-                                <span className="text-[10px] font-black uppercase tracking-widest mt-4">Sin registros</span>
+                                <span className="text-[10px] font-semibold uppercase tracking-widest mt-4">Sin registros</span>
                             </div>
                         ) : (
                             filteredRecords.map((record) => (
@@ -576,17 +576,17 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                 >
                                     <div className="flex justify-between items-start">
                                         <div className="flex flex-col">
-                                            <span className="text-[10px] font-black text-white group-hover:text-white uppercase truncate max-w-[140px]">
+                                            <span className="text-[10px] font-semibold text-white group-hover:text-white uppercase truncate max-w-[140px]">
                                                 {record.customer_name || 'CONSUMIDOR FINAL'}
                                             </span>
                                             <div className="flex items-center gap-1.5">
-                                                <span className="text-[8px] font-black text-indigo-400 uppercase tracking-tighter">
+                                                <span className="text-[8px] font-semibold text-indigo-400 uppercase tracking-tighter">
                                                     ORDEN #{record.order_number || record.orders?.order_number || '---'}
                                                 </span>
                                                 {(record.orders?.order_type === 'DINE_IN' || record.order_type === 'DINE_IN') && (
                                                     <>
                                                         <span className="w-0.5 h-0.5 rounded-full bg-gray-600"></span>
-                                                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter">
+                                                        <span className="text-[8px] font-semibold text-gray-400 uppercase tracking-tighter">
                                                             MESA {record.orders?.tables?.number || record.tables?.number || record.orders?.table?.number || record.table?.number || '---'}
                                                         </span>
                                                     </>
@@ -594,14 +594,14 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <span className={`text-sm font-black tracking-tighter tabular-nums ${selectedRecord?.id === record.id ? 'text-white' : 'text-white'}`}>
+                                            <span className={`text-sm font-semibold tracking-tighter tabular-nums ${selectedRecord?.id === record.id ? 'text-white' : 'text-white'}`}>
                                                 Q{(
                                                     record.grand_total !== undefined
                                                         ? (parseFloat((record.grand_total || 0).toString()) + parseFloat((record.tip_amount || record.tip_total || record.orders?.tip_amount || 0).toString()))
                                                         : parseFloat((record.total || 0).toString())
                                                 ).toFixed(2)}
                                             </span>
-                                            <div className={`flex items-center gap-1 justify-end mt-1 text-[9px] font-bold uppercase ${selectedRecord?.id === record.id ? 'text-white/60' : 'text-gray-500'}`}>
+                                            <div className={`flex items-center gap-1 justify-end mt-1 text-[9px] font-medium uppercase ${selectedRecord?.id === record.id ? 'text-white/60' : 'text-gray-500'}`}>
                                                 <Hash size={10} />
                                                 <span>{record.customer_nit || 'CF'}</span>
                                             </div>
@@ -611,11 +611,11 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                     <div className={`flex items-center justify-between mt-1 pt-2 border-t ${selectedRecord?.id === record.id ? 'border-white/10' : 'border-white/5'}`}>
                                         <div className="flex items-center gap-2">
                                             <div className={`w-2 h-2 rounded-full ${record.status?.toUpperCase() === 'CANCELLED' ? 'bg-rose-500' : record.uuid ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                                            <span className={`text-[9px] font-black uppercase tracking-widest ${record.status?.toUpperCase() === 'CANCELLED' ? 'text-rose-400' : selectedRecord?.id === record.id ? 'text-white/80' : 'text-gray-500'}`}>
+                                            <span className={`text-[9px] font-semibold uppercase tracking-widest ${record.status?.toUpperCase() === 'CANCELLED' ? 'text-rose-400' : selectedRecord?.id === record.id ? 'text-white/80' : 'text-gray-500'}`}>
                                                 {record.status?.toUpperCase() === 'CANCELLED' ? 'Anulada' : record.uuid ? 'Certificada' : 'Sin Facturar'}
                                             </span>
                                         </div>
-                                        <span className={`text-[8px] font-bold ${selectedRecord?.id === record.id ? 'text-white/50' : 'text-gray-600'}`}>
+                                        <span className={`text-[8px] font-medium ${selectedRecord?.id === record.id ? 'text-white/50' : 'text-gray-600'}`}>
                                             {new Date(record.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                     </div>
@@ -628,15 +628,15 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                     <div className="p-3 bg-[#3a3b4d] border-t border-white/5 flex gap-2 shrink-0">
                         <button
                             onClick={() => setActiveTab('FACTURADAS')}
-                            className={`flex-1 py-2 rounded-sm text-[9px] font-black uppercase tracking-wider transition-all
-                                ${activeTab === 'FACTURADAS' ? 'bg-white text-black  font-black' : 'bg-white/5 text-gray-500 hover:text-white'}`}
+                            className={`flex-1 py-2 rounded-sm text-[9px] font-semibold uppercase tracking-wider transition-all
+                                ${activeTab === 'FACTURADAS' ? 'bg-white text-black  font-semibold' : 'bg-white/5 text-gray-500 hover:text-white'}`}
                         >
                             Facturadas
                         </button>
                         <button
                             onClick={() => setActiveTab('CONTINGENCIA')}
-                            className={`flex-1 py-2 rounded-sm text-[9px] font-black uppercase tracking-wider transition-all
-                                ${activeTab === 'CONTINGENCIA' ? 'bg-white text-black  font-black' : 'bg-white/5 text-gray-500 hover:text-white'}`}
+                            className={`flex-1 py-2 rounded-sm text-[9px] font-semibold uppercase tracking-wider transition-all
+                                ${activeTab === 'CONTINGENCIA' ? 'bg-white text-black  font-semibold' : 'bg-white/5 text-gray-500 hover:text-white'}`}
                         >
                             Contingencia
                         </button>
@@ -654,23 +654,23 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                         <FileText size={18} />
                                     </div>
                                     <div>
-                                        <h2 className="text-[11px] font-black text-white uppercase tracking-wider leading-none">
+                                        <h2 className="text-[11px] font-semibold text-white uppercase tracking-wider leading-none">
                                             {selectedRecord.status?.toUpperCase() === 'CANCELLED' ? 'ORDEN ANULADA' : selectedRecord.uuid ? 'DOCUMENTO EMITIDO' : 'ORDEN COMPLETADA'}
                                         </h2>
-                                        <p className="text-[8px] font-bold text-gray-500 mt-1 uppercase tracking-widest">
+                                        <p className="text-[8px] font-medium text-gray-500 mt-1 uppercase tracking-widest">
                                             {selectedRecord.uuid ? `DTE: ${selectedRecord.document_number}` : 'Pendiente de emisión FEL'}
                                         </p>
                                     </div>
                                 </div>
                                 <div className="flex gap-1.5">
                                     {selectedRecord.status?.toUpperCase() === 'CANCELLED' ? (
-                                        <div className="px-3 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-sm text-[8px] font-black uppercase tracking-widest">
+                                        <div className="px-3 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-sm text-[8px] font-semibold uppercase tracking-widest">
                                             ANULADO
                                         </div>
                                     ) : (
                                         <button
                                             onClick={() => setShowVoidModal(true)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 rounded-sm transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest  -600/20"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 rounded-sm transition-all active:scale-95 text-[9px] font-semibold uppercase tracking-widest  -600/20"
                                         >
                                             <Trash2 size={12} />
                                             <span>Anular</span>
@@ -679,7 +679,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                     {selectedRecord.status?.toUpperCase() !== 'CANCELLED' && (
                                         <button
                                             onClick={() => handleWhatsApp(selectedRecord)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-sm transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest  -600/20 text-white"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-sm transition-all active:scale-95 text-[9px] font-semibold uppercase tracking-widest  -600/20 text-white"
                                         >
                                             <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 fill-current">
                                                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
@@ -690,7 +690,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                     {activeTab === 'CONTINGENCIA' && onCheckout ? (
                                         <button
                                             onClick={() => handleFacturar(selectedRecord)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-sm transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest  -600/20"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-sm transition-all active:scale-95 text-[9px] font-semibold uppercase tracking-widest  -600/20"
                                         >
                                             <Receipt size={12} />
                                             <span>Facturar</span>
@@ -698,7 +698,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                     ) : (
                                         <button
                                             onClick={() => handlePrint(selectedRecord)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-sm transition-all active:scale-95 text-[9px] font-black uppercase tracking-widest  -600/20"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-sm transition-all active:scale-95 text-[9px] font-semibold uppercase tracking-widest  -600/20"
                                         >
                                             <Printer size={12} />
                                             <span>Imprimir</span>
@@ -714,9 +714,9 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                         <User size={16} />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-[7px] font-black text-gray-600 uppercase tracking-widest leading-none mb-1">Cliente / NIT</p>
-                                        <p className="text-[10px] font-black text-white uppercase truncate">{selectedRecord.customer_name || 'Consumidor Final'}</p>
-                                        <p className="text-[8px] font-bold text-indigo-400/80 tracking-widest uppercase">{selectedRecord.customer_nit || 'CF'}</p>
+                                        <p className="text-[7px] font-semibold text-gray-600 uppercase tracking-widest leading-none mb-1">Cliente / NIT</p>
+                                        <p className="text-[10px] font-semibold text-white uppercase truncate">{selectedRecord.customer_name || 'Consumidor Final'}</p>
+                                        <p className="text-[8px] font-medium text-indigo-400/80 tracking-widest uppercase">{selectedRecord.customer_nit || 'CF'}</p>
                                     </div>
                                 </div>
 
@@ -725,9 +725,9 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                         <Hash size={16} />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-[7px] font-black text-gray-600 uppercase tracking-widest leading-none mb-1">Orden / Fecha</p>
-                                        <p className="text-[10px] font-black text-white">#{selectedRecord.order_number || selectedRecord.orders?.order_number || '---'}</p>
-                                        <p className="text-[9px] font-bold text-gray-400 tracking-tight mt-0.5">{new Date(selectedRecord.created_at).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}</p>
+                                        <p className="text-[7px] font-semibold text-gray-600 uppercase tracking-widest leading-none mb-1">Orden / Fecha</p>
+                                        <p className="text-[10px] font-semibold text-white">#{selectedRecord.order_number || selectedRecord.orders?.order_number || '---'}</p>
+                                        <p className="text-[9px] font-medium text-gray-400 tracking-tight mt-0.5">{new Date(selectedRecord.created_at).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}</p>
                                     </div>
                                 </div>
 
@@ -736,8 +736,8 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                         <MapPin size={16} />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-[7px] font-black text-gray-600 uppercase tracking-widest leading-none mb-1">Origen / Tipo</p>
-                                        <p className="text-[10px] font-black text-white uppercase truncate">
+                                        <p className="text-[7px] font-semibold text-gray-600 uppercase tracking-widest leading-none mb-1">Origen / Tipo</p>
+                                        <p className="text-[10px] font-semibold text-white uppercase truncate">
                                             {(selectedRecord.orders?.order_type || selectedRecord.order_type) === 'DINE_IN' 
                                                 ? `MESA ${(selectedRecord.orders?.tables?.number || selectedRecord.tables?.number || selectedRecord.orders?.table?.number || selectedRecord.table?.number || '---')}`
                                                 : (selectedRecord.orders?.order_type || selectedRecord.order_type) === 'TAKEOUT'
@@ -747,7 +747,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                                         : 'VENTA GENERAL'
                                             }
                                         </p>
-                                        <p className="text-[8px] font-bold text-indigo-400/80 tracking-widest uppercase">
+                                        <p className="text-[8px] font-medium text-indigo-400/80 tracking-widest uppercase">
                                             {selectedRecord.orders?.order_type || selectedRecord.order_type || 'GENERAL'}
                                         </p>
                                     </div>
@@ -758,12 +758,12 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                         <CreditCard size={16} />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-[7px] font-black text-gray-600 uppercase tracking-widest leading-none mb-1">Forma de Pago</p>
-                                        <p className="text-[10px] font-black text-white uppercase truncate">
+                                        <p className="text-[7px] font-semibold text-gray-600 uppercase tracking-widest leading-none mb-1">Forma de Pago</p>
+                                        <p className="text-[10px] font-semibold text-white uppercase truncate">
                                             {getPaymentMethodDisplay(selectedRecord)}
                                         </p>
                                         {(selectedRecord.orders?.card_processor || selectedRecord.card_processor) && (
-                                            <p className="text-[8px] font-bold text-indigo-400/80 tracking-widest uppercase truncate">
+                                            <p className="text-[8px] font-medium text-indigo-400/80 tracking-widest uppercase truncate">
                                                 {selectedRecord.orders?.card_processor || selectedRecord.card_processor}
                                             </p>
                                         )}
@@ -774,7 +774,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                             {/* Table Area: Flexible and Scrollable */}
                             <div className="flex-1 flex flex-col p-3 overflow-hidden">
                                 <div className="flex-1 flex flex-col bg-[#3a3b4d] border border-white/5 rounded-sm overflow-hidden ">
-                                    <div className="grid grid-cols-12 px-4 py-2 bg-black/40 border-b border-white/5 text-[8px] font-black text-gray-500 uppercase tracking-[0.2em]">
+                                    <div className="grid grid-cols-12 px-4 py-2 bg-black/40 border-b border-white/5 text-[8px] font-semibold text-gray-500 uppercase tracking-[0.2em]">
                                         <div className="col-span-1">Ct.</div>
                                         <div className="col-span-7">Descripción</div>
                                         <div className="col-span-2 text-right">Unit.</div>
@@ -785,21 +785,21 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                         {loadingItems ? (
                                             <div className="h-full flex flex-col items-center justify-center gap-3 py-20">
                                                 <Loader2 size={32} className="animate-spin text-indigo-500 opacity-50" />
-                                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-600">Sincronizando ítems...</span>
+                                                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-600">Sincronizando ítems...</span>
                                             </div>
                                         ) : selectedOrderItems.length > 0 ? (
                                             <div className="flex flex-col min-h-full">
                                                 <div className="flex-1">
                                                     {selectedOrderItems.map((item, idx) => (
                                                         <div key={idx} className="grid grid-cols-12 px-6 py-4 border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors items-center group">
-                                                            <div className="col-span-1 text-xs font-black text-indigo-400">{item.quantity}</div>
-                                                            <div className="col-span-7 text-xs font-black uppercase text-gray-300 tracking-tight group-hover:text-white transition-colors">
+                                                            <div className="col-span-1 text-xs font-semibold text-indigo-400">{item.quantity}</div>
+                                                            <div className="col-span-7 text-xs font-semibold uppercase text-gray-300 tracking-tight group-hover:text-white transition-colors">
                                                                 {item.products?.name || 'Producto'}
                                                             </div>
-                                                            <div className="col-span-2 text-right text-[11px] font-bold text-gray-500 tabular-nums">
+                                                            <div className="col-span-2 text-right text-[11px] font-medium text-gray-500 tabular-nums">
                                                                 Q{item.unit_price.toFixed(2)}
                                                             </div>
-                                                            <div className="col-span-2 text-right text-xs font-black text-white tabular-nums">
+                                                            <div className="col-span-2 text-right text-xs font-semibold text-white tabular-nums">
                                                                 Q{(item.quantity * item.unit_price).toFixed(2)}
                                                             </div>
                                                         </div>
@@ -818,20 +818,20 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                                             return (
                                                                 <>
                                                                     <div className="flex justify-between text-[12px] items-center">
-                                                                        <span className="text-gray-400 font-bold uppercase tracking-widest leading-none">Sub-Total</span>
-                                                                        <span className="font-black tabular-nums text-white/95">Q{subTotalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                                        <span className="text-gray-400 font-medium uppercase tracking-widest leading-none">Sub-Total</span>
+                                                                        <span className="font-semibold tabular-nums text-white/95">Q{subTotalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                                                     </div>
                                                                     <div className="flex justify-between text-[12px] items-center mt-1">
-                                                                        <span className="text-gray-400 font-bold uppercase tracking-widest leading-none">Descuento</span>
-                                                                        <span className="font-black tabular-nums text-white/95">-Q{discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                                        <span className="text-gray-400 font-medium uppercase tracking-widest leading-none">Descuento</span>
+                                                                        <span className="font-semibold tabular-nums text-white/95">-Q{discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                                                     </div>
                                                                     <div className="flex justify-between text-[12px] items-center mt-1">
-                                                                        <span className="text-gray-400 font-bold uppercase tracking-widest leading-none">Propina</span>
-                                                                        <span className="font-black tabular-nums text-white/95">Q{tip.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                                        <span className="text-gray-400 font-medium uppercase tracking-widest leading-none">Propina</span>
+                                                                        <span className="font-semibold tabular-nums text-white/95">Q{tip.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                                                     </div>
                                                                     <div className="mt-3 pt-3 border-t border-white/10 flex justify-between items-baseline">
-                                                                        <span className="text-[11px] font-black text-white/45 uppercase tracking-widest leading-none">Total</span>
-                                                                        <span className="text-2xl font-black tabular-nums text-white leading-none">Q{totalPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                                        <span className="text-[11px] font-semibold text-white/45 uppercase tracking-widest leading-none">Total</span>
+                                                                        <span className="text-2xl font-semibold tabular-nums text-white leading-none">Q{totalPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                                                     </div>
                                                                 </>
                                                             );
@@ -842,7 +842,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                         ) : (
                                             <div className="h-full flex flex-col items-center justify-center text-gray-700 py-20 opacity-50">
                                                 <FileText size={48} strokeWidth={1} />
-                                                <span className="text-[10px] font-black uppercase mt-4">No hay contenido</span>
+                                                <span className="text-[10px] font-semibold uppercase mt-4">No hay contenido</span>
                                             </div>
                                         )}
                                     </div>
@@ -854,8 +854,8 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                             <div className="w-32 h-32 bg-white/5 rounded-full flex items-center justify-center mb-8 border border-white/10 ">
                                 <FileText size={64} className="text-white/40" strokeWidth={1} />
                             </div>
-                            <h3 className="text-2xl font-black uppercase tracking-[0.4em] text-white/60 mb-3">Visor de Detalles</h3>
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest max-w-[300px] leading-relaxed">
+                            <h3 className="text-2xl font-semibold uppercase tracking-[0.4em] text-white/60 mb-3">Visor de Detalles</h3>
+                            <p className="text-xs font-medium text-gray-400 uppercase tracking-widest max-w-[300px] leading-relaxed">
                                 Seleccione un registro de la lista para ver el desglose completo
                             </p>
                         </div>
@@ -871,10 +871,10 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                             {/* Left Side: Info & Keypad */}
                             <div className="w-1/2 flex flex-col border-r border-white/5 bg-black/20 shrink-0">
                                 <div className="p-4 sm:p-6 border-b border-white/5 bg-white/[0.02]">
-                                    <span className="text-[9px] font-black uppercase tracking-[0.4em] text-rose-500">Procedimiento Seguro</span>
-                                    <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-tighter">PIN DE ADMINISTRADOR</h3>
+                                    <span className="text-[9px] font-semibold uppercase tracking-[0.4em] text-rose-500">Procedimiento Seguro</span>
+                                    <h3 className="text-lg sm:text-xl font-semibold text-white uppercase tracking-tighter">PIN DE ADMINISTRADOR</h3>
                                     {selectedRecord?.uuid && (
-                                        <p className="text-[10px] font-bold text-gray-400 mt-2 break-all text-center">
+                                        <p className="text-[10px] font-medium text-gray-400 mt-2 break-all text-center">
                                             UUID: {selectedRecord.uuid}
                                         </p>
                                     )}
@@ -900,20 +900,20 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                             <button
                                                 key={num}
                                                 onClick={() => voidPin.length < 4 && setVoidPin(v => v + num)}
-                                                className="h-10 rounded-sm bg-white/5 hover:bg-white/10 border border-white/5 text-sm font-black transition-all active:scale-90"
+                                                className="h-10 rounded-sm bg-white/5 hover:bg-white/10 border border-white/5 text-sm font-semibold transition-all active:scale-90"
                                             >
                                                 {num}
                                             </button>
                                         ))}
                                         <button
                                             onClick={() => setVoidPin('')}
-                                            className="h-10 rounded-sm bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-500 text-[9px] font-black uppercase transition-all active:scale-90"
+                                            className="h-10 rounded-sm bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-500 text-[9px] font-semibold uppercase transition-all active:scale-90"
                                         >
                                             Limpiar
                                         </button>
                                         <button
                                             onClick={() => voidPin.length < 4 && setVoidPin(v => v + '0')}
-                                            className="h-10 rounded-sm bg-white/5 hover:bg-white/10 border border-white/5 text-lg font-black transition-all active:scale-90"
+                                            className="h-10 rounded-sm bg-white/5 hover:bg-white/10 border border-white/5 text-lg font-semibold transition-all active:scale-90"
                                         >
                                             0
                                         </button>
@@ -938,7 +938,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                 <div className="flex-1 p-4 sm:p-6 overflow-y-auto custom-scrollbar">
                                     <div className="space-y-5">
                                         <div className="space-y-2">
-                                            <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
+                                            <label className="text-[9px] font-semibold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
                                                 <MessageSquare size={12} className="text-rose-500" />
                                                 Motivo de Anulación
                                             </label>
@@ -957,7 +957,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                                     <button
                                                         key={reason}
                                                         onClick={() => setVoidReason(reason)}
-                                                        className={`p-3 rounded-sm text-xs text-left font-bold transition-all border ${voidReason === reason
+                                                        className={`p-3 rounded-sm text-xs text-left font-medium transition-all border ${voidReason === reason
                                                             ? 'bg-rose-500/10 border-rose-500/50 text-white'
                                                             : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'
                                                             }`}
@@ -975,17 +975,17 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                                     autoFocus
                                                     placeholder="Especifique el motivo..."
                                                     onChange={(e) => setVoidReason(e.target.value)}
-                                                    className="w-full bg-black/40 border border-white/5 rounded-sm p-3 text-xs font-bold text-white focus:border-rose-500/50 outline-none transition-all uppercase"
+                                                    className="w-full bg-black/40 border border-white/5 rounded-sm p-3 text-xs font-medium text-white focus:border-rose-500/50 outline-none transition-all uppercase"
                                                 />
                                             </div>
                                         )}
 
                                         <div className="space-y-2 pt-4 border-t border-white/5">
-                                            <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
+                                            <label className="text-[9px] font-semibold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
                                                 NIT Receptor (Opcional)
                                             </label>
                                             <p className="text-[8px] sm:text-[9px] text-gray-500 mb-2 leading-tight">
-                                                Original: <span className="text-white font-bold">{selectedRecord?.customer_nit || 'CF'}</span>.
+                                                Original: <span className="text-white font-medium">{selectedRecord?.customer_nit || 'CF'}</span>.
                                                 Ingrese un NIT diferente solo si el DTE de la SAT lo requiere.
                                             </p>
                                             <input
@@ -993,7 +993,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                                 placeholder="NIT a anular si difiere..."
                                                 value={voidNit}
                                                 onChange={(e) => setVoidNit(e.target.value)}
-                                                className="w-full bg-black/40 border border-white/5 rounded-sm p-3 text-xs font-bold text-white focus:border-indigo-500/50 outline-none transition-all uppercase tracking-widest placeholder:text-gray-700"
+                                                className="w-full bg-black/40 border border-white/5 rounded-sm p-3 text-xs font-medium text-white focus:border-indigo-500/50 outline-none transition-all uppercase tracking-widest placeholder:text-gray-700"
                                             />
                                         </div>
                                     </div>
@@ -1002,7 +1002,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                 <div className="p-4 sm:p-6 border-t border-white/5 bg-[#3a3b4d] space-y-4 shrink-0">
                                     <div className="p-3 rounded-sm bg-amber-500/5 border border-amber-500/10 flex gap-3 items-center">
                                         <AlertCircle className="text-amber-500 shrink-0" size={16} />
-                                        <p className="text-[9px] font-bold text-amber-500/80 uppercase leading-snug tracking-wider">
+                                        <p className="text-[9px] font-medium text-amber-500/80 uppercase leading-snug tracking-wider">
                                             Acción irreversible. Anulará en el sistema local y la SAT si corresponde.
                                         </p>
                                     </div>
@@ -1010,7 +1010,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                     <button
                                         onClick={handleVoid}
                                         disabled={voiding || voidPin.length < 4}
-                                        className={`w-full h-12 rounded-sm font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 text-xs
+                                        className={`w-full h-12 rounded-sm font-semibold uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 text-xs
                                         ${voidPin.length === 4 && !voiding
                                                 ? 'bg-rose-600 text-white hover:bg-rose-500  -600/30 active:scale-95'
                                                 : 'bg-white/5 text-gray-700 cursor-not-allowed border border-white/5'}`}
@@ -1041,7 +1041,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                     <div className="bg-[#2d2e3d] w-full max-w-sm rounded-none border border-white/10  overflow-hidden flex flex-col pointer-events-auto">
                         {/* Dashboard Header */}
                         <div className="bg-[#3a3b4d] h-10 px-3 flex justify-between items-center shrink-0 select-none rounded-none border-b border-white/5">
-                            <span className="text-white text-[11px] font-black uppercase tracking-wider">Compartir por WhatsApp</span>
+                            <span className="text-white text-[11px] font-semibold uppercase tracking-wider">Compartir por WhatsApp</span>
                             <button 
                                 onClick={() => { setShowWhatsAppModal(false); setWhatsAppPhone(''); setWhatsAppRecord(null); setWhatsAppError(''); }}
                                 className="w-8 h-8 flex items-center justify-center hover:bg-white/5 text-gray-400 hover:text-white transition-all rounded-none"
@@ -1055,11 +1055,11 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                         <div className="p-4 bg-[#2d2e3d] flex flex-col gap-4 border-b border-white/5">
                             {/* Input Display */}
                             <div className="space-y-1.5">
-                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block">
+                                <label className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest block">
                                     Número de Teléfono (Guatemala)
                                 </label>
                                 <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-500 tracking-wider">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-gray-500 tracking-wider">
                                         +502
                                     </span>
                                     <input
@@ -1067,11 +1067,11 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                         readOnly
                                         placeholder="Ingrese 8 dígitos"
                                         value={whatsAppPhone}
-                                        className="w-full bg-black/40 border border-white/10 rounded-none p-2.5 pl-12 text-sm font-bold text-white outline-none tracking-[0.2em] placeholder:text-gray-700 focus:border-white/30"
+                                        className="w-full bg-black/40 border border-white/10 rounded-none p-2.5 pl-12 text-sm font-medium text-white outline-none tracking-[0.2em] placeholder:text-gray-700 focus:border-white/30"
                                     />
                                 </div>
                                 {whatsAppError && (
-                                    <p className="text-[9px] font-bold text-rose-500 uppercase tracking-wide">
+                                    <p className="text-[9px] font-medium text-rose-500 uppercase tracking-wide">
                                         {whatsAppError}
                                     </p>
                                 )}
@@ -1088,14 +1088,14 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                                 setWhatsAppPhone(p => p + num);
                                             }
                                         }}
-                                        className="h-9 rounded-none bg-white/5 hover:bg-white/10 border border-white/5 text-white text-sm font-bold transition-all active:scale-95 "
+                                        className="h-9 rounded-none bg-white/5 hover:bg-white/10 border border-white/5 text-white text-sm font-medium transition-all active:scale-95 "
                                     >
                                         {num}
                                     </button>
                                 ))}
                                 <button
                                     onClick={() => { setWhatsAppPhone(''); setWhatsAppError(''); }}
-                                    className="h-9 rounded-none bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-[10px] font-bold uppercase transition-all active:scale-95 "
+                                    className="h-9 rounded-none bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-[10px] font-medium uppercase transition-all active:scale-95 "
                                 >
                                     Limpiar
                                 </button>
@@ -1106,7 +1106,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                             setWhatsAppPhone(p => p + '0');
                                         }
                                     }}
-                                    className="h-9 rounded-none bg-white/5 hover:bg-white/10 border border-white/5 text-white text-base font-bold transition-all active:scale-95 "
+                                    className="h-9 rounded-none bg-white/5 hover:bg-white/10 border border-white/5 text-white text-base font-medium transition-all active:scale-95 "
                                 >
                                     0
                                 </button>
@@ -1127,7 +1127,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                             <button
                                 onClick={confirmWhatsApp}
                                 disabled={sendingWhatsApp || whatsAppPhone.length !== 8}
-                                className={`w-full h-10 rounded-none font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 text-xs text-white border
+                                className={`w-full h-10 rounded-none font-semibold uppercase tracking-wider transition-all flex items-center justify-center gap-2 text-xs text-white border
                                 ${whatsAppPhone.length === 8 && !sendingWhatsApp
                                         ? 'bg-emerald-600 hover:bg-emerald-500 border-emerald-700 active:scale-95 '
                                         : 'bg-white/5 text-gray-500 border-white/5 cursor-not-allowed'}`}

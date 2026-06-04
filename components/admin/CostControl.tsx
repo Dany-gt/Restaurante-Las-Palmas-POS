@@ -300,7 +300,7 @@ export const CostControl: React.FC = () => {
         <div className="flex items-center justify-center h-full bg-[#fcfdfe]">
             <div className="flex flex-col items-center gap-4">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">Conectando con Supabase...</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600">Conectando con Supabase...</p>
             </div>
         </div>
     );
@@ -311,22 +311,22 @@ export const CostControl: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar space-y-8">
                 <header className="flex items-center justify-between mb-2">
                     <div>
-                        <h1 className="text-xl font-black text-[#106ebe] tracking-tight uppercase flex items-center gap-3">
+                        <h1 className="text-xl font-semibold text-[#106ebe] tracking-tight uppercase flex items-center gap-3">
                             <Calculator className="text-indigo-600" size={22} /> Control de Costos
                         </h1>
-                        <p className="text-[9px] font-bold text-slate-600 tracking-widest uppercase mt-0.5">Estrategia & Rentabilidad Las Palmas</p>
+                        <p className="text-[9px] font-medium text-slate-600 tracking-widest uppercase mt-0.5">Estrategia & Rentabilidad Las Palmas</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <button
                             onClick={exportToCSV}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all text-xs font-bold uppercase tracking-wider"
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all text-xs font-medium uppercase tracking-wider"
                         >
                             <Download size={14} /> Exportar CSV
                         </button>
                         <button
                             onClick={saveChanges}
                             disabled={saving}
-                            className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[#106ebe] text-white hover:bg-black transition-all text-xs font-black uppercase tracking-widest shadow-lg shadow-[#106ebe]/10 disabled:opacity-60"
+                            className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[#106ebe] text-white hover:bg-black transition-all text-xs font-semibold uppercase tracking-widest shadow-lg shadow-[#106ebe]/10 disabled:opacity-60"
                         >
                             <Save size={14} /> {saving ? 'Guardando...' : 'Guardar Todo'}
                         </button>
@@ -345,11 +345,11 @@ export const CostControl: React.FC = () => {
                         {/* Materia Prima */}
                         <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                             <div className="bg-slate-50/50 px-4 py-2 border-b border-slate-100 flex items-center justify-between">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-[#106ebe]">Subsección A — Materia Prima</span>
-                                <span className="text-[11px] font-bold text-indigo-600 uppercase">Subtotal: {formatCurrency(totals.raw)}</span>
+                                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#106ebe]">Subsección A — Materia Prima</span>
+                                <span className="text-[11px] font-medium text-indigo-600 uppercase">Subtotal: {formatCurrency(totals.raw)}</span>
                             </div>
                             <table className="w-full text-left">
-                                <thead className="bg-slate-100/50 border-b border-slate-200 text-[9px] font-black text-slate-600 uppercase tracking-wider">
+                                <thead className="bg-slate-100/50 border-b border-slate-200 text-[9px] font-semibold text-slate-600 uppercase tracking-wider">
                                     <tr>
                                         <th className="px-4 py-3">Descripción</th>
                                         <th className="px-4 py-3 text-right">Monto Mensual (Q)</th>
@@ -371,7 +371,7 @@ export const CostControl: React.FC = () => {
                                                         setItems(newItems);
                                                     }}
                                                     onBlur={() => handleBlur(item)}
-                                                    className="w-full bg-transparent text-[11px] font-bold text-[#106ebe] outline-none"
+                                                    className="w-full bg-transparent text-[11px] font-medium text-[#106ebe] outline-none"
                                                 />
                                             </td>
                                             <td className="px-4 py-3 text-right">
@@ -385,10 +385,10 @@ export const CostControl: React.FC = () => {
                                                         setItems(newItems);
                                                     }}
                                                     onBlur={() => handleBlur(item)}
-                                                    className="w-24 bg-transparent text-[11px] font-black text-[#106ebe] text-right outline-none"
+                                                    className="w-24 bg-transparent text-[11px] font-semibold text-[#106ebe] text-right outline-none"
                                                 />
                                             </td>
-                                            <td className="px-4 py-3 text-center text-[10px] font-black text-indigo-600">
+                                            <td className="px-4 py-3 text-center text-[10px] font-semibold text-indigo-600">
                                                 {config.monthly_sales > 0 ? ((item.amount / config.monthly_sales) * 100).toFixed(1) : 0}%
                                             </td>
                                             <td className="px-4 py-3 text-right">
@@ -402,7 +402,7 @@ export const CostControl: React.FC = () => {
                                     ))}
                                 </tbody>
                             </table>
-                            <button onClick={() => addItem('raw_material')} className="w-full py-2 bg-slate-100/30 text-[9px] font-black uppercase tracking-widest text-slate-600 hover:text-indigo-700 transition-all border-t border-slate-100 flex items-center justify-center gap-2">
+                            <button onClick={() => addItem('raw_material')} className="w-full py-2 bg-slate-100/30 text-[9px] font-semibold uppercase tracking-widest text-slate-600 hover:text-indigo-700 transition-all border-t border-slate-100 flex items-center justify-center gap-2">
                                 <Plus size={10} /> Agregar Fila
                             </button>
                         </div>
@@ -410,11 +410,11 @@ export const CostControl: React.FC = () => {
                         {/* MOD */}
                         <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                             <div className="bg-slate-100 px-4 py-2 border-b border-slate-100 flex items-center justify-between">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-[#106ebe]">Subsección B — Mano de Obra Directa (MOD) con Prestaciones</span>
-                                <span className="text-[11px] font-bold text-orange-600 uppercase">Subtotal: {formatCurrency(totals.mod)}</span>
+                                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#106ebe]">Subsección B — Mano de Obra Directa (MOD) con Prestaciones</span>
+                                <span className="text-[11px] font-medium text-orange-600 uppercase">Subtotal: {formatCurrency(totals.mod)}</span>
                             </div>
                             <table className="w-full text-left">
-                                <thead className="bg-slate-100/50 border-b border-slate-200 text-[9px] font-black text-slate-600 uppercase tracking-wider">
+                                <thead className="bg-slate-100/50 border-b border-slate-200 text-[9px] font-semibold text-slate-600 uppercase tracking-wider">
                                     <tr>
                                         <th className="px-4 py-3">Puesto / Grupo</th>
                                         <th className="px-4 py-3 text-center">Pers.</th>
@@ -444,7 +444,7 @@ export const CostControl: React.FC = () => {
                                                             }}
                                                             onBlur={() => handleBlur(item)}
                                                             onClick={(e) => e.stopPropagation()}
-                                                            className="w-full bg-transparent text-[11px] font-bold text-[#106ebe] outline-none"
+                                                            className="w-full bg-transparent text-[11px] font-medium text-[#106ebe] outline-none"
                                                         />
                                                     </td>
                                                     <td className="px-4 py-4 text-center">
@@ -459,7 +459,7 @@ export const CostControl: React.FC = () => {
                                                             }}
                                                             onBlur={() => handleBlur(item)}
                                                             onClick={(e) => e.stopPropagation()}
-                                                            className="w-10 bg-transparent text-[11px] font-black text-[#106ebe] text-center outline-none"
+                                                            className="w-10 bg-transparent text-[11px] font-semibold text-[#106ebe] text-center outline-none"
                                                         />
                                                     </td>
                                                     <td className="px-4 py-4 text-right">
@@ -474,13 +474,13 @@ export const CostControl: React.FC = () => {
                                                             }}
                                                             onBlur={() => handleBlur(item)}
                                                             onClick={(e) => e.stopPropagation()}
-                                                            className="w-20 bg-transparent text-[11px] font-black text-[#106ebe] text-right outline-none"
+                                                            className="w-20 bg-transparent text-[11px] font-semibold text-[#106ebe] text-right outline-none"
                                                         />
                                                     </td>
                                                     <td className="px-4 py-4 text-center">
-                                                        <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[9px] font-black text-slate-600">{item.benefits_pct}%</span>
+                                                        <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[9px] font-semibold text-slate-600">{item.benefits_pct}%</span>
                                                     </td>
-                                                    <td className="px-4 py-4 text-right text-[11px] font-black text-indigo-600">
+                                                    <td className="px-4 py-4 text-right text-[11px] font-semibold text-indigo-600">
                                                         {formatCurrency(calc.total)}
                                                     </td>
                                                     <td className="px-4 py-4 text-right">
@@ -512,7 +512,7 @@ export const CostControl: React.FC = () => {
                                     })}
                                 </tbody>
                             </table>
-                            <button onClick={() => addItem('mod')} className="w-full py-2 bg-slate-100/30 text-[9px] font-black uppercase tracking-widest text-slate-600 hover:text-indigo-700 transition-all border-t border-slate-100 flex items-center justify-center gap-2">
+                            <button onClick={() => addItem('mod')} className="w-full py-2 bg-slate-100/30 text-[9px] font-semibold uppercase tracking-widest text-slate-600 hover:text-indigo-700 transition-all border-t border-slate-100 flex items-center justify-center gap-2">
                                 <Plus size={10} /> Agregar Fila MOD
                             </button>
                         </div>
@@ -529,7 +529,7 @@ export const CostControl: React.FC = () => {
                 >
                     <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                         <table className="w-full text-left">
-                            <thead className="bg-slate-100 border-b border-slate-100 text-[9px] font-black text-slate-600 uppercase tracking-wider">
+                            <thead className="bg-slate-100 border-b border-slate-100 text-[9px] font-semibold text-slate-600 uppercase tracking-wider">
                                 <tr>
                                     <th className="px-4 py-3 w-10 text-center">#</th>
                                     <th className="px-4 py-3">Descripción del Gasto</th>
@@ -541,7 +541,7 @@ export const CostControl: React.FC = () => {
                             <tbody className="divide-y divide-slate-50">
                                 {items.filter(i => i.section === 'fixed').map((item, idx) => (
                                     <tr key={item.id || idx} className="hover:bg-slate-50/50 transition-colors">
-                                        <td className="px-4 py-3 text-center text-[10px] font-bold text-slate-500">{idx + 1}</td>
+                                        <td className="px-4 py-3 text-center text-[10px] font-medium text-slate-500">{idx + 1}</td>
                                         <td className="px-4 py-3">
                                             <input
                                                 type="text"
@@ -553,7 +553,7 @@ export const CostControl: React.FC = () => {
                                                     setItems(newItems);
                                                 }}
                                                 onBlur={() => handleBlur(item)}
-                                                className="w-full bg-transparent text-[11px] font-bold text-[#106ebe] outline-none"
+                                                className="w-full bg-transparent text-[11px] font-medium text-[#106ebe] outline-none"
                                             />
                                         </td>
                                         <td className="px-4 py-3 text-right">
@@ -567,10 +567,10 @@ export const CostControl: React.FC = () => {
                                                     setItems(newItems);
                                                 }}
                                                 onBlur={() => handleBlur(item)}
-                                                className="w-24 bg-transparent text-[11px] font-black text-[#106ebe] text-right outline-none"
+                                                className="w-24 bg-transparent text-[11px] font-semibold text-[#106ebe] text-right outline-none"
                                             />
                                         </td>
-                                        <td className="px-4 py-3 text-center text-[10px] font-black text-indigo-600">
+                                        <td className="px-4 py-3 text-center text-[10px] font-semibold text-indigo-600">
                                             {config.monthly_sales > 0 ? ((item.amount / config.monthly_sales) * 100).toFixed(1) : 0}%
                                         </td>
                                         <td className="px-4 py-3 text-right">
@@ -582,7 +582,7 @@ export const CostControl: React.FC = () => {
                                 ))}
                             </tbody>
                         </table>
-                        <button onClick={() => addItem('fixed')} className="w-full py-2 bg-slate-100/30 text-[9px] font-black uppercase tracking-widest text-slate-600 hover:text-indigo-700 transition-all border-t border-slate-100 flex items-center justify-center gap-2">
+                        <button onClick={() => addItem('fixed')} className="w-full py-2 bg-slate-100/30 text-[9px] font-semibold uppercase tracking-widest text-slate-600 hover:text-indigo-700 transition-all border-t border-slate-100 flex items-center justify-center gap-2">
                             <Plus size={10} /> Agregar Gasto Fijo
                         </button>
                     </div>
@@ -598,7 +598,7 @@ export const CostControl: React.FC = () => {
                 >
                     <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                         <table className="w-full text-left">
-                            <thead className="bg-slate-100 border-b border-slate-100 text-[9px] font-black text-slate-600 uppercase tracking-wider">
+                            <thead className="bg-slate-100 border-b border-slate-100 text-[9px] font-semibold text-slate-600 uppercase tracking-wider">
                                 <tr>
                                     <th className="px-4 py-3 w-10 text-center">#</th>
                                     <th className="px-4 py-3">Descripción del Gasto</th>
@@ -610,7 +610,7 @@ export const CostControl: React.FC = () => {
                             <tbody className="divide-y divide-slate-50">
                                 {items.filter(i => i.section === 'variable').map((item, idx) => (
                                     <tr key={item.id || idx} className="hover:bg-slate-50/50 transition-colors">
-                                        <td className="px-4 py-3 text-center text-[10px] font-bold text-slate-500">{idx + 1}</td>
+                                        <td className="px-4 py-3 text-center text-[10px] font-medium text-slate-500">{idx + 1}</td>
                                         <td className="px-4 py-3">
                                             <input
                                                 type="text"
@@ -622,7 +622,7 @@ export const CostControl: React.FC = () => {
                                                     setItems(newItems);
                                                 }}
                                                 onBlur={() => handleBlur(item)}
-                                                className="w-full bg-transparent text-[11px] font-bold text-[#106ebe] outline-none"
+                                                className="w-full bg-transparent text-[11px] font-medium text-[#106ebe] outline-none"
                                             />
                                         </td>
                                         <td className="px-4 py-3 text-right">
@@ -636,10 +636,10 @@ export const CostControl: React.FC = () => {
                                                     setItems(newItems);
                                                 }}
                                                 onBlur={() => handleBlur(item)}
-                                                className="w-24 bg-transparent text-[11px] font-black text-[#106ebe] text-right outline-none"
+                                                className="w-24 bg-transparent text-[11px] font-semibold text-[#106ebe] text-right outline-none"
                                             />
                                         </td>
-                                        <td className="px-4 py-3 text-center text-[10px] font-black text-indigo-600">
+                                        <td className="px-4 py-3 text-center text-[10px] font-semibold text-indigo-600">
                                             {config.monthly_sales > 0 ? ((item.amount / config.monthly_sales) * 100).toFixed(1) : 0}%
                                         </td>
                                         <td className="px-4 py-3 text-right">
@@ -651,7 +651,7 @@ export const CostControl: React.FC = () => {
                                 ))}
                             </tbody>
                         </table>
-                        <button onClick={() => addItem('variable')} className="w-full py-2 bg-slate-100/30 text-[9px] font-black uppercase tracking-widest text-slate-600 hover:text-indigo-700 transition-all border-t border-slate-50 flex items-center justify-center gap-2">
+                        <button onClick={() => addItem('variable')} className="w-full py-2 bg-slate-100/30 text-[9px] font-semibold uppercase tracking-widest text-slate-600 hover:text-indigo-700 transition-all border-t border-slate-50 flex items-center justify-center gap-2">
                             <Plus size={10} /> Agregar Gasto Variable
                         </button>
                     </div>
@@ -662,29 +662,29 @@ export const CostControl: React.FC = () => {
             <aside className="w-full md:w-[280px] shrink-0 bg-white border-l border-slate-100 p-4 overflow-y-auto custom-scrollbar md:sticky top-0 h-fit md:h-full z-10 shadow-[-4px_0_20px_rgba(0,0,0,0.02)]">
                 <div className="space-y-6">
                     <div>
-                        <h3 className="text-xs font-black text-[#106ebe] tracking-widest uppercase mb-4 flex items-center gap-2">
+                        <h3 className="text-xs font-semibold text-[#106ebe] tracking-widest uppercase mb-4 flex items-center gap-2">
                             <PieChart size={16} className="text-indigo-600" /> Resumen Ejecutivo
                         </h3>
 
                         <div className="bg-white border border-indigo-100 rounded-xl p-3 shadow-sm relative overflow-hidden group">
                             <div className="relative z-10">
-                                <label className="text-[7px] font-black text-indigo-500 uppercase tracking-[0.2em] block mb-1">Ventas Promedio Mensual (Q)</label>
+                                <label className="text-[7px] font-semibold text-indigo-500 uppercase tracking-[0.2em] block mb-1">Ventas Promedio Mensual (Q)</label>
                                 <div className="flex items-center gap-1.5">
-                                    <span className="text-sm font-black text-indigo-400">Q</span>
+                                    <span className="text-sm font-semibold text-indigo-400">Q</span>
                                     <input
                                         type="number"
                                         value={config.monthly_sales}
                                         onChange={(e) => handleConfigChange('monthly_sales', Number(e.target.value))}
-                                        className="bg-transparent text-base font-black text-[#106ebe] outline-none w-full border-b border-slate-100 focus:border-indigo-400 transition-all placeholder:text-slate-200"
+                                        className="bg-transparent text-base font-semibold text-[#106ebe] outline-none w-full border-b border-slate-100 focus:border-indigo-400 transition-all placeholder:text-slate-200"
                                     />
                                 </div>
                                 <div className="mt-2.5 flex items-center justify-between border-t border-slate-50 pt-2">
-                                    <label className="text-[7px] font-black text-slate-500 uppercase tracking-widest">Días Operativos</label>
+                                    <label className="text-[7px] font-semibold text-slate-500 uppercase tracking-widest">Días Operativos</label>
                                     <input
                                         type="number"
                                         value={config.operating_days}
                                         onChange={(e) => handleConfigChange('operating_days', Number(e.target.value))}
-                                        className="bg-slate-50 text-[9px] font-black text-slate-800 text-center w-7 py-0.5 rounded outline-none border border-slate-100"
+                                        className="bg-slate-50 text-[9px] font-semibold text-slate-800 text-center w-7 py-0.5 rounded outline-none border border-slate-100"
                                     />
                                 </div>
                             </div>
@@ -701,34 +701,34 @@ export const CostControl: React.FC = () => {
                         <KPICard title="Total Costos Operativos" value={totalOpex} sales={config.monthly_sales} isHighlighted />
 
                         <div className={`p-3 rounded-xl border shadow-sm transition-all bg-white flex flex-col items-center text-center ${profitMargin < 10 ? 'border-rose-100 bg-rose-50/10' : 'border-slate-100'}`}>
-                            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1.5">Utilidad Bruta Estimada</span>
-                            <div className="text-xl font-black text-[#106ebe] mb-0.5">{formatCurrency(estimatedGrossProfit)}</div>
+                            <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-widest mb-1.5">Utilidad Bruta Estimada</span>
+                            <div className="text-xl font-semibold text-[#106ebe] mb-0.5">{formatCurrency(estimatedGrossProfit)}</div>
                             <div className="flex items-center gap-2">
-                                <span className={`text-[11px] font-black ${getProfitIndicator(profitMargin).color}`}>
+                                <span className={`text-[11px] font-semibold ${getProfitIndicator(profitMargin).color}`}>
                                     {getProfitIndicator(profitMargin).icon} {profitMargin.toFixed(1)}%
                                 </span>
-                                <span className="text-[8px] font-bold text-slate-600 uppercase tracking-tighter">del total de ventas</span>
+                                <span className="text-[8px] font-medium text-slate-600 uppercase tracking-tighter">del total de ventas</span>
                             </div>
-                            <span className={`text-[8px] font-black uppercase tracking-tighter mt-1.5 px-2 py-0.5 rounded-full bg-slate-50 border border-slate-100 ${getProfitIndicator(profitMargin).color}`}>
+                            <span className={`text-[8px] font-semibold uppercase tracking-tighter mt-1.5 px-2 py-0.5 rounded-full bg-slate-50 border border-slate-100 ${getProfitIndicator(profitMargin).color}`}>
                                 {getProfitIndicator(profitMargin).label}
                             </span>
                         </div>
 
                         <div className="p-4 rounded-2xl border-2 border-dashed border-indigo-100 bg-indigo-50/10 flex flex-col relative overflow-hidden">
-                            <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-2.5 flex items-center gap-2">
+                            <span className="text-[10px] font-semibold text-indigo-600 uppercase tracking-widest mb-2.5 flex items-center gap-2">
                                 <Info size={13} /> PE (Equilibrio)
                             </span>
                             <div className="space-y-3">
                                 <div>
-                                    <div className="text-[10px] font-black text-[#106ebe] uppercase tracking-wider mb-0.5">Ventas necesarias:</div>
-                                    <div className="text-lg font-black text-slate-800 leading-none">{formatCurrency(breakEven)}</div>
-                                    <p className="text-[8px] font-bold text-slate-400 mt-0.5">Suma de costos fijos (incl. MOD) / (1 - %Variable)</p>
+                                    <div className="text-[10px] font-semibold text-[#106ebe] uppercase tracking-wider mb-0.5">Ventas necesarias:</div>
+                                    <div className="text-lg font-semibold text-slate-800 leading-none">{formatCurrency(breakEven)}</div>
+                                    <p className="text-[8px] font-medium text-slate-400 mt-0.5">Suma de costos fijos (incl. MOD) / (1 - %Variable)</p>
                                 </div>
                                 <div className="pt-2 border-t border-indigo-100 flex items-center justify-between">
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-indigo-600 uppercase leading-none">Día del equilibrio:</span>
+                                        <span className="text-[10px] font-semibold text-indigo-600 uppercase leading-none">Día del equilibrio:</span>
                                     </div>
-                                    <span className={`text-2xl font-black tracking-tighter ${daysToBreakEven > config.operating_days ? 'text-rose-500' : 'text-indigo-600'}`}>
+                                    <span className={`text-2xl font-semibold tracking-tighter ${daysToBreakEven > config.operating_days ? 'text-rose-500' : 'text-indigo-600'}`}>
                                         {daysToBreakEven > config.operating_days ? 'FAIL' : Math.ceil(daysToBreakEven)}
                                     </span>
                                 </div>
@@ -739,7 +739,7 @@ export const CostControl: React.FC = () => {
                     <div className="pt-2">
                         <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 border border-emerald-100">
                             <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
-                            <p className="text-[9px] font-bold text-emerald-800 leading-tight">Módulo conectado a Supabase en tiempo real. Todos los cambios se sincronizan al perder foco.</p>
+                            <p className="text-[9px] font-medium text-emerald-800 leading-tight">Módulo conectado a Supabase en tiempo real. Todos los cambios se sincronizan al perder foco.</p>
                         </div>
                     </div>
                 </div>
@@ -766,14 +766,14 @@ const Section: React.FC<{
                     {icon}
                 </div>
                 <div className="text-left">
-                    <h2 className="text-base font-black text-[#106ebe] uppercase tracking-tight leading-none">{title}</h2>
-                    <p className="text-[8px] font-bold text-slate-600 uppercase mt-0.5 tracking-wider">Gestión Operativa Mensual</p>
+                    <h2 className="text-base font-semibold text-[#106ebe] uppercase tracking-tight leading-none">{title}</h2>
+                    <p className="text-[8px] font-medium text-slate-600 uppercase mt-0.5 tracking-wider">Gestión Operativa Mensual</p>
                 </div>
             </div>
             <div className="flex items-center gap-6">
                 <div className="text-right">
-                    <span className="text-[8px] font-black text-slate-500 uppercase block leading-none mb-1">Subtotal</span>
-                    <span className="text-lg font-black text-[#106ebe]">{new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' }).format(total)}</span>
+                    <span className="text-[8px] font-semibold text-slate-500 uppercase block leading-none mb-1">Subtotal</span>
+                    <span className="text-lg font-semibold text-[#106ebe]">{new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' }).format(total)}</span>
                 </div>
                 <div className={`text-slate-500 p-1 rounded-full hover:bg-slate-100 transition-all ${isExpanded ? 'rotate-180' : ''}`}>
                     <ChevronDown size={22} />
@@ -798,16 +798,16 @@ const KPICard: React.FC<{
         <div className={`p-3 rounded-2xl border transition-all ${isHighlighted ? 'bg-indigo-50/40 border-indigo-100 shadow-indigo-100/30' : 'bg-white border-slate-100 hover:border-slate-200'} shadow-sm relative overflow-hidden`}>
             {isHighlighted && <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500" />}
             <div className="flex justify-between items-start mb-1.5 relative z-10">
-                <span className={`text-[9px] font-black uppercase tracking-widest ${isHighlighted ? 'text-indigo-600' : 'text-slate-400'}`}>{title}</span>
-                <span className={`text-[10px] font-black ${isHighlighted ? 'text-indigo-600' : 'text-[#106ebe]'}`}>{pct.toFixed(1)}%</span>
+                <span className={`text-[9px] font-semibold uppercase tracking-widest ${isHighlighted ? 'text-indigo-600' : 'text-slate-400'}`}>{title}</span>
+                <span className={`text-[10px] font-semibold ${isHighlighted ? 'text-indigo-600' : 'text-[#106ebe]'}`}>{pct.toFixed(1)}%</span>
             </div>
-            <div className={`text-base font-black relative z-10 ${isHighlighted ? 'text-indigo-900' : 'text-[#106ebe]'}`}>
+            <div className={`text-base font-semibold relative z-10 ${isHighlighted ? 'text-indigo-900' : 'text-[#106ebe]'}`}>
                 {new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' }).format(value)}
             </div>
             {meta && (
                 <div className="mt-2 flex items-center justify-between pt-2 border-t border-slate-50 relative z-10">
-                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Comparativo Insumo:</span>
-                    <span className="text-[8px] font-black text-amber-500 uppercase">{meta}</span>
+                    <span className="text-[8px] font-medium text-slate-400 uppercase tracking-tighter">Comparativo Insumo:</span>
+                    <span className="text-[8px] font-semibold text-amber-500 uppercase">{meta}</span>
                 </div>
             )}
         </div>
@@ -816,7 +816,7 @@ const KPICard: React.FC<{
 
 const Benefit: React.FC<{ label: string; value: number }> = ({ label, value }) => (
     <div className="flex flex-col">
-        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</span>
-        <span className="text-[10px] font-black text-slate-700">{new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' }).format(value)}</span>
+        <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest mb-1">{label}</span>
+        <span className="text-[10px] font-semibold text-slate-700">{new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' }).format(value)}</span>
     </div>
 );

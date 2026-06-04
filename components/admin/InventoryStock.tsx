@@ -365,7 +365,7 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                         {/* Name Area */}
                         <div className={`flex-1 h-full flex items-center pl-2 ${isSelected ? 'bg-[#106ebe]' : ''}`}>
                              <span className={`truncate leading-none uppercase pr-1 ${
-                                isParent ? 'text-[11px] font-black tracking-wide' : 'text-[10px]'
+                                isParent ? 'text-[11px] font-semibold tracking-wide' : 'text-[10px]'
                             } ${isSelected ? 'text-white' : 'text-slate-800'}`}>
                                 {cat.name}
                             </span>
@@ -541,7 +541,7 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                     {/* Categorías Header - Premium Style */}
                     <div className="bg-[#f0f0f0] h-[24px] flex items-center border-b border-gray-400 shrink-0">
                         <div className="w-[34px] h-full border-r border-gray-300" />
-                        <span className="pl-2 text-[10px] font-bold text-slate-700 uppercase tracking-tight">Categoría</span>
+                        <span className="pl-2 text-[10px] font-medium text-slate-700 uppercase tracking-tight">Categoría</span>
                     </div>
 
                     {/* Category Search Input */}
@@ -554,7 +554,7 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                                 type="text"
                                 value={categorySearchQuery}
                                 onChange={(e) => setCategorySearchQuery(e.target.value)}
-                                className="w-full px-2 py-0.5 text-[10px] font-bold text-slate-700 outline-none"
+                                className="w-full px-2 py-0.5 text-[10px] font-medium text-slate-700 outline-none"
                                 placeholder="..."
                             />
                         </div>
@@ -574,7 +574,7 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                                 )}
                             </div>
                             <div className={`flex-1 h-full flex items-center pl-2 ${printSelectedCategories.size === categories.length ? 'bg-[#106ebe]' : ''}`}>
-                                <span className={`text-[11px] font-black uppercase tracking-tight ${
+                                <span className={`text-[11px] font-semibold uppercase tracking-tight ${
                                     printSelectedCategories.size === categories.length ? 'text-white' : 'text-slate-600'
                                 }`}>
                                     CATÁLOGO COMPLETO
@@ -594,11 +594,11 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                     <div className="px-1 py-1.5 bg-[#f0f0f0] border-b border-gray-300 flex items-center justify-between shrink-0">
                         <div className="flex items-center gap-2">
                             <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white border border-gray-300 rounded-sm">
-                                <span className="text-[10px] font-bold text-slate-800 tracking-tight">Sucursal</span>
+                                <span className="text-[10px] font-medium text-slate-800 tracking-tight">Sucursal</span>
                                 <select
                                     value={selectedBranch}
                                     onChange={e => setSelectedBranch(e.target.value)}
-                                    className="bg-transparent outline-none text-[10px] font-bold text-slate-700 min-w-[150px] cursor-pointer"
+                                    className="bg-transparent outline-none text-[10px] font-medium text-slate-700 min-w-[150px] cursor-pointer"
                                 >
                                     {branches.map(b => (
                                         <option key={b.id} value={b.id}>{b.name}</option>
@@ -608,12 +608,12 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
 
                             {mode === 'INV_STOCK_DATE' && (
                                 <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white border border-gray-300 rounded-sm">
-                                    <span className="text-[10px] font-bold text-slate-800 tracking-tight">Fecha</span>
+                                    <span className="text-[10px] font-medium text-slate-800 tracking-tight">Fecha</span>
                                     <input
                                         type="date"
                                         value={selectedDate}
                                         onChange={(e) => setSelectedDate(e.target.value)}
-                                        className="bg-transparent outline-none text-[10px] font-bold text-slate-700 cursor-pointer"
+                                        className="bg-transparent outline-none text-[10px] font-medium text-slate-700 cursor-pointer"
                                     />
                                 </div>
                             )}
@@ -621,14 +621,14 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                             {mode === 'INV_STOCK_DATE' ? (
                                 <button
                                     onClick={fetchData}
-                                    className="bg-white border border-gray-300 px-4 py-0.5 text-[10px] font-bold text-slate-700 hover:bg-slate-50 shadow-sm uppercase tracking-widest active:bg-blue-50 transition-all border-dashed"
+                                    className="bg-white border border-gray-300 px-4 py-0.5 text-[10px] font-medium text-slate-700 hover:bg-slate-50 shadow-sm uppercase tracking-widest active:bg-blue-50 transition-all border-dashed"
                                 >
                                     Generar
                                 </button>
                             ) : (
                                 <button
                                     onClick={handlePrintPDF}
-                                    className="bg-white border border-gray-300 px-4 py-0.5 text-[10px] font-bold text-slate-700 hover:bg-slate-50 shadow-sm"
+                                    className="bg-white border border-gray-300 px-4 py-0.5 text-[10px] font-medium text-slate-700 hover:bg-slate-50 shadow-sm"
                                 >
                                     Imprimir / Exportar
                                 </button>
@@ -646,17 +646,17 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
 
                     {/* Sub-Header Title with Search Integrated */}
                     <div className="px-4 py-1 bg-[#f0f0f0] border-b border-gray-300 flex items-center justify-between shrink-0">
-                        <h3 className="text-[14px] font-bold text-[#106ebe] tracking-tight">Listado de Productos</h3>
+                        <h3 className="text-[14px] font-medium text-[#106ebe] tracking-tight">Listado de Productos</h3>
 
                         <div className="flex items-center gap-1">
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="bg-white border border-gray-400 px-2 py-0.5 text-[11px] font-bold text-slate-700 w-64 outline-none focus:border-blue-500"
+                                className="bg-white border border-gray-400 px-2 py-0.5 text-[11px] font-medium text-slate-700 w-64 outline-none focus:border-blue-500"
                                 placeholder="Introduzca el texto a buscar..."
                             />
-                            <button className="bg-white border border-gray-400 px-3 py-0.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 transition-colors">Buscar</button>
+                            <button className="bg-white border border-gray-400 px-3 py-0.5 text-[11px] font-medium text-slate-700 hover:bg-slate-50 transition-colors">Buscar</button>
                         </div>
                     </div>
 
@@ -669,23 +669,23 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                         <table className="w-full text-left border-collapse select-none">
                             <thead className="sticky top-0 bg-[#f1f5f9] border-b border-gray-400 z-30">
                                 <tr className="h-7">
-                                    <th className="px-3 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300">Categoría</th>
-                                    <th className="px-3 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300">Producto</th>
-                                    <th className="px-3 text-center w-28 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300">Existencia</th>
+                                    <th className="px-3 text-[11px] font-medium text-slate-700 uppercase border-r border-gray-300">Categoría</th>
+                                    <th className="px-3 text-[11px] font-medium text-slate-700 uppercase border-r border-gray-300">Producto</th>
+                                    <th className="px-3 text-center w-28 text-[11px] font-medium text-slate-700 uppercase border-r border-gray-300">Existencia</th>
                                     {mode !== 'INV_STOCK_DATE' && (
-                                        <th className="px-3 text-center w-28 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300">Punto Reorden</th>
+                                        <th className="px-3 text-center w-28 text-[11px] font-medium text-slate-700 uppercase border-r border-gray-300">Punto Reorden</th>
                                     )}
-                                    <th className="px-3 text-center w-40 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300">Presentación</th>
-                                    <th className="px-3 text-center w-32 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300">Existencia Total</th>
-                                    <th className="px-3 text-right w-24 text-[11px] font-bold text-slate-700 uppercase border-r border-gray-300">Costo</th>
-                                    <th className="px-3 text-right w-32 text-[11px] font-bold text-slate-700 uppercase">Costo Total</th>
+                                    <th className="px-3 text-center w-40 text-[11px] font-medium text-slate-700 uppercase border-r border-gray-300">Presentación</th>
+                                    <th className="px-3 text-center w-32 text-[11px] font-medium text-slate-700 uppercase border-r border-gray-300">Existencia Total</th>
+                                    <th className="px-3 text-right w-24 text-[11px] font-medium text-slate-700 uppercase border-r border-gray-300">Costo</th>
+                                    <th className="px-3 text-right w-32 text-[11px] font-medium text-slate-700 uppercase">Costo Total</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {tableRows.length === 0 ? (
                                     <tr>
                                         <td colSpan={mode === 'INV_STOCK_DATE' ? 7 : 8} className="py-20 text-center bg-white">
-                                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">No hay datos para mostrar</span>
+                                            <span className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">No hay datos para mostrar</span>
                                         </td>
                                     </tr>
                                 ) : tableRows.map((row, idx) => (
@@ -698,30 +698,30 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                                         onContextMenu={(e) => handleContextMenu(e, row)}
                                         className={`h-7 border-b border-gray-200 transition-colors cursor-default select-none group relative ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#cce8ff]`}
                                     >
-                                        <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-900 uppercase truncate group-hover:bg-[#cce8ff]">
+                                        <td className="px-3 border-r border-gray-200 text-[10px] font-medium text-slate-900 uppercase truncate group-hover:bg-[#cce8ff]">
                                             {categories.find(c => c.id === row.category_id)?.name || '--'}
                                         </td>
-                                        <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-900 uppercase truncate group-hover:bg-[#cce8ff]">
+                                        <td className="px-3 border-r border-gray-200 text-[10px] font-medium text-slate-900 uppercase truncate group-hover:bg-[#cce8ff]">
                                             {row.name}
                                         </td>
-                                        <td className="px-3 text-center border-r border-gray-200 text-[11px] font-bold tabular-nums text-slate-800">
+                                        <td className="px-3 text-center border-r border-gray-200 text-[11px] font-medium tabular-nums text-slate-800">
                                             {row.totalStock.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                         </td>
                                         {mode !== 'INV_STOCK_DATE' && (
-                                            <td className="px-3 text-center border-r border-gray-200 text-[11px] font-bold text-slate-800 tabular-nums">
+                                            <td className="px-3 text-center border-r border-gray-200 text-[11px] font-medium text-slate-800 tabular-nums">
                                                 {row.minStock.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                             </td>
                                         )}
-                                        <td className="px-3 border-r border-gray-200 text-[10px] font-bold text-slate-800 uppercase truncate">
+                                        <td className="px-3 border-r border-gray-200 text-[10px] font-medium text-slate-800 uppercase truncate">
                                             {row.presentation}
                                         </td>
-                                        <td className="px-3 text-center border-r border-gray-200 text-[11px] font-bold tabular-nums text-slate-800">
+                                        <td className="px-3 text-center border-r border-gray-200 text-[11px] font-medium tabular-nums text-slate-800">
                                             {row.totalStock.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </td>
-                                        <td className="px-3 text-right border-r border-gray-200 text-[11px] font-bold text-slate-800 tabular-nums">
+                                        <td className="px-3 text-right border-r border-gray-200 text-[11px] font-medium text-slate-800 tabular-nums">
                                             Q{row.cost.toFixed(2)}
                                         </td>
-                                        <td className="px-3 text-right text-[11px] font-bold text-slate-900 tabular-nums">
+                                        <td className="px-3 text-right text-[11px] font-medium text-slate-900 tabular-nums">
                                             Q{row.costoTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </td>
                                     </tr>
@@ -734,8 +734,8 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                     <div className="px-4 py-2 bg-slate-50/50 border-t border-gray-200 flex justify-between items-center shrink-0">
                         <div className="flex gap-6">
                             <div className="flex flex-col">
-                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Total Ítems</span>
-                                <span className="text-[11px] font-black text-slate-800">{tableRows.length}</span>
+                                <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Total Ítems</span>
+                                <span className="text-[11px] font-semibold text-slate-800">{tableRows.length}</span>
                             </div>
                         </div>
                     </div>
@@ -753,7 +753,7 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                             setSelectedRowForMovement(contextMenu.row);
                             setShowMovementModal(true);
                         }}
-                        className="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors border-b border-gray-50 uppercase tracking-tighter"
+                        className="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors border-b border-gray-50 uppercase tracking-tighter"
                     >
                         <History size={14} className="text-indigo-500" />
                         Movimiento del Producto
@@ -762,7 +762,7 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                         onClick={() => {
                             // En el futuro: Editar producto
                         }}
-                        className="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-bold text-slate-400 hover:bg-slate-50 transition-colors uppercase tracking-tighter cursor-not-allowed"
+                        className="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-medium text-slate-400 hover:bg-slate-50 transition-colors uppercase tracking-tighter cursor-not-allowed"
                     >
                         <Package size={14} className="text-slate-300" />
                         Ver Ficha Técnica
@@ -793,7 +793,7 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                             <div className="bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 cursor-move modal-header">
                                 <div className="flex items-center gap-2">
                                     <Folder size={14} />
-                                    <span className="text-[11px] font-bold uppercase">Editar Categoría</span>
+                                    <span className="text-[11px] font-medium uppercase">Editar Categoría</span>
                                 </div>
                                 <button onClick={() => setShowCatModal(false)} className="hover:bg-red-500 h-full px-2">
                                     <X size={16} />
@@ -801,21 +801,21 @@ export const InventoryStock: React.FC<InventoryStockProps> = ({ mode }) => {
                             </div>
                             <div className="p-4 flex flex-col gap-4">
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-bold text-gray-500 uppercase">Nombre de Categoría</label>
+                                    <label className="text-[10px] font-medium text-gray-500 uppercase">Nombre de Categoría</label>
                                     <input 
                                         type="text"
                                         value={newCatName}
                                         onChange={e => setNewCatName(e.target.value.toUpperCase())}
-                                        className="w-full h-7 border border-gray-300 px-2 text-[11px] font-bold outline-none focus:border-[#106ebe]"
+                                        className="w-full h-7 border border-gray-300 px-2 text-[11px] font-medium outline-none focus:border-[#106ebe]"
                                         autoFocus
                                     />
                                 </div>
                                 <div className="flex justify-end gap-2">
-                                    <button onClick={() => setShowCatModal(false)} className="px-4 py-1 text-[11px] font-bold bg-white border border-gray-400 hover:bg-gray-100 uppercase">Cancelar</button>
+                                    <button onClick={() => setShowCatModal(false)} className="px-4 py-1 text-[11px] font-medium bg-white border border-gray-400 hover:bg-gray-100 uppercase">Cancelar</button>
                                     <button 
                                         onClick={handleSaveCategory}
                                         disabled={savingCat || !newCatName.trim()}
-                                        className="px-5 py-1 bg-[#106ebe] text-white text-[11px] font-bold hover:bg-[#0d5aa0] disabled:opacity-50 uppercase flex items-center gap-2"
+                                        className="px-5 py-1 bg-[#106ebe] text-white text-[11px] font-medium hover:bg-[#0d5aa0] disabled:opacity-50 uppercase flex items-center gap-2"
                                     >
                                         {savingCat && <Loader2 size={12} className="animate-spin" />}
                                         {savingCat ? 'Guardando...' : 'Guardar Cambios'}
@@ -969,7 +969,7 @@ const ProductMovementModal: React.FC<MovementModalProps> = ({ product, branchId,
             <div className="modal-header bg-[#106ebe] px-4 h-9 flex items-center justify-between text-white shrink-0 select-none cursor-move active:cursor-grabbing">
                 <div className="flex items-center gap-2">
                     <History size={16} className="text-blue-100" />
-                    <span className="text-[11px] font-black uppercase tracking-widest italic">Movimientos de Producto</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-widest italic">Movimientos de Producto</span>
                 </div>
                 <button onClick={onClose} className="hover:bg-red-500 w-9 h-9 flex items-center justify-center transition-colors group">
                     <X size={18} className="text-white" />
@@ -981,24 +981,24 @@ const ProductMovementModal: React.FC<MovementModalProps> = ({ product, branchId,
                 {/* Datos de Producto Section */}
                 <div className="space-y-3">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-black text-slate-800 uppercase tracking-widest underline decoration-blue-500 decoration-2 underline-offset-4">Datos de Producto</span>
+                        <span className="text-[10px] font-semibold text-slate-800 uppercase tracking-widest underline decoration-blue-500 decoration-2 underline-offset-4">Datos de Producto</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 bg-white/50 p-4 rounded-xl border border-gray-200">
                         <div className="flex items-center gap-3">
-                            <label className="text-[9px] font-black text-slate-500 uppercase w-20">Producto</label>
-                            <div className="flex-1 bg-white border border-gray-300 px-3 py-1.5 rounded-md text-[10px] font-bold text-blue-800 shadow-sm">{product.name}</div>
+                            <label className="text-[9px] font-semibold text-slate-500 uppercase w-20">Producto</label>
+                            <div className="flex-1 bg-white border border-gray-300 px-3 py-1.5 rounded-md text-[10px] font-medium text-blue-800 shadow-sm">{product.name}</div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <label className="text-[9px] font-black text-slate-500 uppercase w-20">Presentación</label>
-                            <div className="flex-1 bg-white border border-gray-300 px-3 py-1.5 rounded-md text-[10px] font-bold text-slate-700 shadow-sm">{product.presentation || '—'}</div>
+                            <label className="text-[9px] font-semibold text-slate-500 uppercase w-20">Presentación</label>
+                            <div className="flex-1 bg-white border border-gray-300 px-3 py-1.5 rounded-md text-[10px] font-medium text-slate-700 shadow-sm">{product.presentation || '—'}</div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <label className="text-[9px] font-black text-slate-500 uppercase w-20">Unidad</label>
-                            <div className="flex-1 bg-white border border-gray-300 px-3 py-1.5 rounded-md text-[10px] font-bold text-slate-700 shadow-sm">{product.unit || '—'}</div>
+                            <label className="text-[9px] font-semibold text-slate-500 uppercase w-20">Unidad</label>
+                            <div className="flex-1 bg-white border border-gray-300 px-3 py-1.5 rounded-md text-[10px] font-medium text-slate-700 shadow-sm">{product.unit || '—'}</div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <label className="text-[9px] font-black text-slate-500 uppercase w-20">Sucursal</label>
-                            <div className="flex-1 bg-white border border-gray-300 px-3 py-1.5 rounded-md text-[10px] font-bold text-slate-700 shadow-sm">{branchName}</div>
+                            <label className="text-[9px] font-semibold text-slate-500 uppercase w-20">Sucursal</label>
+                            <div className="flex-1 bg-white border border-gray-300 px-3 py-1.5 rounded-md text-[10px] font-medium text-slate-700 shadow-sm">{branchName}</div>
                         </div>
                     </div>
                 </div>
@@ -1006,17 +1006,17 @@ const ProductMovementModal: React.FC<MovementModalProps> = ({ product, branchId,
                 {/* Detalle Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between border-b border-gray-300 pb-2">
-                        <span className="text-[10px] font-black text-slate-800 uppercase tracking-widest underline decoration-blue-500 decoration-2 underline-offset-4">Detalle</span>
+                        <span className="text-[10px] font-semibold text-slate-800 uppercase tracking-widest underline decoration-blue-500 decoration-2 underline-offset-4">Detalle</span>
                         <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-1.5 shadow-sm">
-                                <span className="text-[9px] font-black text-slate-400 uppercase">Del</span>
-                                <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="text-[9px] font-bold outline-none bg-transparent" />
-                                <span className="text-[9px] font-black text-slate-400 uppercase">Al</span>
-                                <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="text-[9px] font-bold outline-none bg-transparent" />
+                                <span className="text-[9px] font-semibold text-slate-400 uppercase">Del</span>
+                                <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="text-[9px] font-medium outline-none bg-transparent" />
+                                <span className="text-[9px] font-semibold text-slate-400 uppercase">Al</span>
+                                <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="text-[9px] font-medium outline-none bg-transparent" />
                             </div>
                             <button
                                 onClick={fetchMovements}
-                                className="bg-[#106ebe] text-white px-5 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-md active:scale-95 flex items-center gap-2"
+                                className="bg-[#106ebe] text-white px-5 py-2 rounded-lg text-[9px] font-semibold uppercase tracking-widest hover:bg-black transition-all shadow-md active:scale-95 flex items-center gap-2"
                             >
                                 <RefreshCw size={12} className={loading ? 'animate-spin' : ''} /> Generar
                             </button>
@@ -1031,7 +1031,7 @@ const ProductMovementModal: React.FC<MovementModalProps> = ({ product, branchId,
                             placeholder="BUSCAR POR REFERENCIA O DESCRIPCIÓN..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-xl text-[9px] font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-400 transition-all uppercase"
+                            className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-xl text-[9px] font-medium text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-400 transition-all uppercase"
                         />
                     </div>
 
@@ -1041,12 +1041,12 @@ const ProductMovementModal: React.FC<MovementModalProps> = ({ product, branchId,
                             <table className="w-full text-left border-collapse">
                                 <thead className="sticky top-0 bg-[#f1f5f9] border-b border-gray-300 z-10 shadow-sm">
                                     <tr className="h-9 font-['Montserrat']">
-                                        <th className="px-4 text-[9px] font-black text-slate-500 uppercase border-r border-gray-200">Fecha</th>
-                                        <th className="px-4 text-[9px] font-black text-slate-500 uppercase border-r border-gray-200 text-center">Número Orden</th>
-                                        <th className="px-4 text-[9px] font-black text-slate-500 uppercase border-r border-gray-200">Descripción</th>
-                                        <th className="px-4 text-center text-[9px] font-black text-emerald-600 uppercase border-r border-gray-200">Entrada</th>
-                                        <th className="px-4 text-center text-[9px] font-black text-rose-600 uppercase border-r border-gray-200">Salida</th>
-                                        <th className="px-4 text-right text-[9px] font-black text-slate-800 uppercase">Existencia</th>
+                                        <th className="px-4 text-[9px] font-semibold text-slate-500 uppercase border-r border-gray-200">Fecha</th>
+                                        <th className="px-4 text-[9px] font-semibold text-slate-500 uppercase border-r border-gray-200 text-center">Número Orden</th>
+                                        <th className="px-4 text-[9px] font-semibold text-slate-500 uppercase border-r border-gray-200">Descripción</th>
+                                        <th className="px-4 text-center text-[9px] font-semibold text-emerald-600 uppercase border-r border-gray-200">Entrada</th>
+                                        <th className="px-4 text-center text-[9px] font-semibold text-rose-600 uppercase border-r border-gray-200">Salida</th>
+                                        <th className="px-4 text-right text-[9px] font-semibold text-slate-800 uppercase">Existencia</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
@@ -1054,14 +1054,14 @@ const ProductMovementModal: React.FC<MovementModalProps> = ({ product, branchId,
                                         <tr>
                                             <td colSpan={6} className="py-32 text-center">
                                                 <Loader2 size={32} className="animate-spin text-blue-600 mx-auto" />
-                                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-2">Cargando movimientos...</p>
+                                                <p className="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-2">Cargando movimientos...</p>
                                             </td>
                                         </tr>
                                     ) : filteredMovements.length === 0 ? (
                                         <tr>
                                             <td colSpan={6} className="py-32 text-center">
                                                 <History size={32} className="text-gray-200 mx-auto" />
-                                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-2">No se encontraron movimientos</p>
+                                                <p className="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-2">No se encontraron movimientos</p>
                                             </td>
                                         </tr>
                                     ) : (
@@ -1093,26 +1093,26 @@ const ProductMovementModal: React.FC<MovementModalProps> = ({ product, branchId,
                                             }
 
                                             const displayType = isCancelled ? cleanType + ' (ANULADA)' : cleanType;
-                                            const typeColor = isCancelled ? 'text-rose-600 font-black' : (cleanType === 'VENTA' ? 'text-slate-900 font-bold' : '');
+                                            const typeColor = isCancelled ? 'text-rose-600 font-semibold' : (cleanType === 'VENTA' ? 'text-slate-900 font-medium' : '');
 
                                             return (
                                                 <tr key={move.id} className={`h-10 hover:bg-blue-50/50 transition-colors ${minIdx % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
-                                                    <td className="px-4 text-[10px] font-bold text-slate-600 border-r border-gray-100">
+                                                    <td className="px-4 text-[10px] font-medium text-slate-600 border-r border-gray-100">
                                                         {new Date(move.created_at).toLocaleDateString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                                                     </td>
-                                                    <td className="px-4 text-[11px] font-black text-blue-700 text-center border-r border-gray-100 bg-blue-50/5">
+                                                    <td className="px-4 text-[11px] font-semibold text-blue-700 text-center border-r border-gray-100 bg-blue-50/5">
                                                         {orderNum}
                                                     </td>
-                                                    <td className="px-4 text-[10px] font-bold text-slate-700 border-r border-gray-100 uppercase tracking-tighter">
+                                                    <td className="px-4 text-[10px] font-medium text-slate-700 border-r border-gray-100 uppercase tracking-tighter">
                                                         <span className={typeColor}>{displayType}</span>
                                                     </td>
-                                                    <td className="px-4 text-center text-[10px] font-black text-emerald-600 border-r border-gray-100 bg-emerald-50/20 tabular-nums">
+                                                    <td className="px-4 text-center text-[10px] font-semibold text-emerald-600 border-r border-gray-100 bg-emerald-50/20 tabular-nums">
                                                         {move.quantity_in > 0 ? Math.round(move.quantity_in).toLocaleString() : '—'}
                                                     </td>
-                                                    <td className="px-4 text-center text-[10px] font-black text-rose-600 border-r border-gray-100 bg-rose-50/20 tabular-nums">
+                                                    <td className="px-4 text-center text-[10px] font-semibold text-rose-600 border-r border-gray-100 bg-rose-50/20 tabular-nums">
                                                         {move.quantity_out > 0 ? Math.round(move.quantity_out).toLocaleString() : '—'}
                                                     </td>
-                                                    <td className="px-4 text-right text-[10px] font-black text-slate-900 tabular-nums bg-gray-50/50">
+                                                    <td className="px-4 text-right text-[10px] font-semibold text-slate-900 tabular-nums bg-gray-50/50">
                                                         {Math.round(move.balance).toLocaleString()}
                                                     </td>
                                                 </tr>
@@ -1130,12 +1130,12 @@ const ProductMovementModal: React.FC<MovementModalProps> = ({ product, branchId,
             <div className="bg-[#e8e8e8] px-6 py-3 border-t border-gray-300 flex justify-end gap-3 shrink-0 shadow-[inset_0_1px_0_#fff]">
                 <button
                     onClick={onClose}
-                    className="bg-white border-2 border-slate-300 text-slate-700 px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:border-slate-400 active:translate-y-px transition-all shadow-sm"
+                    className="bg-white border-2 border-slate-300 text-slate-700 px-6 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-widest hover:border-slate-400 active:translate-y-px transition-all shadow-sm"
                 >
                     Cerrar Ventana
                 </button>
                 <button
-                    className="bg-[#106ebe] text-white px-8 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-[2px_2px_0_rgba(0,0,0,0.2)] active:translate-y-px"
+                    className="bg-[#106ebe] text-white px-8 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-widest hover:bg-black transition-all shadow-[2px_2px_0_rgba(0,0,0,0.2)] active:translate-y-px"
                 >
                     Exportar Reporte
                 </button>

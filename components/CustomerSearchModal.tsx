@@ -61,8 +61,8 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({ isOpen
                 {/* Header */}
                 <div className="p-6 border-b border-white/5 flex items-center justify-between bg-[#1e212b]">
                     <div className="flex flex-col">
-                        <h3 className="text-lg font-black text-white uppercase tracking-wider">Buscar Cliente</h3>
-                        <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Seleccione cliente para facturación</span>
+                        <h3 className="text-lg font-semibold text-white uppercase tracking-wider">Buscar Cliente</h3>
+                        <span className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">Seleccione cliente para facturación</span>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full text-gray-400 hover:text-white transition-all">
                         <X size={20} />
@@ -79,7 +79,7 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({ isOpen
                             onChange={e => setSearchTerm(e.target.value)}
                             placeholder="Buscar por Nombre, NIT o Teléfono..."
                             autoFocus
-                            className="w-full h-14 bg-[#0a0c10] border border-white/10 rounded-lg pl-12 pr-4 text-white font-bold outline-none focus:border-indigo-500 transition-all placeholder:text-gray-600"
+                            className="w-full h-14 bg-[#0a0c10] border border-white/10 rounded-lg pl-12 pr-4 text-white font-medium outline-none focus:border-indigo-500 transition-all placeholder:text-gray-600"
                         />
                     </div>
                 </div>
@@ -93,7 +93,7 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({ isOpen
                     ) : filteredCustomers.length === 0 ? (
                         <div className="h-40 flex flex-col items-center justify-center text-gray-500">
                             <User size={32} className="mb-2 opacity-50" />
-                            <span className="text-xs font-bold uppercase tracking-widest">No se encontraron clientes</span>
+                            <span className="text-xs font-medium uppercase tracking-widest">No se encontraron clientes</span>
                         </div>
                     ) : (
                         filteredCustomers.map(customer => (
@@ -107,8 +107,8 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({ isOpen
                                         <User size={20} />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-sm font-black text-gray-200 group-hover:text-white uppercase">{customer.name}</span>
-                                        <div className="flex items-center gap-3 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                                        <span className="text-sm font-semibold text-gray-200 group-hover:text-white uppercase">{customer.name}</span>
+                                        <div className="flex items-center gap-3 text-[10px] font-medium text-gray-500 uppercase tracking-wider">
                                             {customer.nit && (
                                                 <span className="flex items-center gap-1">NIT: <span className="text-indigo-400">{customer.nit}</span></span>
                                             )}
@@ -128,7 +128,7 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({ isOpen
 
                 {/* Footer */}
                 <div className="p-4 bg-[#1e212b] border-t border-white/5 text-center">
-                    <span className="text-[10px] text-gray-600 font-bold uppercase tracking-[0.2em]">{filteredCustomers.length} Clientes Encontrados</span>
+                    <span className="text-[10px] text-gray-600 font-medium uppercase tracking-[0.2em]">{filteredCustomers.length} Clientes Encontrados</span>
                 </div>
             </div>
         </div>

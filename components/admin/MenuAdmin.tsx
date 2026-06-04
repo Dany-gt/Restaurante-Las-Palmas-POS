@@ -754,11 +754,11 @@ export const MenuAdmin: React.FC = () => {
         {/* 1. Filter Bar (Sucursal on Left, Show All on Right) */}
         <div className="bg-[#f0f0f0] border-y border-[#ccc] px-2 py-1 flex items-center justify-between shrink-0 shadow-sm z-20">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Sucursal</span>
+            <span className="text-[10px] font-medium text-gray-500 uppercase tracking-tight">Sucursal</span>
             <select
               value={selectedBranch}
               onChange={e => setSelectedBranch(e.target.value)}
-              className="bg-white border border-gray-400 rounded-sm px-2 py-0.5 text-[10px] font-bold text-slate-700 outline-none focus:border-[#106ebe] min-w-[280px]"
+              className="bg-white border border-gray-400 rounded-sm px-2 py-0.5 text-[10px] font-medium text-slate-700 outline-none focus:border-[#106ebe] min-w-[280px]"
             >
               <option value="all">TODAS LAS SUCURSALES</option>
               {branches.map(b => (
@@ -779,7 +779,7 @@ export const MenuAdmin: React.FC = () => {
             )}
             <button
               onClick={() => { setSelectedCategory(null); if (isMobile) setShowMobileCategories(false); }}
-              className="bg-[#106ebe] hover:bg-[#002244] text-white px-5 py-1.5 border border-[#001a33] text-[10px] font-black uppercase tracking-widest shadow-sm active:translate-y-[1px] transition-all"
+              className="bg-[#106ebe] hover:bg-[#002244] text-white px-5 py-1.5 border border-[#001a33] text-[10px] font-semibold uppercase tracking-widest shadow-sm active:translate-y-[1px] transition-all"
             >
               Mostrar Todos
             </button>
@@ -820,17 +820,17 @@ export const MenuAdmin: React.FC = () => {
                 <div className="bg-[#106ebe] px-3 py-1.5 flex items-center justify-between rounded-t-sm">
                   <div className="flex items-center gap-2">
                     <Layers size={14} className="text-white" />
-                    <span className="text-white text-[10px] font-bold font-black tracking-tight uppercase">Listado de Platillos</span>
+                    <span className="text-white text-[10px] font-medium font-semibold tracking-tight uppercase">Listado de Platillos</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <input
                       type="text"
                       placeholder="INTRODUZCA EL TEXTO A BUSCAR..."
-                      className="bg-white border border-gray-300 px-2 py-0.5 text-[9px] font-bold text-slate-700 outline-none w-56 uppercase"
+                      className="bg-white border border-gray-300 px-2 py-0.5 text-[9px] font-medium text-slate-700 outline-none w-56 uppercase"
                       value={searchProduct}
                       onChange={e => setSearchProduct(e.target.value)}
                     />
-                    <button className="bg-[#106ebe] hover:bg-[#002244] text-white px-5 py-0.5 border border-[#001a33] text-[9px] font-bold uppercase transition-all shadow-sm active:translate-y-[1px]">
+                    <button className="bg-[#106ebe] hover:bg-[#002244] text-white px-5 py-0.5 border border-[#001a33] text-[9px] font-medium uppercase transition-all shadow-sm active:translate-y-[1px]">
                       BUSCAR
                     </button>
                   </div>
@@ -848,15 +848,15 @@ export const MenuAdmin: React.FC = () => {
                     <table className="w-full border-collapse">
                       <thead className="sticky top-0 z-20 bg-[#e8e8e8] select-none shadow-sm">
                         <tr className="h-8 border-b border-gray-400">
-                          <th className="px-4 py-1 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-24">Código</th>
-                          <th className="px-4 py-1 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 min-w-[250px]">Platillo</th>
-                          <th className="px-4 py-1 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300">Categoría</th>
-                          <th className="px-4 py-1 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300">Cocina</th>
-                          <th className="px-4 py-1 text-center text-[10px] font-bold text-black uppercase border-r border-gray-300 w-20">Prioridad</th>
-                          <th className="px-4 text-center text-[10px] font-bold text-black uppercase border-r border-gray-300 w-24">Existencia</th>
-                          <th className="px-4 py-1 text-right text-[10px] font-bold text-black uppercase border-r border-gray-300 w-28">Precio Costo</th>
-                          <th className="px-4 py-1 text-right text-[10px] font-bold text-black uppercase border-r border-gray-300 w-28">Precio Venta</th>
-                          <th className="px-4 py-1 text-center text-[10px] font-bold text-black uppercase w-24">Habilitado</th>
+                          <th className="px-4 py-1 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-24">Código</th>
+                          <th className="px-4 py-1 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 min-w-[250px]">Platillo</th>
+                          <th className="px-4 py-1 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300">Categoría</th>
+                          <th className="px-4 py-1 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300">Cocina</th>
+                          <th className="px-4 py-1 text-center text-[10px] font-medium text-black uppercase border-r border-gray-300 w-20">Prioridad</th>
+                          <th className="px-4 text-center text-[10px] font-medium text-black uppercase border-r border-gray-300 w-24">Existencia</th>
+                          <th className="px-4 py-1 text-right text-[10px] font-medium text-black uppercase border-r border-gray-300 w-28">Precio Costo</th>
+                          <th className="px-4 py-1 text-right text-[10px] font-medium text-black uppercase border-r border-gray-300 w-28">Precio Venta</th>
+                          <th className="px-4 py-1 text-center text-[10px] font-medium text-black uppercase w-24">Habilitado</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
@@ -946,12 +946,12 @@ export const MenuAdmin: React.FC = () => {
                               })();
                             }}
                           >
-                            <td className="px-4 py-1 uppercase border-r border-gray-100 font-bold text-gray-400 tabular-nums">{prod.product_code || '--'}</td>
-                            <td className="px-4 py-1 uppercase font-bold truncate">{prod.name}</td>
+                            <td className="px-4 py-1 uppercase border-r border-gray-100 font-medium text-gray-400 tabular-nums">{prod.product_code || '--'}</td>
+                            <td className="px-4 py-1 uppercase font-medium truncate">{prod.name}</td>
                             <td className={`px-4 py-1 uppercase border-r border-gray-100 ${contextMenu.product?.id === prod.id ? 'text-white' : 'text-slate-600'}`}>{prod.categories?.name}</td>
                             <td className={`px-4 py-1 uppercase border-r border-gray-100 ${contextMenu.product?.id === prod.id ? 'text-white' : 'text-slate-600/80'}`}>{prod.kitchen_stations?.name || '--'}</td>
                             <td className="px-4 py-1 text-center border-r border-gray-100">{prod.priority || 100}</td>
-                            <td className="px-4 py-1 text-center border-r border-gray-100 font-bold tabular-nums">
+                            <td className="px-4 py-1 text-center border-r border-gray-100 font-medium tabular-nums">
                               {(() => {
                                 const invId = (prod as any).inventory_item_id;
                                 if (!invId) return 'N/A';
@@ -964,8 +964,8 @@ export const MenuAdmin: React.FC = () => {
                                 }
                               })()}
                             </td>
-                            <td className="px-4 py-1 text-right border-r border-gray-100 font-bold tabular-nums">Q{Number(prod.cost_price || 0).toFixed(2)}</td>
-                            <td className="px-4 py-1 text-right border-r border-gray-100 font-bold tabular-nums">Q{Number(prod.price).toFixed(2)}</td>
+                            <td className="px-4 py-1 text-right border-r border-gray-100 font-medium tabular-nums">Q{Number(prod.cost_price || 0).toFixed(2)}</td>
+                            <td className="px-4 py-1 text-right border-r border-gray-100 font-medium tabular-nums">Q{Number(prod.price).toFixed(2)}</td>
                             <td className="px-4 py-1 text-center">
                               <input
                                 type="checkbox"
@@ -982,7 +982,7 @@ export const MenuAdmin: React.FC = () => {
 
                   {/* Table Footer */}
                   <div className="h-6 bg-[#f0f0f0] border-t border-[#ccc] flex items-center px-4 shrink-0 select-none">
-                    <span className="text-[10px] text-gray-600 font-bold uppercase tracking-tight">Platos: {filteredProducts.length}</span>
+                    <span className="text-[10px] text-gray-600 font-medium uppercase tracking-tight">Platos: {filteredProducts.length}</span>
                   </div>
                 </div>
               </div>
@@ -999,7 +999,7 @@ export const MenuAdmin: React.FC = () => {
               <div className="bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 modal-header cursor-move">
                 <div className="flex items-center gap-2">
                   <Utensils size={14} className="text-white" />
-                  <span className="text-[11px] font-bold uppercase tracking-wide">Mantenimiento de Platillos</span>
+                  <span className="text-[11px] font-medium uppercase tracking-wide">Mantenimiento de Platillos</span>
                 </div>
                 <div className="flex items-center h-full">
                   <WindowsSaveButton onClick={handleSave} loading={isSaving} variant="minimal" title="Guardar Producto" />
@@ -1015,7 +1015,7 @@ export const MenuAdmin: React.FC = () => {
                 {/* Section 1: DATOS DE PLATILLO */}
                 <div className="border border-gray-300 bg-white ring-1 ring-black/5 overflow-hidden rounded-sm">
                   <div className="bg-[#f8fafc] px-4 py-1.5 border-b border-gray-200">
-                    <span className="text-[9px] font-black text-[#106ebe] uppercase tracking-widest">Datos de Platillo</span>
+                    <span className="text-[9px] font-semibold text-[#106ebe] uppercase tracking-widest">Datos de Platillo</span>
                   </div>
                   
                   <div className="p-4 pt-6 flex gap-8 font-sans">
@@ -1133,7 +1133,7 @@ export const MenuAdmin: React.FC = () => {
                         <select
                           value={newProduct.inventory_item_id}
                           onChange={e => setNewProduct({ ...newProduct, inventory_item_id: e.target.value })}
-                          className="flex-1 h-8 border border-gray-300 px-2 text-[11px] text-slate-700 font-bold outline-none focus:border-[#106ebe] bg-white cursor-pointer rounded-sm"
+                          className="flex-1 h-8 border border-gray-300 px-2 text-[11px] text-slate-700 font-medium outline-none focus:border-[#106ebe] bg-white cursor-pointer rounded-sm"
                         >
                           <option value="">-- SIN VINCULACIÓN A STOCK --</option>
                           {inventoryItems.slice(0, 100).map(inv => <option key={inv.id} value={inv.id}>{inv.name} ({inv.unit_measure})</option>)}
@@ -1151,7 +1151,7 @@ export const MenuAdmin: React.FC = () => {
                       </div>
                       <button 
                         onClick={() => document.getElementById('productImageInput')?.click()}
-                        className="w-full bg-white border border-gray-400 h-7 text-[9px] font-bold text-slate-700 uppercase tracking-tight hover:bg-gray-100 flex items-center justify-center gap-2 shadow-sm rounded-sm"
+                        className="w-full bg-white border border-gray-400 h-7 text-[9px] font-medium text-slate-700 uppercase tracking-tight hover:bg-gray-100 flex items-center justify-center gap-2 shadow-sm rounded-sm"
                       >
                          <ImageIcon size={14} className="text-[#106ebe]" /> CAMBIAR IMAGEN
                       </button>
@@ -1162,12 +1162,12 @@ export const MenuAdmin: React.FC = () => {
                 {/* Section 2: PRECIOS DE VENTA */}
                 <div className="border border-gray-300 bg-white shadow-sm overflow-hidden rounded-sm">
                    <div className="bg-[#f8fafc] px-4 py-1.5 border-b border-gray-200">
-                     <h4 className="text-[9px] font-black text-[#106ebe] uppercase tracking-widest">Precios de Venta</h4>
+                     <h4 className="text-[9px] font-semibold text-[#106ebe] uppercase tracking-widest">Precios de Venta</h4>
                    </div>
                    <div className="p-4 flex items-center gap-4">
                      <div className="flex-1 grid grid-cols-3 gap-6">
                        <div className="space-y-1">
-                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter block text-center">Precio Venta</label>
+                         <label className="text-[10px] font-medium text-slate-400 uppercase tracking-tighter block text-center">Precio Venta</label>
                          <div className="relative">
                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-300">Q</span>
                            <input
@@ -1180,7 +1180,7 @@ export const MenuAdmin: React.FC = () => {
                          </div>
                        </div>
                        <div className="space-y-1">
-                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter block text-center">Precio Domicilio</label>
+                         <label className="text-[10px] font-medium text-slate-400 uppercase tracking-tighter block text-center">Precio Domicilio</label>
                          <div className="relative">
                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-300">Q</span>
                            <input
@@ -1193,7 +1193,7 @@ export const MenuAdmin: React.FC = () => {
                          </div>
                        </div>
                        <div className="space-y-1">
-                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter block text-center">Precio Plataformas</label>
+                         <label className="text-[10px] font-medium text-slate-400 uppercase tracking-tighter block text-center">Precio Plataformas</label>
                          <div className="relative">
                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-300">Q</span>
                            <input
@@ -1217,7 +1217,7 @@ export const MenuAdmin: React.FC = () => {
                             }))); 
                             notify.success('Precios aplicados globalmente.');
                           }}
-                          className="bg-[#106ebe] hover:bg-blue-800 text-white px-5 h-10 text-[10px] font-black uppercase tracking-widest shadow-md transition-all active:translate-y-0.5 rounded-sm"
+                          className="bg-[#106ebe] hover:bg-blue-800 text-white px-5 h-10 text-[10px] font-semibold uppercase tracking-widest shadow-md transition-all active:translate-y-0.5 rounded-sm"
                        >
                           Aplicar a Todos
                        </button>
@@ -1231,19 +1231,19 @@ export const MenuAdmin: React.FC = () => {
                       <div className="flex items-end h-8 gap-0.5">
                         <button
                           onClick={() => setActiveTab('branches')}
-                          className={`px-4 h-full text-[10px] font-bold uppercase transition-all rounded-t-sm border border-b-0 ${activeTab === 'branches' ? 'bg-white border-gray-300 text-[#106ebe] mb-[-1px] pb-1 z-10' : 'bg-transparent border-transparent text-gray-500 hover:bg-gray-200/50'}`}
+                          className={`px-4 h-full text-[10px] font-medium uppercase transition-all rounded-t-sm border border-b-0 ${activeTab === 'branches' ? 'bg-white border-gray-300 text-[#106ebe] mb-[-1px] pb-1 z-10' : 'bg-transparent border-transparent text-gray-500 hover:bg-gray-200/50'}`}
                         >
                           Disponibilidad y Precios
                         </button>
                         <button
                           onClick={() => setActiveTab('options')}
-                          className={`px-4 h-full text-[10px] font-bold uppercase transition-all rounded-t-sm border border-b-0 ${activeTab === 'options' ? 'bg-white border-gray-300 text-[#106ebe] mb-[-1px] pb-1 z-10' : 'bg-transparent border-transparent text-gray-500 hover:bg-gray-200/50'}`}
+                          className={`px-4 h-full text-[10px] font-medium uppercase transition-all rounded-t-sm border border-b-0 ${activeTab === 'options' ? 'bg-white border-gray-300 text-[#106ebe] mb-[-1px] pb-1 z-10' : 'bg-transparent border-transparent text-gray-500 hover:bg-gray-200/50'}`}
                         >
                           Opciones y Modificadores
                         </button>
                         <button
                           onClick={() => setActiveTab('recipe')}
-                          className={`px-4 h-full text-[10px] font-bold uppercase transition-all rounded-t-sm border border-b-0 ${activeTab === 'recipe' ? 'bg-white border-gray-300 text-[#106ebe] mb-[-1px] pb-1 z-10' : 'bg-transparent border-transparent text-gray-500 hover:bg-gray-200/50'}`}
+                          className={`px-4 h-full text-[10px] font-medium uppercase transition-all rounded-t-sm border border-b-0 ${activeTab === 'recipe' ? 'bg-white border-gray-300 text-[#106ebe] mb-[-1px] pb-1 z-10' : 'bg-transparent border-transparent text-gray-500 hover:bg-gray-200/50'}`}
                         >
                           Receta / Ficha Técnica
                         </button>
@@ -1256,13 +1256,13 @@ export const MenuAdmin: React.FC = () => {
                           <table className="w-full text-left border-collapse">
                             <thead className="sticky top-0 z-10 bg-[#f8fafc] shadow-sm">
                               <tr className="border-b border-gray-200 h-9">
-                                <th className="w-10 py-2 text-center text-[9px] font-bold text-slate-500 uppercase tracking-tight"></th>
-                                <th className="py-2 text-[9px] font-bold text-slate-500 uppercase tracking-tight">Sucursal</th>
-                                <th className="w-32 text-center text-[9px] font-bold text-slate-500 uppercase tracking-tight">Precio Salón</th>
-                                <th className="w-32 text-center text-[9px] font-bold text-slate-500 uppercase tracking-tight">Domicilio</th>
-                                <th className="w-32 text-center text-[9px] font-bold text-slate-500 uppercase tracking-tight">Plataformas</th>
-                                <th className="w-20 text-center text-[9px] font-bold text-slate-500 uppercase tracking-tight">Habilitado</th>
-                                <th className="w-20 text-center text-[9px] font-bold text-slate-500 uppercase tracking-tight">Asignado</th>
+                                <th className="w-10 py-2 text-center text-[9px] font-medium text-slate-500 uppercase tracking-tight"></th>
+                                <th className="py-2 text-[9px] font-medium text-slate-500 uppercase tracking-tight">Sucursal</th>
+                                <th className="w-32 text-center text-[9px] font-medium text-slate-500 uppercase tracking-tight">Precio Salón</th>
+                                <th className="w-32 text-center text-[9px] font-medium text-slate-500 uppercase tracking-tight">Domicilio</th>
+                                <th className="w-32 text-center text-[9px] font-medium text-slate-500 uppercase tracking-tight">Plataformas</th>
+                                <th className="w-20 text-center text-[9px] font-medium text-slate-500 uppercase tracking-tight">Habilitado</th>
+                                <th className="w-20 text-center text-[9px] font-medium text-slate-500 uppercase tracking-tight">Asignado</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
@@ -1273,35 +1273,35 @@ export const MenuAdmin: React.FC = () => {
                                     <td className="text-center text-gray-400 px-2">
                                       <Building2 size={14} />
                                     </td>
-                                    <td className="text-[10px] font-bold text-slate-700 uppercase leading-none">{bName}</td>
+                                    <td className="text-[10px] font-medium text-slate-700 uppercase leading-none">{bName}</td>
                                     <td className="px-2">
                                       <div className="flex items-center gap-1.5 border border-gray-300 px-2 bg-white rounded-sm h-7">
-                                        <span className="text-[10px] text-gray-400 font-bold">Q</span>
+                                        <span className="text-[10px] text-gray-400 font-medium">Q</span>
                                         <input value={bp.price} onChange={e => { 
                                           const newBp = [...branchPrices]; 
                                           newBp[index].price = e.target.value; 
                                           setBranchPrices(newBp); 
-                                        }} className="w-full text-[11px] font-bold text-slate-700 outline-none text-right" />
+                                        }} className="w-full text-[11px] font-medium text-slate-700 outline-none text-right" />
                                       </div>
                                     </td>
                                     <td className="px-2">
                                       <div className="flex items-center gap-1.5 border border-gray-300 px-2 bg-white rounded-sm h-7">
-                                        <span className="text-[10px] text-gray-400 font-bold">Q</span>
+                                        <span className="text-[10px] text-gray-400 font-medium">Q</span>
                                         <input value={bp.delivery_price} onChange={e => { 
                                           const newBp = [...branchPrices]; 
                                           newBp[index].delivery_price = e.target.value; 
                                           setBranchPrices(newBp); 
-                                        }} className="w-full text-[11px] font-bold text-slate-700 outline-none text-right" />
+                                        }} className="w-full text-[11px] font-medium text-slate-700 outline-none text-right" />
                                       </div>
                                     </td>
                                     <td className="px-2">
                                       <div className="flex items-center gap-1.5 border border-gray-300 px-2 bg-white rounded-sm h-7">
-                                        <span className="text-[10px] text-gray-400 font-bold">Q</span>
+                                        <span className="text-[10px] text-gray-400 font-medium">Q</span>
                                         <input value={bp.platform_price} onChange={e => { 
                                           const newBp = [...branchPrices]; 
                                           newBp[index].platform_price = e.target.value; 
                                           setBranchPrices(newBp); 
-                                        }} className="w-full text-[11px] font-bold text-slate-700 outline-none text-right" />
+                                        }} className="w-full text-[11px] font-medium text-slate-700 outline-none text-right" />
                                       </div>
                                     </td>
                                     <td>
@@ -1324,17 +1324,17 @@ export const MenuAdmin: React.FC = () => {
                         <div className="grid grid-cols-2 gap-px bg-gray-200 h-full">
                            <div className="bg-white flex flex-col p-3">
                               <div className="bg-[#f8fafc] px-3 py-2 border border-gray-300 flex items-center justify-between rounded-t-sm">
-                                <span className="text-[10px] font-bold text-slate-700 uppercase tracking-tight">Opciones Asignadas (Tabs)</span>
-                                <button onClick={() => setSearchModal({ visible: true, type: 'options', query: '' })} className="bg-white border border-gray-300 text-[#106ebe] font-bold flex items-center justify-center w-6 h-6 rounded-sm shadow-sm hover:bg-blue-50 transition-colors"><Plus size={14}/></button>
+                                <span className="text-[10px] font-medium text-slate-700 uppercase tracking-tight">Opciones Asignadas (Tabs)</span>
+                                <button onClick={() => setSearchModal({ visible: true, type: 'options', query: '' })} className="bg-white border border-gray-300 text-[#106ebe] font-medium flex items-center justify-center w-6 h-6 rounded-sm shadow-sm hover:bg-blue-50 transition-colors"><Plus size={14}/></button>
                               </div>
                               <div className="flex-1 p-2 overflow-y-auto custom-scrollbar border-x border-b border-gray-300 rounded-b-sm bg-white">
                                 {assignedOptionGroups.length === 0 ? (
-                                  <div className="h-full flex items-center justify-center text-[10px] font-bold text-gray-300 uppercase italic">Sin opciones asignadas</div>
+                                  <div className="h-full flex items-center justify-center text-[10px] font-medium text-gray-300 uppercase italic">Sin opciones asignadas</div>
                                 ) : (
                                   <div className="space-y-1">
                                     {assignedOptionGroups.map(og => (
                                       <div key={og.group_id} className="flex justify-between items-center p-2 hover:bg-gray-50 border border-gray-200 bg-white rounded-sm">
-                                        <span className="text-[10px] font-bold uppercase text-slate-600 tracking-tight">{optionGroups.find(g => g.id === og.group_id)?.name}</span>
+                                        <span className="text-[10px] font-medium uppercase text-slate-600 tracking-tight">{optionGroups.find(g => g.id === og.group_id)?.name}</span>
                                         <button onClick={() => setAssignedOptionGroups(prev => prev.filter(p => p.group_id !== og.group_id))} className="text-red-400 hover:text-red-600 p-1"><Trash2 size={13} /></button>
                                       </div>
                                     ))}
@@ -1344,17 +1344,17 @@ export const MenuAdmin: React.FC = () => {
                            </div>
                            <div className="bg-white flex flex-col p-3">
                               <div className="bg-[#f8fafc] px-3 py-2 border border-gray-300 flex items-center justify-between rounded-t-sm">
-                                <span className="text-[10px] font-bold text-slate-700 uppercase tracking-tight">Modificadores Asignados</span>
-                                <button onClick={() => setSearchModal({ visible: true, type: 'modifiers', query: '' })} className="bg-white border border-gray-300 text-[#106ebe] font-bold flex items-center justify-center w-6 h-6 rounded-sm shadow-sm hover:bg-blue-50 transition-colors"><Plus size={14}/></button>
+                                <span className="text-[10px] font-medium text-slate-700 uppercase tracking-tight">Modificadores Asignados</span>
+                                <button onClick={() => setSearchModal({ visible: true, type: 'modifiers', query: '' })} className="bg-white border border-gray-300 text-[#106ebe] font-medium flex items-center justify-center w-6 h-6 rounded-sm shadow-sm hover:bg-blue-50 transition-colors"><Plus size={14}/></button>
                               </div>
                               <div className="flex-1 p-2 overflow-y-auto custom-scrollbar border-x border-b border-gray-300 rounded-b-sm bg-white">
                                 {assignedModifierGroups.length === 0 ? (
-                                  <div className="h-full flex items-center justify-center text-[10px] font-bold text-gray-300 uppercase italic">Sin modificadores asignados</div>
+                                  <div className="h-full flex items-center justify-center text-[10px] font-medium text-gray-300 uppercase italic">Sin modificadores asignados</div>
                                 ) : (
                                   <div className="space-y-1">
                                     {assignedModifierGroups.map(am => (
                                       <div key={am.group_id} className="flex justify-between items-center p-2 hover:bg-gray-50 border border-gray-200 bg-white rounded-sm">
-                                        <span className="text-[10px] font-bold uppercase text-slate-600 tracking-tight">{modifierGroups.find(m => m.id === am.group_id)?.name}</span>
+                                        <span className="text-[10px] font-medium uppercase text-slate-600 tracking-tight">{modifierGroups.find(m => m.id === am.group_id)?.name}</span>
                                         <button onClick={() => setAssignedModifierGroups(prev => prev.filter(p => p.group_id !== am.group_id))} className="text-red-400 hover:text-red-600 p-1"><Trash2 size={13} /></button>
                                       </div>
                                     ))}
@@ -1369,18 +1369,18 @@ export const MenuAdmin: React.FC = () => {
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <BookOpen size={16} className="text-[#106ebe]" />
-                                <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight">Ingredientes e Insumos</span>
+                                <span className="text-[11px] font-medium text-slate-700 uppercase tracking-tight">Ingredientes e Insumos</span>
                               </div>
                               <div className="flex items-center gap-2">
                                 <button
                                   onClick={() => setSearchModal({ visible: true, type: 'inventory', query: '' })}
-                                  className="bg-[#106ebe] text-white px-3 h-7 text-[10px] font-bold uppercase tracking-tight flex items-center gap-2 rounded-sm shadow-sm hover:bg-blue-800"
+                                  className="bg-[#106ebe] text-white px-3 h-7 text-[10px] font-medium uppercase tracking-tight flex items-center gap-2 rounded-sm shadow-sm hover:bg-blue-800"
                                 >
                                   <Plus size={14} /> Agregar Insumo
                                 </button>
                                 <button
                                   onClick={() => setShowRecipeModal(true)}
-                                  className="bg-white border border-gray-400 text-slate-700 px-3 h-7 text-[10px] font-bold uppercase tracking-tight flex items-center gap-2 rounded-sm shadow-sm hover:bg-gray-50"
+                                  className="bg-white border border-gray-400 text-slate-700 px-3 h-7 text-[10px] font-medium uppercase tracking-tight flex items-center gap-2 rounded-sm shadow-sm hover:bg-gray-50"
                                 >
                                   <FileText size={14} className="text-[#106ebe]" /> Ficha Técnica Pro
                                 </button>
@@ -1391,24 +1391,24 @@ export const MenuAdmin: React.FC = () => {
                               <table className="w-full text-left border-collapse">
                                 <thead className="bg-[#f8fafc] border-b border-gray-300 sticky top-0 z-10">
                                   <tr className="h-8">
-                                    <th className="px-3 text-[9px] font-bold text-slate-500 uppercase">Insumo</th>
-                                    <th className="w-24 px-3 text-center text-[9px] font-bold text-slate-500 uppercase">Cant.</th>
-                                    <th className="w-24 px-3 text-center text-[9px] font-bold text-slate-500 uppercase">Unidad</th>
-                                    <th className="w-24 px-3 text-right text-[9px] font-bold text-slate-500 uppercase">Costo Est.</th>
-                                    <th className="w-16 px-3 text-center text-[9px] font-bold text-slate-500 uppercase">Acción</th>
+                                    <th className="px-3 text-[9px] font-medium text-slate-500 uppercase">Insumo</th>
+                                    <th className="w-24 px-3 text-center text-[9px] font-medium text-slate-500 uppercase">Cant.</th>
+                                    <th className="w-24 px-3 text-center text-[9px] font-medium text-slate-500 uppercase">Unidad</th>
+                                    <th className="w-24 px-3 text-right text-[9px] font-medium text-slate-500 uppercase">Costo Est.</th>
+                                    <th className="w-16 px-3 text-center text-[9px] font-medium text-slate-500 uppercase">Acción</th>
                                   </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 overflow-y-auto">
                                   {recipeItems.length === 0 ? (
                                     <tr>
-                                      <td colSpan={5} className="py-10 text-center text-[10px] font-bold text-gray-300 uppercase italic">No hay insumos registrados para este platillo</td>
+                                      <td colSpan={5} className="py-10 text-center text-[10px] font-medium text-gray-300 uppercase italic">No hay insumos registrados para este platillo</td>
                                     </tr>
                                   ) : (
                                     recipeItems.map((item, idx) => {
                                       const cost = item.inventory_items?.average_cost || item.inventory_items?.cost_price || 0;
                                       return (
                                         <tr key={idx} className="h-9 hover:bg-gray-50">
-                                          <td className="px-3 text-[10px] font-bold text-slate-700 uppercase">{item.inventory_items?.name}</td>
+                                          <td className="px-3 text-[10px] font-medium text-slate-700 uppercase">{item.inventory_items?.name}</td>
                                           <td className="px-2">
                                             <input 
                                               value={item.quantity} 
@@ -1419,11 +1419,11 @@ export const MenuAdmin: React.FC = () => {
                                                 next[idx].quantity = val;
                                                 setRecipeItems(next);
                                               }}
-                                              className="w-full h-6 border border-gray-300 text-center text-[11px] font-bold text-slate-700 bg-white" 
+                                              className="w-full h-6 border border-gray-300 text-center text-[11px] font-medium text-slate-700 bg-white" 
                                             />
                                           </td>
                                           <td className="px-3 text-center text-[10px] text-slate-500 uppercase">{item.unit_measure}</td>
-                                          <td className="px-3 text-right text-[10px] font-bold text-slate-600">Q{(cost * (parseFloat(item.quantity) || 0)).toFixed(2)}</td>
+                                          <td className="px-3 text-right text-[10px] font-medium text-slate-600">Q{(cost * (parseFloat(item.quantity) || 0)).toFixed(2)}</td>
                                           <td className="px-3 text-center">
                                             <button onClick={() => setRecipeItems(prev => prev.filter((_, i) => i !== idx))} className="text-red-400 hover:text-red-600"><Trash2 size={14} /></button>
                                           </td>
@@ -1435,8 +1435,8 @@ export const MenuAdmin: React.FC = () => {
                                 {recipeItems.length > 0 && (
                                   <tfoot className="bg-[#f8fafc] border-t border-gray-300">
                                     <tr className="h-8">
-                                      <td colSpan={3} className="px-3 text-[10px] font-black text-slate-500 uppercase text-right">Costo Total Receta:</td>
-                                      <td className="px-3 text-right text-[11px] font-black text-[#106ebe]">Q{totalReceta.toFixed(2)}</td>
+                                      <td colSpan={3} className="px-3 text-[10px] font-semibold text-slate-500 uppercase text-right">Costo Total Receta:</td>
+                                      <td className="px-3 text-right text-[11px] font-semibold text-[#106ebe]">Q{totalReceta.toFixed(2)}</td>
                                       <td></td>
                                     </tr>
                                   </tfoot>
@@ -1453,14 +1453,14 @@ export const MenuAdmin: React.FC = () => {
                 <div className="bg-[#f0f4f8] border-t border-gray-300 px-6 py-4 flex justify-end gap-3 shrink-0">
                   <button
                     onClick={() => { setShowModal(false); resetForm(); }}
-                    className="bg-white border border-gray-300 text-slate-600 px-8 h-10 text-[10px] font-black uppercase tracking-widest rounded-sm hover:bg-gray-50 shadow-sm"
+                    className="bg-white border border-gray-300 text-slate-600 px-8 h-10 text-[10px] font-semibold uppercase tracking-widest rounded-sm hover:bg-gray-50 shadow-sm"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="bg-[#106ebe] text-white px-8 h-10 text-[10px] font-black uppercase tracking-widest rounded-sm hover:bg-blue-800 transition-colors shadow-[0_4px_10px_rgba(16,110,190,0.3)] min-w-[200px]"
+                    className="bg-[#106ebe] text-white px-8 h-10 text-[10px] font-semibold uppercase tracking-widest rounded-sm hover:bg-blue-800 transition-colors shadow-[0_4px_10px_rgba(16,110,190,0.3)] min-w-[200px]"
                   >
                     {isSaving ? 'Guardando...' : 'Guardar Cambios'}
                   </button>
@@ -1481,12 +1481,12 @@ export const MenuAdmin: React.FC = () => {
               <div className="bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 modal-header cursor-move shadow-md">
                 <div className="flex items-center gap-2">
                   <ChefHat size={14} className="text-white" />
-                  <span className="text-[11px] font-bold uppercase tracking-tight">Ficha Técnica: {newProduct.name || 'NUEVA'}</span>
+                  <span className="text-[11px] font-medium uppercase tracking-tight">Ficha Técnica: {newProduct.name || 'NUEVA'}</span>
                 </div>
                 <div className="flex items-center h-full">
                   <button
                     onClick={handlePrint}
-                    className="h-full px-4 flex items-center gap-2 hover:bg-white/10 text-white border-r border-white/10 text-[9px] font-bold uppercase"
+                    className="h-full px-4 flex items-center gap-2 hover:bg-white/10 text-white border-r border-white/10 text-[9px] font-medium uppercase"
                   >
                     <Printer size={14} /> IMPRIMIR
                   </button>
@@ -1505,42 +1505,42 @@ export const MenuAdmin: React.FC = () => {
                     {/* Left: Product Info Card */}
                     <div className="col-span-8 grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Clasificación</label>
+                        <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Clasificación</label>
                         <input
                           type="text"
                           value={newProduct.classification}
                           onChange={(e) => setNewProduct({ ...newProduct, classification: e.target.value.toUpperCase() })}
-                          className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
+                          className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-medium text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
                           placeholder="EJ: PLATO FUERTE / BEBIDA"
                         />
                       </div>
                       <div className="flex flex-col gap-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Porciones Sugeridas</label>
+                        <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Porciones Sugeridas</label>
                         <input
                           type="text"
                           value={newProduct.portions}
                           onChange={(e) => setNewProduct({ ...newProduct, portions: e.target.value })}
-                          className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all text-center"
+                          className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-medium text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all text-center"
                           placeholder="1"
                         />
                       </div>
                       <div className="flex flex-col gap-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Temp. Servicio</label>
+                        <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Temp. Servicio</label>
                         <input
                           type="text"
                           value={newProduct.serving_temp}
                           onChange={(e) => setNewProduct({ ...newProduct, serving_temp: e.target.value.toUpperCase() })}
-                          className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
+                          className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-medium text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
                           placeholder="EJ: 75°C"
                         />
                       </div>
                       <div className="flex flex-col gap-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tiempo Prep.</label>
+                        <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Tiempo Prep.</label>
                         <input
                           type="text"
                           value={newProduct.prep_time}
                           onChange={(e) => setNewProduct({ ...newProduct, prep_time: e.target.value.toUpperCase() })}
-                          className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-bold text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
+                          className="h-9 w-full bg-slate-50 border border-slate-200 px-3 text-[11px] font-medium text-slate-700 outline-none focus:border-[#106ebe] focus:bg-white transition-all uppercase"
                           placeholder="EJ: 15 MIN"
                         />
                       </div>
@@ -1553,7 +1553,7 @@ export const MenuAdmin: React.FC = () => {
                       ) : (
                         <div className="flex flex-col items-center gap-2 opacity-30 group-hover:opacity-50 transition-opacity">
                           <PlusCircle size={32} strokeWidth={1} />
-                          <span className="text-[9px] font-black uppercase tracking-widest">Foto del Platillo</span>
+                          <span className="text-[9px] font-semibold uppercase tracking-widest">Foto del Platillo</span>
                         </div>
                       )}
                     </div>
@@ -1564,12 +1564,12 @@ export const MenuAdmin: React.FC = () => {
                     <div className="flex justify-between items-center border-b-2 border-[#106ebe]/10 pb-2">
                        <div className="flex items-center gap-2">
                           <Layers size={16} className="text-[#106ebe]" />
-                          <h4 className="text-[12px] font-black text-slate-700 uppercase tracking-wider">Procedimientos y Métodos de Preparación</h4>
+                          <h4 className="text-[12px] font-semibold text-slate-700 uppercase tracking-wider">Procedimientos y Métodos de Preparación</h4>
                        </div>
                        <button
                          onClick={() => handleImproveText('prep_procedure')}
                          disabled={isImproving}
-                         className="flex items-center gap-2 px-4 py-1.5 bg-[#f0f9ff] text-[#106ebe] border border-blue-200 rounded-full text-[10px] font-black uppercase hover:bg-[#106ebe] hover:text-white transition-all disabled:opacity-50 shadow-sm"
+                         className="flex items-center gap-2 px-4 py-1.5 bg-[#f0f9ff] text-[#106ebe] border border-blue-200 rounded-full text-[10px] font-semibold uppercase hover:bg-[#106ebe] hover:text-white transition-all disabled:opacity-50 shadow-sm"
                        >
                          {isImproving ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />} Redactar con IA
                        </button>
@@ -1587,13 +1587,13 @@ export const MenuAdmin: React.FC = () => {
 
                   {/* Row 3: Observaciones y Notas Técnicas */}
                   <div className="flex flex-col gap-3">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                       <AlertCircle size={12} /> Observaciones y Notas Técnicas de Emplatado
                     </label>
                     <textarea
                       value={newProduct.observations}
                       onChange={(e) => setNewProduct({ ...newProduct, observations: e.target.value })}
-                      className="w-full h-[100px] p-4 text-[11px] font-bold text-slate-600 bg-amber-50/30 border border-amber-100 outline-none focus:border-amber-400 rounded-lg uppercase"
+                      className="w-full h-[100px] p-4 text-[11px] font-medium text-slate-600 bg-amber-50/30 border border-amber-100 outline-none focus:border-amber-400 rounded-lg uppercase"
                       placeholder="NOTAS ADICIONALES SOBRE PRESENTACIÓN O PORCIONADO..."
                     />
                   </div>
@@ -1603,19 +1603,19 @@ export const MenuAdmin: React.FC = () => {
               {/* Footer Actions */}
               <div className="h-16 bg-slate-50 border-t border-slate-200 px-8 flex justify-between items-center shrink-0 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
                 <div className="flex items-center gap-2 text-slate-400">
-                  <span className="text-[9px] font-bold uppercase tracking-widest">Última Modificación: {new Date().toLocaleDateString('es-GT')}</span>
+                  <span className="text-[9px] font-medium uppercase tracking-widest">Última Modificación: {new Date().toLocaleDateString('es-GT')}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setShowRecipeModal(false)}
-                    className="px-8 py-2 text-[10px] font-black uppercase text-slate-500 hover:text-slate-800 transition-colors"
+                    className="px-8 py-2 text-[10px] font-semibold uppercase text-slate-500 hover:text-slate-800 transition-colors"
                   >
                     Cerrar Sin Sugerir
                   </button>
                   <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="px-12 py-3 bg-[#106ebe] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#002244] transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center gap-3"
+                    className="px-12 py-3 bg-[#106ebe] text-white text-[11px] font-semibold uppercase tracking-widest hover:bg-[#002244] transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center gap-3"
                   >
                     {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} 
                     Actualizar Ficha Técnica
@@ -1640,7 +1640,7 @@ export const MenuAdmin: React.FC = () => {
               setSearchModal({ visible: true, type: optionsContextMenu.type, query: '' });
               setOptionsContextMenu({ ...optionsContextMenu, visible: false });
             }}
-            className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white transition-none text-left"
+            className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white transition-none text-left"
           >
             <Plus size={14} className="opacity-70 text-green-600 group-hover:text-white" />
             <span>Agregar {optionsContextMenu.type === 'options' ? 'Opciones' : 'Modificadores'}</span>
@@ -1657,7 +1657,7 @@ export const MenuAdmin: React.FC = () => {
               }
               setOptionsContextMenu({ ...optionsContextMenu, visible: false });
             }}
-            className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white transition-none text-left"
+            className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white transition-none text-left"
           >
             <Trash2 size={14} className="opacity-70 text-red-600 group-hover:text-white" />
             <span>{optionsContextMenu.targetGroupId ? 'Quitar Selección' : `Quitar Todas las ${optionsContextMenu.type === 'options' ? 'Opciones' : 'Modificadores'}`}</span>
@@ -1668,7 +1668,7 @@ export const MenuAdmin: React.FC = () => {
               e.stopPropagation();
               setOptionsContextMenu({ ...optionsContextMenu, visible: false });
             }}
-            className="w-full flex items-center gap-2 px-3 py-1 text-[9px] font-bold text-gray-400 hover:bg-gray-100 transition-none text-left"
+            className="w-full flex items-center gap-2 px-3 py-1 text-[9px] font-medium text-gray-400 hover:bg-gray-100 transition-none text-left"
           >
             <X size={12} />
             <span>Cancelar</span>
@@ -1682,7 +1682,7 @@ export const MenuAdmin: React.FC = () => {
         <div className="fixed inset-0 z-[2000000] bg-black/40 flex items-center justify-center p-4">
           <DraggableWindow>
             <div className="bg-white border-2 border-[#106ebe] w-[750px] shadow-2xl flex flex-col animate-in zoom-in-95 duration-200">
-              <div className="bg-[#106ebe] p-2 text-white font-bold text-[11px] uppercase flex justify-between items-center modal-header cursor-move">
+              <div className="bg-[#106ebe] p-2 text-white font-medium text-[11px] uppercase flex justify-between items-center modal-header cursor-move">
                 <div className="flex items-center gap-2">
                   <Search size={14} />
                   <span>Buscador de Insumos para Receta</span>
@@ -1693,7 +1693,7 @@ export const MenuAdmin: React.FC = () => {
                 <div className="relative">
                   <input
                     autoFocus
-                    className="w-full border-2 border-gray-300 p-3 pl-10 text-[12px] uppercase font-black text-[#106ebe] outline-none focus:border-[#106ebe] shadow-inner"
+                    className="w-full border-2 border-gray-300 p-3 pl-10 text-[12px] uppercase font-semibold text-[#106ebe] outline-none focus:border-[#106ebe] shadow-inner"
                     placeholder="BUSCAR POR NOMBRE O CÓDIGO DE INSUMO..."
                     value={searchModal.query}
                     onChange={e => setSearchModal({ ...searchModal, query: e.target.value })}
@@ -1723,12 +1723,12 @@ export const MenuAdmin: React.FC = () => {
                             className="hover:bg-blue-50 cursor-pointer h-9 group"
                           >
                             <td className="px-3 text-gray-400">{item.code || '--'}</td>
-                            <td className="px-3 font-bold uppercase truncate">{item.name}</td>
+                            <td className="px-3 font-medium uppercase truncate">{item.name}</td>
                             <td className="px-3 text-center text-slate-500 uppercase">{item.unit || 'UNIDAD'}</td>
                             <td className="px-3 text-center">
                               <button
                                 onClick={() => agregarAReceta(item)}
-                                className="opacity-0 group-hover:opacity-100 bg-[#106ebe] text-white px-3 py-1 text-[8px] font-black rounded uppercase transition-all"
+                                className="opacity-0 group-hover:opacity-100 bg-[#106ebe] text-white px-3 py-1 text-[8px] font-semibold rounded uppercase transition-all"
                               >
                                 AGREGAR
                               </button>
@@ -1738,7 +1738,7 @@ export const MenuAdmin: React.FC = () => {
                     </tbody>
                   </table>
                 </div>
-                <div className="flex justify-between items-center text-gray-400 text-[9px] font-bold uppercase italic">
+                <div className="flex justify-between items-center text-gray-400 text-[9px] font-medium uppercase italic">
                   <span>* Haz doble clic sobre un insumo para agregarlo directamente</span>
                   <span>{inventoryItems.length} insumos totales</span>
                 </div>
@@ -1763,7 +1763,7 @@ export const MenuAdmin: React.FC = () => {
               <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none text-white">
                 <div className="flex items-center gap-2">
                   <Layers size={14} />
-                  <span className="text-[11px] font-bold uppercase tracking-tight">Listado de {searchModal.type === 'options' ? 'Opciones' : 'Modificadores'}</span>
+                  <span className="text-[11px] font-medium uppercase tracking-tight">Listado de {searchModal.type === 'options' ? 'Opciones' : 'Modificadores'}</span>
                 </div>
                 <button
                   onClick={() => setSearchModal({ visible: false, type: null, query: '' })}
@@ -1785,7 +1785,7 @@ export const MenuAdmin: React.FC = () => {
                       if (e.key === 'Escape') setSearchModal({ visible: false, type: null, query: '' });
                     }}
                     onChange={e => setSearchModal({ ...searchModal, query: e.target.value })}
-                    className="w-full bg-transparent outline-none text-[11px] font-bold text-gray-700 placeholder:text-gray-400 placeholder:italic uppercase"
+                    className="w-full bg-transparent outline-none text-[11px] font-medium text-gray-700 placeholder:text-gray-400 placeholder:italic uppercase"
                   />
                 </div>
               </div>
@@ -1794,7 +1794,7 @@ export const MenuAdmin: React.FC = () => {
               <div className="flex-1 min-h-[300px] max-h-[450px] overflow-y-auto bg-white mx-4 mt-2 border border-gray-400 custom-scrollbar">
                 <table className="admin-table">
                   <thead className="sticky top-0 bg-[#f0f0f0] z-10 border-b border-gray-400">
-                    <tr className="text-gray-600 font-bold uppercase text-[9px]">
+                    <tr className="text-gray-600 font-medium uppercase text-[9px]">
                       <th className="px-4 py-2">Nombre</th>
                       <th className="w-24 px-4 py-2 text-center">Mínimo</th>
                       <th className="w-24 px-4 py-2 text-center">Máximo</th>
@@ -1809,7 +1809,7 @@ export const MenuAdmin: React.FC = () => {
                       if (results.length === 0) {
                         return (
                           <tr>
-                            <td colSpan={3} className="px-4 py-12 text-center text-[10px] font-black uppercase text-gray-300 italic">
+                            <td colSpan={3} className="px-4 py-12 text-center text-[10px] font-semibold uppercase text-gray-300 italic">
                               No se encontraron resultados disponibles
                             </td>
                           </tr>
@@ -1840,7 +1840,7 @@ export const MenuAdmin: React.FC = () => {
                           }}
                           className="hover:bg-blue-50 focus:bg-[#106ebe] focus:text-white outline-none cursor-pointer group transition-none"
                         >
-                          <td className="px-4 py-2 font-bold text-[#106ebe] group-focus:text-white uppercase text-[10px]">
+                          <td className="px-4 py-2 font-medium text-[#106ebe] group-focus:text-white uppercase text-[10px]">
                             {item.name}
                           </td>
                           <td className="px-4 py-2 text-center text-gray-700 group-focus:text-white text-[10px]">
@@ -1858,7 +1858,7 @@ export const MenuAdmin: React.FC = () => {
 
               {/* Informational Footer */}
               <div className="px-4 py-3 bg-[#f0f0f0] border-t border-gray-300 flex flex-col gap-0.5">
-                <p className="text-[9px] font-bold text-gray-600 uppercase italic">
+                <p className="text-[9px] font-medium text-gray-600 uppercase italic">
                   *Doble Clic o Enter sobre cualquier item para enviarlo a la configuración.
                 </p>
               </div>
@@ -1876,19 +1876,19 @@ export const MenuAdmin: React.FC = () => {
             <DraggableWindow>
               <div className="bg-[#f0f0f0] border border-[#106ebe] shadow-2xl w-full max-w-sm flex flex-col relative z-20 animate-fade-in">
                 <div className="bg-[#106ebe] h-8 px-4 flex justify-between items-center text-white shrink-0 modal-header cursor-move">
-                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-white">Configuración - Esc (Cerrar)</h4>
+                  <h4 className="text-[10px] font-medium uppercase tracking-widest text-white">Configuración - Esc (Cerrar)</h4>
                   <button onClick={() => setConfigModal(null)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 transition-colors"><X size={16} /></button>
                 </div>
                 <div className="p-4 space-y-4 bg-[#f0f0f0]">
                   <div className="flex items-center gap-2">
-                    <label className="w-20 shrink-0 text-[10px] font-bold uppercase tracking-widest text-gray-500 text-right">Producto</label>
-                    <div className="flex-1 bg-[#e1e5eb] border border-gray-400 px-3 py-1 text-[11px] font-bold text-slate-700 uppercase truncate">
+                    <label className="w-20 shrink-0 text-[10px] font-medium uppercase tracking-widest text-gray-500 text-right">Producto</label>
+                    <div className="flex-1 bg-[#e1e5eb] border border-gray-400 px-3 py-1 text-[11px] font-medium text-slate-700 uppercase truncate">
                       {configModal.item.name}
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <label className="w-20 shrink-0 text-[10px] font-bold uppercase tracking-widest text-[#106ebe] text-right">Cantidad</label>
+                    <label className="w-20 shrink-0 text-[10px] font-medium uppercase tracking-widest text-[#106ebe] text-right">Cantidad</label>
                     <div className="flex-1 flex gap-2">
                       <input
                         type="text"
@@ -1896,13 +1896,13 @@ export const MenuAdmin: React.FC = () => {
                         autoFocus
                         value={configModal.quantity}
                         onChange={e => setConfigModal({ ...configModal, quantity: e.target.value.replace(/[^0-9.]/g, '') })}
-                        className="w-[90px] bg-white border border-gray-400 px-3 py-1.5 text-[11px] font-bold text-[#106ebe] focus:border-[#106ebe] outline-none shadow-sm text-center"
+                        className="w-[90px] bg-white border border-gray-400 px-3 py-1.5 text-[11px] font-medium text-[#106ebe] focus:border-[#106ebe] outline-none shadow-sm text-center"
                         placeholder="0.00"
                       />
                       <select
                         value={configModal.unit}
                         onChange={e => setConfigModal({ ...configModal, unit: e.target.value })}
-                        className="flex-1 bg-white border border-gray-400 px-2 py-1.5 text-[11px] font-bold text-slate-600 focus:border-[#106ebe] outline-none uppercase cursor-pointer shadow-sm"
+                        className="flex-1 bg-white border border-gray-400 px-2 py-1.5 text-[11px] font-medium text-slate-600 focus:border-[#106ebe] outline-none uppercase cursor-pointer shadow-sm"
                       >
                         {getAvailableUnits(configModal.item.unit || '').map(u => (
                           <option key={u.value} value={u.value}>{u.label}</option>
@@ -1929,11 +1929,11 @@ export const MenuAdmin: React.FC = () => {
                         setConfigModal(null);
                         setSearchModal({ visible: false, type: null, query: '' });
                       }}
-                      className="px-10 bg-[#106ebe] hover:bg-[#002244] text-white py-2 font-bold uppercase tracking-widest text-[10px] shadow-sm transition-all active:translate-y-[1px]"
+                      className="px-10 bg-[#106ebe] hover:bg-[#002244] text-white py-2 font-medium uppercase tracking-widest text-[10px] shadow-sm transition-all active:translate-y-[1px]"
                     >
                       Agregar
                     </button>
-                    <p className="mt-2 text-[8px] text-gray-400 font-bold uppercase tracking-widest italic">Presiona Esc para cancelar</p>
+                    <p className="mt-2 text-[8px] text-gray-400 font-medium uppercase tracking-widest italic">Presiona Esc para cancelar</p>
                   </div>
                 </div>
               </div>
@@ -1956,7 +1956,7 @@ export const MenuAdmin: React.FC = () => {
               }}
             >
               <div className="px-3 py-1.5 border-b border-gray-300 bg-[#106ebe]">
-                <span className="text-[9px] font-bold text-white uppercase tracking-wider">Opciones de Platillo</span>
+                <span className="text-[9px] font-medium text-white uppercase tracking-wider">Opciones de Platillo</span>
               </div>
               <div className="p-0.5">
                 <div className="p-1">
@@ -1969,7 +1969,7 @@ export const MenuAdmin: React.FC = () => {
                     className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-[#106ebe] hover:text-white transition-none group text-[#106ebe]"
                   >
                     <Plus size={12} strokeWidth={3} />
-                    <span className="text-[10px] font-black uppercase tracking-wider">Nuevo</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider">Nuevo</span>
                   </button>
 
                   {contextMenu.product && (
@@ -2057,7 +2057,7 @@ export const MenuAdmin: React.FC = () => {
                         className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-[#106ebe] hover:text-white transition-none group text-slate-800"
                       >
                         <Edit2 size={12} />
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Editar</span>
+                        <span className="text-[10px] font-medium uppercase tracking-wider">Editar</span>
                       </button>
 
                       <button
@@ -2070,7 +2070,7 @@ export const MenuAdmin: React.FC = () => {
                         className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-red-500 hover:text-white transition-none group text-red-600"
                       >
                         <Trash2 size={12} />
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Eliminar</span>
+                        <span className="text-[10px] font-medium uppercase tracking-wider">Eliminar</span>
                       </button>
 
                       <div className="h-px bg-gray-300 my-1 mx-2"></div>
@@ -2083,7 +2083,7 @@ export const MenuAdmin: React.FC = () => {
                         className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-[#106ebe] hover:text-white transition-none group text-slate-800"
                       >
                         <Folder size={12} />
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Cambiar Categoría</span>
+                        <span className="text-[10px] font-medium uppercase tracking-wider">Cambiar Categoría</span>
                       </button>
 
                       <button
@@ -2094,7 +2094,7 @@ export const MenuAdmin: React.FC = () => {
                         className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-[#106ebe] hover:text-white transition-none group text-slate-800"
                       >
                         <ChefHat size={12} />
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Cambiar Cocina</span>
+                        <span className="text-[10px] font-medium uppercase tracking-wider">Cambiar Cocina</span>
                       </button>
                     </>
                   )}
@@ -2110,7 +2110,7 @@ export const MenuAdmin: React.FC = () => {
                     className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-[#106ebe] hover:text-white transition-none group text-slate-800"
                   >
                     <RefreshCw size={12} />
-                    <span className="text-[10px] font-bold uppercase tracking-wider">Refrescar</span>
+                    <span className="text-[10px] font-medium uppercase tracking-wider">Refrescar</span>
                   </button>
                 </div>
               </div>
@@ -2133,7 +2133,7 @@ export const MenuAdmin: React.FC = () => {
                       <div className="p-1 bg-white/10 rounded">
                         {showQuickModal === 'category' ? <Folder size={14} className="text-white" /> : <ChefHat size={14} className="text-white" />}
                       </div>
-                      <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">
+                      <h3 className="text-[10px] font-medium text-white uppercase tracking-widest">
                         {showQuickModal === 'category' ? 'Seleccionar Categoría' : 'Seleccionar Estación'}
                       </h3>
                     </div>
@@ -2155,7 +2155,7 @@ export const MenuAdmin: React.FC = () => {
                             className={`flex items-center gap-3 p-3 transition-all border text-left ${contextMenu.product?.category_id === cat.id ? 'bg-[#106ebe] border-[#001a33] text-white' : 'bg-white border-gray-300 hover:border-[#106ebe]'}`}
                           >
                             <Folder size={14} />
-                            <span className="text-[11px] font-black uppercase tracking-wider">
+                            <span className="text-[11px] font-semibold uppercase tracking-wider">
                               {cat.name}
                             </span>
                           </button>
@@ -2174,7 +2174,7 @@ export const MenuAdmin: React.FC = () => {
                             className={`flex items-center gap-3 p-3 transition-all border text-left ${contextMenu.product?.kitchen_station_id === k.id ? 'bg-[#106ebe] border-[#001a33] text-white' : 'bg-white border-gray-300 hover:border-[#106ebe]'}`}
                           >
                             <ChefHat size={14} />
-                            <span className="text-[11px] font-black uppercase tracking-wider">
+                            <span className="text-[11px] font-semibold uppercase tracking-wider">
                               {k.name}
                             </span>
                           </button>
@@ -2231,7 +2231,7 @@ export const MenuAdmin: React.FC = () => {
               style={{ top: categoryContextMenu.y, left: categoryContextMenu.x }}
             >
               <div className="px-3 py-1.5 border-b border-gray-300 bg-[#106ebe]">
-                <span className="text-[9px] font-bold text-white uppercase tracking-wider">Categoría</span>
+                <span className="text-[9px] font-medium text-white uppercase tracking-wider">Categoría</span>
               </div>
               <div className="p-0.5">
                 <button
@@ -2244,7 +2244,7 @@ export const MenuAdmin: React.FC = () => {
                   className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-[#106ebe] hover:text-white transition-none group text-slate-800"
                 >
                   <Plus size={12} />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Nuevo</span>
+                  <span className="text-[10px] font-medium uppercase tracking-wider">Nuevo</span>
                 </button>
                 {categoryContextMenu.category && (
                   <>
@@ -2263,7 +2263,7 @@ export const MenuAdmin: React.FC = () => {
                       className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-[#106ebe] hover:text-white transition-none group text-slate-800"
                     >
                       <Edit2 size={12} />
-                      <span className="text-[10px] font-bold uppercase tracking-wider">Editar Categoría</span>
+                      <span className="text-[10px] font-medium uppercase tracking-wider">Editar Categoría</span>
                     </button>
                     <button
                       onClick={async () => {
@@ -2274,7 +2274,7 @@ export const MenuAdmin: React.FC = () => {
                       className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-red-500 hover:text-white transition-none group text-red-600"
                     >
                       <Trash2 size={12} />
-                      <span className="text-[10px] font-bold uppercase tracking-wider">Eliminar</span>
+                      <span className="text-[10px] font-medium uppercase tracking-wider">Eliminar</span>
                     </button>
                   </>
                 )}
@@ -2297,7 +2297,7 @@ export const MenuAdmin: React.FC = () => {
               <div className="px-4 py-2 bg-[#106ebe] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Folder size={14} className="text-white" />
-                  <h3 className="text-[10px] font-bold text-white uppercase tracking-widest leading-none">
+                  <h3 className="text-[10px] font-medium text-white uppercase tracking-widest leading-none">
                     {editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}
                   </h3>
                 </div>
@@ -2306,23 +2306,23 @@ export const MenuAdmin: React.FC = () => {
 
               <div className="p-4 space-y-4">
                 <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Nombre</label>
+                  <label className="text-[9px] font-medium text-gray-500 uppercase tracking-wider">Nombre</label>
                   <input
                     type="text"
                     value={categoryForm.name}
                     onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value.toUpperCase() })}
-                    className="w-full h-8 bg-white border border-gray-300 px-2 text-[11px] font-bold text-slate-800 outline-none focus:border-[#106ebe]"
+                    className="w-full h-8 bg-white border border-gray-300 px-2 text-[11px] font-medium text-slate-800 outline-none focus:border-[#106ebe]"
                     placeholder="NOMBRE DE LA CATEGORÍA"
                     autoFocus
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Dependencia</label>
+                  <label className="text-[9px] font-medium text-gray-500 uppercase tracking-wider">Dependencia</label>
                   <select
                     value={categoryForm.parent_id || ''}
                     onChange={(e) => setCategoryForm({ ...categoryForm, parent_id: e.target.value || null })}
-                    className="w-full h-8 bg-white border border-gray-300 px-2 text-[11px] font-bold text-slate-800 outline-none focus:border-[#106ebe]"
+                    className="w-full h-8 bg-white border border-gray-300 px-2 text-[11px] font-medium text-slate-800 outline-none focus:border-[#106ebe]"
                   >
                     <option value="">[CATEGORÍA RAÍZ]</option>
                     {categories.filter(c => c.id !== editingCategory?.id).map(c => (
@@ -2333,12 +2333,12 @@ export const MenuAdmin: React.FC = () => {
 
                 <div className="flex items-center gap-4">
                   <div className="flex-1 space-y-1">
-                    <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Prioridad</label>
+                    <label className="text-[9px] font-medium text-gray-500 uppercase tracking-wider">Prioridad</label>
                     <input
                       type="number"
                       value={categoryForm.priority}
                       onChange={(e) => setCategoryForm({ ...categoryForm, priority: e.target.value })}
-                      className="w-full h-8 bg-white border border-gray-300 px-2 text-[11px] font-bold text-slate-800 outline-none focus:border-[#106ebe]"
+                      className="w-full h-8 bg-white border border-gray-300 px-2 text-[11px] font-medium text-slate-800 outline-none focus:border-[#106ebe]"
                     />
                   </div>
                   <div className="flex items-center gap-2 pt-5">
@@ -2348,12 +2348,12 @@ export const MenuAdmin: React.FC = () => {
                       onChange={(e) => setCategoryForm({ ...categoryForm, is_enabled: e.target.checked })}
                       className="w-3 h-3"
                     />
-                    <label className="text-[9px] font-bold text-gray-600 uppercase tracking-wider">Habilitado</label>
+                    <label className="text-[9px] font-medium text-gray-600 uppercase tracking-wider">Habilitado</label>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold text-gray-600 uppercase">Módulo de Visualización</label>
+                  <label className="text-[10px] font-medium text-gray-600 uppercase">Módulo de Visualización</label>
                   <select
                     value={categoryForm.section || 'MENU'}
                     onChange={(e) => setCategoryForm({ ...categoryForm, section: e.target.value as any })}
@@ -2368,7 +2368,7 @@ export const MenuAdmin: React.FC = () => {
               <div className="p-4 bg-white border-t border-gray-200 flex justify-end gap-2">
                 <button
                   onClick={() => setShowCategoryModal(false)}
-                  className="px-6 py-1.5 bg-gray-200 text-gray-700 text-[10px] font-bold uppercase hover:bg-gray-300 transition-colors"
+                  className="px-6 py-1.5 bg-gray-200 text-gray-700 text-[10px] font-medium uppercase hover:bg-gray-300 transition-colors"
                 >
                   Cancelar
                 </button>
@@ -2398,7 +2398,7 @@ export const MenuAdmin: React.FC = () => {
                     setIsSaving(false);
                   }}
                   disabled={isSaving}
-                  className="px-6 py-1.5 bg-[#106ebe] text-white text-[10px] font-bold uppercase hover:bg-[#002244] transition-colors shadow-sm disabled:opacity-50"
+                  className="px-6 py-1.5 bg-[#106ebe] text-white text-[10px] font-medium uppercase hover:bg-[#002244] transition-colors shadow-sm disabled:opacity-50"
                 >
                   {isSaving ? 'Guardando...' : 'Guardar'}
                 </button>

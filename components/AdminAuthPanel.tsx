@@ -141,8 +141,8 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
                         <ArrowLeft size={18} />
                     </button>
                     <div className="flex flex-col">
-                        <span className="text-[12px] font-black tracking-wider text-white">AUTORIZACIONES</span>
-                        <span className="text-[8px] text-indigo-400 font-bold uppercase tracking-widest">En Tiempo Real</span>
+                        <span className="text-[12px] font-semibold tracking-wider text-white">AUTORIZACIONES</span>
+                        <span className="text-[8px] text-indigo-400 font-medium uppercase tracking-widest">En Tiempo Real</span>
                     </div>
                 </div>
                 
@@ -160,7 +160,7 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
                     </button>
                     <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
                         <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></div>
-                        <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">En Línea</span>
+                        <span className="text-[8px] font-semibold text-emerald-400 uppercase tracking-widest">En Línea</span>
                     </div>
                 </div>
             </header>
@@ -172,12 +172,12 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-20 text-indigo-400">
                             <Clock className="animate-spin mb-4" size={32} />
-                            <span className="font-bold tracking-widest text-xs">CARGANDO SOLICITUDES...</span>
+                            <span className="font-medium tracking-widest text-xs">CARGANDO SOLICITUDES...</span>
                         </div>
                     ) : requests.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 opacity-50">
                             <ShieldAlert size={48} className="mb-4 text-gray-600" />
-                            <h3 className="text-xl font-black text-gray-400">NO HAY SOLICITUDES PENDIENTES</h3>
+                            <h3 className="text-xl font-semibold text-gray-400">NO HAY SOLICITUDES PENDIENTES</h3>
                             <p className="text-sm text-gray-500 text-center mt-2">Todo está bajo control. Las nuevas solicitudes de autorización aparecerán aquí mágicamente.</p>
                         </div>
                     ) : (
@@ -190,11 +190,11 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
                                     <div className="flex justify-between items-start mb-3">
                                         <div className="flex flex-col gap-1 w-full pr-3">
                                             <div className="flex items-center gap-1.5">
-                                                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">
+                                                <span className="text-[10px] font-medium text-indigo-400 uppercase tracking-wider">
                                                     {req.action_type ? req.action_type.replace(/_/g, ' ') : 'SOLICITUD'}
                                                 </span>
                                                 {req.metadata?.table_number && (
-                                                    <span className="bg-indigo-500/20 text-indigo-300 text-[9px] px-1.5 py-0.5 rounded-full font-bold">
+                                                    <span className="bg-indigo-500/20 text-indigo-300 text-[9px] px-1.5 py-0.5 rounded-full font-medium">
                                                         MESA {req.metadata.table_number}
                                                     </span>
                                                 )}
@@ -206,7 +206,7 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
                                              </h4>
                                             {req.metadata?.reason && (
                                                 <div className="mt-2 bg-black/20 rounded-lg p-2.5 border border-white/5 relative">
-                                                    <span className="absolute top-0 left-3 -mt-2 bg-[#1e212b] px-1 text-[8px] text-gray-500 font-bold uppercase tracking-widest">Motivo</span>
+                                                    <span className="absolute top-0 left-3 -mt-2 bg-[#1e212b] px-1 text-[8px] text-gray-500 font-medium uppercase tracking-widest">Motivo</span>
                                                     <span className="text-xs text-gray-300 italic leading-tight">"{req.metadata.reason}"</span>
                                                 </div>
                                             )}
@@ -217,7 +217,7 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
                                     </div>
                                     
                                     <div className="flex items-center gap-1.5 mb-4">
-                                        <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[9px] font-bold text-gray-300">
+                                        <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[9px] font-medium text-gray-300">
                                             {req.profiles?.name?.charAt(0) || req.metadata?.waiter_name?.charAt(0) || '?'}
                                         </div>
                                         <span className="text-xs text-gray-400">
@@ -228,14 +228,14 @@ export const AdminAuthPanel: React.FC<AdminAuthPanelProps> = ({ currentUser, onE
                                     <div className="flex gap-2.5 mt-2">
                                         <button
                                             onClick={() => handleAction(req.id, 'rejected')}
-                                            className="flex-1 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg font-bold text-xs transition-all active:scale-95 flex justify-center items-center gap-1.5 border border-red-500/20"
+                                            className="flex-1 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg font-medium text-xs transition-all active:scale-95 flex justify-center items-center gap-1.5 border border-red-500/20"
                                         >
                                             <XCircle size={16} />
                                             Rechazar
                                         </button>
                                         <button
                                             onClick={() => handleAction(req.id, 'approved')}
-                                            className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg font-bold text-xs transition-all active:scale-95 flex justify-center items-center gap-1.5 shadow-[0_4px_14px_rgba(16,185,129,0.2)] hover:shadow-[0_4px_20px_rgba(16,185,129,0.3)]"
+                                            className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg font-medium text-xs transition-all active:scale-95 flex justify-center items-center gap-1.5 shadow-[0_4px_14px_rgba(16,185,129,0.2)] hover:shadow-[0_4px_20px_rgba(16,185,129,0.3)]"
                                         >
                                             <CheckCircle2 size={16} />
                                             Aprobar

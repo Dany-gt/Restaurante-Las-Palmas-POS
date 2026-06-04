@@ -135,11 +135,11 @@ export const SectionsTablesAdmin: React.FC = () => {
       {/* Toolbar Principal - Estilo ERP */}
       <div className="bg-white border-b border-gray-300 p-2 flex flex-wrap items-center gap-4 shrink-0 shadow-sm">
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-bold text-gray-500 uppercase tracking-tighter">Sucursal</span>
+          <span className="text-[11px] font-medium text-gray-500 uppercase tracking-tighter">Sucursal</span>
           <select
             value={selectedBranchFilter}
             onChange={(e) => setSelectedBranchFilter(e.target.value)}
-            className="h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-bold text-slate-800 outline-none min-w-[280px] focus:border-[#106ebe]"
+            className="h-7 bg-white border border-gray-300 rounded px-2 text-[11px] font-medium text-slate-800 outline-none min-w-[280px] focus:border-[#106ebe]"
           >
             <option value="ALL">TODAS LAS SUCURSALES</option>
             {branches.map(b => (
@@ -159,7 +159,7 @@ export const SectionsTablesAdmin: React.FC = () => {
             />
             <Search size={14} className="absolute left-2.5 top-1.5 text-gray-400" />
           </div>
-          <button className="h-7 px-4 bg-gray-100 hover:bg-[#106ebe] hover:text-white text-gray-600 text-[10px] font-black uppercase tracking-widest rounded transition-all border border-gray-200">
+          <button className="h-7 px-4 bg-gray-100 hover:bg-[#106ebe] hover:text-white text-gray-600 text-[10px] font-semibold uppercase tracking-widest rounded transition-all border border-gray-200">
             Buscar
           </button>
         </div>
@@ -181,11 +181,11 @@ export const SectionsTablesAdmin: React.FC = () => {
           <table className="w-full border-collapse text-[11px]">
             <thead className="sticky top-0 z-20 bg-[#e8e8e8] select-none">
               <tr className="border-b border-gray-400 h-10">
-                <th className="py-2 px-6 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[30%]">Sección</th>
-                <th className="py-2 px-6 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[15%]">Mesas Del</th>
-                <th className="py-2 px-6 text-left text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[15%]">Al</th>
-                <th className="py-2 px-6 text-center text-[10px] font-bold text-black uppercase border-r border-gray-300 w-[15%]">Prioridad</th>
-                <th className="py-2 px-6 text-center text-[10px] font-bold text-black uppercase w-[15%] text-nowrap">Habilitado</th>
+                <th className="py-2 px-6 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[30%]">Sección</th>
+                <th className="py-2 px-6 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[15%]">Mesas Del</th>
+                <th className="py-2 px-6 text-left text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[15%]">Al</th>
+                <th className="py-2 px-6 text-center text-[10px] font-medium text-black uppercase border-r border-gray-300 w-[15%]">Prioridad</th>
+                <th className="py-2 px-6 text-center text-[10px] font-medium text-black uppercase w-[15%] text-nowrap">Habilitado</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -207,17 +207,17 @@ export const SectionsTablesAdmin: React.FC = () => {
                       : index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'
                   } text-slate-900`}
                 >
-                  <td className="px-4 font-bold flex items-center gap-2 h-6 border-r border-gray-100">
+                  <td className="px-4 font-medium flex items-center gap-2 h-6 border-r border-gray-100">
                     <MapPin size={12} className={selectedSectionId === s.id ? 'text-white' : 'text-slate-400'} />
                     <span className="uppercase tracking-tight text-[10px]">{s.name}</span>
                   </td>
-                  <td className="px-4 border-r border-gray-100 text-[10px] font-bold tracking-tight">
+                  <td className="px-4 border-r border-gray-100 text-[10px] font-medium tracking-tight">
                     {s.table_from}
                   </td>
-                  <td className="px-4 border-r border-gray-100 text-[10px] font-bold tracking-tight">
+                  <td className="px-4 border-r border-gray-100 text-[10px] font-medium tracking-tight">
                     {s.table_to}
                   </td>
-                  <td className="px-4 border-r border-gray-100 text-[10px] font-bold text-center tracking-tight">
+                  <td className="px-4 border-r border-gray-100 text-[10px] font-medium text-center tracking-tight">
                     {s.priority}
                   </td>
                   <td className="px-4 border-r border-gray-100">
@@ -242,7 +242,7 @@ export const SectionsTablesAdmin: React.FC = () => {
         >
           <button
             onClick={() => { setEditingSection(null); setFormData(defaultFormData); setShowModal(true); setContextMenu(null); }}
-            className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+            className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
           >
             <Plus size={14} className="text-emerald-500 group-hover:text-white" /> Nuevo
           </button>
@@ -251,14 +251,14 @@ export const SectionsTablesAdmin: React.FC = () => {
             <>
               <button
                 onClick={() => { openEdit(contextMenu.section); setContextMenu(null); }}
-                className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+                className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-800 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
               >
                 <Edit3 size={14} className="text-[#106ebe] group-hover:text-white" /> Editar
               </button>
               <div className="h-px bg-gray-100 my-1"></div>
               <button
                 onClick={() => { setConfirmDelete(contextMenu.section.id); setContextMenu(null); }}
-                className="w-full text-left px-4 py-2 text-[11px] font-bold text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-3 group transition-colors"
+                className="w-full text-left px-4 py-2 text-[11px] font-medium text-red-600 hover:bg-red-600 hover:text-white flex items-center gap-3 group transition-colors"
               >
                 <Trash2 size={14} className="text-red-500 group-hover:text-white" /> Eliminar
               </button>
@@ -267,7 +267,7 @@ export const SectionsTablesAdmin: React.FC = () => {
           )}
           <button
             onClick={() => { fetchData(); setContextMenu(null); }}
-            className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
+            className="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-600 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 group transition-colors"
           >
             <RefreshCw size={14} className="text-gray-400 group-hover:text-white" /> Refrescar
           </button>
@@ -283,7 +283,7 @@ export const SectionsTablesAdmin: React.FC = () => {
               {/* Header del Modal */}
               <div className="bg-[#106ebe] h-8 flex items-center justify-between px-3 shrink-0 modal-header cursor-default select-none">
                 <div className="flex items-center gap-2">
-                  <span className="text-white text-[11px] font-bold">Mantenimiento de Secciones</span>
+                  <span className="text-white text-[11px] font-medium">Mantenimiento de Secciones</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <WindowsSaveButton onClick={handleSave} loading={isSaving} title="Guardar Sección" />
@@ -296,7 +296,7 @@ export const SectionsTablesAdmin: React.FC = () => {
               <div className="p-3 space-y-4">
                 <div className="bg-white border border-gray-300 shadow-sm">
                   <div className="bg-[#cbd5e1] px-3 py-1 border-b border-gray-300">
-                    <span className="text-[11px] font-bold text-[#106ebe] uppercase tracking-tighter">Datos de Sección</span>
+                    <span className="text-[11px] font-medium text-[#106ebe] uppercase tracking-tighter">Datos de Sección</span>
                   </div>
                   <div className="p-4 space-y-3">
                     <div className="grid grid-cols-[100px_1fr] items-center gap-4">

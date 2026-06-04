@@ -275,15 +275,15 @@ export const InventarioUtensilios: React.FC = () => {
 
             {/* ── TOOLBAR ── */}
             <div className="shrink-0 bg-white border-b border-gray-300 px-3 py-1.5 flex items-center gap-2">
-                <button onClick={openNew} className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-bold text-slate-700">
+                <button onClick={openNew} className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-medium text-slate-700">
                     <Plus size={12} /> Nuevo
                 </button>
-                <button onClick={fetchItems} className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-bold text-slate-700">
+                <button onClick={fetchItems} className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-[11px] font-medium text-slate-700">
                     <RefreshCw size={12} /> Actualizar
                 </button>
                 <div className="w-px h-5 bg-gray-300 mx-1" />
                 <button onClick={() => setShowBajas(!showBajas)}
-                    className={`flex items-center gap-1.5 px-3 py-1 border text-[11px] font-bold transition-colors ${showBajas ? 'bg-red-100 border-red-400 text-red-700' : 'bg-white border-gray-300 text-slate-600 hover:bg-gray-50'}`}>
+                    className={`flex items-center gap-1.5 px-3 py-1 border text-[11px] font-medium transition-colors ${showBajas ? 'bg-red-100 border-red-400 text-red-700' : 'bg-white border-gray-300 text-slate-600 hover:bg-gray-50'}`}>
                     <BadgeAlert size={12} /> {showBajas ? 'Ocultando bajas' : 'Ver bajas'}
                 </button>
                 <div className="flex-1" />
@@ -319,17 +319,17 @@ export const InventarioUtensilios: React.FC = () => {
                 ].map((k, i) => (
                     <div key={i} className="flex items-center gap-2 px-4 py-1.5 border-r border-gray-300">
                         <k.icon size={13} className={k.color} />
-                        <span className={`text-[12px] font-black ${k.color}`}>{k.value}</span>
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{k.label}</span>
+                        <span className={`text-[12px] font-semibold ${k.color}`}>{k.value}</span>
+                        <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">{k.label}</span>
                     </div>
                 ))}
                 <div className="flex-1" />
-                <span className="text-[9px] text-slate-400 font-bold pr-3">{filtered.length} de {items.length} registros</span>
+                <span className="text-[9px] text-slate-400 font-medium pr-3">{filtered.length} de {items.length} registros</span>
             </div>
 
             {/* ── ERROR BD ── */}
             {dbError && (
-                <div className="shrink-0 flex items-center gap-2 bg-red-50 border-b border-red-200 px-4 py-2 text-[11px] text-red-700 font-bold">
+                <div className="shrink-0 flex items-center gap-2 bg-red-50 border-b border-red-200 px-4 py-2 text-[11px] text-red-700 font-medium">
                     <AlertCircle size={13} />
                     Tabla <code className="bg-red-100 px-1">kitchen_utensils</code> no existe. Ejecuta <code className="bg-red-100 px-1">sql/supply_inventory_schema.sql</code> en Supabase.
                 </div>
@@ -340,33 +340,33 @@ export const InventarioUtensilios: React.FC = () => {
                 {loading ? (
                     <div className="flex items-center justify-center h-32 text-slate-400">
                         <Loader2 size={18} className="animate-spin mr-2" />
-                        <span className="text-[11px] font-bold">Cargando...</span>
+                        <span className="text-[11px] font-medium">Cargando...</span>
                     </div>
                 ) : filtered.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-32 text-slate-400">
                         <Archive size={28} className="mb-2 opacity-30" />
-                        <p className="text-[11px] font-bold">SIN REGISTROS</p>
-                        <button onClick={openNew} className="mt-2 text-[10px] text-[#106EBE] font-black underline">+ Crear nuevo</button>
+                        <p className="text-[11px] font-medium">SIN REGISTROS</p>
+                        <button onClick={openNew} className="mt-2 text-[10px] text-[#106EBE] font-semibold underline">+ Crear nuevo</button>
                     </div>
                 ) : (
                     <table className="w-full border-collapse text-left">
                         <thead className="sticky top-0 z-10">
                             <tr className="bg-[#e8e8e8] border-b border-gray-300">
                                 <th className="w-6 px-2 py-1 border-r border-gray-300" />
-                                <th className="w-10 px-2 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Img</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Nombre</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Código</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Categoría</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Marca</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Material</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700 text-center">Total</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700 text-center">En uso</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700 text-center">Bodega</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700 text-center">Repara.</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Estado</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700">Ubicación</th>
-                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-bold text-slate-700 text-right">Costo U.</th>
-                                <th className="px-3 py-1 text-[10px] font-bold text-slate-700 text-center">Acciones</th>
+                                <th className="w-10 px-2 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Img</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Nombre</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Código</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Categoría</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Marca</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Material</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700 text-center">Total</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700 text-center">En uso</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700 text-center">Bodega</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700 text-center">Repara.</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Estado</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700">Ubicación</th>
+                                <th className="px-3 py-1 border-r border-gray-300 text-[10px] font-medium text-slate-700 text-right">Costo U.</th>
+                                <th className="px-3 py-1 text-[10px] font-medium text-slate-700 text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -395,7 +395,7 @@ export const InventarioUtensilios: React.FC = () => {
                                             )}
                                         </td>
                                         <td className="px-3 py-1 border-r border-gray-200">
-                                            <span className={`text-[11px] font-bold ${isBaja ? 'line-through text-slate-400' : 'text-slate-800'}`}>{item.nombre}</span>
+                                            <span className={`text-[11px] font-medium ${isBaja ? 'line-through text-slate-400' : 'text-slate-800'}`}>{item.nombre}</span>
                                         </td>
                                         <td className="px-3 py-1 border-r border-gray-200">
                                             <span className="text-[10px] font-mono text-slate-500">{item.codigo_interno}</span>
@@ -410,19 +410,19 @@ export const InventarioUtensilios: React.FC = () => {
                                             <span className="text-[10px] text-slate-500">{item.material}</span>
                                         </td>
                                         <td className="px-3 py-1 border-r border-gray-200 text-center">
-                                            <span className="text-[12px] font-black text-slate-800">{fmtNum(item.cantidad_total)}</span>
+                                            <span className="text-[12px] font-semibold text-slate-800">{fmtNum(item.cantidad_total)}</span>
                                         </td>
                                         <td className="px-3 py-1 border-r border-gray-200 text-center">
-                                            <span className="text-[11px] font-bold text-blue-700">{fmtNum(item.cantidad_en_uso)}</span>
+                                            <span className="text-[11px] font-medium text-blue-700">{fmtNum(item.cantidad_en_uso)}</span>
                                         </td>
                                         <td className="px-3 py-1 border-r border-gray-200 text-center">
-                                            <span className="text-[11px] font-bold text-slate-600">{fmtNum(item.cantidad_en_bodega)}</span>
+                                            <span className="text-[11px] font-medium text-slate-600">{fmtNum(item.cantidad_en_bodega)}</span>
                                         </td>
                                         <td className="px-3 py-1 border-r border-gray-200 text-center">
-                                            <span className={`text-[11px] font-bold ${item.cantidad_en_reparacion > 0 ? 'text-orange-600' : 'text-slate-300'}`}>{fmtNum(item.cantidad_en_reparacion)}</span>
+                                            <span className={`text-[11px] font-medium ${item.cantidad_en_reparacion > 0 ? 'text-orange-600' : 'text-slate-300'}`}>{fmtNum(item.cantidad_en_reparacion)}</span>
                                         </td>
                                         <td className="px-3 py-1 border-r border-gray-200">
-                                            <span className={`inline-block px-1.5 py-0.5 text-[8px] font-black uppercase ${getEstadoColor(item.estado)}`}>
+                                            <span className={`inline-block px-1.5 py-0.5 text-[8px] font-semibold uppercase ${getEstadoColor(item.estado)}`}>
                                                 {getEstadoText(item.estado)}
                                             </span>
                                         </td>
@@ -430,7 +430,7 @@ export const InventarioUtensilios: React.FC = () => {
                                             <span className="text-[10px] text-slate-600">{item.ubicacion}</span>
                                         </td>
                                         <td className="px-3 py-1 border-r border-gray-200 text-right">
-                                            <span className="text-[11px] font-bold text-slate-800">{fmtQ(item.costo_adquisicion)}</span>
+                                            <span className="text-[11px] font-medium text-slate-800">{fmtQ(item.costo_adquisicion)}</span>
                                         </td>
                                         <td className="px-3 py-1" onClick={e => e.stopPropagation()}>
                                             <div className="flex items-center justify-center gap-1">
@@ -452,8 +452,8 @@ export const InventarioUtensilios: React.FC = () => {
 
             {/* ── STATUS BAR ── */}
             <div className="shrink-0 bg-[#f0f0f0] border-t border-gray-300 flex items-center gap-4 px-3 py-0.5">
-                <span className="text-[9px] text-slate-500 font-bold">{filtered.length} registro(s)</span>
-                {selectedIds.size > 0 && <span className="text-[9px] text-[#106EBE] font-bold">{selectedIds.size} seleccionado(s)</span>}
+                <span className="text-[9px] text-slate-500 font-medium">{filtered.length} registro(s)</span>
+                {selectedIds.size > 0 && <span className="text-[9px] text-[#106EBE] font-medium">{selectedIds.size} seleccionado(s)</span>}
                 <div className="flex-1" />
                 <span className="text-[9px] text-slate-400">UTENSILIOS DE COCINA — Las Palmas POS</span>
             </div>
@@ -484,7 +484,7 @@ export const InventarioUtensilios: React.FC = () => {
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move select-none shrink-0">
                                 <div className="flex items-center gap-2">
                                     <Wrench size={13} className="text-white" />
-                                    <span className="text-white text-[12px] font-bold">{editingItem ? 'Editar' : 'Nuevo'} Utensilio — {form.codigo_interno}</span>
+                                    <span className="text-white text-[12px] font-medium">{editingItem ? 'Editar' : 'Nuevo'} Utensilio — {form.codigo_interno}</span>
                                 </div>
                                 <button onClick={() => setShowForm(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white transition-all"><X size={18} strokeWidth={2.5} /></button>
                             </div>
@@ -543,7 +543,7 @@ export const InventarioUtensilios: React.FC = () => {
                                                     className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100">
                                                     <X size={8} />
                                                 </button>
-                                                {idx === 1 && <span className="absolute bottom-0 left-0 right-0 bg-orange-600/80 text-[7px] text-white text-center font-bold">ESTADO</span>}
+                                                {idx === 1 && <span className="absolute bottom-0 left-0 right-0 bg-orange-600/80 text-[7px] text-white text-center font-medium">ESTADO</span>}
                                             </div>
                                         ))}
                                         {form.imagen_urls.length < 5 && (
@@ -590,7 +590,7 @@ export const InventarioUtensilios: React.FC = () => {
                                     </div>
                                     {/* Validación visual */}
                                     {(form.cantidad_en_uso + form.cantidad_en_bodega + form.cantidad_en_reparacion) !== form.cantidad_total && form.cantidad_total > 0 && (
-                                        <p className="text-[10px] text-amber-600 font-bold mt-2 flex items-center gap-1">
+                                        <p className="text-[10px] text-amber-600 font-medium mt-2 flex items-center gap-1">
                                             <AlertTriangle size={11} />
                                             Uso + Bodega + Reparación = {form.cantidad_en_uso + form.cantidad_en_bodega + form.cantidad_en_reparacion} ≠ Total {form.cantidad_total}
                                         </p>
@@ -630,9 +630,9 @@ export const InventarioUtensilios: React.FC = () => {
                                 </Fieldset>
                             </div>
                             <div className="shrink-0 flex items-center justify-end gap-2 px-4 py-2 bg-[#f0f0f0] border-t border-gray-300">
-                                <button onClick={() => setShowForm(false)} className="px-4 py-1 text-[11px] font-bold bg-white border border-gray-400 hover:bg-gray-100 text-slate-700">Cancelar</button>
+                                <button onClick={() => setShowForm(false)} className="px-4 py-1 text-[11px] font-medium bg-white border border-gray-400 hover:bg-gray-100 text-slate-700">Cancelar</button>
                                 <button onClick={handleSave} disabled={saving || !form.nombre.trim()}
-                                    className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] hover:bg-[#0d5aa0] text-white text-[11px] font-bold border border-[#0d5aa0] disabled:opacity-50">
+                                    className="flex items-center gap-1.5 px-5 py-1 bg-[#106EBE] hover:bg-[#0d5aa0] text-white text-[11px] font-medium border border-[#0d5aa0] disabled:opacity-50">
                                     {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
                                     {saving ? 'Guardando...' : editingItem ? 'Actualizar' : 'Guardar'}
                                 </button>
@@ -651,12 +651,12 @@ export const InventarioUtensilios: React.FC = () => {
                             <div className="modal-header bg-red-700 h-8 px-3 flex justify-between items-center cursor-move select-none">
                                 <div className="flex items-center gap-2">
                                     <BadgeAlert size={13} className="text-white" />
-                                    <span className="text-white text-[12px] font-bold">Dar de Baja — {editingItem.nombre}</span>
+                                    <span className="text-white text-[12px] font-medium">Dar de Baja — {editingItem.nombre}</span>
                                 </div>
                                 <button onClick={() => setShowBajaForm(false)} className="w-8 h-8 flex items-center justify-center hover:bg-red-900 text-white"><X size={18} strokeWidth={2.5} /></button>
                             </div>
                             <div className="p-4 space-y-3">
-                                <p className="text-[11px] text-slate-600 bg-red-50 border border-red-200 p-2 font-bold">
+                                <p className="text-[11px] text-slate-600 bg-red-50 border border-red-200 p-2 font-medium">
                                     Esta acción registrará el utensilio como dado de baja. El historial se conserva para trazabilidad.
                                 </p>
                                 <Fieldset title="Control de Baja">
@@ -679,9 +679,9 @@ export const InventarioUtensilios: React.FC = () => {
                                 </Fieldset>
                             </div>
                             <div className="flex items-center justify-end gap-2 px-4 py-2 border-t border-gray-300 bg-[#f0f0f0]">
-                                <button onClick={() => setShowBajaForm(false)} className="px-4 py-1 text-[11px] font-bold bg-white border border-gray-400 hover:bg-gray-100 text-slate-700">Cancelar</button>
+                                <button onClick={() => setShowBajaForm(false)} className="px-4 py-1 text-[11px] font-medium bg-white border border-gray-400 hover:bg-gray-100 text-slate-700">Cancelar</button>
                                 <button onClick={handleBaja} disabled={saving || !bajaForm.responsable.trim()}
-                                    className="flex items-center gap-1.5 px-5 py-1 bg-red-700 hover:bg-red-800 text-white text-[11px] font-bold border border-red-900 disabled:opacity-50">
+                                    className="flex items-center gap-1.5 px-5 py-1 bg-red-700 hover:bg-red-800 text-white text-[11px] font-medium border border-red-900 disabled:opacity-50">
                                     {saving ? <Loader2 size={12} className="animate-spin" /> : <BadgeAlert size={12} />}
                                     Confirmar Baja
                                 </button>
@@ -698,7 +698,7 @@ export const InventarioUtensilios: React.FC = () => {
                     <DraggableWindow>
                         <div className="w-[500px] max-h-[85vh] bg-[#f0f0f0] shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-[#106EBE] flex flex-col pointer-events-auto">
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move select-none">
-                                <span className="text-white text-[12px] font-bold">{viewItem.nombre} — {viewItem.codigo_interno}</span>
+                                <span className="text-white text-[12px] font-medium">{viewItem.nombre} — {viewItem.codigo_interno}</span>
                                 <button onClick={() => setViewItem(null)} className="w-8 h-8 flex items-center justify-center hover:bg-red-500 text-white transition-all"><X size={18} strokeWidth={2.5} /></button>
                             </div>
                             <div className="p-4 overflow-y-auto space-y-3">
@@ -733,7 +733,7 @@ export const InventarioUtensilios: React.FC = () => {
                                             ] : []),
                                         ].map(([l, v], i) => (
                                             <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}>
-                                                <td className="px-2 py-0.5 border border-gray-200 font-bold text-slate-600 w-36">{l}</td>
+                                                <td className="px-2 py-0.5 border border-gray-200 font-medium text-slate-600 w-36">{l}</td>
                                                 <td className="px-2 py-0.5 border border-gray-200 text-slate-800">{v}</td>
                                             </tr>
                                         ))}
@@ -742,10 +742,10 @@ export const InventarioUtensilios: React.FC = () => {
                             </div>
                             <div className="flex gap-2 px-4 py-2 border-t border-gray-300 bg-[#f0f0f0]">
                                 <button onClick={() => { setViewItem(null); openEdit(viewItem); }}
-                                    className="flex items-center gap-1.5 px-4 py-1 bg-white border border-gray-400 text-[11px] font-bold text-amber-700 hover:bg-amber-50">
+                                    className="flex items-center gap-1.5 px-4 py-1 bg-white border border-gray-400 text-[11px] font-medium text-amber-700 hover:bg-amber-50">
                                     <Edit2 size={11} /> Editar
                                 </button>
-                                <button onClick={() => setViewItem(null)} className="flex-1 py-1 bg-white border border-gray-400 text-[11px] font-bold text-slate-600 hover:bg-gray-100">Cerrar</button>
+                                <button onClick={() => setViewItem(null)} className="flex-1 py-1 bg-white border border-gray-400 text-[11px] font-medium text-slate-600 hover:bg-gray-100">Cerrar</button>
                             </div>
                         </div>
                     </DraggableWindow>
@@ -757,16 +757,16 @@ export const InventarioUtensilios: React.FC = () => {
 };
 
 // ─── Sub-componentes ──────────────────────────────────────────────────────────
-const IC = 'w-full px-2 py-1 text-[11px] border border-gray-400 bg-white outline-none focus:border-[#106EBE] h-7 font-bold';
-const FLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => <label className="block text-[10px] font-bold text-slate-700 mb-0.5">{children}</label>;
+const IC = 'w-full px-2 py-1 text-[11px] border border-gray-400 bg-white outline-none focus:border-[#106EBE] h-7 font-medium';
+const FLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => <label className="block text-[10px] font-medium text-slate-700 mb-0.5">{children}</label>;
 const Fieldset: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <fieldset className="border border-gray-400 bg-white px-3 pt-0.5 pb-3">
-        <legend className="text-[10px] font-black text-slate-700 uppercase px-1">{title}</legend>
+        <legend className="text-[10px] font-semibold text-slate-700 uppercase px-1">{title}</legend>
         {children}
     </fieldset>
 );
 const CtxItem: React.FC<{ icon: any; label: string; onClick: () => void; danger?: boolean }> = ({ icon: Icon, label, onClick, danger }) => (
-    <button onClick={onClick} className={`w-full flex items-center gap-2 px-3 py-1 text-[11px] font-bold text-left hover:bg-[#106EBE] hover:text-white transition-colors ${danger ? 'text-red-600' : 'text-slate-700'}`}>
+    <button onClick={onClick} className={`w-full flex items-center gap-2 px-3 py-1 text-[11px] font-medium text-left hover:bg-[#106EBE] hover:text-white transition-colors ${danger ? 'text-red-600' : 'text-slate-700'}`}>
         <Icon size={12} />{label}
     </button>
 );

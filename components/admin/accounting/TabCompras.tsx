@@ -30,7 +30,7 @@ const Pagination = ({
     return (
         <div className="flex flex-col sm:flex-row items-center gap-6 py-4 px-4 bg-slate-50 border-t border-slate-200 justify-center relative shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
             {/* Info Text (Left-ish) */}
-            <div className="hidden lg:block absolute left-6 text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+            <div className="hidden lg:block absolute left-6 text-[9px] font-medium text-slate-400 uppercase tracking-widest leading-none">
                 Página {current} de {total || 1}
             </div>
 
@@ -38,26 +38,26 @@ const Pagination = ({
                 <button 
                     onClick={() => onPage(Math.max(1, current - 1))} 
                     disabled={current === 1}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase text-slate-600 hover:bg-slate-50 disabled:opacity-30 transition-all hover:scale-105 active:scale-95 shadow-sm"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-[10px] font-semibold uppercase text-slate-600 hover:bg-slate-50 disabled:opacity-30 transition-all hover:scale-105 active:scale-95 shadow-sm"
                 >
                     <ChevronLeft size={16} strokeWidth={3} /> Anterior
                 </button>
 
                 <div className="flex items-center gap-3 border-x border-slate-100 px-6">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Página</span>
-                    <div className="bg-[#106ebe] text-white px-3 py-1.5 rounded-lg text-[11px] font-black shadow-md shadow-[#106ebe]/20">
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none">Página</span>
+                    <div className="bg-[#106ebe] text-white px-3 py-1.5 rounded-lg text-[11px] font-semibold shadow-md shadow-[#106ebe]/20">
                         {current}
                     </div>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">de {total || 1}</span>
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none">de {total || 1}</span>
                 </div>
 
                 {/* Selector de Tamaño (CENTREADO) */}
                 <div className="relative">
                     <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Mostrar:</span>
+                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none">Mostrar:</span>
                         <button 
                             onClick={(e) => { e.stopPropagation(); setIsSelectorOpen(!isSelectorOpen); }}
-                            className="flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-1.5 text-[11px] font-black text-[#106ebe] hover:border-[#106ebe] transition-all shadow-sm min-w-[130px] justify-between group"
+                            className="flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-1.5 text-[11px] font-semibold text-[#106ebe] hover:border-[#106ebe] transition-all shadow-sm min-w-[130px] justify-between group"
                         >
                             {pageSize} facturas
                             <ChevronLeft size={14} className={`transition-transform duration-200 text-slate-400 ${isSelectorOpen ? 'rotate-90' : '-rotate-90'}`} />
@@ -70,7 +70,7 @@ const Pagination = ({
                             <div className="absolute bottom-full left-0 mb-3 w-full bg-white border border-slate-200 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] z-[10001] overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200 border-t-[#106ebe] border-t-2">
                                 {[10, 25, 50, 500].map(size => (
                                     <div key={size} onClick={(e) => { e.stopPropagation(); setPageSize(size); resetToFirst(); setIsSelectorOpen(false); }}
-                                        className={`px-4 py-3 text-[10px] font-black uppercase cursor-pointer transition-all flex items-center justify-between ${pageSize === size ? 'bg-[#106ebe]/5 text-[#106ebe]' : 'text-slate-600 hover:bg-slate-50'}`}>
+                                        className={`px-4 py-3 text-[10px] font-semibold uppercase cursor-pointer transition-all flex items-center justify-between ${pageSize === size ? 'bg-[#106ebe]/5 text-[#106ebe]' : 'text-slate-600 hover:bg-slate-50'}`}>
                                         {size} registros
                                         {pageSize === size && <div className="w-1.5 h-1.5 bg-[#106ebe] rounded-full" />}
                                     </div>
@@ -83,13 +83,13 @@ const Pagination = ({
                 <button 
                     onClick={() => onPage(Math.min(total, current + 1))} 
                     disabled={current === total || total === 0}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase text-slate-600 hover:bg-slate-50 disabled:opacity-30 transition-all hover:scale-105 active:scale-95 shadow-sm"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-[10px] font-semibold uppercase text-slate-600 hover:bg-slate-50 disabled:opacity-30 transition-all hover:scale-105 active:scale-95 shadow-sm"
                 >
                     Siguiente <ChevronRight size={16} strokeWidth={3} />
                 </button>
             </div>
 
-            <div className="hidden lg:block absolute right-6 text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none text-right">
+            <div className="hidden lg:block absolute right-6 text-[9px] font-medium text-slate-400 uppercase tracking-widest leading-none text-right">
                 {pageSize} por página
             </div>
         </div>
@@ -546,7 +546,7 @@ export const TabCompras: React.FC<{
             <div className="flex gap-1 bg-white border border-slate-200 rounded-lg p-1 w-fit">
                 {SUB_TABS.map(t => (
                     <button key={t.id} onClick={() => setSub(t.id)}
-                        className={`px-3 py-1.5 text-[10px] font-black uppercase rounded transition-all ${sub === t.id ? 'bg-[#106ebe] text-white' : 'text-black hover:bg-slate-100'}`}>
+                        className={`px-3 py-1.5 text-[10px] font-semibold uppercase rounded transition-all ${sub === t.id ? 'bg-[#106ebe] text-white' : 'text-black hover:bg-slate-100'}`}>
                         {t.label}
                     </button>
                 ))}
@@ -555,8 +555,8 @@ export const TabCompras: React.FC<{
             {/* Top Controls: Period, Search, SAT Actions */}
             <div className="flex items-center justify-between gap-4 bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
                 <div className="flex items-center gap-3">
-                    <label className="text-[10px] font-black uppercase text-black tracking-widest">Periodo:</label>
-                    <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="border border-gray-400 rounded px-3 py-1.5 text-[11px] font-black text-black bg-white shadow-inner" />
+                    <label className="text-[10px] font-semibold uppercase text-black tracking-widest">Periodo:</label>
+                    <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="border border-gray-400 rounded px-3 py-1.5 text-[11px] font-semibold text-black bg-white shadow-inner" />
                     <button onClick={fetch} className="p-1.5 hover:bg-slate-200 rounded text-black transition-all"><RefreshCw size={13} /></button>
                     {loading && <Loader2 size={14} className="animate-spin text-[#106ebe]" />}
 
@@ -569,7 +569,7 @@ export const TabCompras: React.FC<{
                             placeholder="Buscar por NIT o Nombre..." 
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
-                            className="pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-[11px] font-bold bg-white focus:ring-2 focus:ring-[#106ebe] focus:border-transparent transition-all outline-none w-64 shadow-sm"
+                            className="pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-[11px] font-medium bg-white focus:ring-2 focus:ring-[#106ebe] focus:border-transparent transition-all outline-none w-64 shadow-sm"
                         />
                         <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#106ebe]">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
@@ -582,12 +582,12 @@ export const TabCompras: React.FC<{
                 <div className="flex items-center gap-2">
                     <button
                         onClick={onOpenSatSync}
-                        className="flex items-center gap-2 px-4 py-2 bg-[#106ebe] hover:bg-[#0d5ea0] text-white text-[10px] font-black uppercase rounded shadow-md transition-all active:scale-95"
+                        className="flex items-center gap-2 px-4 py-2 bg-[#106ebe] hover:bg-[#0d5ea0] text-white text-[10px] font-semibold uppercase rounded shadow-md transition-all active:scale-95"
                     >
                         {globalSyncing ? <Loader2 size={13} className="animate-spin" /> : <Cloud size={13} />}
                         {globalSyncing ? 'Sincronizando...' : 'Sincronizar SAT'}
                     </button>
-                    <label className="flex items-center gap-2 px-4 py-2 bg-[#106ebe] hover:bg-[#0d5ea0] text-white text-[10px] font-black uppercase rounded shadow-md cursor-pointer transition-all active:scale-95">
+                    <label className="flex items-center gap-2 px-4 py-2 bg-[#106ebe] hover:bg-[#0d5ea0] text-white text-[10px] font-semibold uppercase rounded shadow-md cursor-pointer transition-all active:scale-95">
                         {syncing ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
                         {syncing ? 'Procesando...' : 'Importar XML / Excel'}
                         <input type="file" className="hidden" accept=".xlsx, .xls, .xml" onChange={handleFileUpload} disabled={syncing} multiple />
@@ -599,15 +599,15 @@ export const TabCompras: React.FC<{
                 <>
                 <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="bg-[#106ebe] px-4 py-3 flex items-center justify-between">
-                        <span className="text-[10px] font-black text-white uppercase tracking-widest">Facturas de Compra — {dayjs(month + '-01').format('MMMM YYYY')}</span>
+                        <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Facturas de Compra — {dayjs(month + '-01').format('MMMM YYYY')}</span>
                         <button onClick={() => { setShowForm(true); setEditId(null); setForm(EMPTY); }}
-                            className="flex items-center gap-1 px-3 py-1 bg-white/20 hover:bg-white/30 text-white text-[9px] font-black uppercase rounded transition-all">
+                            className="flex items-center gap-1 px-3 py-1 bg-white/20 hover:bg-white/30 text-white text-[9px] font-semibold uppercase rounded transition-all">
                             <Plus size={11} /> Registrar Factura
                         </button>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-[10px]">
-                            <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-black text-black uppercase tracking-wider">
+                            <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-semibold text-black uppercase tracking-wider">
                                 <tr>
                                     <th className="px-3 py-2">Fecha</th>
                                     <th className="px-3 py-2">NIT Emisor</th>
@@ -625,7 +625,7 @@ export const TabCompras: React.FC<{
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {paginatedInvoices.length === 0 ? (
-                                    <tr><td colSpan={11} className="px-4 py-8 text-center text-slate-400 text-[10px] font-bold">Sin facturas encontradas</td></tr>
+                                    <tr><td colSpan={11} className="px-4 py-8 text-center text-slate-400 text-[10px] font-medium">Sin facturas encontradas</td></tr>
                                 ) : paginatedInvoices.map(inv => {
                                     const isAnulado = inv.status?.toLowerCase() === 'anulado' || inv.payment_status === 'anulado';
                                     return (
@@ -634,30 +634,30 @@ export const TabCompras: React.FC<{
                                     >
                                         <td className={`px-3 py-2 font-mono whitespace-nowrap text-black ${isAnulado ? 'line-through' : ''}`}>{dayjs(inv.invoice_date).format('DD/MM/YY')}</td>
                                         <td className={`px-3 py-2 font-mono text-black ${isAnulado ? 'line-through' : ''}`}>{inv.supplier_nit}</td>
-                                        <td className={`px-3 py-2 font-black truncate max-w-[150px] text-black ${isAnulado ? 'line-through' : ''}`} title={inv.supplier_name}>{inv.supplier_name}</td>
+                                        <td className={`px-3 py-2 font-semibold truncate max-w-[150px] text-black ${isAnulado ? 'line-through' : ''}`} title={inv.supplier_name}>{inv.supplier_name}</td>
                                         <td className={`px-3 py-2 font-mono uppercase text-[9px] text-black ${isAnulado ? 'line-through' : ''}`}>{inv.invoice_number}</td>
                                         <td className="px-3 py-2 max-w-[180px]">
-                                            <div className={`truncate font-black text-black ${isAnulado ? 'line-through decoration-red-500' : ''}`} title={inv.description}>{inv.description}</div>
+                                            <div className={`truncate font-semibold text-black ${isAnulado ? 'line-through decoration-red-500' : ''}`} title={inv.description}>{inv.description}</div>
                                             {inv.items && inv.items.length > 0 && (
-                                                <div className="text-[8px] text-black font-black uppercase mt-0.5">
+                                                <div className="text-[8px] text-black font-semibold uppercase mt-0.5">
                                                     {inv.items.length} productos: {inv.items.slice(0, 2).map((it: any) => it.descripcion).join(', ')}...
                                                 </div>
                                             )}
                                         </td>
-                                        <td className="px-3 py-2"><span className="px-2 py-0.5 bg-slate-100 text-black text-[8px] font-black uppercase rounded">{inv.category}</span></td>
-                                        <td className={`px-3 py-2 text-right font-black ${['NCRE', 'NABN'].includes(inv.tipo_dte || '') ? 'text-red-600' : ''}`}>
+                                        <td className="px-3 py-2"><span className="px-2 py-0.5 bg-slate-100 text-black text-[8px] font-semibold uppercase rounded">{inv.category}</span></td>
+                                        <td className={`px-3 py-2 text-right font-semibold ${['NCRE', 'NABN'].includes(inv.tipo_dte || '') ? 'text-red-600' : ''}`}>
                                             <span className={isAnulado ? 'line-through' : ''}>
                                                 {inv.tipo_dte === 'CRE' ? fmtQ(inv.isr_retenido || 0) : fmtQ(inv.total_amount)}
                                             </span>
                                         </td>
-                                        <td className="px-3 py-2 text-right font-black">
+                                        <td className="px-3 py-2 text-right font-semibold">
                                             {inv.tipo_dte === 'CRE' ? (
                                                 <span className="text-purple-600">Ret. Q {(inv.iva_retenido || 0).toFixed(2)}</span>
                                             ) : (
                                                 <span className={isAnulado ? 'line-through' : ''}>{fmtQ(inv.iva_amount)}</span>
                                             )}
                                         </td>
-                                        <td className="px-3 py-2 text-right font-black text-emerald-600">
+                                        <td className="px-3 py-2 text-right font-semibold text-emerald-600">
                                             <span className={isAnulado ? 'line-through opacity-30' : ''}>
                                                 {inv.tipo_dte !== 'CRE' && fmtQ((inv.idp_monto || 0) + (inv.impuesto_bebidas_alcoh || 0) + (inv.impuesto_bebidas_no_alcoh || 0))}
                                             </span>
@@ -670,7 +670,7 @@ export const TabCompras: React.FC<{
                                                     'FACT'
                                                 );
 
-                                                if (isAnulado) return <span className="bg-red-600 text-white px-1.5 py-0.5 rounded text-[7px] font-black uppercase shadow-sm">Anulado</span>;
+                                                if (isAnulado) return <span className="bg-red-600 text-white px-1.5 py-0.5 rounded text-[7px] font-semibold uppercase shadow-sm">Anulado</span>;
                                                 
                                                 const colors: Record<string, string> = {
                                                     'FACT': 'bg-blue-600', 'FCAM': 'bg-blue-600',
@@ -679,11 +679,11 @@ export const TabCompras: React.FC<{
                                                     'FESP': 'bg-orange-600', 'CRE': 'bg-purple-600'
                                                 };
 
-                                                return <span className={`${colors[tipo] || 'bg-slate-400'} text-white px-1.5 py-0.5 rounded text-[7px] font-black uppercase shadow-sm`}>{tipo}</span>;
+                                                return <span className={`${colors[tipo] || 'bg-slate-400'} text-white px-1.5 py-0.5 rounded text-[7px] font-semibold uppercase shadow-sm`}>{tipo}</span>;
                                             })()}
                                         </td>
                                         <td className="px-3 py-2">
-                                            <span className={`px-2 py-0.5 text-[8px] font-black uppercase rounded-full ${isAnulado ? 'bg-red-50 text-red-700' : (inv.payment_status === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700')}`}>
+                                            <span className={`px-2 py-0.5 text-[8px] font-semibold uppercase rounded-full ${isAnulado ? 'bg-red-50 text-red-700' : (inv.payment_status === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700')}`}>
                                                 {isAnulado ? 'Anulado' : (inv.payment_status === 'paid' ? 'Pagado' : 'Pendiente')}
                                             </span>
                                         </td>
@@ -701,7 +701,7 @@ export const TabCompras: React.FC<{
                                                     setSelectedInv({ ...inv, items: parsedItems || [] });
                                                     setShowDetail(true);
                                                 }} 
-                                                    className="flex items-center gap-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-[9px] font-black uppercase rounded shadow-sm transition-all active:scale-95">
+                                                    className="flex items-center gap-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-[9px] font-semibold uppercase rounded shadow-sm transition-all active:scale-95">
                                                     <Package size={10} />
                                                 </button>
                                                 <button onClick={() => { setForm(inv); setEditId(inv.id!); setShowForm(true); }} className="p-1.5 hover:bg-slate-100 text-slate-400 rounded transition-all"><Edit2 size={11} /></button>
@@ -714,8 +714,8 @@ export const TabCompras: React.FC<{
                             </tbody>
                             <tfoot className="bg-slate-50 border-t-2 border-slate-200">
                                 <tr>
-                                    <td colSpan={6} className="px-3 py-2 text-[10px] font-black uppercase text-black">Total Facturas de Compra</td>
-                                    <td className="px-3 py-2 text-right font-black text-[12px] text-black">{fmtQ(totalPurchasesAmount)}</td>
+                                    <td colSpan={6} className="px-3 py-2 text-[10px] font-semibold uppercase text-black">Total Facturas de Compra</td>
+                                    <td className="px-3 py-2 text-right font-semibold text-[12px] text-black">{fmtQ(totalPurchasesAmount)}</td>
                                     <td colSpan={6}></td>
                                 </tr>
                             </tfoot>
@@ -735,13 +735,13 @@ export const TabCompras: React.FC<{
                 {invoices.some(i => i.tipo_dte === 'CRE') && (
                     <div className="mt-4 bg-white rounded-xl border border-purple-100 shadow-sm overflow-hidden">
                         <div className="bg-purple-600 px-4 py-2 flex items-center justify-between">
-                            <span className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+                            <span className="text-[10px] font-semibold text-white uppercase tracking-widest flex items-center gap-2">
                                 <ShieldCheck size={14} /> Constancias de Retención Recibidas (Crédito ISR/IVA)
                             </span>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left text-[10px]">
-                                <thead className="bg-purple-50 text-[9px] font-black text-purple-900 uppercase">
+                                <thead className="bg-purple-50 text-[9px] font-semibold text-purple-900 uppercase">
                                     <tr>
                                         <th className="px-3 py-2">Fecha</th>
                                         <th className="px-3 py-2">NIT Retenedor</th>
@@ -756,12 +756,12 @@ export const TabCompras: React.FC<{
                                             <td className="px-3 py-2 font-mono">{dayjs(inv.invoice_date).format('DD/MM/YY')}</td>
                                             <td className="px-3 py-2 font-mono">{inv.supplier_nit}</td>
                                             <td className="px-3 py-2 truncate max-w-[200px]">{inv.supplier_name}</td>
-                                            <td className="px-3 py-2 text-right font-black text-purple-700">{fmtQ(inv.isr_retenido || 0)}</td>
-                                            <td className="px-3 py-2 text-right font-black text-blue-700">{fmtQ(inv.iva_retenido || 0)}</td>
+                                            <td className="px-3 py-2 text-right font-semibold text-purple-700">{fmtQ(inv.isr_retenido || 0)}</td>
+                                            <td className="px-3 py-2 text-right font-semibold text-blue-700">{fmtQ(inv.iva_retenido || 0)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
-                                <tfoot className="bg-purple-50/50 border-t border-purple-100 font-black">
+                                <tfoot className="bg-purple-50/50 border-t border-purple-100 font-semibold">
                                     <tr>
                                         <td colSpan={3} className="px-3 py-2 text-right uppercase text-purple-900">Total Retenciones a Acreditar:</td>
                                         <td className="px-3 py-2 text-right text-purple-900 text-[12px]">
@@ -782,11 +782,11 @@ export const TabCompras: React.FC<{
             {sub === 'ventas' && (
                 <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                     <div className="bg-[#106ebe] px-4 py-3 flex items-center justify-between">
-                        <span className="text-[10px] font-black text-white uppercase tracking-widest">Facturas Emitidas (Ventas) — {dayjs(month + '-01').format('MMMM YYYY')}</span>
+                        <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Facturas Emitidas (Ventas) — {dayjs(month + '-01').format('MMMM YYYY')}</span>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-[10px]">
-                            <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-black text-black uppercase tracking-wider">
+                            <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-semibold text-black uppercase tracking-wider">
                                 <tr>
                                     <th className="px-3 py-2">Fecha</th>
                                     <th className="px-3 py-2">NIT Cliente</th>
@@ -801,20 +801,20 @@ export const TabCompras: React.FC<{
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {paginatedSalesInvoices.length === 0 ? (
-                                    <tr><td colSpan={8} className="px-4 py-8 text-center text-slate-400 text-[10px] font-bold">Sin facturas emitidas encontradas</td></tr>
+                                    <tr><td colSpan={8} className="px-4 py-8 text-center text-slate-400 text-[10px] font-medium">Sin facturas emitidas encontradas</td></tr>
                                 ) : paginatedSalesInvoices.map(inv => {
                                     const isAnulado = inv.status?.toLowerCase() === 'anulado' || inv.status?.toLowerCase() === 'annulled' || inv.status === 'A';
                                     return (
-                                    <tr key={inv.id} className={`hover:bg-slate-50 transition-colors text-black font-black ${isAnulado ? 'opacity-50 italic text-slate-500' : ''}`}>
+                                    <tr key={inv.id} className={`hover:bg-slate-50 transition-colors text-black font-semibold ${isAnulado ? 'opacity-50 italic text-slate-500' : ''}`}>
                                         <td className={`px-3 py-2 font-mono whitespace-nowrap text-black ${isAnulado ? 'line-through' : ''}`}>{dayjs(inv.invoice_date).format('DD/MM/YY')}</td>
                                         <td className={`px-3 py-2 font-mono text-black ${isAnulado ? 'line-through' : ''}`}>{inv.customer_nit}</td>
-                                        <td className={`px-3 py-2 font-black truncate max-w-[150px] text-black ${isAnulado ? 'line-through' : ''}`} title={inv.customer_name}>{inv.customer_name}</td>
+                                        <td className={`px-3 py-2 font-semibold truncate max-w-[150px] text-black ${isAnulado ? 'line-through' : ''}`} title={inv.customer_name}>{inv.customer_name}</td>
                                         <td className={`px-3 py-2 font-mono uppercase text-[9px] text-black ${isAnulado ? 'line-through' : ''}`}>{inv.invoice_number}</td>
                                         <td className="px-3 py-2 max-w-[180px]">
-                                            <div className={`truncate font-black text-black ${isAnulado ? 'line-through decoration-red-500' : ''}`} title={inv.description}>{inv.description}</div>
+                                            <div className={`truncate font-semibold text-black ${isAnulado ? 'line-through decoration-red-500' : ''}`} title={inv.description}>{inv.description}</div>
                                         </td>
-                                        <td className="px-3 py-2 text-right font-black text-black">{fmtQ(inv.total_amount)}</td>
-                                        <td className="px-3 py-2 text-right font-black text-black">{fmtQ(inv.iva_amount)}</td>
+                                        <td className="px-3 py-2 text-right font-semibold text-black">{fmtQ(inv.total_amount)}</td>
+                                        <td className="px-3 py-2 text-right font-semibold text-black">{fmtQ(inv.iva_amount)}</td>
                                         <td className="px-3 py-2 text-center">
                                             {(() => {
                                                 const isAnulado = inv.status?.toLowerCase() === 'anulado' || inv.status?.toLowerCase() === 'annulled' || inv.status === 'A';
@@ -826,7 +826,7 @@ export const TabCompras: React.FC<{
                                                     'FACT'
                                                 );
 
-                                                if (isAnulado) return <span className="bg-red-600 text-white px-1.5 py-0.5 rounded text-[7px] font-black uppercase shadow-sm">Anulado</span>;
+                                                if (isAnulado) return <span className="bg-red-600 text-white px-1.5 py-0.5 rounded text-[7px] font-semibold uppercase shadow-sm">Anulado</span>;
                                                 
                                                 const colors: Record<string, string> = {
                                                     'FACT': 'bg-emerald-500', 'FCAM': 'bg-emerald-500', 'FPEQ': 'bg-cyan-600',
@@ -835,11 +835,11 @@ export const TabCompras: React.FC<{
                                                     'RDON': 'bg-indigo-500', 'RECI': 'bg-slate-500'
                                                 };
 
-                                                return <span className={`${colors[tipo] || 'bg-slate-400'} text-white px-1.5 py-0.5 rounded text-[7px] font-black uppercase shadow-sm`}>{tipo}</span>;
+                                                return <span className={`${colors[tipo] || 'bg-slate-400'} text-white px-1.5 py-0.5 rounded text-[7px] font-semibold uppercase shadow-sm`}>{tipo}</span>;
                                             })()}
                                         </td>
                                         <td className="px-3 py-2">
-                                            <span className={`px-2 py-0.5 text-[8px] font-black uppercase rounded-full ${isAnulado ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                                            <span className={`px-2 py-0.5 text-[8px] font-semibold uppercase rounded-full ${isAnulado ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
                                                 {isAnulado ? 'Anulado' : 'Vigente'}
                                             </span>
                                         </td>
@@ -849,8 +849,8 @@ export const TabCompras: React.FC<{
                             </tbody>
                             <tfoot className="bg-slate-50 border-t-2 border-slate-200">
                                 <tr>
-                                    <td colSpan={5} className="px-3 py-2 text-[10px] font-black uppercase text-black">Total Ventas Emitidas</td>
-                                    <td className="px-3 py-2 text-right font-black text-[12px] text-black">
+                                    <td colSpan={5} className="px-3 py-2 text-[10px] font-semibold uppercase text-black">Total Ventas Emitidas</td>
+                                    <td className="px-3 py-2 text-right font-semibold text-[12px] text-black">
                                         {fmtQ(totalSalesAmount)}
                                     </td>
                                     <td colSpan={3}></td>
@@ -872,14 +872,14 @@ export const TabCompras: React.FC<{
             {sub === 'proveedores' && (
                 <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                     <div className="bg-[#106ebe] px-4 py-3 flex items-center justify-between">
-                        <span className="text-[10px] font-black text-white uppercase tracking-widest">Catálogo de Proveedores</span>
-                        <button onClick={() => setShowSupForm(true)} className="flex items-center gap-1 px-3 py-1 bg-white/20 hover:bg-white/30 text-white text-[9px] font-black uppercase rounded">
+                        <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Catálogo de Proveedores</span>
+                        <button onClick={() => setShowSupForm(true)} className="flex items-center gap-1 px-3 py-1 bg-white/20 hover:bg-white/30 text-white text-[9px] font-semibold uppercase rounded">
                             <Plus size={11} /> Agregar
                         </button>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-[10px]">
-                            <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-black text-black uppercase tracking-wider">
+                            <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-semibold text-black uppercase tracking-wider">
                                 <tr>
                                     <th className="px-4 py-2">NIT</th>
                                     <th className="px-4 py-2">Nombre / Razón Social</th>
@@ -890,14 +890,14 @@ export const TabCompras: React.FC<{
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {suppliers.length === 0 ? (
-                                    <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-400 text-[10px] font-bold">Sin proveedores registrados</td></tr>
+                                    <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-400 text-[10px] font-medium">Sin proveedores registrados</td></tr>
                                 ) : suppliers.map(s => (
                                     <tr key={s.id} className="hover:bg-slate-50 text-black">
                                         <td className="px-4 py-3 font-mono">{s.nit}</td>
-                                        <td className="px-4 py-3 font-black">{s.name}</td>
+                                        <td className="px-4 py-3 font-semibold">{s.name}</td>
                                         <td className="px-4 py-3">{s.phone}</td>
-                                        <td className="px-4 py-3 truncate max-w-[160px] font-bold">{s.products}</td>
-                                        <td className="px-4 py-3 text-center"><span className="px-2 py-0.5 bg-slate-100 text-black text-[9px] font-black rounded">{s.credit_days} días</span></td>
+                                        <td className="px-4 py-3 truncate max-w-[160px] font-medium">{s.products}</td>
+                                        <td className="px-4 py-3 text-center"><span className="px-2 py-0.5 bg-slate-100 text-black text-[9px] font-semibold rounded">{s.credit_days} días</span></td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -909,11 +909,11 @@ export const TabCompras: React.FC<{
             {sub === 'cxp' && (
                 <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                     <div className="bg-[#106ebe] px-4 py-3">
-                        <span className="text-[10px] font-black text-white uppercase tracking-widest">Cuentas por Pagar — Ordenadas por Vencimiento</span>
+                        <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Cuentas por Pagar — Ordenadas por Vencimiento</span>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-[10px]">
-                            <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-black text-black uppercase tracking-wider">
+                            <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-semibold text-black uppercase tracking-wider">
                                 <tr>
                                     <th className="px-4 py-2">Proveedor</th>
                                     <th className="px-4 py-2">No. Factura</th>
@@ -925,17 +925,17 @@ export const TabCompras: React.FC<{
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {cxp.length === 0 ? (
-                                    <tr><td colSpan={6} className="px-4 py-8 text-center text-emerald-600 font-bold text-[10px]">✓ Sin cuentas pendientes</td></tr>
+                                    <tr><td colSpan={6} className="px-4 py-8 text-center text-emerald-600 font-medium text-[10px]">✓ Sin cuentas pendientes</td></tr>
                                 ) : cxp.map(c => {
                                     const color = c.diff < 0 ? 'bg-red-500' : c.diff <= 7 ? 'bg-amber-400' : 'bg-emerald-500';
                                     const textColor = c.diff < 0 ? 'text-red-700' : c.diff <= 7 ? 'text-amber-700' : 'text-emerald-700';
                                     return (
                                         <tr key={c.id} className="hover:bg-slate-50">
-                                            <td className="px-4 py-3 font-bold">{c.supplier_name}</td>
+                                            <td className="px-4 py-3 font-medium">{c.supplier_name}</td>
                                             <td className="px-4 py-3 text-slate-500">{c.invoice_number}</td>
-                                            <td className="px-4 py-3 text-right font-black">{fmtQ(c.total_amount)}</td>
+                                            <td className="px-4 py-3 text-right font-semibold">{fmtQ(c.total_amount)}</td>
                                             <td className="px-4 py-3">{c.due_date ? dayjs(c.due_date).format('DD/MM/YYYY') : 'N/A'}</td>
-                                            <td className={`px-4 py-3 text-center font-black ${textColor}`}>
+                                            <td className={`px-4 py-3 text-center font-semibold ${textColor}`}>
                                                 {c.diff < 0 ? `${Math.abs(c.diff)}d vencida` : `${c.diff}d`}
                                             </td>
                                             <td className="px-4 py-3 text-center">
@@ -953,22 +953,22 @@ export const TabCompras: React.FC<{
             {sub === 'resumen' && (
                 <div className="space-y-3">
                     <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-5">
-                        <h3 className="text-[11px] font-black text-[#106ebe] uppercase tracking-widest mb-4">Resumen de Compras — {dayjs(month + '-01').format('MMMM YYYY')}</h3>
+                        <h3 className="text-[11px] font-semibold text-[#106ebe] uppercase tracking-widest mb-4">Resumen de Compras — {dayjs(month + '-01').format('MMMM YYYY')}</h3>
                         <div className="space-y-2">
                             {byCategory.map(({ cat, total, pct }) => (
                                 <div key={cat} className="flex items-center gap-3">
-                                    <span className="text-[10px] font-bold text-slate-600 w-48 truncate">{cat}</span>
+                                    <span className="text-[10px] font-medium text-slate-600 w-48 truncate">{cat}</span>
                                     <div className="flex-1 bg-slate-100 rounded-full h-2 text-slate-400">
                                         <div className="bg-slate-600 h-2 rounded-full transition-all" style={{ width: `${Math.min(pct, 100)}%` }} />
                                     </div>
-                                    <span className="text-[10px] font-black text-slate-700 w-28 text-right">{fmtQ(total)}</span>
-                                    <span className="text-[10px] font-bold text-slate-400 w-12 text-right">{pct.toFixed(1)}%</span>
+                                    <span className="text-[10px] font-semibold text-slate-700 w-28 text-right">{fmtQ(total)}</span>
+                                    <span className="text-[10px] font-medium text-slate-400 w-12 text-right">{pct.toFixed(1)}%</span>
                                 </div>
                             ))}
                             <div className="border-t border-slate-200 mt-3 pt-3 flex items-center justify-between">
-                                <span className="text-[11px] font-black text-[#106ebe] uppercase">Total Compras</span>
-                                <span className="text-xl font-black text-slate-800">{fmtQ(totalCompras)}</span>
-                                <span className="text-[11px] font-black text-slate-500">
+                                <span className="text-[11px] font-semibold text-[#106ebe] uppercase">Total Compras</span>
+                                <span className="text-xl font-semibold text-slate-800">{fmtQ(totalCompras)}</span>
+                                <span className="text-[11px] font-semibold text-slate-500">
                                     {monthlySales > 0 ? ((totalCompras / monthlySales) * 100).toFixed(1) : '0.0'}% de ventas
                                 </span>
                             </div>
@@ -985,7 +985,7 @@ export const TabCompras: React.FC<{
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
                                 <div className="flex items-center gap-2">
                                     <CloudDownload size={14} className="text-white/80" />
-                                    <span className="text-white text-[11px] font-bold uppercase tracking-widest">{editId ? 'Editar' : 'Nueva'} Factura de Compra</span>
+                                    <span className="text-white text-[11px] font-medium uppercase tracking-widest">{editId ? 'Editar' : 'Nueva'} Factura de Compra</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <WindowsSaveButton onClick={saveInvoice} variant="minimal" title="Guardar Factura" />
@@ -997,9 +997,9 @@ export const TabCompras: React.FC<{
 
                             <div className="p-5 grid grid-cols-3 gap-6 bg-[#f0f0f0] border-b border-gray-300 overflow-y-auto custom-scrollbar">
                                 <div className="space-y-4">
-                                    <h4 className="text-[10px] font-black uppercase text-black border-b border-black pb-1">Datos de Emisor</h4>
+                                    <h4 className="text-[10px] font-semibold uppercase text-black border-b border-black pb-1">Datos de Emisor</h4>
                                     <div>
-                                        <label className="block text-[9px] font-black uppercase text-black mb-1">NIT Proveedor</label>
+                                        <label className="block text-[9px] font-semibold uppercase text-black mb-1">NIT Proveedor</label>
                                         <input type="text" value={form.supplier_nit} 
                                             onChange={e => {
                                                 const val = e.target.value;
@@ -1007,46 +1007,46 @@ export const TabCompras: React.FC<{
                                                 const master = suppliers.find(s => s.nit === val.trim());
                                                 if (master) setForm(p => ({ ...p, supplier_name: master.name, category: master.default_category || p.category }));
                                             }}
-                                            className="w-full border border-gray-400 rounded px-2 py-1 text-[11px] font-black outline-none focus:border-[#106EBE] bg-white h-7 shadow-inner text-black" />
+                                            className="w-full border border-gray-400 rounded px-2 py-1 text-[11px] font-semibold outline-none focus:border-[#106EBE] bg-white h-7 shadow-inner text-black" />
                                     </div>
                                     <div>
-                                        <label className="block text-[9px] font-black uppercase text-black mb-1">Nombre Proveedor</label>
+                                        <label className="block text-[9px] font-semibold uppercase text-black mb-1">Nombre Proveedor</label>
                                         <input type="text" value={form.supplier_name} onChange={e => setForm(p => ({ ...p, supplier_name: e.target.value }))}
-                                            className="w-full border border-gray-400 rounded px-2 py-1 text-[11px] font-black outline-none focus:border-[#106EBE] bg-white h-7 shadow-inner text-black" />
+                                            className="w-full border border-gray-400 rounded px-2 py-1 text-[11px] font-semibold outline-none focus:border-[#106EBE] bg-white h-7 shadow-inner text-black" />
                                     </div>
                                 </div>
 
                                 <div className="space-y-4">
-                                    <h4 className="text-[10px] font-black uppercase text-black border-b border-black pb-1">Detalle de Factura</h4>
+                                    <h4 className="text-[10px] font-semibold uppercase text-black border-b border-black pb-1">Detalle de Factura</h4>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label className="block text-[9px] font-black uppercase text-black mb-1">Fecha</label>
+                                            <label className="block text-[9px] font-semibold uppercase text-black mb-1">Fecha</label>
                                             <input type="date" value={form.invoice_date} onChange={e => setForm(p => ({ ...p, invoice_date: e.target.value }))}
-                                                className="w-full border border-gray-400 rounded px-2 py-1 text-[11px] font-black outline-none focus:border-[#106EBE] bg-white h-7 shadow-inner text-black" />
+                                                className="w-full border border-gray-400 rounded px-2 py-1 text-[11px] font-semibold outline-none focus:border-[#106EBE] bg-white h-7 shadow-inner text-black" />
                                         </div>
                                         <div>
-                                            <label className="block text-[9px] font-black uppercase text-black mb-1">No. Factura</label>
+                                            <label className="block text-[9px] font-semibold uppercase text-black mb-1">No. Factura</label>
                                             <input type="text" value={form.invoice_number} onChange={e => setForm(p => ({ ...p, invoice_number: e.target.value }))}
-                                                className="w-full border border-gray-400 rounded px-2 py-1 text-[11px] font-black outline-none focus:border-[#106EBE] bg-white h-7 shadow-inner text-black" />
+                                                className="w-full border border-gray-400 rounded px-2 py-1 text-[11px] font-semibold outline-none focus:border-[#106EBE] bg-white h-7 shadow-inner text-black" />
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-[9px] font-black uppercase text-black mb-1">Descripción General</label>
+                                        <label className="block text-[9px] font-semibold uppercase text-black mb-1">Descripción General</label>
                                         <input type="text" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-                                            className="w-full border border-gray-400 rounded px-2 py-1 text-[11px] font-black outline-none focus:border-[#106EBE] bg-white h-7 shadow-inner text-black" />
+                                            className="w-full border border-gray-400 rounded px-2 py-1 text-[11px] font-semibold outline-none focus:border-[#106EBE] bg-white h-7 shadow-inner text-black" />
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label className="block text-[9px] font-black uppercase text-black mb-1">Categoría</label>
+                                            <label className="block text-[9px] font-semibold uppercase text-black mb-1">Categoría</label>
                                             <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
-                                                className="w-full border border-gray-400 rounded px-2 py-1 text-[11px] font-black outline-none focus:border-[#106EBE] bg-white h-7 shadow-inner text-black">
+                                                className="w-full border border-gray-400 rounded px-2 py-1 text-[11px] font-semibold outline-none focus:border-[#106EBE] bg-white h-7 shadow-inner text-black">
                                                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-[9px] font-black uppercase text-black mb-1">Estado Pago</label>
+                                            <label className="block text-[9px] font-semibold uppercase text-black mb-1">Estado Pago</label>
                                             <select value={form.payment_status} onChange={e => setForm(p => ({ ...p, payment_status: e.target.value }))}
-                                                className="w-full border border-gray-400 rounded px-2 py-1 text-[11px] font-black outline-none focus:border-[#106EBE] bg-white h-7 shadow-inner text-black">
+                                                className="w-full border border-gray-400 rounded px-2 py-1 text-[11px] font-semibold outline-none focus:border-[#106EBE] bg-white h-7 shadow-inner text-black">
                                                 <option value="pending">Pendiente</option>
                                                 <option value="paid">Pagado</option>
                                             </select>
@@ -1055,27 +1055,27 @@ export const TabCompras: React.FC<{
                                 </div>
 
                                 <div className="space-y-4">
-                                    <h4 className="text-[10px] font-black uppercase text-black border-b border-black pb-1">Montos (Q)</h4>
+                                    <h4 className="text-[10px] font-semibold uppercase text-black border-b border-black pb-1">Montos (Q)</h4>
                                     <div className="bg-white border border-gray-300 p-4 rounded shadow-inner space-y-3">
                                         <div>
-                                            <label className="block text-[9px] font-black uppercase text-black mb-1">Monto Total</label>
+                                            <label className="block text-[9px] font-semibold uppercase text-black mb-1">Monto Total</label>
                                             <input type="number" step="0.01" value={form.total_amount ? Number(form.total_amount).toFixed(2) : ''} onChange={e => handleTotalChange(Number(e.target.value))}
-                                                className="w-full h-10 text-xl font-black text-black bg-transparent border-none outline-none text-right" />
+                                                className="w-full h-10 text-xl font-semibold text-black bg-transparent border-none outline-none text-right" />
                                         </div>
                                         <div className="border-t border-gray-100 pt-2 flex justify-between items-center">
-                                            <span className="text-[9px] font-black uppercase text-black">IVA (12%)</span>
-                                            <span className="text-[12px] font-black text-black">{fmtQ(form.iva_amount)}</span>
+                                            <span className="text-[9px] font-semibold uppercase text-black">IVA (12%)</span>
+                                            <span className="text-[12px] font-semibold text-black">{fmtQ(form.iva_amount)}</span>
                                         </div>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-[9px] font-black uppercase text-black">Base</span>
-                                            <span className="text-[12px] font-black text-black">{fmtQ(form.net_amount)}</span>
+                                            <span className="text-[9px] font-semibold uppercase text-black">Base</span>
+                                            <span className="text-[12px] font-semibold text-black">{fmtQ(form.net_amount)}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div className="bg-[#f0f0f0] p-3 flex justify-end gap-2">
-                                <button onClick={() => setShowForm(false)} className="px-5 py-1.5 text-[10px] font-black uppercase text-slate-500 hover:bg-gray-200 border border-gray-300 rounded transition-all">Cancelar</button>
-                                <button onClick={saveInvoice} className="flex items-center gap-2 px-8 py-1.5 bg-[#106ebe] text-white text-[11px] font-black uppercase rounded shadow-lg hover:bg-[#0d5ea0] transition-all active:scale-95">
+                                <button onClick={() => setShowForm(false)} className="px-5 py-1.5 text-[10px] font-semibold uppercase text-slate-500 hover:bg-gray-200 border border-gray-300 rounded transition-all">Cancelar</button>
+                                <button onClick={saveInvoice} className="flex items-center gap-2 px-8 py-1.5 bg-[#106ebe] text-white text-[11px] font-semibold uppercase rounded shadow-lg hover:bg-[#0d5ea0] transition-all active:scale-95">
                                     <Save size={14} /> Guardar Registro
                                 </button>
                             </div>
@@ -1093,7 +1093,7 @@ export const TabCompras: React.FC<{
                             <div className="modal-header bg-[#106EBE] h-8 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
                                 <div className="flex items-center gap-2">
                                     <Building size={14} className="text-white/80" />
-                                    <span className="text-white text-[11px] font-bold uppercase tracking-widest">{supForm.id ? 'Editar' : 'Nuevo'} Proveedor</span>
+                                    <span className="text-white text-[11px] font-medium uppercase tracking-widest">{supForm.id ? 'Editar' : 'Nuevo'} Proveedor</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <WindowsSaveButton onClick={saveSup} variant="minimal" title="Guardar Proveedor" />
@@ -1104,43 +1104,43 @@ export const TabCompras: React.FC<{
                             </div>
                             <div className="p-6 grid grid-cols-2 gap-x-8 gap-y-4 bg-[#f0f0f0] border-b border-gray-300 overflow-y-auto custom-scrollbar">
                                 <div>
-                                    <label className="block text-[9px] font-black uppercase text-black mb-1">NIT del Proveedor</label>
+                                    <label className="block text-[9px] font-semibold uppercase text-black mb-1">NIT del Proveedor</label>
                                     <input type="text" value={supForm.nit} onChange={e => setSupForm(p => ({ ...p, nit: e.target.value }))}
-                                        className="w-full border border-gray-400 rounded px-3 py-1 text-[11px] font-black outline-none focus:border-[#106EBE] bg-white h-8 shadow-inner text-black" />
+                                        className="w-full border border-gray-400 rounded px-3 py-1 text-[11px] font-semibold outline-none focus:border-[#106EBE] bg-white h-8 shadow-inner text-black" />
                                 </div>
                                 <div>
-                                    <label className="block text-[9px] font-black uppercase text-black mb-1">Nombre Comercial / Razón Social</label>
+                                    <label className="block text-[9px] font-semibold uppercase text-black mb-1">Nombre Comercial / Razón Social</label>
                                     <input type="text" value={supForm.name} onChange={e => setSupForm(p => ({ ...p, name: e.target.value }))}
-                                        className="w-full border border-gray-400 rounded px-3 py-1 text-[11px] font-black outline-none focus:border-[#106EBE] bg-white h-8 shadow-inner text-black" />
+                                        className="w-full border border-gray-400 rounded px-3 py-1 text-[11px] font-semibold outline-none focus:border-[#106EBE] bg-white h-8 shadow-inner text-black" />
                                 </div>
                                 <div>
-                                    <label className="block text-[9px] font-black uppercase text-black mb-1">Teléfono de Contacto</label>
+                                    <label className="block text-[9px] font-semibold uppercase text-black mb-1">Teléfono de Contacto</label>
                                     <input type="text" value={supForm.phone} onChange={e => setSupForm(p => ({ ...p, phone: e.target.value }))}
-                                        className="w-full border border-gray-400 rounded px-3 py-1 text-[11px] font-black outline-none focus:border-[#106EBE] bg-white h-8 shadow-inner text-black" />
+                                        className="w-full border border-gray-400 rounded px-3 py-1 text-[11px] font-semibold outline-none focus:border-[#106EBE] bg-white h-8 shadow-inner text-black" />
                                 </div>
                                 <div>
-                                    <label className="block text-[9px] font-black uppercase text-black mb-1">Días de Crédito Otorgado</label>
+                                    <label className="block text-[9px] font-semibold uppercase text-black mb-1">Días de Crédito Otorgado</label>
                                     <input type="number" value={supForm.credit_days} onChange={e => setSupForm(p => ({ ...p, credit_days: Number(e.target.value) }))}
-                                        className="w-full border border-gray-400 rounded px-3 py-1 text-[11px] font-black outline-none focus:border-[#106EBE] bg-white h-8 shadow-inner text-black" />
+                                        className="w-full border border-gray-400 rounded px-3 py-1 text-[11px] font-semibold outline-none focus:border-[#106EBE] bg-white h-8 shadow-inner text-black" />
                                 </div>
                                 <div className="col-span-2 grid grid-cols-2 gap-8">
                                     <div>
-                                        <label className="block text-[9px] font-black uppercase text-black mb-1">Categoría Predeterminada (Memoria por NIT)</label>
+                                        <label className="block text-[9px] font-semibold uppercase text-black mb-1">Categoría Predeterminada (Memoria por NIT)</label>
                                         <select value={supForm.default_category} onChange={e => setSupForm(p => ({ ...p, default_category: e.target.value }))}
-                                            className="w-full border border-gray-400 rounded px-3 py-1 text-[11px] font-black outline-none focus:border-[#106EBE] bg-white h-8 shadow-inner text-black">
+                                            className="w-full border border-gray-400 rounded px-3 py-1 text-[11px] font-semibold outline-none focus:border-[#106EBE] bg-white h-8 shadow-inner text-black">
                                             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-[9px] font-black uppercase text-black mb-1">Productos / Servicios que suministra</label>
+                                        <label className="block text-[9px] font-semibold uppercase text-black mb-1">Productos / Servicios que suministra</label>
                                         <input type="text" value={supForm.products} onChange={e => setSupForm(p => ({ ...p, products: e.target.value }))}
-                                            className="w-full border border-gray-400 rounded px-3 py-1 text-[11px] font-black outline-none focus:border-[#106EBE] bg-white h-8 shadow-inner text-black" />
+                                            className="w-full border border-gray-400 rounded px-3 py-1 text-[11px] font-semibold outline-none focus:border-[#106EBE] bg-white h-8 shadow-inner text-black" />
                                     </div>
                                 </div>
                             </div>
                             <div className="bg-[#f0f0f0] p-3 flex justify-end gap-2">
-                                <button onClick={() => setShowSupForm(false)} className="px-5 py-1.5 text-[10px] font-black uppercase text-slate-500 hover:bg-gray-200 border border-gray-300 rounded transition-all">Cancelar</button>
-                                <button onClick={saveSup} className="flex items-center gap-2 px-8 py-1.5 bg-[#106ebe] text-white text-[11px] font-black uppercase rounded shadow-lg hover:bg-[#0d5ea0] transition-all active:scale-95">
+                                <button onClick={() => setShowSupForm(false)} className="px-5 py-1.5 text-[10px] font-semibold uppercase text-slate-500 hover:bg-gray-200 border border-gray-300 rounded transition-all">Cancelar</button>
+                                <button onClick={saveSup} className="flex items-center gap-2 px-8 py-1.5 bg-[#106ebe] text-white text-[11px] font-semibold uppercase rounded shadow-lg hover:bg-[#0d5ea0] transition-all active:scale-95">
                                     <Save size={14} /> Guardar Proveedor
                                 </button>
                             </div>
@@ -1157,7 +1157,7 @@ export const TabCompras: React.FC<{
                             <div className="modal-header bg-[#106EBE] h-9 px-4 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
                                 <div className="flex items-center gap-2">
                                     <Package size={14} className="text-white/80" />
-                                    <span className="text-white text-[11px] font-black uppercase tracking-wider">DETALLE FACTURA XML — {selectedInv.supplier_name}</span>
+                                    <span className="text-white text-[11px] font-semibold uppercase tracking-wider">DETALLE FACTURA XML — {selectedInv.supplier_name}</span>
                                 </div>
                                 <button onClick={() => setShowDetail(false)} className="w-9 h-9 flex items-center justify-center hover:bg-red-600 text-white transition-all ml-1" title="Cerrar">
                                     <X size={20} strokeWidth={2.5} />
@@ -1167,15 +1167,15 @@ export const TabCompras: React.FC<{
                             {/* Info Boxes Section (Original Style) */}
                             <div className="p-6 pb-2 grid grid-cols-2 gap-6 bg-white shrink-0">
                                 <div className="space-y-1">
-                                    <span className="text-[9px] font-black text-black uppercase block ml-1">FECHA EMISIÓN</span>
+                                    <span className="text-[9px] font-semibold text-black uppercase block ml-1">FECHA EMISIÓN</span>
                                     <div className="border border-gray-300 rounded px-3 py-2 bg-gray-50/50">
-                                        <span className="text-[12px] font-black text-black">{dayjs(selectedInv.invoice_date).format('DD [de] MMMM, YYYY')}</span>
+                                        <span className="text-[12px] font-semibold text-black">{dayjs(selectedInv.invoice_date).format('DD [de] MMMM, YYYY')}</span>
                                     </div>
                                 </div>
                                 <div className="space-y-1">
-                                    <span className="text-[9px] font-black text-black uppercase block ml-1">NIT EMISOR</span>
+                                    <span className="text-[9px] font-semibold text-black uppercase block ml-1">NIT EMISOR</span>
                                     <div className="border border-gray-300 rounded px-3 py-2 bg-gray-50/50">
-                                        <span className="text-[12px] font-black text-black font-mono tracking-widest">{selectedInv.supplier_nit}</span>
+                                        <span className="text-[12px] font-semibold text-black font-mono tracking-widest">{selectedInv.supplier_nit}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1185,7 +1185,7 @@ export const TabCompras: React.FC<{
                                 <div className="flex-1 overflow-y-auto custom-scrollbar border border-gray-200 rounded-t mt-4">
                                     <table className="w-full text-left border-collapse bg-white">
                                         <thead className="sticky top-0 bg-gray-50 shadow-sm z-10 border-b border-gray-200">
-                                            <tr className="text-[10px] font-black text-black uppercase">
+                                            <tr className="text-[10px] font-semibold text-black uppercase">
                                                 <th className="px-6 py-3 w-20">CANT</th>
                                                 <th className="px-4 py-3">DESCRIPCIÓN PRODUCTO</th>
                                                 <th className="px-6 py-3 text-right w-40">MONTO</th>
@@ -1194,9 +1194,9 @@ export const TabCompras: React.FC<{
                                         <tbody className="divide-y divide-gray-100">
                                             {selectedInv.items?.map((it: any, i: number) => (
                                                 <tr key={i} className="text-[11px] hover:bg-blue-50/20 transition-colors group">
-                                                    <td className="px-6 py-3 font-black text-black">{it.cantidad}</td>
-                                                    <td className="px-4 py-3 text-black font-black group-hover:text-[#106ebe] transition-colors">{it.descripcion}</td>
-                                                    <td className="px-6 py-3 text-right font-black text-black font-mono tracking-tight">{fmtQ(it.total)}</td>
+                                                    <td className="px-6 py-3 font-semibold text-black">{it.cantidad}</td>
+                                                    <td className="px-4 py-3 text-black font-semibold group-hover:text-[#106ebe] transition-colors">{it.descripcion}</td>
+                                                    <td className="px-6 py-3 text-right font-semibold text-black font-mono tracking-tight">{fmtQ(it.total)}</td>
                                                 </tr>
                                             ))}
                                             {(!selectedInv.items || selectedInv.items.length === 0) && (
@@ -1204,7 +1204,7 @@ export const TabCompras: React.FC<{
                                                     <td colSpan={3} className="px-8 py-20 text-center">
                                                         <div className="flex flex-col items-center gap-3 opacity-40">
                                                             <Package size={32} className="text-slate-400" />
-                                                            <span className="text-[11px] font-bold text-slate-500">Sin detalle de productos disponible</span>
+                                                            <span className="text-[11px] font-medium text-slate-500">Sin detalle de productos disponible</span>
                                                             <span className="text-[9px] text-slate-400">Esta factura no contiene líneas de detalle almacenadas localmente.</span>
                                                         </div>
                                                     </td>
@@ -1217,40 +1217,40 @@ export const TabCompras: React.FC<{
                                 {/* Resumen Fiscal Mejorado y Cuadrado */}
                                 <div className="grid grid-cols-5 gap-3 mb-4 shrink-0 px-6">
                                     <div className="bg-gray-50 border border-gray-200 p-3 rounded-sm flex flex-col items-end">
-                                        <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Monto Neto</span>
-                                        <span className="text-[12px] font-black text-black">{fmtQ(selectedInv.total_amount - (selectedInv.iva_amount || 0) - (selectedInv.idp_monto || 0) - (selectedInv.impuesto_bebidas_alcoh || 0) - (selectedInv.impuesto_bebidas_no_alcoh || 0))}</span>
+                                        <span className="text-[7px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Monto Neto</span>
+                                        <span className="text-[12px] font-semibold text-black">{fmtQ(selectedInv.total_amount - (selectedInv.iva_amount || 0) - (selectedInv.idp_monto || 0) - (selectedInv.impuesto_bebidas_alcoh || 0) - (selectedInv.impuesto_bebidas_no_alcoh || 0))}</span>
                                     </div>
                                     <div className="bg-gray-50 border border-gray-200 p-3 rounded-sm flex flex-col items-end">
-                                        <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">IVA (12%)</span>
-                                        <span className="text-[12px] font-black text-black">{fmtQ(selectedInv.iva_amount)}</span>
+                                        <span className="text-[7px] font-semibold text-slate-400 uppercase tracking-widest mb-1">IVA (12%)</span>
+                                        <span className="text-[12px] font-semibold text-black">{fmtQ(selectedInv.iva_amount)}</span>
                                     </div>
                                     <div className="bg-gray-50 border border-gray-200 p-3 rounded-sm flex flex-col items-end">
-                                        <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Otros Imp.</span>
-                                        <span className="text-[12px] font-black text-emerald-600">
+                                        <span className="text-[7px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Otros Imp.</span>
+                                        <span className="text-[12px] font-semibold text-emerald-600">
                                             {fmtQ((selectedInv.idp_monto || 0) + (selectedInv.impuesto_bebidas_alcoh || 0) + (selectedInv.impuesto_bebidas_no_alcoh || 0))}
                                         </span>
                                     </div>
                                     <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-sm flex flex-col items-end">
-                                        <span className="text-[7px] font-black text-emerald-600 uppercase tracking-widest mb-1">Total Impuestos</span>
-                                        <span className="text-[12px] font-black text-emerald-700">
+                                        <span className="text-[7px] font-semibold text-emerald-600 uppercase tracking-widest mb-1">Total Impuestos</span>
+                                        <span className="text-[12px] font-semibold text-emerald-700">
                                             {fmtQ((selectedInv.iva_amount || 0) + (selectedInv.idp_monto || 0) + (selectedInv.impuesto_bebidas_alcoh || 0) + (selectedInv.impuesto_bebidas_no_alcoh || 0))}
                                         </span>
                                     </div>
                                     <div className="bg-[#106ebe] border border-[#106ebe] p-3 rounded-sm flex flex-col items-end shadow-lg">
-                                        <span className="text-[7px] font-black text-white/70 uppercase tracking-widest mb-1">Total Factura</span>
-                                        <span className="text-[15px] font-black text-white">{fmtQ(selectedInv.total_amount)}</span>
+                                        <span className="text-[7px] font-semibold text-white/70 uppercase tracking-widest mb-1">Total Factura</span>
+                                        <span className="text-[15px] font-semibold text-white">{fmtQ(selectedInv.total_amount)}</span>
                                     </div>
                                 </div>
 
                                 {((selectedInv.iva_retenido || 0) > 0 || (selectedInv.isr_retenido || 0) > 0) && (
                                     <div className="mx-6 mb-4 p-2 bg-amber-50 border border-amber-200 rounded flex gap-6 items-center justify-center shrink-0">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[9px] font-black text-amber-800 uppercase">IVA Retenido:</span>
-                                            <span className="text-[11px] font-black text-amber-900">{fmtQ(selectedInv.iva_retenido)}</span>
+                                            <span className="text-[9px] font-semibold text-amber-800 uppercase">IVA Retenido:</span>
+                                            <span className="text-[11px] font-semibold text-amber-900">{fmtQ(selectedInv.iva_retenido)}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[9px] font-black text-amber-800 uppercase">ISR Retenido:</span>
-                                            <span className="text-[11px] font-black text-amber-900">{fmtQ(selectedInv.isr_retenido)}</span>
+                                            <span className="text-[9px] font-semibold text-amber-800 uppercase">ISR Retenido:</span>
+                                            <span className="text-[11px] font-semibold text-amber-900">{fmtQ(selectedInv.isr_retenido)}</span>
                                         </div>
                                     </div>
                                 )}
@@ -1258,7 +1258,7 @@ export const TabCompras: React.FC<{
                                 {/* Central Close Button (Original Style) */}
                                 <div className="flex justify-center pb-8 pt-2">
                                     <button onClick={() => setShowDetail(false)}
-                                        className="px-12 py-2.5 bg-gray-100 hover:bg-gray-200 text-black text-[11px] font-black uppercase rounded border border-gray-300 transition-all active:scale-95 shadow-sm">
+                                        className="px-12 py-2.5 bg-gray-100 hover:bg-gray-200 text-black text-[11px] font-semibold uppercase rounded border border-gray-300 transition-all active:scale-95 shadow-sm">
                                         CERRAR DETALLE
                                     </button>
                                 </div>

@@ -18,8 +18,8 @@ export const PaxModal: React.FC<PaxModalProps> = ({ isOpen, onClose, initialPax,
             <div className="w-full max-w-sm bg-[#16191f] rounded-xl border border-white/10  /50 p-8">
                 <div className="flex justify-between items-center mb-10">
                     <div>
-                        <h3 className="text-xl font-black uppercase tracking-tighter">Rectificar Personas</h3>
-                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Capacidad de la Mesa (PAX)</p>
+                        <h3 className="text-xl font-semibold uppercase tracking-tighter">Rectificar Personas</h3>
+                        <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest mt-1">Capacidad de la Mesa (PAX)</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-xl transition-all">
                         <X size={20} className="text-gray-500" />
@@ -28,7 +28,7 @@ export const PaxModal: React.FC<PaxModalProps> = ({ isOpen, onClose, initialPax,
 
                 <div className="flex flex-col items-center gap-8 mb-10">
                     <div className="w-24 h-24 bg-indigo-600/20 rounded-xl flex items-center justify-center border-2 border-indigo-500/20  -600/10">
-                        <span className="text-5xl font-black tabular-nums text-indigo-400">{pax}</span>
+                        <span className="text-5xl font-semibold tabular-nums text-indigo-400">{pax}</span>
                     </div>
 
                     <div className="flex items-center gap-6">
@@ -53,7 +53,7 @@ export const PaxModal: React.FC<PaxModalProps> = ({ isOpen, onClose, initialPax,
                         onConfirm(pax);
                         onClose();
                     }}
-                    className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-black uppercase tracking-[0.2em] text-xs  -600/20 transition-all active:scale-95"
+                    className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold uppercase tracking-[0.2em] text-xs  -600/20 transition-all active:scale-95"
                 >
                     Guardar Cambios
                 </button>

@@ -134,44 +134,44 @@ export const RendimientoProduccion: React.FC = () => {
             {/* ── Toolbar ── */}
             <div className="bg-white border-b border-gray-200 px-6 py-4 flex flex-wrap items-end gap-4 shrink-0">
                 <div className="flex-1 min-w-0">
-                    <h1 className="text-[13px] font-black text-gray-800 uppercase tracking-tight flex items-center gap-2">
+                    <h1 className="text-[13px] font-semibold text-gray-800 uppercase tracking-tight flex items-center gap-2">
                         <Layers size={16} className="text-[#106ebe]" />
                         RENDIMIENTO DE PRODUCCIÓN
                     </h1>
-                    <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">
+                    <p className="text-[9px] text-gray-400 font-medium uppercase tracking-widest mt-0.5">
                         Historial por trabajador — Módulo PRODUCCION
                     </p>
                 </div>
 
                 <div className="flex flex-wrap items-end gap-3">
                     <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-gray-400 uppercase flex items-center gap-1">
+                        <label className="text-[9px] font-medium text-gray-400 uppercase flex items-center gap-1">
                             <Calendar size={10} /> Desde
                         </label>
                         <input
                             type="date" value={fechaDesde}
                             onChange={e => setFechaDesde(e.target.value)}
-                            className="border border-gray-200 rounded px-2 py-1.5 text-[11px] font-bold outline-none"
+                            className="border border-gray-200 rounded px-2 py-1.5 text-[11px] font-medium outline-none"
                         />
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-gray-400 uppercase flex items-center gap-1">
+                        <label className="text-[9px] font-medium text-gray-400 uppercase flex items-center gap-1">
                             <Calendar size={10} /> Hasta
                         </label>
                         <input
                             type="date" value={fechaHasta}
                             onChange={e => setFechaHasta(e.target.value)}
-                            className="border border-gray-200 rounded px-2 py-1.5 text-[11px] font-bold outline-none"
+                            className="border border-gray-200 rounded px-2 py-1.5 text-[11px] font-medium outline-none"
                         />
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-gray-400 uppercase flex items-center gap-1">
+                        <label className="text-[9px] font-medium text-gray-400 uppercase flex items-center gap-1">
                             <Search size={10} /> Sucursal
                         </label>
                         <select
                             value={sucursalId}
                             onChange={e => setSucursalId(e.target.value)}
-                            className="border border-gray-200 rounded px-2 py-1.5 text-[11px] font-bold outline-none min-w-[160px]"
+                            className="border border-gray-200 rounded px-2 py-1.5 text-[11px] font-medium outline-none min-w-[160px]"
                         >
                             <option value="">— Todas —</option>
                             {sucursales.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -181,7 +181,7 @@ export const RendimientoProduccion: React.FC = () => {
                     <button
                         onClick={fetchData}
                         disabled={loading}
-                        className="bg-[#106ebe] hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all disabled:opacity-60"
+                        className="bg-[#106ebe] hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2 transition-all disabled:opacity-60"
                     >
                         {loading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
                         Filtrar
@@ -190,7 +190,7 @@ export const RendimientoProduccion: React.FC = () => {
                     {searched && data.length > 0 && (
                         <button
                             onClick={exportExcel}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2 transition-all"
                         >
                             <FileSpreadsheet size={14} />
                             Exportar XLS
@@ -209,8 +209,8 @@ export const RendimientoProduccion: React.FC = () => {
                                 <BarChart3 size={22} className="text-[#106ebe]" />
                             </div>
                             <div>
-                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Total Producciones</p>
-                                <p className="text-[28px] font-black text-gray-800 leading-none">{totalProducciones}</p>
+                                <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest">Total Producciones</p>
+                                <p className="text-[28px] font-semibold text-gray-800 leading-none">{totalProducciones}</p>
                             </div>
                         </div>
                         <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4 shadow-sm">
@@ -218,8 +218,8 @@ export const RendimientoProduccion: React.FC = () => {
                                 <Clock size={22} className="text-amber-500" />
                             </div>
                             <div>
-                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tiempo Promedio</p>
-                                <p className="text-[22px] font-black text-gray-800 leading-none tabular-nums">{formatHMS(tiempoPromedio)}</p>
+                                <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest">Tiempo Promedio</p>
+                                <p className="text-[22px] font-semibold text-gray-800 leading-none tabular-nums">{formatHMS(tiempoPromedio)}</p>
                             </div>
                         </div>
                         <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4 shadow-sm">
@@ -227,8 +227,8 @@ export const RendimientoProduccion: React.FC = () => {
                                 <Users size={22} className="text-emerald-600" />
                             </div>
                             <div>
-                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cocineros</p>
-                                <p className="text-[28px] font-black text-gray-800 leading-none">{cocineros.length}</p>
+                                <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest">Cocineros</p>
+                                <p className="text-[28px] font-semibold text-gray-800 leading-none">{cocineros.length}</p>
                                 <p className="text-[8px] text-gray-400 mt-0.5 truncate max-w-[120px]">
                                     {cocineros.slice(0, 3).join(', ')}{cocineros.length > 3 ? '...' : ''}
                                 </p>
@@ -247,10 +247,10 @@ export const RendimientoProduccion: React.FC = () => {
                                 placeholder="Buscar cocinero o platillo..."
                                 value={filterText}
                                 onChange={e => setFilterText(e.target.value)}
-                                className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-[11px] font-bold outline-none bg-white"
+                                className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-[11px] font-medium outline-none bg-white"
                             />
                         </div>
-                        <span className="text-[10px] text-gray-400 font-bold">
+                        <span className="text-[10px] text-gray-400 font-medium">
                             {filtered.length} registro{filtered.length !== 1 ? 's' : ''}
                         </span>
                     </div>
@@ -261,7 +261,7 @@ export const RendimientoProduccion: React.FC = () => {
                     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                         <div className="bg-[#106ebe]/5 px-5 py-2.5 border-b border-[#106ebe]/10 flex items-center gap-2">
                             <TrendingUp size={13} className="text-[#106ebe]" />
-                            <span className="text-[10px] font-black text-[#106ebe] uppercase tracking-widest">
+                            <span className="text-[10px] font-semibold text-[#106ebe] uppercase tracking-widest">
                                 DETALLE POR COCINERO — CATEGORÍA PRODUCCION
                             </span>
                         </div>
@@ -269,11 +269,11 @@ export const RendimientoProduccion: React.FC = () => {
                             <table className="w-full">
                                 <thead>
                                     <tr className="bg-gray-50 border-b border-gray-200">
-                                        <th className="text-left px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Cocinero</th>
-                                        <th className="text-left px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Platillo</th>
-                                        <th className="text-center px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Duración</th>
-                                        <th className="text-left px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Fecha / Hora Inicio</th>
-                                        <th className="text-left px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Hora Fin</th>
+                                        <th className="text-left px-4 py-3 text-[9px] font-semibold uppercase tracking-widest text-gray-400">Cocinero</th>
+                                        <th className="text-left px-4 py-3 text-[9px] font-semibold uppercase tracking-widest text-gray-400">Platillo</th>
+                                        <th className="text-center px-4 py-3 text-[9px] font-semibold uppercase tracking-widest text-gray-400">Duración</th>
+                                        <th className="text-left px-4 py-3 text-[9px] font-semibold uppercase tracking-widest text-gray-400">Fecha / Hora Inicio</th>
+                                        <th className="text-left px-4 py-3 text-[9px] font-semibold uppercase tracking-widest text-gray-400">Hora Fin</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -284,24 +284,24 @@ export const RendimientoProduccion: React.FC = () => {
                                         >
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-2">
-                                                    <div className="w-7 h-7 rounded-full bg-[#106ebe]/10 flex items-center justify-center text-[#106ebe] font-black text-xs shrink-0">
+                                                    <div className="w-7 h-7 rounded-full bg-[#106ebe]/10 flex items-center justify-center text-[#106ebe] font-semibold text-xs shrink-0">
                                                         {row.usuario_nombre.charAt(0).toUpperCase()}
                                                     </div>
-                                                    <span className="text-[11px] font-bold text-gray-800">{row.usuario_nombre}</span>
+                                                    <span className="text-[11px] font-medium text-gray-800">{row.usuario_nombre}</span>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className="text-[11px] font-bold text-gray-700">{row.platillo_nombre}</span>
+                                                <span className="text-[11px] font-medium text-gray-700">{row.platillo_nombre}</span>
                                             </td>
                                             <td className="px-4 py-3 text-center">
-                                                <span className="text-[11px] font-black tabular-nums text-[#106ebe] bg-[#106ebe]/10 px-2 py-1 rounded-md">
+                                                <span className="text-[11px] font-semibold tabular-nums text-[#106ebe] bg-[#106ebe]/10 px-2 py-1 rounded-md">
                                                     {formatHMS(row.duracion_segundos)}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3 text-[10px] font-bold text-gray-500 whitespace-nowrap">
+                                            <td className="px-4 py-3 text-[10px] font-medium text-gray-500 whitespace-nowrap">
                                                 {formatFecha(row.tiempo_inicio)}
                                             </td>
-                                            <td className="px-4 py-3 text-[10px] font-bold text-gray-500 whitespace-nowrap">
+                                            <td className="px-4 py-3 text-[10px] font-medium text-gray-500 whitespace-nowrap">
                                                 {formatFecha(row.tiempo_fin)}
                                             </td>
                                         </tr>
@@ -316,7 +316,7 @@ export const RendimientoProduccion: React.FC = () => {
                 {searched && !loading && data.length === 0 && (
                     <div className="flex flex-col items-center justify-center h-64 text-center gap-3">
                         <AlertTriangle size={28} className="text-amber-400" />
-                        <p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest">
+                        <p className="text-[11px] text-gray-500 font-medium uppercase tracking-widest">
                             No hay registros de producción para este período.
                         </p>
                         <p className="text-[10px] text-gray-400">
@@ -331,7 +331,7 @@ export const RendimientoProduccion: React.FC = () => {
                         <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
                             <Layers size={32} className="text-gray-400" />
                         </div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest">
+                        <p className="text-[10px] font-medium uppercase tracking-widest">
                             Selecciona el rango de fechas y presiona Filtrar
                         </p>
                     </div>

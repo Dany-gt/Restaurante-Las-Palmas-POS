@@ -195,7 +195,7 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
                                 onClick={(e) => { e.stopPropagation(); if (hasChildren) toggleExpand(cat.id); }}
                             >
                                 {hasChildren && (
-                                    <span className="w-3.5 h-3.5 border border-gray-400 bg-white flex items-center justify-center text-[9px] font-bold text-gray-600 leading-none hover:border-[#106ebe] hover:text-[#106ebe]">
+                                    <span className="w-3.5 h-3.5 border border-gray-400 bg-white flex items-center justify-center text-[9px] font-medium text-gray-600 leading-none hover:border-[#106ebe] hover:text-[#106ebe]">
                                         {isExpanded ? '−' : '+'}
                                     </span>
                                 )}
@@ -214,7 +214,7 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
 
                             {/* Nombre: negrita si es categoría padre, normal si es subcategoría */}
                             <span
-                                className={`text-[10.5px] uppercase truncate leading-none flex-1 ${isParent ? 'font-bold text-slate-700' : 'font-normal text-slate-600'} ${isSelected ? 'text-[#106ebe]' : ''}`}
+                                className={`text-[10.5px] uppercase truncate leading-none flex-1 ${isParent ? 'font-medium text-slate-700' : 'font-normal text-slate-600'} ${isSelected ? 'text-[#106ebe]' : ''}`}
                                 onClick={(e) => { e.stopPropagation(); handleSelect(cat.id); }}
                             >
                                 {cat.name}
@@ -235,14 +235,14 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
             >
                 {/* Header */}
                 <div className="bg-[#106ebe] h-[26px] px-2 flex items-center border-b border-[#004578]">
-                    <span className="text-[10px] font-bold text-white uppercase tracking-tight">
+                    <span className="text-[10px] font-medium text-white uppercase tracking-tight">
                         Categorías de {tipo === 'menu' ? 'Menú' : 'Inventario'}
                     </span>
                 </div>
 
                 {/* Column Header */}
                 <div className="bg-[#f0f0f0] h-6 px-2 flex items-center border-b border-gray-300">
-                    <span className="text-[9px] font-bold text-gray-500 uppercase">Categoría</span>
+                    <span className="text-[9px] font-medium text-gray-500 uppercase">Categoría</span>
                 </div>
 
                 {/* Tree */}
@@ -350,7 +350,7 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
                         <div className="bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 cursor-move">
                             <div className="flex items-center gap-2">
                                 <Folder size={16} className="text-white/90" />
-                                <span className="text-[11px] font-bold uppercase tracking-tight">Mantenimiento de Categorías</span>
+                                <span className="text-[11px] font-medium uppercase tracking-tight">Mantenimiento de Categorías</span>
                             </div>
                             <div className="flex items-center h-full">
                                 <input 
@@ -405,16 +405,16 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
                         <div className="p-4 space-y-4">
                             {/* Datos de Categoría */}
                             <fieldset className="border border-gray-300 p-3 pt-1 bg-white/50">
-                                <legend className="px-2 text-[10px] font-bold text-[#106ebe] uppercase">Datos de Categoría</legend>
+                                <legend className="px-2 text-[10px] font-medium text-[#106ebe] uppercase">Datos de Categoría</legend>
                                 <div className="space-y-3 mt-1">
                                     <div className="flex items-center gap-4">
-                                        <label className="text-[10px] font-bold text-gray-600 w-24">Categoría</label>
+                                        <label className="text-[10px] font-medium text-gray-600 w-24">Categoría</label>
                                         <div className="flex-1 flex flex-col gap-1.5">
                                             <input
                                                 type="text"
                                                 value={categoryForm.name}
                                                 onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value.toUpperCase() })}
-                                                className="w-full h-7 bg-white border border-gray-400 px-2 text-[11px] font-bold text-slate-800 outline-none focus:border-[#106ebe] focus:ring-1 focus:ring-[#106ebe]/20 shadow-inner"
+                                                className="w-full h-7 bg-white border border-gray-400 px-2 text-[11px] font-medium text-slate-800 outline-none focus:border-[#106ebe] focus:ring-1 focus:ring-[#106ebe]/20 shadow-inner"
                                                 autoFocus
                                             />
                                             <label className="flex items-center gap-2 cursor-pointer group w-fit">
@@ -427,19 +427,19 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
                                                     />
                                                     {categoryForm.isSubCategory && <div className="w-2 h-2 bg-[#106ebe]" />}
                                                 </div>
-                                                <span className="text-[10px] font-bold text-gray-500 uppercase transition-colors group-hover:text-[#106ebe]">SubCategoría</span>
+                                                <span className="text-[10px] font-medium text-gray-500 uppercase transition-colors group-hover:text-[#106ebe]">SubCategoría</span>
                                             </label>
                                         </div>
                                     </div>
 
                                     <div className={`flex items-center gap-4 transition-all duration-200 ${categoryForm.isSubCategory ? 'opacity-100' : 'opacity-40 grayscale pointer-events-none'}`}>
-                                        <label className="text-[10px] font-bold text-gray-600 w-24">Categoría Padre</label>
+                                        <label className="text-[10px] font-medium text-gray-600 w-24">Categoría Padre</label>
                                         <div className="flex-1 relative">
                                             <div 
                                                 onClick={(e) => { e.stopPropagation(); if(categoryForm.isSubCategory) setShowParentSelect(!showParentSelect); }}
                                                 className="w-full h-7 bg-white border border-gray-400 px-2 flex items-center justify-between cursor-pointer"
                                             >
-                                                <span className="text-[11px] font-bold text-slate-800 truncate">
+                                                <span className="text-[11px] font-medium text-slate-800 truncate">
                                                     {categories.find(c => c.id === categoryForm.parent_id)?.name || '[ SELECCIONE CATEGORÍA PADRE ]'}
                                                 </span>
                                                 <span className="text-[8px] text-gray-400">▼</span>
@@ -449,7 +449,7 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
                                                 <div className="absolute top-full left-0 right-0 z-[300000] bg-white border border-gray-400 shadow-xl max-h-[140px] overflow-y-auto custom-scrollbar mt-0.5">
                                                     <div 
                                                         onClick={() => { setCategoryForm({...categoryForm, parent_id: null}); setShowParentSelect(false); }}
-                                                        className="px-2 py-1.5 text-[10px] font-bold text-blue-600 hover:bg-blue-50 cursor-pointer border-b border-gray-100 uppercase"
+                                                        className="px-2 py-1.5 text-[10px] font-medium text-blue-600 hover:bg-blue-50 cursor-pointer border-b border-gray-100 uppercase"
                                                     >
                                                         [ CATEGORÍA RAÍZ ]
                                                     </div>
@@ -457,7 +457,7 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
                                                         <div 
                                                             key={c.id}
                                                             onClick={() => { setCategoryForm({...categoryForm, parent_id: c.id}); setShowParentSelect(false); }}
-                                                            className={`px-2 py-1 text-[10px] font-bold uppercase cursor-pointer hover:bg-[#106ebe] hover:text-white ${categoryForm.parent_id === c.id ? 'bg-[#106ebe] text-white' : 'text-slate-700'}`}
+                                                            className={`px-2 py-1 text-[10px] font-medium uppercase cursor-pointer hover:bg-[#106ebe] hover:text-white ${categoryForm.parent_id === c.id ? 'bg-[#106ebe] text-white' : 'text-slate-700'}`}
                                                         >
                                                             {c.name}
                                                         </div>
@@ -471,14 +471,14 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
 
                             {/* Sucursales */}
                             <fieldset className="border border-gray-300 p-0 bg-white shadow-sm overflow-hidden">
-                                <legend className="px-2 ml-3 text-[10px] font-bold text-[#106ebe] uppercase bg-white border border-gray-300 border-b-white">Sucursales</legend>
+                                <legend className="px-2 ml-3 text-[10px] font-medium text-[#106ebe] uppercase bg-white border border-gray-300 border-b-white">Sucursales</legend>
                                 <div className="max-h-[160px] overflow-auto custom-scrollbar">
                                     <table className="w-full border-collapse">
                                         <thead className="sticky top-0 bg-[#f5f5f5] z-10">
                                             <tr className="h-6 border-b border-gray-300">
-                                                <th className="px-4 text-[9px] font-black text-gray-500 uppercase text-left border-r border-gray-200">Sucursal</th>
-                                                <th className="px-4 text-[9px] font-black text-gray-500 uppercase text-center border-r border-gray-200 w-24">Habilitado</th>
-                                                <th className="px-4 text-[9px] font-black text-gray-500 uppercase text-center w-36">Asignado a Sucursal</th>
+                                                <th className="px-4 text-[9px] font-semibold text-gray-500 uppercase text-left border-r border-gray-200">Sucursal</th>
+                                                <th className="px-4 text-[9px] font-semibold text-gray-500 uppercase text-center border-r border-gray-200 w-24">Habilitado</th>
+                                                <th className="px-4 text-[9px] font-semibold text-gray-500 uppercase text-center w-36">Asignado a Sucursal</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
@@ -491,7 +491,7 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
                                                             : [...categoryForm.branch_ids, branch.id];
                                                         setCategoryForm({...categoryForm, branch_ids: next});
                                                     }}>
-                                                        <td className="px-4 text-[10px] font-bold text-slate-700 uppercase">{branch.name}</td>
+                                                        <td className="px-4 text-[10px] font-medium text-slate-700 uppercase">{branch.name}</td>
                                                         <td className="px-4 border-r border-gray-100">
                                                             <div className="flex justify-center">
                                                                 <div className="w-3.5 h-3.5 border border-gray-400 bg-white flex items-center justify-center">
@@ -517,8 +517,8 @@ export const PanelCategorias: React.FC<PanelCategoriasProps> = ({ tipo, onSelect
 
                         {/* Status Bar style footer */}
                         <div className="h-6 bg-[#f0f0f0] border-t border-gray-300 px-3 flex items-center justify-between shrink-0">
-                            <span className="text-[9px] font-bold text-gray-400">Estado: Listo...</span>
-                            <span className="text-[9px] font-bold text-[#106ebe] font-mono tracking-tighter uppercase">{tipo === 'menu' ? 'Módulo Menú' : 'Módulo Insumos'}</span>
+                            <span className="text-[9px] font-medium text-gray-400">Estado: Listo...</span>
+                            <span className="text-[9px] font-medium text-[#106ebe] font-mono tracking-tighter uppercase">{tipo === 'menu' ? 'Módulo Menú' : 'Módulo Insumos'}</span>
                         </div>
                     </div>
                 </div>,

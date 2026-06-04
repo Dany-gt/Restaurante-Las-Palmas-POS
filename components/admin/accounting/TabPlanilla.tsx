@@ -263,16 +263,16 @@ export const TabPlanilla: React.FC<{ accentColor: string }> = ({ accentColor }) 
             {/* Controls */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <label className="text-[9px] font-black uppercase text-slate-500 tracking-widest self-center">Periodo:</label>
+                    <label className="text-[9px] font-semibold uppercase text-slate-500 tracking-widest self-center">Periodo:</label>
                     <input type="month" value={month} onChange={e => setMonth(e.target.value)}
-                        className="bg-white border border-slate-200 rounded px-3 py-1.5 text-[11px] font-bold outline-none focus:border-indigo-500 shadow-sm" />
+                        className="bg-white border border-slate-200 rounded px-3 py-1.5 text-[11px] font-medium outline-none focus:border-indigo-500 shadow-sm" />
                     
                     <div className="h-6 w-[1px] bg-slate-200 mx-2"></div>
 
                     <div className="flex gap-1 p-1 bg-slate-100 rounded-lg border border-slate-200">
                         {([1, 2] as const).map(q => (
                             <button key={q} onClick={() => setQuincena(q)}
-                                className={`px-3 py-1 text-[9px] font-black uppercase rounded-md transition-all ${quincena === q ? 'bg-[#106ebe] text-white shadow-sm' : 'text-black hover:bg-white'}`}>
+                                className={`px-3 py-1 text-[9px] font-semibold uppercase rounded-md transition-all ${quincena === q ? 'bg-[#106ebe] text-white shadow-sm' : 'text-black hover:bg-white'}`}>
                                 {q === 1 ? '1ª Quincena' : '2ª Quincena'}
                             </button>
                         ))}
@@ -281,7 +281,7 @@ export const TabPlanilla: React.FC<{ accentColor: string }> = ({ accentColor }) 
                     <button onClick={fetchData} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><RefreshCw size={14} className={loading ? 'animate-spin' : ''} /></button>
                 </div>
                 <button onClick={() => setShowAddEmp(true)}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-[#106ebe] hover:bg-blue-800 text-white text-[10px] font-black uppercase rounded transition-all">
+                    className="flex items-center gap-2 px-3 py-1.5 bg-[#106ebe] hover:bg-blue-800 text-white text-[10px] font-semibold uppercase rounded transition-all">
                     <Plus size={12} /> Agregar Empleado
                 </button>
             </div>
@@ -289,11 +289,11 @@ export const TabPlanilla: React.FC<{ accentColor: string }> = ({ accentColor }) 
             {/* SECCIÓN A — Planilla */}
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="bg-[#106ebe] px-4 py-3">
-                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Sección A — Planilla Mensual ({rows.length} empleados)</span>
+                    <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Sección A — Planilla Mensual ({rows.length} empleados)</span>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-[10px]">
-                        <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-black text-black uppercase tracking-wider">
+                        <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-semibold text-black uppercase tracking-wider">
                             <tr>
                                 <th className="px-3 py-2">#</th>
                                 <th className="px-3 py-2">Empleado</th>
@@ -311,8 +311,8 @@ export const TabPlanilla: React.FC<{ accentColor: string }> = ({ accentColor }) 
                         <tbody className="divide-y divide-slate-50">
                             {rows.map((r, i) => (
                                 <tr key={r.id} className="hover:bg-slate-50 transition-colors text-black">
-                                    <td className="px-3 py-2 font-bold">{i + 1}</td>
-                                    <td className="px-3 py-2 font-black text-black max-w-[160px] truncate">{r.full_name}</td>
+                                    <td className="px-3 py-2 font-medium">{i + 1}</td>
+                                    <td className="px-3 py-2 font-semibold text-black max-w-[160px] truncate">{r.full_name}</td>
                                     <td className="px-3 py-2">{r.position}</td>
                                     <td className="px-3 py-2">{r.department}</td>
                                     <td className="px-3 py-2 text-right">
@@ -332,11 +332,11 @@ export const TabPlanilla: React.FC<{ accentColor: string }> = ({ accentColor }) 
                                             onCommit={(h, n) => savePayrollRecord(r.id, h, n)}
                                         />
                                     </td>
-                                    <td className="px-3 py-2 text-right font-black text-black">{fmtQ(r.liquidoPagar)}</td>
+                                    <td className="px-3 py-2 text-right font-semibold text-black">{fmtQ(r.liquidoPagar)}</td>
                                     <td className="px-3 py-2">
                                         <button
                                             onClick={() => { setReceiptEmployee(r); setQuincena(1); }}
-                                            className="flex items-center gap-1 px-2 py-1 bg-[#106ebe] hover:bg-black text-white text-[8px] font-black uppercase rounded transition-all whitespace-nowrap">
+                                            className="flex items-center gap-1 px-2 py-1 bg-[#106ebe] hover:bg-black text-white text-[8px] font-semibold uppercase rounded transition-all whitespace-nowrap">
                                             🖨 Recibo
                                         </button>
                                     </td>
@@ -348,12 +348,12 @@ export const TabPlanilla: React.FC<{ accentColor: string }> = ({ accentColor }) 
                         </tbody>
                         <tfoot className="bg-emerald-50 border-t-2 border-emerald-200 text-black">
                             <tr>
-                                <td colSpan={4} className="px-3 py-3 text-[10px] font-black uppercase">TOTALES</td>
-                                <td className="px-3 py-3 text-right font-black text-[11px]">{fmtQ(totals.salarios)}</td>
-                                <td className="px-3 py-3 text-right font-black text-[11px] text-red-700">-{fmtQ(totals.igssLab)}</td>
-                                <td className="px-3 py-3 text-right font-black text-[11px] text-emerald-700">+{fmtQ(totals.bonos)}</td>
-                                <td className="px-3 py-3 text-right font-black text-[11px] text-orange-700">+{fmtQ(totals.horasExt)}</td>
-                                <td className="px-3 py-3 text-right font-black text-[13px]">{fmtQ(totals.liquido)}</td>
+                                <td colSpan={4} className="px-3 py-3 text-[10px] font-semibold uppercase">TOTALES</td>
+                                <td className="px-3 py-3 text-right font-semibold text-[11px]">{fmtQ(totals.salarios)}</td>
+                                <td className="px-3 py-3 text-right font-semibold text-[11px] text-red-700">-{fmtQ(totals.igssLab)}</td>
+                                <td className="px-3 py-3 text-right font-semibold text-[11px] text-emerald-700">+{fmtQ(totals.bonos)}</td>
+                                <td className="px-3 py-3 text-right font-semibold text-[11px] text-orange-700">+{fmtQ(totals.horasExt)}</td>
+                                <td className="px-3 py-3 text-right font-semibold text-[13px]">{fmtQ(totals.liquido)}</td>
                                 <td></td>
                             </tr>
                         </tfoot>
@@ -365,32 +365,32 @@ export const TabPlanilla: React.FC<{ accentColor: string }> = ({ accentColor }) 
                 {/* SECCIÓN B — Cuotas Patronales IGSS */}
                 <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="bg-[#106ebe] px-4 py-3 flex items-center justify-between">
-                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Resumen de Planilla (Formulario DR-001-2)</span>
-                    {igssStatus === 'paid' && <span className="flex items-center gap-1 text-[9px] font-black text-emerald-300 uppercase"><CheckCircle2 size={10} />Planilla Aceptada</span>}
+                    <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Resumen de Planilla (Formulario DR-001-2)</span>
+                    {igssStatus === 'paid' && <span className="flex items-center gap-1 text-[9px] font-semibold text-emerald-300 uppercase"><CheckCircle2 size={10} />Planilla Aceptada</span>}
                 </div>
                     <div className="p-4 space-y-4">
                         <div className="space-y-1.5">
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 border-b border-slate-100 pb-1">1. Montos que debe pagar el patrono</p>
+                            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1 border-b border-slate-100 pb-1">1. Montos que debe pagar el patrono</p>
                             <PatRow label="IGSS (Cuota Patronal 10.67%)" value={igssPatronal} />
                             <PatRow label="INTECAP (1.00%)" value={intecap} />
                             <PatRow label="IRTRA (1.00%)" value={irtra} />
                         </div>
 
                         <div className="space-y-1.5">
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 border-b border-slate-100 pb-1">2. Montos que debe pagar el afiliado</p>
+                            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1 border-b border-slate-100 pb-1">2. Montos que debe pagar el afiliado</p>
                             <PatRow label="IGSS (Cuota Afiliado 4.83%)" value={totalRetLabMes} />
                         </div>
                         
                         <div className="border-t-2 border-[#106ebe] mt-2 pt-3 flex items-center justify-between">
                             <div>
-                                <p className="text-[10px] font-black text-black uppercase tracking-tighter">Monto total a pagar</p>
-                                <p className="text-xl font-black text-black">{fmtQ(totalIGSS)}</p>
-                                <p className="text-[9px] font-bold text-[#106ebe] uppercase tracking-widest mt-0.5">(Patrono + Afiliados)</p>
-                                <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase">Límite: día 20 del mes</p>
+                                <p className="text-[10px] font-semibold text-black uppercase tracking-tighter">Monto total a pagar</p>
+                                <p className="text-xl font-semibold text-black">{fmtQ(totalIGSS)}</p>
+                                <p className="text-[9px] font-medium text-[#106ebe] uppercase tracking-widest mt-0.5">(Patrono + Afiliados)</p>
+                                <p className="text-[8px] font-medium text-slate-400 mt-1 uppercase">Límite: día 20 del mes</p>
                             </div>
                             {igssStatus === 'pending' && (
                                 <button onClick={markIGSSPaid} disabled={saving}
-                                    className="flex items-center gap-1 px-3 py-2 bg-[#106ebe] hover:bg-blue-800 text-white text-[9px] font-black uppercase rounded transition-all">
+                                    className="flex items-center gap-1 px-3 py-2 bg-[#106ebe] hover:bg-blue-800 text-white text-[9px] font-semibold uppercase rounded transition-all">
                                     {saving ? <Loader2 size={11} className="animate-spin" /> : <CheckCircle2 size={11} />}
                                     Marcar Pagado
                                 </button>
@@ -402,7 +402,7 @@ export const TabPlanilla: React.FC<{ accentColor: string }> = ({ accentColor }) 
                 {/* SECCIÓN C — Provisiones */}
                 <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                     <div className="bg-[#106ebe] px-4 py-3">
-                        <span className="text-[10px] font-black text-white uppercase tracking-widest">Sección C — Provisiones Mensuales</span>
+                        <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Sección C — Provisiones Mensuales</span>
                     </div>
                     <div className="p-4 space-y-2">
                         {[
@@ -413,12 +413,12 @@ export const TabPlanilla: React.FC<{ accentColor: string }> = ({ accentColor }) 
                         ].map((p, i) => <PatRow key={i} label={p.label} value={p.value} />)}
                         <div className="border-t-2 border-indigo-200 mt-2 pt-3">
                             <div className="flex items-center justify-between mb-1">
-                                <p className="text-[10px] font-black text-black uppercase">Total Provisión Mensual</p>
-                                <p className="text-[14px] font-black text-black">{fmtQ(totalProv)}</p>
+                                <p className="text-[10px] font-semibold text-black uppercase">Total Provisión Mensual</p>
+                                <p className="text-[14px] font-semibold text-black">{fmtQ(totalProv)}</p>
                             </div>
                             <div className="flex items-center justify-between">
-                                <p className="text-[10px] font-black text-black">Acumulado del Año ({currentMonthNum} meses)</p>
-                                <p className="text-[12px] font-black text-black">{fmtQ(acumProv)}</p>
+                                <p className="text-[10px] font-semibold text-black">Acumulado del Año ({currentMonthNum} meses)</p>
+                                <p className="text-[12px] font-semibold text-black">{fmtQ(acumProv)}</p>
                             </div>
                         </div>
                     </div>
@@ -443,7 +443,7 @@ export const TabPlanilla: React.FC<{ accentColor: string }> = ({ accentColor }) 
                 <div className="fixed inset-0 z-[500] bg-black/40 flex items-center justify-center p-4">
                     <div className="bg-white rounded-xl shadow-2xl w-full max-w-md border border-slate-200">
                         <div className="bg-[#106ebe] px-5 py-3 flex items-center justify-between rounded-t-xl">
-                            <span className="text-[11px] font-black text-white uppercase">Nuevo Empleado</span>
+                            <span className="text-[11px] font-semibold text-white uppercase">Nuevo Empleado</span>
                             <button onClick={() => setShowAddEmp(false)} className="text-white/60 hover:text-white"><X size={16} /></button>
                         </div>
                         <div className="p-5 space-y-3">
@@ -454,17 +454,17 @@ export const TabPlanilla: React.FC<{ accentColor: string }> = ({ accentColor }) 
                                 { label: 'Salario Base (Q)', key: 'base_salary', type: 'number' },
                             ] as { label: string; key: keyof typeof newEmp; type: string }[]).map(f => (
                                 <div key={f.key}>
-                                    <label className="block text-[9px] font-black uppercase text-slate-500 tracking-widest mb-1">{f.label}</label>
+                                    <label className="block text-[9px] font-semibold uppercase text-slate-500 tracking-widest mb-1">{f.label}</label>
                                     <input type={f.type} value={newEmp[f.key]}
                                         onChange={e => setNewEmp(p => ({ ...p, [f.key]: f.type === 'number' ? Number(e.target.value) : e.target.value }))}
-                                        className="w-full border border-slate-200 rounded px-3 py-2 text-[11px] font-bold outline-none focus:border-emerald-500" />
+                                        className="w-full border border-slate-200 rounded px-3 py-2 text-[11px] font-medium outline-none focus:border-emerald-500" />
                                 </div>
                             ))}
                         </div>
                         <div className="px-5 pb-5 flex justify-end gap-2">
-                            <button onClick={() => setShowAddEmp(false)} className="px-4 py-2 text-[10px] font-black uppercase text-slate-600 hover:bg-slate-100 rounded">Cancelar</button>
+                            <button onClick={() => setShowAddEmp(false)} className="px-4 py-2 text-[10px] font-semibold uppercase text-slate-600 hover:bg-slate-100 rounded">Cancelar</button>
                             <button onClick={addEmployee} disabled={saving}
-                                className="flex items-center gap-2 px-5 py-2 bg-[#106ebe] text-white text-[10px] font-black uppercase rounded hover:bg-blue-800 transition-all">
+                                className="flex items-center gap-2 px-5 py-2 bg-[#106ebe] text-white text-[10px] font-semibold uppercase rounded hover:bg-blue-800 transition-all">
                                 <Save size={12} /> Guardar
                             </button>
                         </div>
@@ -477,8 +477,8 @@ export const TabPlanilla: React.FC<{ accentColor: string }> = ({ accentColor }) 
 
 const PatRow: React.FC<{ label: string; value: number }> = ({ label, value }) => (
     <div className="flex items-center justify-between py-1">
-        <span className="text-[10px] font-black text-black">{label}</span>
-        <span className="text-[11px] font-black text-black tabular-nums">{fmtQ(value)}</span>
+        <span className="text-[10px] font-semibold text-black">{label}</span>
+        <span className="text-[11px] font-semibold text-black tabular-nums">{fmtQ(value)}</span>
     </div>
 );
 
@@ -526,7 +526,7 @@ const SalaryCell: React.FC<{ employeeId: string; value: number; onSaved: () => v
                 onChange={e => setDraft(e.target.value)}
                 onBlur={commit}
                 onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') { setDraft(value.toString()); setEditing(false); } }}
-                className="w-28 text-right border-2 border-emerald-500 rounded px-2 py-0.5 text-[11px] font-black text-gray-900 bg-white outline-none focus:ring-2 focus:ring-emerald-300"
+                className="w-28 text-right border-2 border-emerald-500 rounded px-2 py-0.5 text-[11px] font-semibold text-gray-900 bg-white outline-none focus:ring-2 focus:ring-emerald-300"
             />
         );
     }
@@ -538,7 +538,7 @@ const SalaryCell: React.FC<{ employeeId: string; value: number; onSaved: () => v
             className="group flex items-center justify-end gap-1 w-full"
             disabled={saving}
         >
-            <span className="text-[11px] font-black font-mono text-black tabular-nums group-hover:text-emerald-700 transition-colors">
+            <span className="text-[11px] font-semibold font-mono text-black tabular-nums group-hover:text-emerald-700 transition-colors">
                 {saving ? '...' : fmtQ(value)}
             </span>
             <span className="text-[8px] text-slate-300 group-hover:text-emerald-500 transition-colors">✎</span>
@@ -571,18 +571,18 @@ const OvertimeCell: React.FC<{
                     type="number" min={0} step={0.5} value={draftHours} autoFocus
                     onChange={e => setDraftHours(e.target.value)}
                     placeholder="Horas"
-                    className="w-full text-right border border-orange-200 rounded px-2 py-0.5 text-[11px] font-black"
+                    className="w-full text-right border border-orange-200 rounded px-2 py-0.5 text-[11px] font-semibold"
                 />
                 <input
                     type="text" value={draftNote}
                     onChange={e => setDraftNote(e.target.value)}
                     placeholder="Nota (ej: Semana Santa)"
-                    className="w-full border border-slate-200 rounded px-2 py-0.5 text-[10px] font-bold outline-none focus:border-indigo-400"
+                    className="w-full border border-slate-200 rounded px-2 py-0.5 text-[10px] font-medium outline-none focus:border-indigo-400"
                     onKeyDown={e => { if (e.key === 'Enter') handleCommit(); if (e.key === 'Escape') setEditing(false); }}
                 />
                 <div className="flex justify-end gap-1">
-                    <button onClick={() => setEditing(false)} className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[8px] rounded uppercase font-black">X</button>
-                    <button onClick={handleCommit} className="px-1.5 py-0.5 bg-emerald-600 text-white text-[8px] rounded uppercase font-black">✔ Guardar</button>
+                    <button onClick={() => setEditing(false)} className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[8px] rounded uppercase font-semibold">X</button>
+                    <button onClick={handleCommit} className="px-1.5 py-0.5 bg-emerald-600 text-white text-[8px] rounded uppercase font-semibold">✔ Guardar</button>
                 </div>
             </div>
         );
@@ -592,11 +592,11 @@ const OvertimeCell: React.FC<{
         <button onClick={() => { setDraftHours(hours.toString()); setDraftNote(note); setEditing(true); }}
             title="Clic para ingresar horas y nota"
             className="group flex flex-col items-end w-full min-h-[40px] justify-center">
-            <span className={`text-[11px] font-black tabular-nums transition-colors ${hours > 0 ? 'text-orange-600 group-hover:text-orange-800' : 'text-slate-300 group-hover:text-orange-400'}`}>
+            <span className={`text-[11px] font-semibold tabular-nums transition-colors ${hours > 0 ? 'text-orange-600 group-hover:text-orange-800' : 'text-slate-300 group-hover:text-orange-400'}`}>
                 {hours > 0 ? `${hours}h` : '+ Horas Extras'}{hours > 0 && <span className="text-slate-300"> ✎</span>}
             </span>
-            {hours > 0 && note && <span className="text-[8px] font-bold text-slate-500 italic max-w-[100px] truncate">{note}</span>}
-            {hours > 0 && <span className="text-[8px] font-black text-orange-500 tabular-nums">{fmtQ(pay)}</span>}
+            {hours > 0 && note && <span className="text-[8px] font-medium text-slate-500 italic max-w-[100px] truncate">{note}</span>}
+            {hours > 0 && <span className="text-[8px] font-semibold text-orange-500 tabular-nums">{fmtQ(pay)}</span>}
         </button>
     );
 };
@@ -623,11 +623,11 @@ const IGSSHistory: React.FC<{ totalIGSS: number; year: number }> = ({ totalIGSS,
     return (
         <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="bg-[#106ebe] px-4 py-3">
-                <span className="text-[10px] font-black text-white uppercase tracking-widest">Sección D — Historial de Pagos IGSS {year}</span>
+                <span className="text-[10px] font-semibold text-white uppercase tracking-widest">Sección D — Historial de Pagos IGSS {year}</span>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left text-[10px]">
-                    <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-black text-black uppercase tracking-wider">
+                    <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-semibold text-black uppercase tracking-wider">
                         <tr>
                             <th className="px-4 py-2">Mes</th>
                             <th className="px-4 py-2 text-right">Monto IGSS</th>
@@ -643,15 +643,15 @@ const IGSSHistory: React.FC<{ totalIGSS: number; year: number }> = ({ totalIGSS,
                             const isPast = new Date() > new Date(`${year}-${String(mi + 1).padStart(2, '0')}-20`);
                             return (
                                 <tr key={mi} className={`hover:bg-slate-50 text-black ${rec?.status === 'paid' ? '' : isPast ? 'bg-red-50/30' : ''}`}>
-                                    <td className="px-4 py-2.5 font-black">{mName}</td>
-                                    <td className="px-4 py-2.5 text-right font-black">{fmtQ(rec?.amount_due || totalIGSS)}</td>
+                                    <td className="px-4 py-2.5 font-semibold">{mName}</td>
+                                    <td className="px-4 py-2.5 text-right font-semibold">{fmtQ(rec?.amount_due || totalIGSS)}</td>
                                     <td className="px-4 py-2.5 text-black">{rec?.payment_date ? dayjs(rec.payment_date).format('DD/MM/YYYY') : '—'}</td>
                                     <td className="px-4 py-2.5">
                                         {rec?.status === 'paid'
-                                            ? <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[8px] font-black uppercase rounded-full">Pagado</span>
+                                            ? <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[8px] font-semibold uppercase rounded-full">Pagado</span>
                                             : isPast
-                                                ? <span className="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 text-[8px] font-black uppercase rounded-full">Vencido</span>
-                                                : <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 text-[8px] font-black uppercase rounded-full">Pendiente</span>
+                                                ? <span className="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 text-[8px] font-semibold uppercase rounded-full">Vencido</span>
+                                                : <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 text-[8px] font-semibold uppercase rounded-full">Pendiente</span>
                                         }
                                     </td>
                                     <td className="px-4 py-2.5 text-slate-400 text-[9px]">—</td>
@@ -751,12 +751,12 @@ const PayStubModal: React.FC<PayStubProps> = ({ employee, month, quincena, onQui
                 {/* Modal Header */}
                 <div className="bg-[#106ebe] px-5 py-3 flex items-center justify-between rounded-t-xl no-print">
                     <div>
-                        <p className="text-[11px] font-black text-white uppercase tracking-widest">Recibo de Salario Quincenal</p>
+                        <p className="text-[11px] font-semibold text-white uppercase tracking-widest">Recibo de Salario Quincenal</p>
                         <p className="text-[9px] text-white/50 mt-0.5">{employee.full_name}</p>
                     </div>
                     <div className="flex items-center gap-4">
-                        <span className="text-[9px] text-emerald-200 font-bold uppercase tracking-widest mr-4">✎ Hay campos editables en esta vista</span>
-                        <button onClick={handlePrint} className="flex items-center gap-2 px-3 py-1.5 bg-white text-[#106ebe] text-[10px] font-black uppercase rounded hover:bg-slate-100 transition-all">
+                        <span className="text-[9px] text-emerald-200 font-medium uppercase tracking-widest mr-4">✎ Hay campos editables en esta vista</span>
+                        <button onClick={handlePrint} className="flex items-center gap-2 px-3 py-1.5 bg-white text-[#106ebe] text-[10px] font-semibold uppercase rounded hover:bg-slate-100 transition-all">
                             IMPRIMIR RECIBO
                         </button>
                         <button onClick={onClose} className="text-white/50 hover:text-white transition-colors"><X size={16} /></button>
@@ -765,10 +765,10 @@ const PayStubModal: React.FC<PayStubProps> = ({ employee, month, quincena, onQui
 
                 {/* Quincena selector */}
                 <div className="flex gap-2 px-5 py-3 border-b border-slate-100 bg-slate-50 no-print">
-                    <label className="text-[9px] font-black uppercase text-slate-500 tracking-widest self-center">Quincena:</label>
+                    <label className="text-[9px] font-semibold uppercase text-slate-500 tracking-widest self-center">Quincena:</label>
                     {([1, 2] as const).map(q => (
                         <button key={q} onClick={() => onQuincenaChange(q)}
-                            className={`px-4 py-1.5 text-[10px] font-black uppercase rounded transition-all ${quincena === q ? 'bg-[#106ebe] text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}`}>
+                            className={`px-4 py-1.5 text-[10px] font-semibold uppercase rounded transition-all ${quincena === q ? 'bg-[#106ebe] text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}`}>
                             {q === 1 ? '1ª — Días 1 al 15' : `2ª — Días 16 al ${m.endOf('month').date()}`}
                         </button>
                     ))}
@@ -936,13 +936,13 @@ const PayStubModal: React.FC<PayStubProps> = ({ employee, month, quincena, onQui
 
 const StubRow: React.FC<{ label: string; type: 'ingreso' | 'deduccion'; value: number }> = ({ label, type, value }) => (
     <tr className="hover:bg-slate-50">
-        <td className="px-5 py-2.5 font-bold text-[#0f172a] text-[10px]">{label}</td>
+        <td className="px-5 py-2.5 font-medium text-[#0f172a] text-[10px]">{label}</td>
         <td className="px-5 py-2.5 text-center">
-            <span className={`px-2 py-0.5 text-[8px] font-black uppercase rounded-full ${type === 'ingreso' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+            <span className={`px-2 py-0.5 text-[8px] font-semibold uppercase rounded-full ${type === 'ingreso' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
                 {type === 'ingreso' ? '+ Ingreso' : '− Deducción'}
             </span>
         </td>
-        <td className={`px-5 py-2.5 text-right font-black tabular-nums text-[11px] ${type === 'ingreso' ? 'text-emerald-700' : 'text-red-600'}`}>
+        <td className={`px-5 py-2.5 text-right font-semibold tabular-nums text-[11px] ${type === 'ingreso' ? 'text-emerald-700' : 'text-red-600'}`}>
             {type === 'deduccion' ? '-' : ''}{fmtQ(value)}
         </td>
     </tr>

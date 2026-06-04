@@ -124,7 +124,7 @@ export const CategoriesAdmin: React.FC = () => {
       <div className="flex items-center justify-end mb-6 md:mb-8">
         <button
           onClick={() => { resetForm(); setShowModal(true); }}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-slate-800 px-4 py-3 md:px-6 md:py-3 rounded-2xl font-black text-[10px] md:text-xs tracking-widest uppercase transition-all shadow-lg active:scale-95"
+          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-slate-800 px-4 py-3 md:px-6 md:py-3 rounded-2xl font-semibold text-[10px] md:text-xs tracking-widest uppercase transition-all shadow-lg active:scale-95"
         >
           <Plus size={18} /> NUEVA<span className="hidden xs:inline"> CATEGORÍA</span>
         </button>
@@ -150,10 +150,10 @@ export const CategoriesAdmin: React.FC = () => {
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm md:text-lg font-black tracking-tight text-slate-800 truncate">{main.name}</span>
-                        {!main.is_enabled && <span className="text-[8px] md:text-[10px] bg-red-500/20 text-red-500 px-1.5 md:px-2 rounded-md font-bold uppercase">Deshabilitada</span>}
+                        <span className="text-sm md:text-lg font-semibold tracking-tight text-slate-800 truncate">{main.name}</span>
+                        {!main.is_enabled && <span className="text-[8px] md:text-[10px] bg-red-500/20 text-red-500 px-1.5 md:px-2 rounded-md font-medium uppercase">Deshabilitada</span>}
                       </div>
-                      <div className="flex flex-wrap gap-x-2 text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      <div className="flex flex-wrap gap-x-2 text-[8px] md:text-[10px] font-medium text-slate-400 uppercase tracking-widest">
                         <span className="hidden sm:inline">Categoría Principal</span>
                         <span className="text-indigo-400">Orden: {main.priority || 100}</span>
                         <span className="text-slate-300">• {categories.filter(c => c.parent_id === main.id).length} sub</span>
@@ -165,27 +165,27 @@ export const CategoriesAdmin: React.FC = () => {
                       <div className={`text-slate-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
                         <ChevronDown size={18} />
                       </div>
-                      <span className="text-[9px] font-bold uppercase tracking-widest">{isExpanded ? 'Cerrar' : 'Ver sub'}</span>
+                      <span className="text-[9px] font-medium uppercase tracking-widest">{isExpanded ? 'Cerrar' : 'Ver sub'}</span>
                     </div>
                     <div className="flex gap-1 md:gap-2">
                       <button
                         onClick={(e) => { e.stopPropagation(); handleEdit(main); }}
                         title={`Editar categoría ${main.name}`}
-                        className="p-2 md:p-2.5 bg-amber-500/10 hover:bg-amber-500/20 rounded-xl text-amber-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-1 md:gap-2"
+                        className="p-2 md:p-2.5 bg-amber-500/10 hover:bg-amber-500/20 rounded-xl text-amber-500 text-[10px] font-semibold uppercase tracking-widest flex items-center gap-1 md:gap-2"
                       >
                         <Edit2 size={14} /> <span className="hidden xs:inline">Editar</span>
                       </button>
                       <button
                         onClick={() => { setParentId(main.id); setEditingCategory(null); setNewName(''); setNewPriority('100'); setNewImage(''); setIsEnabled(true); setShowModal(true); }}
                         title={`Añadir subcategoría a ${main.name}`}
-                        className="p-2 md:p-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 rounded-xl text-indigo-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-1 md:gap-2"
+                        className="p-2 md:p-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 rounded-xl text-indigo-400 text-[10px] font-semibold uppercase tracking-widest flex items-center gap-1 md:gap-2"
                       >
                         <Plus size={14} /> <span className="hidden xs:inline">Sub</span>
                       </button>
                       <button
                         onClick={() => setConfirmDelete(main.id)}
                         title={`Eliminar categoría ${main.name}`}
-                        className="p-2 md:p-2.5 bg-red-500/10 hover:bg-red-500/20 rounded-xl text-red-400 font-black"
+                        className="p-2 md:p-2.5 bg-red-500/10 hover:bg-red-500/20 rounded-xl text-red-400 font-semibold"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -213,8 +213,8 @@ export const CategoriesAdmin: React.FC = () => {
                             </div>
                             <div className="min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-xs md:text-sm font-bold tracking-tight text-slate-700 truncate">{sub.name}</span>
-                                {!sub.is_enabled && <span className="text-[8px] md:text-[9px] bg-red-500/20 text-red-500 px-1.5 rounded-md font-bold uppercase">Deshabilitada</span>}
+                                <span className="text-xs md:text-sm font-medium tracking-tight text-slate-700 truncate">{sub.name}</span>
+                                {!sub.is_enabled && <span className="text-[8px] md:text-[9px] bg-red-500/20 text-red-500 px-1.5 rounded-md font-medium uppercase">Deshabilitada</span>}
                               </div>
                               <span className="text-[8px] md:text-[9px] text-slate-400 font-semibold uppercase">Prioridad: {sub.priority || 100}</span>
                             </div>
@@ -239,7 +239,7 @@ export const CategoriesAdmin: React.FC = () => {
                       ))}
                       {categories.filter(c => c.parent_id === main.id).length === 0 && (
                         <div className="p-4 rounded-xl flex items-center justify-center border border-dashed border-slate-200 bg-slate-50/50">
-                          <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 text-center">No hay subcategorías registradas</span>
+                          <span className="text-[10px] uppercase tracking-widest font-medium text-slate-400 text-center">No hay subcategorías registradas</span>
                         </div>
                       )}
                     </div>
@@ -258,8 +258,8 @@ export const CategoriesAdmin: React.FC = () => {
             <div className="w-full h-[600px] md:h-auto md:max-w-2xl bg-white md:rounded-sm shadow-2xl relative flex flex-col overflow-y-auto pointer-events-auto border border-gray-300">
               <div className="flex justify-between items-center mb-6 md:mb-8">
                 <div className="space-y-1">
-                  <h3 className="text-lg md:text-2xl font-black uppercase text-slate-800 tracking-tight">{editingCategory ? 'Editar Categoría' : parent_id ? 'Nueva Subcategoría' : 'Nueva Categoría'}</h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Configuración de Niveles</p>
+                  <h3 className="text-lg md:text-2xl font-semibold uppercase text-slate-800 tracking-tight">{editingCategory ? 'Editar Categoría' : parent_id ? 'Nueva Subcategoría' : 'Nueva Categoría'}</h3>
+                  <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest leading-none">Configuración de Niveles</p>
                 </div>
                 <button
                   onClick={() => setShowModal(false)}
@@ -274,14 +274,14 @@ export const CategoriesAdmin: React.FC = () => {
                 <div className="space-y-4 md:space-y-6">
                   {parent_id && (
                     <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
-                      <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Rama Principal</p>
-                      <p className="text-sm font-bold mt-1 uppercase text-slate-700">{categories.find(c => c.id === parent_id)?.name}</p>
+                      <p className="text-[10px] font-semibold text-indigo-400 uppercase tracking-widest">Rama Principal</p>
+                      <p className="text-sm font-medium mt-1 uppercase text-slate-700">{categories.find(c => c.id === parent_id)?.name}</p>
                     </div>
                   )}
 
                   {!parent_id && !editingCategory && (
                     <div>
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Vincular a Padre (Opcional)</label>
+                      <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2 block ml-1">Vincular a Padre (Opcional)</label>
                       <select value={parent_id || ""} onChange={e => setParentId(e.target.value)} className="form-input w-full bg-slate-50 border-slate-200">
                         <option value="">Ninguno (Categoría Principal)</option>
                         {mainCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -290,7 +290,7 @@ export const CategoriesAdmin: React.FC = () => {
                   )}
 
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Nombre Visual</label>
+                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2 block ml-1">Nombre Visual</label>
                     <input
                       value={newName}
                       onChange={e => setNewName(e.target.value)}
@@ -302,7 +302,7 @@ export const CategoriesAdmin: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Orden de Visualización</label>
+                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2 block ml-1">Orden de Visualización</label>
                     <input
                       value={newPriority}
                       onChange={e => setNewPriority(e.target.value)}
@@ -315,7 +315,7 @@ export const CategoriesAdmin: React.FC = () => {
                 {/* Right Column: Media & Status */}
                 <div className="space-y-4 md:space-y-6">
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Imagen Representativa</label>
+                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2 block ml-1">Imagen Representativa</label>
                     <div className="group relative w-full aspect-video bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-3 overflow-hidden transition-all hover:bg-slate-100/80 hover:border-indigo-300 shadow-inner">
                       {newImage ? (
                         <>
@@ -335,8 +335,8 @@ export const CategoriesAdmin: React.FC = () => {
                             <Plus size={24} />
                           </div>
                           <div className="text-center">
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Subir Imagen</p>
-                            <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest mt-1">Formatos: JPG, PNG</p>
+                            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Subir Imagen</p>
+                            <p className="text-[9px] font-medium text-slate-300 uppercase tracking-widest mt-1">Formatos: JPG, PNG</p>
                           </div>
                           <input
                             type="file"
@@ -369,8 +369,8 @@ export const CategoriesAdmin: React.FC = () => {
                   <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <p className="text-xs font-black text-slate-700 uppercase tracking-tight">Estado de Categoría</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Visible en el Menú</p>
+                        <p className="text-xs font-semibold text-slate-700 uppercase tracking-tight">Estado de Categoría</p>
+                        <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Visible en el Menú</p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input

@@ -338,7 +338,7 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                         <select
                             value={filterBranch}
                             onChange={e => setFilterBranch(e.target.value)}
-                            className="bg-transparent outline-none text-[10px] font-black uppercase text-slate-700 w-full"
+                            className="bg-transparent outline-none text-[10px] font-semibold uppercase text-slate-700 w-full"
                         >
                             <option value="ALL">TODAS SUCURSALES</option>
                             {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -358,7 +358,7 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                                 if (!e.target.value) setFilterProduct('ALL');
                             }}
                             onFocus={() => { setSearchProduct(''); setShowProductDropdown(true); }}
-                            className="w-full pl-8 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-700 outline-none focus:border-indigo-400"
+                            className="w-full pl-8 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-medium text-slate-700 outline-none focus:border-indigo-400"
                         />
                         {(filterProduct !== 'ALL') && (
                             <button onClick={() => { setFilterProduct('ALL'); setSearchProduct(''); }}
@@ -369,7 +369,7 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                         {showProductDropdown && (
                             <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-2xl border border-slate-100 overflow-hidden max-h-52 overflow-y-auto">
                                 <button onClick={() => { setFilterProduct('ALL'); setSearchProduct(''); setShowProductDropdown(false); }}
-                                    className="w-full text-left px-4 py-2 text-[10px] font-black text-slate-400 hover:bg-slate-50 border-b border-slate-50">
+                                    className="w-full text-left px-4 py-2 text-[10px] font-semibold text-slate-400 hover:bg-slate-50 border-b border-slate-50">
                                     TODOS LOS PRODUCTOS
                                 </button>
                                 {products
@@ -378,7 +378,7 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                                     .map(p => (
                                         <button key={p.id}
                                             onClick={() => { setFilterProduct(p.id); setSearchProduct(''); setShowProductDropdown(false); }}
-                                            className="w-full text-left px-4 py-2 text-[10px] font-bold uppercase text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 border-b border-slate-50 last:border-0">
+                                            className="w-full text-left px-4 py-2 text-[10px] font-medium uppercase text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 border-b border-slate-50 last:border-0">
                                             {p.display_name}
                                         </button>
                                     ))}
@@ -392,7 +392,7 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                         <select
                             value={filterType}
                             onChange={e => setFilterType(e.target.value as MovementType)}
-                            className="bg-transparent outline-none text-[10px] font-black uppercase text-slate-700"
+                            className="bg-transparent outline-none text-[10px] font-semibold uppercase text-slate-700"
                         >
                             <option value="ALL">TODOS LOS TIPOS</option>
                             <option value="COMPRA">COMPRA</option>
@@ -408,10 +408,10 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                     <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
                         <Calendar size={13} className="text-slate-400" />
                         <input type="date" value={filterStart} onChange={e => setFilterStart(e.target.value)}
-                            className="bg-transparent outline-none text-[10px] font-black text-slate-700" />
+                            className="bg-transparent outline-none text-[10px] font-semibold text-slate-700" />
                         <ArrowRight size={12} className="text-slate-300" />
                         <input type="date" value={filterEnd} onChange={e => setFilterEnd(e.target.value)}
-                            className="bg-transparent outline-none text-[10px] font-black text-slate-700" />
+                            className="bg-transparent outline-none text-[10px] font-semibold text-slate-700" />
                     </div>
 
                     <button onClick={fetchKardex} className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 transition-all" title="Actualizar">
@@ -424,14 +424,14 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                     <button
                         onClick={handleExportExcel}
                         disabled={rows.length === 0}
-                        className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white px-4 py-2 rounded-xl font-black text-[10px] tracking-widest uppercase transition-all active:scale-95"
+                        className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white px-4 py-2 rounded-xl font-semibold text-[10px] tracking-widest uppercase transition-all active:scale-95"
                     >
                         <FileSpreadsheet size={13} /> Exportar Excel
                     </button>
                     <button
                         onClick={handlePrint}
                         disabled={rows.length === 0}
-                        className="flex items-center gap-2 bg-[#106ebe] hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-white px-4 py-2 rounded-xl font-black text-[10px] tracking-widest uppercase transition-all active:scale-95"
+                        className="flex items-center gap-2 bg-[#106ebe] hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-white px-4 py-2 rounded-xl font-semibold text-[10px] tracking-widest uppercase transition-all active:scale-95"
                     >
                         <Printer size={13} /> Imprimir PDF
                     </button>
@@ -445,8 +445,8 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                         <FileText size={16} />
                     </div>
                     <div>
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Registros</span>
-                        <span className="text-base font-black text-slate-800">{rows.length.toLocaleString()}</span>
+                        <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest block">Registros</span>
+                        <span className="text-base font-semibold text-slate-800">{rows.length.toLocaleString()}</span>
                     </div>
                 </div>
                 <div className="bg-white p-3 rounded-2xl border border-emerald-100 shadow-sm flex items-center gap-3">
@@ -454,8 +454,8 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                         <TrendingUp size={16} />
                     </div>
                     <div>
-                        <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest block">Total Entradas</span>
-                        <span className="text-base font-black text-emerald-600">+{totalIn.toLocaleString()}</span>
+                        <span className="text-[9px] font-semibold text-emerald-400 uppercase tracking-widest block">Total Entradas</span>
+                        <span className="text-base font-semibold text-emerald-600">+{totalIn.toLocaleString()}</span>
                     </div>
                 </div>
                 <div className="bg-white p-3 rounded-2xl border border-rose-100 shadow-sm flex items-center gap-3">
@@ -463,8 +463,8 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                         <TrendingDown size={16} />
                     </div>
                     <div>
-                        <span className="text-[9px] font-black text-rose-400 uppercase tracking-widest block">Total Salidas</span>
-                        <span className="text-base font-black text-rose-600">-{totalOut.toLocaleString()}</span>
+                        <span className="text-[9px] font-semibold text-rose-400 uppercase tracking-widest block">Total Salidas</span>
+                        <span className="text-base font-semibold text-rose-600">-{totalOut.toLocaleString()}</span>
                     </div>
                 </div>
                 <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
@@ -472,8 +472,8 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                         <BarChart3 size={16} />
                     </div>
                     <div>
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Último Saldo Val.</span>
-                        <span className="text-base font-black text-slate-800">Q{lastBalanceValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                        <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest block">Último Saldo Val.</span>
+                        <span className="text-base font-semibold text-slate-800">Q{lastBalanceValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                     </div>
                 </div>
             </div>
@@ -485,20 +485,20 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                         {loading ? (
                             <div className="flex flex-col items-center justify-center h-full gap-4 text-slate-400">
                                 <Loader2 size={36} className="animate-spin text-indigo-500" />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Cargando Kardex...</span>
+                                <span className="text-[10px] font-semibold uppercase tracking-widest">Cargando Kardex...</span>
                             </div>
                         ) : rows.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full gap-4 text-slate-300">
                                 <BookOpen size={48} />
                                 <div className="text-center">
-                                    <p className="text-[11px] font-black uppercase tracking-widest">Sin movimientos registrados</p>
-                                    <p className="text-[9px] font-bold mt-1">Ajusta los filtros o realiza una compra/nivelación</p>
+                                    <p className="text-[11px] font-semibold uppercase tracking-widest">Sin movimientos registrados</p>
+                                    <p className="text-[9px] font-medium mt-1">Ajusta los filtros o realiza una compra/nivelación</p>
                                 </div>
                             </div>
                         ) : (
                             <table className="w-full text-left border-collapse" style={{ minWidth: '1100px' }}>
                                 <thead className="sticky top-0 bg-[#e8e8e8] z-10 border-b border-gray-400">
-                                    <tr className="text-[8.5px] font-black uppercase tracking-widest text-slate-400">
+                                    <tr className="text-[8.5px] font-semibold uppercase tracking-widest text-slate-400">
                                         <th className="px-3 py-2.5 whitespace-nowrap">Fecha / Hora</th>
                                         <th className="px-3 py-2.5 whitespace-nowrap">Sucursal</th>
                                         <th className="px-3 py-2.5">Producto</th>
@@ -522,31 +522,31 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                                         <tr key={row.id} className={`h-7 transition-colors group ${index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'} hover:bg-[#f2f7fb]`}>
                                             <td className="px-3 py-2 whitespace-nowrap">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black text-slate-700">
+                                                    <span className="text-[10px] font-semibold text-slate-700">
                                                         {new Date(row.created_at).toLocaleDateString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                                                     </span>
-                                                    <span className="text-[8px] font-bold text-slate-400 tabular-nums">
+                                                    <span className="text-[8px] font-medium text-slate-400 tabular-nums">
                                                         {new Date(row.created_at).toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                                                     </span>
                                                 </div>
                                             </td>
                                             <td className="px-3 py-2 whitespace-nowrap">
-                                                <span className="text-[9px] font-bold text-slate-500">{branch?.name || row.branches?.name || '—'}</span>
+                                                <span className="text-[9px] font-medium text-slate-500">{branch?.name || row.branches?.name || '—'}</span>
                                             </td>
                                             <td className="px-3 py-2 max-w-[180px]">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black text-slate-800 uppercase truncate">
+                                                    <span className="text-[10px] font-semibold text-slate-800 uppercase truncate">
                                                         {prod?.display_name || prod?.name || row.inventory_items?.nombre || row.inventory_items?.name || row.products?.name || '—'}
                                                     </span>
                                                     {((prod as any)?.product_code || (prod as any)?.code || row.inventory_items?.code || row.products?.product_code) && (
-                                                        <span className="text-[8px] font-bold text-slate-400">
+                                                        <span className="text-[8px] font-medium text-slate-400">
                                                             {(prod as any)?.product_code || (prod as any)?.code || row.inventory_items?.code || row.products?.product_code}
                                                         </span>
                                                     )}
                                                 </div>
                                             </td>
                                             <td className="px-3 py-2 text-center whitespace-nowrap">
-                                                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border ${(() => {
+                                                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[8px] font-semibold uppercase tracking-widest border ${(() => {
                                                     const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
                                                     const match = row.reference?.match(uuidPattern);
                                                     const status = match ? orderStatuses[match[0].toLowerCase()] : '';
@@ -575,7 +575,7 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                                                 </span>
                                             </td>
                                             <td className="px-3 py-2 whitespace-nowrap">
-                                                <span className="text-[9px] font-bold text-slate-500">
+                                                <span className="text-[9px] font-medium text-slate-500">
                                                     {(() => {
                                                         const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
                                                         const match = row.reference?.match(uuidPattern);
@@ -587,37 +587,37 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                                                 </span>
                                             </td>
                                             <td className="px-3 py-2 whitespace-nowrap">
-                                                <span className="text-[9px] font-bold text-slate-600">{row.user_name || '—'}</span>
+                                                <span className="text-[9px] font-medium text-slate-600">{row.user_name || '—'}</span>
                                             </td>
                                             <td className="px-3 py-2 whitespace-nowrap">
-                                                <span className="text-[8px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                                                <span className="text-[8px] font-medium text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
                                                     {row.device || '—'}
                                                 </span>
                                             </td>
                                             <td className="px-3 py-2 text-right whitespace-nowrap">
                                                 {row.quantity_in > 0 ? (
-                                                    <span className="text-[11px] font-black text-emerald-600 tabular-nums">
+                                                    <span className="text-[11px] font-semibold text-emerald-600 tabular-nums">
                                                         +{row.quantity_in.toLocaleString()}
                                                     </span>
                                                 ) : <span className="text-slate-200 text-sm">—</span>}
                                             </td>
                                             <td className="px-3 py-2 text-right whitespace-nowrap">
                                                 {row.quantity_out > 0 ? (
-                                                    <span className="text-[11px] font-black text-rose-600 tabular-nums">
+                                                    <span className="text-[11px] font-semibold text-rose-600 tabular-nums">
                                                         -{row.quantity_out.toLocaleString()}
                                                     </span>
                                                 ) : <span className="text-slate-200 text-sm">—</span>}
                                             </td>
                                             <td className="px-3 py-2 text-right whitespace-nowrap">
-                                                <span className="text-[11px] font-black text-slate-900 tabular-nums">{row.balance.toLocaleString()}</span>
+                                                <span className="text-[11px] font-semibold text-slate-900 tabular-nums">{row.balance.toLocaleString()}</span>
                                             </td>
                                             <td className="px-3 py-2 text-right whitespace-nowrap">
-                                                <span className="text-[9px] font-bold text-slate-500 tabular-nums">
+                                                <span className="text-[9px] font-medium text-slate-500 tabular-nums">
                                                     Q{Number(row.unit_cost).toFixed(2)}
                                                 </span>
                                             </td>
                                             <td className="px-3 py-2 text-right whitespace-nowrap">
-                                                <span className="text-[10px] font-black text-indigo-700 tabular-nums">
+                                                <span className="text-[10px] font-semibold text-indigo-700 tabular-nums">
                                                     Q{Number(row.balance_value).toFixed(2)}
                                                 </span>
                                             </td>
@@ -631,7 +631,7 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                     {/* Pagination */}
                     {totalPages > 1 && (
                         <div className="px-6 py-3 border-t border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                            <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">
                                 Mostrando {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, rows.length)} de {rows.length}
                             </span>
                             <div className="flex items-center gap-2">
@@ -642,7 +642,7 @@ export const InventoryKardex: React.FC<{ currentUser?: any, initialProductId?: s
                                 >
                                     <ChevronLeft size={14} />
                                 </button>
-                                <span className="text-[10px] font-black text-slate-600">
+                                <span className="text-[10px] font-semibold text-slate-600">
                                     {page + 1} / {totalPages}
                                 </span>
                                 <button

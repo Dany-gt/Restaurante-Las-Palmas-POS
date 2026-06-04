@@ -69,7 +69,7 @@ export const NewCreditCustomerModal: React.FC<NewCreditCustomerModalProps> = ({ 
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60  p-4 animate-fade-in">
             <div className="w-full max-w-lg bg-[#232632] rounded-lg  /50 overflow-hidden flex flex-col border border-white/10">
                 <div className="p-6 border-b border-white/5 text-center bg-[#232632]">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-white">DATOS CUENTA AL CRÉDITO</h3>
+                    <h3 className="text-sm font-semibold uppercase tracking-widest text-white">DATOS CUENTA AL CRÉDITO</h3>
                 </div>
 
                 <div className="p-6 space-y-4">
@@ -81,7 +81,7 @@ export const NewCreditCustomerModal: React.FC<NewCreditCustomerModalProps> = ({ 
                             data-virtual-input
                             value={name}
                             onChange={e => setName(e.target.value)}
-                            className="w-full bg-[#1e212b] border border-white/10 rounded-lg py-3 pl-12 pr-4 text-xs font-bold text-white outline-none focus:border-indigo-500 transition-colors uppercase placeholder:text-gray-500"
+                            className="w-full bg-[#1e212b] border border-white/10 rounded-lg py-3 pl-12 pr-4 text-xs font-medium text-white outline-none focus:border-indigo-500 transition-colors uppercase placeholder:text-gray-500"
                             placeholder="Nombre de Cuenta"
                         />
                     </div>
@@ -93,7 +93,7 @@ export const NewCreditCustomerModal: React.FC<NewCreditCustomerModalProps> = ({ 
                             data-virtual-input
                             value={address}
                             onChange={e => setAddress(e.target.value)}
-                            className="w-full bg-[#1e212b] border border-white/10 rounded-lg py-3 pl-12 pr-4 text-xs font-bold text-white outline-none focus:border-indigo-500 transition-colors uppercase placeholder:text-gray-500"
+                            className="w-full bg-[#1e212b] border border-white/10 rounded-lg py-3 pl-12 pr-4 text-xs font-medium text-white outline-none focus:border-indigo-500 transition-colors uppercase placeholder:text-gray-500"
                             placeholder="Dirección"
                         />
                     </div>
@@ -106,7 +106,7 @@ export const NewCreditCustomerModal: React.FC<NewCreditCustomerModalProps> = ({ 
                             data-keyboard="numeric"
                             value={phone}
                             onChange={e => setPhone(e.target.value)}
-                            className="w-full bg-[#1e212b] border border-white/10 rounded-lg py-3 pl-12 pr-4 text-xs font-bold text-white outline-none focus:border-indigo-500 transition-colors placeholder:text-gray-500"
+                            className="w-full bg-[#1e212b] border border-white/10 rounded-lg py-3 pl-12 pr-4 text-xs font-medium text-white outline-none focus:border-indigo-500 transition-colors placeholder:text-gray-500"
                             placeholder="Teléfono"
                         />
                     </div>
@@ -119,7 +119,7 @@ export const NewCreditCustomerModal: React.FC<NewCreditCustomerModalProps> = ({ 
                             type="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
-                            className="w-full bg-[#1e212b] border border-white/10 rounded-lg py-3 pl-12 pr-4 text-xs font-bold text-white outline-none focus:border-indigo-500 transition-colors placeholder:text-gray-500"
+                            className="w-full bg-[#1e212b] border border-white/10 rounded-lg py-3 pl-12 pr-4 text-xs font-medium text-white outline-none focus:border-indigo-500 transition-colors placeholder:text-gray-500"
                             placeholder="Correo Electrónico"
                         />
                     </div>
@@ -127,18 +127,18 @@ export const NewCreditCustomerModal: React.FC<NewCreditCustomerModalProps> = ({ 
                     {/* Límite de Crédito */}
                     <div className="flex items-center gap-4">
                         <div className="relative w-1/2">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white font-black text-sm">Q</span>
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white font-semibold text-sm">Q</span>
                             <input
                                 data-virtual-input
                                 data-keyboard="numeric"
                                 type="text"
                                 value={creditLimit}
                                 onChange={e => setCreditLimit(e.target.value)}
-                                className="w-full bg-[#1e212b] border border-white/10 rounded-lg py-3 pl-12 pr-4 text-xs font-bold text-white outline-none focus:border-indigo-500 transition-colors placeholder:text-gray-500 text-center"
+                                className="w-full bg-[#1e212b] border border-white/10 rounded-lg py-3 pl-12 pr-4 text-xs font-medium text-white outline-none focus:border-indigo-500 transition-colors placeholder:text-gray-500 text-center"
                                 placeholder={`${currency}0.00`}
                             />
                         </div>
-                        <span className="text-[9px] font-bold text-white w-1/2">* Límite de Crédito (Cero si desea que sea ilimitado)</span>
+                        <span className="text-[9px] font-medium text-white w-1/2">* Límite de Crédito (Cero si desea que sea ilimitado)</span>
                     </div>
 
                     {/* Porcentaje de Descuento */}
@@ -151,25 +151,25 @@ export const NewCreditCustomerModal: React.FC<NewCreditCustomerModalProps> = ({ 
                                 type="text"
                                 value={discount}
                                 onChange={e => setDiscount(e.target.value)}
-                                className="w-full bg-[#1e212b] border border-white/10 rounded-lg py-3 pl-12 pr-4 text-xs font-bold text-white outline-none focus:border-indigo-500 transition-colors placeholder:text-gray-500 text-center"
+                                className="w-full bg-[#1e212b] border border-white/10 rounded-lg py-3 pl-12 pr-4 text-xs font-medium text-white outline-none focus:border-indigo-500 transition-colors placeholder:text-gray-500 text-center"
                                 placeholder="0.00 %"
                             />
                         </div>
-                        <span className="text-[9px] font-bold text-white w-1/2">* Porcentaje de Descuento</span>
+                        <span className="text-[9px] font-medium text-white w-1/2">* Porcentaje de Descuento</span>
                     </div>
                 </div>
 
                 <div className="p-6 grid grid-cols-2 gap-4 bg-[#232632] border-t border-white/5">
                     <button
                         onClick={onClose}
-                        className="py-4 rounded-xl font-black uppercase tracking-widest text-[11px] border border-white/20 text-white hover:bg-white/5 transition-colors"
+                        className="py-4 rounded-xl font-semibold uppercase tracking-widest text-[11px] border border-white/20 text-white hover:bg-white/5 transition-colors"
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={loading || !name}
-                        className="py-4 rounded-xl font-black uppercase tracking-widest text-[11px] bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50 transition-colors "
+                        className="py-4 rounded-xl font-semibold uppercase tracking-widest text-[11px] bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50 transition-colors "
                     >
                         {loading ? 'Guardando...' : 'Aceptar'}
                     </button>

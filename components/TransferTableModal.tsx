@@ -34,8 +34,8 @@ export const TransferTableModal: React.FC<TransferTableModalProps> = ({ isOpen, 
                 {/* Header */}
                 <div className="px-6 py-5 border-b border-white/5 flex justify-between items-center bg-black/20 shrink-0">
                     <div>
-                        <h3 className="text-sm font-black uppercase tracking-tighter text-white">Trasladar Mesa</h3>
-                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 leading-none">
+                        <h3 className="text-sm font-semibold uppercase tracking-tighter text-white">Trasladar Mesa</h3>
+                        <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest mt-0.5 leading-none">
                             Mesa Actual: <span className="text-white">{currentTable.number}</span>
                         </p>
                     </div>
@@ -59,10 +59,10 @@ export const TransferTableModal: React.FC<TransferTableModalProps> = ({ isOpen, 
                                         : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10 active:scale-95'
                                         }`}
                                 >
-                                    <span className={`text-xl font-black tracking-tighter z-10 ${selectedTableId === table.id ? 'text-black' : 'text-gray-300'}`}>
+                                    <span className={`text-xl font-semibold tracking-tighter z-10 ${selectedTableId === table.id ? 'text-black' : 'text-gray-300'}`}>
                                         {table.number}
                                     </span>
-                                    <span className={`text-[8px] font-bold uppercase tracking-widest z-10 ${selectedTableId === table.id ? 'text-black/60' : 'text-gray-600'}`}>
+                                    <span className={`text-[8px] font-medium uppercase tracking-widest z-10 ${selectedTableId === table.id ? 'text-black/60' : 'text-gray-600'}`}>
                                         {table.section}
                                     </span>
 
@@ -75,7 +75,7 @@ export const TransferTableModal: React.FC<TransferTableModalProps> = ({ isOpen, 
                         ) : (
                             <div className="col-span-full py-16 text-center opacity-40 flex flex-col items-center">
                                 <Ban size={32} className="mb-2 text-gray-500" />
-                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500">No hay mesas disponibles</p>
+                                <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-500">No hay mesas disponibles</p>
                             </div>
                         )}
                     </div>
@@ -86,7 +86,7 @@ export const TransferTableModal: React.FC<TransferTableModalProps> = ({ isOpen, 
                     <button
                         disabled={!selectedTableId}
                         onClick={() => selectedTableId && onTransfer(selectedTableId)}
-                        className="w-full py-4 bg-white hover:bg-white/90 disabled:bg-white/5 disabled:text-gray-600 disabled:border-white/5 text-black rounded-xl font-black uppercase tracking-[0.2em] text-[10px]  /40 transition-all active:scale-95 flex items-center justify-center gap-2 group"
+                        className="w-full py-4 bg-white hover:bg-white/90 disabled:bg-white/5 disabled:text-gray-600 disabled:border-white/5 text-black rounded-xl font-semibold uppercase tracking-[0.2em] text-[10px]  /40 transition-all active:scale-95 flex items-center justify-center gap-2 group"
                     >
                         <span>Confirmar Traslado</span>
                         <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />

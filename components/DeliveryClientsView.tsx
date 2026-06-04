@@ -42,6 +42,25 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
     const timeDisplay = nowServer.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const dateDisplay = nowServer.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
 
+    const [assignedOrdersCount, setAssignedOrdersCount] = useState<number>(0);
+
+    useEffect(() => {
+        if (!currentUser?.id) return;
+        const fetchOrdersCount = async () => {
+            const { count } = await supabase
+                .from('orders')
+                .select('*', { count: 'exact', head: true })
+                .eq('waiter_id', currentUser.id)
+                .in('status', ['pending', 'in_progress', 'ready', 'delivering']);
+            if (count !== null) setAssignedOrdersCount(count);
+        };
+        fetchOrdersCount();
+        const sub = supabase.channel('assigned_orders_delivery')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `waiter_id=eq.${currentUser.id}` }, fetchOrdersCount)
+            .subscribe();
+        return () => { supabase.removeChannel(sub); };
+    }, [currentUser]);
+
     const searchInputRef = React.useRef<HTMLInputElement>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [customers, setCustomers] = useState<Customer[]>([]);
@@ -212,30 +231,32 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
             {/* Top Bar matching reference */}
             <div className="h-16 px-6 border-b border-white/5 flex justify-between items-center bg-black/20 backdrop-blur-md sticky top-0 z-20">
                 <div className="flex items-center gap-3">
-                    <button onClick={onBack} className="p-2 -ml-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
-                        <ArrowLeft size={20} strokeWidth={2.5} />
+                    <button onClick={onBack} className="h-14 w-14 flex items-center justify-center rounded-xl bg-white/5 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-colors shrink-0">
+                        <ArrowLeft size={28} strokeWidth={2.5} />
                     </button>
-                    <div className="p-2 rounded-xl bg-rose-500/10 text-rose-500">
-                        <MapPin size={20} strokeWidth={2.5} />
-                    </div>
-                    <div>
-                        <h2 className="text-base font-black tracking-tight uppercase text-white leading-none">
-                            Las Palmas
-                        </h2>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-0.5">Clientes a Domicilio</p>
+                    <div className="ml-1 flex flex-col justify-center">
+                        <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest leading-none mb-1">RESTAURANTE</span>
+                        <span className="text-[12px] font-bold text-gray-500 uppercase tracking-widest leading-none">LAS PALMAS</span>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-6">
-                    {/* Clock & Date Bar Right */}
-                    <div className="hidden lg:flex flex-col items-end leading-none bg-black/30 px-3 py-1.5 rounded-xl border border-white/5 ">
-                        <span className="text-[12px] font-black tracking-widest text-indigo-400 tabular-nums">{timeDisplay}</span>
-                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter mt-0.5">{dateDisplay}</span>
+                <div className="flex items-center gap-4">
+                    {/* Clock & Date Bar */}
+                    <div className="hidden lg:flex flex-col items-end leading-none bg-black/30 px-3 py-1.5 rounded-xl border border-white/5">
+                        <span className="text-[12px] font-semibold tracking-widest text-indigo-400 tabular-nums">{timeDisplay}</span>
+                        <span className="text-[9px] font-medium text-gray-500 uppercase tracking-tighter mt-0.5">{dateDisplay}</span>
                     </div>
 
-                    <div className="hidden md:flex flex-col items-end">
-                        <span className="text-sm font-bold text-gray-200">{currentUser?.name || (currentUser as any)?.full_name}</span>
-                        <span className="text-[10px] text-indigo-500/80 font-black uppercase tracking-widest mt-0.5">{currentUser?.role}</span>
+                    {/* Assigned Orders Counter Pill */}
+                    <div className="hidden lg:flex items-center gap-1.5 bg-black/40 px-3 py-1.5 rounded border border-white/5">
+                        <span className="text-sm font-bold text-white leading-none">{assignedOrdersCount}</span>
+                        <span className="text-xs font-medium text-gray-300 leading-none">Ordenes Asignadas</span>
+                    </div>
+
+                    {/* User Profile */}
+                    <div className="hidden md:flex flex-col items-end leading-none">
+                        <span className="text-[11px] font-bold text-white uppercase tracking-wide">{currentUser?.name || (currentUser as any)?.full_name}</span>
+                        <span className="text-[10px] font-medium text-emerald-400 mt-1">Clientes a Domicilio</span>
                     </div>
                 </div>
             </div>
@@ -246,98 +267,95 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                 {/* LEFT PANEL: CLIENTS GRID */}
                 <div className="flex-1 flex flex-col border-r border-white/5 bg-[#2d2e3d] min-h-0">                    {/* Header 'Clientes' */}
                     <div className="bg-[#3a3b4d] h-10 flex items-center justify-center shrink-0 ">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Clientes</span>
+                        <span className="text-[12px] font-semibold uppercase tracking-[0.2em] text-white">Clientes</span>
                     </div>
- 
+
                     {/* Search Bar */}
                     <div className="p-3">
                         <div className="relative group">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70" size={16} />
                             <input
                                 ref={searchInputRef}
-                                autoFocus
                                 type="text"
                                 placeholder="BUSCAR..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-transparent border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-black placeholder:text-white/60 outline-none focus:border-white/50 focus:bg-transparent transition-all uppercase tracking-widest text-white "
+                                className="w-full bg-transparent border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-semibold placeholder:text-white/60 outline-none focus:border-white/50 focus:bg-transparent transition-all uppercase tracking-widest text-white "
                             />
                         </div>
                     </div>
- 
+
                     {/* Grid */}
                     <div className="flex-1 overflow-y-auto p-4 content-start min-h-0 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                         <div className="grid grid-cols-4 gap-3 w-fit mx-auto">
-                            {filteredCustomers.map(customer => (
+                            {filteredCustomers.slice(0, 28).map(customer => (
                                 <button
                                     key={customer.id}
                                     onClick={() => setSelectedCustomer(customer)}
                                     className={`
-                                        w-[278px] h-20 rounded-lg flex flex-col justify-center px-4 relative group transition-all text-left border
+                                        w-[278px] h-20 rounded-lg flex flex-col justify-center px-4 relative group text-left border
                                         ${selectedCustomer?.id === customer.id
-                                            ? 'bg-indigo-600/20 border-indigo-500/50 '
+                                            ? 'bg-[#7c71e2] border-transparent'
                                             : 'bg-[#3a3b4d] border-transparent hover:bg-[#45465a]'
                                         }
                                     `}
                                 >
                                     <div className="flex items-center gap-2 mb-1">
-                                        <User size={12} className={selectedCustomer?.id === customer.id ? 'text-indigo-400' : 'text-white/70'} />
-                                        <span className="text-[11px] font-black uppercase truncate text-white">
+                                        <User size={14} className="text-white" fill="white" />
+                                        <span className="text-[12px] font-semibold truncate text-white">
                                             {customer.name}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <Phone size={12} className="text-white/50" />
-                                        <span className="text-[10px] font-bold text-white/80 tracking-wider">
+                                        <Phone size={14} className="text-white" fill="white" />
+                                        <span className="text-[11px] font-medium text-white">
                                             {customer.phone || 'Sin Teléfono'}
                                         </span>
                                     </div>
-                                    {selectedCustomer?.id === customer.id && (
-                                        <div className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full "></div>
-                                    )}
                                 </button>
                             ))}
                         </div>
                     </div>
- 
-                    {/* Bottom Action Buttons (Left) */}
-                    <div className="p-3 border-t border-white/5 flex gap-3 shrink-0 items-center justify-center bg-transparent">
-                        <button
-                            onClick={handleNewCustomer}
-                            className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center"
-                            title="Nuevo Cliente"
-                        >
-                            <div className="relative w-[32px] h-[26px]">
-                                <User size={26} strokeWidth={1.5} className="absolute left-0 top-0" />
-                                <Plus size={16} strokeWidth={2} className="absolute -bottom-1 -right-1" />
-                            </div>
-                        </button>
-                        <button
-                            onClick={handleEditCustomer}
-                            className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center"
-                            title="Editar Cliente"
-                        >
-                            <div className="relative w-[32px] h-[26px]">
-                                <User size={26} strokeWidth={1.5} className="absolute left-0 top-0" />
-                                <Edit2 size={14} strokeWidth={2} className="absolute -bottom-1 -right-1" />
-                            </div>
-                        </button>
-                        <button
-                            onClick={handleDeleteCustomerBtnClick}
-                            className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-red-500/20 hover:text-red-500 transition-colors flex items-center justify-center"
-                            title="Eliminar Cliente"
-                        >
-                            <div className="relative w-[32px] h-[26px] flex items-center justify-center">
-                                <User size={26} strokeWidth={1.5} />
-                                <div className="absolute w-[30px] h-[1.5px] bg-current -rotate-45" />
-                            </div>
-                        </button>
-                    </div>
 
-                    <div className="px-4 py-2 bg-transparent border-t border-white/5">
-                        <div className="flex gap-4 text-[8px] text-white/70 uppercase font-black tracking-widest justify-start">
-                            <span>1. ENTER - BUSCAR</span>
-                            <span>2. Ctrl+Enter - NUEVO</span>
+                    {/* Bottom Action Buttons (Left) */}
+                    <div className="p-4 border-t border-white/5 bg-transparent shrink-0 flex flex-col gap-4 z-10">
+                        <div className="flex justify-center gap-3">
+                            <button
+                                onClick={handleNewCustomer}
+                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center"
+                                title="Nuevo Cliente"
+                            >
+                                <div className="relative w-[32px] h-[26px]">
+                                    <User size={26} strokeWidth={1.5} className="absolute left-0 top-0" />
+                                    <Plus size={16} strokeWidth={2} className="absolute -bottom-1 -right-1" />
+                                </div>
+                            </button>
+                            <button
+                                onClick={handleEditCustomer}
+                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center"
+                                title="Editar Cliente"
+                            >
+                                <div className="relative w-[32px] h-[26px]">
+                                    <User size={26} strokeWidth={1.5} className="absolute left-0 top-0" />
+                                    <Edit2 size={14} strokeWidth={2} className="absolute -bottom-1 -right-1" />
+                                </div>
+                            </button>
+                            <button
+                                onClick={handleDeleteCustomerBtnClick}
+                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-red-500/20 hover:text-red-500 transition-colors flex items-center justify-center"
+                                title="Eliminar Cliente"
+                            >
+                                <div className="relative w-[32px] h-[26px] flex items-center justify-center">
+                                    <User size={26} strokeWidth={1.5} />
+                                    <div className="absolute w-[30px] h-[1.5px] bg-current -rotate-45" />
+                                </div>
+                            </button>
+                        </div>
+                        <div className="h-[46px] flex items-center justify-start px-2">
+                            <div className="flex gap-4 text-[8px] text-white/70 uppercase font-semibold tracking-widest">
+                                <span>1. ENTER - BUSCAR</span>
+                                <span>2. Ctrl+Enter - NUEVO</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -365,7 +383,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                 {/* RIGHT PANEL: ADDRESSES & DETAILS */}
                 <div className="w-[400px] bg-[#2d2e3d] flex flex-col shrink-0 border-l border-white/5 min-h-0">
                     <div className="bg-[#3a3b4d] h-10 flex items-center justify-center shrink-0 border-b border-white/5">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">
+                        <span className="text-[12px] font-semibold uppercase tracking-[0.2em] text-white">
                             Direcciones
                         </span>
                     </div>
@@ -377,29 +395,28 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                     <button
                                         key={addr.id}
                                         onClick={() => setSelectedAddress(addr)}
-                                        className={`w-full p-4 rounded-xl border text-left transition-all relative group ${selectedAddress?.id === addr.id
-                                            ? 'bg-[#e2e8f0] border-transparent text-[#1e2030]'
+                                        className={`w-full p-4 rounded-xl border text-left relative group ${selectedAddress?.id === addr.id
+                                            ? 'bg-[#5c5d73] border-transparent text-white'
                                             : 'bg-[#3a3b4d] border-transparent hover:bg-[#45465a] text-white'
                                             }`}
                                     >
                                         <div className="flex flex-col gap-1 text-left">
                                             <div className="flex items-center justify-between mb-1">
-                                                <span className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${selectedAddress?.id === addr.id ? 'text-[#1e2030]' : 'text-white'}`}>
-                                                    <MapPin size={12} className={selectedAddress?.id === addr.id ? 'text-[#1e2030]/70' : 'text-white/70'} />
+                                                <span className={`text-[11px] font-semibold flex items-center gap-2 text-white`}>
+                                                    <MapPin size={12} className={selectedAddress?.id === addr.id ? 'text-white' : 'text-white/70'} />
                                                     {addr.name || 'Dirección'}
                                                 </span>
-                                                {selectedAddress?.id === addr.id && <div className="w-2 h-2 bg-[#7c71e2] rounded-full" />}
                                             </div>
-                                            <p className={`text-xs font-black uppercase leading-normal ${selectedAddress?.id === addr.id ? 'text-[#1e2030]' : 'text-white'}`}>
+                                            <p className={`text-[12px] font-medium leading-normal text-white`}>
                                                 {addr.address}
                                             </p>
                                             {addr.reference && (
-                                                <p className={`text-[10px] font-bold mt-1 leading-normal ${selectedAddress?.id === addr.id ? 'text-gray-600' : 'text-white/60'}`}>
+                                                <p className={`text-[11px] font-normal mt-1 leading-normal ${selectedAddress?.id === addr.id ? 'text-white/90' : 'text-white/60'}`}>
                                                     {addr.reference}
                                                 </p>
                                             )}
                                             {addr.zone && (
-                                                <span className={`inline-block w-fit mt-2 px-2 py-0.5 rounded text-[9px] font-black uppercase ${selectedAddress?.id === addr.id ? 'bg-black/10 text-gray-800' : 'bg-black/20 text-white'}`}>
+                                                <span className={`inline-block w-fit mt-2 px-2 py-0.5 rounded text-[9px] font-semibold uppercase bg-black/20 text-white`}>
                                                     Zona {addr.zone}
                                                 </span>
                                             )}
@@ -409,7 +426,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-40 text-white/50">
                                     <Map size={48} strokeWidth={1} className="text-white/40" />
-                                    <span className="mt-2 text-[10px] font-black uppercase tracking-widest text-white">Sin direcciones registradas</span>
+                                    <span className="mt-2 text-[10px] font-semibold uppercase tracking-widest text-white">Sin direcciones registradas</span>
                                 </div>
                             )
                         ) : (
@@ -417,8 +434,8 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                 <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-8 border border-white/10 ">
                                     <User size={56} className="text-white/60" strokeWidth={1} />
                                 </div>
-                                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white mb-2 whitespace-nowrap">Seleccione un Cliente</h3>
-                                <p className="text-[9px] font-bold text-white/70 uppercase tracking-widest leading-relaxed">
+                                <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-white mb-2 whitespace-nowrap">Seleccione un Cliente</h3>
+                                <p className="text-[9px] font-medium text-white/70 uppercase tracking-widest leading-relaxed">
                                     Para ver su información y direcciones de envío
                                 </p>
                             </div>
@@ -426,7 +443,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                     </div>
 
                     {/* Bottom Actions (Right) */}
-                    <div className="p-4 border-t border-white/5 bg-transparent shrink-0 flex flex-col gap-4">
+                    <div className="p-4 border-t border-white/5 bg-transparent shrink-0 flex flex-col gap-4 z-10">
                         <div className="flex justify-center gap-3">
                             <button
                                 onClick={handleNewAddress}
@@ -475,21 +492,21 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center text-red-500 mb-4 animate-bounce">
                                 <AlertTriangle size={32} />
                             </div>
-                            <h3 className="text-xl font-black text-white px-4">Eliminar Cliente</h3>
+                            <h3 className="text-xl font-semibold text-white px-4">Eliminar Cliente</h3>
                             <p className="text-gray-400 text-sm mt-2 px-4">
-                                ¿Estás seguro de que deseas eliminar permanentemente a <span className="text-white font-black">{customerToDelete.name}</span>? Se borrarán también todas sus direcciones registradas.
+                                ¿Estás seguro de que deseas eliminar permanentemente a <span className="text-white font-semibold">{customerToDelete.name}</span>? Se borrarán también todas sus direcciones registradas.
                             </p>
                         </div>
                         <div className="p-6 bg-[#1e232f] border-t border-white/5 flex gap-4">
                             <button
                                 onClick={() => setCustomerToDelete(null)}
-                                className="flex-1 py-3 rounded-xl font-bold uppercase tracking-wider text-xs bg-white/5 hover:bg-white/10 text-white transition-all"
+                                className="flex-1 py-3 rounded-xl font-medium uppercase tracking-wider text-xs bg-white/5 hover:bg-white/10 text-white transition-all"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={confirmDeleteCustomer}
-                                className="flex-1 py-3 rounded-xl font-black uppercase tracking-wider text-xs bg-red-600 hover:bg-red-500 text-white  -600/30 transition-all active:scale-95 flex items-center justify-center"
+                                className="flex-1 py-3 rounded-xl font-semibold uppercase tracking-wider text-xs bg-red-600 hover:bg-red-500 text-white  -600/30 transition-all active:scale-95 flex items-center justify-center"
                             >
                                 <Trash2 size={16} className="mr-2" /> Eliminar
                             </button>
@@ -505,21 +522,21 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             <div className="w-16 h-16 bg-rose-500/20 rounded-full flex items-center justify-center text-rose-500 mb-4">
                                 <Trash2 size={32} />
                             </div>
-                            <h3 className="text-xl font-black text-white px-4">Eliminar Dirección</h3>
+                            <h3 className="text-xl font-semibold text-white px-4">Eliminar Dirección</h3>
                             <p className="text-gray-400 text-sm mt-2 px-4">
-                                ¿Estás seguro de que deseas eliminar la dirección <span className="text-white font-black">{addressToDelete.name}</span>?
+                                ¿Estás seguro de que deseas eliminar la dirección <span className="text-white font-semibold">{addressToDelete.name}</span>?
                             </p>
                         </div>
                         <div className="p-6 bg-[#1e232f] border-t border-white/5 flex gap-4">
                             <button
                                 onClick={() => setAddressToDelete(null)}
-                                className="flex-1 py-3 rounded-xl font-bold uppercase tracking-wider text-xs bg-white/5 hover:bg-white/10 text-white transition-all"
+                                className="flex-1 py-3 rounded-xl font-medium uppercase tracking-wider text-xs bg-white/5 hover:bg-white/10 text-white transition-all"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={confirmDeleteAddress}
-                                className="flex-1 py-3 rounded-xl font-black uppercase tracking-wider text-xs bg-rose-600 hover:bg-rose-500 text-white  -600/30 transition-all active:scale-95"
+                                className="flex-1 py-3 rounded-xl font-semibold uppercase tracking-wider text-xs bg-rose-600 hover:bg-rose-500 text-white  -600/30 transition-all active:scale-95"
                             >
                                 Eliminar
                             </button>
@@ -531,10 +548,10 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                 <div className="fixed top-12 right-4 z-[999999] animate-in slide-in-from-right fade-in duration-300">
                     <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4 min-w-[320px] shadow-2xl backdrop-blur-md">
                         <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center shrink-0">
-                            <span className="text-white text-base font-black">!</span>
+                            <span className="text-white text-base font-semibold">!</span>
                         </div>
                         <div className="flex-1">
-                            <p className="text-[#1e232f] text-[11px] font-bold leading-tight">
+                            <p className="text-[#1e232f] text-[11px] font-medium leading-tight">
                                 {toastMessage}
                             </p>
                         </div>

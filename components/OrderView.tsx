@@ -50,13 +50,13 @@ export const formatNotesForDisplay = (notesStr?: string | null) => {
 const PlaceholderLogo = () => (
     <div className="flex flex-col items-center justify-center h-full w-full p-0 scale-100 sm:scale-110">
         <div className="flex items-baseline text-white leading-none">
-            <span className="text-xl sm:text-2xl font-black">R</span>
-            <span className="text-[10px] sm:text-xs font-black tracking-[0.1em] ml-[1px]">ESTAURANTE</span>
+            <span className="text-xl sm:text-2xl font-semibold">R</span>
+            <span className="text-[10px] sm:text-xs font-semibold tracking-[0.1em] ml-[1px]">ESTAURANTE</span>
         </div>
-        <span className="text-xs sm:text-sm font-black tracking-tighter text-orange-500 uppercase leading-none mt-1 mb-1.5">LAS PALMAS</span>
+        <span className="text-xs sm:text-sm font-semibold tracking-tighter text-orange-500 uppercase leading-none mt-1 mb-1.5">LAS PALMAS</span>
         <div className="flex items-center gap-1.5 sm:gap-2">
             <div className="h-[2px] w-3 sm:w-5 bg-orange-500/80"></div>
-            <span className="text-[8px] sm:text-[10px] font-black text-white tracking-widest">POS</span>
+            <span className="text-[8px] sm:text-[10px] font-semibold text-white tracking-widest">POS</span>
             <div className="h-[2px] w-3 sm:w-5 bg-orange-500/80"></div>
         </div>
     </div>
@@ -92,7 +92,7 @@ const ProductCard = React.memo<{
             )}
             {/* Inventory Badge */}
             {hasStock && (
-                <div className="absolute top-2 right-2 text-[10px] font-black z-10 text-white">
+                <div className="absolute top-2 right-2 text-[10px] font-semibold z-10 text-white">
                     {stock}
                 </div>
             )}
@@ -111,11 +111,11 @@ const ProductCard = React.memo<{
 
             <div className="w-full flex flex-col items-center justify-end shrink-0 gap-1 pb-1">
                 <div className="h-[2.5rem] flex items-center justify-center w-full px-1">
-                    <div className="text-[9.5px] sm:text-[10.5px] leading-snug font-black text-white line-clamp-2 uppercase tracking-wide text-center w-full" title={product.name}>
+                    <div className="text-[9.5px] sm:text-[10.5px] leading-snug font-semibold text-white line-clamp-2 uppercase tracking-wide text-center w-full" title={product.name}>
                         {product.name}
                     </div>
                 </div>
-                <span className="text-white font-black text-[11px] tabular-nums tracking-widest leading-none">
+                <span className="text-white font-semibold text-[11px] tabular-nums tracking-widest leading-none">
                     {currency}{((product as any).finalPrice ?? product.price).toFixed(2)}
                 </span>
             </div>
@@ -2491,7 +2491,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 <button onClick={handleClose} className="w-[2.5cm] h-[1.3cm] flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/5 rounded-md text-gray-400 hover:text-white transition-colors absolute left-4 z-10">
                     <ArrowLeft size={20} />
                 </button>
-                <div className="flex-1 flex items-center justify-center gap-3 text-xs md:text-sm lg:text-xs font-bold uppercase tracking-wider text-gray-300">
+                <div className="flex-1 flex items-center justify-center gap-3 text-xs md:text-sm lg:text-xs font-medium uppercase tracking-wider text-gray-300">
                     <span>Orden: #{tableOrders.find(o => o.id === activeOrderId)?.order_number || initialOrder.order_number || '...'}</span>
                     <span className="text-gray-600">|</span>
                     <span className="text-white/60">
@@ -2522,12 +2522,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 <div className="absolute right-4 flex items-center gap-3">
                     {/* Clock & Date */}
                     <div className="hidden lg:flex flex-col items-center leading-none mr-1 bg-black/20 px-2 py-1 rounded-none border border-white/5">
-                        <span className="text-[11px] font-black tracking-widest text-white/40 tabular-nums">{timeDisplay}</span>
-                        <span className="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">{dateDisplay}</span>
+                        <span className="text-[11px] font-semibold tracking-widest text-white/40 tabular-nums">{timeDisplay}</span>
+                        <span className="text-[8px] font-medium text-gray-500 uppercase tracking-tighter">{dateDisplay}</span>
                     </div>
 
                     <div className="flex flex-col items-center lg:hidden leading-none mr-1">
-                        <span className="text-[10px] font-black text-white/40 tabular-nums">{timeDisplay.substring(0, 5)}</span>
+                        <span className="text-[10px] font-semibold text-white/40 tabular-nums">{timeDisplay.substring(0, 5)}</span>
                     </div>
 
                     {/* Network Status Indicator */}
@@ -2599,7 +2599,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                                 <PlaceholderLogo />
                                                             )}
                                                         </div>
-                                                        <span className="w-full text-center text-[11px] sm:text-[12px] font-black uppercase tracking-wide text-white leading-tight pt-1 pb-1">{cat.name}</span>
+                                                        <span className="w-full text-center text-[11px] sm:text-[12px] font-semibold uppercase tracking-wide text-white leading-tight pt-1 pb-1">{cat.name}</span>
                                                     </button>
                                                 ));
                                         })()}
@@ -2621,7 +2621,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                             <PlaceholderLogo />
                                                         )}
                                                     </div>
-                                                    <span className="w-full text-center text-[11px] sm:text-[12px] font-black uppercase tracking-wide text-white leading-tight pt-1 pb-1">{sub.name}</span>
+                                                    <span className="w-full text-center text-[11px] sm:text-[12px] font-semibold uppercase tracking-wide text-white leading-tight pt-1 pb-1">{sub.name}</span>
                                                 </button>
                                             ))}
                                         {categories.filter(c => c.parent_id === selectedCat.id && c.section !== 'INVENTARIO').length === 0 && (() => {
@@ -2837,7 +2837,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     <div className="h-20 lg:h-16 bg-black/20 border-t border-white/5 flex items-center justify-center gap-4 lg:gap-4 px-4 shrink-0 z-10">
                         <button onClick={() => setShowPaxModal(true)} className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 ">
                             <Users size={18} />
-                            <span className="text-[9px] font-bold mt-0.5 uppercase tracking-tighter">Personas</span>
+                            <span className="text-[9px] font-medium mt-0.5 uppercase tracking-tighter">Personas</span>
                         </button>
                         {table && (
                             <button
@@ -2846,7 +2846,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 title="Cambiar a otra Mesa (Trasladar Cuenta)"
                             >
                                 <ArrowRightLeft size={18} />
-                                <span className="text-[9px] font-bold mt-0.5 uppercase tracking-tighter">Traslado</span>
+                                <span className="text-[9px] font-medium mt-0.5 uppercase tracking-tighter">Traslado</span>
                             </button>
                         )}
                         {(canCajero('Trasladar Orden a Mesero/Cajero') || currentUser?.role === 'CAJERO' || currentUser?.role === 'ADMIN') && (
@@ -2856,7 +2856,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 title="Transferir Responsable"
                             >
                                 <UsersRound size={18} />
-                                <span className="text-[9px] font-bold mt-0.5 uppercase tracking-tighter">Mesero</span>
+                                <span className="text-[9px] font-medium mt-0.5 uppercase tracking-tighter">Mesero</span>
                             </button>
                         )}
                         {(canCajero('Anular Orden') || currentUser?.role === 'CAJERO' || currentUser?.role === 'ADMIN') && (
@@ -2868,7 +2868,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     setShowVoidModal(true);
                                 }}
                                 disabled={!activeOrderId}
-                                className={`h-[50px] px-8 rounded-lg text-sm font-bold transition-all ${activeOrderId
+                                className={`h-[50px] px-8 rounded-lg text-sm font-medium transition-all ${activeOrderId
                                     ? 'bg-[#3f4251] text-white hover:bg-white/10 active:scale-95 border border-white/5 '
                                     : 'bg-[#2a2d37] text-gray-500 opacity-40 cursor-not-allowed border border-white/5'}`}
                                 title="Anular Orden Completa"
@@ -2884,7 +2884,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         <div className="pt-1 space-y-1">
                             <button
                                 onClick={() => setShowAccountsOverviewModal(true)}
-                                className="w-full bg-[#1e212b] border border-white/10 rounded-xl px-4 py-3 text-[11px] font-black text-white uppercase tracking-widest flex items-center justify-center relative group hover:border-white/20 transition-all  active:scale-95"
+                                className="w-full bg-[#1e212b] border border-white/10 rounded-xl px-4 py-3 text-[11px] font-semibold text-white uppercase tracking-widest flex items-center justify-center relative group hover:border-white/20 transition-all  active:scale-95"
                             >
                                 <span>
                                     {activeOrderId === null && tableOrders.length > 1
@@ -2901,12 +2901,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         {loading ? (
                             <div className="h-full flex flex-col items-center justify-center text-white/40 animate-pulse">
                                 <Loader2 className="animate-spin mb-2" size={32} />
-                                <span className="text-[10px] font-bold uppercase tracking-widest">Sincronizando...</span>
+                                <span className="text-[10px] font-medium uppercase tracking-widest">Sincronizando...</span>
                             </div>
                         ) : checkoutItems.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center opacity-10 text-gray-500">
                                 <ShoppingCartIcon size={48} />
-                                <span className="text-[10px] font-bold uppercase tracking-widest mt-2">Sin Productos</span>
+                                <span className="text-[10px] font-medium uppercase tracking-widest mt-2">Sin Productos</span>
                             </div>
                         ) : (
                             [...checkoutItems]
@@ -3000,23 +3000,23 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             >
                                                 {/* Account Badge for Unified View */}
                                                 {!activeOrderId && (item as any).order_id && tableOrders.length > 1 && (
-                                                    <span className="absolute top-1 right-1 px-1 bg-white/10 text-white/60 text-[8px] font-black rounded uppercase">C{itemOrderNum}</span>
+                                                    <span className="absolute top-1 right-1 px-1 bg-white/10 text-white/60 text-[8px] font-semibold rounded uppercase">C{itemOrderNum}</span>
                                                 )}
                                                 <div className="flex-1">
                                                     <div className="flex justify-between items-start">
                                                         <div className="flex flex-col items-start gap-1">
-                                                            <span className={`font-bold text-gray-200 leading-tight flex items-start gap-1.5 ${isTablet ? 'text-[10px] truncate max-w-[150px]' : 'text-sm lg:text-xs'}`}>
-                                                                <span className="text-white font-black">{item.quantity}</span>
+                                                            <span className={`font-medium text-gray-200 leading-tight flex items-start gap-1.5 ${isTablet ? 'text-[10px] truncate max-w-[150px]' : 'text-sm lg:text-xs'}`}>
+                                                                <span className="text-white font-semibold">{item.quantity}</span>
                                                                 <span>{item.product_name}</span>
                                                             </span>
                                                             {item.is_sent && <ItemStatusBadge item={item} serverOffset={serverOffset} tick={tick} />}
                                                             {((item.discount_percentage || 0) > 0 || (item.discount_amount || 0) > 0) && (
-                                                                <span className="text-[10px] font-black text-white/50 uppercase tracking-widest leading-none mt-0.5">
+                                                                <span className="text-[10px] font-semibold text-white/50 uppercase tracking-widest leading-none mt-0.5">
                                                                     {item.discount_type === 'AMOUNT' ? `-Q${item.discount_amount?.toFixed(2)}` : `-${item.discount_percentage}%`} Desc.
                                                                 </span>
                                                             )}
                                                         </div>
-                                                        <span className={`font-bold tabular-nums text-white shrink-0 ml-1 ${isTablet ? 'text-[10px]' : 'text-sm lg:text-xs'}`}>{currency}{((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
+                                                        <span className={`font-medium tabular-nums text-white shrink-0 ml-1 ${isTablet ? 'text-[10px]' : 'text-sm lg:text-xs'}`}>{currency}{((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                                                     </div>
                                                     {item.notes && formatNotesForDisplay(item.notes) && (
                                                         <div className="flex items-center gap-1 mt-0.5" onClick={(e) => { e.stopPropagation(); setTabletItemActionModal(item); }}>
@@ -3160,7 +3160,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             <line x1="15.5" y1="18" x2="20.5" y2="18" stroke="currentColor" strokeWidth="1.2" />
                                         </svg>
                                     )}
-                                    <span className="text-[9px] font-bold tracking-wide leading-none text-center whitespace-nowrap w-full">
+                                    <span className="text-[9px] font-medium tracking-wide leading-none text-center whitespace-nowrap w-full">
                                         {checkoutItems.some(i => i.is_sent) ? 'Actualizar Orden' : 'Crear Orden'}
                                     </span>
                                 </button>
@@ -3173,7 +3173,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     <span className="text-white">{currency}{(totalSavings || 0).toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between"><span>Propina</span><span className="text-white">{currency}{(tipAmount || 0).toFixed(2)}</span></div>
-                                <div className="border-t border-dashed border-white/20 pt-2 mt-1 flex justify-between text-[13px] text-white font-bold"><span>Total</span><span>{currency}{((total || 0) + (tipAmount || 0)).toFixed(2)}</span></div>
+                                <div className="border-t border-dashed border-white/20 pt-2 mt-1 flex justify-between text-[13px] text-white font-medium"><span>Total</span><span>{currency}{((total || 0) + (tipAmount || 0)).toFixed(2)}</span></div>
                             </div>
                         </div>
 
@@ -3228,7 +3228,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     onCheckout?.(updatedOrder as any);
                                 }}
                                 disabled={checkoutItems.length === 0}
-                                className="w-full bg-[#3b82f6] hover:bg-blue-400 text-white font-bold py-2.5 px-4 rounded-lg shadow-md active:scale-95 transition-all -mt-1"
+                                className="w-full bg-[#3b82f6] hover:bg-blue-400 text-white font-medium py-2.5 px-4 rounded-lg shadow-md active:scale-95 transition-all -mt-1"
                             >
                                 Cobrar Cuenta
                             </button>
@@ -3383,13 +3383,13 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-3">
                                         <Package className="text-white" size={24} />
                                     </div>
-                                    <h3 className="text-lg font-black text-white uppercase tracking-tighter">Datos para Llevar</h3>
-                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Nombre y teléfono requeridos</p>
+                                    <h3 className="text-lg font-semibold text-white uppercase tracking-tighter">Datos para Llevar</h3>
+                                    <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-1">Nombre y teléfono requeridos</p>
                                 </div>
 
                                 <div className="p-8 space-y-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nombre del Cliente</label>
+                                        <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest ml-1">Nombre del Cliente</label>
                                         <div className="relative">
                                             <input
                                                 id="hidden-takeout-name"
@@ -3405,12 +3405,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 data-keyboard="text"
                                                 tabIndex={0}
                                                 onClick={() => document.getElementById('hidden-takeout-name')?.focus()}
-                                                className={`w-full bg-black/20 border rounded-2xl p-4 text-white outline-none transition-all font-bold text-sm min-h-[56px] flex items-center cursor-text relative z-10 ${focusedField === 'name' ? 'border-white/40  virtual-input-focused' : 'border-white/10'}`}
+                                                className={`w-full bg-black/20 border rounded-2xl p-4 text-white outline-none transition-all font-medium text-sm min-h-[56px] flex items-center cursor-text relative z-10 ${focusedField === 'name' ? 'border-white/40  virtual-input-focused' : 'border-white/10'}`}
                                             >
                                                 {takeoutData.name}
                                             </div>
                                             {!takeoutData.name && (
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 opacity-50 font-bold text-sm pointer-events-none z-20">
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 opacity-50 font-medium text-sm pointer-events-none z-20">
                                                     EJ: JUAN PEREZ
                                                 </span>
                                             )}
@@ -3418,7 +3418,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Teléfono</label>
+                                        <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest ml-1">Teléfono</label>
                                         <div className="relative">
                                             <input
                                                 id="hidden-takeout-phone"
@@ -3435,12 +3435,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 data-keyboard="numeric"
                                                 tabIndex={0}
                                                 onClick={() => document.getElementById('hidden-takeout-phone')?.focus()}
-                                                className={`w-full bg-black/20 border rounded-2xl p-4 text-white outline-none transition-all font-bold text-sm min-h-[56px] flex items-center cursor-text relative z-10 ${focusedField === 'phone' ? 'border-white/40  virtual-input-focused' : 'border-white/10'}`}
+                                                className={`w-full bg-black/20 border rounded-2xl p-4 text-white outline-none transition-all font-medium text-sm min-h-[56px] flex items-center cursor-text relative z-10 ${focusedField === 'phone' ? 'border-white/40  virtual-input-focused' : 'border-white/10'}`}
                                             >
                                                 {takeoutData.phone}
                                             </div>
                                             {!takeoutData.phone && (
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 opacity-50 font-bold text-sm pointer-events-none z-20">
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 opacity-50 font-medium text-sm pointer-events-none z-20">
                                                     0000-0000
                                                 </span>
                                             )}
@@ -3450,7 +3450,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     <div className="flex gap-4 pt-4">
                                         <button
                                             onClick={() => setShowTakeoutClientModal(false)}
-                                            className="flex-1 py-4 border border-white/10 rounded-2xl font-black text-[10px] text-gray-400 uppercase tracking-widest hover:bg-white/5 transition-all"
+                                            className="flex-1 py-4 border border-white/10 rounded-2xl font-semibold text-[10px] text-gray-400 uppercase tracking-widest hover:bg-white/5 transition-all"
                                         >
                                             Cancelar
                                         </button>
@@ -3482,7 +3482,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 }
                                             }}
                                             disabled={!takeoutData.name.trim() || processing}
-                                            className="flex-1 py-4 bg-white hover:bg-white/90 disabled:opacity-50 text-black rounded-2xl font-black text-[10px] uppercase tracking-[0.2em]  active:scale-95 transition-all"
+                                            className="flex-1 py-4 bg-white hover:bg-white/90 disabled:opacity-50 text-black rounded-2xl font-semibold text-[10px] uppercase tracking-[0.2em]  active:scale-95 transition-all"
                                         >
                                             {processing ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'CONFIRMAR ORDEN'}
                                         </button>
@@ -3608,7 +3608,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         <div className="w-full max-w-[420px] bg-[#2b2d3d] rounded-xl border border-white/10  overflow-hidden">
                             {/* HEADER */}
                             <div className="bg-[#1e1f2b] py-3 px-4 border-b border-white/5">
-                                <h3 className="text-sm font-bold text-white text-center">Motivo Anulación</h3>
+                                <h3 className="text-sm font-medium text-white text-center">Motivo Anulación</h3>
                             </div>
 
                             <div className="p-6">
@@ -3623,7 +3623,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 <div className="flex gap-4 mt-6">
                                     <button
                                         onClick={() => { setShowVoidModal(false); setItemToVoid(null); setVoidReason(''); }}
-                                        className="flex-1 py-3 border border-white/20 rounded-lg font-bold text-xs text-white uppercase tracking-wider hover:bg-white/5 transition-all"
+                                        className="flex-1 py-3 border border-white/20 rounded-lg font-medium text-xs text-white uppercase tracking-wider hover:bg-white/5 transition-all"
                                     >
                                         CANCELAR
                                     </button>
@@ -3635,7 +3635,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                             setShowPinModal(true);
                                         }}
                                         disabled={voidReason.trim().length < 5 || processing}
-                                        className="flex-1 py-3 bg-white disabled:bg-gray-700 disabled:opacity-50 text-black rounded-lg font-bold text-xs uppercase tracking-wider  /5 active:scale-95 transition-all"
+                                        className="flex-1 py-3 bg-white disabled:bg-gray-700 disabled:opacity-50 text-black rounded-lg font-medium text-xs uppercase tracking-wider  /5 active:scale-95 transition-all"
                                     >
                                         {processing ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'ACEPTAR'}
                                     </button>

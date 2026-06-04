@@ -229,7 +229,7 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                         </div>
                         {/* Name Area - GETS BLUE */}
                         <div className={`flex-1 h-full flex items-center pl-2 ${isSelected ? 'bg-[#106ebe]' : ''}`}>
-                            <span className={`truncate leading-none uppercase text-[11px] font-black tracking-wide pr-1 ${
+                            <span className={`truncate leading-none uppercase text-[11px] font-semibold tracking-wide pr-1 ${
                                 isSelected ? 'text-white' : hasChildSelected ? 'text-[#106ebe]' : 'text-slate-800'
                             }`}>
                                 {cat.nombre}
@@ -255,7 +255,7 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                         {/* Name Area - GETS BLUE */}
                         <div className={`flex-1 h-full flex items-center pl-4 ${isSelected ? 'bg-[#106ebe]' : ''}`}>
                             <span className={`truncate leading-none uppercase text-[10px] pr-1 ${
-                                isSelected ? 'text-white font-bold' : 'text-slate-600'
+                                isSelected ? 'text-white font-medium' : 'text-slate-600'
                             }`}>
                                 {cat.nombre}
                             </span>
@@ -277,7 +277,7 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
             >
                 <div className="bg-[#f0f0f0] h-[24px] flex items-center border-b border-gray-400 shrink-0">
                     <div className="w-[34px] h-full border-r border-gray-300" />
-                    <span className="pl-2 text-[10px] font-bold text-slate-700 uppercase tracking-tight">Categoría</span>
+                    <span className="pl-2 text-[10px] font-medium text-slate-700 uppercase tracking-tight">Categoría</span>
                 </div>
 
                 <div 
@@ -320,7 +320,7 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                             </>
                         ) : (
                             <button onClick={() => { handleOpenForm(null); setContextMenu(null); }}
-                                className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700 font-bold">
+                                className="w-full h-6 flex items-center gap-2 px-3 hover:bg-[#106ebe] hover:text-white text-[11px] text-slate-700 font-medium">
                                 {iconTheme === 'premium' ? <PremiumIcon name={ICON_MAP.PLUS} size={14} color="currentColor" /> : <Plus size={11} />} Nuevo
                             </button>
                         )}
@@ -343,7 +343,7 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                             <div className="bg-[#106ebe] h-8 px-3 flex justify-between items-center text-white shrink-0 modal-header cursor-move">
                             <div className="flex items-center gap-2">
                                 {iconTheme === 'premium' ? <PremiumIcon name={ICON_MAP.CATEGORY} size={18} /> : <Folder size={14} className="text-white" />}
-                                <span className="text-[11px] font-bold uppercase tracking-tight">Mantenimiento de Categorías de Inventario</span>
+                                <span className="text-[11px] font-medium uppercase tracking-tight">Mantenimiento de Categorías de Inventario</span>
                             </div>
                             <div className="flex items-center h-full">
                                 <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
@@ -360,17 +360,17 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                         <div className="p-4 space-y-4">
                             {/* Datos de Categoría */}
                             <fieldset className="border border-gray-300 p-3 pt-1 bg-white/50 relative">
-                                <legend className="px-2 text-[10px] font-bold text-[#106ebe] uppercase italic">Datos de Categoría</legend>
+                                <legend className="px-2 text-[10px] font-medium text-[#106ebe] uppercase italic">Datos de Categoría</legend>
                                 <div className="space-y-3 mt-1 flex">
                                     <div className="flex-1 space-y-3">
                                         <div className="flex items-center gap-4">
-                                            <label className="text-[10px] font-bold text-gray-600 w-24">Categoría</label>
+                                            <label className="text-[10px] font-medium text-gray-600 w-24">Categoría</label>
                                             <div className="flex-1 flex flex-col gap-1.5">
                                                 <input
                                                     type="text"
                                                     value={form.nombre}
                                                     onChange={(e) => setForm({ ...form, nombre: e.target.value.toUpperCase() })}
-                                                    className="w-full h-7 bg-white border border-gray-400 px-2 text-[11px] font-bold text-slate-800 outline-none focus:border-[#106ebe] focus:ring-1 focus:ring-[#106ebe]/20 shadow-inner"
+                                                    className="w-full h-7 bg-white border border-gray-400 px-2 text-[11px] font-medium text-slate-800 outline-none focus:border-[#106ebe] focus:ring-1 focus:ring-[#106ebe]/20 shadow-inner"
                                                     autoFocus
                                                 />
                                                 <label className="flex items-center gap-2 cursor-pointer group w-fit">
@@ -383,19 +383,19 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                                                         />
                                                         {form.isSubCategory && <div className="w-2 h-2 bg-[#106ebe]" />}
                                                     </div>
-                                                    <span className="text-[10px] font-bold text-gray-500 uppercase italic transition-colors group-hover:text-[#106ebe]">SubCategoría</span>
+                                                    <span className="text-[10px] font-medium text-gray-500 uppercase italic transition-colors group-hover:text-[#106ebe]">SubCategoría</span>
                                                 </label>
                                             </div>
                                         </div>
 
                                         <div className={`flex items-center gap-4 transition-all duration-200 ${form.isSubCategory ? 'opacity-100' : 'opacity-40 grayscale pointer-events-none'}`}>
-                                            <label className="text-[10px] font-bold text-gray-600 w-24">Categoría Padre</label>
+                                            <label className="text-[10px] font-medium text-gray-600 w-24">Categoría Padre</label>
                                             <div className="flex-1 relative">
                                                 <div 
                                                     onClick={(e) => { e.stopPropagation(); if(form.isSubCategory) setShowParentSelect(!showParentSelect); }}
                                                     className="w-full h-7 bg-white border border-gray-400 px-2 flex items-center justify-between cursor-pointer"
                                                 >
-                                                    <span className="text-[11px] font-bold text-slate-800 truncate">
+                                                    <span className="text-[11px] font-medium text-slate-800 truncate">
                                                         {categories.find(c => c.id === form.parent_id)?.nombre || '[ SELECCIONE CATEGORÍA PADRE ]'}
                                                     </span>
                                                     <span className="text-[8px] text-gray-400">▼</span>
@@ -405,7 +405,7 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                                                     <div className="absolute top-full left-0 right-0 z-[300000] bg-white border border-gray-400 shadow-xl max-h-[140px] overflow-y-auto custom-scrollbar mt-0.5">
                                                         <div 
                                                             onClick={() => { setForm({...form, parent_id: null}); setShowParentSelect(false); }}
-                                                            className="px-2 py-1.5 text-[10px] font-bold text-blue-600 hover:bg-blue-50 cursor-pointer border-b border-gray-100 uppercase"
+                                                            className="px-2 py-1.5 text-[10px] font-medium text-blue-600 hover:bg-blue-50 cursor-pointer border-b border-gray-100 uppercase"
                                                         >
                                                             [ CATEGORÍA RAÍZ ]
                                                         </div>
@@ -413,7 +413,7 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                                                             <div 
                                                                 key={c.id}
                                                                 onClick={() => { setForm({...form, parent_id: c.id}); setShowParentSelect(false); }}
-                                                                className={`px-2 py-1 text-[10px] font-bold uppercase cursor-pointer hover:bg-[#106ebe] hover:text-white ${form.parent_id === c.id ? 'bg-[#106ebe] text-white' : 'text-slate-700'}`}
+                                                                className={`px-2 py-1 text-[10px] font-medium uppercase cursor-pointer hover:bg-[#106ebe] hover:text-white ${form.parent_id === c.id ? 'bg-[#106ebe] text-white' : 'text-slate-700'}`}
                                                             >
                                                                 {c.nombre}
                                                             </div>
@@ -424,12 +424,12 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                                         </div>
 
                                         <div className="flex items-center gap-4">
-                                            <label className="text-[10px] font-bold text-gray-600 w-24">Prioridad</label>
+                                            <label className="text-[10px] font-medium text-gray-600 w-24">Prioridad</label>
                                             <input 
                                                 type="number"
                                                 value={form.sort_order}
                                                 onChange={e => setForm({...form, sort_order: parseInt(e.target.value) || 0})}
-                                                className="w-full flex-1 h-7 bg-white border border-gray-400 px-2 text-[11px] font-bold text-slate-800 outline-none focus:border-[#106ebe] text-center"
+                                                className="w-full flex-1 h-7 bg-white border border-gray-400 px-2 text-[11px] font-medium text-slate-800 outline-none focus:border-[#106ebe] text-center"
                                             />
                                         </div>
                                     </div>
@@ -440,11 +440,11 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                                             ) : (
                                                 <div className="text-gray-400 flex flex-col items-center">
                                                     <ImageIcon size={24} />
-                                                    <span className="text-[10px] mt-1 font-bold">SIN IMAGEN</span>
+                                                    <span className="text-[10px] mt-1 font-medium">SIN IMAGEN</span>
                                                 </div>
                                             )}
                                         </div>
-                                        <button onClick={() => setForm(prev => prev ? {...prev, imagen_url: ''} : null)} className="w-full h-6 bg-[#106ebe] text-white text-[9px] font-bold uppercase hover:bg-[#0d5aa0]">
+                                        <button onClick={() => setForm(prev => prev ? {...prev, imagen_url: ''} : null)} className="w-full h-6 bg-[#106ebe] text-white text-[9px] font-medium uppercase hover:bg-[#0d5aa0]">
                                             Quitar Imagen
                                         </button>
                                     </div>
@@ -452,14 +452,14 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                             </fieldset>
 
                             <fieldset className="border border-gray-300 p-0 bg-white shadow-sm overflow-hidden">
-                                <legend className="px-2 ml-3 text-[10px] font-bold text-[#106ebe] uppercase italic bg-white border border-gray-300 border-b-white">Sucursales</legend>
+                                <legend className="px-2 ml-3 text-[10px] font-medium text-[#106ebe] uppercase italic bg-white border border-gray-300 border-b-white">Sucursales</legend>
                                 <div className="max-h-[160px] overflow-auto custom-scrollbar">
                                     <table className="w-full border-collapse">
                                         <thead className="sticky top-0 bg-[#f5f5f5] z-10">
                                             <tr className="h-6 border-b border-gray-300">
-                                                <th className="px-4 text-[9px] font-black text-gray-500 uppercase text-left border-r border-gray-200">Sucursal</th>
-                                                <th className="px-4 text-[9px] font-black text-gray-500 uppercase text-center border-r border-gray-200 w-24">Habilitado</th>
-                                                <th className="px-4 text-[9px] font-black text-gray-500 uppercase text-center w-36">Asignado a Sucursal</th>
+                                                <th className="px-4 text-[9px] font-semibold text-gray-500 uppercase text-left border-r border-gray-200">Sucursal</th>
+                                                <th className="px-4 text-[9px] font-semibold text-gray-500 uppercase text-center border-r border-gray-200 w-24">Habilitado</th>
+                                                <th className="px-4 text-[9px] font-semibold text-gray-500 uppercase text-center w-36">Asignado a Sucursal</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
@@ -472,7 +472,7 @@ export const ProductCategorySidebar: React.FC<ProductCategorySidebarProps> = ({ 
                                                             : [...form.branch_ids, branch.id];
                                                         setForm({...form, branch_ids: next});
                                                     }}>
-                                                        <td className="px-4 text-[10px] font-bold text-slate-700 uppercase">{branch.name}</td>
+                                                        <td className="px-4 text-[10px] font-medium text-slate-700 uppercase">{branch.name}</td>
                                                         <td className="px-4 border-r border-gray-100">
                                                             <div className="flex justify-center">
                                                                 <div className="w-3.5 h-3.5 border border-gray-400 bg-white flex items-center justify-center">

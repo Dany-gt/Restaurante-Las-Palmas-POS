@@ -76,12 +76,12 @@ export const DeliveryPaymentModal: React.FC<DeliveryPaymentModalProps> = ({
 
     // ── Shared button styles ──────────────────────────────────────────────────
     const methodCls = (id: PaymentMethod) =>
-        `w-full py-3 rounded-sm text-[10px] font-black uppercase tracking-widest border transition-all active:scale-95 ${selectedMethod === id
+        `w-full py-3 rounded-sm text-[10px] font-semibold uppercase tracking-widest border transition-all active:scale-95 ${selectedMethod === id
             ? 'bg-indigo-600 border-indigo-400 text-white '
             : 'bg-[#3a3d50] border-[#4c4f69] text-gray-300 hover:bg-[#44475e] hover:text-white'
         }`;
 
-    const numCls = 'h-[48px] w-full rounded-sm bg-[#3a3d50] border border-[#4c4f69] text-white text-xl font-black hover:bg-[#44475e] transition-all active:scale-95 flex items-center justify-center';
+    const numCls = 'h-[48px] w-full rounded-sm bg-[#3a3d50] border border-[#4c4f69] text-white text-xl font-semibold hover:bg-[#44475e] transition-all active:scale-95 flex items-center justify-center';
 
     // row heights: 48px per row, 1px gap between rows
     const ROW = 48;
@@ -98,7 +98,7 @@ export const DeliveryPaymentModal: React.FC<DeliveryPaymentModalProps> = ({
 
                 {/* ── Title ── */}
                 <div className="text-center py-4 border-b border-white/10">
-                    <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-white/80">
+                    <h2 className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/80">
                         Registro Pago a Domicilio
                     </h2>
                 </div>
@@ -146,7 +146,7 @@ export const DeliveryPaymentModal: React.FC<DeliveryPaymentModalProps> = ({
                                 <span>Q{parsedAmount.toFixed(2)}</span>
                             </div>
                             <div className="h-px bg-white/10" />
-                            <div className="flex justify-between text-white font-black">
+                            <div className="flex justify-between text-white font-semibold">
                                 <span>Cambio</span>
                                 <span>Q{change.toFixed(2)}</span>
                             </div>
@@ -158,7 +158,7 @@ export const DeliveryPaymentModal: React.FC<DeliveryPaymentModalProps> = ({
 
                         {/* Amount display */}
                         <div className="bg-[#1e2030] rounded-xl flex items-center justify-end px-5 border border-white/10" style={{ height: ROW }}>
-                            <span className="text-[22px] font-black text-white tracking-tight tabular-nums">
+                            <span className="text-[22px] font-semibold text-white tracking-tight tabular-nums">
                                 Q{amount}
                             </span>
                         </div>
@@ -224,14 +224,14 @@ export const DeliveryPaymentModal: React.FC<DeliveryPaymentModalProps> = ({
                     <button
                         onClick={onClose}
                         disabled={isLoading}
-                        className="flex-1 py-3 rounded-xl bg-[#3a3d50] border border-[#4c4f69] text-gray-400 font-black uppercase tracking-widest text-[10px] hover:bg-[#44475e] hover:text-white transition-all active:scale-95"
+                        className="flex-1 py-3 rounded-xl bg-[#3a3d50] border border-[#4c4f69] text-gray-400 font-semibold uppercase tracking-widest text-[10px] hover:bg-[#44475e] hover:text-white transition-all active:scale-95"
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={doConfirm}
                         disabled={!canConfirm || isLoading}
-                        className={`flex-1 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all active:scale-95
+                        className={`flex-1 py-3 rounded-xl font-semibold uppercase tracking-widest text-[10px] transition-all active:scale-95
                             ${canConfirm
                                 ? 'bg-indigo-600 border border-indigo-400/40 text-white hover:bg-indigo-500  -600/20'
                                 : 'bg-[#3a3d50] border border-[#4c4f69] text-gray-600 cursor-not-allowed'

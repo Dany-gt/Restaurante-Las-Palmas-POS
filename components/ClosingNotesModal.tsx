@@ -15,7 +15,7 @@ export const ClosingNotesModal: React.FC<ClosingNotesModalProps> = ({ onClose, o
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
                     <div className="flex items-center gap-3">
                         <MessageSquare size={20} className="text-indigo-400" />
-                        <span className="text-sm font-black uppercase tracking-widest text-white">Notas del Cierre</span>
+                        <span className="text-sm font-semibold uppercase tracking-widest text-white">Notas del Cierre</span>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full text-gray-500 transition-colors">
                         <X size={20} />
@@ -41,13 +41,13 @@ export const ClosingNotesModal: React.FC<ClosingNotesModalProps> = ({ onClose, o
                 <div className="p-6 pt-0 flex gap-4">
                     <button
                         onClick={onClose}
-                        className="flex-1 h-12 rounded-xl border border-white/10 font-bold uppercase tracking-widest text-xs text-gray-400 hover:bg-white/5 transition-all"
+                        className="flex-1 h-12 rounded-xl border border-white/10 font-medium uppercase tracking-widest text-xs text-gray-400 hover:bg-white/5 transition-all"
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={() => onConfirm(notes)}
-                        className="flex-1 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold uppercase tracking-widest text-xs text-white  -600/20 transition-all"
+                        className="flex-1 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-medium uppercase tracking-widest text-xs text-white  -600/20 transition-all"
                     >
                         Aceptar
                     </button>

@@ -93,11 +93,11 @@ export const StandaloneAdminApp: React.FC = () => {
                 <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6">
                     <Shield size={32} className="text-indigo-400" />
                 </div>
-                <h1 className="text-2xl font-black mb-1">APP DE AUTORIZACIONES</h1>
+                <h1 className="text-2xl font-semibold mb-1">APP DE AUTORIZACIONES</h1>
                 <p className="text-gray-400 text-sm mb-8 text-center">Ingresa tu PIN de administrador para continuar.</p>
                 
                 {error && (
-                    <div className="w-full bg-red-500/10 text-red-400 text-xs font-bold px-4 py-3 rounded-xl mb-6 text-center border border-red-500/20">
+                    <div className="w-full bg-red-500/10 text-red-400 text-xs font-medium px-4 py-3 rounded-xl mb-6 text-center border border-red-500/20">
                         {error}
                     </div>
                 )}
@@ -113,34 +113,34 @@ export const StandaloneAdminApp: React.FC = () => {
                         <button
                             key={num}
                             onClick={() => handlePinInput(num.toString())}
-                            className="bg-white/5 hover:bg-white/10 active:bg-white/20 h-16 rounded-2xl text-2xl font-black transition-colors"
+                            className="bg-white/5 hover:bg-white/10 active:bg-white/20 h-16 rounded-2xl text-2xl font-semibold transition-colors"
                         >
                             {num}
                         </button>
                     ))}
                     <button
                         onClick={() => setPin(pin.slice(0, -1))}
-                        className="bg-red-500/10 hover:bg-red-500/20 text-red-400 active:bg-red-500/30 h-16 rounded-2xl text-lg font-bold transition-colors flex items-center justify-center"
+                        className="bg-red-500/10 hover:bg-red-500/20 text-red-400 active:bg-red-500/30 h-16 rounded-2xl text-lg font-medium transition-colors flex items-center justify-center"
                     >
                         BORRAR
                     </button>
                     <button
                         onClick={() => handlePinInput('0')}
-                        className="bg-white/5 hover:bg-white/10 active:bg-white/20 h-16 rounded-2xl text-2xl font-black transition-colors"
+                        className="bg-white/5 hover:bg-white/10 active:bg-white/20 h-16 rounded-2xl text-2xl font-semibold transition-colors"
                     >
                         0
                     </button>
                     <button
                         onClick={handleEnter}
                         disabled={pin.length === 0 || loading}
-                        className="bg-indigo-500 hover:bg-indigo-400 active:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed h-16 rounded-2xl text-lg font-bold transition-colors flex items-center justify-center"
+                        className="bg-indigo-500 hover:bg-indigo-400 active:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed h-16 rounded-2xl text-lg font-medium transition-colors flex items-center justify-center"
                     >
                         {loading ? '...' : 'ENTRAR'}
                     </button>
                 </div>
             </div>
             
-            <p className="mt-8 text-xs text-gray-600 font-bold tracking-widest text-center">
+            <p className="mt-8 text-xs text-gray-600 font-medium tracking-widest text-center">
                 LAS PALMAS POS &bull; ADMIN MODULE
             </p>
         </div>

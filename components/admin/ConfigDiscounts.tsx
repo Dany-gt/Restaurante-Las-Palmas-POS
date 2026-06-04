@@ -241,7 +241,7 @@ export const ConfigDiscounts: React.FC = () => {
             </div>
 
             {/* Data Grid Header */}
-            <div className="grid grid-cols-[1fr_150px_100px_100px_100px] bg-[#e8e8e8] border-b border-gray-400 font-bold text-black text-[10px] select-none uppercase">
+            <div className="grid grid-cols-[1fr_150px_100px_100px_100px] bg-[#e8e8e8] border-b border-gray-400 font-medium text-black text-[10px] select-none uppercase">
                 <div className="py-2.5 px-6 border-r border-gray-300 text-left tracking-tight">Descuento</div>
                 <div className="py-2.5 px-6 border-r border-gray-300 text-center tracking-tight">Valor</div>
                 <div className="py-2.5 px-6 border-r border-gray-300 text-center tracking-tight">Editable</div>
@@ -294,14 +294,14 @@ export const ConfigDiscounts: React.FC = () => {
 
                             {discounts.length === 0 ? (
                                 <tr>
-                                    <td colSpan={4} className="py-20 text-center text-slate-500 font-bold italic">
+                                    <td colSpan={4} className="py-20 text-center text-slate-500 font-medium italic">
                                         No hay descuentos configurados. <br />
                                         Haz clic derecho para crear uno nuevo.
                                     </td>
                                 </tr>
                             ) : filteredDiscounts.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="py-20 text-center text-slate-500 font-bold italic">
+                                    <td colSpan={5} className="py-20 text-center text-slate-500 font-medium italic">
                                         No se encontraron resultados para "{searchTerm}".
                                     </td>
                                 </tr>
@@ -319,11 +319,11 @@ export const ConfigDiscounts: React.FC = () => {
                                                 : 'text-slate-900 even:bg-slate-50/50'
                                                 }`}
                                         >
-                                            <td className="px-4 font-bold flex items-center gap-2 h-6 border-r border-gray-100">
+                                            <td className="px-4 font-medium flex items-center gap-2 h-6 border-r border-gray-100">
                                                 <Tag size={12} className={isSelected ? 'text-white' : 'text-slate-400'} />
                                                 <span className="uppercase tracking-tight text-[10px]">{disc.name}</span>
                                             </td>
-                                            <td className="px-4 text-right font-black tabular-nums border-r border-gray-100">
+                                            <td className="px-4 text-right font-semibold tabular-nums border-r border-gray-100">
                                                 <span className="text-[10px]">
                                                     {disc.type === 'PERCENT'
                                                         ? `${disc.value % 1 === 0 ? disc.value : disc.value.toFixed(2)}%`
@@ -388,7 +388,7 @@ export const ConfigDiscounts: React.FC = () => {
                             setContextMenu({ ...contextMenu, visible: false });
                             openModal(null);
                         }}
-                        className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-slate-900"
+                        className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-slate-900"
                     >
                         <Plus size={14} className="group-hover:text-white text-emerald-600" /> Nuevo Registro
                     </button>
@@ -401,7 +401,7 @@ export const ConfigDiscounts: React.FC = () => {
                                     setContextMenu({ ...contextMenu, visible: false });
                                     openModal(contextMenu.discount);
                                 }}
-                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-slate-900"
+                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-slate-900"
                             >
                                 <Edit2 size={14} className="text-[#106ebe] group-hover:text-white" /> Modificar
                             </button>
@@ -410,7 +410,7 @@ export const ConfigDiscounts: React.FC = () => {
                                     setContextMenu({ ...contextMenu, visible: false });
                                     setConfirmDelete(contextMenu.discount);
                                 }}
-                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-bold transition-colors group text-slate-900"
+                                className="w-full text-left px-4 py-1.5 hover:bg-[#106ebe] hover:text-white flex items-center gap-3 text-[11px] font-medium transition-colors group text-slate-900"
                             >
                                 <Trash2 size={14} className="text-red-500 group-hover:text-white" /> Eliminar
                             </button>
@@ -425,7 +425,7 @@ export const ConfigDiscounts: React.FC = () => {
                     <DraggableWindow>
                         <div className="w-[450px] bg-[#f0f0f0] shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden border border-[#106ebe] flex flex-col animate-slide-up pointer-events-auto">
                             <div className="modal-header bg-[#106ebe] h-8 px-3 flex justify-between items-center cursor-move active:cursor-grabbing shrink-0 select-none">
-                                <h3 className="text-[12px] font-bold text-white tracking-wide flex items-center gap-2">
+                                <h3 className="text-[12px] font-medium text-white tracking-wide flex items-center gap-2">
                                     Mantenimiento Tipos de Descuento
                                 </h3>
                                 <div className="flex items-center gap-1">
@@ -448,7 +448,7 @@ export const ConfigDiscounts: React.FC = () => {
                             <div className="p-4 bg-[#f0f0f0] flex flex-col gap-4 border-b border-gray-300">
                                 {/* Datos de Descuento Fieldset */}
                                 <div className="border border-gray-400 p-3 pt-4 relative bg-[#f0f0f0] rounded-sm">
-                                    <span className="text-[11px] text-slate-800 font-bold px-1 absolute -top-2.5 left-2 bg-[#f0f0f0]">Tipo de Descuento</span>
+                                    <span className="text-[11px] text-slate-800 font-medium px-1 absolute -top-2.5 left-2 bg-[#f0f0f0]">Tipo de Descuento</span>
 
                                     <div className="space-y-3">
                                         <div className="grid grid-cols-[80px_1fr] items-center gap-4">

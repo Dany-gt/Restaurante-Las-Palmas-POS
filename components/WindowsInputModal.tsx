@@ -38,7 +38,7 @@ export const WindowsInputModal: React.FC<Props> = ({
             >
                 {/* Title Bar */}
                 <div className="flex justify-between items-center bg-[#222] text-white px-3 py-1.5 select-none">
-                    <span className="text-[12px] font-bold whitespace-nowrap overflow-hidden text-ellipsis uppercase tracking-wider">{title}</span>
+                    <span className="text-[12px] font-medium whitespace-nowrap overflow-hidden text-ellipsis uppercase tracking-wider">{title}</span>
                     <button
                         onClick={onCancel}
                         className="hover:bg-red-600 focus:outline-none w-6 h-6 flex items-center justify-center -mr-1 transition-colors"
@@ -69,13 +69,13 @@ export const WindowsInputModal: React.FC<Props> = ({
                 <div className="bg-[#f0f0f0] px-4 pb-4 pt-2 flex justify-end gap-2.5">
                     <button
                         onClick={() => onConfirm(value)}
-                        className="min-w-[90px] h-[28px] bg-[#333] hover:bg-[#444] border border-[#000] text-white text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 "
+                        className="min-w-[90px] h-[28px] bg-[#333] hover:bg-[#444] border border-[#000] text-white text-[11px] font-semibold uppercase tracking-widest transition-all active:scale-95 "
                     >
                         ACEPTAR
                     </button>
                     <button
                         onClick={onCancel}
-                        className="min-w-[90px] h-[28px] bg-[#e1e1e1] hover:bg-[#d5d5d5] border border-[#adadad] text-black text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 "
+                        className="min-w-[90px] h-[28px] bg-[#e1e1e1] hover:bg-[#d5d5d5] border border-[#adadad] text-black text-[11px] font-semibold uppercase tracking-widest transition-all active:scale-95 "
                     >
                         CANCELAR
                     </button>

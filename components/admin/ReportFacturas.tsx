@@ -48,12 +48,12 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                     <div className="bg-[#f0f0f0] border-2 border-[#106ebe] shadow-2xl flex flex-col w-[98vw] max-w-7xl h-[95vh] overflow-hidden font-sans rounded-sm">
                         {/* Toolbar */}
                         <div className="modal-header bg-[#106ebe] h-10 px-4 flex justify-between items-center text-white shrink-0 cursor-move border-b border-black">
-                            <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest">
+                            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest">
                                 <Printer size={16} className="text-emerald-400" />
                                 <span>Contingencia y Auditoría - Vista Previa de {getModeTitle()}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <button onClick={() => handlePrint()} className="h-7 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-sm text-[10px] font-black uppercase flex items-center gap-2 transition-colors border border-blue-400/30">
+                                <button onClick={() => handlePrint()} className="h-7 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-sm text-[10px] font-semibold uppercase flex items-center gap-2 transition-colors border border-blue-400/30">
                                     <Printer size={12} strokeWidth={3} /> IMPRIMIR PDF
                                 </button>
                                 <button onClick={() => {
@@ -71,7 +71,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                     const wb = XLSX.utils.book_new();
                                     XLSX.utils.book_append_sheet(wb, ws, 'Facturas');
                                     XLSX.writeFile(wb, `Reporte_Facturacion_${filters.start}.xlsx`);
-                                }} className="h-7 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-sm text-[10px] font-black uppercase flex items-center gap-2 transition-colors border border-emerald-400/30">
+                                }} className="h-7 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-sm text-[10px] font-semibold uppercase flex items-center gap-2 transition-colors border border-emerald-400/30">
                                     <FileSpreadsheet size={12} strokeWidth={3} /> EXCEL
                                 </button>
                                 <button onClick={onClose} className="h-8 w-8 flex items-center justify-center hover:bg-red-500 transition-colors text-white ml-2 rounded-sm">
@@ -90,21 +90,21 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
 
                                 {/* Header */}
                                 <div className="text-center mb-10 border-b-2 border-slate-900 pb-8 relative z-10">
-                                    <h1 className="text-4xl font-black uppercase tracking-tighter mb-1 font-sans">RESTAURANTE LAS PALMAS</h1>
-                                    <p className="text-[12px] font-black uppercase text-slate-400 tracking-[0.4em] mb-4 font-sans">Informe Fiscal de Facturación y Ventas</p>
+                                    <h1 className="text-4xl font-semibold uppercase tracking-tighter mb-1 font-sans">RESTAURANTE LAS PALMAS</h1>
+                                    <p className="text-[12px] font-semibold uppercase text-slate-400 tracking-[0.4em] mb-4 font-sans">Informe Fiscal de Facturación y Ventas</p>
 
                                     <div className="flex justify-between items-end bg-slate-50 p-6 border border-slate-200 mt-6 font-sans">
                                         <div className="text-left">
-                                            <h2 className="text-2xl font-black uppercase text-slate-800 tracking-tight leading-none">{getModeTitle()}</h2>
+                                            <h2 className="text-2xl font-semibold uppercase text-slate-800 tracking-tight leading-none">{getModeTitle()}</h2>
                                             <div className="mt-2 space-y-0.5">
-                                                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Sucursal: <span className="text-slate-900">{filters?.branch === 'ALL' ? 'TODAS LAS SUCURSALES' : filters?.branch}</span></p>
-                                                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Periodo: <span className="text-slate-900">{filters?.start} al {filters?.end}</span></p>
+                                                <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Sucursal: <span className="text-slate-900">{filters?.branch === 'ALL' ? 'TODAS LAS SUCURSALES' : filters?.branch}</span></p>
+                                                <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Periodo: <span className="text-slate-900">{filters?.start} al {filters?.end}</span></p>
                                             </div>
                                         </div>
                                         <div className="text-right">
                                             <div className="inline-block border-l-4 border-emerald-500 pl-4 text-right">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 font-sans">Monto Total Bruto</p>
-                                                <div className="text-3xl font-black text-slate-900 tracking-tighter font-sans">Q{formatCurrRaw(totals?.amount || 0)}</div>
+                                                <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1 font-sans">Monto Total Bruto</p>
+                                                <div className="text-3xl font-semibold text-slate-900 tracking-tighter font-sans">Q{formatCurrRaw(totals?.amount || 0)}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -112,7 +112,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
 
                                 {/* Tabla de Detalle */}
                                 <div className="mb-12 relative z-10">
-                                    <div className="bg-slate-800 text-white px-4 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4 flex justify-between items-center font-sans">
+                                    <div className="bg-slate-800 text-white px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.2em] mb-4 flex justify-between items-center font-sans">
                                         <div className="flex items-center gap-2">
                                             <FileText size={14} />
                                             <span>Relación de Documentos Tributarios Electrónicos (DTE)</span>
@@ -122,7 +122,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
 
                                     <table className="w-full border-collapse font-sans text-[9px]">
                                         <thead>
-                                            <tr className="bg-slate-100 border-b-2 border-slate-900 font-black uppercase text-slate-600 tracking-tighter">
+                                            <tr className="bg-slate-100 border-b-2 border-slate-900 font-semibold uppercase text-slate-600 tracking-tighter">
                                                 <th className="px-1 py-3 text-center">FECHA</th>
                                                 {filters.mode === 'REP_INV_VOID' && <th className="px-1 py-3 text-center">F. ANULACIÓN</th>}
                                                 <th className="px-1 py-3 text-center w-[80px]">ORDEN</th>
@@ -135,22 +135,22 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                                 <th className="px-1 py-3 text-right">MONTO (Q)</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-100 font-bold">
+                                        <tbody className="divide-y divide-slate-100 font-medium">
                                             {data?.map((r, i) => (
                                                 <tr key={i} className={`h-7 ${r.status === 'CANCELLED' ? 'text-red-500 line-through opacity-50' : ''}`}>
                                                     <td className="px-1 text-center whitespace-nowrap">{new Date(r.creada).toLocaleDateString()}</td>
                                                     {filters.mode === 'REP_INV_VOID' && <td className="px-1 text-center whitespace-nowrap">{r.status === 'CANCELLED' && r.fechaAnulacion ? new Date(r.fechaAnulacion).toLocaleDateString() : '---'}</td>}
-                                                    <td className="px-1 text-center font-black">#{r.noOrden}</td>
+                                                    <td className="px-1 text-center font-semibold">#{r.noOrden}</td>
                                                     <td className="px-1 text-center text-slate-400 font-mono">{r.serie}</td>
-                                                    <td className="px-1 text-center font-black">{r.numero}</td>
+                                                    <td className="px-1 text-center font-semibold">{r.numero}</td>
                                                     <td className="px-1 text-left font-mono text-[8px] max-w-[200px] truncate">{r.firma}</td>
                                                     <td className="px-1 text-left uppercase truncate max-w-[250px]">{r.cliente} <span className="text-slate-400 ml-1">[{r.nit}]</span></td>
-                                                    <td className="px-1 text-right font-black">Q{formatCurrRaw(r.monto)}</td>
+                                                    <td className="px-1 text-right font-semibold">Q{formatCurrRaw(r.monto)}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                         <tfoot>
-                                            <tr className="border-t-2 border-slate-900 bg-slate-50 h-11 font-black uppercase text-xs">
+                                            <tr className="border-t-2 border-slate-900 bg-slate-50 h-11 font-semibold uppercase text-xs">
                                                 <td colSpan={6} className="px-2 text-right tracking-[0.1em]">GRAN TOTAL DE FACTURACIÓN:</td>
                                                 <td className="px-2 text-right bg-slate-200 text-slate-900 font-extrabold tracking-tighter">Q{formatCurrRaw(totals?.amount || 0)}</td>
                                             </tr>
@@ -161,20 +161,20 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                 {/* Resumen por Serie */}
                                 <div className="mt-8 grid grid-cols-3 gap-8 px-4 font-sans relative z-10">
                                     <div className="border border-slate-200 p-4 bg-slate-50">
-                                        <p className="text-[8px] font-black text-slate-400 uppercase mb-2">Resumen de Operación</p>
+                                        <p className="text-[8px] font-semibold text-slate-400 uppercase mb-2">Resumen de Operación</p>
                                         <div className="flex justify-between items-center mb-1">
                                             <span className="text-[10px] uppercase">Documentos Válidos:</span>
-                                            <span className="font-black">{data.filter(f => f.status !== 'CANCELLED').length}</span>
+                                            <span className="font-semibold">{data.filter(f => f.status !== 'CANCELLED').length}</span>
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <span className="text-[10px] uppercase">Anulaciones:</span>
-                                            <span className="font-black text-red-500">{data.filter(f => f.status === 'CANCELLED').length}</span>
+                                            <span className="font-semibold text-red-500">{data.filter(f => f.status === 'CANCELLED').length}</span>
                                         </div>
                                     </div>
                                     <div className="col-span-2 border-l-2 border-slate-100 pl-8 flex items-center justify-end pr-8">
                                         <div className="text-right">
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Exento de IVA (Estimado)</p>
-                                            <p className="text-2xl font-black text-slate-300 tracking-tighter leading-none">Q0.00</p>
+                                            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1">Total Exento de IVA (Estimado)</p>
+                                            <p className="text-2xl font-semibold text-slate-300 tracking-tighter leading-none">Q0.00</p>
                                         </div>
                                     </div>
                                 </div>
@@ -182,12 +182,12 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                 {/* Footer Firmas */}
                                 <div className="mt-24 grid grid-cols-2 gap-20 px-20 font-sans relative z-10">
                                     <div className="border-t-2 border-slate-900 pt-5 text-center">
-                                        <p className="text-[10px] font-black uppercase text-slate-900">ADMINISTRACIÓN FINANCIERA</p>
-                                        <p className="text-[8px] text-slate-400 font-bold mt-2 uppercase tracking-tight font-serif">Certificación de Ingresos Brutos</p>
+                                        <p className="text-[10px] font-semibold uppercase text-slate-900">ADMINISTRACIÓN FINANCIERA</p>
+                                        <p className="text-[8px] text-slate-400 font-medium mt-2 uppercase tracking-tight font-serif">Certificación de Ingresos Brutos</p>
                                     </div>
                                     <div className="border-t-2 border-slate-900 pt-5 text-center">
-                                        <p className="text-[10px] font-black uppercase text-slate-900">REVISIÓN DE AUDITORÍA</p>
-                                        <p className="text-[8px] text-slate-400 font-bold mt-2 uppercase tracking-tight font-serif">Verificación de Correlativos y Firmas</p>
+                                        <p className="text-[10px] font-semibold uppercase text-slate-900">REVISIÓN DE AUDITORÍA</p>
+                                        <p className="text-[8px] text-slate-400 font-medium mt-2 uppercase tracking-tight font-serif">Verificación de Correlativos y Firmas</p>
                                     </div>
                                 </div>
 
@@ -506,7 +506,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                         {/* Selector de Sucursal */}
                         <div className="flex items-center gap-3">
                             <div className="flex flex-col gap-1 relative">
-                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Sucursal</span>
+                                <span className="text-[10px] font-medium text-gray-500 uppercase tracking-tighter">Sucursal</span>
                                 <select
                                     value={selectedBranch}
                                     onChange={e => setSelectedBranch(e.target.value)}
@@ -526,17 +526,17 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                     onChange={e => setShowAllBranches(e.target.checked)}
                                     className="w-3 h-3 cursor-pointer"
                                 />
-                                <label htmlFor="all-br" className="text-[10px] font-bold text-gray-600 uppercase cursor-pointer select-none">Ver Todas</label>
+                                <label htmlFor="all-br" className="text-[10px] font-medium text-gray-600 uppercase cursor-pointer select-none">Ver Todas</label>
                             </div>
                         </div>
 
                         {/* Rango de Fechas */}
                         <div className="flex items-center gap-6 border-l border-gray-300 pl-6 h-10">
                             <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Fechas</span>
+                                <span className="text-[10px] font-medium text-gray-500 uppercase tracking-tighter">Fechas</span>
                                 <div className="flex items-center gap-3">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[11px] font-bold text-gray-700">Del:</span>
+                                        <span className="text-[11px] font-medium text-gray-700">Del:</span>
                                         <input
                                             type="date"
                                             value={startDate}
@@ -545,7 +545,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                         />
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[11px] font-bold text-gray-700">Al:</span>
+                                        <span className="text-[11px] font-medium text-gray-700">Al:</span>
                                         <input
                                             type="date"
                                             value={endDate}
@@ -562,14 +562,14 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                             <button
                                 onClick={handleGenerate}
                                 disabled={loading}
-                                className="bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-8 py-0.5.5 text-[11px] font-black uppercase text-gray-700 shadow-sm transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                                className="bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-8 py-0.5.5 text-[11px] font-semibold uppercase text-gray-700 shadow-sm transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
                             >
                                 {loading ? <Loader2 size={14} className="animate-spin text-blue-500" /> : <BarChart3 size={14} className="text-blue-500" />}
                                 Generar
                             </button>
                             <button
                                 onClick={() => setShowPrintPreview(true)}
-                                className="bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-6 py-0.5.5 text-[11px] font-black uppercase text-gray-700 shadow-sm transition-all active:scale-95 flex items-center gap-2"
+                                className="bg-white border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-6 py-0.5.5 text-[11px] font-semibold uppercase text-gray-700 shadow-sm transition-all active:scale-95 flex items-center gap-2"
                             >
                                 <Printer size={14} className="text-blue-600" /> Vista Previa
                             </button>
@@ -589,7 +589,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                             className="bg-transparent border-none outline-none text-[11px] text-gray-700 w-full"
                         />
                     </div>
-                    <button className="bg-white border border-gray-300 h-8 px-4 text-[10px] font-bold uppercase hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                    <button className="bg-white border border-gray-300 h-8 px-4 text-[10px] font-medium uppercase hover:bg-gray-50 active:bg-gray-100 transition-colors">
                         Buscar
                     </button>
                 </div>
@@ -609,28 +609,28 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                     <table className="w-full border-collapse text-[11px] table-fixed min-w-[1200px]">
                         <thead className="sticky top-0 bg-[#f8f9fa] z-20 shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
                             <tr className="divide-x divide-gray-300 text-gray-700 border-b border-gray-300">
-                                <th className="w-[100px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Creada</th>
-                                {mode === 'REP_INV_VOID' && <th className="w-[100px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">F. Anulación</th>}
-                                {mode === 'REP_INV_VOID' && <th className="w-[160px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Motivo</th>}
-                                <th className="w-[80px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">No. Orden</th>
-                                <th className="w-[110px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Cuenta</th>
-                                {mode === 'REP_INV_CONT' && <th className="w-[80px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Tipo</th>}
-                                {mode === 'REP_INV_CONT' && <th className="w-[80px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Mesa</th>}
-                                {mode === 'REP_INV_CONT' && <th className="w-[100px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Sección</th>}
-                                {mode !== 'REP_INV_CONT' && <th className="w-[80px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Serie</th>}
-                                {mode !== 'REP_INV_CONT' && <th className="w-[110px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Número</th>}
-                                {mode !== 'REP_INV_CONT' && <th className="w-[220px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap bg-gray-50/50">Firma / Autorización</th>}
-                                {mode !== 'REP_INV_CONT' && <th className="w-[140px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">DTE</th>}
-                                {mode !== 'REP_INV_CONT' && <th className="w-[100px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Nit</th>}
-                                <th className="w-[180px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Cliente</th>
-                                <th className="w-[130px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Forma de Pago</th>
-                                <th className="w-[120px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">
+                                <th className="w-[100px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Creada</th>
+                                {mode === 'REP_INV_VOID' && <th className="w-[100px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">F. Anulación</th>}
+                                {mode === 'REP_INV_VOID' && <th className="w-[160px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Motivo</th>}
+                                <th className="w-[80px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">No. Orden</th>
+                                <th className="w-[110px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Cuenta</th>
+                                {mode === 'REP_INV_CONT' && <th className="w-[80px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Tipo</th>}
+                                {mode === 'REP_INV_CONT' && <th className="w-[80px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Mesa</th>}
+                                {mode === 'REP_INV_CONT' && <th className="w-[100px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Sección</th>}
+                                {mode !== 'REP_INV_CONT' && <th className="w-[80px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Serie</th>}
+                                {mode !== 'REP_INV_CONT' && <th className="w-[110px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Número</th>}
+                                {mode !== 'REP_INV_CONT' && <th className="w-[220px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap bg-gray-50/50">Firma / Autorización</th>}
+                                {mode !== 'REP_INV_CONT' && <th className="w-[140px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">DTE</th>}
+                                {mode !== 'REP_INV_CONT' && <th className="w-[100px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Nit</th>}
+                                <th className="w-[180px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Cliente</th>
+                                <th className="w-[130px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Forma de Pago</th>
+                                <th className="w-[120px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">
                                     {mode === 'REP_INV_VOID' ? 'Anulado Por' : 'Operado Por'}
                                 </th>
-                                {mode === 'REP_INV_CONT' && <th className="w-[100px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Subtotal</th>}
-                                {mode === 'REP_INV_CONT' && <th className="w-[100px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Desc.</th>}
-                                {mode === 'REP_INV_CONT' && <th className="w-[100px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Propina</th>}
-                                <th className="w-[120px] px-2 py-2.5 font-black uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Total</th>
+                                {mode === 'REP_INV_CONT' && <th className="w-[100px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Subtotal</th>}
+                                {mode === 'REP_INV_CONT' && <th className="w-[100px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Desc.</th>}
+                                {mode === 'REP_INV_CONT' && <th className="w-[100px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Propina</th>}
+                                <th className="w-[120px] px-2 py-2.5 font-semibold uppercase tracking-tighter text-center text-[10px] whitespace-nowrap">Total</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -645,29 +645,29 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                     <td className="px-3 py-0.5 text-center tabular-nums">
                                         {new Date(row.creada).toLocaleDateString()}
                                     </td>
-                                    {mode === 'REP_INV_VOID' && <td className="px-3 py-0.5 text-center tabular-nums font-bold">
+                                    {mode === 'REP_INV_VOID' && <td className="px-3 py-0.5 text-center tabular-nums font-medium">
                                         {row.status === 'CANCELLED' && row.fechaAnulacion ? new Date(row.fechaAnulacion).toLocaleDateString() : '---'}
                                     </td>}
-                                    {mode === 'REP_INV_VOID' && <td className="px-3 py-0.5 text-center truncate text-[9px] uppercase font-bold text-gray-700">
+                                    {mode === 'REP_INV_VOID' && <td className="px-3 py-0.5 text-center truncate text-[9px] uppercase font-medium text-gray-700">
                                         {row.motivoAnulacion}
                                     </td>}
-                                    <td className="px-3 py-0.5 text-center font-bold">{row.noOrden}</td>
+                                    <td className="px-3 py-0.5 text-center font-medium">{row.noOrden}</td>
                                     <td className="px-3 py-0.5 text-center truncate uppercase font-medium">{row.cuenta}</td>
-                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center truncate uppercase font-bold text-gray-500 text-[9px]">{row.tipoOrden}</td>}
-                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center truncate uppercase font-bold text-gray-600">{row.mesa}</td>}
-                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center truncate uppercase font-bold text-gray-500 text-[9px]">{row.seccion}</td>}
-                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center font-bold text-gray-500">{row.serie}</td>}
-                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center font-black text-slate-700">{row.numero}</td>}
-                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center text-[10px] text-gray-400 font-mono font-bold leading-none truncate">{row.firma}</td>}
+                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center truncate uppercase font-medium text-gray-500 text-[9px]">{row.tipoOrden}</td>}
+                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center truncate uppercase font-medium text-gray-600">{row.mesa}</td>}
+                                    {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center truncate uppercase font-medium text-gray-500 text-[9px]">{row.seccion}</td>}
+                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center font-medium text-gray-500">{row.serie}</td>}
+                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center font-semibold text-slate-700">{row.numero}</td>}
+                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center text-[10px] text-gray-400 font-mono font-medium leading-none truncate">{row.firma}</td>}
                                     {mode !== 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center font-mono text-[10px] text-slate-900">{row.dte}</td>}
-                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center font-bold">{row.nit}</td>}
+                                    {mode !== 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center font-medium">{row.nit}</td>}
                                     <td className="px-3 py-0.5 text-center truncate uppercase font-medium">{row.cliente}</td>
-                                    <td className="px-3 py-0.5 text-center text-[9px] uppercase font-black text-slate-500">{row.formaPago}</td>
+                                    <td className="px-3 py-0.5 text-center text-[9px] uppercase font-semibold text-slate-500">{row.formaPago}</td>
                                     <td className="px-3 py-0.5 text-center truncate text-[10px] text-gray-500">{row.operadoPor}</td>
                                     {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center font-medium tabular-nums">{formatCurrency(row.subtotal)}</td>}
                                     {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center text-red-500 font-medium tabular-nums">{formatCurrency(row.descuento)}</td>}
                                     {mode === 'REP_INV_CONT' && <td className="px-3 py-0.5 text-center text-blue-500 font-medium tabular-nums">{formatCurrency(row.propina)}</td>}
-                                    <td className="px-3 py-0.5 text-center font-black text-gray-900 tabular-nums">
+                                    <td className="px-3 py-0.5 text-center font-semibold text-gray-900 tabular-nums">
                                         {formatCurrency(row.monto)}
                                     </td>
                                 </tr>
@@ -678,7 +678,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                     {filteredData.length === 0 && !loading && (
                         <div className="flex flex-col items-center justify-center pt-32 opacity-25">
                             <FileSearch size={64} className="text-gray-400 mb-4" />
-                            <span className="text-xs font-black uppercase tracking-[0.3em] text-gray-500">No se encontraron facturas</span>
+                            <span className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-500">No se encontraron facturas</span>
                         </div>
                     )}
                 </div>
@@ -695,25 +695,25 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                 <tr className="h-8">
                                     <td className="w-[100px] px-3">
                                         <div className="flex items-center gap-1 h-full text-slate-800">
-                                            <span className="text-[11px] font-bold capitalize">Facts.:</span>
-                                            <span className="text-[11px] font-black">{totals.count}</span>
+                                            <span className="text-[11px] font-medium capitalize">Facts.:</span>
+                                            <span className="text-[11px] font-semibold">{totals.count}</span>
                                         </div>
                                     </td>
                                     <td className="text-left border-none"></td>
                                     {mode === 'REP_INV_CONT' && (
                                         <>
-                                            <td className="w-[100px] px-3 text-center text-slate-900 font-bold tabular-nums">
+                                            <td className="w-[100px] px-3 text-center text-slate-900 font-medium tabular-nums">
                                                 {formatCurrency(totals.subtotal)}
                                             </td>
-                                            <td className="w-[100px] px-3 text-center text-slate-900 font-bold tabular-nums">
+                                            <td className="w-[100px] px-3 text-center text-slate-900 font-medium tabular-nums">
                                                 {formatCurrency(totals.descuento)}
                                             </td>
-                                            <td className="w-[100px] px-3 text-center text-slate-900 font-bold tabular-nums">
+                                            <td className="w-[100px] px-3 text-center text-slate-900 font-medium tabular-nums">
                                                 {formatCurrency(totals.propina)}
                                             </td>
                                         </>
                                     )}
-                                    <td className="w-[120px] px-3 text-center text-slate-900 font-black tabular-nums">
+                                    <td className="w-[120px] px-3 text-center text-slate-900 font-semibold tabular-nums">
                                         {formatCurrency(totals.amount)}
                                     </td>
                                 </tr>
@@ -731,7 +731,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                 >
                     <button
                         onClick={() => fetchInvoiceDetails(contextMenu.row)}
-                        className="w-full text-left px-4 py-2 text-[11px] font-bold text-slate-700 hover:bg-slate-800 hover:text-white flex items-center gap-3 transition-colors"
+                        className="w-full text-left px-4 py-2 text-[11px] font-medium text-slate-700 hover:bg-slate-800 hover:text-white flex items-center gap-3 transition-colors"
                     >
                         <Eye size={14} /> Ver Detalles de Factura
                     </button>
@@ -756,13 +756,13 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                 <div className="flex items-center gap-3">
                                     <div className="flex items-center gap-2">
                                         <Receipt size={14} className="text-blue-300" />
-                                        <span className="text-white text-[11px] font-black uppercase tracking-wider">Detalle de Factura: {viewingInvoice.serie}-{viewingInvoice.numero}</span>
+                                        <span className="text-white text-[11px] font-semibold uppercase tracking-wider">Detalle de Factura: {viewingInvoice.serie}-{viewingInvoice.numero}</span>
                                     </div>
 
                                     {viewingInvoice.pdf_url && (
                                         <button
                                             onClick={() => window.open(viewingInvoice.pdf_url, '_blank')}
-                                            className="ml-4 bg-blue-600 hover:bg-blue-700 text-white px-3 py-0.5 rounded-sm text-[10px] font-black uppercase flex items-center gap-2 shadow-lg transition-all active:scale-95"
+                                            className="ml-4 bg-blue-600 hover:bg-blue-700 text-white px-3 py-0.5 rounded-sm text-[10px] font-semibold uppercase flex items-center gap-2 shadow-lg transition-all active:scale-95"
                                         >
                                             <ExternalLink size={12} /> Abrir Factura SAT (FEL)
                                         </button>
@@ -782,7 +782,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
 
                                     {/* Cabecera Documento */}
                                     <div className="flex flex-col items-center gap-1 mb-2">
-                                        <h1 className="text-xl font-black uppercase tracking-widest text-blue-900 leading-none">Factura</h1>
+                                        <h1 className="text-xl font-semibold uppercase tracking-widest text-blue-900 leading-none">Factura</h1>
                                         <div className="h-0.5 w-12 bg-blue-900"></div>
                                     </div>
 
@@ -790,17 +790,17 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                     <div className="grid grid-cols-2 gap-8 border-b border-gray-100 pb-6">
                                         {/* Izquierda: Datos del Emisor */}
                                         <div className="flex flex-col gap-1">
-                                            <span className="font-black text-[12px] uppercase text-blue-800">Cevicheria y Restaurante Las Palmas, Sociedad Anónima</span>
-                                            <span className="font-bold uppercase">Nit Emisor: 91887666</span>
-                                            <span className="font-bold opacity-80 uppercase">Cevicheria y Restaurante Las Palmas No. 2</span>
+                                            <span className="font-semibold text-[12px] uppercase text-blue-800">Cevicheria y Restaurante Las Palmas, Sociedad Anónima</span>
+                                            <span className="font-medium uppercase">Nit Emisor: 91887666</span>
+                                            <span className="font-medium opacity-80 uppercase">Cevicheria y Restaurante Las Palmas No. 2</span>
                                             <span className="opacity-70 uppercase leading-none">Avenida Circunvalación 6-73 Zona 1, Retalhuleu, Retalhuleu</span>
                                             <div className="mt-1 flex flex-col pt-1 border-t border-gray-50">
-                                                <span className="font-bold opacity-60 text-[8px] uppercase">Receptor:</span>
-                                                <span className="font-black text-[11px] uppercase leading-none mb-1">{viewingInvoice.cliente}</span>
-                                                <span className="font-bold mb-1">NIT RECEPTOR: {viewingInvoice.nit}</span>
+                                                <span className="font-medium opacity-60 text-[8px] uppercase">Receptor:</span>
+                                                <span className="font-semibold text-[11px] uppercase leading-none mb-1">{viewingInvoice.cliente}</span>
+                                                <span className="font-medium mb-1">NIT RECEPTOR: {viewingInvoice.nit}</span>
                                                 <div className="flex items-center gap-1 mt-1 pt-1 border-t border-gray-100">
                                                     <CreditCard size={10} className="text-blue-600" />
-                                                    <span className="font-bold text-blue-800 uppercase text-[9px]">Forma de Pago: {viewingInvoice.metodo_pago_detallado || 'EFECTIVO'}</span>
+                                                    <span className="font-medium text-blue-800 uppercase text-[9px]">Forma de Pago: {viewingInvoice.metodo_pago_detallado || 'EFECTIVO'}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -808,25 +808,25 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                         {/* Derecha: Datos de Autorización */}
                                         <div className="flex flex-col gap-1 text-right items-end">
                                             <div className="flex flex-col items-end mb-2">
-                                                <span className="font-bold text-blue-600 text-[10px] uppercase">Número de Autorización:</span>
-                                                <span className="font-black font-mono text-slate-900 text-[11px] break-all max-w-[250px] leading-none uppercase">{viewingInvoice.firma}</span>
+                                                <span className="font-medium text-blue-600 text-[10px] uppercase">Número de Autorización:</span>
+                                                <span className="font-semibold font-mono text-slate-900 text-[11px] break-all max-w-[250px] leading-none uppercase">{viewingInvoice.firma}</span>
                                             </div>
                                             <div className="flex flex-col items-end border-t border-gray-100 pt-2 w-full">
                                                 <div className="flex justify-between w-full max-w-[200px]">
-                                                    <span className="font-bold opacity-60 uppercase">Serie:</span>
-                                                    <span className="font-black text-slate-900 uppercase font-mono">{viewingInvoice.serie}</span>
+                                                    <span className="font-medium opacity-60 uppercase">Serie:</span>
+                                                    <span className="font-semibold text-slate-900 uppercase font-mono">{viewingInvoice.serie}</span>
                                                 </div>
                                                 <div className="flex justify-between w-full max-w-[200px]">
-                                                    <span className="font-bold opacity-60 uppercase">Número:</span>
-                                                    <span className="font-black text-slate-900 uppercase font-mono">{viewingInvoice.dte}</span>
+                                                    <span className="font-medium opacity-60 uppercase">Número:</span>
+                                                    <span className="font-semibold text-slate-900 uppercase font-mono">{viewingInvoice.dte}</span>
                                                 </div>
                                                 <div className="flex justify-between w-full max-w-[200px] mt-1 border-t border-gray-100 pt-1">
-                                                    <span className="font-bold opacity-60 uppercase">Fecha Emisión:</span>
-                                                    <span className="font-black text-slate-900 uppercase font-mono">{new Date(viewingInvoice.creada).toLocaleDateString()}</span>
+                                                    <span className="font-medium opacity-60 uppercase">Fecha Emisión:</span>
+                                                    <span className="font-semibold text-slate-900 uppercase font-mono">{new Date(viewingInvoice.creada).toLocaleDateString()}</span>
                                                 </div>
                                                 <div className="flex justify-between w-full max-w-[200px]">
-                                                    <span className="font-bold opacity-60 uppercase">Hora Emisión:</span>
-                                                    <span className="font-black text-slate-900 uppercase font-mono">{new Date(viewingInvoice.creada).toLocaleTimeString()}</span>
+                                                    <span className="font-medium opacity-60 uppercase">Hora Emisión:</span>
+                                                    <span className="font-semibold text-slate-900 uppercase font-mono">{new Date(viewingInvoice.creada).toLocaleTimeString()}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -836,7 +836,7 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                     <div className="flex-1 flex flex-col">
                                         <table className="w-full border-collapse">
                                             <thead>
-                                                <tr className="border-y-2 border-slate-800 text-[10px] font-black uppercase text-center bg-slate-50/50">
+                                                <tr className="border-y-2 border-slate-800 text-[10px] font-semibold uppercase text-center bg-slate-50/50">
                                                     <th className="w-8 py-2">No.</th>
                                                     <th className="w-10">B/S</th>
                                                     <th className="w-16">Cantidad</th>
@@ -857,12 +857,12 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                                     invoiceItems.map((item, idx) => (
                                                         <tr key={idx} className="text-center h-7 hover:bg-slate-50/50 transition-colors">
                                                             <td className="font-mono opacity-50">{idx + 1}</td>
-                                                            <td className="font-bold uppercase tracking-tighter opacity-70">Bien</td>
-                                                            <td className="font-black text-[12px]">{item.quantity}.00</td>
-                                                            <td className="text-left px-4 font-bold uppercase truncate">{item.name}</td>
+                                                            <td className="font-medium uppercase tracking-tighter opacity-70">Bien</td>
+                                                            <td className="font-semibold text-[12px]">{item.quantity}.00</td>
+                                                            <td className="text-left px-4 font-medium uppercase truncate">{item.name}</td>
                                                             <td className="font-mono text-gray-500">{formatCurrency(item.price).replace('Q ', '')}</td>
                                                             <td className="font-mono text-red-400">0.00</td>
-                                                            <td className="text-right pr-2 font-black text-slate-900 font-mono">{formatCurrency(item.total).replace('Q ', '')}</td>
+                                                            <td className="text-right pr-2 font-semibold text-slate-900 font-mono">{formatCurrency(item.total).replace('Q ', '')}</td>
                                                         </tr>
                                                     ))
                                                 )}
@@ -886,11 +886,11 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                                         alt="QR Certificación"
                                                         className="w-full h-full object-contain"
                                                     />
-                                                    <div className="absolute inset-x-0 bottom-0 bg-slate-800/90 text-white text-[6px] font-black text-center py-0.5">
+                                                    <div className="absolute inset-x-0 bottom-0 bg-slate-800/90 text-white text-[6px] font-semibold text-center py-0.5">
                                                         CERTIFICADO SAT
                                                     </div>
                                                 </div>
-                                                <span className="text-[7px] font-bold text-center opacity-70 uppercase leading-none">Sujeto a pagos trimestrales ISR</span>
+                                                <span className="text-[7px] font-medium text-center opacity-70 uppercase leading-none">Sujeto a pagos trimestrales ISR</span>
                                             </div>
                                             <div className="flex flex-col text-[9px] opacity-40 font-mono leading-tight">
                                                 <span>DATOS DEL CERTIFICADOR:</span>
@@ -899,28 +899,28 @@ export const ReportFacturas: React.FC<ReportFacturasProps> = ({ mode = 'REP_INV'
                                         </div>
 
                                         <div className="flex flex-col w-52 gap-1 px-2">
-                                            <div className="flex justify-between font-bold opacity-60">
+                                            <div className="flex justify-between font-medium opacity-60">
                                                 <span>Subtotal:</span>
                                                 <span className="font-mono">{formatCurrency(viewingInvoice.subtotal || viewingInvoice.monto).replace('Q ', '')}</span>
                                             </div>
                                             {viewingInvoice.propina > 0 && (
-                                                <div className="flex justify-between font-bold text-blue-600">
+                                                <div className="flex justify-between font-medium text-blue-600">
                                                     <span>Propina (+):</span>
                                                     <span className="font-mono">{formatCurrency(viewingInvoice.propina).replace('Q ', '')}</span>
                                                 </div>
                                             )}
                                             {viewingInvoice.descuento > 0 && (
-                                                <div className="flex justify-between font-bold text-red-500">
+                                                <div className="flex justify-between font-medium text-red-500">
                                                     <span>Descuentos (-):</span>
                                                     <span className="font-mono">{formatCurrency(viewingInvoice.descuento).replace('Q ', '')}</span>
                                                 </div>
                                             )}
-                                            <div className="flex justify-between items-center mt-2 py-2 border-t-2 border-slate-800 text-[14px] font-black w-full text-blue-900">
+                                            <div className="flex justify-between items-center mt-2 py-2 border-t-2 border-slate-800 text-[14px] font-semibold w-full text-blue-900">
                                                 <span className="uppercase tracking-widest text-[10px]">Total:</span>
                                                 <span className="font-mono leading-none">{formatCurrency(viewingInvoice.monto)}</span>
                                             </div>
                                             {/* Moneda */}
-                                            <div className="flex justify-end mt-1 text-[9px] font-black text-slate-400">
+                                            <div className="flex justify-end mt-1 text-[9px] font-semibold text-slate-400">
                                                 <span>MONEDA: QUETZAL (GTQ)</span>
                                             </div>
                                         </div>

@@ -82,9 +82,9 @@ export const TabCalendarioFiscal: React.FC<{ accentColor: string; onNavigate: (t
         <div className="h-full overflow-y-auto p-4 space-y-4 custom-scrollbar text-gray-900">
             {/* Year selector */}
             <div className="flex items-center gap-3">
-                <label className="text-[10px] font-black uppercase text-black tracking-widest">Año:</label>
+                <label className="text-[10px] font-semibold uppercase text-black tracking-widest">Año:</label>
                 <button onClick={() => setViewYear(y => y - 1)} className="px-2 py-1 bg-white border border-slate-200 rounded text-[11px] hover:bg-slate-50">◀</button>
-                <span className="text-[14px] font-black text-[#106ebe] w-14 text-center">{viewYear}</span>
+                <span className="text-[14px] font-semibold text-[#106ebe] w-14 text-center">{viewYear}</span>
                 <button onClick={() => setViewYear(y => y + 1)} className="px-2 py-1 bg-white border border-slate-200 rounded text-[11px] hover:bg-slate-50">▶</button>
             </div>
 
@@ -93,14 +93,14 @@ export const TabCalendarioFiscal: React.FC<{ accentColor: string; onNavigate: (t
                 {Object.entries(TYPE_STYLES).map(([k, v]) => (
                     <div key={k} className="flex items-center gap-1.5">
                         <span className={`w-2.5 h-2.5 rounded-full ${v.dot}`}></span>
-                        <span className="text-[9px] font-black uppercase text-black">{v.label}</span>
+                        <span className="text-[9px] font-semibold uppercase text-black">{v.label}</span>
                     </div>
                 ))}
             </div>
 
             {/* Próximas obligaciones */}
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-4">
-                <h3 className="text-[10px] font-black uppercase text-black tracking-widest mb-3">Próximas Obligaciones</h3>
+                <h3 className="text-[10px] font-semibold uppercase text-black tracking-widest mb-3">Próximas Obligaciones</h3>
                 <div className="space-y-2">
                     {upcoming.map((u, i) => {
                         const days = daysUntil(u.date);
@@ -110,10 +110,10 @@ export const TabCalendarioFiscal: React.FC<{ accentColor: string; onNavigate: (t
                                 onClick={() => u.event.tabId && onNavigate(u.event.tabId)}>
                                 <span className={`w-2 h-2 rounded-full ${st.dot} shrink-0`}></span>
                                 <div className="flex-1">
-                                    <p className={`text-[10px] font-black text-black`}>{u.event.label}</p>
-                                    <p className="text-[9px] font-black text-black">{u.date.format('DD/MM/YYYY')}</p>
+                                    <p className={`text-[10px] font-semibold text-black`}>{u.event.label}</p>
+                                    <p className="text-[9px] font-semibold text-black">{u.date.format('DD/MM/YYYY')}</p>
                                 </div>
-                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${days <= 5 ? 'bg-red-100 text-black' : days <= 10 ? 'bg-amber-100 text-black' : 'bg-slate-100 text-black'}`}>
+                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${days <= 5 ? 'bg-red-100 text-black' : days <= 10 ? 'bg-amber-100 text-black' : 'bg-slate-100 text-black'}`}>
                                     {days === 0 ? '¡Hoy!' : `${days} días`}
                                 </span>
                             </div>
@@ -130,7 +130,7 @@ export const TabCalendarioFiscal: React.FC<{ accentColor: string; onNavigate: (t
                     return (
                         <div key={mi} className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                             <div className="bg-[#106ebe] px-4 py-2">
-                                <span className="text-[10px] font-black text-white uppercase tracking-widest">{mName} {viewYear}</span>
+                                <span className="text-[10px] font-semibold text-white uppercase tracking-widest">{mName} {viewYear}</span>
                             </div>
                             <div className="p-3 space-y-1.5">
                                 {monthEvents.map((e, ei) => {
@@ -143,17 +143,17 @@ export const TabCalendarioFiscal: React.FC<{ accentColor: string; onNavigate: (t
                                             className={`flex items-start gap-2 p-2 rounded-lg text-[9px] cursor-pointer hover:opacity-80 transition-opacity ${st.bg} ${isClose ? 'ring-1 ring-red-400' : ''}`}
                                             onClick={() => e.event.tabId && onNavigate(e.event.tabId)}>
                                             <div className="flex flex-col items-center shrink-0 mt-0.5">
-                                                <span className={`text-[14px] font-black leading-none text-black`}>{e.date.date()}</span>
+                                                <span className={`text-[14px] font-semibold leading-none text-black`}>{e.date.date()}</span>
                                                 <span className={`${st.dot} w-1.5 h-1.5 rounded-full mt-0.5`}></span>
                                             </div>
                                             <div className="flex-1">
-                                                <p className={`font-black text-black leading-tight`}>{e.event.label}</p>
-                                                {e.event.note && <p className="text-black font-bold mt-0.5">{e.event.note}</p>}
-                                                {!isPast && <p className={`mt-0.5 font-black ${isClose ? 'text-red-600' : 'text-black'}`}>{days === 0 ? '¡Hoy!' : `${days} días`}</p>}
-                                                {isPast && <p className="mt-0.5 font-black text-slate-400">Pasado</p>}
+                                                <p className={`font-semibold text-black leading-tight`}>{e.event.label}</p>
+                                                {e.event.note && <p className="text-black font-medium mt-0.5">{e.event.note}</p>}
+                                                {!isPast && <p className={`mt-0.5 font-semibold ${isClose ? 'text-red-600' : 'text-black'}`}>{days === 0 ? '¡Hoy!' : `${days} días`}</p>}
+                                                {isPast && <p className="mt-0.5 font-semibold text-slate-400">Pasado</p>}
                                             </div>
-                                            {e.event.quarterly && <span className="px-1 py-0.5 bg-red-200 text-red-800 text-[7px] font-black uppercase rounded">Trimestral</span>}
-                                            {e.event.annual && <span className="px-1 py-0.5 bg-purple-200 text-purple-800 text-[7px] font-black uppercase rounded">Anual</span>}
+                                            {e.event.quarterly && <span className="px-1 py-0.5 bg-red-200 text-red-800 text-[7px] font-semibold uppercase rounded">Trimestral</span>}
+                                            {e.event.annual && <span className="px-1 py-0.5 bg-purple-200 text-purple-800 text-[7px] font-semibold uppercase rounded">Anual</span>}
                                         </div>
                                     );
                                 })}

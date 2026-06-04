@@ -270,7 +270,7 @@ export const MenuEngineeringModal: React.FC<MenuEngineeringModalProps> = ({ onCl
                 <div className="modal-header bg-[#106ebe] p-3 flex items-center justify-between cursor-move select-none">
                     <div className="flex items-center gap-3">
                         <Calculator className="text-white" size={20} />
-                        <span className="text-white font-black uppercase tracking-widest text-xs">Consultor de Ingeniería de Menú (Guatemala)</span>
+                        <span className="text-white font-semibold uppercase tracking-widest text-xs">Consultor de Ingeniería de Menú (Guatemala)</span>
                     </div>
                     <button onClick={onClose} className="text-white/70 hover:text-white transition-colors">
                         <X size={20} />
@@ -282,44 +282,44 @@ export const MenuEngineeringModal: React.FC<MenuEngineeringModalProps> = ({ onCl
                 {/* Sidebar: Parameters */}
                 <div className="w-full md:w-80 bg-white border-r border-gray-300 px-6 py-4 flex flex-col gap-5 overflow-y-auto">
                     <div>
-                        <h3 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <h3 className="text-[10px] font-semibold text-indigo-600 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <FileText size={14} /> Periodo de Análisis
                         </h3>
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1">
-                                <label className="text-[9px] font-bold text-gray-400 uppercase">Inicio</label>
-                                <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full border border-gray-200 rounded p-2 text-[10px] font-bold" />
+                                <label className="text-[9px] font-medium text-gray-400 uppercase">Inicio</label>
+                                <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full border border-gray-200 rounded p-2 text-[10px] font-medium" />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[9px] font-bold text-gray-400 uppercase">Fin</label>
-                                <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full border border-gray-200 rounded p-2 text-[10px] font-bold" />
+                                <label className="text-[9px] font-medium text-gray-400 uppercase">Fin</label>
+                                <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full border border-gray-200 rounded p-2 text-[10px] font-medium" />
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <h3 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <h3 className="text-[10px] font-semibold text-indigo-600 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <Zap size={14} /> Parámetros Globales (GT)
                         </h3>
                         <div className="space-y-4">
                             <div className="space-y-1">
                                 <div className="flex justify-between">
-                                    <label className="text-[9px] font-bold text-gray-400 uppercase">% Ventas con Tarjeta</label>
-                                    <span className="text-[9px] font-black text-indigo-600">{cardSalesRatio}%</span>
+                                    <label className="text-[9px] font-medium text-gray-400 uppercase">% Ventas con Tarjeta</label>
+                                    <span className="text-[9px] font-semibold text-indigo-600">{cardSalesRatio}%</span>
                                 </div>
                                 <input type="range" min="0" max="100" value={cardSalesRatio} onChange={e => setCardSalesRatio(Number(e.target.value))} className="w-full accent-indigo-600" />
                             </div>
                             <div className="space-y-1">
                                 <div className="flex justify-between">
-                                    <label className="text-[9px] font-bold text-gray-400 uppercase">Comisión POS (NeoNet)</label>
-                                    <span className="text-[9px] font-black text-indigo-600">{cardCommission}%</span>
+                                    <label className="text-[9px] font-medium text-gray-400 uppercase">Comisión POS (NeoNet)</label>
+                                    <span className="text-[9px] font-semibold text-indigo-600">{cardCommission}%</span>
                                 </div>
                                 <input type="range" min="0" max="10" step="0.5" value={cardCommission} onChange={e => setCardCommission(Number(e.target.value))} className="w-full accent-indigo-600" />
                             </div>
                             <div className="space-y-1">
                                 <div className="flex justify-between">
-                                    <label className="text-[9px] font-bold text-gray-400 uppercase">% Costo Laboral (GT)</label>
-                                    <span className="text-[9px] font-black text-indigo-600">{laborCostRatio}%</span>
+                                    <label className="text-[9px] font-medium text-gray-400 uppercase">% Costo Laboral (GT)</label>
+                                    <span className="text-[9px] font-semibold text-indigo-600">{laborCostRatio}%</span>
                                 </div>
                                 <input type="range" min="0" max="40" value={laborCostRatio} onChange={e => setLaborCostRatio(Number(e.target.value))} className="w-full accent-indigo-600" />
                                 <p className="text-[8px] text-gray-400 leading-tight italic mt-1">* Incluye IGSS, IRTRA, INTECAP, Bono 14, Aguinaldo.</p>
@@ -330,7 +330,7 @@ export const MenuEngineeringModal: React.FC<MenuEngineeringModalProps> = ({ onCl
                     <button
                         onClick={handleRunAnalysis}
                         disabled={loading}
-                        className="mt-4 w-full bg-[#106ebe] hover:bg-black text-white p-4 rounded-xl flex items-center justify-center gap-3 font-black uppercase tracking-[0.2em] text-xs transition-all disabled:opacity-50"
+                        className="mt-4 w-full bg-[#106ebe] hover:bg-black text-white p-4 rounded-xl flex items-center justify-center gap-3 font-semibold uppercase tracking-[0.2em] text-xs transition-all disabled:opacity-50"
                     >
                         {loading ? <Loader2 className="animate-spin" size={20} /> : <Play size={20} />}
                         {loading ? 'Consultando...' : 'Iniciar Consultoría'}
@@ -399,23 +399,23 @@ export const MenuEngineeringModal: React.FC<MenuEngineeringModalProps> = ({ onCl
                 <div className="flex gap-4">
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                        <span className="text-[9px] font-black text-white/40 uppercase">Estrellas</span>
+                        <span className="text-[9px] font-semibold text-white/40 uppercase">Estrellas</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                        <span className="text-[9px] font-black text-white/40 uppercase">Rompecabezas</span>
+                        <span className="text-[9px] font-semibold text-white/40 uppercase">Rompecabezas</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
-                        <span className="text-[9px] font-black text-white/40 uppercase">Caballos</span>
+                        <span className="text-[9px] font-semibold text-white/40 uppercase">Caballos</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-rose-500"></div>
-                        <span className="text-[9px] font-black text-white/40 uppercase">Perros</span>
+                        <span className="text-[9px] font-semibold text-white/40 uppercase">Perros</span>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
-                    <span className="text-[9px] font-black text-white/40 uppercase tracking-widest italic flex items-center gap-2">
+                    <span className="text-[9px] font-semibold text-white/40 uppercase tracking-widest italic flex items-center gap-2">
                         <AlertTriangle size={12} className="text-amber-500" /> Basado en Legislación de Guatemala (Planilla + 42% prestaciones)
                     </span>
                 </div>
