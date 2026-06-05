@@ -317,7 +317,7 @@ export const DeliveryPaymentModal: React.FC<DeliveryPaymentModalProps> = ({
                                         input.setSelectionRange(res.cursorPosition, res.cursorPosition);
                                     }, 0);
                                 }}
-                                className="w-full h-full bg-transparent focus:outline-none p-0 m-0 border-none outline-none text-3xl font-semibold tracking-tight tabular-nums text-center text-white selection:bg-[#0078d7] selection:text-white"
+                                className="w-full h-[42px] bg-transparent focus:outline-none p-0 m-0 border-none outline-none text-3xl font-semibold tracking-tight tabular-nums text-center text-white selection:bg-[#0078d7] selection:text-white"
                             />
                         </div>
 

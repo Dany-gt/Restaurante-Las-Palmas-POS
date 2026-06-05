@@ -12,7 +12,7 @@ import { PinModalV2 as PinModal } from './PinModalV2';
 import { ModifierModal } from './ModifierModal';
 import { PaxModal } from './PaxModal';
 import { DiscountModal } from './DiscountModal';
-import { TransferTableModal } from './TransferTableModal';
+import { TableGrid } from './TableGrid';
 import { TransferWaiterModal } from './TransferWaiterModal';
 import { TabletItemActionModal } from './TabletItemActionModal';
 import { AccountsManagementModal } from './AccountsManagementModal';
@@ -144,9 +144,10 @@ interface OrderViewProps {
     onCheckout?: (updatedOrder: any) => void;
     waiterVoiceEnabled?: boolean;
     onToggleWaiterVoice?: () => void;
+    onTransferComplete?: (newTable: Table) => void;
 }
 
-export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table, currentUser, settings, onClose, onCheckout, waiterVoiceEnabled, onToggleWaiterVoice }) => {
+export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table, currentUser, settings, onClose, onCheckout, waiterVoiceEnabled, onToggleWaiterVoice, onTransferComplete }) => {
     const notify = useNotify();
     const { isOnline } = useNetworkStatus();
     const [items, setItems] = useState<OrderItem[]>(initialOrder?.items || []);
@@ -972,17 +973,16 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         }
     };
 
-    const handleTableTransfer = async (targetTableId: string) => {
+    const handleTableTransfer = async (targetTable: Table) => {
         if (!activeOrderId || !table) return;
         setProcessing(true);
         try {
-            await supabase.from('orders').update({ table_id: targetTableId }).eq('id', activeOrderId);
+            await supabase.from('orders').update({ table_id: targetTable.id }).eq('id', activeOrderId);
             await supabase.from('tables').update({ status: 'available' }).eq('id', table.id);
-            await supabase.from('tables').update({ status: 'occupied' }).eq('id', targetTableId);
+            await supabase.from('tables').update({ status: 'occupied' }).eq('id', targetTable.id);
 
             // Logging action
             if (currentUser) {
-                const targetTable = (window as any).allTables?.find((t: any) => t.id === targetTableId);
                 activityLogService.log({
                     user: currentUser,
                     module: 'SALA',
@@ -996,12 +996,21 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     details: {
                         orderId: activeOrderId,
                         mesa_origen: { id: table.id, numero: table.number, seccion: table.section },
-                        mesa_destino: { id: targetTableId, numero: targetTable?.number || '?', seccion: targetTable?.section || '?' }
+                        mesa_destino: { id: targetTable.id, numero: targetTable?.number || '?', seccion: targetTable?.section || '?' }
                     }
                 });
             }
 
-            onClose?.();
+            // Pequeña espera para asegurar que la base de datos haya sincronizado el cambio de mesa
+            // antes de recargar la vista, previniendo que se muestre "SIN PRODUCTOS" por lag de red.
+            await new Promise(resolve => setTimeout(resolve, 600));
+
+            setShowTransferModal(false);
+            if (onTransferComplete) {
+                onTransferComplete(targetTable);
+            } else {
+                onClose?.();
+            }
         } catch (e) { console.error(e); }
         setProcessing(false);
     };
@@ -1422,11 +1431,13 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         try {
             const { masterDataDB } = await import('../services/MasterDataDB');
 
-            // Try loading from IndexedDB first (Primary offline source)
-            let masterCats = await masterDataDB.getAll('categories');
-            let masterProds = await masterDataDB.getAll('products');
+            // 🚀 Leer categorías y productos EN PARALELO desde IndexedDB
+            let [masterCats, masterProds] = await Promise.all([
+                masterDataDB.getAll('categories'),
+                masterDataDB.getAll('products'),
+            ]);
 
-            // Fallback to localStorage if IndexedDB is empty (Legacy compat)
+            // Fallback a localStorage si IndexedDB está vacío
             if (masterCats.length === 0) {
                 const cachedCatsStr = localStorage.getItem('cached_categories');
                 if (cachedCatsStr) masterCats = JSON.parse(cachedCatsStr);
@@ -1436,7 +1447,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 if (cachedProdsStr) masterProds = JSON.parse(cachedProdsStr);
             }
 
-            // Only update from cache if we don't have data already to prevent flicker during background reloads
             if (masterCats?.length > 0 && categories.length === 0) {
                 setCategories(masterCats);
                 hasCache = true;
@@ -2484,6 +2494,42 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const timeDisplay = nowServer.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const dateDisplay = nowServer.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
 
+    if (showTransferModal) {
+        return (
+            <div className="fixed inset-0 w-full h-full flex flex-col bg-[#2d2e3d] animate-fade-in z-[100]">
+                {/* Header to cancel transfer - matching screenshot perfectly */}
+                <div className="h-20 flex items-center px-6 justify-between shrink-0">
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => setShowTransferModal(false)} className="w-[60px] h-[40px] flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 transition-colors">
+                            <ArrowLeft size={20} />
+                        </button>
+                        <span className="text-gray-500 text-[11px] uppercase font-semibold tracking-[0.2em] border-l border-white/10 pl-4 py-1">
+                            {settings?.restaurant_name || 'LAS PALMAS POS'}
+                        </span>
+                    </div>
+                    
+                    <div className="flex flex-col items-end justify-center">
+                        <div className="flex items-center gap-3">
+                            <span className="bg-white/5 text-white/80 text-[10px] font-bold px-2.5 py-1 rounded-md">
+                                {tableOrders.length} {tableOrders.length === 1 ? 'Orden Asignada' : 'Ordenes Asignadas'}
+                            </span>
+                            <span className="text-white font-bold text-[11px] uppercase tracking-wider">
+                                {currentUser?.name || (currentUser as any)?.full_name}
+                            </span>
+                        </div>
+                        <span className="text-emerald-400 font-bold text-[10px] uppercase tracking-wide mt-1">
+                            Cambiar Mesa
+                        </span>
+                    </div>
+                </div>
+                {/* TableGrid */}
+                <div className="flex-1 relative overflow-hidden bg-[#2d2e3d]">
+                    <TableGrid onSelectTable={(t) => handleTableTransfer(t)} isTransferMode={true} />
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={`fixed inset-0 w-full h-full text-white font-sans flex flex-col overflow-hidden z-40 animate-fade-in bg-[#2d2e3d]`}>
             {/* TOP HEADER BAR */}
@@ -2834,45 +2880,58 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         )}
                     </div>
 
-                    <div className="h-20 lg:h-16 bg-black/20 border-t border-white/5 flex items-center justify-center gap-4 lg:gap-4 px-4 shrink-0 z-10">
-                        <button onClick={() => setShowPaxModal(true)} className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 ">
-                            <Users size={18} />
-                            <span className="text-[9px] font-medium mt-0.5 uppercase tracking-tighter">Personas</span>
+                    <div className="h-[90px] bg-[#2d2e3d] border-t border-white/5 flex items-center justify-center gap-4 px-4 shrink-0 z-10">
+                        <button onClick={() => setShowPaxModal(true)} className="w-[71px] h-[71px] bg-[#3f4251] border border-white/5 rounded-xl flex flex-col items-center justify-center text-white transition-all active:scale-95 ">
+                            <Users size={28} />
+                            <span className="text-[10px] font-medium mt-1.5 uppercase tracking-tighter">Personas</span>
                         </button>
                         {table && (
                             <button
                                 onClick={() => setShowTransferModal(true)}
-                                className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 "
+                                className="w-[71px] h-[71px] bg-[#3f4251] border border-white/5 rounded-xl flex flex-col items-center justify-center text-white transition-all active:scale-95 "
                                 title="Cambiar a otra Mesa (Trasladar Cuenta)"
                             >
-                                <ArrowRightLeft size={18} />
-                                <span className="text-[9px] font-medium mt-0.5 uppercase tracking-tighter">Traslado</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 480 480">
+                                    <path d="m478.512 59.352-40-56A8.001 8.001 0 0 0 432 0H56a7.99 7.99 0 0 0-6.07 2.8l-48 56A7.937 7.937 0 0 0 0 64v32a8 8 0 0 0 8 8h8v232a8 8 0 0 0 8 8h32a8 8 0 0 0 8-8V104h8v176a8 8 0 0 0 8 8h24a8 8 0 0 0 8-8V104h256v176a8 8 0 0 0 8 8h24a8 8 0 0 0 8-8V104h8v232a8 8 0 0 0 8 8h32a8 8 0 0 0 8-8V104h8a8 8 0 0 0 8-8V64c0-1.668-.52-3.293-1.488-4.648zM59.68 16h368.199l28.578 40H25.391zM48 328H32V104h16zm48-56h-8V104h8zm296 0h-8V104h8zm56 56h-16V104h16zM16 88V72h448v16zm0 0" fill="currentColor"/>
+                                </svg>
+                                <span className="text-[10px] font-medium mt-1.5 uppercase tracking-tighter">Traslado</span>
                             </button>
                         )}
                         {(canCajero('Trasladar Orden a Mesero/Cajero') || currentUser?.role === 'CAJERO' || currentUser?.role === 'ADMIN') && (
                             <button
                                 onClick={() => setShowTransferWaiterModal(true)}
-                                className="w-[85px] h-12 bg-[#3f4251] border border-white/5 rounded-lg flex flex-col items-center justify-center text-white transition-all active:scale-95 "
+                                className="w-[71px] h-[71px] bg-[#3f4251] border border-white/5 rounded-xl flex flex-col items-center justify-center text-white transition-all active:scale-95 "
                                 title="Transferir Responsable"
                             >
-                                <UsersRound size={18} />
-                                <span className="text-[9px] font-medium mt-0.5 uppercase tracking-tighter">Mesero</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 8864 8864" fillRule="evenodd">
+                                    <g transform="matrix(-0.9099999999999996,-1.114428587224091e-16,1.114428587224091e-16,-0.9099999999999996,8465.119999999999,8464.93003753662)">
+                                        <g fill="currentColor">
+                                            <path d="M0 983h3966v4820H0zm378 378h3210v4064H378z" fill="currentColor"/>
+                                            <path d="M763 2893h2440v276H763zm2440-724v276H763v-276zm0 1448v276H763v-276zM763 4617v-275h2063v275zM4898 3061h3966v4819H4898zm378 378h3210v4064H5276z" fill="currentColor"/>
+                                            <path d="M5661 4971h2440v275H5661zm2440-725v276H5661v-276zm0 1449v275H5661v-275zM5661 6695v-276h2063v276z" fill="currentColor"/>
+                                        </g>
+                                        <path fill="currentColor" d="M3056 300c718-374 3073-682 4337 919l406-231-78 1485-1424-641 461-243S5595 190 3056 300zM5808 8563c-718 375-3073 683-4337-918l-406 230 78-1484 1423 640-460 244s1162 1399 3702 1288z"/>
+                                    </g>
+                                </svg>
+                                <span className="text-[10px] font-medium mt-1.5 uppercase tracking-tighter">Mesero</span>
                             </button>
                         )}
                         {(canCajero('Anular Orden') || currentUser?.role === 'CAJERO' || currentUser?.role === 'ADMIN') && (
                             <button
                                 onClick={() => {
+                                    if (!activeOrderId) {
+                                        notify.alert('No es necesario anular esta orden.');
+                                        return;
+                                    }
                                     // v1.6.2 - Limpiar motivo y pedir comentario antes que el PIN
                                     setVoidReason('');
                                     setPendingAction('cancel');
                                     setShowVoidModal(true);
                                 }}
-                                disabled={!activeOrderId}
-                                className={`h-[50px] px-8 rounded-lg text-sm font-medium transition-all ${activeOrderId
-                                    ? 'bg-[#3f4251] text-white hover:bg-white/10 active:scale-95 border border-white/5 '
-                                    : 'bg-[#2a2d37] text-gray-500 opacity-40 cursor-not-allowed border border-white/5'}`}
+                                className="relative overflow-hidden h-[71px] px-8 rounded-xl text-sm font-medium transition-all bg-[#3f4251] text-white hover:bg-white/10 active:scale-95 border border-white/5"
                                 title="Anular Orden Completa"
                             >
+                                <div className="absolute top-0 right-0 w-0 h-0 border-t-[16px] border-l-[16px] border-t-red-500 border-l-transparent"></div>
                                 Anular Orden
                             </button>
                         )}
@@ -3032,10 +3091,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         )}
                     </div>
 
-                    <div className="bg-black/20 p-3 border-t border-white/5">
-                        <div className={`grid ${(currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos')) ? 'grid-cols-5' : 'grid-cols-4'} gap-2 mb-4 h-12`}>
-                            <button onClick={handlePrintPreAccount} className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/60 transition-all active:scale-95 hover:bg-white/10">
-                                <Printer size={20} />
+                    <div className="bg-[#2d2e3d] p-3 border-t border-white/5">
+                        <div className={`grid ${(currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos')) ? 'grid-cols-5' : 'grid-cols-4'} gap-2 mb-4 h-[71px]`}>
+                            <button onClick={handlePrintPreAccount} className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/10">
+                                <Printer size={34} />
                             </button>
                             {(currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos')) && (
                                 <button onClick={() => {
@@ -3046,12 +3105,17 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         setDiscountingItem(null);
                                     }
                                     setShowDiscountModal(true);
-                                }} className={`rounded-xl flex items-center justify-center transition-all active:scale-95 ${selectedItemIds.size > 0 ? 'bg-amber-500/20 border border-amber-500/50 text-amber-500 hover:bg-amber-500/30' : 'bg-white/5 border border-white/10 text-white/60 hover:bg-white/10'}`}>
-                                    <Percent size={20} />
+                                }} title="Aplicar Descuento" className={`rounded-xl flex items-center justify-center transition-all active:scale-95 ${selectedItemIds.size > 0 ? 'bg-amber-500/20 border border-amber-500/50 hover:bg-amber-500/30' : 'bg-white/5 border border-white/10 hover:bg-white/10'}`}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 512.003 512.003" fill="white">
+                                        <path d="M477.958 262.633a15.004 15.004 0 0 1 0-13.263l19.096-39.065c10.632-21.751 2.208-47.676-19.178-59.023l-38.41-20.38a15.005 15.005 0 0 1-7.796-10.729l-7.512-42.829c-4.183-23.846-26.241-39.87-50.208-36.479l-43.053 6.09a15.004 15.004 0 0 1-12.613-4.099l-31.251-30.232c-17.401-16.834-44.661-16.835-62.061 0L193.72 42.859a15.01 15.01 0 0 1-12.613 4.099l-43.053-6.09c-23.975-3.393-46.025 12.633-50.208 36.479l-7.512 42.827a15.008 15.008 0 0 1-7.795 10.73l-38.41 20.38c-21.386 11.346-29.81 37.273-19.178 59.024l19.095 39.064a15.004 15.004 0 0 1 0 13.263L14.95 301.699c-10.632 21.751-2.208 47.676 19.178 59.023l38.41 20.38a15.005 15.005 0 0 1 7.796 10.729l7.512 42.829c3.808 21.708 22.422 36.932 43.815 36.93 2.107 0 4.245-.148 6.394-.452l43.053-6.09a15 15 0 0 1 12.613 4.099l31.251 30.232c8.702 8.418 19.864 12.626 31.03 12.625 11.163-.001 22.332-4.209 31.03-12.625l31.252-30.232c3.372-3.261 7.968-4.751 12.613-4.099l43.053 6.09c23.978 3.392 46.025-12.633 50.208-36.479l7.513-42.827a15.008 15.008 0 0 1 7.795-10.73l38.41-20.38c21.386-11.346 29.81-37.273 19.178-59.024l-19.096-39.065zm-13.923 72.002-38.41 20.38c-12.246 6.499-20.645 18.057-23.04 31.713l-7.512 42.828a15.038 15.038 0 0 1-16.987 12.342l-43.053-6.09c-13.73-1.945-27.316 2.474-37.281 12.113L266.5 478.152a15.04 15.04 0 0 1-20.997 0l-31.251-30.232c-8.422-8.147-19.432-12.562-30.926-12.562-2.106 0-4.229.148-6.355.449l-43.053 6.09a15.042 15.042 0 0 1-16.987-12.342l-7.513-42.829c-2.396-13.656-10.794-25.215-23.041-31.712l-38.41-20.38a15.037 15.037 0 0 1-6.489-19.969L60.574 275.6c6.088-12.456 6.088-26.742 0-39.198l-19.096-39.065a15.037 15.037 0 0 1 6.489-19.969l38.41-20.38c12.246-6.499 20.645-18.057 23.04-31.713l7.512-42.828a15.038 15.038 0 0 1 16.987-12.342l43.053 6.09c13.725 1.943 27.316-2.474 37.281-12.113l31.252-30.232a15.04 15.04 0 0 1 20.997 0l31.251 30.232c9.965 9.64 23.554 14.056 37.281 12.113l43.053-6.09a15.04 15.04 0 0 1 16.987 12.342l7.512 42.829c2.396 13.656 10.794 25.215 23.041 31.712l38.41 20.38a15.037 15.037 0 0 1 6.489 19.969l-19.096 39.064c-6.088 12.455-6.088 26.743 0 39.198l19.096 39.064a15.039 15.039 0 0 1-6.488 19.972z"/>
+                                        <path d="M363.886 148.116c-5.765-5.766-15.115-5.766-20.881 0l-194.889 194.89c-5.766 5.766-5.766 15.115 0 20.881a14.72 14.72 0 0 0 10.44 4.325c3.778 0 7.558-1.441 10.44-4.325l194.889-194.889c5.768-5.767 5.768-15.115.001-20.882zM196.941 123.116c-29.852 0-54.139 24.287-54.139 54.139s24.287 54.139 54.139 54.139 54.139-24.287 54.139-54.139-24.287-54.139-54.139-54.139zm0 78.747c-13.569 0-24.608-11.039-24.608-24.609 0-13.569 11.039-24.608 24.608-24.608s24.609 11.039 24.609 24.608c-.001 13.57-11.04 24.609-24.609 24.609zM315.061 280.61c-29.852 0-54.139 24.287-54.139 54.139s24.287 54.139 54.139 54.139c29.852 0 54.139-24.287 54.139-54.139s-24.287-54.139-54.139-54.139zm0 78.747c-13.569 0-24.609-11.039-24.609-24.608s11.039-24.608 24.609-24.608c13.569 0 24.608 11.039 24.608 24.608s-11.039 24.608-24.608 24.608z"/>
+                                    </svg>
                                 </button>
                             )}
-                            <button onClick={() => setShowAccountsModal(true)} className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/60 transition-all active:scale-95 hover:bg-white/10">
-                                <Users size={20} />
+                            <button onClick={() => setShowAccountsModal(true)} className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/10" title="Dividir Cuenta">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="5 0 90 100" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M10 35V5l20 15L50 5l20 15L90 5v30ZM20 25h35m15 0h10M15 50h10m10 0h10m10 0h10m10 0h10M10 65v30l20-15L50 95l20-15L90 95V65ZM20 75h35m15 0h10" />
+                                </svg>
                             </button>
                             <button
                                 onClick={() => {
@@ -3068,7 +3132,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     }
                                 }}
                                 className="rounded-xl flex items-center justify-center transition-all active:scale-95 bg-white/10 border border-white/20 text-white hover:bg-white/20">
-                                <Minus size={18} />
+                                <Minus size={24} />
                             </button>
                             <button
                                 onClick={() => {
@@ -3085,11 +3149,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     }
                                 }}
                                 className="rounded-xl flex items-center justify-center transition-all active:scale-95 bg-white/10 border border-white/20 text-white hover:bg-white/20">
-                                <Plus size={18} />
+                                <Plus size={24} />
                             </button>
                         </div>
 
-                        <div className="bg-[#2a2d3a] rounded-xl p-2 flex items-center w-full border border-white/5 shadow-lg mt-1">
+                        <div className="bg-[#3a3b4d] rounded-xl p-2 flex items-center w-full border border-white/5 shadow-lg mt-1">
                             <div className="flex-none">
                                 <button
                                     onClick={async () => {
@@ -3135,29 +3199,46 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         }
                                     }}
                                     id="main-submit-btn"
-                                    className="flex-shrink-0 min-w-[88px] w-[88px] h-[80px] rounded-lg flex flex-col items-center justify-center gap-1 active:scale-95 transition-all bg-[#6366f1] hover:bg-indigo-400 text-white shadow-md"
+                                    className="flex-shrink-0 min-w-[119px] w-[119px] h-[99.22px] rounded-lg flex flex-col items-center justify-center gap-1 active:scale-95 transition-all bg-[#6366f1] hover:bg-indigo-400 text-white shadow-md"
                                 >
                                     {checkoutItems.some(i => i.is_sent) ? (
-                                        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="mb-0.5 relative">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                            <polyline points="14 2 14 8 20 8"></polyline>
-                                            <line x1="9" y1="13" x2="15" y2="13"></line>
-                                            <line x1="9" y1="17" x2="12" y2="17"></line>
-                                            <circle cx="18" cy="18" r="5" fill="#6366f1" stroke="currentColor" strokeWidth="1.2" />
-                                            <svg x="14.5" y="14.5" width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                                                <path d="M3 3v5h5" />
-                                            </svg>
+                                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="mb-0.5 relative">
+                                            {/* Document Outline */}
+                                            <path d="M9 3 L4 8 v12 a2 2 0 0 0 2 2 h5" />
+                                            <path d="M9 3 h7 a2 2 0 0 1 2 2 v4" />
+                                            
+                                            {/* Fold */}
+                                            <path d="M4 8 h5 v-5" />
+                                            
+                                            {/* Text Lines */}
+                                            <line x1="11" y1="6" x2="15" y2="6" />
+                                            <line x1="7" y1="10" x2="10" y2="10" />
+                                            <line x1="7" y1="14" x2="10" y2="14" />
+                                            <line x1="7" y1="18" x2="11" y2="18" />
+                                            
+                                            {/* Loop Arrow */}
+                                            <path d="M12 21.5 A 6 6 0 1 0 12 11.5" />
+                                            <path d="M16 8.5 L12 11.5 L16 14.5" />
                                         </svg>
                                     ) : (
-                                        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="mb-0.5 relative">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                            <polyline points="14 2 14 8 20 8"></polyline>
-                                            <line x1="9" y1="13" x2="15" y2="13"></line>
-                                            <line x1="9" y1="17" x2="12" y2="17"></line>
-                                            <circle cx="18" cy="18" r="5" fill="#6366f1" stroke="currentColor" strokeWidth="1.2" />
-                                            <line x1="18" y1="15.5" x2="18" y2="20.5" stroke="currentColor" strokeWidth="1.2" />
-                                            <line x1="15.5" y1="18" x2="20.5" y2="18" stroke="currentColor" strokeWidth="1.2" />
+                                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="mb-0.5 relative">
+                                            {/* Document Outline */}
+                                            <path d="M9 3 L4 8 v12 a2 2 0 0 0 2 2 h5" />
+                                            <path d="M9 3 h7 a2 2 0 0 1 2 2 v4" />
+                                            
+                                            {/* Fold */}
+                                            <path d="M4 8 h5 v-5" />
+                                            
+                                            {/* Text Lines */}
+                                            <line x1="11" y1="6" x2="15" y2="6" />
+                                            <line x1="7" y1="10" x2="10" y2="10" />
+                                            <line x1="7" y1="14" x2="10" y2="14" />
+                                            <line x1="7" y1="18" x2="11" y2="18" />
+                                            
+                                            {/* Plus Circle */}
+                                            <circle cx="17" cy="16.5" r="5.5" />
+                                            <line x1="17" y1="13.5" x2="17" y2="19.5" />
+                                            <line x1="14" y1="16.5" x2="20" y2="16.5" />
                                         </svg>
                                     )}
                                     <span className="text-[9px] font-medium tracking-wide leading-none text-center whitespace-nowrap w-full">
@@ -3242,10 +3323,16 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     product={showModifierModal!}
                     onConfirm={handleModifierConfirm}
                     orderNumber={tableOrders.find(o => o.id === activeOrderId)?.order_number || initialOrder?.order_number}
-                    tableName={table?.section ? `${table.section} ${table.number}` : (table?.number ? `Mesa ${table.number}` : undefined)}
+                    tableName={table?.number ? `Mesa ${table.number}` : (table?.section || undefined)}
                     waiterName={currentUser?.name || (currentUser as any)?.full_name}
                 />
-                <PaxModal isOpen={showPaxModal} onClose={() => setShowPaxModal(false)} initialPax={(initialOrder as any).pax_count || 1} onConfirm={handlePaxConfirm} />
+                <PaxModal 
+                    isOpen={showPaxModal} 
+                    onClose={() => setShowPaxModal(false)} 
+                    initialPax={(initialOrder as any).pax_count || 1} 
+                    onConfirm={handlePaxConfirm} 
+                    tableName={table?.number ? `Mesa ${table.number}` : (table?.section || undefined)}
+                />
                 <PinModal
                     isOpen={showPinModal}
                     onClose={() => setShowPinModal(false)}
@@ -3492,8 +3579,6 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         </div>
                     )}
                 </AnimatePresence>
-
-                {table && <TransferTableModal isOpen={showTransferModal} onClose={() => setShowTransferModal(false)} currentTable={table} onTransfer={handleTableTransfer} />}
                 <TransferWaiterModal
                     isOpen={showTransferWaiterModal}
                     onClose={() => setShowTransferWaiterModal(false)}
