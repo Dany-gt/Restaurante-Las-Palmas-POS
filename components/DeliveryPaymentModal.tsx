@@ -382,14 +382,14 @@ export const DeliveryPaymentModal: React.FC<DeliveryPaymentModalProps> = ({
                     <button
                         onClick={onClose}
                         disabled={isLoading}
-                        className="w-[140px] h-11 rounded-md bg-[#2c2d3e] border border-[#3b3c4f] text-white font-bold uppercase tracking-wider text-xs hover:bg-[#34364d] transition-all active:scale-95"
+                        className="w-[178.6px] h-11 rounded-md bg-[#2c2d3e] border border-[#3b3c4f] text-white font-bold uppercase tracking-wider text-xs hover:bg-[#34364d] transition-all active:scale-95"
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={doConfirm}
                         disabled={!canConfirm || isLoading}
-                        className={`w-[140px] h-11 rounded-md font-bold uppercase tracking-wider text-xs transition-all active:scale-95 shadow-md
+                        className={`w-[178.6px] h-11 rounded-md font-bold uppercase tracking-wider text-xs transition-all active:scale-95 shadow-md
                             ${canConfirm
                                 ? 'bg-[#737df2] text-white hover:bg-[#6264f1]'
                                 : 'bg-[#20212f] border border-[#3b3c4f]/50 text-gray-600 cursor-not-allowed shadow-none'
