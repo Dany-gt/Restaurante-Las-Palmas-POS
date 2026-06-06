@@ -26,6 +26,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, onS
     const [zone, setZone] = useState('');
     const [reference, setReference] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isTyping, setIsTyping] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -85,50 +86,66 @@ export const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, onS
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 animate-fade-in">
+        <motion.div
+            layout
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            onFocus={() => setIsTyping(true)}
+            onBlur={(e) => {
+                const nextTarget = e.relatedTarget as HTMLElement;
+                const isInput = nextTarget?.tagName === 'INPUT' || nextTarget?.tagName === 'TEXTAREA';
+                if (!e.currentTarget.contains(nextTarget) || !isInput) {
+                    setIsTyping(false);
+                }
+            }}
+            className="fixed inset-0 z-[100] flex items-center p-4 transition-all duration-300"
+            style={{
+                justifyContent: 'center',
+                paddingRight: isTyping ? '380px' : '0',
+                backgroundColor: 'rgba(0, 0, 0, 0.6)'
+            }}
+        >
             <motion.div
+                layout
                 drag
                 dragMomentum={false}
-                className="w-full max-w-[400px] bg-[#2d2e3d] rounded-sm border border-white/10 overflow-hidden flex flex-col cursor-default"
+                className="w-full max-w-[714px] bg-[#2d2e3d] rounded-lg border border-white/10 overflow-hidden flex flex-col cursor-default"
             >
                 <div className="bg-[#3a3b4d] h-10 flex items-center justify-center relative shrink-0 border-b border-white/5 cursor-grab active:cursor-grabbing select-none">
                     <h3 className="text-[10px] font-semibold uppercase tracking-[0.25em] text-white">
                         DATOS DIRECCIÓN
                     </h3>
-                    <button onClick={onClose} className="absolute right-3 text-white/40 hover:text-white transition-colors">
-                        <X size={16} />
-                    </button>
                 </div>
 
-                <div className="p-5 space-y-4 bg-[#2d2e3d]">
+                <div className="py-8 px-6 space-y-5 bg-[#2d2e3d]">
                     {/* Readonly Customer Name */}
                     <div className="relative">
-                        <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white" />
+                        <User size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-white fill-white" />
                         <input
                             type="text"
                             readOnly
                             value={customerName || (addressToEdit ? 'CARGANDO...' : 'CLIENTE')}
-                            className="w-full bg-black/40 border border-white/20 rounded-sm py-2 pl-9 pr-3 text-[10px] font-semibold text-white outline-none uppercase tracking-widest cursor-not-allowed"
+                            className="w-full bg-black/40 border border-white/20 rounded-sm py-3 pl-9 pr-3 text-[10px] font-semibold text-white outline-none uppercase tracking-widest cursor-not-allowed"
                         />
                     </div>
 
                     <div className="relative">
-                        <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white" />
+                        <MapPin size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-white" />
                         <input
-                            autoFocus
                             value={address}
                             onChange={e => setAddress(e.target.value)}
-                            className="w-full bg-black/40 border border-white/20 rounded-sm py-2 pl-9 pr-3 text-[10px] font-semibold placeholder:text-white/40 outline-none focus:border-white tracking-widest text-white "
+                            className="w-full bg-black/40 border border-white/20 rounded-sm py-3 pl-9 pr-3 text-[10px] font-semibold placeholder:text-white/40 outline-none focus:border-white tracking-widest text-white "
                             placeholder="DIRECCIÓN"
                         />
                     </div>
 
                     <div className="relative">
-                        <Map size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white" />
+                        <Map size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-white" />
                         <input
                             value={reference}
                             onChange={e => setReference(e.target.value)}
-                            className="w-full bg-black/40 border border-white/20 rounded-sm py-2 pl-9 pr-3 text-[10px] font-semibold placeholder:text-white/40 outline-none focus:border-white tracking-widest text-white "
+                            className="w-full bg-black/40 border border-white/20 rounded-sm py-3 pl-9 pr-3 text-[10px] font-semibold placeholder:text-white/40 outline-none focus:border-white tracking-widest text-white "
                             placeholder="REFERENCIA"
                         />
                     </div>
@@ -150,6 +167,6 @@ export const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, onS
                     </button>
                 </div>
             </motion.div>
-        </div>
+        </motion.div>
     );
 };

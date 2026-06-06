@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, UserRole } from '../types';
 import { supabase } from '../supabase';
-import { ArrowLeft, Loader2, User as UserIcon, Building2, Calculator, Users, ChefHat, ShieldCheck, Check, Delete, X, Settings, LogOut, Minus, Layers } from 'lucide-react';
+import { ArrowLeft, Loader2, User as UserIcon, Building2, Calculator, Users, ChefHat, ShieldCheck, Check, Delete, X, Settings, LogOut, Minus, Layers, Eye, EyeOff } from 'lucide-react';
 import { activityLogService } from '../services/ActivityLogService';
 import { getImageUrl } from '../utils/getImageUrl';
 
@@ -23,6 +23,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRefreshMenu, syncType, 
   const [password, setPassword] = useState('');
   const [pin, setPin] = useState('');
   const [showPinPad, setShowPinPad] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -739,14 +740,21 @@ Generado: ${new Date().toLocaleString('es-GT')}
                             <ShieldCheck size={18} />
                           </div>
                           <input
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-base font-medium text-white placeholder:text-gray-600 outline-none focus:border-white transition-all"
+                            className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-12 text-base font-medium text-white placeholder:text-gray-600 outline-none focus:border-white transition-all"
                             placeholder="CONTRASEÑA"
                             autoComplete="current-password"
                             required
                           />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors focus:outline-none"
+                          >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
                         </div>
                       </>
                     ) : (
@@ -1075,14 +1083,21 @@ Generado: ${new Date().toLocaleString('es-GT')}
                       <ShieldCheck size={14} />
                     </div>
                     <input
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-[#15161d] border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-[11px] font-medium text-white placeholder:text-gray-500 outline-none focus:border-indigo-500 tracking-widest"
+                      className="w-full bg-[#15161d] border border-white/10 rounded-xl py-2.5 pl-9 pr-9 text-[11px] font-medium text-white placeholder:text-gray-500 outline-none focus:border-indigo-500 tracking-widest"
                       style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
                       placeholder="••••••••"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors focus:outline-none"
+                    >
+                      {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
                   </div>
                 </div>
 

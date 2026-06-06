@@ -5,6 +5,7 @@ import { printService } from '../services/PrintService';
 import { billingService } from '../services/BillingService';
 import { DateUtils } from '../utils/DateUtils';
 import { ItemStatusBadge } from './ItemStatusBadge';
+import { parseNotes } from './OrderView';
 
 interface OrderViewerProps {
     onBack: () => void;
@@ -83,6 +84,30 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+
+    // Synchronized server offset and second tick for elapsed timers
+    const [serverOffset, setServerOffset] = useState<number>(() => {
+        const cached = localStorage.getItem('kds_server_offset');
+        return cached ? parseInt(cached, 10) : 0;
+    });
+    const [tick, setTick] = useState(0);
+
+    useEffect(() => {
+        const timer = setInterval(() => setTick(t => t + 1), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const cachedUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const cachedSettings = JSON.parse(localStorage.getItem('system_settings') || '{}');
+    const waiterName = currentUser?.full_name || currentUser?.name || cachedUser?.full_name || cachedUser?.name || 'DANILO PEREZ';
+    const waiterId = currentUser?.pin || currentUser?.id || cachedUser?.pin || cachedUser?.id || '2-724';
+    const restaurantName = cachedSettings?.restaurant_name || 'RESTAURANTE LAS PALMAS POS';
+
+    const viewStatusLabel = activeTab === 'OPEN'
+        ? 'Ordenes Abiertas'
+        : activeTab === 'CLOSED'
+        ? 'Ordenes Cerradas'
+        : 'Anuladas';
 
     useEffect(() => {
         setOrders([]);
@@ -265,27 +290,63 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
 
     return (
         <div className="fixed inset-0 w-full flex flex-col bg-[#2d2e3d] text-white overflow-hidden font-sans z-50">
+            <style dangerouslySetInnerHTML={{ __html: `
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 3px !important;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: transparent !important;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: rgba(255, 255, 255, 0.15) !important;
+                    border-radius: 99px !important;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255, 255, 255, 0.3) !important;
+                }
+            `}} />
+            {/* Unified Top Header Bar */}
+            <div className="bg-[#3a3b4d] h-16 flex items-center justify-between px-4 shrink-0 border-b border-[#1e1f2b]">
+                {/* Left side: back button and restaurant name */}
+                <div className="flex items-center gap-4">
+                    <button onClick={onBack} className="p-3 bg-white/5 hover:bg-white/10 active:scale-95 rounded-xl transition-all text-gray-400 hover:text-white shrink-0">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                    </button>
+                    <h1 className="text-sm font-semibold uppercase tracking-wider text-gray-300">
+                        {restaurantName}
+                    </h1>
+                </div>
+
+                {/* Right side: User Name and status */}
+                <div className="flex flex-col items-end text-right">
+                    <span className="text-[11px] font-semibold text-white/95 tracking-wide">
+                        {waiterName}
+                    </span>
+                    <span className="text-[10px] font-bold text-[#2dd4bf] uppercase tracking-wider mt-0.5">
+                        {viewStatusLabel}
+                    </span>
+                </div>
+            </div>
+
             {/* Main Content Area */}
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex overflow-hidden mt-3">
                 {/* Left Side: Orders List */}
-                <div className="flex-1 flex flex-col min-w-0 border-r border-[#1e1f2b]">
-                    {/* Header with Search */}
-                    <div className="bg-[#3a3b4d] h-10 flex items-center justify-center px-3 shrink-0 ">
-                        <button onClick={onBack} className="absolute left-3 p-1.5 hover:bg-white/5 rounded-sm text-gray-400">
-                            <ArrowRight className="rotate-180" size={18} />
-                        </button>
-                        <h2 className="text-[11px] font-semibold tracking-widest uppercase">RESTAURANTE LAS PALMAS POS</h2>
+                <div className="flex-1 flex flex-col min-w-0">
+                    {/* Sub-Header: Ordenes */}
+                    <div className="bg-[#3a3b4d] h-12 flex items-center justify-center shrink-0 border-b border-[#1e1f2b]">
+                        <h2 className="text-sm font-medium text-white tracking-wide">Ordenes</h2>
                     </div>
 
                     <div className="p-3 bg-[#2d2e3d]">
-                        <div className="relative group max-w-4xl">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={16} />
+                        <div className="w-full relative group">
                             <input
                                 type="text"
-                                placeholder="BUSCAR ORDEN / MESA..."
+                                placeholder="🔍 Buscar..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-black/40 border border-white/20 rounded-sm py-2.5 pl-10 pr-3 text-[11px] font-semibold placeholder:text-gray-500 outline-none focus:border-white/50 focus:bg-black/60 transition-all uppercase tracking-widest text-white "
+                                className="w-full bg-transparent border border-white/25 rounded-full py-2 px-4 text-xs font-normal placeholder:text-white/40 outline-none focus:border-white/50 transition-all text-center text-white"
                             />
                         </div>
                     </div>
@@ -367,23 +428,24 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
 
                     {/* Bottom Tabs for Main Area */}
                     <div className="px-4 py-3 flex justify-center gap-2 shrink-0 border-t border-white/5">
-                        <TabButton active={activeTab === 'OPEN'} onClick={() => setActiveTab('OPEN')} label="ORDENES ABIERTAS" color="bg-[#3a3b4d] border-b-2 border-white" />
-                        <TabButton active={activeTab === 'CLOSED'} onClick={() => setActiveTab('CLOSED')} label="ORDENES CERRADAS" color="bg-[#3a3b4d] border-b-2 border-white" />
-                        <TabButton active={activeTab === 'CANCELLED'} onClick={() => setActiveTab('CANCELLED')} label="ANULADAS" color="bg-[#3a3b4d] border-b-2 border-white" />
+                        <TabButton active={activeTab === 'OPEN'} onClick={() => setActiveTab('OPEN')} label="ORDENES ABIERTAS" triangleColor="border-t-yellow-500" />
+                        <TabButton active={activeTab === 'CLOSED'} onClick={() => setActiveTab('CLOSED')} label="ORDENES CERRADAS" triangleColor="border-t-blue-500" />
+                        <TabButton active={activeTab === 'CANCELLED'} onClick={() => setActiveTab('CANCELLED')} label="ORDENES ANULADAS" triangleColor="border-t-red-500" />
                     </div>
                 </div>
 
                 {/* Right Side: Order Detail */}
                 <div className="w-[400px] flex flex-col bg-[#2d2e3d] shrink-0 h-full border-l border-[#1e1f2b]">
-                    <div className="bg-[#3a3b4d] h-10 flex items-center justify-center shrink-0  gap-2">
-                        <FileText size={14} className="text-white/30" />
-                        <h2 className="text-[11px] font-medium tracking-widest uppercase">INFORMACIÓN</h2>
+                    <div className="bg-[#3a3b4d] h-12 flex items-center justify-center shrink-0 border-b border-[#1e1f2b]">
+                        <h2 className="text-sm font-medium text-white tracking-wide">Detalle de Orden</h2>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
                         {selectedOrder ? (
                             <>
-                                <h4 className="text-[10px] font-medium uppercase tracking-[0.2em] text-gray-500 mb-4 text-center">Artículos en la Orden</h4>
+                                <h4 className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-3 text-left pl-1">
+                                    {selectedOrder.customer_name || 'Cuenta 1'}
+                                </h4>
                                 <div className="space-y-3">
                                     {selectedOrder.order_items?.map((item: any) => (
                                         <div key={item.id} className="bg-[#3a3b4d] rounded-sm p-3 text-sm  border border-white/[0.03]">
@@ -392,13 +454,17 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                                     <span className="font-medium text-white/50">{item.quantity}</span>
                                                     <div className="flex flex-col gap-1">
                                                         <span className="font-medium uppercase tracking-tight leading-tight text-white/80">{item.products?.name}</span>
-                                                        {(item.notes && item.notes.replace('*NO IMPRIMIR*', '').trim()) && (
-                                                            <span className="text-[10px] text-gray-400 uppercase leading-tight italic">
-                                                                {item.notes.replace('*NO IMPRIMIR*', '').trim()}
-                                                            </span>
-                                                        )}
+                                                        {(() => {
+                                                            const { mods, obs } = parseNotes(item.notes);
+                                                            const display = [mods, obs].filter(Boolean).join(' · ');
+                                                            return display ? (
+                                                                <span className="text-[10px] text-gray-400 uppercase leading-tight italic">
+                                                                    {display}
+                                                                </span>
+                                                            ) : null;
+                                                        })()}
                                                         {item.status && (
-                                                            <ItemStatusBadge item={item} />
+                                                            <ItemStatusBadge item={item} serverOffset={serverOffset} tick={tick} />
                                                         )}
                                                     </div>
                                                 </div>
@@ -421,83 +487,58 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                         )}
                     </div>
 
-                    {/* Integrated Totals Section - FIXED AT BOTTOM */}
-                    {selectedOrder && (() => {
-                        const computed = getComputedTotals(selectedOrder);
-                        return (
-                            <div className="p-4 shrink-0 border-t border-white/5 bg-[#2d2e3d] ">
-                                <div className="ml-auto w-full max-w-[220px] space-y-1">
-                                    <div className="flex justify-between text-[10px]">
-                                        <span className="text-gray-500 font-medium uppercase tracking-widest leading-none self-end pb-0.5">Sub-Total</span>
-                                        <span className="font-semibold tabular-nums text-white/80">Q{computed.subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                                    </div>
-                                    <div className="flex justify-between text-[10px]">
-                                        <span className="text-gray-500 font-medium uppercase tracking-widest leading-none self-end pb-0.5">Descuento</span>
-                                        <span className="font-semibold tabular-nums text-white/80">-Q{computed.discount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                                    </div>
-                                    <div className="flex justify-between text-[10px]">
-                                        <span className="text-gray-500 font-medium uppercase tracking-widest leading-none self-end pb-0.5">Propina</span>
-                                        <span className="font-semibold tabular-nums text-white/80">Q{computed.tip.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                                    </div>
-                                    <div className="mt-3 pt-3 border-t border-white/10 flex justify-between items-baseline">
-                                        <span className="text-[11px] font-semibold text-white/40 uppercase tracking-widest leading-none">Total</span>
-                                        <span className="text-2xl font-semibold tabular-nums text-white leading-none">Q{computed.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })()}
+                    {/* Printer Area (above the divider line) */}
+                    <div className="p-3 flex justify-center shrink-0">
+                        <button
+                            disabled={!selectedOrder}
+                            onClick={async () => {
+                                if (!selectedOrder) return;
+                                const { data: invoice } = await supabase
+                                    .from('invoices')
+                                    .select('*')
+                                    .eq('order_id', selectedOrder.id)
+                                    .eq('status', 'ACTIVE')
+                                    .maybeSingle();
+
+                                const computed = getComputedTotals(selectedOrder);
+                                const ticketData = {
+                                    orderId: selectedOrder.id,
+                                    orderNumber: selectedOrder.order_number,
+                                    orderType: selectedOrder.order_type,
+                                    tableNumber: selectedOrder.tables?.number,
+                                    tableName: selectedOrder.tables?.section,
+                                    waiterName: selectedOrder.profiles?.name,
+                                    customerName: selectedOrder.customer_name || 'Cuenta 1',
+                                    items: (selectedOrder.order_items || []).map((i: any) => ({
+                                        name: i.products?.name || 'Desconocido',
+                                        quantity: i.quantity,
+                                        price: i.unit_price,
+                                        notes: i.notes
+                                    })),
+                                    subtotal: computed.subtotal,
+                                    discount: computed.discount || 0,
+                                    tipAmount: computed.tip || 0,
+                                    total: computed.total,
+                                    createdAt: selectedOrder.created_at
+                                };
+                                // Usamos printPreCheck para órdenes abiertas en el visor y forzamos silencio
+                                printService.printPreAccountTicket(ticketData as any, { silent: true });
+                            }}
+                            className="w-[71px] h-[71px] bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white transition-all hover:bg-white/10 active:scale-95 shrink-0"
+                        >
+                            <Printer size={34} />
+                        </button>
+                    </div>
 
                     {/* Footer for Detail Panel */}
-                    <div className="p-4 shrink-0 border-t border-white/5 bg-black/40">
-                        {selectedOrder && (
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={async () => {
-                                        if (!selectedOrder) return;
-                                        const { data: invoice } = await supabase
-                                            .from('invoices')
-                                            .select('*')
-                                            .eq('order_id', selectedOrder.id)
-                                            .eq('status', 'ACTIVE')
-                                            .maybeSingle();
-
-                                        const computed = getComputedTotals(selectedOrder);
-                                        const ticketData = {
-                                            orderId: selectedOrder.id,
-                                            orderNumber: selectedOrder.order_number,
-                                            orderType: selectedOrder.order_type,
-                                            tableNumber: selectedOrder.tables?.number,
-                                            tableName: selectedOrder.tables?.section,
-                                            waiterName: selectedOrder.profiles?.name,
-                                            accountName: selectedOrder.account_name || 'Principal',
-                                            items: (selectedOrder.order_items || []).map((i: any) => ({
-                                                name: i.products?.name || 'Desconocido',
-                                                quantity: i.quantity,
-                                                price: i.unit_price,
-                                                notes: i.notes
-                                            })),
-                                            subtotal: computed.subtotal,
-                                            discount: computed.discount || 0,
-                                            tipAmount: computed.tip || 0,
-                                            total: computed.total,
-                                            createdAt: selectedOrder.created_at
-                                        };
-                                        // Usamos printPreCheck para órdenes abiertas en el visor y forzamos silencio
-                                        printService.printPreAccountTicket(ticketData as any, { silent: true });
-                                    }}
-                                    className="w-10 h-10 bg-white/5 border border-white/5 rounded-sm flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition-all shrink-0"
-                                >
-                                    <Printer size={20} />
-                                </button>
-                                <button
-                                    onClick={() => onOpenOrder && onOpenOrder(selectedOrder.id)}
-                                    className="flex-1 bg-white hover:bg-gray-100 text-black py-3 rounded-sm text-[10px] font-semibold uppercase tracking-widest  active:scale-[0.98] transition-all"
-                                >
-                                    ABRIR ORDEN
-                                </button>
-                            </div>
-                        )}
+                    <div className="px-4 py-3 shrink-0 border-t border-white/5 flex items-center justify-center">
+                        <button
+                            disabled={!selectedOrder}
+                            onClick={() => selectedOrder && onOpenOrder && onOpenOrder(selectedOrder.id)}
+                            className="w-[220px] bg-[#6366f1] hover:bg-[#5558e3] text-white h-12 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center active:scale-[0.98]"
+                        >
+                            ABRIR ORDEN
+                        </button>
                     </div>
                 </div>
             </div>
@@ -505,12 +546,13 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
     );
 };
 
-const TabButton = ({ active, onClick, label, color }: any) => (
+const TabButton = ({ active, onClick, label, triangleColor }: any) => (
     <button
         onClick={onClick}
-        className={`px-6 py-4 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all  ${color} ${active ? 'opacity-100 scale-105 ring-1 ring-white/10' : 'opacity-60 grayscale-[0.5] hover:opacity-80'}`}
+        className={`relative px-6 py-4 bg-[#3a3b4d] border ${active ? 'border-white/20 opacity-100 ring-1 ring-white/10' : 'border-transparent opacity-60 hover:opacity-85'} rounded-[4px] text-[10px] font-semibold uppercase tracking-wider transition-all shadow-md active:scale-95 overflow-hidden`}
     >
-        {label}
+        <span className="relative z-10">{label}</span>
+        <div className={`absolute top-0 right-0 w-0 h-0 border-t-[10px] ${triangleColor} border-l-[10px] border-l-transparent pointer-events-none`} />
     </button>
 );
 
@@ -539,7 +581,7 @@ const OrderCard = ({ order, isSelected, onClick }: any) => {
                 </div>
                 <span className="text-[11px] font-medium uppercase tracking-tight truncate">
                     {order.order_type === 'DINE_IN' || !order.order_type ? (
-                        `${order.tables?.section || 'MESA'} ${order.tables?.number || '?'}`
+                        `${(order.tables?.section || 'MESA').trim()} - MESA ${order.tables?.number || '?'}`
                     ) : order.order_type === 'TAKEOUT' ? (
                         'PARA LLEVAR'
                     ) : (
@@ -561,13 +603,13 @@ const OrderCard = ({ order, isSelected, onClick }: any) => {
             {(order.item_counts?.pending > 0 || order.item_counts?.preparing > 0 || order.item_counts?.ready > 0) && (
                 <div className="mt-1.5 flex flex-col gap-0.5 border-t border-white/5 pt-1.5">
                     {order.item_counts?.pending > 0 && (
-                        <span className="text-[9px] font-semibold text-gray-400">🕐 {order.item_counts.pending} en espera</span>
+                        <span className="text-[11px] font-semibold text-gray-400">🕐 {order.item_counts.pending} en espera</span>
                     )}
                     {order.item_counts?.preparing > 0 && (
-                        <span className="text-[9px] font-semibold text-amber-400">🔥 {order.item_counts.preparing} en preparación</span>
+                        <span className="text-[11px] font-semibold text-amber-400">🔥 {order.item_counts.preparing} en preparación</span>
                     )}
                     {order.item_counts?.ready > 0 && (
-                        <span className="text-[9px] font-semibold text-emerald-400">✅ {order.item_counts.ready} listo</span>
+                        <span className="text-[11px] font-semibold text-emerald-400">✅ {order.item_counts.ready} listo</span>
                     )}
                 </div>
             )}

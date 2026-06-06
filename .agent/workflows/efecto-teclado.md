@@ -41,9 +41,9 @@ import { motion } from 'framer-motion';
     }}
     className="fixed inset-0 z-[100] flex items-center p-4"
     style={{
-        // Si está escribiendo, justificar a la izquierda con un padding. Si no, al centro.
-        justifyContent: isTyping ? 'flex-start' : 'center',
-        paddingLeft: isTyping ? '3rem' : '1rem',
+        // Mantiene el contenedor centrado, pero simula un margen derecho del tamaño del teclado
+        justifyContent: 'center',
+        paddingRight: isTyping ? '450px' : '0', 
         backgroundColor: 'rgba(0, 0, 0, 0.75)' // Fondo oscuro habitual
     }}
 >

@@ -474,13 +474,12 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
     return (
         <div className="fixed inset-0 flex flex-col bg-[#2d2e3d] text-white overflow-hidden animate-fade-in z-50">
             {/* Top Navigation Bar */}
-            <div className="bg-[#3a3b4d] h-10 px-4 flex items-center justify-between shrink-0  border-b border-white/5">
+            <div className="bg-[#3a3b4d] h-16 px-4 flex items-center justify-between shrink-0  border-b border-white/5">
                 <div className="flex items-center gap-4">
-                    <button
-                        onClick={onBack}
-                        className="p-1.5 bg-white/5 hover:bg-white/10 rounded-sm transition-all active:scale-95 text-white"
-                    >
-                        <ArrowLeft size={18} strokeWidth={2.5} />
+                    <button onClick={onBack} className="p-3.5 bg-white/5 hover:bg-white/10 active:scale-95 rounded-xl transition-all pos-button text-gray-400 hover:text-white shrink-0">
+                        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
                     </button>
                     <div className="flex flex-col">
                         <h1 className="text-[11px] font-semibold tracking-widest text-white uppercase flex items-center gap-2">
@@ -625,18 +624,16 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                     </div>
 
                     {/* Bottom Tabs */}
-                    <div className="p-3 bg-[#3a3b4d] border-t border-white/5 flex gap-2 shrink-0">
+                    <div className="p-3 border-t border-white/5 flex gap-2 shrink-0">
                         <button
                             onClick={() => setActiveTab('FACTURADAS')}
-                            className={`flex-1 py-2 rounded-sm text-[9px] font-semibold uppercase tracking-wider transition-all
-                                ${activeTab === 'FACTURADAS' ? 'bg-white text-black  font-semibold' : 'bg-white/5 text-gray-500 hover:text-white'}`}
+                            className={`flex-1 py-4 bg-[#3a3b4d] border ${activeTab === 'FACTURADAS' ? 'border-white/20 opacity-100 ring-1 ring-white/10' : 'border-transparent opacity-65 hover:opacity-85'} rounded-[4px] text-[10px] font-semibold uppercase tracking-wider transition-all shadow-md active:scale-95`}
                         >
                             Facturadas
                         </button>
                         <button
                             onClick={() => setActiveTab('CONTINGENCIA')}
-                            className={`flex-1 py-2 rounded-sm text-[9px] font-semibold uppercase tracking-wider transition-all
-                                ${activeTab === 'CONTINGENCIA' ? 'bg-white text-black  font-semibold' : 'bg-white/5 text-gray-500 hover:text-white'}`}
+                            className={`flex-1 py-4 bg-[#3a3b4d] border ${activeTab === 'CONTINGENCIA' ? 'border-white/20 opacity-100 ring-1 ring-white/10' : 'border-transparent opacity-65 hover:opacity-85'} rounded-[4px] text-[10px] font-semibold uppercase tracking-wider transition-all shadow-md active:scale-95`}
                         >
                             Contingencia
                         </button>

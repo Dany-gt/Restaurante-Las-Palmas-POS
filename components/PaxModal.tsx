@@ -1,62 +1,74 @@
-import React, { useState } from 'react';
-import { X, Users, Minus, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 
 interface PaxModalProps {
     isOpen: boolean;
     onClose: () => void;
     initialPax: number;
     onConfirm: (pax: number) => void;
+    tableName?: string;
 }
 
-export const PaxModal: React.FC<PaxModalProps> = ({ isOpen, onClose, initialPax, onConfirm }) => {
+export const PaxModal: React.FC<PaxModalProps> = ({ isOpen, onClose, initialPax, onConfirm, tableName }) => {
     const [pax, setPax] = useState(initialPax);
+
+    // Update local state if initialPax changes while modal is closed or opens
+    useEffect(() => {
+        if (isOpen) {
+            setPax(initialPax);
+        }
+    }, [isOpen, initialPax]);
 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80  p-6 animate-fade-in">
-            <div className="w-full max-w-sm bg-[#16191f] rounded-xl border border-white/10  /50 p-8">
-                <div className="flex justify-between items-center mb-10">
-                    <div>
-                        <h3 className="text-xl font-semibold uppercase tracking-tighter">Rectificar Personas</h3>
-                        <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest mt-1">Capacidad de la Mesa (PAX)</p>
-                    </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-xl transition-all">
-                        <X size={20} className="text-gray-500" />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-6 animate-fade-in">
+            <div className="w-full max-w-[320px] bg-[#2d2e3d] rounded-2xl p-6 shadow-2xl">
+                {tableName && (
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center mt-2">
+                        {tableName}
+                    </p>
+                )}
+                <h3 className="text-sm font-bold text-white uppercase text-center mt-1 mb-8">
+                    Personas
+                </h3>
+
+                <div className="flex items-center justify-center gap-6 mb-10">
+                    <button
+                        onClick={() => setPax(Math.max(1, pax - 1))}
+                        className="w-14 h-14 bg-[#3f4251] rounded-xl text-white flex items-center justify-center font-bold text-2xl active:scale-95 transition-transform"
+                    >
+                        -
+                    </button>
+                    
+                    <span className="text-5xl font-bold text-white w-16 text-center tabular-nums">
+                        {pax}
+                    </span>
+                    
+                    <button
+                        onClick={() => setPax(pax + 1)}
+                        className="w-14 h-14 bg-[#3f4251] rounded-xl text-white flex items-center justify-center font-bold text-2xl active:scale-95 transition-transform"
+                    >
+                        +
                     </button>
                 </div>
 
-                <div className="flex flex-col items-center gap-8 mb-10">
-                    <div className="w-24 h-24 bg-indigo-600/20 rounded-xl flex items-center justify-center border-2 border-indigo-500/20  -600/10">
-                        <span className="text-5xl font-semibold tabular-nums text-indigo-400">{pax}</span>
-                    </div>
-
-                    <div className="flex items-center gap-6">
-                        <button
-                            onClick={() => setPax(Math.max(1, pax - 1))}
-                            className="w-16 h-16 bg-white/5 hover:bg-white/10 rounded-lg flex items-center justify-center border border-white/5 transition-all active:scale-90"
-                        >
-                            <Minus size={24} />
-                        </button>
-                        <div className="w-px h-8 bg-white/10"></div>
-                        <button
-                            onClick={() => setPax(pax + 1)}
-                            className="w-16 h-16 bg-white/5 hover:bg-white/10 rounded-lg flex items-center justify-center border border-white/5 transition-all active:scale-90"
-                        >
-                            <Plus size={24} />
-                        </button>
-                    </div>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={onClose}
+                        className="flex-1 h-12 bg-[#3f4251] hover:bg-white/10 text-white text-[11px] font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        onClick={() => {
+                            onConfirm(pax);
+                            onClose();
+                        }}
+                        className="flex-1 h-12 bg-white text-black text-[11px] font-bold uppercase tracking-wider rounded-xl active:scale-95 transition-all"
+                    >
+                        Confirmar
+                    </button>
                 </div>
-
-                <button
-                    onClick={() => {
-                        onConfirm(pax);
-                        onClose();
-                    }}
-                    className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold uppercase tracking-[0.2em] text-xs  -600/20 transition-all active:scale-95"
-                >
-                    Guardar Cambios
-                </button>
             </div>
         </div>
     );

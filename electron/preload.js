@@ -11,6 +11,7 @@ const api = {
 
     // Authentication Signal
     sendLoginSuccess: () => ipcRenderer.send('login-success'),
+    sendLogout: () => ipcRenderer.send('logout'),
 
     // SAT Synchronization (Local)
     satSync: (params) => ipcRenderer.invoke('sat-sync', params),

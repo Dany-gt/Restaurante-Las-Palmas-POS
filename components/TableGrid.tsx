@@ -5,10 +5,11 @@ import { supabase } from '../supabase';
 import { PinModalV2 } from './PinModalV2';
 
 interface TableGridProps {
-  onSelectTable: (table: Table) => void;
+  onSelectTable: (table: Table, pax?: number) => void;
+  isTransferMode?: boolean;
 }
 
-export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
+export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable, isTransferMode }) => {
   const [sections, setSections] = useState<string[]>([]);
   const [activeSection, setActiveSection] = useState('');
   const [showCounter, setShowCounter] = useState<Table | null>(null);
@@ -54,45 +55,54 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
         let fetchedSections: any[] = [];
         let fetchedOrders: any[] = [];
 
-        // 1. ONLINE FETCH
+        // 1. ONLINE FETCH — todas las queries en PARALELO para máxima velocidad
         if (navigator.onLine) {
           try {
             let tablesQuery = supabase.from('tables').select('*, locked_by').order('number');
             if (branchId) tablesQuery = tablesQuery.eq('branch_id', branchId);
 
-            let tablesRes = await tablesQuery;
-            if (tablesRes.error) {
-              console.warn('Branch filter might have failed, falling back...');
-              let fallbackQuery = supabase.from('tables').select('*').order('number');
-              if (branchId) fallbackQuery = fallbackQuery.eq('branch_id', branchId);
-              tablesRes = await fallbackQuery;
-            }
-            if (!tablesRes.error && tablesRes.data) fetchedTables = tablesRes.data;
-
             let sectionsQuery = supabase.from('sections').select('*').order('priority', { ascending: true }).order('name');
             if (branchId) sectionsQuery = sectionsQuery.eq('branch_id', branchId);
-            const sectionsRes = await sectionsQuery;
-            if (!sectionsRes.error && sectionsRes.data) fetchedSections = sectionsRes.data;
 
             let ordersQuery = supabase.from('orders')
               .select('table_id, created_at, waiter_id, waiter:profiles!orders_waiter_id_fkey(name)')
               .in('status', ['pending', 'preparing', 'ready', 'served'])
               .order('created_at', { ascending: true });
             if (branchId) ordersQuery = ordersQuery.eq('branch_id', branchId);
-            const ordersRes = await ordersQuery;
+
+            const settingsQuery = supabase.from('system_settings')
+              .select('max_active_orders_per_waiter').eq('id', 1).single();
+
+            // 🚀 Ejecutar TODAS las queries en paralelo (antes eran 4 awaits secuenciales ~1.6s)
+            const [tablesRes, sectionsRes, ordersRes, settingsRes] = await Promise.all([
+              tablesQuery,
+              sectionsQuery,
+              ordersQuery,
+              settingsQuery,
+            ]);
+
+            if (!tablesRes.error && tablesRes.data) fetchedTables = tablesRes.data;
+            else if (tablesRes.error && branchId) {
+              // Fallback sin filtro de branch si el branch_id falla
+              const fallback = await supabase.from('tables').select('*, locked_by').order('number');
+              if (!fallback.error && fallback.data) fetchedTables = fallback.data;
+            }
+
+            if (!sectionsRes.error && sectionsRes.data) fetchedSections = sectionsRes.data;
             if (!ordersRes.error && ordersRes.data) fetchedOrders = ordersRes.data;
+
+            if (settingsRes.data?.max_active_orders_per_waiter) {
+              setMaxOrdersLimit(settingsRes.data.max_active_orders_per_waiter);
+              localStorage.setItem('cached_max_orders', settingsRes.data.max_active_orders_per_waiter.toString());
+            } else {
+              // Usar valor cacheado si la query de settings falló
+              const cachedMaxOrders = localStorage.getItem('cached_max_orders');
+              if (cachedMaxOrders) setMaxOrdersLimit(parseInt(cachedMaxOrders) || 0);
+            }
 
           } catch (e) {
             console.warn("Online fetch failed, falling back to offline", e);
           }
-
-          try {
-            const { data: settings } = await supabase.from('system_settings').select('max_active_orders_per_waiter').eq('id', 1).single();
-            if (settings?.max_active_orders_per_waiter) {
-              setMaxOrdersLimit(settings.max_active_orders_per_waiter);
-              localStorage.setItem('cached_max_orders', settings.max_active_orders_per_waiter.toString());
-            }
-          } catch (e) { }
         }
 
         // 2. OFFLINE FALLBACK
@@ -108,7 +118,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
               fetchedOrders = Object.values(map);
             } catch (e) { }
           }
-          
+
           const cachedMaxOrders = localStorage.getItem('cached_max_orders');
           if (cachedMaxOrders) {
             setMaxOrdersLimit(parseInt(cachedMaxOrders) || 0);
@@ -144,9 +154,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
 
         const names = availableSections.map(s => s.name);
         setSections(names);
-        if (names.length > 0 && (!activeSection || !names.includes(activeSection))) {
-          setActiveSection(names[0]);
-        }
+        // No auto-seleccionamos la primera área — el usuario debe elegir una.
 
         const map: Record<string, string> = {};
         const ordersMap: Record<string, any> = {};
@@ -177,7 +185,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
             for (const tableId in offlineTables) {
               const entry = offlineTables[tableId];
               const age = now24 - new Date(entry.created_at || 0).getTime();
-              
+
               // Si estamos online y la mesa en base de datos ya está 'available', la limpiamos.
               const dbTable = fetchedTables?.find((t: any) => t.id === tableId);
               const isAvailableOnline = navigator.onLine && dbTable && dbTable.status === 'available';
@@ -280,6 +288,19 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
   };
 
   const handleClick = async (t: Table) => {
+    // Determine status
+    const isOccupied = t.status === 'occupied' || !!activeOrders[t.id] || !!offlineOccupied[t.id];
+
+    // --- TRANSFER MODE LOGIC ---
+    if (isTransferMode) {
+      if (isOccupied) {
+        alert("La mesa ya está ocupada. Por favor seleccione una mesa disponible para el traslado.");
+        return;
+      }
+      onSelectTable(t, 1);
+      return;
+    }
+
     // 1. ALWAYS check access first (respect soft locks and current orders)
     const access = checkAccess(t);
     if (!access.allowed) {
@@ -288,7 +309,6 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
     }
 
     // 2. Determine flow based on status
-    const isOccupied = t.status === 'occupied' || !!activeOrders[t.id] || !!offlineOccupied[t.id];
 
     if (isOccupied) {
       onSelectTable(t, 1);
@@ -352,11 +372,10 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
             <button
               key={s}
               onClick={() => setActiveSection(s)}
-              className={`w-auto min-w-[100px] sm:min-w-[110px] lg:min-w-[140px] max-w-[150px] sm:max-w-[140px] h-auto min-h-[55px] sm:min-h-[60px] lg:min-h-[65px] flex-shrink-0 flex items-center justify-center rounded-lg font-semibold text-[11px] sm:text-[11px] lg:text-[12px] tracking-wider uppercase transition-all border px-3 py-2 text-center leading-snug whitespace-normal break-words area-button ${
-                activeSection === s
+              className={`w-auto min-w-[100px] sm:min-w-[110px] lg:min-w-[140px] max-w-[150px] sm:max-w-[140px] h-auto min-h-[55px] sm:min-h-[60px] lg:min-h-[65px] flex-shrink-0 flex items-center justify-center rounded-lg font-semibold text-[11px] sm:text-[11px] lg:text-[12px] tracking-wider uppercase transition-all border px-3 py-2 text-center leading-snug whitespace-normal break-words area-button ${activeSection === s
                   ? 'bg-[#6366f1] text-white border-[#6366f1] shadow-xl'
                   : 'bg-white border-white/10 text-black shadow-sm hover:bg-gray-100'
-              }`}
+                }`}
             >
               {s}
             </button>
@@ -385,6 +404,8 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
               </p>
             </div>
           )
+        ) : !activeSection ? (
+          <div className="flex-1" />
         ) : (
           <div className="flex flex-wrap justify-center content-start gap-4 sm:gap-6 lg:gap-8 w-full max-w-7xl mx-auto mt-2 pb-10">
             {filtered.map(t => {
@@ -411,7 +432,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
                       <span className="text-[7px] font-semibold text-amber-400 uppercase tracking-widest">Local</span>
                     </div>
                   )}
-                  
+
                   <div className="flex-1 flex items-center justify-center w-full">
                     <span className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white">{t.number}</span>
                   </div>
@@ -420,15 +441,14 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
                     <span className="text-[11px] sm:text-[12px] font-semibold text-gray-300 capitalize tracking-wide text-center w-full truncate">
                       {isOccupied ? 'Ocupada' : t.locked_by ? 'Reservada' : 'Disponible'}
                     </span>
-                    <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${
-                      isOfflineOnly
+                    <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${isOfflineOnly
                         ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)] animate-pulse'
                         : isOccupied
                           ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'
                           : t.locked_by
                             ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)] animate-pulse'
                             : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
-                    }`} />
+                      }`} />
                   </div>
                 </button>
               )
@@ -442,7 +462,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable }) => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-6 animate-fade-in backdrop-blur-sm">
           <div className="w-full max-w-[320px] bg-[#2d2e3d] rounded-2xl p-6 border border-white/5 shadow-2xl relative z-[101]">
             <h3 className="text-center text-[10px] font-semibold text-white/40 tracking-[0.4em] uppercase mb-2">Mesa {showCounter.number}</h3>
-            <h4 className="text-center text-lg font-semibold mb-8 tracking-tight text-white">CANTIDAD PERSONAS</h4>
+            <h4 className="text-center text-lg font-semibold mb-8 tracking-tight text-white">PERSONAS</h4>
 
             <div className="flex items-center justify-center gap-6 mb-8">
               <button onClick={() => setPax(p => Math.max(1, p - 1))} className="w-14 h-14 rounded-2xl bg-[#3a3b4d] border border-white/5 flex items-center justify-center text-xl transition-all active:scale-95 text-white shadow-lg">-</button>

@@ -171,9 +171,9 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({ isOpen, onClose, o
             className="fixed inset-0 z-[100] flex bg-black/50 p-4 animate-fade-in transition-all duration-500"
             style={{ 
                 alignItems: isRaised ? 'flex-start' : 'center', 
-                justifyContent: isTyping ? 'flex-start' : 'center',
-                paddingTop: isRaised ? '12px' : '1rem',
-                paddingLeft: isTyping ? '3rem' : '1rem'
+                justifyContent: 'center',
+                paddingTop: isRaised ? '12px' : '0',
+                paddingRight: isTyping ? '380px' : '0'
             }}
         >
             <motion.div
@@ -196,18 +196,16 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({ isOpen, onClose, o
                         >
                             {isRaised ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
                         </button>
-                        <button onClick={onClose} className="p-1.5 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-white transition-colors">
-                            <X size={18} />
-                        </button>
                     </div>
                 </div>
 
-                {/* Form Container with Inner Scroll */}
                 <div 
-                    className="p-5 space-y-3 flex-1 overflow-y-auto custom-scrollbar bg-[#2d2e3d]"
+                    className="p-6 space-y-4 flex-1 overflow-y-auto custom-scrollbar bg-[#2d2e3d]"
                     onFocus={() => setIsTyping(true)}
                     onBlur={(e) => {
-                        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                        const nextTarget = e.relatedTarget as HTMLElement;
+                        const isInput = nextTarget?.tagName === 'INPUT' || nextTarget?.tagName === 'TEXTAREA';
+                        if (!e.currentTarget.contains(nextTarget) || !isInput) {
                             setIsTyping(false);
                         }
                     }}
@@ -221,7 +219,6 @@ export const CustomerModal: React.FC<CustomerModalProps> = ({ isOpen, onClose, o
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Nombre de Cliente"
                             className="w-full bg-black/40 border border-white/10 focus:border-indigo-500 rounded-lg py-2.5 pl-9 pr-4 text-sm text-gray-200 placeholder:text-gray-500 outline-none transition-all"
-                            autoFocus
                         />
                     </div>
 

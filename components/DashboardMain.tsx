@@ -730,7 +730,7 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
           const lp = p.toLowerCase();
           return lp.includes('caja') || lp.includes('corte') || lp.includes('gasto') || lp.includes('abono') || lp.includes('financ');
         })) && (
-          <div className={`fixed bottom-0 left-0 right-0 border-t border-white/5 px-6 py-4 z-30 shadow-md transition-colors bg-[#3a3b4d]`}>
+          <div className={`fixed bottom-0 left-0 right-0 border-t border-white/5 px-6 py-4 z-30 shadow-md transition-colors bg-[#2d2e3d]`}>
             <div className="max-w-7xl mx-auto flex flex-col gap-3">
 
               {/* Row 1: Actions (Left) and Monitoring (Right) */}
@@ -781,15 +781,28 @@ export const DashboardMain: React.FC<DashboardProps> = ({ onNavigate, isAdmin, s
   );
 };
 
-const DashboardButton = ({ label, color, onClick, disabled }: { label: string, color?: string, onClick?: () => void, disabled?: boolean }) => (
-  <button
-    onClick={onClick}
-    disabled={disabled}
-    className={`relative w-40 h-16 bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg transition-all active:scale-95 group focus:outline-none flex items-center justify-center p-2 overflow-hidden shadow-none ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-  >
-    <span className="text-[10px] font-medium uppercase tracking-wider text-gray-300 group-hover:text-white text-center leading-[1.1]">{label}</span>
-  </button>
-);
+const DashboardButton = ({ label, color, onClick, disabled }: { label: string, color?: string, onClick?: () => void, disabled?: boolean }) => {
+  let borderColor = 'border-t-transparent';
+  if (color) {
+    if (color.includes('yellow')) borderColor = 'border-t-yellow-400';
+    else if (color.includes('green')) borderColor = 'border-t-green-500';
+    else if (color.includes('blue')) borderColor = 'border-t-blue-500';
+    else if (color.includes('red')) borderColor = 'border-t-red-500';
+  }
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`relative w-40 h-16 bg-[#45465a] hover:bg-[#4d4e63] border border-white/5 rounded-[4px] transition-all active:scale-95 group focus:outline-none flex items-center justify-center p-2 overflow-hidden shadow-none ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+    >
+      {color && (
+        <div className={`absolute top-0 right-0 w-0 h-0 border-t-[10px] ${borderColor} border-l-[10px] border-l-transparent pointer-events-none`} />
+      )}
+      <span className="text-[10px] font-medium uppercase tracking-wider text-gray-300 group-hover:text-white text-center leading-[1.1]">{label}</span>
+    </button>
+  );
+};
 
 const ShiftClosureSummary = ({ data, onPrint, onFinish }: { data: any, onPrint: () => void, onFinish: () => void }) => {
   const [isEmailing, setIsEmailing] = React.useState(false);

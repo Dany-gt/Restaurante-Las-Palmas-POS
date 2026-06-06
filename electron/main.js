@@ -57,8 +57,11 @@ ipcMain.on('window-minimize', () => {
 
 ipcMain.on('window-maximize', () => {
     if (mainWindow) {
-        if (mainWindow.isMaximized()) mainWindow.unmaximize();
-        else mainWindow.maximize();
+        if (mainWindow.isFullScreen()) {
+            mainWindow.setFullScreen(false);
+        } else {
+            mainWindow.setFullScreen(true);
+        }
     }
 });
 
@@ -81,12 +84,12 @@ ipcMain.handle('get-printers', async () => {
 
 ipcMain.handle('print-html', async (event, { html, printerName, silent }) => {
     console.log(`🖨️ [Electron] Iniciando flujo de impresión: "${printerName || 'Predeterminada'}" (Silencioso: ${silent})`);
-    
+
     return new Promise((resolve) => {
-        let printWindow = new BrowserWindow({ 
+        let printWindow = new BrowserWindow({
             show: false
         });
-        
+
         // Timeout de seguridad: 30 segundos para evitar fugas de memoria
         const timeout = setTimeout(() => {
             if (!printWindow.isDestroyed()) {
@@ -97,14 +100,14 @@ ipcMain.handle('print-html', async (event, { html, printerName, silent }) => {
         }, 30000);
 
         printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
-        
+
         printWindow.webContents.on('did-finish-load', () => {
             console.log('📄 [Electron] Contenido HTML cargado. Iniciando impresión inmediata...');
-            
+
             // Reducimos el delay a 100ms para tickets simples, es suficiente para renderizar texto
             setTimeout(() => {
                 if (printWindow.isDestroyed()) return;
-                
+
                 const printOptions = {
                     silent: !!silent,
                     printBackground: true,
@@ -118,7 +121,7 @@ ipcMain.handle('print-html', async (event, { html, printerName, silent }) => {
                 printWindow.webContents.print(printOptions, (success, failureReason) => {
                     clearTimeout(timeout);
                     console.log(`🏁 [Electron] Impresión finalizada. Éxito: ${success}`);
-                    
+
                     if (!printWindow.isDestroyed()) {
                         // Cerramos rápido pero dejando un margen para que el driver reciba la info
                         setTimeout(() => {
@@ -146,16 +149,16 @@ ipcMain.handle('print-to-network', async (event, { ip, port, content, isRaw }) =
         const net = require('net');
         const client = new net.Socket();
         const timeout = 10000;
-        
+
         client.setTimeout(timeout);
-        
+
         client.connect(port || 9100, ip, () => {
             console.log(`🔌 [Electron] Conectado a impresora en ${ip}:${port || 9100}`);
-            
+
             // Si es raw (Buffer/Uint8Array), lo enviamos tal cual
             // Si es texto, lo convertimos a Buffer con encoding adecuado
             const buffer = isRaw ? Buffer.from(content) : Buffer.from(content, 'utf-8');
-            
+
             client.write(buffer, () => {
                 // Pequeño delay antes de cerrar para asegurar que el buffer se vacíe
                 setTimeout(() => {
@@ -192,16 +195,16 @@ ipcMain.handle('check-connection', async (event, { ip, port }) => {
 ipcMain.handle('open-cash-drawer', async (event, { target, type }) => {
     const timestamp = new Date().toISOString();
     console.log(`[${timestamp}] 💰 [Electron] Solicitud de apertura de gaveta recibida. Tipo: ${type}, Destino: ${target || 'PREDETERMINADO'}`);
-    
+
     return new Promise((resolve) => {
         if (type === 'NETWORK' && target) {
             // Pulso ESC/POS estándar: ESC p 0 25 250
             const pulse = Buffer.from([0x1b, 0x70, 0x00, 0x19, 0xfa]);
             const client = new net.Socket();
             client.setTimeout(3000);
-            
+
             console.log(`[${timestamp}] 🔌 [Electron] Enviando pulso TCP a ${target}:9100...`);
-            
+
             client.connect(9100, target, () => {
                 client.write(pulse, () => {
                     console.log(`[${timestamp}] ✅ [Electron] Pulso TCP enviado con éxito a ${target}`);
@@ -209,12 +212,12 @@ ipcMain.handle('open-cash-drawer', async (event, { target, type }) => {
                     resolve({ success: true });
                 });
             });
-            
+
             client.on('error', (err) => {
                 console.error(`[${timestamp}] ❌ [Electron] Error enviando pulso TCP: ${err.message}`);
                 resolve({ success: false, error: err.message });
             });
-            
+
             client.on('timeout', () => {
                 console.error(`[${timestamp}] ❌ [Electron] Timeout enviando pulso TCP a ${target}`);
                 client.destroy();
@@ -222,7 +225,7 @@ ipcMain.handle('open-cash-drawer', async (event, { target, type }) => {
             });
         } else if (type === 'SYSTEM' && target) {
             console.log(`[${timestamp}] 🔌 [Electron] Generando pulso vía Driver Windows para: ${target}`);
-            
+
             // Creamos un trabajo de impresión que contenga un carácter invisible pero real para que el spooler no lo ignore.
             let workerWindow = new BrowserWindow({ show: false });
             const dummyHtml = `
@@ -233,24 +236,24 @@ ipcMain.handle('open-cash-drawer', async (event, { target, type }) => {
                 </html>
             `;
             workerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(dummyHtml)}`);
-            
+
             workerWindow.webContents.on('did-finish-load', () => {
                 console.log(`[${timestamp}] 📄 [Electron] Dummy Job cargado. Ejecutando pulso de gaveta...`);
-                
+
                 workerWindow.webContents.print({
                     silent: true,
                     deviceName: target,
                     margins: { marginType: 'none' }
                 }, (success, failureReason) => {
                     console.log(`[${timestamp}] 🏁 [Electron] Resultado pulso gaveta: ${success}${failureReason ? `. Motivo: ${failureReason}` : ''}`);
-                    
+
                     // Delay para que el spooler termine de enviar el comando antes de cerrar la ventana
                     setTimeout(() => {
                         if (!workerWindow.isDestroyed()) {
                             workerWindow.close();
                         }
                     }, 1000);
-                    
+
                     if (success) {
                         resolve({ success: true });
                     } else {
@@ -323,9 +326,15 @@ ipcMain.handle('generate-pdf', async (event, { html, name }) => {
 
 ipcMain.on('login-success', () => {
     if (mainWindow) {
-        mainWindow.setAlwaysOnTop(false);
-        mainWindow.maximize();
+        mainWindow.setFullScreen(true);
         mainWindow.show();
+    }
+});
+
+ipcMain.on('logout', () => {
+    if (mainWindow) {
+        mainWindow.setFullScreen(false);
+        mainWindow.center();
     }
 });
 
@@ -335,7 +344,7 @@ ipcMain.handle('sat-sync', async (event, params) => {
     return new Promise((resolve) => {
         let baseDir = app.getAppPath();
         if (app.isPackaged) baseDir = baseDir.replace('app.asar', 'app.asar.unpacked');
-        
+
         const scriptPath = path.join(baseDir, 'server', 'sat_bridge.py');
         const pyProcess = spawn('python', [scriptPath], { env: { ...process.env, PYTHONIOENCODING: 'utf-8' } });
 
@@ -348,7 +357,7 @@ ipcMain.handle('sat-sync', async (event, params) => {
             try {
                 const jsonStart = stdoutData.indexOf('{'), jsonEnd = stdoutData.lastIndexOf('}');
                 const satResult = JSON.parse(stdoutData.substring(jsonStart, jsonEnd + 1));
-                
+
                 if (!satResult.success || !satResult.invoices || satResult.invoices.length === 0) {
                     return resolve(satResult);
                 }
@@ -356,7 +365,7 @@ ipcMain.handle('sat-sync', async (event, params) => {
                 let imported = 0, errors = 0, lastError = null;
                 const cleanTipo = (params.tipo || '').toLowerCase().trim();
                 const tableName = (cleanTipo.includes('emit') || cleanTipo.includes('venta')) ? 'sales_invoices' : 'purchase_invoices';
-                
+
                 const opRecords = [];
                 for (let rawInv of satResult.invoices) {
                     const inv = rawInv.data || rawInv;
@@ -366,7 +375,7 @@ ipcMain.handle('sat-sync', async (event, params) => {
                     try {
                         const total = Number(inv.total || inv.granTotal || inv.raw?.granTotal || 0);
                         const iva = Number(inv.iva || inv.montoIva || inv.totalIva || inv.raw?.totalIva || 0);
-                        
+
                         const opBody = {
                             org_id: inv.org_id || 'default',
                             invoice_date: inv.fecha || inv.fechaEmision || inv.raw?.fechaEmision || new Date().toISOString().split('T')[0],
@@ -394,23 +403,23 @@ ipcMain.handle('sat-sync', async (event, params) => {
                         }
 
                         opRecords.push(opBody);
-                    } catch(e) { errors++; }
+                    } catch (e) { errors++; }
                 }
 
                 if (opRecords.length > 0 && params.supabaseUrl && params.supabaseKey) {
                     try {
-                        const headers = { 
-                            'apikey': params.supabaseKey, 
-                            'Authorization': 'Bearer ' + params.supabaseKey, 
+                        const headers = {
+                            'apikey': params.supabaseKey,
+                            'Authorization': 'Bearer ' + params.supabaseKey,
                             'Content-Type': 'application/json',
                             'Prefer': 'resolution=merge-duplicates'
                         };
                         const res = await fetch(`${params.supabaseUrl}/rest/v1/${tableName}?on_conflict=fel_uuid`, {
                             method: 'POST', headers, body: JSON.stringify(opRecords)
                         });
-                        
-                        if (res.ok) { imported = opRecords.length; } 
-                        else { 
+
+                        if (res.ok) { imported = opRecords.length; }
+                        else {
                             lastError = await res.text();
                             errors += opRecords.length;
                         }
@@ -434,7 +443,7 @@ ipcMain.handle('sat-sync', async (event, params) => {
 function urlToFilename(url) {
     const hash = crypto.createHash('sha1').update(url).digest('hex').slice(0, 16);
     const ext = url.split('?')[0].split('.').pop().toLowerCase();
-    const safeExt = ['jpg','jpeg','png','webp','gif','svg','avif'].includes(ext) ? ext : 'jpg';
+    const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'avif'].includes(ext) ? ext : 'jpg';
     return `${hash}.${safeExt}`;
 }
 
@@ -446,18 +455,18 @@ function downloadFile(url, destPath) {
         proto.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (res) => {
             if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
                 file.close();
-                fs.unlink(destPath, () => {});
+                fs.unlink(destPath, () => { });
                 return downloadFile(res.headers.location, destPath).then(resolve).catch(reject);
             }
             if (res.statusCode !== 200) {
                 file.close();
-                fs.unlink(destPath, () => {});
+                fs.unlink(destPath, () => { });
                 return reject(new Error(`HTTP ${res.statusCode} for ${url}`));
             }
             res.pipe(file);
             file.on('finish', () => file.close(resolve));
-            file.on('error', (e) => { fs.unlink(destPath, () => {}); reject(e); });
-        }).on('error', (e) => { fs.unlink(destPath, () => {}); reject(e); });
+            file.on('error', (e) => { fs.unlink(destPath, () => { }); reject(e); });
+        }).on('error', (e) => { fs.unlink(destPath, () => { }); reject(e); });
     });
 }
 
@@ -503,10 +512,10 @@ app.whenReady().then(async () => {
     protocol.registerFileProtocol('app-image', async (request, callback) => {
         try {
             const imagesDir = path.join(app.getPath('userData'), 'images');
-            
+
             // Allow full URL in the format: app-image:///<remote_url>
             let remoteUrl = decodeURIComponent(request.url.replace(/^app-image:\/+/, ''));
-            
+
             if (remoteUrl.startsWith('http')) {
                 // Keep it as is
             } else if (remoteUrl.includes('supabase.co')) {
@@ -520,7 +529,7 @@ app.whenReady().then(async () => {
             // Convert remoteUrl to filename
             const hash = crypto.createHash('sha1').update(remoteUrl).digest('hex').slice(0, 16);
             const ext = remoteUrl.split('?')[0].split('.').pop().toLowerCase();
-            const safeExt = ['jpg','jpeg','png','webp','gif','svg','avif'].includes(ext) ? ext : 'jpg';
+            const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'avif'].includes(ext) ? ext : 'jpg';
             const filename = `${hash}.${safeExt}`;
             const filePath = path.join(imagesDir, filename);
 
@@ -530,7 +539,7 @@ app.whenReady().then(async () => {
                 // Download on the fly
                 await downloadFile(remoteUrl, filePath);
             }
-            
+
             callback({ path: filePath });
         } catch (e) {
             console.error('[app-image protocol] Error:', e.message);

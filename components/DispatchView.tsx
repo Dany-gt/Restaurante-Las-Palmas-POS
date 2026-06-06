@@ -497,8 +497,10 @@ export const DispatchView: React.FC<{
             <div className="h-16 px-6 border-b border-white/5 flex justify-between items-center bg-black/20 backdrop-blur-md sticky top-0 z-20">
                 <div className="flex items-center gap-3">
                     {onBack && (
-                        <button onClick={onBack} className="p-2 -ml-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
-                            <ChevronLeft size={20} />
+                        <button onClick={onBack} className="p-3.5 bg-white/5 hover:bg-white/10 active:scale-95 rounded-xl transition-all pos-button text-gray-400 hover:text-white shrink-0">
+                            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
                         </button>
                     )}
                     <div className={`p-2 rounded-xl ${type === 'DELIVERY' ? 'bg-white/10 text-white' : 'bg-amber-500/10 text-amber-500'}`}>

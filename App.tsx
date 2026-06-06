@@ -452,6 +452,10 @@ const App: React.FC = () => {
 
           setCurrentUser(user);
 
+          if ((window as any).electronAPI && (window as any).electronAPI.sendLoginSuccess) {
+            (window as any).electronAPI.sendLoginSuccess();
+          }
+
           // v1.6.13 - NO Forzamos sincronización al iniciar. Esperamos al botón manual.
           
           // Restore Lead User if it was an operator dashboard session
@@ -535,6 +539,10 @@ const App: React.FC = () => {
   };
 
   const handleLogout = async (isSoftLogout: boolean = false) => {
+    if ((window as any).electronAPI && (window as any).electronAPI.sendLogout) {
+      (window as any).electronAPI.sendLogout();
+    }
+
     if (!isSoftLogout) {
       // SECURITY: FORCE FULL LOGOUT ON EVERY EXIT
       await supabase.auth.signOut();
@@ -923,6 +931,45 @@ const App: React.FC = () => {
       }
     }
   };
+
+
+  // ─── TRASLADO DE MESA: navegación directa sin validaciones de selección ───────
+  const handleTransferComplete = async (newTable: Table) => {
+    // 1. Actualizar la mesa seleccionada inmediatamente
+    setSelectedTable(newTable);
+
+    // 2. Buscar la orden que acabamos de mover a la nueva mesa
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select('*, order_items(*, products(*))')
+      .eq('table_id', newTable.id)
+      .neq('status', 'completed')
+      .neq('status', 'cancelled')
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (!error && orders && orders.length > 0) {
+      const order = orders[0];
+      const formattedOrder = {
+        ...order,
+        items: (order.order_items || []).map((item: any) => ({
+          ...item,
+          product_name: item.products?.name || 'Producto',
+          product: item.products,
+          price: item.unit_price,
+          unit_price: item.unit_price,
+          is_sent: true
+        }))
+      };
+      // 3. Montar directamente la vista de orden con la nueva mesa
+      setActiveOrder(formattedOrder);
+      setCurrentView('ORDER');
+    } else {
+      // Fallback: si no encontró la orden, intentar a través del flujo normal
+      handleSelectTable(newTable);
+    }
+  };
+  // ─────────────────────────────────────────────────────────────────────────────
 
   const handleSelectTable = async (table: Table, pax: number = 1) => {
     setSelectedTable(table);
@@ -1428,6 +1475,7 @@ const App: React.FC = () => {
                 onCheckout={(ord) => { setActiveOrder(ord); setCurrentView('CHECKOUT'); }}
                 waiterVoiceEnabled={waiterVoiceEnabled}
                 onToggleWaiterVoice={() => setWaiterVoiceEnabled(!waiterVoiceEnabled)}
+                onTransferComplete={(newTable) => handleTransferComplete(newTable)}
               />
             )}
             {currentView === 'CHECKOUT' && activeOrder && <CheckoutView order={activeOrder} table={selectedTable} currentUser={currentUser} settings={settings} onBack={() => setCurrentView('ORDER')} onComplete={handleCheckoutComplete} />}
