@@ -159,13 +159,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             return cached ? JSON.parse(cached) : [];
         } catch (e) { return []; }
     });
-    const setCategories = (val: any) => {
-        console.log('🚨 setCategories CALLED with:', val);
-        if (Array.isArray(val) && val.length === 0) {
-            console.error('❌ CATEGORIES SET TO EMPTY ARRAY! Stack trace:', new Error().stack);
-        }
-        _setCategories(val);
-    };
+    const setCategories = _setCategories;
     const [products, setProducts] = useState<Product[]>(() => {
         try {
             const cached = localStorage.getItem('cached_products');
@@ -693,6 +687,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         } else {
             const newItem: OrderItem = {
                 id: localId,
+                order_id: activeOrderId || undefined,
                 product_id: product.id,
                 product_name: product.name,
                 price: finalPrice,
@@ -1210,6 +1205,52 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const handleAddEmptyAccount = async () => {
         setProcessing(true);
         try {
+            // If there are no orders in the database yet, we want to create BOTH Cuenta 1 (for current draft) and Cuenta 2
+            if (tableOrders.length === 0) {
+                const orderId1 = generateUUID();
+                const orderId2 = generateUUID();
+                const time1 = new Date(Date.now() + serverOffset);
+                const time2 = new Date(time1.getTime() + 1000); // 1 segundo después
+                const nowGuate = DateUtils.toGuatemalaISO(time1);
+                const secondGuate = DateUtils.toGuatemalaISO(time2);
+
+                // Insert CUENTA 1
+                const { error: error1 } = await supabase.from('orders').insert({
+                    id: orderId1,
+                    table_id: table?.id,
+                    status: 'pending',
+                    order_type: 'DINE_IN',
+                    waiter_id: currentUser?.id,
+                    customer_name: 'CUENTA 1',
+                    pax_count: 1,
+                    branch_id: currentUser?.branch_id,
+                    created_at: nowGuate
+                });
+                if (error1) throw error1;
+
+                // Insert CUENTA 2
+                const { error: error2 } = await supabase.from('orders').insert({
+                    id: orderId2,
+                    table_id: table?.id,
+                    status: 'pending',
+                    order_type: 'DINE_IN',
+                    waiter_id: currentUser?.id,
+                    customer_name: 'CUENTA 2',
+                    pax_count: 1,
+                    branch_id: currentUser?.branch_id,
+                    created_at: secondGuate
+                });
+                if (error2) throw error2;
+
+                // Bind all current local unsent items to CUENTA 1
+                setItems(prev => prev.map(i => !i.is_sent ? { ...i, order_id: orderId1 } : i));
+
+                await fetchData(false, orderId2);
+                setActiveOrderId(orderId2);
+                notify.success('Cuentas creadas');
+                return;
+            }
+
             // Find next available name like "CUENTA X"
             const usedNames = new Set<string>();
             tableOrders.forEach((o, index) => {
@@ -1240,6 +1281,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
             if (error) throw error;
             if (newOrder) {
+                // Before switching to the new account, lock any un-assigned items to the current account
+                if (activeOrderId) {
+                    setItems(prev => prev.map(i =>
+                        !i.is_sent && !(i as any).order_id ? { ...i, order_id: activeOrderId } : i
+                    ));
+                }
                 await fetchData(false, newOrder.id);
                 setActiveOrderId(newOrder.id);
                 notify.success('Cuenta añadida');
@@ -1537,41 +1584,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         try {
             const myBranchId = currentUser?.branch_id;
 
-            // RELOAD MASTER DATA FROM IndexedDB ONLY IF LOCAL STATE IS EMPTY (Failsafe)
-            if (categories.length === 0 || products.length === 0) {
-                try {
-                    const { masterDataDB } = await import('../services/MasterDataDB');
-                    const [masterCats, masterProds] = await Promise.all([
-                        masterDataDB.getAll('categories'),
-                        masterDataDB.getAll('products')
-                    ]);
-
-                    if (masterCats?.length > 0) {
-                        setCategories(masterCats);
-                    } else if (navigator.onLine) {
-                        // EMERGENCY FALLBACK: If DB is empty and we are online, fetch from Supabase
-                        console.log('⚡ Emergency categories fetch triggered...');
-                        const { data } = await supabase.from('categories').select('*').order('order_index');
-                        if (data && data.length > 0) {
-                            setCategories(data);
-                            localStorage.setItem('cached_categories', JSON.stringify(data));
-                        }
-                    }
-
-                    if (masterProds?.length > 0) {
-                        setProducts(masterProds);
-                    } else if (navigator.onLine) {
-                        console.log('⚡ Emergency products fetch triggered...');
-                        const { data } = await supabase.from('products').select('*').eq('is_enabled', true);
-                        if (data && data.length > 0) {
-                            setProducts(data);
-                            localStorage.setItem('cached_products', JSON.stringify(data));
-                        }
-                    }
-                } catch (e) {
-                    console.error('Failsafe master data load failed', e);
-                }
-            }
+            // Master data is already loaded at the top of fetchData from IndexedDB/localStorage cache.
 
             if (!table?.id && !activeOrderId) {
                 console.warn('⚠️ OrderView: No context (Table/ID), skipping fetch.');
@@ -1605,7 +1618,13 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     setItems(prev => prev.filter(i => !i.is_sent));
                     setActiveOrderId(null);
                 } else if (existingOrders && existingOrders.length > 0) {
-                    // ... (rest of the logic identical)
+                    // Sort existingOrders deterministically: created_at asc, then customer_name asc
+                    existingOrders.sort((a, b) => {
+                        const dateA = new Date(a.created_at || 0).getTime();
+                        const dateB = new Date(b.created_at || 0).getTime();
+                        if (dateA !== dateB) return dateA - dateB;
+                        return (a.customer_name || '').localeCompare(b.customer_name || '', undefined, { numeric: true });
+                    });
                     console.log('📦 Órdenes encontradas:', existingOrders.length);
 
                     const orderIds = existingOrders.map(o => o.id);
@@ -1649,11 +1668,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         const merged = [...allTableItems, ...localItems];
 
                         // Strict Deduplication based on ID
+                        // CRITICAL: Local draft items may not have a DB id yet.
+                        // Use a unique fallback key so they are never collapsed into each other.
                         const uniqueMap = new Map();
+                        let draftCounter = 0;
                         merged.forEach(item => {
-                            // Local items shouldn't overwrite remote items if somehow IDs match
-                            if (!uniqueMap.has(item.id)) {
-                                uniqueMap.set(item.id, item);
+                            const key = item.id || `__draft_${item.order_id || 'noid'}_${draftCounter++}`;
+                            if (!uniqueMap.has(key)) {
+                                uniqueMap.set(key, item);
                             }
                         });
                         return Array.from(uniqueMap.values());
@@ -1707,43 +1729,101 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         const orderIds = tableOrders.map(o => o.id);
         console.log('🔌 Suscribiendo a cambios en tiempo real para las órdenes de la mesa:', orderIds);
 
+        const handleItemChange = (payload: any, eventType: 'INSERT' | 'UPDATE' | 'DELETE') => {
+            const newItem = payload.new as any;
+            const oldItem = payload.old as any;
+
+            // ── INSERT: un nuevo item fue añadido a una de nuestras cuentas ──
+            if (eventType === 'INSERT') {
+                if (!orderIds.includes(newItem.order_id)) return;
+                if (newItem.status === 'voided') return;
+                const mapped = {
+                    id: newItem.id,
+                    order_id: newItem.order_id,
+                    product_id: newItem.product_id,
+                    product_name: newItem.product_name || newItem.name || 'Producto',
+                    price: newItem.unit_price ?? newItem.price,
+                    quantity: newItem.quantity,
+                    notes: newItem.notes,
+                    status: newItem.status || 'pending',
+                    is_sent: newItem.is_sent ?? true,
+                    created_at: newItem.created_at,
+                    preparing_at: newItem.preparing_at,
+                    ready_at: newItem.ready_at,
+                    discount_id: newItem.discount_id,
+                    discount_percentage: newItem.discount_percentage,
+                    discount_amount: newItem.discount_amount,
+                };
+                setItems(prevItems => {
+                    if (prevItems.some(i => i.id === newItem.id)) return prevItems; // already exists
+                    return [...prevItems, mapped];
+                });
+                return;
+            }
+
+            // ── UPDATE: status, order_id (traslado), notas, etc. ──
+            if (eventType === 'UPDATE') {
+                const belongsToTable = orderIds.includes(newItem.order_id) || (oldItem && orderIds.includes(oldItem.order_id));
+                if (!belongsToTable) return;
+
+                console.log('🔔 Cambio en item detectado:', newItem);
+
+                setItems(prevItems => {
+                    // Si el item fue trasladado A otra cuenta que no es nuestra → eliminarlo
+                    if (oldItem && orderIds.includes(oldItem.order_id) && !orderIds.includes(newItem.order_id)) {
+                        return prevItems.filter(i => i.id !== newItem.id);
+                    }
+
+                    // Si el item fue anulado → eliminarlo
+                    if (newItem.status === 'voided') {
+                        return prevItems.filter(i => i.id !== newItem.id);
+                    }
+
+                    const exists = prevItems.some(i => i.id === newItem.id);
+                    const updatedArray = exists
+                        ? prevItems.map(item =>
+                            item.id === newItem.id
+                                ? { ...item, ...newItem, price: newItem.unit_price ?? item.price }
+                                : item
+                        )
+                        : [...prevItems, {
+                            // Traslado HACIA esta mesa/cuenta desde otra: insertar
+                            id: newItem.id,
+                            order_id: newItem.order_id,
+                            product_id: newItem.product_id,
+                            product_name: newItem.product_name || 'Producto',
+                            price: newItem.unit_price ?? newItem.price,
+                            quantity: newItem.quantity,
+                            notes: newItem.notes,
+                            status: newItem.status || 'pending',
+                            is_sent: true,
+                            created_at: newItem.created_at,
+                            preparing_at: newItem.preparing_at,
+                            ready_at: newItem.ready_at,
+                            discount_id: newItem.discount_id,
+                            discount_percentage: newItem.discount_percentage,
+                            discount_amount: newItem.discount_amount,
+                        }];
+
+                    // Deduplicar por id
+                    const uniqueMap = new Map();
+                    updatedArray.forEach(item => { if (item.id) uniqueMap.set(item.id, item); });
+                    return Array.from(uniqueMap.values());
+                });
+            }
+        };
+
         const channel = supabase
             .channel(`table_items_${table?.id || 'any'}`)
             .on(
                 'postgres_changes',
-                {
-                    event: 'UPDATE',
-                    schema: 'public',
-                    table: 'order_items'
-                },
-                (payload) => {
-                    const newItem = payload.new as any;
-                    // Only process if it belongs to one of the active orders on this table
-                    if (!orderIds.includes(newItem.order_id)) return;
-
-                    console.log('🔔 Cambio en item detectado:', newItem);
-                    setItems(prevItems => {
-                        const exists = prevItems.find(i => i.id === newItem.id);
-                        if (!exists) return prevItems;
-
-                        // If voided, remove it
-                        if (newItem.status === 'voided') {
-                            return prevItems.filter(i => i.id !== newItem.id);
-                        }
-
-                        // Otherwise update securely
-                        const updatedArray = prevItems.map(item =>
-                            item.id === newItem.id
-                                ? { ...item, ...newItem }
-                                : item
-                        );
-
-                        // Strict deduplication safety check
-                        const uniqueMap = new Map();
-                        updatedArray.forEach(item => uniqueMap.set(item.id, item));
-                        return Array.from(uniqueMap.values());
-                    });
-                }
+                { event: 'INSERT', schema: 'public', table: 'order_items' },
+                (payload) => handleItemChange(payload, 'INSERT')
+            )
+            .on(
+                'postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'order_items' },
+                (payload) => handleItemChange(payload, 'UPDATE')
             )
             .subscribe();
 
@@ -1751,6 +1831,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             console.log('🔌 Desuscribiendo canal de mesa...');
             supabase.removeChannel(channel);
         };
+
     }, [tableOrders]);
 
     // POLLING FALLBACK: Refresh order data periodically  
@@ -1937,7 +2018,17 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             // Trigger UI refresh event
             window.dispatchEvent(new CustomEvent('inventory-state-updated'));
 
-            // Logging action
+            // v1.7.2 - Find the specific order number for this voided item
+            const currentOrder = tableOrders.find(o => o.id === activeOrderId) || initialOrder;
+            const currentOrderNumber = currentOrder?.order_number;
+            const orderType = currentOrder?.order_type || 'DINE_IN';
+            const displayTable = (orderType === 'TAKEOUT' || orderType === 'DELIVERY')
+                ? 'PARA LLEVAR'
+                : (table?.number || '--');
+            const sectionName = table?.section || 'SALA';
+            const waiterName = (itemToVoid as any).waiter_name || currentOrder?.waiter?.name || currentOrder?.profiles?.name || currentUser?.name || 'MESERO';
+
+            // Logging action — fire-and-forget (non-blocking)
             if (currentUser) {
                 activityLogService.logFinancial({
                     user: currentUser,
@@ -1965,18 +2056,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 });
             }
 
-            // v1.7.2 - Find the specific order number for this voided item
-            const currentOrder = tableOrders.find(o => o.id === activeOrderId) || initialOrder;
-            const currentOrderNumber = currentOrder?.order_number;
-            const orderType = currentOrder?.order_type || 'DINE_IN';
-            const displayTable = (orderType === 'TAKEOUT' || orderType === 'DELIVERY')
-                ? 'PARA LLEVAR'
-                : (table?.number || '--');
-            const sectionName = table?.section || 'SALA';
-            const waiterName = (itemToVoid as any).waiter_name || currentOrder?.waiter?.name || currentOrder?.profiles?.name || currentUser?.name || 'MESERO';
-
-            // Audit Print (Always try local print if Electron)
-            await printService.printVoidTicket({
+            // Audit Print — fire-and-forget (non-blocking so UI closes instantly)
+            printService.printVoidTicket({
                 waiterName: waiterName,
                 cashierName: currentUser?.name || 'SISTEMA',
                 sectionName: sectionName,
@@ -1986,7 +2067,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 voidReason: voidReason,
                 voidedAt: DateUtils.formatDisplay(new Date()),
                 orderNumber: currentOrderNumber
-            });
+            }).catch(e => console.error('Error printing void ticket:', e));
 
         } catch (e) {
             console.error('❌ Error anular:', e);
@@ -2005,12 +2086,21 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const checkoutItems = (() => {
         const filtered = items.filter(i => {
             if (!activeOrderId) return true;
-            if (!i.is_sent) return true;
-            return (i as any).order_id === activeOrderId;
+            const itemOrderId = i.order_id;
+            if (tableOrders.length > 1) {
+                return itemOrderId === activeOrderId;
+            }
+            return !itemOrderId || itemOrderId === activeOrderId;
         });
         // Remove duplicates by id, keeping the last seen (most up-to-date)
+        // CRITICAL: Local draft items may not have a DB id yet — use a unique fallback key
+        // so they are NEVER silently discarded (which hid C1 items in the sidebar).
         const seen = new Map<string, typeof filtered[0]>();
-        filtered.forEach(i => { if (i.id) seen.set(i.id, i); });
+        let draftIdx = 0;
+        filtered.forEach(i => {
+            const key = i.id ? i.id : `__draft_${(i as any).order_id || 'noid'}_${draftIdx++}`;
+            seen.set(key, i);
+        });
         return Array.from(seen.values());
     })();
 
@@ -2083,8 +2173,103 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         setProcessing(false);
     };
 
+    // Submits ALL pending items from ALL accounts at once.
+    // Used when multiple accounts exist and the user clicks "Enviar" from any tab.
+    // Each account's items go to their correct order_id in the database.
+    const handleSubmitAllAccounts = async (): Promise<void> => {
+        if (processing || tableOrders.length === 0) return;
+
+        const allUnsent = items.filter(i => !i.is_sent && (i as any).order_id);
+        if (allUnsent.length === 0) return;
+
+        setProcessing(true);
+        try {
+            const nowWithOffset = new Date(Date.now() + serverOffset);
+            // Group unsent items by order_id
+            const grouped = new Map<string, typeof allUnsent>();
+            for (const item of allUnsent) {
+                const oid = (item as any).order_id as string;
+                if (!grouped.has(oid)) grouped.set(oid, []);
+                grouped.get(oid)!.push(item);
+            }
+
+            // Mark all as sent optimistically
+            const sentIds = new Set(allUnsent.map(i => i.id));
+            setItems(prev => prev.map(i => sentIds.has(i.id) ? { ...i, is_sent: true } : i));
+
+            // Submit each account's items to its order
+            for (const [orderId, orderItems] of grouped) {
+                const itemsPayload = orderItems.map(i => ({
+                    product_id: i.product_id,
+                    quantity: i.quantity,
+                    unit_price: i.price,
+                    product_name: i.product_name || '',
+                    status: (i as any).status || 'pending',
+                    notes: i.notes || null,
+                    discount_id: i.discount_id || null,
+                    discount_percentage: i.discount_percentage || null,
+                    discount_amount: i.discount_amount || null,
+                    discount_reason: i.discount_reason || null,
+                    created_at: DateUtils.toGuatemalaISO(nowWithOffset)
+                }));
+
+                const { data: rpcResult, error: rpcError } = await supabase.rpc('submit_order_items', {
+                    p_order_id: orderId,
+                    p_branch_id: currentUser?.branch_id,
+                    p_items: itemsPayload
+                });
+
+                if (rpcError) {
+                    // Fallback: direct insert
+                    const { error: insertError } = await supabase.from('order_items').insert(
+                        itemsPayload.map(i => ({ order_id: orderId, ...i }))
+                    );
+                    if (insertError) throw insertError;
+                } else if (rpcResult?.success === false) {
+                    throw new Error(rpcResult.error || `Error enviando ${orderId}`);
+                }
+            }
+
+            // Update table status
+            if (table?.id) {
+                await supabase.from('tables').update({ status: 'occupied', locked_by: null }).eq('id', table.id);
+            }
+
+            notify.success(`¡${grouped.size} cuenta(s) enviadas a cocina!`);
+            await fetchData(true);
+        } catch (e: any) {
+            console.error('Error en handleSubmitAllAccounts:', e);
+            // Revert optimistic update on error
+            setItems(prev => prev.map(i => allUnsent.find(u => u.id === i.id) ? { ...i, is_sent: false } : i));
+            showAlert('Error al enviar las órdenes: ' + e.message, 'Error');
+        }
+        setProcessing(false);
+    };
+
     const handleOrderSubmission = async (paymentMethod?: string, customerInfo?: { name: string, phone: string }): Promise<string | undefined> => {
-        const unsentItems = items.filter(i => !i.is_sent);
+
+        // When there are multiple accounts, only send items that belong to the active account.
+        // FIX: Items without order_id are first assigned to activeOrderId, then included.
+        // Never include items from other accounts (old bug: `|| !order_id` caused cross-contamination).
+        const allUnsentItems = items.filter(i => !i.is_sent);
+        let unsentItems: typeof allUnsentItems;
+        if (tableOrders.length > 1 && activeOrderId) {
+            // Strict filter: only items explicitly assigned to the active account.
+            // Items with no order_id are also assigned to this account (new items added while on this tab).
+            unsentItems = allUnsentItems.filter(i => {
+                const itemOrderId = (i as any).order_id;
+                return itemOrderId === activeOrderId || !itemOrderId;
+            });
+            // Assign activeOrderId to any item that still lacks one (race condition safety)
+            if (unsentItems.some(i => !(i as any).order_id)) {
+                unsentItems = unsentItems.map(i =>
+                    !(i as any).order_id ? { ...i, order_id: activeOrderId } : i
+                );
+            }
+        } else {
+            unsentItems = allUnsentItems;
+        }
+
         if (processing || items.length === 0 || (activeOrderId && unsentItems.length === 0)) return;
 
         // 1. GENERATE OR RETRIEVE UUID (Mandatory for Offline Resilience)
@@ -2197,8 +2382,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         try {
             const isElectron = !!(window as any).electron;
 
-            // Optimization: Set is_sent locally before the heavy network call
-            setItems(prev => prev.map(i => ({ ...i, is_sent: true })));
+            // Optimization: Mark ONLY the items being submitted as is_sent (not items from other accounts)
+            const submittedItemIds = new Set(unsentItems.map(i => i.id));
+            setItems(prev => prev.map(i => submittedItemIds.has(i.id) ? { ...i, is_sent: true } : i));
 
             // 3. ONLINE SYNC (Direct to Supabase)
             if (!activeOrderId) {
@@ -2929,8 +3115,9 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         {(canCajero('Anular Orden') || currentUser?.role === 'CAJERO' || currentUser?.role === 'ADMIN') && (
                             <button
                                 onClick={() => {
-                                    if (!activeOrderId) {
-                                        notify.alert('No es necesario anular esta orden.');
+                                    const hasAnyOrder = tableOrders.length > 0 || !!activeOrderId;
+                                    if (!hasAnyOrder) {
+                                        notify.alert('No hay orden activa para anular.');
                                         return;
                                     }
                                     // v1.6.2 - Limpiar motivo y pedir comentario antes que el PIN
@@ -3168,7 +3355,20 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 <button
                                     onClick={async () => {
                                         const unsentItems = checkoutItems.filter(i => !i.is_sent);
-                                        if (processing || checkoutItems.length === 0 || (activeOrderId && unsentItems.length === 0) || (!activeOrderId && tableOrders.length > 0)) return;
+                                        const allPendingAcrossAccounts = items.filter(i => !i.is_sent && (i as any).order_id);
+                                        
+                                        const hasUnsentToSubmit = tableOrders.length > 1 
+                                            ? allPendingAcrossAccounts.length > 0 
+                                            : unsentItems.length > 0;
+
+                                        if (processing || checkoutItems.length === 0 || !hasUnsentToSubmit) return;
+
+                                        // MULTI-ACCOUNT: If there are multiple accounts with pending items,
+                                        // send ALL of them at once instead of just the active account.
+                                        if (tableOrders.length > 1 && allPendingAcrossAccounts.length > 0) {
+                                            await handleSubmitAllAccounts();
+                                            return;
+                                        }
 
                                         // CHECK FOR DELIVERY ORDER TYPE
                                         const currentOrderType = tableOrders.find(o => o.id === activeOrderId)?.order_type || initialOrder.order_type;
@@ -3374,67 +3574,89 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         if ((pendingAction === 'delete') && itemToVoid) {
                             // Ejecutar la anulación real del item en DB pasando el PIN para el RPC
                             handleVoidItem(pin);
-                        } else if (pendingAction === 'cancel' && activeOrderId) {
+                        } else if (pendingAction === 'cancel') {
+                            // Cancel ALL orders on this table (not just the active account)
+                            const ordersToCancel = tableOrders.length > 0
+                                ? tableOrders
+                                : (activeOrderId ? [{ id: activeOrderId, order_number: null, total: 0, customer_name: '', waiter_id: null, order_type: null, created_at: null, customer_phone: null, delivery_address: null }] : []);
+
+                            if (ordersToCancel.length === 0) {
+                                setShowPinModal(false);
+                                setPendingAction(null);
+                                return;
+                            }
+
                             setProcessing(true);
                             try {
                                 const nowGuate = DateUtils.toGuatemalaISO(new Date(Date.now() + serverOffset));
+                                let totalAnulado = 0;
+                                let itemsAnulados: any[] = [];
 
-                                // v1.6.0 - Use RPC to cancel order with PIN validation (bypasses RLS)
-                                const { data: rpcResult, error: rpcError } = await supabase.rpc('cancel_order_with_pin', {
-                                    p_order_id: activeOrderId,
-                                    p_admin_pin: pin,
-                                    p_reason: voidReason || 'Sin motivo especificado',
-                                    p_cancelled_at: nowGuate
-                                });
+                                // Cancel each account/order one by one with the same PIN
+                                for (const order of ordersToCancel) {
+                                    const { data: rpcResult, error: rpcError } = await supabase.rpc('cancel_order_with_pin', {
+                                        p_order_id: order.id,
+                                        p_admin_pin: pin,
+                                        p_reason: voidReason || 'Sin motivo especificado',
+                                        p_cancelled_at: nowGuate
+                                    });
 
-                                if (rpcError || (rpcResult && rpcResult.success === false)) {
-                                    throw rpcError || new Error(rpcResult?.error || 'Error al anular orden');
+                                    if (rpcError || (rpcResult && rpcResult.success === false)) {
+                                        throw rpcError || new Error(rpcResult?.error || `Error al anular ${order.customer_name || order.id}`);
+                                    }
+
+                                    totalAnulado += order.total || 0;
+                                    const orderItems = items.filter(i => (i as any).order_id === order.id || (!tableOrders.length && true));
+                                    itemsAnulados = [...itemsAnulados, ...orderItems];
                                 }
 
-                                // LOG: Order Cancelled
-                                const cancelledOrder = tableOrders.find(o => o.id === activeOrderId);
+                                // LOG: All orders cancelled
                                 activityLogService.logFinancial({
-                                    user: authorizedUser || currentUser!, // Atribuir al que puso el PIN
+                                    user: authorizedUser || currentUser!,
                                     module: 'VENTAS',
                                     action: 'ORDEN_ANULADA',
                                     severity: 'CRITICAL',
-                                    entity_id: activeOrderId || undefined,
+                                    entity_id: activeOrderId || ordersToCancel[0]?.id || undefined,
                                     entity_type: 'ORDER',
                                     details: {
-                                        orderId: activeOrderId,
-                                        numero_orden: cancelledOrder?.order_number,
-                                        total_anulado: cancelledOrder?.total || items.reduce((a, i) => a + (i.price * i.quantity), 0),
+                                        cuentas_anuladas: ordersToCancel.length,
+                                        ordenes: ordersToCancel.map(o => o.id),
+                                        total_anulado: totalAnulado,
                                         motivo_anulacion: voidReason || 'Sin motivo especificado',
                                         autorizado_por: authorizedUser?.name || authorizedUser?.full_name,
                                         autorizado_por_id: authorizedUser?.id,
                                         mesa: table?.number,
                                         seccion: table?.section,
-                                        mesero_original: cancelledOrder?.waiter_id,
-                                        items_anulados: items.length,
-                                        items: items.map(i => ({ nombre: i.product_name, cantidad: i.quantity, precio: i.price }))
+                                        items_anulados: itemsAnulados.length,
+                                        items: itemsAnulados.map(i => ({ nombre: i.product_name, cantidad: i.quantity, precio: i.price }))
                                     }
                                 }, {
-                                    amount: cancelledOrder?.total || items.reduce((a, i) => a + (i.price * i.quantity), 0),
+                                    amount: totalAnulado,
                                     type: 'ANULACION',
                                     currency: 'GTQ'
                                 });
 
-                                if (table?.id) await supabase.from('tables').update({ status: 'available' }).eq('id', table.id);
+                                // Free the table
+                                if (table?.id) supabase.from('tables').update({ status: 'available' }).eq('id', table.id).then(() => { }).catch(console.error);
 
-                                // v1.7.2 - Print Cancellation Receipt for Audit
-                                if (cancelledOrder) {
-                                    await printService.printCancelledTicket({
-                                        orderNumber: cancelledOrder.order_number,
-                                        createdAt: cancelledOrder.created_at,
-                                        items: items,
+                                // Print cancellation ticket for the first (or only) order — fire-and-forget
+                                const firstCancelled = ordersToCancel[0];
+                                if (firstCancelled) {
+                                    printService.printCancelledTicket({
+                                        orderNumber: (firstCancelled as any).order_number,
+                                        createdAt: (firstCancelled as any).created_at,
+                                        items: itemsAnulados.length > 0 ? itemsAnulados : items,
                                         tableNumber: table?.number,
-                                        orderType: cancelledOrder.order_type,
-                                        customerName: cancelledOrder.customer_name,
-                                        customerPhone: cancelledOrder.customer_phone,
-                                        deliveryAddress: cancelledOrder.delivery_address
-                                    }, voidReason || 'Sin motivo especificado');
+                                        orderType: (firstCancelled as any).order_type,
+                                        customerName: ordersToCancel.length > 1
+                                            ? `Mesa ${table?.number || ''} (${ordersToCancel.length} cuentas)`
+                                            : (firstCancelled as any).customer_name,
+                                        customerPhone: (firstCancelled as any).customer_phone,
+                                        deliveryAddress: (firstCancelled as any).delivery_address
+                                    }, voidReason || 'Sin motivo especificado').catch(e => console.error('Error printing cancel ticket:', e));
                                 }
 
+                                // Close the view
                                 onClose?.();
                             } catch (error: any) {
                                 console.error(error);
@@ -3608,8 +3830,13 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 <AccountsOverviewModal
                     isOpen={showAccountsOverviewModal}
                     onClose={() => setShowAccountsOverviewModal(false)}
-                    tableOrders={tableOrders}
+                    tableOrders={tableOrders.length > 0 ? tableOrders : [{
+                        id: activeOrderId || 'VIRTUAL',
+                        customer_name: 'CUENTA 1',
+                        order_items: items.filter(i => !i.is_sent)
+                    }]}
                     activeOrderId={activeOrderId}
+                    localItems={items}
                     onSelectAccount={(id) => {
                         setActiveOrderId(id);
                         setShowAccountsOverviewModal(false);

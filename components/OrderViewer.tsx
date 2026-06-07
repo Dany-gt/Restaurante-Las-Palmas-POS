@@ -106,8 +106,8 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
     const viewStatusLabel = activeTab === 'OPEN'
         ? 'Ordenes Abiertas'
         : activeTab === 'CLOSED'
-        ? 'Ordenes Cerradas'
-        : 'Anuladas';
+            ? 'Ordenes Cerradas'
+            : 'Anuladas';
 
     useEffect(() => {
         setOrders([]);
@@ -290,7 +290,8 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
 
     return (
         <div className="fixed inset-0 w-full flex flex-col bg-[#2d2e3d] text-white overflow-hidden font-sans z-50">
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 .custom-scrollbar::-webkit-scrollbar {
                     width: 3px !important;
                 }
@@ -311,7 +312,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                 <div className="flex items-center gap-4">
                     <button onClick={onBack} className="p-3 bg-white/5 hover:bg-white/10 active:scale-95 rounded-xl transition-all text-gray-400 hover:text-white shrink-0">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
                     </button>
                     <h1 className="text-sm font-semibold uppercase tracking-wider text-gray-300">
@@ -569,36 +570,45 @@ const OrderCard = ({ order, isSelected, onClick }: any) => {
             `}
         >
             <div className="flex justify-between items-start mb-1.5">
-                <div className="flex items-center gap-1.5">
-                    <FileText size={12} className="opacity-70" />
+                <div className="flex items-center gap-1.5 text-white">
+                    <FileText size={12} />
                     <span className="text-[11px] font-medium">{order.order_number}</span>
                 </div>
-                <span className="text-[11px] font-semibold tabular-nums">Q{parseFloat(order.total || 0).toLocaleString()}</span>
+                <span className="text-[11px] font-semibold tabular-nums text-white">Q{parseFloat(order.total || 0).toLocaleString()}</span>
             </div>
-            <div className="flex items-center gap-2 mb-2">
-                <div className="w-3.5 h-3.5 bg-white/20 rounded flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-sm opacity-50" />
+            <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center gap-2 max-w-[70%] text-white">
+                    <div className="w-3.5 h-3.5 bg-white/30 rounded flex items-center justify-center shrink-0">
+                        <div className="w-2 h-2 bg-white rounded-sm" />
+                    </div>
+                    <span className="text-[11px] font-semibold uppercase tracking-tight truncate">
+                        {order.order_type === 'DINE_IN' || !order.order_type ? (
+                            (order.tables?.section || 'MESA').trim()
+                        ) : order.order_type === 'TAKEOUT' ? (
+                            'PARA LLEVAR'
+                        ) : (
+                            'DOMICILIO'
+                        )}
+                        {order.customer_name && ` - ${order.customer_name}`}
+                    </span>
                 </div>
-                <span className="text-[11px] font-medium uppercase tracking-tight truncate">
-                    {order.order_type === 'DINE_IN' || !order.order_type ? (
-                        `${(order.tables?.section || 'MESA').trim()} - MESA ${order.tables?.number || '?'}`
-                    ) : order.order_type === 'TAKEOUT' ? (
-                        'PARA LLEVAR'
-                    ) : (
-                        'DOMICILIO'
-                    )}
-                    {order.customer_name && ` - ${order.customer_name}`}
-                </span>
                 {(order.order_type === 'DINE_IN' || !order.order_type) && (
-                    <div className="ml-auto flex items-center gap-1 opacity-70">
-                        <User size={12} />
-                        <span className="text-[10px] font-medium">{order.pax_count || 0}</span>
+                    <div className="flex items-center gap-1 text-[13px] font-bold text-amber-400 shrink-0">
+                        <User size={15} />
+                        <span>{order.pax_count || 0}</span>
                     </div>
                 )}
             </div>
-            <div className="flex items-center gap-2 text-[10px] font-medium opacity-60">
-                <Clock size={12} />
-                <span>{parseDBDate(order.created_at).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+            <div className="flex items-center justify-between text-[10px] font-medium text-white">
+                <div className="flex items-center gap-1.5 truncate">
+                    <Clock size={11} className="shrink-0" />
+                    <span>{parseDBDate(order.created_at).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                </div>
+                {(order.order_type === 'DINE_IN' || !order.order_type) && (
+                    <span className="text-[10px] font-bold uppercase tracking-tight text-white shrink-0">
+                        MESA {order.tables?.number || '?'}
+                    </span>
+                )}
             </div>
             {(order.item_counts?.pending > 0 || order.item_counts?.preparing > 0 || order.item_counts?.ready > 0) && (
                 <div className="mt-1.5 flex flex-col gap-0.5 border-t border-white/5 pt-1.5">

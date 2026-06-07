@@ -89,6 +89,7 @@ export interface OrderItem {
   discount_id?: string;
   discount_reason?: string;
   created_at?: string;
+  order_id?: string;
 }
 
 export interface Order {
