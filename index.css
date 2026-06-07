@@ -58,7 +58,7 @@ h1,
 .text-xl,
 .text-2xl,
 .text-3xl {
-    font-weight: 800 !important;
+    font-weight: 500 !important;
     text-transform: uppercase !important;
 }
 
@@ -67,7 +67,7 @@ h3,
 h4,
 .text-lg,
 .text-md {
-    font-weight: 700 !important;
+    font-weight: 500 !important;
 }
 
 /* Enforce black text only in admin areas */
@@ -85,13 +85,13 @@ h4,
 
 label,
 .form-label {
-    font-weight: 600 !important;
+    font-weight: 500 !important;
     font-size: 13px !important;
 }
 
 button,
 .btn {
-    font-weight: 700 !important;
+    font-weight: 500 !important;
 }
 
 /* Modern Scrollbar */

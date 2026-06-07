@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, User, UserPlus, UserRoundPen, UserMinus, Printer, CheckCircle, X, AlertTriangle, MessageSquare } from 'lucide-react';
+import { ArrowLeft, User, UserPlus, UserRoundPen, Pencil, UserMinus, Printer, CheckCircle, X, AlertTriangle, MessageSquare } from 'lucide-react';
 import { OrderItem } from '../types';
 
 interface OrderSummary {
@@ -18,7 +18,7 @@ interface AccountsOverviewModalProps {
     tableOrders: any[];
     activeOrderId: string | null;
     onSelectAccount: (orderId: string | null) => void;
-    onAddAccount: () => void;
+    onAddAccount: (customName?: string) => void;
     onEditAccount: (orderId: string) => void;
     onDeleteAccount: (orderId: string, reason?: string) => void;
     onSplitAccount: () => void;
@@ -54,6 +54,18 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
     const [showDeletePrompt, setShowDeletePrompt] = useState(false);
     const [deleteReason, setDeleteReason] = useState('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [showNewAccountModal, setShowNewAccountModal] = useState(false);
+    const [newAccountName, setNewAccountName] = useState('');
+    const newAccountInputRef = React.useRef<HTMLInputElement>(null);
+
+    React.useEffect(() => {
+        if (showNewAccountModal) {
+            setTimeout(() => {
+                newAccountInputRef.current?.focus();
+                newAccountInputRef.current?.select();
+            }, 50);
+        }
+    }, [showNewAccountModal]);
 
     if (!isOpen) return null;
 
@@ -137,6 +149,30 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
         }
     };
 
+    const handleAddClick = () => {
+        const usedNames = new Set<string>();
+        summaries.forEach((s) => {
+            const name = s.customer_name?.trim().toUpperCase();
+            if (name) {
+                usedNames.add(name);
+            }
+        });
+
+        let nextNum = 1;
+        while (usedNames.has(`CUENTA ${nextNum}`)) {
+            nextNum++;
+        }
+        const nextName = `Cuenta ${nextNum}`;
+        setNewAccountName(nextName);
+        setShowNewAccountModal(true);
+    };
+
+    const handleConfirmNewAccount = () => {
+        if (!newAccountName.trim()) return;
+        onAddAccount(newAccountName.trim());
+        setShowNewAccountModal(false);
+    };
+
     const parseNotesLocal = (notesStr?: string | null) => {
         if (!notesStr) return { mods: '', obs: '', isJson: false, noPrint: false };
         const noPrint = notesStr.includes('*NO IMPRIMIR*');
@@ -161,7 +197,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
             <div className="absolute inset-0 bg-black/70" onClick={onClose} />
 
             {/* Modal Principal */}
-            <div className="w-full max-w-[992.22px] h-[674.71px] bg-[#3a3b4d] flex flex-col overflow-hidden rounded border border-white/10 shadow-2xl relative z-10">
+            <div className="w-full max-w-[992.22px] h-[674.71px] bg-[#3a3b4d] flex flex-col overflow-hidden rounded-none shadow-none relative z-10">
 
                 {/* Header */}
                 <div className="px-6 py-4 bg-[#3a3b4d] border-b border-white/5 flex items-center justify-between shrink-0">
@@ -173,7 +209,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                         >
                             <ArrowLeft size={24} />
                         </button>
-                        <h2 className={`text-[10px] font-bold uppercase tracking-widest ${transferMode ? 'text-indigo-400' : 'text-white'}`}>
+                        <h2 className={`text-[11px] font-semibold uppercase tracking-widest ${transferMode ? 'text-indigo-400' : 'text-white'}`}>
                             {transferMode ? `TRASLADAR: ${itemToTransferName}` : 'LAS PALMAS POS'}
                         </h2>
                     </div>
@@ -182,10 +218,7 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                         <button
                             onClick={() => { setLocalSelectedId(null); onSelectAccount(null); }}
                             title="Abrir Todas las Cuentas"
-                            className={`relative overflow-hidden px-8 py-2.5 rounded text-[10px] font-semibold uppercase tracking-widest transition-all border ${localSelectedId === null
-                                    ? 'bg-[#7c7ffb] text-white border-transparent shadow-lg shadow-indigo-500/10'
-                                    : 'bg-[#3a3b4d] text-white border-white/10 hover:bg-[#45465e]'
-                                }`}
+                            className="relative overflow-hidden w-[170.08px] py-2.5 rounded text-sm font-semibold transition-all border bg-[#5c5d73] text-white border-[#5c5d73] hover:bg-[#6b6c85] shadow-lg shadow-indigo-500/5 active:scale-95 flex items-center justify-center"
                         >
                             {/* Pestañita azul en el lado derecho superior */}
                             <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-blue-400 border-l-[8px] border-l-transparent" />
@@ -209,26 +242,43 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                             <div
                                 key={summary.id || `account-${index}`}
                                 onClick={() => setLocalSelectedId(summary.id)}
-                                className={`relative cursor-pointer overflow-hidden flex flex-col transition-all border-2 rounded-lg ${localSelectedId === summary.id
-                                        ? 'bg-[#2d2e3d] border-[#7c7ffb]'
+                                className={`relative cursor-pointer overflow-hidden flex flex-col transition-all border rounded-lg self-start w-full ${localSelectedId === summary.id
+                                        ? 'bg-[#5c5d73] border-[#5c5d73]'
                                         : 'bg-[#2d2e3d]/40 border-white/5 hover:bg-[#2d2e3d]/60'
                                     }`}
                             >
-                                <div className="px-4 py-3 border-b border-white/5 flex items-center justify-center gap-3 bg-black/10">
-                                    <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
+                                <div className="px-4 py-3 flex items-center justify-center relative">
+                                    <span className="absolute left-4 w-2 h-2 rounded-full bg-green-400" />
                                     <span className="text-[11px] font-semibold uppercase tracking-widest text-white">
                                         {summary.customer_name}
                                     </span>
                                 </div>
 
-                                <div className="p-5 flex-1 flex flex-col justify-between min-h-[160px] max-h-[320px]">
-                                    {/* Lista de productos scrollable */}
-                                    <div className="flex-1 overflow-y-auto pr-1 mb-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                                        {summary.items.length === 0 ? (
-                                            <div className="text-[9px] text-white uppercase tracking-widest text-center py-12">
-                                                Cuenta vacía
+                                {summary.items.length === 0 ? (
+                                    <div className="p-5 flex flex-col justify-between">
+                                        <div className="grid grid-cols-4 gap-1">
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-[8px] font-semibold text-gray-300 uppercase tracking-tighter">Sub-Total</span>
+                                                <span className="text-[10px] font-bold text-white">Q{summary.subtotal.toFixed(2)}</span>
                                             </div>
-                                        ) : (
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-[8px] font-semibold text-gray-300 uppercase tracking-tighter">Descto.</span>
+                                                <span className="text-[10px] font-bold text-white">Q{summary.discount.toFixed(2)}</span>
+                                            </div>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-[8px] font-semibold text-gray-300 uppercase tracking-tighter">Prop.</span>
+                                                <span className="text-[10px] font-bold text-white">Q{summary.tip.toFixed(2)}</span>
+                                            </div>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-[8px] font-semibold text-gray-300 uppercase tracking-tighter">Total</span>
+                                                <span className="text-[11px] font-bold text-white">Q{summary.total.toFixed(2)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="p-5 flex-1 flex flex-col justify-between max-h-[320px]">
+                                        {/* Lista de productos scrollable */}
+                                        <div className="flex-1 overflow-y-auto pr-1 mb-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                                             <div className="space-y-1.5 text-left">
                                                 {summary.items.map((item: any, itemIdx: number) => {
                                                     const cleanNotes = formatNotesLocal(item.notes);
@@ -236,9 +286,9 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                                                         <div key={item.id || `item-${itemIdx}`} className="text-[10px] font-medium text-white uppercase tracking-wider flex items-start gap-2">
                                                             <span className="text-white font-semibold shrink-0">{item.quantity}</span>
                                                             <div className="flex-1 min-w-0">
-                                                                <div className="truncate text-white leading-tight">{item.product_name || item.name || 'Producto'}</div>
+                                                                <div className="text-white leading-tight break-words">{item.product_name || item.name || 'Producto'}</div>
                                                                 {cleanNotes && (
-                                                                    <div className="text-[8px] text-white font-semibold tracking-wide uppercase leading-tight truncate">
+                                                                    <div className="text-[8px] text-white font-semibold tracking-wide uppercase leading-tight break-words">
                                                                         {cleanNotes}
                                                                     </div>
                                                                 )}
@@ -247,96 +297,95 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                                                     );
                                                 })}
                                             </div>
-                                        )}
-                                    </div>
+                                        </div>
 
-                                    <div className="border-t border-dashed border-white/10 w-full mb-3" />
+                                        <div className="border-t border-dashed border-white/10 w-full mb-3" />
 
-                                    <div className="grid grid-cols-4 gap-1 mt-auto">
-                                        <div className="flex flex-col items-center">
-                                            <span className="text-[8px] font-semibold text-gray-300 uppercase tracking-tighter">Sub-Total</span>
-                                            <span className="text-[10px] font-bold text-white">Q{summary.subtotal.toFixed(2)}</span>
-                                        </div>
-                                        <div className="flex flex-col items-center">
-                                            <span className="text-[8px] font-semibold text-gray-300 uppercase tracking-tighter">Descto.</span>
-                                            <span className="text-[10px] font-bold text-white">Q{summary.discount.toFixed(2)}</span>
-                                        </div>
-                                        <div className="flex flex-col items-center">
-                                            <span className="text-[8px] font-semibold text-gray-300 uppercase tracking-tighter">Prop.</span>
-                                            <span className="text-[10px] font-bold text-white">Q{summary.tip.toFixed(2)}</span>
-                                        </div>
-                                        <div className="flex flex-col items-center">
-                                            <span className="text-[8px] font-semibold text-gray-300 uppercase tracking-tighter">Total</span>
-                                            <span className="text-[11px] font-bold text-white">Q{summary.total.toFixed(2)}</span>
+                                        <div className="grid grid-cols-4 gap-1 mt-auto">
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-[8px] font-semibold text-gray-300 uppercase tracking-tighter">Sub-Total</span>
+                                                <span className="text-[10px] font-bold text-white">Q{summary.subtotal.toFixed(2)}</span>
+                                            </div>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-[8px] font-semibold text-gray-300 uppercase tracking-tighter">Descto.</span>
+                                                <span className="text-[10px] font-bold text-white">Q{summary.discount.toFixed(2)}</span>
+                                            </div>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-[8px] font-semibold text-gray-300 uppercase tracking-tighter">Prop.</span>
+                                                <span className="text-[10px] font-bold text-white">Q{summary.tip.toFixed(2)}</span>
+                                            </div>
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-[8px] font-semibold text-gray-300 uppercase tracking-tighter">Total</span>
+                                                <span className="text-[11px] font-bold text-white">Q{summary.total.toFixed(2)}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         ))}
                     </div>
                 </div>
 
                 {/* Footer */}
-                <div className="px-10 py-8 bg-[#3a3b4d] border-t border-white/5 shrink-0 flex items-center justify-center gap-12">
-                    <div className="flex items-center gap-5">
-                        <button 
-                            onClick={onAddAccount} 
-                            title="Agregar Cuenta"
-                            className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all active:scale-95"
-                        >
-                            <UserPlus size={24} />
-                        </button>
+                <div className="px-10 py-8 bg-[#3a3b4d] border-t border-white/5 shrink-0 flex items-center justify-center gap-[26.46px]">
+                    <button 
+                        onClick={handleAddClick} 
+                        title="Agregar Cuenta"
+                        className="w-[71px] h-[71px] bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all active:scale-95"
+                    >
+                        <UserPlus size={28} strokeWidth={1.5} />
+                    </button>
 
-                        <button 
-                            onClick={() => {
-                                if (!localSelectedId) {
-                                    setErrorMessage("Selecciona una cuenta para editar");
-                                    setTimeout(() => setErrorMessage(null), 3000);
-                                    return;
-                                }
-                                onEditAccount(localSelectedId);
-                            }} 
-                            title="Editar Nombre de Cuenta"
-                            className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all active:scale-95"
-                        >
-                            <UserRoundPen size={24} />
-                        </button>
+                    <button 
+                        onClick={() => {
+                            if (!localSelectedId) {
+                                setErrorMessage("Selecciona una cuenta para editar");
+                                setTimeout(() => setErrorMessage(null), 3000);
+                                return;
+                            }
+                            onEditAccount(localSelectedId);
+                        }} 
+                        title="Editar Nombre de Cuenta"
+                        className="w-[71px] h-[71px] bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all active:scale-95"
+                    >
+                        <div className="relative w-[28px] h-[28px] flex items-center justify-center">
+                            <User size={28} strokeWidth={1.5} className="-translate-x-1" />
+                            <Pencil size={18} strokeWidth={1.5} className="absolute bottom-0 right-0 translate-x-[2px] translate-y-[2px]" />
+                        </div>
+                    </button>
 
-                        <button
-                            onClick={() => {
-                                if (!localSelectedId) {
-                                    setErrorMessage("Selecciona una cuenta para eliminar");
-                                    setTimeout(() => setErrorMessage(null), 3000);
-                                    return;
-                                }
-                                handleDeleteClick();
-                            }}
-                            title="Eliminar Cuenta"
-                            className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all active:scale-95"
-                        >
-                            <div className="relative w-[28px] h-[24px] flex items-center justify-center">
-                                <User size={24} strokeWidth={1.5} />
-                                <div className="absolute w-[26px] h-[1.5px] bg-current -rotate-45" />
-                            </div>
-                        </button>
+                    <button
+                        onClick={() => {
+                            if (!localSelectedId) {
+                                setErrorMessage("Selecciona una cuenta para eliminar");
+                                setTimeout(() => setErrorMessage(null), 3000);
+                                return;
+                            }
+                            handleDeleteClick();
+                        }}
+                        title="Eliminar Cuenta"
+                        className="w-[71px] h-[71px] bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all active:scale-95"
+                    >
+                        <div className="relative w-[28px] h-[28px] flex items-center justify-center">
+                            <User size={28} strokeWidth={1.5} />
+                            <div className="absolute w-[32px] h-[1.5px] bg-current -rotate-45" />
+                        </div>
+                    </button>
 
-                        <button 
-                            onClick={() => {
-                                if (!localSelectedId) {
-                                    setErrorMessage("Selecciona una cuenta para imprimir");
-                                    setTimeout(() => setErrorMessage(null), 3000);
-                                    return;
-                                }
-                                onPrintAccount(localSelectedId);
-                            }} 
-                            title="Imprimir Pre-Cuenta"
-                            className="w-14 h-14 bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all active:scale-95"
-                        >
-                            <Printer size={24} />
-                        </button>
-                    </div>
-
-                    <div className="w-[1px] h-12 bg-white/5" />
+                    <button 
+                        onClick={() => {
+                            if (!localSelectedId) {
+                                setErrorMessage("Selecciona una cuenta para imprimir");
+                                setTimeout(() => setErrorMessage(null), 3000);
+                                return;
+                            }
+                            onPrintAccount(localSelectedId);
+                        }} 
+                        title="Imprimir Pre-Cuenta"
+                        className="w-[71px] h-[71px] bg-[#3a3b4d] hover:bg-[#45465e] text-white rounded flex items-center justify-center border border-white/10 transition-all active:scale-95"
+                    >
+                        <Printer size={28} strokeWidth={1.5} />
+                    </button>
 
                     <button
                         onClick={() => {
@@ -352,15 +401,14 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                             }
                         }}
                         title="Aceptar"
-                        className="h-14 px-16 bg-[#7c7ffb] text-white hover:bg-[#6b6edb] rounded flex items-center justify-center transition-all text-[11px] font-semibold uppercase tracking-widest active:scale-95"
+                        className="relative overflow-hidden h-[71px] px-16 bg-[#7c7ffb] text-white hover:bg-[#6b6edb] rounded flex items-center justify-center transition-all text-sm font-semibold active:scale-95 shadow-lg shadow-indigo-500/10"
                     >
                         Aceptar
                     </button>
                 </div>
 
-                {/* OVERLAY DE COMENTARIO OBLIGATORIO PARA ELIMINACIÓN */}
                 {showDeletePrompt && (
-                    <div className="absolute inset-0 z-[150] bg-black/80 flex items-center justify-center p-6 ">
+                    <div className="absolute inset-0 z-[150] bg-black/50 flex items-center justify-center p-6 ">
                         <div className="bg-[#2d2e3d] w-full max-w-md p-8 rounded-none border border-white/10 ">
                             <div className="flex items-center gap-3 mb-6 text-red-400">
                                 <MessageSquare size={24} />
@@ -401,6 +449,46 @@ export const AccountsOverviewModal: React.FC<AccountsOverviewModalProps> = ({
                         >
                             <X size={32} />
                         </button>
+                    </div>
+                )}
+
+                {showNewAccountModal && (
+                    <div className="absolute inset-0 z-[150] bg-black/50 flex items-center justify-center p-6 ">
+                        <div className="bg-[#2d2e3d] w-full max-w-sm p-8 rounded-lg border border-white/10 shadow-2xl relative z-[151]">
+                            <h3 className="text-center text-xs !font-normal uppercase tracking-[0.2em] text-white/80 mb-6">NOMBRE DE CUENTA</h3>
+                            
+                            <div className="flex items-center gap-3 bg-black/20 border border-white/10 rounded-lg px-4 py-3 mb-6 focus-within:border-[#7c7ffb] transition-all">
+                                <User size={18} fill="currentColor" className="text-white shrink-0" />
+                                <input
+                                    ref={newAccountInputRef}
+                                    type="text"
+                                    value={newAccountName}
+                                    onChange={(e) => setNewAccountName(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') handleConfirmNewAccount();
+                                        if (e.key === 'Escape') setShowNewAccountModal(false);
+                                    }}
+                                    className="bg-transparent border-none outline-none text-white text-sm !font-normal flex-1 placeholder-white/30"
+                                    placeholder="Nombre de la cuenta..."
+                                />
+                            </div>
+
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => setShowNewAccountModal(false)}
+                                    className="flex-1 py-3 bg-[#3a3b4d] hover:bg-[#45465e] text-white border border-white/5 rounded text-[11px] !font-normal uppercase tracking-widest active:scale-95 transition-all text-center"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleConfirmNewAccount}
+                                    disabled={!newAccountName.trim()}
+                                    className="flex-1 py-3 bg-[#7c7ffb] hover:bg-[#6b6edb] text-white rounded text-[11px] !font-normal uppercase tracking-widest active:scale-95 transition-all text-center disabled:opacity-50"
+                                >
+                                    Aceptar
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>

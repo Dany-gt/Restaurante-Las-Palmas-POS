@@ -1202,7 +1202,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     };
 
 
-    const handleAddEmptyAccount = async () => {
+    const handleAddEmptyAccount = async (customName?: string) => {
         setProcessing(true);
         try {
             // If there are no orders in the database yet, we want to create BOTH Cuenta 1 (for current draft) and Cuenta 2
@@ -1235,7 +1235,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     status: 'pending',
                     order_type: 'DINE_IN',
                     waiter_id: currentUser?.id,
-                    customer_name: 'CUENTA 2',
+                    customer_name: customName || 'CUENTA 2',
                     pax_count: 1,
                     branch_id: currentUser?.branch_id,
                     created_at: secondGuate
@@ -1273,7 +1273,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                 status: 'pending',
                 order_type: 'DINE_IN',
                 waiter_id: currentUser?.id,
-                customer_name: nextName,
+                customer_name: customName || nextName,
                 pax_count: 1,
                 branch_id: currentUser?.branch_id,
                 created_at: DateUtils.toGuatemalaISO(new Date(Date.now() + serverOffset))
@@ -3077,14 +3077,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     </div>
 
                     <div className="h-[90px] bg-[#2d2e3d] border-t border-white/5 flex items-center justify-center gap-4 px-4 shrink-0 z-10">
-                        <button onClick={() => setShowPaxModal(true)} className="w-[71px] h-[71px] bg-[#3f4251] border border-white/5 rounded-xl flex flex-col items-center justify-center text-white transition-all active:scale-95 ">
+                        <button onClick={() => setShowPaxModal(true)} className="w-[71px] h-[71px] bg-[#3f4251] border border-white/5 rounded flex flex-col items-center justify-center text-white transition-all active:scale-95 ">
                             <Users size={28} />
                             <span className="text-[10px] font-medium mt-1.5 uppercase tracking-tighter">Personas</span>
                         </button>
                         {table && (
                             <button
                                 onClick={() => setShowTransferModal(true)}
-                                className="w-[71px] h-[71px] bg-[#3f4251] border border-white/5 rounded-xl flex flex-col items-center justify-center text-white transition-all active:scale-95 "
+                                className="w-[71px] h-[71px] bg-[#3f4251] border border-white/5 rounded flex flex-col items-center justify-center text-white transition-all active:scale-95 "
                                 title="Cambiar a otra Mesa (Trasladar Cuenta)"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 480 480">
@@ -3096,7 +3096,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         {(canCajero('Trasladar Orden a Mesero/Cajero') || currentUser?.role === 'CAJERO' || currentUser?.role === 'ADMIN') && (
                             <button
                                 onClick={() => setShowTransferWaiterModal(true)}
-                                className="w-[71px] h-[71px] bg-[#3f4251] border border-white/5 rounded-xl flex flex-col items-center justify-center text-white transition-all active:scale-95 "
+                                className="w-[71px] h-[71px] bg-[#3f4251] border border-white/5 rounded flex flex-col items-center justify-center text-white transition-all active:scale-95 "
                                 title="Transferir Responsable"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 8864 8864" fillRule="evenodd">
@@ -3125,7 +3125,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     setPendingAction('cancel');
                                     setShowVoidModal(true);
                                 }}
-                                className="relative overflow-hidden h-[71px] px-8 rounded-xl text-sm font-medium transition-all bg-[#3f4251] text-white hover:bg-white/10 active:scale-95 border border-white/5"
+                                className="relative overflow-hidden h-[71px] px-8 rounded text-sm font-medium transition-all bg-[#3f4251] text-white hover:bg-white/10 active:scale-95 border border-white/5"
                                 title="Anular Orden Completa"
                             >
                                 <div className="absolute top-0 right-0 w-0 h-0 border-t-[16px] border-l-[16px] border-t-red-500 border-l-transparent"></div>
@@ -3140,7 +3140,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         <div className="pt-1 space-y-1">
                             <button
                                 onClick={() => setShowAccountsOverviewModal(true)}
-                                className="w-full bg-[#1e212b] border border-white/10 rounded-xl px-4 py-3 text-[11px] font-semibold text-white uppercase tracking-widest flex items-center justify-center relative group hover:border-white/20 transition-all  active:scale-95"
+                                className="w-full bg-[#1e212b] border border-white/10 rounded-none px-4 py-3 text-[11px] font-semibold text-white uppercase tracking-widest flex items-center justify-center relative group hover:border-white/20 transition-all  active:scale-95"
                             >
                                 <span>
                                     {activeOrderId === null && tableOrders.length > 1
@@ -3181,7 +3181,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     const itemOrderNum = tableOrders.findIndex(o => o.id === (item as any).order_id) + 1;
                                     const uniqueKey = item.id ? `${item.id}-${index}` : `cart-item-${index}`;
                                     return (
-                                        <div key={uniqueKey} className="relative overflow-hidden rounded-lg group">
+                                        <div key={uniqueKey} className="relative overflow-hidden rounded-none group">
                                             {/* Trash button behind (right side) */}
                                             <div className={`absolute right-0 top-0 bottom-0 w-[80px] bg-red-500/90 flex items-center justify-center transition-opacity duration-300 ${swipedItem?.id === item.id && swipedItem?.action === 'delete' ? 'opacity-100 z-10' : 'opacity-0 -z-10'}`}>
                                                 <button onClick={(e) => { e.stopPropagation(); removeItem(item.id); setSwipedItem(null); }} className="w-full h-full flex items-center justify-center text-white active:scale-95 transition-transform">
@@ -3231,28 +3231,21 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                         return;
                                                     }
 
-                                                    if ((e.currentTarget as any).clickTimeout) {
-                                                        clearTimeout((e.currentTarget as any).clickTimeout);
-                                                        (e.currentTarget as any).clickTimeout = null;
-                                                    }
+                                                    setSelectedItemIds(prev => {
+                                                        const newSet = new Set(prev);
+                                                        if (newSet.has(item.id)) {
+                                                            newSet.delete(item.id);
+                                                        } else {
+                                                            newSet.add(item.id);
+                                                        }
+                                                        return newSet;
+                                                    });
 
-                                                    if (e.detail === 1) {
-                                                        (e.currentTarget as any).clickTimeout = setTimeout(() => {
-                                                            setSelectedItemIds(prev => {
-                                                                const newSet = new Set(prev);
-                                                                if (newSet.has(item.id)) {
-                                                                    newSet.delete(item.id);
-                                                                } else {
-                                                                    newSet.add(item.id);
-                                                                }
-                                                                return newSet;
-                                                            });
-                                                        }, 250);
-                                                    } else if (e.detail === 2) {
+                                                    if (e.detail === 2) {
                                                         setTabletItemActionModal(item);
                                                     }
                                                 }}
-                                                className={`flex justify-between transition-all duration-300 border select-none relative cursor-pointer ${isTablet ? 'p-1.5' : 'p-3'} ${swipedItem?.id === item.id ? (swipedItem.action === 'delete' ? 'translate-x-[-80px]' : 'translate-x-[80px]') : 'translate-x-0'} ${selectedItemIds.has(item.id) ? 'border-[#0078d7] bg-[#0078d7]' : 'border-white/5 bg-[#2a2d37]'}`}
+                                                className={`flex justify-between transition-all duration-150 border select-none relative cursor-pointer ${isTablet ? 'p-1.5' : 'p-3'} ${swipedItem?.id === item.id ? (swipedItem.action === 'delete' ? 'translate-x-[-80px]' : 'translate-x-[80px]') : 'translate-x-0'} ${selectedItemIds.has(item.id) ? 'border-transparent bg-[#7c7e96]' : 'border-white/5 bg-[#3a3b4d] hover:bg-[#45465a]'}`}
                                             >
                                                 {/* Account Badge for Unified View */}
                                                 {!activeOrderId && (item as any).order_id && tableOrders.length > 1 && (
@@ -3290,7 +3283,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
                     <div className="bg-[#2d2e3d] p-3 border-t border-white/5">
                         <div className={`grid ${(currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos')) ? 'grid-cols-5' : 'grid-cols-4'} gap-2 mb-4 h-[71px]`}>
-                            <button onClick={handlePrintPreAccount} className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/10">
+                            <button onClick={handlePrintPreAccount} className="bg-white/5 border border-white/10 rounded-none flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/10">
                                 <Printer size={34} />
                             </button>
                             {(currentUser?.role === 'ADMIN' || currentUser?.role === 'CAJERO' || currentUser?.permissions?.includes('Aplicar Descuentos') || currentUser?.permissions?.includes('Cajero:Aplicar Descuentos')) && (
@@ -3302,14 +3295,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         setDiscountingItem(null);
                                     }
                                     setShowDiscountModal(true);
-                                }} title="Aplicar Descuento" className={`rounded-xl flex items-center justify-center transition-all active:scale-95 ${selectedItemIds.size > 0 ? 'bg-amber-500/20 border border-amber-500/50 hover:bg-amber-500/30' : 'bg-white/5 border border-white/10 hover:bg-white/10'}`}>
+                                }} title="Aplicar Descuento" className={`rounded-none flex items-center justify-center transition-all active:scale-95 ${selectedItemIds.size > 0 ? 'bg-amber-500/20 border border-amber-500/50 hover:bg-amber-500/30' : 'bg-white/5 border border-white/10 hover:bg-white/10'}`}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 512.003 512.003" fill="white">
                                         <path d="M477.958 262.633a15.004 15.004 0 0 1 0-13.263l19.096-39.065c10.632-21.751 2.208-47.676-19.178-59.023l-38.41-20.38a15.005 15.005 0 0 1-7.796-10.729l-7.512-42.829c-4.183-23.846-26.241-39.87-50.208-36.479l-43.053 6.09a15.004 15.004 0 0 1-12.613-4.099l-31.251-30.232c-17.401-16.834-44.661-16.835-62.061 0L193.72 42.859a15.01 15.01 0 0 1-12.613 4.099l-43.053-6.09c-23.975-3.393-46.025 12.633-50.208 36.479l-7.512 42.827a15.008 15.008 0 0 1-7.795 10.73l-38.41 20.38c-21.386 11.346-29.81 37.273-19.178 59.024l19.095 39.064a15.004 15.004 0 0 1 0 13.263L14.95 301.699c-10.632 21.751-2.208 47.676 19.178 59.023l38.41 20.38a15.005 15.005 0 0 1 7.796 10.729l7.512 42.829c3.808 21.708 22.422 36.932 43.815 36.93 2.107 0 4.245-.148 6.394-.452l43.053-6.09a15 15 0 0 1 12.613 4.099l31.251 30.232c8.702 8.418 19.864 12.626 31.03 12.625 11.163-.001 22.332-4.209 31.03-12.625l31.252-30.232c3.372-3.261 7.968-4.751 12.613-4.099l43.053 6.09c23.978 3.392 46.025-12.633 50.208-36.479l7.513-42.827a15.008 15.008 0 0 1 7.795-10.73l38.41-20.38c21.386-11.346 29.81-37.273 19.178-59.024l-19.096-39.065zm-13.923 72.002-38.41 20.38c-12.246 6.499-20.645 18.057-23.04 31.713l-7.512 42.828a15.038 15.038 0 0 1-16.987 12.342l-43.053-6.09c-13.73-1.945-27.316 2.474-37.281 12.113L266.5 478.152a15.04 15.04 0 0 1-20.997 0l-31.251-30.232c-8.422-8.147-19.432-12.562-30.926-12.562-2.106 0-4.229.148-6.355.449l-43.053 6.09a15.042 15.042 0 0 1-16.987-12.342l-7.513-42.829c-2.396-13.656-10.794-25.215-23.041-31.712l-38.41-20.38a15.037 15.037 0 0 1-6.489-19.969L60.574 275.6c6.088-12.456 6.088-26.742 0-39.198l-19.096-39.065a15.037 15.037 0 0 1 6.489-19.969l38.41-20.38c12.246-6.499 20.645-18.057 23.04-31.713l7.512-42.828a15.038 15.038 0 0 1 16.987-12.342l43.053 6.09c13.725 1.943 27.316-2.474 37.281-12.113l31.252-30.232a15.04 15.04 0 0 1 20.997 0l31.251 30.232c9.965 9.64 23.554 14.056 37.281 12.113l43.053-6.09a15.04 15.04 0 0 1 16.987 12.342l7.512 42.829c2.396 13.656 10.794 25.215 23.041 31.712l38.41 20.38a15.037 15.037 0 0 1 6.489 19.969l-19.096 39.064c-6.088 12.455-6.088 26.743 0 39.198l19.096 39.064a15.039 15.039 0 0 1-6.488 19.972z" />
                                         <path d="M363.886 148.116c-5.765-5.766-15.115-5.766-20.881 0l-194.889 194.89c-5.766 5.766-5.766 15.115 0 20.881a14.72 14.72 0 0 0 10.44 4.325c3.778 0 7.558-1.441 10.44-4.325l194.889-194.889c5.768-5.767 5.768-15.115.001-20.882zM196.941 123.116c-29.852 0-54.139 24.287-54.139 54.139s24.287 54.139 54.139 54.139 54.139-24.287 54.139-54.139-24.287-54.139-54.139-54.139zm0 78.747c-13.569 0-24.608-11.039-24.608-24.609 0-13.569 11.039-24.608 24.608-24.608s24.609 11.039 24.609 24.608c-.001 13.57-11.04 24.609-24.609 24.609zM315.061 280.61c-29.852 0-54.139 24.287-54.139 54.139s24.287 54.139 54.139 54.139c29.852 0 54.139-24.287 54.139-54.139s-24.287-54.139-54.139-54.139zm0 78.747c-13.569 0-24.609-11.039-24.609-24.608s11.039-24.608 24.609-24.608c13.569 0 24.608 11.039 24.608 24.608s-11.039 24.608-24.608 24.608z" />
                                     </svg>
                                 </button>
                             )}
-                            <button onClick={() => setShowAccountsModal(true)} className="bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/10" title="Dividir Cuenta">
+                            <button onClick={() => setShowAccountsModal(true)} className="bg-white/5 border border-white/10 rounded-none flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/10" title="Dividir Cuenta">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="5 0 90 100" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M10 35V5l20 15L50 5l20 15L90 5v30ZM20 25h35m15 0h10M15 50h10m10 0h10m10 0h10m10 0h10M10 65v30l20-15L50 95l20-15L90 95V65ZM20 75h35m15 0h10" />
                                 </svg>
@@ -3328,7 +3321,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         }
                                     }
                                 }}
-                                className="rounded-xl flex items-center justify-center transition-all active:scale-95 bg-white/5 border border-white/10 text-white hover:bg-white/10">
+                                className="rounded-none flex items-center justify-center transition-all active:scale-95 bg-white/5 border border-white/10 text-white hover:bg-white/10">
                                 <Minus size={16} />
                             </button>
                             <button
@@ -3345,12 +3338,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         }
                                     }
                                 }}
-                                className="rounded-xl flex items-center justify-center transition-all active:scale-95 bg-white/5 border border-white/10 text-white hover:bg-white/10">
+                                className="rounded-none flex items-center justify-center transition-all active:scale-95 bg-white/5 border border-white/10 text-white hover:bg-white/10">
                                 <Plus size={16} />
                             </button>
                         </div>
 
-                        <div className="bg-[#3a3b4d] rounded-xl p-2 flex items-center w-full border border-white/5 shadow-lg mt-1">
+                        <div className="bg-[#3a3b4d] rounded p-2 flex items-center w-full border border-white/5 shadow-lg mt-1">
                             <div className="flex-none">
                                 <button
                                     onClick={async () => {
@@ -3409,7 +3402,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                         }
                                     }}
                                     id="main-submit-btn"
-                                    className="flex-shrink-0 min-w-[119px] w-[119px] h-[99.22px] rounded-lg flex flex-col items-center justify-center gap-1 active:scale-95 transition-all bg-[#6366f1] hover:bg-indigo-400 text-white shadow-md"
+                                    className="flex-shrink-0 min-w-[119px] w-[119px] h-[99.22px] rounded-none flex flex-col items-center justify-center gap-1 active:scale-95 transition-all bg-[#6366f1] hover:bg-indigo-400 text-white shadow-md"
                                 >
                                     {checkoutItems.some(i => i.is_sent) ? (
                                         <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="mb-0.5 relative">
@@ -3519,7 +3512,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                     onCheckout?.(updatedOrder as any);
                                 }}
                                 disabled={checkoutItems.length === 0}
-                                className="w-full bg-[#3b82f6] hover:bg-blue-400 text-white font-medium py-2.5 px-4 rounded-lg shadow-md active:scale-95 transition-all -mt-1"
+                                className="w-full bg-[#3b82f6] hover:bg-blue-400 text-white font-medium py-2.5 px-4 rounded-none shadow-md active:scale-95 transition-all -mt-1"
                             >
                                 Cobrar Cuenta
                             </button>

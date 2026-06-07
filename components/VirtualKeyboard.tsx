@@ -286,11 +286,40 @@ export const VirtualKeyboard: React.FC = () => {
     const onChange = (input: string) => {
         if (!activeElement) return;
 
-        // Automatically apply correction when space or punctuation is typed
+        const isInput = activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement;
+        const start = isInput ? (activeElement as any).selectionStart ?? 0 : 0;
+        const end = isInput ? (activeElement as any).selectionEnd ?? 0 : 0;
+        const val = currentValueRef.current;
+
         let finalInput = input;
-        const lastTyped = input[input.length - 1];
-        if ([' ', '.', ',', ';', '!', '?'].includes(lastTyped)) {
-            finalInput = applyAutoCorrectionAll(input);
+
+        // Selection replacement logic
+        if (isInput && start !== end) {
+            if (input.length < val.length) {
+                // Backspace/delete action
+                finalInput = val.slice(0, start) + val.slice(end);
+                if (keyboardMain.current) keyboardMain.current.setInput(finalInput);
+                if (keyboardNumpad.current) keyboardNumpad.current.setInput(finalInput);
+                setTimeout(() => {
+                    (activeElement as any).setSelectionRange(start, start);
+                }, 0);
+            } else {
+                // Insertion action
+                const insertedChar = input[input.length - 1] || '';
+                finalInput = val.slice(0, start) + insertedChar + val.slice(end);
+                if (keyboardMain.current) keyboardMain.current.setInput(finalInput);
+                if (keyboardNumpad.current) keyboardNumpad.current.setInput(finalInput);
+                setTimeout(() => {
+                    const newPos = start + insertedChar.length;
+                    (activeElement as any).setSelectionRange(newPos, newPos);
+                }, 0);
+            }
+        } else {
+            // Automatically apply correction when space or punctuation is typed
+            const lastTyped = input[input.length - 1];
+            if ([' ', '.', ',', ';', '!', '?'].includes(lastTyped)) {
+                finalInput = applyAutoCorrectionAll(input);
+            }
         }
 
         currentValueRef.current = finalInput;

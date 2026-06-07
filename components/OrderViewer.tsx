@@ -215,7 +215,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                     subtotal,
                     discount,
                     total,
-                    order_items: undefined,   // reset → fetchOrderItems se dispara al seleccionar
+                    order_items: undefined,   // reset → fetchGroupOrderItems se dispara al seleccionar
                     item_counts,
                     profiles: {
                         name: profileLookup.get(order.waiter_id) || 'Desconocido',
@@ -225,10 +225,64 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                 };
             });
 
-            setOrders(enrichedOrders);
-            // Auto-select first order if none selected
-            if (enrichedOrders.length > 0 && !selectedOrder) {
-                setSelectedOrder(enrichedOrders[0]);
+            // Grouping logic for the list by table
+            const groupedMap = new Map<string, any>();
+            
+            enrichedOrders.forEach(order => {
+                const isDineIn = order.order_type === 'DINE_IN' || !order.order_type;
+                const groupId = (isDineIn && order.table_id) 
+                    ? `table_${order.table_id}` 
+                    : `order_${order.id}`;
+                
+                if (!groupedMap.has(groupId)) {
+                    groupedMap.set(groupId, {
+                        id: groupId,
+                        isGroup: isDineIn && !!order.table_id,
+                        table_id: order.table_id,
+                        order_type: order.order_type || 'DINE_IN',
+                        tables: order.tables,
+                        created_at: order.created_at,
+                        pax_count: order.pax_count || 0,
+                        total: order.total || 0,
+                        item_counts: {
+                            pending: order.item_counts?.pending || 0,
+                            preparing: order.item_counts?.preparing || 0,
+                            ready: order.item_counts?.ready || 0,
+                        },
+                        orders: [order]
+                    });
+                } else {
+                    const existing = groupedMap.get(groupId);
+                    existing.orders.push(order);
+                    existing.total += (order.total || 0);
+                    existing.pax_count += (order.pax_count || 0);
+                    // Keep the oldest created_at
+                    if (new Date(order.created_at) < new Date(existing.created_at)) {
+                        existing.created_at = order.created_at;
+                    }
+                    existing.item_counts.pending += (order.item_counts?.pending || 0);
+                    existing.item_counts.preparing += (order.item_counts?.preparing || 0);
+                    existing.item_counts.ready += (order.item_counts?.ready || 0);
+                }
+            });
+
+            const groupedOrdersList = Array.from(groupedMap.values());
+            // Sort orders inside each group by created_at ascending (oldest first)
+            groupedOrdersList.forEach(group => {
+                group.orders.sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+            });
+            setOrders(groupedOrdersList);
+
+            // Keep selected order updated with fresh data
+            if (selectedOrder) {
+                const freshGroup = groupedOrdersList.find(g => g.id === selectedOrder.id);
+                if (freshGroup) {
+                    setSelectedOrder(freshGroup);
+                } else {
+                    setSelectedOrder(groupedOrdersList[0] || null);
+                }
+            } else if (groupedOrdersList.length > 0) {
+                setSelectedOrder(groupedOrdersList[0]);
             }
         } catch (err) {
             console.error(err);
@@ -237,49 +291,78 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
         }
     };
 
-    useEffect(() => {
-        if (selectedOrder && !selectedOrder.order_items) {
-            fetchOrderItems(selectedOrder.id);
-        }
-    }, [selectedOrder]);
-
-    // Real-time: refresh item statuses when kitchen updates them (EN ESPERA → EN PREPARACIÓN → LISTO)
-    useEffect(() => {
-        if (!selectedOrder?.id) return;
-        const sub = supabase.channel(`ov_items_${selectedOrder.id}`)
-            .on('postgres_changes', {
-                event: 'UPDATE',
-                schema: 'public',
-                table: 'order_items',
-                filter: `order_id=eq.${selectedOrder.id}`
-            }, () => fetchOrderItems(selectedOrder.id))
-            .subscribe();
-        return () => { supabase.removeChannel(sub); };
-    }, [selectedOrder?.id]);
-
-    const fetchOrderItems = async (orderId: string) => {
+    const fetchGroupOrderItems = async (group: any) => {
         try {
+            const orderIds = group.orders.map((o: any) => o.id);
+            if (orderIds.length === 0) return;
+            
             const { data, error } = await supabase
                 .from('order_items')
                 .select('*, products(name)')
-                .eq('order_id', orderId);
+                .in('order_id', orderIds);
 
             if (!error && data) {
-                setSelectedOrder(prev => prev && prev.id === orderId ? { ...prev, order_items: data } : prev);
+                setSelectedOrder(prev => {
+                    if (!prev || prev.id !== group.id) return prev;
+                    
+                    const updatedOrders = prev.orders.map((o: any) => {
+                        const itemsForOrder = data.filter((item: any) => item.order_id === o.id);
+                        return { ...o, order_items: itemsForOrder };
+                    });
+                    
+                    return { ...prev, orders: updatedOrders, order_items: data };
+                });
             }
         } catch (e) {
             console.error(e);
         }
     };
 
+    useEffect(() => {
+        if (selectedOrder) {
+            const needsFetch = selectedOrder.orders.some((o: any) => !o.order_items);
+            if (needsFetch) {
+                fetchGroupOrderItems(selectedOrder);
+            }
+        }
+    }, [selectedOrder?.id]);
+
+    // Real-time: refresh item statuses when kitchen updates them (EN ESPERA → EN PREPARACIÓN → LISTO)
+    useEffect(() => {
+        if (!selectedOrder?.id) return;
+        
+        const orderIds = selectedOrder.orders.map((o: any) => o.id);
+        if (orderIds.length === 0) return;
+
+        const channels = orderIds.map((orderId: string) => {
+            return supabase.channel(`ov_items_${orderId}`)
+                .on('postgres_changes', {
+                    event: '*',
+                    schema: 'public',
+                    table: 'order_items',
+                    filter: `order_id=eq.${orderId}`
+                }, () => fetchGroupOrderItems(selectedOrder))
+                .subscribe();
+        });
+        
+        return () => { 
+            channels.forEach(ch => supabase.removeChannel(ch)); 
+        };
+    }, [selectedOrder?.id]);
+
     const isActive = (status: string) => ['pending', 'preparing', 'ready'].includes(status);
 
-    const filteredOrders = orders.filter(order => {
+    const filteredOrders = orders.filter(group => {
         if (!searchTerm.trim()) return true;
         const search = searchTerm.toLowerCase().trim();
-        return (order.tables?.number || '').toString().includes(search) ||
+        
+        if ((group.tables?.number || '').toString().includes(search)) return true;
+        if ((group.tables?.section || '').toLowerCase().includes(search)) return true;
+        
+        return group.orders.some((order: any) => 
             (order.order_number || '').toString().includes(search) ||
-            (order.customer_name || '').toLowerCase().includes(search);
+            (order.customer_name || '').toLowerCase().includes(search)
+        );
     });
 
     const getOrderTitle = (order: any) => {
@@ -443,38 +526,64 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
 
                     <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
                         {selectedOrder ? (
-                            <>
-                                <h4 className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-3 text-left pl-1">
-                                    {selectedOrder.customer_name || 'Cuenta 1'}
-                                </h4>
-                                <div className="space-y-3">
-                                    {selectedOrder.order_items?.map((item: any) => (
-                                        <div key={item.id} className="bg-[#3a3b4d] rounded-sm p-3 text-sm  border border-white/[0.03]">
-                                            <div className="flex justify-between items-start">
-                                                <div className="flex gap-3">
-                                                    <span className="font-medium text-white/50">{item.quantity}</span>
-                                                    <div className="flex flex-col gap-1">
-                                                        <span className="font-medium uppercase tracking-tight leading-tight text-white/80">{item.products?.name}</span>
-                                                        {(() => {
-                                                            const { mods, obs } = parseNotes(item.notes);
-                                                            const display = [mods, obs].filter(Boolean).join(' · ');
-                                                            return display ? (
-                                                                <span className="text-[10px] text-gray-400 uppercase leading-tight italic">
-                                                                    {display}
-                                                                </span>
-                                                            ) : null;
-                                                        })()}
-                                                        {item.status && (
-                                                            <ItemStatusBadge item={item} serverOffset={serverOffset} tick={tick} />
-                                                        )}
+                            <div className="space-y-6">
+                                {selectedOrder.orders.map((order: any, idx: number) => (
+                                    <div key={order.id} className="flex flex-col">
+                                        {/* Header of the account/order without container border */}
+                                        <div className="mb-2 flex flex-col pl-1">
+                                            <span className="text-[11px] font-semibold uppercase tracking-wider text-white">
+                                                {order.customer_name || `Cuenta ${idx + 1}`}
+                                            </span>
+                                            <span className="text-[9px] text-gray-400 font-medium uppercase tracking-tight">
+                                                Orden #{order.order_number} · {order.profiles?.name}
+                                            </span>
+                                        </div>
+
+                                        {/* Items inside this order */}
+                                        <div className="space-y-2">
+                                            {order.order_items?.map((item: any) => (
+                                                <div key={item.id} className="bg-[#343547] rounded-sm p-3 text-sm border border-white/[0.03]">
+                                                    <div className="flex justify-between items-start">
+                                                        <div className="flex gap-3">
+                                                            <span className="font-medium text-white/50">{item.quantity}</span>
+                                                            <div className="flex flex-col gap-1">
+                                                                <span className="font-medium uppercase tracking-tight leading-tight text-white/80">{item.products?.name}</span>
+                                                                {(() => {
+                                                                    const { mods, obs } = parseNotes(item.notes);
+                                                                    const modItems = mods 
+                                                                        ? mods.split(/[|,\n]/).map(m => m.trim()).filter(Boolean)
+                                                                        : [];
+                                                                    const obsItems = obs
+                                                                        ? obs.split('\n').map(o => o.trim()).filter(Boolean)
+                                                                        : [];
+                                                                    const allItems = [...modItems, ...obsItems];
+                                                                    
+                                                                    return allItems.length > 0 ? (
+                                                                        <div className="flex flex-col gap-0.5 mt-1 pl-1 text-[11px] text-gray-400 uppercase font-normal tracking-wide">
+                                                                            {allItems.map((noteText, idx) => (
+                                                                                <span key={idx}>- {noteText}</span>
+                                                                            ))}
+                                                                        </div>
+                                                                    ) : null;
+                                                                })()}
+                                                                {item.status && (
+                                                                    <ItemStatusBadge item={item} serverOffset={serverOffset} tick={tick} />
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <span className="font-medium tabular-nums tracking-tighter shrink-0 ml-2 text-white/90">Q{((item.unit_price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                                                     </div>
                                                 </div>
-                                                <span className="font-medium tabular-nums tracking-tighter shrink-0 ml-2 text-white/90">Q{((item.unit_price || 0) * (item.quantity || 0)).toFixed(2)}</span>
-                                            </div>
+                                            ))}
+                                            {(!order.order_items || order.order_items.length === 0) && (
+                                                <div className="text-center py-2 text-[10px] text-white/40 uppercase tracking-wider">
+                                                    Cargando productos...
+                                                </div>
+                                            )}
                                         </div>
-                                    ))}
-                                </div>
-                            </>
+                                    </div>
+                                ))}
+                            </div>
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center p-12 opacity-50">
                                 <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10 ">
@@ -482,7 +591,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                                 </div>
                                 <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-white/60 text-center mb-2">SIN SELECCIÓN</h3>
                                 <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest text-center">
-                                    Selecciona una cuenta de la lista
+                                    Selecciona una mesa o cuenta de la lista
                                 </p>
                             </div>
                         )}
@@ -494,36 +603,30 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                             disabled={!selectedOrder}
                             onClick={async () => {
                                 if (!selectedOrder) return;
-                                const { data: invoice } = await supabase
-                                    .from('invoices')
-                                    .select('*')
-                                    .eq('order_id', selectedOrder.id)
-                                    .eq('status', 'ACTIVE')
-                                    .maybeSingle();
-
-                                const computed = getComputedTotals(selectedOrder);
-                                const ticketData = {
-                                    orderId: selectedOrder.id,
-                                    orderNumber: selectedOrder.order_number,
-                                    orderType: selectedOrder.order_type,
-                                    tableNumber: selectedOrder.tables?.number,
-                                    tableName: selectedOrder.tables?.section,
-                                    waiterName: selectedOrder.profiles?.name,
-                                    customerName: selectedOrder.customer_name || 'Cuenta 1',
-                                    items: (selectedOrder.order_items || []).map((i: any) => ({
-                                        name: i.products?.name || 'Desconocido',
-                                        quantity: i.quantity,
-                                        price: i.unit_price,
-                                        notes: i.notes
-                                    })),
-                                    subtotal: computed.subtotal,
-                                    discount: computed.discount || 0,
-                                    tipAmount: computed.tip || 0,
-                                    total: computed.total,
-                                    createdAt: selectedOrder.created_at
-                                };
-                                // Usamos printPreCheck para órdenes abiertas en el visor y forzamos silencio
-                                printService.printPreAccountTicket(ticketData as any, { silent: true });
+                                for (const order of selectedOrder.orders) {
+                                    const computed = getComputedTotals(order);
+                                    const ticketData = {
+                                        orderId: order.id,
+                                        orderNumber: order.order_number,
+                                        orderType: order.order_type,
+                                        tableNumber: order.tables?.number,
+                                        tableName: order.tables?.section,
+                                        waiterName: order.profiles?.name,
+                                        customerName: order.customer_name || 'Cuenta 1',
+                                        items: (order.order_items || []).map((i: any) => ({
+                                            name: i.products?.name || 'Desconocido',
+                                            quantity: i.quantity,
+                                            price: i.unit_price,
+                                            notes: i.notes
+                                        })),
+                                        subtotal: computed.subtotal,
+                                        discount: computed.discount || 0,
+                                        tipAmount: computed.tip || 0,
+                                        total: computed.total,
+                                        createdAt: order.created_at
+                                    };
+                                    printService.printPreAccountTicket(ticketData as any, { silent: true });
+                                }
                             }}
                             className="w-[71px] h-[71px] bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white transition-all hover:bg-white/10 active:scale-95 shrink-0"
                         >
@@ -535,7 +638,7 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
                     <div className="px-4 py-3 shrink-0 border-t border-white/5 flex items-center justify-center">
                         <button
                             disabled={!selectedOrder}
-                            onClick={() => selectedOrder && onOpenOrder && onOpenOrder(selectedOrder.id)}
+                            onClick={() => selectedOrder && onOpenOrder && onOpenOrder(selectedOrder.orders[0]?.id)}
                             className="w-[220px] bg-[#6366f1] hover:bg-[#5558e3] text-white h-12 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center active:scale-[0.98]"
                         >
                             ABRIR ORDEN
@@ -572,7 +675,9 @@ const OrderCard = ({ order, isSelected, onClick }: any) => {
             <div className="flex justify-between items-start mb-1.5">
                 <div className="flex items-center gap-1.5 text-white">
                     <FileText size={12} />
-                    <span className="text-[11px] font-medium">{order.order_number}</span>
+                    <span className="text-[11px] font-medium">
+                        {order.isGroup ? `${order.orders.length} Cuentas` : `Orden ${order.orders[0]?.order_number}`}
+                    </span>
                 </div>
                 <span className="text-[11px] font-semibold tabular-nums text-white">Q{parseFloat(order.total || 0).toLocaleString()}</span>
             </div>
@@ -589,7 +694,7 @@ const OrderCard = ({ order, isSelected, onClick }: any) => {
                         ) : (
                             'DOMICILIO'
                         )}
-                        {order.customer_name && ` - ${order.customer_name}`}
+                        {!order.isGroup && order.orders[0]?.customer_name && ` - ${order.orders[0].customer_name}`}
                     </span>
                 </div>
                 {(order.order_type === 'DINE_IN' || !order.order_type) && (

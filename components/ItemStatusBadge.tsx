@@ -105,7 +105,7 @@ export const ItemStatusBadge: React.FC<ItemStatusBadgeProps> = ({ item, serverOf
 
     // Default: Pendiente
     return (
-        <span className="flex items-center gap-1 bg-gray-700/50 text-gray-400 px-1.5 py-0.5 rounded font-semibold uppercase tracking-tighter text-[10px]">
+        <span className="flex items-center gap-1 text-gray-300 font-medium uppercase tracking-wider text-[10px] mt-0.5">
             <Clock size={12} /> EN ESPERA ({formatTime(elapsedSeconds)})
         </span>
     );

@@ -322,7 +322,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                         <div className="flex justify-center gap-3">
                             <button
                                 onClick={handleNewCustomer}
-                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center"
+                                className="w-[71px] h-[71px] border border-white/30 rounded text-white hover:bg-white/10 transition-colors flex items-center justify-center"
                                 title="Nuevo Cliente"
                             >
                                 <div className="relative w-[32px] h-[26px]">
@@ -332,7 +332,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             </button>
                             <button
                                 onClick={handleEditCustomer}
-                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center"
+                                className="w-[71px] h-[71px] border border-white/30 rounded text-white hover:bg-white/10 transition-colors flex items-center justify-center"
                                 title="Editar Cliente"
                             >
                                 <div className="relative w-[32px] h-[26px]">
@@ -342,7 +342,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             </button>
                             <button
                                 onClick={handleDeleteCustomerBtnClick}
-                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-red-500/20 hover:text-red-500 transition-colors flex items-center justify-center"
+                                className="w-[71px] h-[71px] border border-white/30 rounded text-white hover:bg-red-500/20 hover:text-red-500 transition-colors flex items-center justify-center"
                                 title="Eliminar Cliente"
                             >
                                 <div className="relative w-[32px] h-[26px] flex items-center justify-center">
@@ -395,7 +395,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                                     <button
                                         key={addr.id}
                                         onClick={() => setSelectedAddress(addr)}
-                                        className={`w-full p-4 rounded-xl border text-left relative group ${selectedAddress?.id === addr.id
+                                        className={`w-full p-4 rounded-none border text-left relative group ${selectedAddress?.id === addr.id
                                             ? 'bg-[#5c5d73] border-transparent text-white'
                                             : 'bg-[#3a3b4d] border-transparent hover:bg-[#45465a] text-white'
                                             }`}
@@ -447,7 +447,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                         <div className="flex justify-center gap-3">
                             <button
                                 onClick={handleNewAddress}
-                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center"
+                                className="w-[71px] h-[71px] border border-white/30 rounded text-white hover:bg-white/10 transition-colors flex items-center justify-center"
                                 title="Nueva Dirección"
                             >
                                 <div className="relative w-[32px] h-[26px]">
@@ -457,7 +457,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             </button>
                             <button
                                 onClick={handleEditAddress}
-                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-white/10 transition-colors flex items-center justify-center"
+                                className="w-[71px] h-[71px] border border-white/30 rounded text-white hover:bg-white/10 transition-colors flex items-center justify-center"
                                 title="Editar Dirección"
                             >
                                 <div className="relative w-[32px] h-[26px]">
@@ -467,7 +467,7 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                             </button>
                             <button
                                 onClick={handleDeleteAddressBtnClick}
-                                className="w-[71px] h-[71px] border border-white/30 rounded-xl text-white hover:bg-red-500/20 hover:text-red-500 transition-colors flex items-center justify-center"
+                                className="w-[71px] h-[71px] border border-white/30 rounded text-white hover:bg-red-500/20 hover:text-red-500 transition-colors flex items-center justify-center"
                                 title="Eliminar Dirección"
                             >
                                 <MapPinOff size={26} strokeWidth={1.5} />
@@ -500,13 +500,13 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                         <div className="p-6 bg-[#1e232f] border-t border-white/5 flex gap-4">
                             <button
                                 onClick={() => setCustomerToDelete(null)}
-                                className="flex-1 py-3 rounded-xl font-medium uppercase tracking-wider text-xs bg-white/5 hover:bg-white/10 text-white transition-all"
+                                className="flex-1 py-3 rounded font-medium uppercase tracking-wider text-xs bg-white/5 hover:bg-white/10 text-white transition-all"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={confirmDeleteCustomer}
-                                className="flex-1 py-3 rounded-xl font-semibold uppercase tracking-wider text-xs bg-red-600 hover:bg-red-500 text-white  -600/30 transition-all active:scale-95 flex items-center justify-center"
+                                className="flex-1 py-3 rounded font-semibold uppercase tracking-wider text-xs bg-red-600 hover:bg-red-500 text-white  -600/30 transition-all active:scale-95 flex items-center justify-center"
                             >
                                 <Trash2 size={16} className="mr-2" /> Eliminar
                             </button>
@@ -530,13 +530,13 @@ export const DeliveryClientsView: React.FC<DeliveryClientsViewProps> = ({ onBack
                         <div className="p-6 bg-[#1e232f] border-t border-white/5 flex gap-4">
                             <button
                                 onClick={() => setAddressToDelete(null)}
-                                className="flex-1 py-3 rounded-xl font-medium uppercase tracking-wider text-xs bg-white/5 hover:bg-white/10 text-white transition-all"
+                                className="flex-1 py-3 rounded font-medium uppercase tracking-wider text-xs bg-white/5 hover:bg-white/10 text-white transition-all"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={confirmDeleteAddress}
-                                className="flex-1 py-3 rounded-xl font-semibold uppercase tracking-wider text-xs bg-rose-600 hover:bg-rose-500 text-white  -600/30 transition-all active:scale-95"
+                                className="flex-1 py-3 rounded font-semibold uppercase tracking-wider text-xs bg-rose-600 hover:bg-rose-500 text-white  -600/30 transition-all active:scale-95"
                             >
                                 Eliminar
                             </button>
