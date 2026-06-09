@@ -3,6 +3,7 @@ import { X, Search, User, CreditCard, Loader2, Save, Banknote, CreditCard as Car
 import { supabase } from '../supabase';
 import { generateUUID } from '../utils/uuid';
 import { printService } from '../services/PrintService';
+import { getImageUrl } from '../utils/getImageUrl';
 
 interface CreditPaymentModalProps {
     onClose: () => void;
@@ -27,10 +28,55 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
     const [paymentMethod, setPaymentMethod] = useState('EFECTIVO');
     const [selectedProcessor, setSelectedProcessor] = useState<string | null>(null);
     const [processing, setProcessing] = useState(false);
-    const [terminals, setTerminals] = useState<any[]>([]);
+    const [terminals, setTerminals] = useState<any[]>(() => {
+        const cached = localStorage.getItem('cached_pos_terminals');
+        if (cached) {
+            try {
+                let data = JSON.parse(cached);
+                const cachedUserStr = localStorage.getItem('currentUser');
+                let user: any = null;
+                try { user = JSON.parse(cachedUserStr || '{}'); } catch (e) {}
+                if (user?.branch_id) {
+                    data = data.filter((pos: any) => pos.branch_id === user.branch_id || !pos.branch_id);
+                }
+                return data;
+            } catch (e) {
+                return [];
+            }
+        }
+        return [];
+    });
     const [showPosSelector, setShowPosSelector] = useState(false);
 
-    // Buscar clientes con deuda
+    // Cargar terminales POS una sola vez al montar el componente
+    useEffect(() => {
+        const fetchTerminals = async () => {
+            // Check cache first for instant load
+            const cached = localStorage.getItem('cached_pos_terminals');
+            if (cached) {
+                try {
+                    let data = JSON.parse(cached);
+                    const cachedUserStr = localStorage.getItem('currentUser');
+                    let user: any = null;
+                    try { user = JSON.parse(cachedUserStr || '{}'); } catch (e) {}
+                    if (user?.branch_id) {
+                        data = data.filter((pos: any) => pos.branch_id === user.branch_id || !pos.branch_id);
+                    }
+                    setTerminals(data);
+                    return;
+                } catch (e) {}
+            }
+
+            const { data } = await supabase.from('pos_terminals').select('*').order('name');
+            if (data) {
+                setTerminals(data);
+                localStorage.setItem('cached_pos_terminals', JSON.stringify(data));
+            }
+        };
+        fetchTerminals();
+    }, []);
+
+    // Buscar clientes con deuda (de-bounced según searchTerm)
     useEffect(() => {
         const searchCustomers = async () => {
             setLoading(true);
@@ -53,12 +99,6 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                 setLoading(false);
             }
         };
-
-        const fetchTerminals = async () => {
-            const { data } = await supabase.from('pos_terminals').select('*').order('name');
-            if (data) setTerminals(data);
-        };
-        fetchTerminals();
 
         const timer = setTimeout(() => {
             searchCustomers();
@@ -339,11 +379,19 @@ export const CreditPaymentModal: React.FC<CreditPaymentModalProps> = ({ onClose,
                                     }}
                                     className={`p-6 bg-white rounded-lg flex flex-col items-center justify-center gap-3 transition-all active:scale-95 border-4 ${selectedProcessor === pos.name ? 'border-blue-500 ' : 'border-transparent '}`}
                                 >
-                                    {pos.logo_url ? (
-                                        <img src={pos.logo_url} alt={pos.name} className="h-12 object-contain" />
-                                    ) : (
-                                        <CreditCard size={32} className="text-gray-400" />
-                                    )}
+                                    <div className="h-12 w-full flex items-center justify-center relative bg-white rounded">
+                                        {/* Icono de tarjeta por defecto (se muestra al instante como placeholder) */}
+                                        <div className="absolute inset-0 flex items-center justify-center text-gray-300">
+                                            <CreditCard size={24} />
+                                        </div>
+                                        {pos.logo_url && (
+                                            <img 
+                                                src={getImageUrl(pos.logo_url)} 
+                                                alt={pos.name} 
+                                                className="max-h-full object-contain relative z-10 bg-white rounded" 
+                                            />
+                                        )}
+                                    </div>
                                     <span className="text-[10px] font-semibold text-black uppercase tracking-widest">{pos.name}</span>
                                 </button>
                             ))}

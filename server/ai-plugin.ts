@@ -30,30 +30,67 @@ export function aiProxyPlugin(env: any) {
                             let responseText = null;
                             let lastError = null;
 
-                            for (const apiKey of apiKeys) {
-                                try {
-                                    const genAI = new GoogleGenerativeAI(apiKey);
-                                    const model = genAI.getGenerativeModel({ model: params.model || 'gemini-2.0-flash' });
+                            // 1. Intentar llamar a 9Router Local Proxy
+                            try {
+                                const controller = new AbortController();
+                                const timeoutId = setTimeout(() => controller.abort(), 12000);
+                                
+                                const routerResp = await fetch('http://localhost:20128/v1/chat/completions', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': 'Bearer 9r-laspalmas-dev-2026'
+                                    },
+                                    body: JSON.stringify({
+                                        model: 'FREE_CODING_FALLBACK',
+                                        messages: [{ role: 'user', content: params.prompt }],
+                                        temperature: params.temperature || 0.7,
+                                        stream: false
+                                    }),
+                                    signal: controller.signal
+                                });
+                                clearTimeout(timeoutId);
 
-                                    const result = await model.generateContent({
-                                        contents: [{ role: 'user', parts: [{ text: params.prompt }] }],
-                                        generationConfig: {
-                                            temperature: params.temperature || 0.7,
-                                        }
-                                    });
-                                    
-                                    responseText = result.response.text();
-                                    break; // Éxito, salir del loop
-                                } catch (e: any) {
-                                    lastError = e;
-                                    console.warn(`[AI-WARNING] Falló la key (probando siguiente si hay)...`, e.message);
-                                    // Si no es error de cuota (429) o limits, podríamos querer no seguir, pero
-                                    // para simplificar seguimos probando hasta que una funcione o se acaben.
+                                if (routerResp.ok) {
+                                    const routerJson = await routerResp.json();
+                                    if (routerJson.choices && routerJson.choices[0]?.message?.content) {
+                                        responseText = routerJson.choices[0].message.content;
+                                        console.log(`\x1b[32m[AI-SUCCESS] Respondido por 9Router Local (Modelo: ${routerJson.model || 'FREE_CODING_FALLBACK'})\x1b[0m`);
+                                    }
+                                } else {
+                                    const errText = await routerResp.text();
+                                    console.warn(`[AI-WARNING] 9Router respondió con error (código ${routerResp.status}):`, errText);
+                                }
+                            } catch (err: any) {
+                                console.warn(`[AI-WARNING] 9Router fuera de línea o falló. Usando fallback de API Keys locales...`, err.message);
+                            }
+
+                            // 2. Fallback de API Keys directas si 9Router no respondió
+                            if (!responseText) {
+                                for (const apiKey of apiKeys) {
+                                    try {
+                                        const genAI = new GoogleGenerativeAI(apiKey);
+                                        const model = genAI.getGenerativeModel({ model: params.model || 'gemini-2.0-flash' });
+
+                                        const result = await model.generateContent({
+                                            contents: [{ role: 'user', parts: [{ text: params.prompt }] }],
+                                            generationConfig: {
+                                                temperature: params.temperature || 0.7,
+                                            }
+                                        });
+                                        
+                                        responseText = result.response.text();
+                                        console.log(`\x1b[32m[AI-SUCCESS] Respondido por API Key directa de Google AI Studio\x1b[0m`);
+                                        break; // Éxito, salir del loop
+                                    } catch (e: any) {
+                                        lastError = e;
+                                        console.warn(`[AI-WARNING] Falló la key directa (probando siguiente si hay)...`, e.message);
+                                    }
                                 }
                             }
 
                             if (!responseText) {
-                                throw lastError || new Error("No se pudo generar respuesta con ninguna API Key");
+                                throw lastError || new Error("No se pudo generar respuesta con 9Router ni con ninguna API Key directa");
                             }
 
                             res.writeHead(200, { 'Content-Type': 'application/json' });

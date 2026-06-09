@@ -255,8 +255,8 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
         const activeMethods: string[] = [];
         if (orderObj.cash_amount > 0) activeMethods.push('Efectivo');
         if (orderObj.card_amount > 0) {
-            const processor = orderObj.card_processor 
-                ? ` - ${orderObj.card_processor}` 
+            const processor = orderObj.card_processor
+                ? ` - ${orderObj.card_processor}`
                 : '';
             activeMethods.push(`Tarjeta${processor}`);
         }
@@ -304,7 +304,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
 
     const confirmWhatsApp = async () => {
         if (!whatsAppRecord) return;
-        
+
         const cleanPhone = whatsAppPhone.replace(/\D/g, '');
         if (cleanPhone.length !== 8) {
             setWhatsAppError("El número de teléfono debe tener exactamente 8 dígitos.");
@@ -333,7 +333,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
         }
         const url = `https://wa.me/502${cleanPhone}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
-        
+
         setShowWhatsAppModal(false);
         setWhatsAppRecord(null);
         setWhatsAppPhone('');
@@ -384,12 +384,12 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
 
             // 3. Update Order Status (Return to Table as Pending)
             const orderId = selectedRecord.order_id || selectedRecord.id;
-            
+
             // Mark invoice as CANCELLED so it disappears from the list
             if (selectedRecord.id && (selectedRecord.uuid || selectedRecord.series === 'CONT' || selectedRecord.document_number?.includes('PEND'))) {
-                await supabase.from('invoices').update({ 
+                await supabase.from('invoices').update({
                     status: 'CANCELLED',
-                    cancellation_reason: voidReason 
+                    cancellation_reason: voidReason
                 }).eq('id', selectedRecord.id);
             }
 
@@ -478,7 +478,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                 <div className="flex items-center gap-4">
                     <button onClick={onBack} className="p-3.5 bg-white/5 hover:bg-white/10 active:scale-95 rounded-xl transition-all pos-button text-gray-400 hover:text-white shrink-0">
                         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
                     </button>
                     <div className="flex flex-col">
@@ -679,7 +679,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                             className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-sm transition-all active:scale-95 text-[9px] font-semibold uppercase tracking-widest  -600/20 text-white"
                                         >
                                             <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 fill-current">
-                                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
                                             </svg>
                                             <span>WhatsApp</span>
                                         </button>
@@ -735,7 +735,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                     <div className="min-w-0 flex-1">
                                         <p className="text-[7px] font-semibold text-gray-600 uppercase tracking-widest leading-none mb-1">Origen / Tipo</p>
                                         <p className="text-[10px] font-semibold text-white uppercase truncate">
-                                            {(selectedRecord.orders?.order_type || selectedRecord.order_type) === 'DINE_IN' 
+                                            {(selectedRecord.orders?.order_type || selectedRecord.order_type) === 'DINE_IN'
                                                 ? `MESA ${(selectedRecord.orders?.tables?.number || selectedRecord.tables?.number || selectedRecord.orders?.table?.number || selectedRecord.table?.number || '---')}`
                                                 : (selectedRecord.orders?.order_type || selectedRecord.order_type) === 'TAKEOUT'
                                                     ? 'PARA LLEVAR'
@@ -861,175 +861,159 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
             </main>
 
             {/* Void Modal */}
-            {
-                showVoidModal && (
-                    <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
-                        <div className="bg-[#14171c] w-full max-w-4xl h-auto max-h-[90vh] sm:h-[540px] rounded-[2rem] border border-white/10  overflow-hidden flex">
-                            {/* Left Side: Info & Keypad */}
-                            <div className="w-1/2 flex flex-col border-r border-white/5 bg-black/20 shrink-0">
-                                <div className="p-4 sm:p-6 border-b border-white/5 bg-white/[0.02]">
-                                    <span className="text-[9px] font-semibold uppercase tracking-[0.4em] text-rose-500">Procedimiento Seguro</span>
-                                    <h3 className="text-lg sm:text-xl font-semibold text-white uppercase tracking-tighter">PIN DE ADMINISTRADOR</h3>
-                                    {selectedRecord?.uuid && (
-                                        <p className="text-[10px] font-medium text-gray-400 mt-2 break-all text-center">
-                                            UUID: {selectedRecord.uuid}
-                                        </p>
-                                    )}
+            {showVoidModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 touch-none animate-in fade-in duration-200">
+                    <div
+                        className="bg-[#2d2e3d] flex flex-col overflow-hidden text-white shadow-2xl"
+                        style={{ width: '930px', height: '560px' }}
+                    >
+                        {/* Body */}
+                        <div className="flex flex-1 overflow-hidden">
+                            {/* Left Side: Reason & Confirmation */}
+                            <div className="flex-1 flex flex-col p-6 pr-4 overflow-y-auto custom-scrollbar">
+                                <div className="w-full bg-[#3a3b4d] py-2.5 mb-4 flex items-center justify-center">
+                                    <h3 className="text-[13px] font-medium text-white uppercase tracking-wider">Motivo de Anulación</h3>
                                 </div>
 
-                                <div className="flex-1 p-4 sm:p-6 flex flex-col justify-center">
-                                    {/* PIN Display */}
-                                    <div className="flex gap-4 justify-center mb-8">
-                                        {[...Array(4)].map((_, i) => (
-                                            <div
-                                                key={i}
-                                                className={`w-3.5 h-3.5 rounded-full transition-all duration-300 border ${voidPin.length > i
-                                                    ? 'bg-rose-500 border-rose-500 '
-                                                    : 'bg-white/5 border-white/10'
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {[
+                                            'Error en los datos de la descripción',
+                                            'Error en el precio unitario',
+                                            'Error en el total del DTE',
+                                            'No cancelación del bien y/o servicio',
+                                            'Cancelación de la operación',
+                                            'Devolución de producto',
+                                            'Emisión con moneda incorrecta',
+                                            'Datos incorrectos del receptor',
+                                            'Otros'
+                                        ].map((reason) => (
+                                            <button
+                                                key={reason}
+                                                onClick={() => setVoidReason(reason)}
+                                                className={`p-3 rounded-md text-xs text-left font-medium transition-all border ${voidReason === reason
+                                                    ? 'bg-[#5c60f5] border-[#5c60f5] text-white'
+                                                    : 'bg-[#3a3b4d] border-transparent text-gray-300 hover:bg-[#45465a]'
                                                     }`}
-                                            />
+                                            >
+                                                {reason}
+                                            </button>
                                         ))}
                                     </div>
 
-                                    {/* Numeric Grid */}
-                                    <div className="grid grid-cols-3 gap-2 w-64 mx-auto">
-                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                                            <button
-                                                key={num}
-                                                onClick={() => voidPin.length < 4 && setVoidPin(v => v + num)}
-                                                className="h-10 rounded-sm bg-white/5 hover:bg-white/10 border border-white/5 text-sm font-semibold transition-all active:scale-90"
-                                            >
-                                                {num}
-                                            </button>
-                                        ))}
-                                        <button
-                                            onClick={() => setVoidPin('')}
-                                            className="h-10 rounded-sm bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-500 text-[9px] font-semibold uppercase transition-all active:scale-90"
-                                        >
-                                            Limpiar
-                                        </button>
-                                        <button
-                                            onClick={() => voidPin.length < 4 && setVoidPin(v => v + '0')}
-                                            className="h-10 rounded-sm bg-white/5 hover:bg-white/10 border border-white/5 text-lg font-semibold transition-all active:scale-90"
-                                        >
-                                            0
-                                        </button>
-                                        <button
-                                            onClick={() => setVoidPin(v => v.slice(0, -1))}
-                                            className="h-10 rounded-sm bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all active:scale-90"
-                                        >
-                                            <Backspace size={16} />
-                                        </button>
+                                    {voidReason === 'Otros' && (
+                                        <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                            <input
+                                                type="text"
+                                                autoFocus
+                                                placeholder="Especifique el motivo..."
+                                                onChange={(e) => setVoidReason(e.target.value)}
+                                                className="w-full bg-black/40 border border-white/10 rounded-md p-3 text-xs font-medium text-white focus:border-indigo-500/50 outline-none transition-all uppercase"
+                                            />
+                                        </div>
+                                    )}
+
+
+
+                                    <div className="p-3 rounded-md bg-amber-500/5 border border-amber-500/10 flex gap-3 items-center">
+                                        <AlertCircle className="text-amber-500 shrink-0" size={16} />
+                                        <p className="text-[9px] font-semibold text-amber-500/80 uppercase leading-snug tracking-wider">
+                                            Acción irreversible. Anulará en el sistema local y la SAT si corresponde.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Right Side: Reason & Confirmation */}
-                            <div className="w-1/2 flex flex-col bg-[#2d2e3d]">
-                                <div className="p-4 sm:p-6 border-b border-white/5 flex justify-end">
-                                    <button onClick={() => { setShowVoidModal(false); setVoidPin(''); }} className="p-2 text-gray-500 hover:bg-white/5 hover:text-white rounded-full transition-colors active:scale-95">
-                                        <XCircle size={24} />
-                                    </button>
+                            {/* Right Side: Keypad */}
+                            <div className="relative py-6 pr-6 pl-4 flex flex-col gap-3 ml-auto before:content-[''] before:absolute before:left-0 before:top-6 before:bottom-8 before:w-px before:bg-white/5 shrink-0">
+                                <div className="w-full bg-[#3a3b4d] py-2.5 mb-4 flex items-center justify-center" style={{ width: '309px' }}>
+                                    <h3 className="text-[13px] font-medium text-white uppercase tracking-wider">PIN de Autorización</h3>
                                 </div>
 
-                                <div className="flex-1 p-4 sm:p-6 overflow-y-auto custom-scrollbar">
-                                    <div className="space-y-5">
-                                        <div className="space-y-2">
-                                            <label className="text-[9px] font-semibold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
-                                                <MessageSquare size={12} className="text-rose-500" />
-                                                Motivo de Anulación
-                                            </label>
-                                            <div className="grid grid-cols-1 gap-2 max-h-[220px] overflow-y-auto pr-2 custom-scrollbar">
-                                                {[
-                                                    'Error en los datos de la descripción',
-                                                    'Error en el precio unitario',
-                                                    'Error en el total del DTE',
-                                                    'No cancelación del bien y/o servicio',
-                                                    'Cancelación de la operación',
-                                                    'Devolución de producto',
-                                                    'Emisión con moneda incorrecta',
-                                                    'Datos incorrectos del receptor',
-                                                    'Otros'
-                                                ].map((reason) => (
-                                                    <button
-                                                        key={reason}
-                                                        onClick={() => setVoidReason(reason)}
-                                                        className={`p-3 rounded-sm text-xs text-left font-medium transition-all border ${voidReason === reason
-                                                            ? 'bg-rose-500/10 border-rose-500/50 text-white'
-                                                            : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'
-                                                            }`}
-                                                    >
-                                                        {reason}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        {voidReason === 'Otros' && (
-                                            <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                                                <input
-                                                    type="text"
-                                                    autoFocus
-                                                    placeholder="Especifique el motivo..."
-                                                    onChange={(e) => setVoidReason(e.target.value)}
-                                                    className="w-full bg-black/40 border border-white/5 rounded-sm p-3 text-xs font-medium text-white focus:border-rose-500/50 outline-none transition-all uppercase"
-                                                />
-                                            </div>
+                                {/* Display del teclado */}
+                                <div
+                                    className="bg-black/40 border border-white/10 h-14 flex items-center justify-center px-4 shrink-0 overflow-hidden cursor-default select-none rounded-md"
+                                    style={{ width: '309px' }}
+                                >
+                                    <div className="text-xl font-semibold text-white tracking-[0.3em] flex items-center justify-center font-mono pl-[0.3em]">
+                                        {'●'.repeat(voidPin.length)}
+                                        {voidPin.length < 4 && (
+                                            <span className="text-white/60 animate-pulse font-light ml-0.5 select-none -translate-y-[1px]">|</span>
                                         )}
-
-                                        <div className="space-y-2 pt-4 border-t border-white/5">
-                                            <label className="text-[9px] font-semibold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
-                                                NIT Receptor (Opcional)
-                                            </label>
-                                            <p className="text-[8px] sm:text-[9px] text-gray-500 mb-2 leading-tight">
-                                                Original: <span className="text-white font-medium">{selectedRecord?.customer_nit || 'CF'}</span>.
-                                                Ingrese un NIT diferente solo si el DTE de la SAT lo requiere.
-                                            </p>
-                                            <input
-                                                type="text"
-                                                placeholder="NIT a anular si difiere..."
-                                                value={voidNit}
-                                                onChange={(e) => setVoidNit(e.target.value)}
-                                                className="w-full bg-black/40 border border-white/5 rounded-sm p-3 text-xs font-medium text-white focus:border-indigo-500/50 outline-none transition-all uppercase tracking-widest placeholder:text-gray-700"
-                                            />
-                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="p-4 sm:p-6 border-t border-white/5 bg-[#3a3b4d] space-y-4 shrink-0">
-                                    <div className="p-3 rounded-sm bg-amber-500/5 border border-amber-500/10 flex gap-3 items-center">
-                                        <AlertCircle className="text-amber-500 shrink-0" size={16} />
-                                        <p className="text-[9px] font-medium text-amber-500/80 uppercase leading-snug tracking-wider">
-                                            Acción irreversible. Anulará en el sistema local y la SAT si corresponde.
-                                        </p>
-                                    </div>
-
+                                {/* Rejilla de teclas */}
+                                <div
+                                    className="grid gap-[1px] bg-white/5 border border-white/10 overflow-hidden w-fit"
+                                    style={{
+                                        gridTemplateColumns: 'repeat(3, 102px)',
+                                        gridTemplateRows: 'repeat(4, 74px)'
+                                    }}
+                                >
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                                        <button
+                                            key={num}
+                                            onClick={() => voidPin.length < 4 && setVoidPin(v => v + num)}
+                                            className="bg-[#2d2e3d] hover:bg-[#3a3b4d] w-full h-full text-lg font-bold text-white transition-colors flex items-center justify-center"
+                                        >
+                                            {num}
+                                        </button>
+                                    ))}
                                     <button
-                                        onClick={handleVoid}
-                                        disabled={voiding || voidPin.length < 4}
-                                        className={`w-full h-12 rounded-sm font-semibold uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 text-xs
-                                        ${voidPin.length === 4 && !voiding
-                                                ? 'bg-rose-600 text-white hover:bg-rose-500  -600/30 active:scale-95'
-                                                : 'bg-white/5 text-gray-700 cursor-not-allowed border border-white/5'}`}
+                                        onClick={() => setVoidPin('')}
+                                        className="bg-[#2d2e3d] hover:bg-[#3a3b4d] w-full h-full text-[10px] font-bold text-white/70 hover:text-white transition-colors uppercase tracking-wider flex items-center justify-center"
                                     >
-                                        {voiding ? (
-                                            <>
-                                                <Loader2 size={20} className="animate-spin" />
-                                                <span>Procesando...</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Trash2 size={18} />
-                                                <span>Confirmar Anulación</span>
-                                            </>
-                                        )}
+                                        Limpiar
+                                    </button>
+                                    <button
+                                        onClick={() => voidPin.length < 4 && setVoidPin(v => v + '0')}
+                                        className="bg-[#2d2e3d] hover:bg-[#3a3b4d] w-full h-full text-lg font-bold text-white transition-colors flex items-center justify-center"
+                                    >
+                                        0
+                                    </button>
+                                    <button
+                                        onClick={() => setVoidPin(v => v.slice(0, -1))}
+                                        className="bg-[#2d2e3d] hover:bg-[#3a3b4d] w-full h-full text-white/70 hover:text-white transition-colors flex items-center justify-center"
+                                    >
+                                        <Backspace size={18} strokeWidth={1.5} />
                                     </button>
                                 </div>
                             </div>
                         </div>
+
+                        {/* Footer Buttons */}
+                        <div className="px-6 pb-6 pt-4 flex justify-center items-center gap-4 shrink-0">
+                            <button
+                                onClick={() => { setShowVoidModal(false); setVoidPin(''); }}
+                                className="h-12 px-12 bg-transparent border border-white/10 text-[13px] font-bold tracking-[0.15em] text-white/70 hover:text-white hover:bg-white/5 transition-colors uppercase rounded-md"
+                            >
+                                CANCELAR
+                            </button>
+                            <button
+                                onClick={handleVoid}
+                                disabled={voiding || voidPin.length < 4}
+                                className={`h-12 px-12 text-[13px] font-bold tracking-[0.15em] transition-colors uppercase rounded-md flex items-center justify-center gap-2
+                                ${voidPin.length === 4 && !voiding
+                                        ? 'bg-[#5c60f5] text-white hover:bg-[#4b4ed6] active:scale-95'
+                                        : 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/5'}`}
+                            >
+                                {voiding ? (
+                                    <>
+                                        <Loader2 size={16} className="animate-spin" />
+                                        <span>PROCESANDO...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Trash2 size={16} strokeWidth={1.5} />
+                                        <span>ACEPTAR</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </div>
-                )
-            }
+                </div>
+            )}
 
             {/* WhatsApp Modal */}
             {/* WhatsApp Modal */}
@@ -1039,7 +1023,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                         {/* Dashboard Header */}
                         <div className="bg-[#3a3b4d] h-10 px-3 flex justify-between items-center shrink-0 select-none rounded-none border-b border-white/5">
                             <span className="text-white text-[11px] font-semibold uppercase tracking-wider">Compartir por WhatsApp</span>
-                            <button 
+                            <button
                                 onClick={() => { setShowWhatsAppModal(false); setWhatsAppPhone(''); setWhatsAppRecord(null); setWhatsAppError(''); }}
                                 className="w-8 h-8 flex items-center justify-center hover:bg-white/5 text-gray-400 hover:text-white transition-all rounded-none"
                                 title="Cerrar"
@@ -1137,7 +1121,7 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                                 ) : (
                                     <>
                                         <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 fill-current">
-                                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
                                         </svg>
                                         <span>Aceptar</span>
                                     </>

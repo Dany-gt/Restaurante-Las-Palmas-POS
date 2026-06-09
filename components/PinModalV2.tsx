@@ -78,7 +78,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                 onClose();
             } else {
                 setError('PIN incorrecto o usuario no autorizado');
-                
+
                 // Logging: Failed PIN Attempt
                 await registrarAuditoria({
                     modulo: 'SEGURIDAD',
@@ -94,12 +94,12 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                         failureReason: 'PIN incorrecto o usuario no autorizado'
                     }
                 }, { id: 'unknown', name: 'Intento Fallido', role: 'UNKNOWN' } as any);
-                
+
                 setPin('');
             }
         } catch (error: any) {
             setError('Error de validación');
-            
+
             // Logging: Validation Error
             await registrarAuditoria({
                 modulo: 'SEGURIDAD',
@@ -233,7 +233,7 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                         <p className="text-gray-400 text-xs text-center mt-2 px-4">
                             Se ha enviado una notificación al administrador. La pantalla se desbloqueará sola.
                         </p>
-                        <button 
+                        <button
                             onClick={() => { setRemoteStatus('idle'); setLoading(false); setError(''); }}
                             className="mt-6 text-xs text-gray-500 hover:text-white border border-gray-700 rounded-md px-4 py-2 transition-colors"
                         >
@@ -254,74 +254,74 @@ export const PinModalV2: React.FC<PinModalProps> = ({
                     <>
                         <div className="grid grid-cols-3 gap-2.5 relative z-10 place-items-center">
                             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((key) => (
-                        <button
-                            key={key}
-                            onClick={() => handlePinInput(key.toString())}
-                            disabled={loading}
-                            className="
+                                <button
+                                    key={key}
+                                    onClick={() => handlePinInput(key.toString())}
+                                    disabled={loading}
+                                    className="
                                 group relative w-16 h-14 rounded-md text-xl font-medium text-white/90 
                                 transition-all duration-100 active:scale-95 flex items-center justify-center 
                                 bg-white/5 hover:bg-white/10 border border-white/5
                                  disabled:opacity-50 disabled:pointer-events-none
                             "
-                        >
-                            <span className="relative z-10">{key}</span>
-                        </button>
-                    ))}
+                                >
+                                    <span className="relative z-10">{key}</span>
+                                </button>
+                            ))}
 
-                    <button
-                        onClick={() => setPin('')}
-                        disabled={loading}
-                        className="
+                            <button
+                                onClick={() => setPin('')}
+                                disabled={loading}
+                                className="
                             group relative w-16 h-14 rounded-md text-[10px] font-semibold text-gray-400 
                             transition-all duration-100 active:scale-95 flex items-center justify-center 
                             bg-white/5 hover:bg-white/10 border border-white/5
                             disabled:opacity-50 disabled:pointer-events-none
                         "
-                    >
-                        BORRAR
-                    </button>
+                            >
+                                BORRAR
+                            </button>
 
-                    <button
-                        onClick={() => handlePinInput('0')}
-                        disabled={loading}
-                        className="
+                            <button
+                                onClick={() => handlePinInput('0')}
+                                disabled={loading}
+                                className="
                             group relative w-16 h-14 rounded-md text-xl font-medium text-white/90 
                             transition-all duration-100 active:scale-95 flex items-center justify-center 
                             bg-white/5 hover:bg-white/10 border border-white/5
                              disabled:opacity-50 disabled:pointer-events-none
                         "
-                    >
-                        0
-                    </button>
+                            >
+                                0
+                            </button>
 
-                    <button
-                        onClick={handleSubmit}
-                        disabled={loading}
-                        className="
+                            <button
+                                onClick={handleSubmit}
+                                disabled={loading}
+                                className="
                             group relative w-16 h-14 rounded-md text-sm font-semibold text-white 
                             transition-all duration-100 active:scale-95 flex items-center justify-center 
                             bg-white hover:bg-white/90 border border-white 
                              disabled:opacity-50 disabled:pointer-events-none
                         "
-                    >
-                        {loading ? <Loader2 className="animate-spin text-black" size={20} /> : <span className="text-black">OK</span>}
-                    </button>
-                </div>
+                            >
+                                {loading ? <Loader2 className="animate-spin text-black" size={20} /> : <span className="text-black">OK</span>}
+                            </button>
+                        </div>
 
-                {remoteAuthEnabled && authPayload && (
-                    <div className="mt-4 pt-4 border-t border-white/5 relative z-10">
-                        <button
-                            onClick={handleRemoteAuthRequest}
-                            disabled={loading}
-                            className="w-full py-3 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-md text-xs font-medium uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-                        >
-                            <Send size={14} />
-                            Solicitar Autorización Remota
-                        </button>
-                    </div>
-                )}
-                </>
+                        {remoteAuthEnabled && authPayload && (
+                            <div className="mt-4 pt-4 border-t border-white/5 relative z-10">
+                                <button
+                                    onClick={handleRemoteAuthRequest}
+                                    disabled={loading}
+                                    className="w-full py-3 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-md text-xs font-medium uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                                >
+                                    <Send size={14} />
+                                    Solicitar Autorización Remota
+                                </button>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>

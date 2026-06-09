@@ -640,7 +640,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
 
               <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto w-full">
                 {[
-                  { id: 'CAJERO', icon: <CashRegisterIcon size={24} />, label: 'Cajero' },
+                  { id: 'CAJERO', icon: <CajaIcon size={24} />, label: 'Cajero' },
                   { id: 'MESERO', icon: <Users size={24} />, label: 'Mesero' },
                   { id: 'COCINA', icon: <ChefHat size={24} />, label: 'KDS' },
                   { id: 'ADMIN', icon: <ShieldCheck size={24} />, label: 'Admin' },
@@ -952,8 +952,8 @@ Generado: ${new Date().toLocaleString('es-GT')}
                   >
                     {/* Dot indicador */}
                     <div className={`w-3 h-3 rounded-full flex-shrink-0 ${openShiftUserIds.includes(reg.id)
-                        ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.7)]'
-                        : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]'
+                      ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.7)]'
+                      : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]'
                       }`} />
                     {/* Icono caja */}
                     <div className="text-gray-400 group-hover:text-white transition-colors flex-shrink-0">
@@ -1015,7 +1015,7 @@ Generado: ${new Date().toLocaleString('es-GT')}
         ) : (
           <>
             {/* LEFT PANEL: LOGIN FORM (Sin transición y con forced GPU comp para evitar glitch de estática) */}
-            <div 
+            <div
               className="w-full sm:w-[380px] flex-shrink-0 flex flex-col p-6 sm:p-10 relative z-20 bg-[#23242f] border-b sm:border-b-0 sm:border-r border-white/5 rounded-t-[4px] sm:rounded-t-none sm:rounded-l-[4px]"
               style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden', willChange: 'transform' }}
             >
@@ -1376,8 +1376,8 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 <button
                   onClick={() => setSelectedRegisterForClose('ALL')}
                   className={`h-14 border rounded-[4px] flex items-center justify-center p-4 transition-all ${selectedRegisterForClose === 'ALL'
-                      ? 'bg-white/10 border-white/20'
-                      : 'bg-[#383b4d] border-white/5 hover:bg-white/5'
+                    ? 'bg-white/10 border-white/20'
+                    : 'bg-[#383b4d] border-white/5 hover:bg-white/5'
                     }`}
                 >
                   <span className="font-medium text-xs text-white tracking-wide text-center">Todas las Cajas</span>
@@ -1389,8 +1389,8 @@ Generado: ${new Date().toLocaleString('es-GT')}
                     key={reg.id}
                     onClick={() => setSelectedRegisterForClose(reg.id)}
                     className={`h-14 border rounded-[4px] flex items-center justify-center p-4 transition-all text-center ${selectedRegisterForClose === reg.id
-                        ? 'bg-white/10 border-white/20'
-                        : 'bg-[#383b4d] border-white/5 hover:bg-white/5'
+                      ? 'bg-white/10 border-white/20'
+                      : 'bg-[#383b4d] border-white/5 hover:bg-white/5'
                       }`}
                   >
                     <span className="font-medium text-xs text-white tracking-wide leading-tight">{reg.name}</span>
@@ -1468,13 +1468,13 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 Restaurante Las Palmas POS
               </span>
             </div>
-            
+
             {/* Body */}
             <div className="p-6 flex flex-col items-center gap-6">
               <p className="text-white text-[13px] font-semibold text-center leading-relaxed px-2">
                 {boxLockedError}
               </p>
-              
+
               <button
                 onClick={() => setBoxLockedError(null)}
                 className="w-[150px] h-[38px] bg-[#5c6bc0] hover:bg-[#4c5bb0] text-white font-medium text-[11px] uppercase tracking-[0.2em] rounded-[6px] transition-all active:scale-[0.97] shadow-lg flex items-center justify-center"

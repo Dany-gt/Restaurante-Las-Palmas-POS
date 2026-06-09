@@ -74,8 +74,32 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
         setCurrentTip(order.tip_amount || 0);
         setTipMethod(((order as any).tip_method as 'EFECTIVO' | 'TARJETA' | 'OTROS' | null) || null);
     }, [order]);
+
+    const [dbDiscounts, setDbDiscounts] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchDiscounts = async () => {
+            const { data } = await supabase.from('discount_types').select('*');
+            if (data) setDbDiscounts(data);
+        };
+        fetchDiscounts();
+    }, []);
     const [processing, setProcessing] = useState(false);
-    const [terminals, setTerminals] = useState<POSTerminal[]>([]);
+    const [terminals, setTerminals] = useState<POSTerminal[]>(() => {
+        const cached = localStorage.getItem('cached_pos_terminals');
+        if (cached) {
+            try {
+                let data = JSON.parse(cached);
+                if (currentUser?.branch_id) {
+                    data = data.filter((pos: any) => pos.branch_id === currentUser.branch_id || !pos.branch_id);
+                }
+                return data;
+            } catch (e) {
+                return [];
+            }
+        }
+        return [];
+    });
     const [invoiceSuccess, setInvoiceSuccess] = useState(false);
     const [invoicePdfUrl, setInvoicePdfUrl] = useState<string | undefined>(undefined);
     const [existingInvoice, setExistingInvoice] = useState<any>(null);
@@ -145,6 +169,17 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
         .filter((i: any) => i.status !== 'voided' && i.status !== 'cancelled')
         .reduce((acc: number, i: any) => acc + ((i.unit_price || i.price || 0) * i.quantity), 0);
     const subtotal = order.subtotal && order.subtotal > 0 ? order.subtotal : computedSubtotal;
+
+    const items = order.items || (order as any).order_items || [];
+    const accumulatedItemDiscounts = items
+        .filter((i: any) => i.status !== 'voided' && i.status !== 'cancelled')
+        .reduce((acc: number, i: any) => acc + (i.discount_amount || 0), 0);
+    const hasGlobalDiscountOnly = accumulatedItemDiscounts === 0 && discount > 0;
+
+    const matchingDisc = (order as any).discount_id ? dbDiscounts.find(d => d.id === (order as any).discount_id) : null;
+    const affectsTip = (order as any).discount_id 
+        ? (matchingDisc ? (matchingDisc.afecta_propina ?? false) : false)
+        : (hasGlobalDiscountOnly ? false : true);
 
     // Calcular IVA dinámico basado en subtotal después de descuento
     const taxRate = parseFloat(settings?.tax_percentage || '12') / 100;
@@ -357,7 +392,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
     const handleTipConfirm = (method: 'EFECTIVO' | 'TARJETA' | 'OTROS', tipAmount: number) => {
         // Calculate the suggested 10% tip using SAME LOGIC as handlePropinaAction
         const suggestedTipRate = (settings?.suggested_tip || 10) / 100;
-        const rawSuggested = subtotalAfterDiscount * suggestedTipRate;
+        const subtotalForTip = affectsTip ? subtotalAfterDiscount : (subtotal - accumulatedItemDiscounts);
+        const rawSuggested = subtotalForTip * suggestedTipRate;
         const suggestedAmount = settings?.round_tip
             ? Math.round(rawSuggested)
             : parseFloat(rawSuggested.toFixed(2));
@@ -919,8 +955,9 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     total: total,
                     tip_amount: currentTip,
                     tip_method: finalTipMethod,
-                    subtotal: subtotal - tax,
+                    subtotal: subtotalAfterDiscount - tax,
                     tax_amount: tax,
+                    discount_amount: discount,
                     is_contingency: customer.is_contingency || false,
                     cashier_id: currentUser?.id,
                     cash_amount: breakdown.cash_amount,
@@ -1398,13 +1435,19 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                                         onClick={() => setSelectedTerminal(pos)}
                                         className={`relative flex flex-col rounded-lg overflow-hidden transition-all active:scale-95 ${selectedTerminal?.id === pos.id ? 'ring-2 ring-white ' : 'ring-1 ring-white/10 hover:ring-white/30 shadow'}`}
                                     >
-                                        <div className="w-full bg-white h-24 flex items-center justify-center p-4">
-                                            {pos.logo_url ? (
-                                                <img src={getImageUrl(pos.logo_url)} alt={pos.name} className="max-w-full max-h-full object-contain" loading="eager" fetchPriority="high" />
-                                            ) : (
-                                                <div className="flex flex-col items-center gap-2 text-gray-800">
-                                                    <CreditCard size={32} strokeWidth={1.5} />
-                                                </div>
+                                        <div className="w-full bg-white h-24 flex items-center justify-center p-4 relative">
+                                            {/* Icono de tarjeta por defecto (se muestra al instante como placeholder) */}
+                                            <div className="absolute inset-0 flex items-center justify-center text-gray-300">
+                                                <CreditCard size={32} strokeWidth={1.5} />
+                                            </div>
+                                            {pos.logo_url && (
+                                                <img 
+                                                    src={getImageUrl(pos.logo_url)} 
+                                                    alt={pos.name} 
+                                                    className="max-w-full max-h-full object-contain relative z-10 bg-white" 
+                                                    loading="eager" 
+                                                    fetchPriority="high" 
+                                                />
                                             )}
                                         </div>
                                         <div className={`w-full h-9 flex items-center justify-center text-[11px] font-medium uppercase transition-all ${selectedTerminal?.id === pos.id ? 'bg-[#43465b] text-white' : 'bg-[#353746] text-white/80'}`}>

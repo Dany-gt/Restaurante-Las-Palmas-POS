@@ -783,7 +783,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         const uiTaxAmount = subtotalAfterDiscount - (subtotalAfterDiscount / (1 + taxRate));
 
         const tipRate = (orderType === 'TAKEOUT' || orderType === 'DELIVERY') ? 0 : (parseFloat(settings?.suggested_tip || '10') / 100);
-        const currentTipAmount = subtotalAfterDiscount * tipRate;
+        const matchingDisc = discount?.id ? dbDiscounts.find(d => d.id === discount.id) : null;
+        const affectsTip = matchingDisc ? (matchingDisc.afecta_propina ?? false) : (discount?.afecta_propina ?? false);
+        const subtotalForTip = affectsTip ? subtotalAfterDiscount : (currentSubtotal - accumulatedItemDiscounts);
+        const currentTipAmount = subtotalForTip * tipRate;
 
         const ticketData: any = { // Cast to any to accept extended props
             orderId: activeOrderId || 'VIRTUAL',
@@ -845,8 +848,17 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         }
     };
 
-    const [discount, setDiscount] = useState<{ id: string, name: string, percentage: number, value?: number, type?: 'PERCENT' | 'AMOUNT' } | null>(null);
+    const [discount, setDiscount] = useState<{ id: string, name: string, percentage: number, value?: number, type?: 'PERCENT' | 'AMOUNT', afecta_propina?: boolean } | null>(null);
     const [discountReason, setDiscountReason] = useState<string>('');
+    const [dbDiscounts, setDbDiscounts] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchDiscounts = async () => {
+            const { data } = await supabase.from('discount_types').select('*');
+            if (data) setDbDiscounts(data);
+        };
+        fetchDiscounts();
+    }, []);
 
     const handleDiscountApply = async (newDiscount: any, reason: string) => {
         console.log('Applying discount:', newDiscount, reason);
@@ -1044,7 +1056,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
             const currentTaxAmount = subtotalAfterDiscount - (subtotalAfterDiscount / 1.12);
             const tipRate = (orderType === 'TAKEOUT' || orderType === 'DELIVERY') ? 0 : 0.10;
-            const currentTipAmount = subtotalAfterDiscount * tipRate;
+            const matchingDisc = discount?.id ? dbDiscounts.find(d => d.id === discount.id) : null;
+            const affectsTip = matchingDisc ? (matchingDisc.afecta_propina ?? false) : (discount?.afecta_propina ?? false);
+            const subtotalForTip = affectsTip ? subtotalAfterDiscount : (currentSubtotal - accumulatedItemDiscounts);
+            const currentTipAmount = subtotalForTip * tipRate;
 
             // Distribute global discount proportionally across items for the invoice (simplification: deduct item discount, then global proportionally)
             const invoiceItems = billingService.buildInvoiceItems(
@@ -1089,7 +1104,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                         const oGlobalDisc = currentSubtotal > 0 ? (oSubtotal / currentSubtotal) * invoiceGlobalDiscount : 0;
                         const oSubtotalAfterDisc = Math.max(0, oSubtotal - (oAccDiscounts + oGlobalDisc));
                         const oTax = oSubtotalAfterDisc - (oSubtotalAfterDisc / 1.12);
-                        const oTip = oSubtotalAfterDisc * tipRate;
+                        const matchingDisc = discount?.id ? dbDiscounts.find(d => d.id === discount.id) : null;
+                        const affectsTip = matchingDisc ? (matchingDisc.afecta_propina ?? false) : (discount?.afecta_propina ?? false);
+                        const oSubtotalForTip = affectsTip ? oSubtotalAfterDisc : (oSubtotal - oAccDiscounts);
+                        const oTip = oSubtotalForTip * tipRate;
 
                         const orderTotalWithTip = oSubtotalAfterDisc + oTip;
                         const isCash = paymentMethod === 'EFECTIVO';
@@ -1701,7 +1719,8 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             name: 'Descuento Aplicado',
                             percentage: currentOrder.discount_percentage,
                             value: currentOrder.discount_percentage > 0 ? currentOrder.discount_percentage : currentOrder.discount_amount,
-                            type: currentOrder.discount_percentage > 0 ? 'PERCENT' : 'AMOUNT'
+                            type: currentOrder.discount_percentage > 0 ? 'PERCENT' : 'AMOUNT',
+                            afecta_propina: false
                         });
                         setDiscountReason(currentOrder.discount_reason || '');
                     } else {
@@ -2124,7 +2143,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
     const orderType = tableOrders.find(o => o.id === activeOrderId)?.order_type || initialOrder.order_type || 'DINE_IN';
     const tipRate = (orderType === 'TAKEOUT' || orderType === 'DELIVERY') ? 0 : (parseFloat(settings?.suggested_tip || '10') / 100);
-    const rawTip = subtotalAfterDiscount * tipRate;
+    const matchingDisc = discount?.id ? dbDiscounts.find(d => d.id === discount.id) : null;
+    const affectsTip = matchingDisc ? (matchingDisc.afecta_propina ?? false) : (discount?.afecta_propina ?? false);
+    const subtotalForTip = affectsTip ? subtotalAfterDiscount : (subtotal - accumulatedItemDiscounts);
+    const rawTip = subtotalForTip * tipRate;
     const tipAmount = settings?.round_tip ? Math.round(rawTip) : parseFloat(rawTip.toFixed(2));
 
     const currency = (settings?.currency === 'GTQ' || settings?.currency === 'Q') ? 'Q.' : (settings?.currency || 'Q.');
@@ -3630,7 +3652,13 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 });
 
                                 // Free the table
-                                if (table?.id) supabase.from('tables').update({ status: 'available' }).eq('id', table.id).then(() => { }).catch(console.error);
+                                if (table?.id) {
+                                    try {
+                                        await supabase.from('tables').update({ status: 'available' }).eq('id', table.id);
+                                    } catch (err) {
+                                        console.error('Error freeing table:', err);
+                                    }
+                                }
 
                                 // Print cancellation ticket for the first (or only) order — fire-and-forget
                                 const firstCancelled = ordersToCancel[0];
@@ -3670,8 +3698,11 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                     subtotal={discountingItem ? (discountingItem.price * discountingItem.quantity) : subtotal}
                     onApply={handleDiscountApply}
                     currentDiscount={discountingItem ? (discountingItem.discount_id ? { id: discountingItem.discount_id, percentage: discountingItem.discount_percentage || 0, value: discountingItem.discount_type === 'AMOUNT' ? (discountingItem.discount_amount || 0) : (discountingItem.discount_percentage || 0), type: discountingItem.discount_type || 'PERCENT', name: '' } : null) as any : discount}
+                    currentReason={discountingItem ? (discountingItem.discount_reason || '') : (discountReason || '')}
                     title={discountingItem ? `Descuento: ${discountingItem.product_name}` : "Descuento de la Mesa"}
                     itemContext={discountingItem ? "Producto" : "Mesa"}
+                    tipRate={discountingItem ? 0 : tipRate}
+                    roundTip={settings?.round_tip}
                 />
                 <InvoiceModal isOpen={showInvoiceModal} onClose={() => setShowInvoiceModal(false)} onSubmit={handleInvoiceSubmit} total={total + tipAmount} />
 
