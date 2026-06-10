@@ -370,15 +370,15 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 font-sans">
             <div className="bg-[#2d2f3d] w-full max-w-[953px] rounded-lg border border-[#3e4153] overflow-hidden flex flex-col shadow-2xl">
 
-                {/* Header */}
-                <div className="bg-[#383a4c] p-3 flex items-center justify-center border-b border-[#3e4153]">
-                    <span className="text-white font-semibold text-sm tracking-wide">Categorías de Gastos</span>
-                </div>
-
                 <div className="flex" style={{ height: '480px' }}>
 
                     {/* ══════════ LEFT PANEL ══════════ */}
-                    <div className="flex-1 p-3 flex flex-col gap-2 bg-[#2d2f3d]">
+                    <div className="flex-1 flex flex-col bg-[#2d2f3d]">
+                        {/* Title Bar */}
+                        <div className="bg-[#383a4c] h-14 flex items-center justify-center border-b border-[#3e4153] shrink-0">
+                            <span className="text-white font-semibold text-sm tracking-wide">Categorías de Gastos</span>
+                        </div>
+                        <div className="flex-1 p-3 flex flex-col gap-2 min-h-0">
 
                         {/* Search */}
                         <div className="relative shrink-0">
@@ -527,71 +527,77 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                             </button>
                         </div>
                     </div>
-                    {/* ══════════ END LEFT PANEL ══════════ */}
+                </div>
+                {/* ══════════ END LEFT PANEL ══════════ */}
 
                     {/* ══════════ RIGHT PANEL: Numpad ══════════ */}
-                    <div className="w-[337.48px] bg-[#36384a] p-3 flex flex-col gap-3 border-l border-[#2d2f3d]">
+                    <div className="w-[337.48px] bg-[#36384a] flex flex-col border-l border-[#2d2f3d]">
 
-                        {/* Amount display */}
-                        <div
-                            className="bg-[#242533] border border-[#4b4e63] rounded h-12 flex items-center justify-center shrink-0 overflow-hidden cursor-text select-all"
-                            onClick={() => document.getElementById('price-input')?.focus()}
-                        >
-                            <div className="w-full h-full flex items-center justify-center">
-                                <input
-                                    id="price-input"
-                                    type="text"
-                                    inputMode="none" /* Prevent OS virtual keyboard from popping up */
-                                    data-no-keyboard="true"
-                                    value={itemPrice}
-                                    onFocus={(e) => {
-                                        e.target.select();
-                                    }}
-                                    onChange={(e) => {
-                                        const input = e.target;
-                                        const res = parseAndFormatAmount(input.value, itemPrice, input.selectionStart);
-                                        setItemPrice(res.formatted);
-                                        setTimeout(() => {
-                                            input.setSelectionRange(res.cursorPosition, res.cursorPosition);
-                                        }, 0);
-                                    }}
-                                    className="w-full h-full bg-transparent focus:outline-none p-0 m-0 border-none outline-none text-xl font-normal tracking-wide tabular-nums text-center text-white selection:bg-[#0078d7] selection:text-white"
-                                />
+                        {/* Amount display container (aligned with Title Bar) */}
+                        <div className="h-14 flex items-center justify-center px-3 border-b border-[#3e4153] shrink-0">
+                            <div
+                                className="bg-[#242533] border border-[#4b4e63] rounded h-10 w-full flex items-center justify-center overflow-hidden cursor-text select-all"
+                                onClick={() => document.getElementById('price-input')?.focus()}
+                            >
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <input
+                                        id="price-input"
+                                        type="text"
+                                        inputMode="none" /* Prevent OS virtual keyboard from popping up */
+                                        data-no-keyboard="true"
+                                        value={itemPrice}
+                                        onFocus={(e) => {
+                                            e.target.select();
+                                        }}
+                                        onChange={(e) => {
+                                            const input = e.target;
+                                            const res = parseAndFormatAmount(input.value, itemPrice, input.selectionStart);
+                                            setItemPrice(res.formatted);
+                                            setTimeout(() => {
+                                                input.setSelectionRange(res.cursorPosition, res.cursorPosition);
+                                            }, 0);
+                                        }}
+                                        className="w-full h-full bg-transparent focus:outline-none p-0 m-0 border-none outline-none text-xl font-normal tracking-wide tabular-nums text-center text-white selection:bg-[#0078d7] selection:text-white"
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        {/* 4-column Numpad */}
-                        <div className="grid grid-cols-4 gap-0 auto-rows-[78.37px] border-t border-l border-[#4b4e63] rounded overflow-hidden mb-auto">
-                            {/* Row 1 */}
-                            {['7', '8', '9'].map(k => (
-                                <button key={k} onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
-                            ))}
-                            <button onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad('BACKSPACE')} className="bg-transparent hover:bg-rose-500/80 active:bg-rose-500 text-white rounded-none flex items-center justify-center transition-colors border-r border-b border-[#4b4e63] row-span-2">
-                                <Delete size={28} strokeWidth={2.5} />
-                            </button>
+                        <div className="flex-1 p-3 flex flex-col gap-3 min-h-0">
+                            {/* 4-column Numpad */}
+                            <div className="grid grid-cols-4 gap-0 auto-rows-[78.37px] border-t border-l border-[#4b4e63] rounded overflow-hidden mb-auto">
+                                {/* Row 1 */}
+                                {['7', '8', '9'].map(k => (
+                                    <button key={k} onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
+                                ))}
+                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad('BACKSPACE')} className="bg-transparent hover:bg-rose-500/80 active:bg-rose-500 text-white rounded-none flex items-center justify-center transition-colors border-r border-b border-[#4b4e63] row-span-2">
+                                    <Delete size={28} strokeWidth={2.5} />
+                                </button>
 
-                            {/* Row 2 */}
-                            {['4', '5', '6'].map(k => (
-                                <button key={k} onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
-                            ))}
+                                {/* Row 2 */}
+                                {['4', '5', '6'].map(k => (
+                                    <button key={k} onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
+                                ))}
 
-                            {/* Row 3 */}
-                            {['1', '2', '3'].map(k => (
-                                <button key={k} onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
-                            ))}
-                            <button onMouseDown={(e) => e.preventDefault()} onClick={handleAddItem} className="rounded-none flex items-center justify-center transition-all row-span-2 border-r border-b border-[#4b4e63] bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-white cursor-pointer">
-                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                </svg>
-                            </button>
+                                {/* Row 3 */}
+                                {['1', '2', '3'].map(k => (
+                                    <button key={k} onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
+                                ))}
+                                <button onMouseDown={(e) => e.preventDefault()} onClick={handleAddItem} className="rounded-none flex items-center justify-center transition-all row-span-2 border-r border-b border-[#4b4e63] bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-white cursor-pointer">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                    </svg>
+                                </button>
 
-                            {/* Row 4 */}
-                            <button onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad('0')} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63] col-span-2">0</button>
-                            <button onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad('.')} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-3xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">.</button>
+                                {/* Row 4 */}
+                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad('0')} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63] col-span-2">0</button>
+                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad('.')} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-3xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">.</button>
+                            </div>
                         </div>
 
                     </div>
+
                     {/* ══════════ END RIGHT PANEL ══════════ */}
                 </div>
             </div>
