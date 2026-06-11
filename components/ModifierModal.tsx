@@ -218,7 +218,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
       if (currentGroup.max_selection === 1) {
         const withoutOthers = prev.filter(i => i.group_id !== item.group_id);
         return [...withoutOthers, { ...item, quantity: qtyToSet }];
-      } 
+      }
       // Comportamiento de Multi-Selección
       else {
         // Si ya hay otros ítems seleccionados que suman o superan el límite del grupo, no hacemos nada
@@ -273,80 +273,94 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
   const currentGroup = groups.find(g => g.id === selectedGroupId);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#2e303d] animate-fade-in font-['Montserrat']">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#2e303d] animate-fade-in font-sans">
       <div className="w-full h-full bg-[#2e303d] flex overflow-hidden relative">
 
         {/* Left Side (Header + Content) */}
         <div className="flex-1 flex flex-col overflow-hidden relative">
 
-        {/* Header - Left Area Only */}
-        <div className="px-6 py-4 bg-[#2e303d] flex justify-between items-center shrink-0 border-b border-white/5">
-          <button
-            onClick={() => {
-              if (view === 'DETAIL' && groups.length > 1) setView('CATEGORIES');
-              else onClose();
-            }}
-            className="w-14 h-10 bg-[#3e4153] hover:bg-[#464859] text-gray-400 hover:text-white rounded-md transition-all flex items-center justify-center"
-          >
-            <ArrowLeft size={20} />
-          </button>
+          {/* Header - Left Area Only */}
+          <div className="px-6 py-4 bg-[#2e303d] flex justify-between items-center shrink-0 border-b border-white/5">
+            <button
+              onClick={() => {
+                if (view === 'DETAIL' && groups.length > 1) setView('CATEGORIES');
+                else onClose();
+              }}
+              className="w-[2.5cm] h-[1.3cm] bg-[#3e4153] hover:bg-[#464859] text-gray-400 hover:text-white rounded-md transition-all flex items-center justify-center border border-white/5"
+            >
+              <ArrowLeft size={32} strokeWidth={1.5} />
+            </button>
 
-          <div className="flex items-center gap-2 text-[10px] font-medium text-white uppercase tracking-wider">
-            <span>Orden: #{orderNumber || '000'}</span>
-            <span className="text-white/40">|</span>
-            <span>{tableName || 'SIN MESA'}</span>
-            <span className="text-white/40">|</span>
-            <span>Atiende: {waiterName?.toUpperCase() || 'MESERO'}</span>
+            <div className="flex items-center gap-3 text-[11px] sm:text-xs md:text-xs lg:text-sm font-semibold text-white uppercase tracking-wider">
+              <span>Orden: #{orderNumber || '000'}</span>
+              <span className="text-white/40">|</span>
+              <span>{tableName || 'SIN MESA'}</span>
+              <span className="text-white/40">|</span>
+              <span>Atiende: {waiterName?.toUpperCase() || 'MESERO'}</span>
+            </div>
+
+            <button
+              onClick={onClose}
+              title="Regresar al Menú"
+              className="w-[2.5cm] h-[1.3cm] bg-[#3e4153] hover:bg-[#464859] text-green-400 hover:text-green-300 rounded-md transition-all flex items-center justify-center border border-white/5"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="9 14 4 9 9 4" />
+                <path d="M20 20V9H4" />
+              </svg>
+            </button>
           </div>
 
-          <button
-            onClick={onClose}
-            className="w-14 h-10 bg-[#3e4153] hover:bg-[#464859] text-green-400 hover:text-green-300 rounded-md transition-all flex items-center justify-center"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11" /></svg>
-          </button>
-        </div>
-
-        {/* Dynamic Notes Overlay */}
-        {showNotes && (
-          <div className="absolute inset-0 z-[110] bg-black/80  flex items-center justify-center p-4 sm:p-6 animate-fade-in">
-            <div className="w-full max-w-xl bg-[#1c1f26] rounded-xl border border-white/10  /50 p-6 sm:p-8 relative overflow-hidden">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-white/20 text-white/60 rounded-xl flex items-center justify-center border border-white/10">
-                  <FileEdit size={20} />
+          {/* Dynamic Notes Overlay */}
+          {showNotes && (
+            <div className="absolute inset-0 z-[110] bg-black/80  flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+              <div className="w-full max-w-xl bg-[#1c1f26] rounded-xl border border-white/10  /50 p-6 sm:p-8 relative overflow-hidden">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-white/20 text-white/60 rounded-xl flex items-center justify-center border border-white/10">
+                    <FileEdit size={20} />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold text-white uppercase tracking-tight">Instrucciones Especiales</h4>
+                    <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest mt-0.5">Notas opcionales para cocina</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-white uppercase tracking-tight">Instrucciones Especiales</h4>
-                  <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest mt-0.5">Notas opcionales para cocina</p>
+                <textarea
+                  ref={notesRef}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Ej: Término medio, sin sal, etc..."
+                  className="w-full h-32 bg-[#0f1115] border border-white/5 rounded-xl p-4 text-base text-gray-300 placeholder-gray-700 focus:outline-none focus:border-white/20 focus:bg-[#16191f] transition-all resize-none leading-relaxed"
+                />
+                <div className="mt-6 flex gap-3">
+                  <button
+                    onClick={() => setShowNotes(false)}
+                    className="flex-1 bg-white/5 hover:bg-white/10 text-white font-semibold uppercase tracking-widest py-4 rounded-xl transition-all active:scale-95  /5"
+                  >
+                    Confirmar Nota
+                  </button>
+                  <button
+                    onClick={() => { setNotes(''); setShowNotes(false); }}
+                    className="px-6 bg-white/5 hover:bg-white/10 text-gray-400 font-semibold uppercase tracking-widest py-4 rounded-xl transition-all"
+                  >
+                    Limpiar
+                  </button>
                 </div>
-              </div>
-              <textarea
-                ref={notesRef}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Ej: Término medio, sin sal, etc..."
-                className="w-full h-32 bg-[#0f1115] border border-white/5 rounded-xl p-4 text-base text-gray-300 placeholder-gray-700 focus:outline-none focus:border-white/20 focus:bg-[#16191f] transition-all resize-none leading-relaxed"
-              />
-              <div className="mt-6 flex gap-3">
-                <button
-                  onClick={() => setShowNotes(false)}
-                  className="flex-1 bg-white/5 hover:bg-white/10 text-white font-semibold uppercase tracking-widest py-4 rounded-xl transition-all active:scale-95  /5"
-                >
-                  Confirmar Nota
-                </button>
-                <button
-                  onClick={() => { setNotes(''); setShowNotes(false); }}
-                  className="px-6 bg-white/5 hover:bg-white/10 text-gray-400 font-semibold uppercase tracking-widest py-4 rounded-xl transition-all"
-                >
-                  Limpiar
-                </button>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
           {/* Center: Layered Content */}
-          <div className="flex-1 overflow-y-auto p-12 custom-scrollbar">
+          <div className={`flex-1 overflow-y-auto custom-scrollbar ${view === 'CATEGORIES' ? '' : 'p-12'}`}>
 
             {loading ? (
               <div className="h-full flex flex-col items-center justify-center text-gray-500">
@@ -354,16 +368,12 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                 <span className="text-sm font-semibold uppercase tracking-[0.3em]">Cargando...</span>
               </div>
             ) : view === 'CATEGORIES' ? (
-              <div className="h-full flex flex-col items-center justify-center animate-fade-in py-10 overflow-y-auto custom-scrollbar">
-                <div className="max-w-4xl w-full space-y-16">
-                  {/* Options Section (Up) */}
-                  {groups.filter(g => g.type === 'OPTION').length > 0 && (
-                    <div className="space-y-10">
-                      <div className="hidden items-center gap-6">
-                        <div className="h-[1px] flex-1 bg-white/5" />
-                        <h4 className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.5em] whitespace-nowrap opacity-60">Opciones Seleccionables</h4>
-                        <div className="h-[1px] flex-1 bg-white/5" />
-                      </div>
+              <div className="h-full flex flex-col items-center animate-fade-in overflow-y-auto custom-scrollbar">
+
+                {/* Options Section */}
+                {groups.filter(g => g.type === 'OPTION').length > 0 && (
+                  <div className="flex-1 w-full flex flex-col justify-center py-6">
+                    <div className="max-w-4xl mx-auto w-full px-12">
                       <div className="flex flex-wrap justify-center gap-6">
                         {groups.filter(g => g.type === 'OPTION').map(grp => {
                           const qtyInGroup = selectedItems.filter(i => i.group_id === grp.id).reduce((sum, i) => sum + i.quantity, 0);
@@ -375,7 +385,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                                 setSelectedGroupId(grp.id);
                                 setView('DETAIL');
                               }}
-                              className={`group w-64 h-24 rounded-lg transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
+                              className={`group w-[220px] h-20 rounded-md transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
                                 ? 'bg-[#00609a] ring-2 ring-white shadow-lg'
                                 : 'bg-[#004b79] hover:bg-[#005a8f] shadow-md'
                                 }`}
@@ -394,27 +404,23 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                                   </div>
                                 );
                               })()}
-                              {/* Badge de cantidad del grupo eliminado a petición del usuario */}
                             </button>
                           );
                         })}
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Horizontal Separator Line */}
-                  {groups.filter(g => g.type === 'OPTION').length > 0 && groups.filter(g => g.type === 'MODIFIER').length > 0 && (
-                    <div className="w-full h-[1px] bg-white/10 my-8" />
-                  )}
+                {/* Full-width Separator Line — edge to edge */}
+                {groups.filter(g => g.type === 'OPTION').length > 0 && groups.filter(g => g.type === 'MODIFIER').length > 0 && (
+                  <div className="w-full h-[1px] bg-white/15 flex-shrink-0" />
+                )}
 
-                  {/* Modifiers Section (Down) */}
-                  {groups.filter(g => g.type === 'MODIFIER').length > 0 && (
-                    <div className="space-y-10">
-                      <div className="hidden items-center gap-6">
-                        <div className="h-[1px] flex-1 bg-white/5" />
-                        <h4 className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.5em] whitespace-nowrap opacity-60">Modificadores Adicionales</h4>
-                        <div className="h-[1px] flex-1 bg-white/5" />
-                      </div>
+                {/* Modifiers Section */}
+                {groups.filter(g => g.type === 'MODIFIER').length > 0 && (
+                  <div className="flex-1 w-full flex flex-col justify-center py-6">
+                    <div className="max-w-4xl mx-auto w-full px-12">
                       <div className="flex flex-wrap justify-center gap-6">
                         {groups.filter(g => g.type === 'MODIFIER').map(grp => {
                           const qtyInGroup = selectedItems.filter(i => i.group_id === grp.id).reduce((sum, i) => sum + i.quantity, 0);
@@ -423,7 +429,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                             <button
                               key={grp.id}
                               onClick={() => { setSelectedGroupId(grp.id); setView('DETAIL'); }}
-                              className={`group w-64 h-24 rounded-lg transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
+                              className={`group w-[220px] h-20 rounded-md transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
                                 ? 'bg-[#357a80] ring-2 ring-white shadow-lg'
                                 : 'bg-[#2b6469] hover:bg-[#327379] shadow-md'
                                 }`}
@@ -442,14 +448,14 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                                   </div>
                                 );
                               })()}
-                              {/* Badge de cantidad del modificador eliminado a petición del usuario */}
                             </button>
                           );
                         })}
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
+
               </div>
             ) : currentGroup ? (
               <div className="h-full flex flex-col animate-fade-in-right pt-6 px-10">
@@ -459,8 +465,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                     const selection = selectedItems.find(i => i.id === item.id);
                     const qty = selection?.quantity || 0;
                     const grpQty = selectedItems.filter(i => i.group_id === item.group_id).reduce((sum, i) => sum + i.quantity, 0);
-                    const isDisabled = currentGroup.max_selection === 1 
-                      ? false 
+                    const isDisabled = currentGroup.max_selection === 1
+                      ? false
                       : (qty === 0 && currentGroup.max_selection > 0 && grpQty >= currentGroup.max_selection);
 
                     const isMod = currentGroup.type === 'MODIFIER';
@@ -476,7 +482,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                           style={bgColor ? {
                             backgroundColor: bgColor
                           } : undefined}
-                          className={`${isMod ? 'w-44 h-20 rounded-xl gap-1' : 'w-36 h-48 rounded-[16px] gap-1.5'} p-3 transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden ${bgColor
+                          className={`${isMod ? 'w-[220px] h-20 rounded-md gap-1' : 'w-36 h-44 rounded-[16px] gap-1.5'} p-3 transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden ${bgColor
                             ? (qty > 0 ? 'brightness-110 shadow-[0_0_15px_rgba(255,255,255,0.2)] ring-2 ring-white' : 'hover:brightness-110 shadow-md')
                             : (qty > 0
                               ? 'bg-[#40465c] ring-2 ring-white shadow-[0_0_15px_rgba(255,255,255,0.1)]'
@@ -497,7 +503,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                               )}
                             </div>
                           )}
-                          
+
                           {/* Text Container */}
                           <span className={`text-[10px] font-semibold uppercase tracking-tight text-center leading-tight text-white line-clamp-3 px-1 ${!isMod ? 'mt-2' : ''}`}>
                             {item.display_name || item.name}
@@ -520,119 +526,181 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
         </div>
 
         {/* Right: Summary Sidebar */}
-        <div className="w-[340px] bg-[#2e303d] border-l border-white/5 flex flex-col p-4 relative shrink-0">
-            <div className="relative z-10 flex flex-col h-full">
-              {/* Items Detail Area */}
-              <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <div className="bg-[#9093a2] py-2 px-3 flex justify-between items-center shadow-sm mb-1">
-                  <span className="text-xs font-medium text-white uppercase">
-                    {itemQuantity > 1 ? `${itemQuantity} ` : ''}{product.name}
+        <div className="w-[393px] bg-[#2e303d] border-l border-white/5 flex flex-col p-4 relative shrink-0">
+          <div className="relative z-10 flex flex-col h-full">
+            {/* Items Detail Area */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <div className="bg-[#9093a2] py-2 px-3 flex justify-between items-center shadow-sm mb-1">
+                <span className="text-xs font-medium text-white uppercase">
+                  {itemQuantity > 1 ? `${itemQuantity} ` : ''}{product.name}
+                </span>
+                <span className="text-xs font-medium text-white">Q{((Number(product.price) || 0) * itemQuantity).toFixed(2)}</span>
+              </div>
+
+              {selectedItems.map(mod => (
+                <div key={mod.id} className="group flex justify-between items-center py-2 px-3 bg-[#3e4153]/40 border-b border-[#3e4153] hover:bg-[#3e4153]/80 transition-colors">
+                  <span className="text-xs font-medium text-white/90 uppercase pl-3 flex items-center gap-2">
+                    <div className={`w-1.5 h-1.5 rounded-full ${mod.type === 'ADD' ? 'bg-white/60' : 'bg-white/30'}`}></div>
+                    {mod.quantity > 1 ? `${mod.quantity} ` : ''}{mod.display_name || mod.name}
                   </span>
-                  <span className="text-xs font-medium text-white">Q{((Number(product.price) || 0) * itemQuantity).toFixed(2)}</span>
-                </div>
-
-                {selectedItems.map(mod => (
-                  <div key={mod.id} className="group flex justify-between items-center py-2 px-3 bg-[#3e4153]/40 border-b border-[#3e4153] hover:bg-[#3e4153]/80 transition-colors">
-                    <span className="text-xs font-medium text-white/90 uppercase pl-3 flex items-center gap-2">
-                      <div className={`w-1.5 h-1.5 rounded-full ${mod.type === 'ADD' ? 'bg-white/60' : 'bg-white/30'}`}></div>
-                      {mod.quantity > 1 ? `${mod.quantity} ` : ''}{mod.display_name || mod.name}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-white">
+                      Q{((Number(mod.extra_price) || 0) * (mod.quantity || 1)).toFixed(2)}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-white">
-                        Q{((Number(mod.extra_price) || 0) * (mod.quantity || 1)).toFixed(2)}
-                      </span>
-                      <button onClick={() => decrementItem(mod)} className="opacity-0 group-hover:opacity-100 p-1 text-white/50 hover:text-white transition-all">
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
+                    <button onClick={() => decrementItem(mod)} title="Eliminar Modificador" className="opacity-0 group-hover:opacity-100 p-1 text-white/50 hover:text-white transition-all">
+                      <Trash2 size={14} />
+                    </button>
                   </div>
-                ))}
+                </div>
+              ))}
 
-                {notes && (
-                  <div className="mt-3 p-3 bg-white/5 rounded border border-white/10">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-[10px] font-medium text-white/50 uppercase">Notas</span>
-                      <button onClick={() => setNotes('')} className="text-[10px] font-medium text-white/40 hover:text-white">Limpiar</button>
-                    </div>
-                    <p className="text-xs text-white/90">"{notes}"</p>
+              {notes && (
+                <div className="mt-3 p-3 bg-white/5 rounded border border-white/10">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[10px] font-medium text-white/50 uppercase">Notas</span>
+                    <button onClick={() => setNotes('')} className="text-[10px] font-medium text-white/40 hover:text-white">Limpiar</button>
                   </div>
-                )}
+                  <p className="text-xs text-white/90">"{notes}"</p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Actions */}
+            <div className="mt-3 flex flex-col gap-2.5">
+              {/* Row 1: Square Action Buttons */}
+              <div className="grid grid-cols-4 gap-2 h-[71px]">
+                <button
+                  onClick={() => setShowNotes(true)}
+                  title="Agregar / Editar Nota Especial"
+                  className="bg-white/5 border border-white/10 rounded-none flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/10"
+                >
+                  <FileEdit size={32} strokeWidth={1.5} />
+                </button>
+                <button
+                  onClick={() => { setNotes(''); setSelectedItems([]); setItemQuantity(1); }}
+                  title="Limpiar Selección y Notas"
+                  className="bg-white/5 border border-white/10 rounded-none flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/10"
+                >
+                  <Trash2 size={32} strokeWidth={1.5} />
+                </button>
+                <button
+                  onClick={() => setItemQuantity(prev => Math.max(1, prev - 1))}
+                  title="Restar Cantidad"
+                  className="bg-white/5 border border-white/10 rounded-none flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/10"
+                >
+                  <Minus size={32} strokeWidth={1.5} />
+                </button>
+                <button
+                  onClick={() => setItemQuantity(prev => prev + 1)}
+                  title="Sumar Cantidad"
+                  className="bg-white/5 border border-white/10 rounded-none flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/10"
+                >
+                  <Plus size={32} strokeWidth={1.5} />
+                </button>
               </div>
 
-              {/* Footer Actions */}
-              <div className="mt-4 flex flex-col gap-3">
-                {/* Row 1: Square Action Buttons */}
-                <div className="flex justify-center gap-4 mb-3">
-                  <button
-                    onClick={() => setShowNotes(true)}
-                    className="w-12 h-12 bg-transparent border border-white/20 rounded-sm flex items-center justify-center text-gray-400 hover:bg-[#3e4153] hover:text-white transition-all"
-                  >
-                    <FileEdit size={24} className="scale-x-[-1]" />
-                  </button>
-                  <button
-                    onClick={() => { setNotes(''); setSelectedItems([]); setItemQuantity(1); }}
-                    className="w-12 h-12 bg-transparent border border-white/20 rounded-sm flex items-center justify-center text-gray-400 hover:bg-[#3e4153] hover:text-white transition-all"
-                  >
-                    <Trash2 size={24} />
-                  </button>
-                  <button
-                    onClick={() => setItemQuantity(prev => Math.max(1, prev - 1))}
-                    className="w-12 h-12 bg-transparent border border-white/20 rounded-sm flex items-center justify-center text-gray-400 hover:bg-[#3e4153] hover:text-white transition-all"
-                  >
-                    <Minus size={24} />
-                  </button>
-                  <button
-                    onClick={() => setItemQuantity(prev => prev + 1)}
-                    className="w-12 h-12 bg-transparent border border-white/20 rounded-sm flex items-center justify-center text-gray-400 hover:bg-[#3e4153] hover:text-white transition-all"
-                  >
-                    <Plus size={24} />
-                  </button>
-                </div>
+              {/* Row 2: Main Confirmation & Price */}
+              <div className="flex items-center justify-between p-2 bg-[#3a3b4d] rounded-md border border-white/10 shadow-sm">
+                <button
+                  disabled={getValidationErrors().length > 0}
+                  onClick={() => {
+                    const transformedModifiers = selectedItems.map(item => ({
+                      ...item,
+                      name: item.name,
+                      price: item.extra_price,
+                      item_quantity: item.quantity
+                    }));
+                    onConfirm(product, transformedModifiers, notes, itemQuantity);
+                    onClose();
+                  }}
+                  className="flex flex-col items-center justify-center w-[125px] h-[120px] bg-transparent border border-white/40 rounded-lg hover:bg-white/5 disabled:opacity-30 transition-all gap-1.5"
+                >
+                  <svg viewBox="0 0 100 100" className="w-[72px] h-[72px]" stroke="none" fill="none">
+                    <defs>
+                      <mask id="cutlery-mask">
+                        {/* Make everything visible */}
+                        <rect x="0" y="0" width="100" height="100" fill="#ffffff" />
+                        {/* Erase the circle line inside the fork handle */}
+                        <rect x="33.25" y="80" width="4.5" height="10" fill="#000000" />
+                        {/* Erase the circle line inside the spoon handle */}
+                        <rect x="62.25" y="80" width="4.5" height="10" fill="#000000" />
+                      </mask>
+                    </defs>
+                    <style>{`
+                      .solid-cutlery {
+                        fill: none !important;
+                        stroke: #ffffff !important;
+                        stroke-width: 2.5px !important;
+                        stroke-linecap: round !important;
+                        stroke-linejoin: round !important;
+                      }
+                      .ring-line {
+                        fill: none !important;
+                        stroke: #ffffff !important;
+                        stroke-width: 2.5px !important;
+                      }
+                    `}</style>
+                    {/* Outer Ring */}
+                    <circle cx="50" cy="50" r="44" className="ring-line" />
 
-                {/* Row 2: Main Confirmation & Price */}
-                <div className="flex items-center justify-between p-3 bg-[#333543] rounded-md border border-white/5 shadow-sm mt-1">
-                  <button
-                    disabled={getValidationErrors().length > 0}
-                    onClick={() => {
-                      const transformedModifiers = selectedItems.map(item => ({
-                        ...item,
-                        name: item.name,
-                        price: item.extra_price,
-                        item_quantity: item.quantity
-                      }));
-                      onConfirm(product, transformedModifiers, notes, itemQuantity);
-                      onClose();
-                    }}
-                    className="flex flex-col items-center justify-center w-[85px] h-[85px] bg-transparent border border-white/30 rounded-md hover:bg-white/5 disabled:opacity-30 transition-all"
-                  >
-                    <div className="w-12 h-12 border border-white rounded-full flex items-center justify-center mb-1">
-                      <Utensils size={28} className="text-white" />
-                    </div>
-                    <span className="text-[8px] font-medium text-white uppercase text-center px-1 leading-tight">
-                      {getValidationErrors().length > 0 ? 'Faltan' : 'Enviar a\nComanda'}
-                    </span>
-                  </button>
+                    {/* Inner Ring - Perfect Circle with Mask applied */}
+                    <circle cx="50" cy="50" r="37" className="ring-line" mask="url(#cutlery-mask)" />
 
-                  <div className="text-right flex-1 pl-4">
-                    <p className="text-[10px] font-medium text-white/50 uppercase mb-2 border-b border-white/10 border-dashed pb-1 inline-block min-w-16">Sub-Total</p>
-                    <p className="text-xl font-medium text-white tabular-nums block">
+                    {/* Fork (left) - Left outer boundary */}
+                    <path
+                      d="M 27.5 30 L 27.5 50 C 27.5 56, 32 58, 32 60 L 32 82.3"
+                      className="solid-cutlery"
+                    />
+
+                    {/* Fork (left) - Right outer boundary */}
+                    <path
+                      d="M 39 85.3 L 39 60 C 39 58, 43.5 56, 43.5 50 L 43.5 30"
+                      className="solid-cutlery"
+                    />
+
+                    {/* Fork (left) - Middle prongs */}
+                    <path
+                      d="M 32.8 30 L 32.8 54"
+                      className="solid-cutlery"
+                    />
+                    <path
+                      d="M 38.2 30 L 38.2 54"
+                      className="solid-cutlery"
+                    />
+
+                    {/* Spoon (right) - Seamless path ending on the circle points */}
+                    <path
+                      d="M 61 85.3 L 61 62 C 59 60, 56.5 58, 56.5 52 C 56.5 46, 56.5 30, 64.5 30 C 72.5 30, 72.5 46, 72.5 52 C 72.5 58, 70 60, 68 62 L 68 82.3"
+                      className="solid-cutlery"
+                    />
+                  </svg>
+                  <span className="text-[10px] font-bold text-white uppercase tracking-wider text-center px-1 whitespace-nowrap">
+                    {getValidationErrors().length > 0 ? 'Faltan' : 'Enviar a Comanda'}
+                  </span>
+                </button>
+
+                <div className="flex-1 flex flex-col justify-end pl-4 pb-1 h-[120px]">
+                  <div className="flex justify-between items-baseline border-t border-white/10 border-dashed pt-1 w-full">
+                    <span className="text-[11px] font-semibold text-white">Sub-Total</span>
+                    <span className="text-[11px] font-semibold text-white tabular-nums">
                       Q{(calculateTotal() || 0).toFixed(2)}
-                    </p>
+                    </span>
                   </div>
                 </div>
-
-                {getValidationErrors().length > 0 && (
-                  <div className="space-y-1 mt-1">
-                    {getValidationErrors().map((err, i) => (
-                      <p key={i} className="text-[9px] font-medium text-red-400 uppercase flex items-center gap-1">
-                        <X size={10} /> {err}
-                      </p>
-                    ))}
-                  </div>
-                )}
               </div>
+
+              {getValidationErrors().length > 0 && (
+                <div className="space-y-1 mt-1">
+                  {getValidationErrors().map((err, i) => (
+                    <p key={i} className="text-[9px] font-medium text-red-400 uppercase flex items-center gap-1">
+                      <X size={10} /> {err}
+                    </p>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
+        </div>
       </div>
     </div>
   );

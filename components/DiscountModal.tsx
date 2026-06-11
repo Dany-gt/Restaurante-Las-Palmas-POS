@@ -367,7 +367,7 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({
                     <div className="flex-1 flex flex-col p-6 pr-4">
                         {/* Title Bar */}
                         <div className="w-full bg-[#3a3b4d] py-2.5 mb-4 flex items-center justify-center">
-                            <h3 className="text-[13px] font-medium text-white">Descuentos</h3>
+                            <h3 className="text-[16px] font-semibold text-white tracking-wide">Descuentos</h3>
                         </div>
 
                         {/* Selector de tipo de descuento */}
@@ -378,7 +378,7 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({
                                 style={{ width: '166.30px' }}
                                 className={`h-12 text-[11px] font-bold uppercase tracking-[0.15em] transition-colors border rounded-md ${discountType === 'AMOUNT'
                                     ? 'bg-[#5c60f5] border-[#5c60f5] text-white'
-                                    : 'bg-[#3a3b4d] border-transparent text-white/70 hover:bg-[#45465a]'
+                                    : 'bg-[#3a3b4d] border-transparent text-white hover:bg-[#45465a]'
                                     }`}
                             >
                                 Descuento (Q)
@@ -389,7 +389,7 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({
                                 style={{ width: '166.30px' }}
                                 className={`h-12 text-[11px] font-bold uppercase tracking-[0.15em] transition-colors border rounded-md ${discountType === 'PERCENT'
                                     ? 'bg-[#5c60f5] border-[#5c60f5] text-white'
-                                    : 'bg-[#3a3b4d] border-transparent text-white/70 hover:bg-[#45465a]'
+                                    : 'bg-[#3a3b4d] border-transparent text-white hover:bg-[#45465a]'
                                     }`}
                             >
                                 Descuento (%)
@@ -435,11 +435,11 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({
 
                     {/* Right Column: Keypad */}
                     <div className="relative py-6 pr-6 pl-4 flex flex-col gap-3 ml-auto before:content-[''] before:absolute before:left-0 before:top-6 before:bottom-8 before:w-px before:bg-white/5">
-                        {/* Display del teclado */}
                         <div
-                            className="bg-black/30 border border-white/10 h-14 flex items-center justify-center px-4 shrink-0 overflow-hidden cursor-text select-all"
+                            className="bg-black/30 border border-white/10 h-14 flex items-center justify-center px-4 shrink-0 overflow-hidden cursor-text select-text"
                             style={{ width: '309px' }}
                             onClick={() => document.getElementById('discount-input')?.focus()}
+                            onContextMenu={(e) => e.preventDefault()}
                         >
                             <div className="w-full h-full flex items-center justify-center">
                                 <input
@@ -455,7 +455,11 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({
                                     onSelect={(e) => setCursorPos(e.currentTarget.selectionStart ?? e.currentTarget.value.length)}
                                     onKeyUp={(e) => setCursorPos(e.currentTarget.selectionStart ?? e.currentTarget.value.length)}
                                     onMouseUp={(e) => setCursorPos(e.currentTarget.selectionStart ?? e.currentTarget.value.length)}
-                                    onTouchEnd={(e) => setCursorPos(e.currentTarget.selectionStart ?? e.currentTarget.value.length)}
+                                    onTouchStart={(e) => {
+                                        e.preventDefault();
+                                        document.getElementById('discount-input')?.focus();
+                                    }}
+                                    onContextMenu={(e) => e.preventDefault()}
                                     onChange={(e) => {
                                         if (!discountType) {
                                             alert('Por favor, seleccione Descuento (Q) o Descuento (%) primero.');
@@ -528,10 +532,10 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({
                             <button
                                 onMouseDown={(e) => e.preventDefault()}
                                 onClick={handleReset}
-                                className="h-10 bg-transparent border border-white/10 hover:bg-white/5 text-[13px] font-bold text-white/70 hover:text-white transition-colors uppercase tracking-[0.15em] shrink-0 rounded-md"
+                                className="h-12 bg-transparent border border-white/10 hover:bg-white/5 text-[20px] font-bold text-white transition-colors tracking-wide shrink-0 rounded-md"
                                 style={{ width: '309px' }}
                             >
-                                REINICIAR
+                                Reiniciar
                             </button>
                         </div>
                     </div>
@@ -542,7 +546,7 @@ export const DiscountModal: React.FC<DiscountModalProps> = ({
                 <div className="px-6 pb-6 pt-4 flex justify-center items-center gap-4">
                     <button
                         onClick={onClose}
-                        className="h-12 px-12 bg-transparent border border-white/10 text-[13px] font-bold tracking-[0.15em] text-white/70 hover:text-white hover:bg-white/5 transition-colors uppercase rounded-md"
+                        className="h-12 px-12 bg-transparent border border-white/10 text-[13px] font-bold tracking-[0.15em] text-white hover:text-white hover:bg-white/5 transition-colors uppercase rounded-md"
                     >
                         CANCELAR
                     </button>

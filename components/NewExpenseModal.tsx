@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Trash2, ShoppingCart, Delete, ArrowUp, ArrowDown } from 'lucide-react';
+import { Search, Trash2, ShoppingCart, Delete, ArrowUp, ArrowDown, FileText, List } from 'lucide-react';
 import { supabase } from '../supabase';
 import { User } from '../types';
 import { printService } from '../services/PrintService';
@@ -99,6 +99,8 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
     const [itemName, setItemName] = useState('');
     const [items, setItems] = useState<ExpenseItem[]>([]);
     const [loading, setLoading] = useState(false);
+    const [selStart, setSelStart] = useState(2);
+    const [selEnd, setSelEnd] = useState(2);
 
     const categoryScrollRef = useRef<HTMLDivElement>(null);
     const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -153,20 +155,23 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
             if (input) {
                 input.focus();
                 input.select();
+                setSelStart(0);
+                setSelEnd(5);
             }
         }, 100);
         return () => clearTimeout(timer);
     }, []);
 
     const handleKeyPad = (key: string) => {
+        const input = document.getElementById('price-input') as HTMLInputElement;
+        if (input) {
+            input.focus();
+            input.setSelectionRange(selStart, selEnd);
+        }
+        
         setItemPrice(prev => {
-            const input = document.getElementById('price-input') as HTMLInputElement;
-            let cursorStart = prev.length;
-            let cursorEnd = prev.length;
-            if (input && document.activeElement === input) {
-                cursorStart = input.selectionStart ?? prev.length;
-                cursorEnd = input.selectionEnd ?? prev.length;
-            }
+            let cursorStart = selStart;
+            let cursorEnd = selEnd;
             
             let newVal = prev;
             let selectionStart: number | null = null;
@@ -203,8 +208,12 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
             
             const res = parseAndFormatAmount(newVal, prev, selectionStart);
             
-            if (input && document.activeElement === input) {
+            setSelStart(res.cursorPosition);
+            setSelEnd(res.cursorPosition);
+            
+            if (input) {
                 setTimeout(() => {
+                    input.focus();
                     input.setSelectionRange(res.cursorPosition, res.cursorPosition);
                 }, 0);
             }
@@ -370,15 +379,17 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 font-sans">
             <div className="bg-[#2d2f3d] w-full max-w-[953px] rounded-lg border border-[#3e4153] overflow-hidden flex flex-col shadow-2xl">
 
-                <div className="flex" style={{ height: '480px' }}>
+                <div className="flex" style={{ height: '580px' }}>
 
                     {/* ══════════ LEFT PANEL ══════════ */}
                     <div className="flex-1 flex flex-col bg-[#2d2f3d]">
                         {/* Title Bar */}
-                        <div className="bg-[#383a4c] h-14 flex items-center justify-center border-b border-[#3e4153] shrink-0">
-                            <span className="text-white font-semibold text-sm tracking-wide">Categorías de Gastos</span>
+                        <div className="h-16 flex items-center justify-center px-3 shrink-0">
+                            <div className="bg-[#3e4153] border border-[#4b4e63] rounded h-12 w-full flex items-center justify-center">
+                                <span className="text-white font-bold text-base tracking-wide">Categorías de Gastos</span>
+                            </div>
                         </div>
-                        <div className="flex-1 p-3 flex flex-col gap-2 min-h-0">
+                        <div className="flex-1 px-3 pb-3 pt-1 flex flex-col gap-2 min-h-0">
 
                         {/* Search */}
                         <div className="relative shrink-0">
@@ -390,7 +401,7 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Buscar..."
-                                className="w-full bg-[#242533] border border-[#3e4153] rounded-md px-9 py-2 text-white text-sm focus:outline-none focus:border-[#7a73ff] transition-colors placeholder-gray-500 uppercase"
+                                className="w-full bg-transparent border border-[#3e4153] rounded-md px-9 py-2 text-white text-sm focus:outline-none focus:border-[#7a73ff] transition-colors placeholder-gray-500 uppercase"
                             />
                         </div>
 
@@ -421,7 +432,7 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                                     <button
                                         key={cat.id}
                                         onClick={() => setSelectedCategory(cat.name)}
-                                        className={`px-2 py-1 rounded-none text-[11px] font-semibold uppercase tracking-tight transition-all h-[47.62px] flex items-center justify-center text-center leading-tight ${selectedCategory === cat.name
+                                        className={`px-2 py-1 rounded-none text-[13px] font-semibold uppercase tracking-tight transition-all h-[47.62px] flex items-center justify-center text-center leading-tight ${selectedCategory === cat.name
                                                 ? 'bg-[#7a73ff] text-white border-transparent'
                                                 : 'bg-[#3e4153] text-white hover:bg-[#484b5e] border border-transparent'
                                             }`}
@@ -448,9 +459,9 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
 
                         {/* Items List */}
                         <div className="flex-1 flex flex-col min-h-0 bg-[#242533] rounded-md border border-[#3e4153] overflow-hidden">
-                            <div className="px-3 py-1 bg-[#2d2f3d]/50 border-b border-[#3e4153] shrink-0 flex items-center gap-2">
-                                <ShoppingCart size={13} className="text-[#7a73ff]" />
-                                <span className="text-[10px] font-semibold text-[#7a73ff] uppercase tracking-wider">Detalle del Gasto</span>
+                            <div className="px-3 py-1 bg-[#3e4153] border-b border-[#3e4153] shrink-0 flex items-center gap-2">
+                                <ShoppingCart size={13} className="text-white" />
+                                <span className="text-[10px] font-semibold text-white uppercase tracking-wider">Detalle del Gasto</span>
                             </div>
                             <div className="flex-1 overflow-y-auto p-1.5 space-y-1 custom-scrollbar">
                                 {items.length === 0 ? (
@@ -481,7 +492,7 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                         <div className="flex flex-col gap-1.5 mt-auto shrink-0">
                             <div className="flex gap-1.5">
                                 <div className="flex-1 flex items-center bg-[#242533] border border-[#3e4153] rounded px-3 py-1.5">
-                                    <span className="text-gray-400 text-xs mr-2">📁</span>
+                                    <List size={14} className="text-gray-400 mr-2 shrink-0" />
                                     <span className="text-white text-xs font-semibold whitespace-nowrap overflow-hidden text-ellipsis">
                                         {selectedCategory || 'Categoría'}
                                     </span>
@@ -495,9 +506,10 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                             </div>
 
                             <div className="flex items-center bg-[#242533] border border-[#3e4153] rounded px-3 py-1.5">
+                                <FileText size={14} className="text-gray-400 mr-2 shrink-0" />
                                 <input
                                     type="text"
-                                    placeholder="Nombre del producto..."
+                                    placeholder="Descripción de Gasto..."
                                     value={itemName}
                                     onChange={(e) => setItemName(e.target.value.toUpperCase())}
                                     onKeyDown={(e) => { if (e.key === 'Enter') handleAddItem(); }}
@@ -534,10 +546,11 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                     <div className="w-[337.48px] bg-[#36384a] flex flex-col border-l border-[#2d2f3d]">
 
                         {/* Amount display container (aligned with Title Bar) */}
-                        <div className="h-14 flex items-center justify-center px-3 border-b border-[#3e4153] shrink-0">
+                        <div className="h-20 flex items-center justify-center px-3 shrink-0">
                             <div
-                                className="bg-[#242533] border border-[#4b4e63] rounded h-10 w-full flex items-center justify-center overflow-hidden cursor-text select-all"
+                                className="bg-transparent border border-[#4b4e63] rounded h-16 w-full flex items-center justify-center overflow-hidden cursor-text select-text transition-all"
                                 onClick={() => document.getElementById('price-input')?.focus()}
+                                onContextMenu={(e) => e.preventDefault()}
                             >
                                 <div className="w-full h-full flex items-center justify-center">
                                     <input
@@ -548,42 +561,56 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                                         value={itemPrice}
                                         onFocus={(e) => {
                                             e.target.select();
+                                            setSelStart(0);
+                                            setSelEnd(e.target.value.length);
+                                        }}
+                                        onSelect={(e) => {
+                                            const target = e.target as HTMLInputElement;
+                                            setSelStart(target.selectionStart ?? 0);
+                                            setSelEnd(target.selectionEnd ?? 0);
                                         }}
                                         onChange={(e) => {
                                             const input = e.target;
                                             const res = parseAndFormatAmount(input.value, itemPrice, input.selectionStart);
                                             setItemPrice(res.formatted);
+                                            setSelStart(res.cursorPosition);
+                                            setSelEnd(res.cursorPosition);
                                             setTimeout(() => {
                                                 input.setSelectionRange(res.cursorPosition, res.cursorPosition);
                                             }, 0);
                                         }}
-                                        className="w-full h-full bg-transparent focus:outline-none p-0 m-0 border-none outline-none text-xl font-normal tracking-wide tabular-nums text-center text-white selection:bg-[#0078d7] selection:text-white"
+                                        onTouchStart={(e) => {
+                                            e.preventDefault();
+                                            document.getElementById('price-input')?.focus();
+                                        }}
+                                        onContextMenu={(e) => e.preventDefault()}
+                                        className="w-full h-11 bg-transparent focus:outline-none p-0 m-0 border-none outline-none text-3xl font-semibold tracking-wide tabular-nums text-center text-white selection:bg-[#0078d7] selection:text-white"
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex-1 p-3 flex flex-col gap-3 min-h-0">
+                        <div className="flex-1 px-3 pb-3 pt-1 flex flex-col gap-3 min-h-0">
                             {/* 4-column Numpad */}
                             <div className="grid grid-cols-4 gap-0 auto-rows-[78.37px] border-t border-l border-[#4b4e63] rounded overflow-hidden mb-auto">
                                 {/* Row 1 */}
                                 {['7', '8', '9'].map(k => (
-                                    <button key={k} onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
+                                    <button key={k} onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
                                 ))}
-                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad('BACKSPACE')} className="bg-transparent hover:bg-rose-500/80 active:bg-rose-500 text-white rounded-none flex items-center justify-center transition-colors border-r border-b border-[#4b4e63] row-span-2">
+                                <button onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} onClick={() => handleKeyPad('BACKSPACE')} className="bg-transparent hover:bg-rose-500/80 active:bg-rose-500 text-white rounded-none flex items-center justify-center transition-colors border-r border-b border-[#4b4e63] row-span-2">
                                     <Delete size={28} strokeWidth={2.5} />
                                 </button>
 
                                 {/* Row 2 */}
                                 {['4', '5', '6'].map(k => (
-                                    <button key={k} onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
+                                    <button key={k} onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
                                 ))}
 
                                 {/* Row 3 */}
                                 {['1', '2', '3'].map(k => (
-                                    <button key={k} onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
+                                    <button key={k} onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} onClick={() => handleKeyPad(k)} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">{k}</button>
                                 ))}
-                                <button onMouseDown={(e) => e.preventDefault()} onClick={handleAddItem} className="rounded-none flex items-center justify-center transition-all row-span-2 border-r border-b border-[#4b4e63] bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-white cursor-pointer">
+                                <button onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} onClick={handleAddItem} className="rounded-none flex items-center justify-center transition-all row-span-2 border-r border-b border-[#4b4e63] bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-white cursor-pointer">
                                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                                         <polyline points="22 4 12 14.01 9 11.01"></polyline>
@@ -591,8 +618,8 @@ export const NewExpenseModal: React.FC<NewExpenseModalProps> = ({ currentUser, o
                                 </button>
 
                                 {/* Row 4 */}
-                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad('0')} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63] col-span-2">0</button>
-                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handleKeyPad('.')} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-3xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">.</button>
+                                <button onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} onClick={() => handleKeyPad('0')} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-2xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63] col-span-2">0</button>
+                                <button onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} onClick={() => handleKeyPad('.')} className="bg-transparent hover:bg-white/5 active:bg-[#7a73ff] text-3xl font-semibold text-white rounded-none transition-colors border-r border-b border-[#4b4e63]">.</button>
                             </div>
                         </div>
 
