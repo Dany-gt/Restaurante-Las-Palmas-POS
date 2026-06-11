@@ -46,6 +46,14 @@ export const DishesOptionsAssign: React.FC = () => {
     // Picker State
     const [showPicker, setShowPicker] = useState(false);
     const [pickerSearch, setPickerSearch] = useState('');
+    const [pickerMinSearch, setPickerMinSearch] = useState('');
+    const [pickerMaxSearch, setPickerMaxSearch] = useState('');
+    const [pickerFilterType, setPickerFilterType] = useState('Contiene');
+    const [showPickerFilterMenu, setShowPickerFilterMenu] = useState(false);
+
+    // Selected Row State for Opciones/Platillos a Aplicar
+    const [selectedGroupRow, setSelectedGroupRow] = useState<string | null>(null);
+    const [selectedProductRow, setSelectedProductRow] = useState<string | null>(null);
 
     useEffect(() => {
         fetchData();
@@ -58,7 +66,10 @@ export const DishesOptionsAssign: React.FC = () => {
     };
 
     useEffect(() => {
-        const handleClick = () => setContextMenu(prev => ({ ...prev, visible: false }));
+        const handleClick = () => {
+            setContextMenu(prev => ({ ...prev, visible: false }));
+            setShowPickerFilterMenu(false);
+        };
         window.addEventListener('click', handleClick);
         return () => window.removeEventListener('click', handleClick);
     }, []);
@@ -218,9 +229,32 @@ export const DishesOptionsAssign: React.FC = () => {
         }
     };
 
-    const pickerFilteredGroups = optionGroups.filter(g =>
-        g.name.toLowerCase().includes(pickerSearch.toLowerCase())
-    );
+    const pickerFilteredGroups = optionGroups.filter(g => {
+        let matchName = true;
+        if (pickerSearch) {
+            const name = g.name.toLowerCase();
+            const search = pickerSearch.toLowerCase();
+            switch (pickerFilterType) {
+                case 'Igual': matchName = name === search; break;
+                case 'No es igual': matchName = name !== search; break;
+                case 'Contiene': matchName = name.includes(search); break;
+                case 'No contiene': matchName = !name.includes(search); break;
+                case 'Comienza con': matchName = name.startsWith(search); break;
+                case 'Acaba con': matchName = name.endsWith(search); break;
+                case 'Es mayor que': matchName = name > search; break;
+                case 'Es mayor o igual que': matchName = name >= search; break;
+                case 'Es menor que': matchName = name < search; break;
+                case 'Es menor o igual que': matchName = name <= search; break;
+                default: matchName = name.includes(search);
+            }
+        }
+        if (!matchName) return false;
+
+        if (pickerMinSearch && !String(g.min_selection ?? 0).includes(pickerMinSearch)) return false;
+        if (pickerMaxSearch && !String(g.max_selection ?? 1).includes(pickerMaxSearch)) return false;
+
+        return true;
+    });
 
     return (
         <div className="flex flex-col h-full bg-[#f0f0f0] font-['Montserrat'] overflow-hidden p-1 gap-1">
@@ -305,16 +339,26 @@ export const DishesOptionsAssign: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
-                                    {filteredProducts.map((prod, index) => (
+                                    {filteredProducts.map((prod, index) => {
+                                        const isSelected = selectedProducts.some(p => p.id === prod.id);
+                                        return (
                                         <tr
                                             key={prod.id}
-                                            className={`h-7 border-b border-gray-50 hover:bg-[#f2f7fb] cursor-pointer text-[10px] font-medium text-slate-900 uppercase ${index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}
-                                            onClick={() => handleAddProduct(prod)}
+                                            className={`h-7 border-b border-gray-50 cursor-pointer text-[10px] font-medium uppercase transition-colors ${
+                                                isSelected 
+                                                    ? 'bg-[#106ebe] text-white hover:bg-[#0c569b]' 
+                                                    : `text-slate-900 hover:bg-[#f2f7fb] ${index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`
+                                            }`}
+                                            onClick={() => {
+                                                if (isSelected) handleRemoveProduct(prod.id);
+                                                else handleAddProduct(prod);
+                                            }}
                                         >
-                                            <td className="px-4 border-r border-gray-100">{prod.name}</td>
-                                            <td className="px-4 text-right border-r border-gray-100 tabular-nums">Q{Number(prod.price || 0).toFixed(2)}</td>
+                                            <td className={`px-4 border-r ${isSelected ? 'border-[#0c569b]' : 'border-gray-100'}`}>{prod.name}</td>
+                                            <td className={`px-4 text-right border-r tabular-nums ${isSelected ? 'border-[#0c569b]' : 'border-gray-100'}`}>Q{Number(prod.price || 0).toFixed(2)}</td>
                                         </tr>
-                                    ))}
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
@@ -343,19 +387,30 @@ export const DishesOptionsAssign: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {selectedProducts.map((prod, index) => (
-                                        <tr key={prod.id} className={`h-7 border-b border-gray-50 group ${index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
-                                            <td className="px-4 text-[10px] font-medium text-[#106ebe] uppercase">{prod.name}</td>
-                                            <td className="px-2 text-center">
+                                    {selectedProducts.map((prod, index) => {
+                                        const isRowSelected = selectedProductRow === prod.id;
+                                        return (
+                                        <tr 
+                                            key={prod.id} 
+                                            onClick={() => setSelectedProductRow(isRowSelected ? null : prod.id)}
+                                            className={`h-7 border-b border-gray-50 cursor-pointer transition-colors group ${
+                                                isRowSelected 
+                                                    ? 'bg-[#106ebe] text-white' 
+                                                    : (index % 2 === 0 ? 'bg-white hover:bg-[#f2f7fb]' : 'bg-[#f5f5f5] hover:bg-[#e1e5eb]')
+                                            }`}
+                                        >
+                                            <td className={`px-4 text-[10px] font-medium uppercase ${isRowSelected ? 'text-white' : 'text-[#106ebe]'}`}>{prod.name}</td>
+                                            <td className={`px-2 text-center ${isRowSelected ? 'text-white/80 hover:text-red-200' : 'text-slate-300 hover:text-red-500'}`}>
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); handleRemoveProduct(prod.id); }}
-                                                    className="p-1 text-slate-300 hover:text-red-500 transition-colors"
+                                                    className="p-1 transition-colors"
                                                 >
                                                     <X size={12} />
                                                 </button>
                                             </td>
                                         </tr>
-                                    ))}
+                                        );
+                                    })}
                                     {selectedProducts.length === 0 && (
                                         <tr><td className="p-8 text-center text-[10px] font-medium text-slate-400 italic uppercase">Haga clic en un platillo para añadirlo</td></tr>
                                     )}
@@ -392,38 +447,31 @@ export const DishesOptionsAssign: React.FC = () => {
                                 <thead className="sticky top-0 bg-[#f8f9fa] z-10 shadow-sm">
                                     <tr className="h-7 border-b border-gray-300 text-[9px] font-semibold uppercase text-slate-500">
                                         <th className="px-4 text-left">Grupo de Opciones</th>
-                                        <th className="w-16 text-center">Min</th>
-                                        <th className="w-16 text-center">Max</th>
                                         <th className="w-10"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {selectedGroups.map((group, index) => (
-                                        <tr key={group.id} className={`h-9 border-b border-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-[#f5f5f5]'}`}>
-                                            <td className="px-4 text-[10px] font-medium text-[#106ebe] uppercase">{group.name}</td>
-                                            <td className="px-1 text-center">
-                                                <input
-                                                    type="number"
-                                                    value={group.min_selection}
-                                                    onChange={e => handleUpdateGroupSelections(group.id, 'min_selection', parseInt(e.target.value) || 0)}
-                                                    className="w-10 h-6 border border-gray-200 text-[10px] font-medium text-center outline-none focus:border-[#106ebe]"
-                                                />
-                                            </td>
-                                            <td className="px-1 text-center">
-                                                <input
-                                                    type="number"
-                                                    value={group.max_selection}
-                                                    onChange={e => handleUpdateGroupSelections(group.id, 'max_selection', parseInt(e.target.value) || 0)}
-                                                    className="w-10 h-6 border border-gray-200 text-[10px] font-medium text-center outline-none focus:border-[#106ebe]"
-                                                />
-                                            </td>
-                                            <td className="px-2 text-center text-slate-300 hover:text-red-500 cursor-pointer" onClick={() => handleRemoveGroup(group.id)}>
+                                    {selectedGroups.map((group, index) => {
+                                        const isRowSelected = selectedGroupRow === group.id;
+                                        return (
+                                        <tr 
+                                            key={group.id} 
+                                            onClick={() => setSelectedGroupRow(isRowSelected ? null : group.id)}
+                                            className={`h-9 border-b border-gray-50 cursor-pointer transition-colors ${
+                                                isRowSelected 
+                                                    ? 'bg-[#106ebe] text-white' 
+                                                    : (index % 2 === 0 ? 'bg-white hover:bg-[#f2f7fb]' : 'bg-[#f5f5f5] hover:bg-[#e1e5eb]')
+                                            }`}
+                                        >
+                                            <td className={`px-4 text-[10px] font-medium uppercase ${isRowSelected ? 'text-white' : 'text-[#106ebe]'}`}>{group.name}</td>
+                                            <td className={`px-2 text-center cursor-pointer ${isRowSelected ? 'text-white/80 hover:text-red-200' : 'text-slate-300 hover:text-red-500'}`} onClick={(e) => { e.stopPropagation(); handleRemoveGroup(group.id); }}>
                                                 <Trash2 size={12} />
                                             </td>
                                         </tr>
-                                    ))}
+                                        );
+                                    })}
                                     {selectedGroups.length === 0 && (
-                                        <tr><td colSpan={4} className="p-8 text-center text-[10px] font-medium text-slate-400 italic uppercase">Añada grupos de opciones</td></tr>
+                                        <tr><td colSpan={2} className="p-8 text-center text-[10px] font-medium text-slate-400 italic uppercase">Añada grupos de opciones</td></tr>
                                     )}
                                 </tbody>
                             </table>
@@ -488,44 +536,149 @@ export const DishesOptionsAssign: React.FC = () => {
                     <div className="absolute inset-0 bg-black/5 pointer-events-auto" onClick={() => setShowPicker(false)}></div>
                     <div className="pointer-events-auto">
                         <DraggableWindow>
-                            <div className="w-[500px] h-[500px] bg-white border border-[#106ebe] shadow-[0_0_30px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-                                <div className="modal-header bg-[#106ebe] h-8 px-3 flex items-center justify-between text-white shrink-0 cursor-move">
-                                    <div className="flex items-center gap-2 text-[11px] font-medium uppercase">
-                                        <ListFilter size={14} /> Seleccionar Grupo de Opciones
-                                    </div>
-                                    <button onClick={() => setShowPicker(false)} className="hover:bg-red-500 p-1 transition-colors"><X size={16} /></button>
+                            <div className="w-[800px] h-[500px] bg-white border-2 border-slate-300 flex flex-col shadow-[0_4px_30px_rgba(0,0,0,0.3)] animate-in zoom-in-95 duration-200">
+                                {/* Header */}
+                                <div className="modal-header bg-[#106ebe] h-7 px-3 flex items-center text-white shrink-0 cursor-move">
+                                    <span className="text-[11px] font-bold">Listado de Opciones</span>
                                 </div>
-                                <div className="p-2 border-b border-gray-200 bg-[#f8f9fa]">
-                                    <div className="relative">
-                                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" size={12} />
+                                
+                                {/* Search and Close Bar */}
+                                <div className="p-2 flex justify-between items-start bg-white">
+                                    <div className="flex gap-1 items-center w-[400px]">
                                         <input
                                             autoFocus
                                             type="text"
                                             value={pickerSearch}
                                             onChange={e => setPickerSearch(e.target.value)}
-                                            placeholder="Buscar grupo..."
-                                            className="w-full pl-7 pr-2 py-1.5 text-[10px] border border-gray-300 outline-none focus:border-[#106ebe] uppercase font-medium text-slate-700"
+                                            placeholder="Introduzca el texto a buscar..."
+                                            className="flex-1 px-2 py-1 h-6 text-[11px] border border-gray-300 outline-none focus:border-[#106ebe] uppercase text-black placeholder:text-gray-400"
                                         />
+                                        <button className="px-3 h-6 text-[11px] text-black bg-gray-100 border border-gray-300 hover:bg-gray-200 uppercase font-medium">Buscar</button>
                                     </div>
+                                    <button onClick={() => setShowPicker(false)} className="w-6 h-6 flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold transition-colors">
+                                        <X size={14} strokeWidth={3} />
+                                    </button>
                                 </div>
-                                <div className="flex-1 overflow-auto p-1 custom-scrollbar">
-                                    <div className="grid grid-cols-1 gap-1">
-                                        {pickerFilteredGroups.map(group => (
-                                            <button
-                                                key={group.id}
-                                                onClick={() => handleAddGroup(group)}
-                                                className="flex items-center gap-3 w-full p-2 hover:bg-blue-50 text-left border border-transparent hover:border-blue-100 group transition-all"
-                                            >
-                                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[#106ebe] group-hover:bg-white shadow-sm">
-                                                    <Layers size={14} />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-[11px] font-medium text-[#106ebe] uppercase truncate">{group.name}</p>
-                                                    <p className="text-[9px] text-slate-400 font-medium uppercase truncate italic">{group.group_prompt || 'Sin Prompt'}</p>
-                                                </div>
-                                                <ChevronRight size={14} className="text-slate-300" />
-                                            </button>
-                                        ))}
+                                <div className="flex-1 px-2 pb-2 flex flex-col gap-2 min-h-0">
+                                    <div className="border border-gray-300 flex-1 flex flex-col bg-white min-h-0">
+                                        <div className="overflow-y-auto flex-1 custom-scrollbar">
+                                            <table className="w-full border-collapse text-center table-fixed">
+                                                <thead className="bg-[#f0f0f0] text-[11px] font-bold text-slate-800 shadow-[0_1px_0_#ccc] sticky top-0 z-10">
+                                                    <tr className="h-7 border-b border-gray-300">
+                                                        <th className="px-2 border-r border-gray-300 text-left">Nombre</th>
+                                                        <th className="px-2 w-24 border-r border-gray-300">Mínimo</th>
+                                                        <th className="px-2 w-24">Máximo</th>
+                                                    </tr>
+                                                    <tr className="h-6 border-b border-gray-300 bg-white">
+                                                        <td className="px-1 border-r border-gray-300">
+                                                            <div className="flex items-center gap-1 text-slate-500 font-bold px-1 text-[10px] relative">
+                                                                <span 
+                                                                    onClick={(e) => { e.stopPropagation(); setShowPickerFilterMenu(!showPickerFilterMenu); }}
+                                                                    className="w-5 h-5 flex items-center justify-center border border-gray-300 rounded-[2px] bg-[#f8f8f8] cursor-pointer hover:bg-gray-200 text-[#106ebe] text-[10px]" 
+                                                                    title="Filtros de búsqueda"
+                                                                >
+                                                                    {pickerFilterType === 'Igual' ? '=' : 
+                                                                     pickerFilterType === 'No es igual' ? '≠' : 
+                                                                     pickerFilterType === 'Contiene' ? 'a' : 
+                                                                     pickerFilterType === 'No contiene' ? '!a' : 
+                                                                     pickerFilterType === 'Comienza con' ? 'a*' : 
+                                                                     pickerFilterType === 'Acaba con' ? '*a' : 
+                                                                     pickerFilterType === 'Es mayor que' ? '>' : 
+                                                                     pickerFilterType === 'Es mayor o igual que' ? '≥' : 
+                                                                     pickerFilterType === 'Es menor que' ? '<' : 
+                                                                     pickerFilterType === 'Es menor o igual que' ? '≤' : <ListFilter size={10} />}
+                                                                </span>
+                                                                {showPickerFilterMenu && (
+                                                                    <div className="absolute top-full left-0 mt-1 w-44 bg-white border border-gray-300 shadow-lg z-50 py-1 font-normal text-left">
+                                                                        {[
+                                                                            { label: 'Igual', icon: '=' }, 
+                                                                            { label: 'No es igual', icon: '≠' }, 
+                                                                            { label: 'Contiene', icon: 'a' }, 
+                                                                            { label: 'No contiene', icon: '!a' }, 
+                                                                            { label: 'Comienza con', icon: 'a*' }, 
+                                                                            { label: 'Acaba con', icon: '*a' },
+                                                                            { label: 'Es mayor que', icon: '>' },
+                                                                            { label: 'Es mayor o igual que', icon: '≥' },
+                                                                            { label: 'Es menor que', icon: '<' },
+                                                                            { label: 'Es menor o igual que', icon: '≤' }
+                                                                        ].map(type => (
+                                                                            <div 
+                                                                                key={type.label}
+                                                                                onClick={(e) => { e.stopPropagation(); setPickerFilterType(type.label); setShowPickerFilterMenu(false); }}
+                                                                                className={`px-2 py-1.5 cursor-pointer hover:bg-[#106ebe] hover:text-white flex items-center gap-2 ${pickerFilterType === type.label ? 'bg-blue-50 text-[#106ebe]' : 'text-slate-700'}`}
+                                                                            >
+                                                                                <span className="w-4 text-center font-bold text-[10px] text-green-600 group-hover:text-white">{type.icon}</span>
+                                                                                <span className={pickerFilterType === type.label ? 'font-bold' : ''}>{type.label}</span>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+                                                                <input 
+                                                                    type="text" 
+                                                                    value={pickerSearch}
+                                                                    onChange={e => setPickerSearch(e.target.value)}
+                                                                    className="w-full h-5 bg-transparent border-none outline-none text-[10px] px-1 text-black font-normal" 
+                                                                    placeholder="Buscar..."
+                                                                />
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-1 border-r border-gray-300">
+                                                            <div className="flex items-center gap-1 text-slate-500 font-bold px-1 text-[10px]">
+                                                                <input 
+                                                                    type="text" 
+                                                                    value={pickerMinSearch}
+                                                                    onChange={e => setPickerMinSearch(e.target.value)}
+                                                                    className="w-full h-5 bg-transparent border-none outline-none text-[10px] px-1 text-black font-normal text-center" 
+                                                                />
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-1">
+                                                            <div className="flex items-center gap-1 text-slate-500 font-bold px-1 text-[10px]">
+                                                                <input 
+                                                                    type="text" 
+                                                                    value={pickerMaxSearch}
+                                                                    onChange={e => setPickerMaxSearch(e.target.value)}
+                                                                    className="w-full h-5 bg-transparent border-none outline-none text-[10px] px-1 text-black font-normal text-center" 
+                                                                />
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="text-[11px] font-medium uppercase text-slate-800 bg-white">
+                                                    {pickerFilteredGroups.map(group => {
+                                                        const isSelected = selectedGroups.some(g => g.id === group.id);
+                                                        return (
+                                                        <tr
+                                                            key={group.id}
+                                                            onDoubleClick={() => {
+                                                                if (isSelected) handleRemoveGroup(group.id);
+                                                                else handleAddGroup(group);
+                                                                setShowPicker(false);
+                                                            }}
+                                                            onClick={() => {
+                                                                if (isSelected) handleRemoveGroup(group.id);
+                                                                else handleAddGroup(group);
+                                                            }}
+                                                            className={`h-6 border-b border-gray-100 cursor-pointer ${
+                                                                isSelected ? 'bg-[#106ebe] text-white' : 'hover:bg-[#e1e5eb]'
+                                                            }`}
+                                                        >
+                                                            <td className="px-2 border-r border-gray-200 text-left truncate">{group.name}</td>
+                                                            <td className="px-2 w-24 text-center border-r border-gray-200">{group.min_selection ?? 0}</td>
+                                                            <td className="px-2 w-24 text-center">{group.max_selection ?? 1}</td>
+                                                        </tr>
+                                                        );
+                                                    })}
+                                                    {pickerFilteredGroups.length === 0 && (
+                                                        <tr className="h-6"><td colSpan={3} className="px-2 text-left text-slate-400 italic">No se encontraron grupos</td></tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div className="text-[10px] text-slate-800 font-medium leading-normal shrink-0">
+                                        <p>*Doble Clic o Enter sobre cualquier ítem para enviarlo a la configuración.</p>
+                                        <p>*ESC Para cerrar la ventana.</p>
                                     </div>
                                 </div>
                             </div>

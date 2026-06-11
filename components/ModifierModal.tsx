@@ -371,90 +371,84 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
               <div className="h-full flex flex-col items-center animate-fade-in overflow-y-auto custom-scrollbar">
 
                 {/* Options Section */}
-                {groups.filter(g => g.type === 'OPTION').length > 0 && (
-                  <div className="flex-1 w-full flex flex-col justify-center py-6">
-                    <div className="max-w-4xl mx-auto w-full px-12">
-                      <div className="flex flex-wrap justify-center gap-6">
-                        {groups.filter(g => g.type === 'OPTION').map(grp => {
-                          const qtyInGroup = selectedItems.filter(i => i.group_id === grp.id).reduce((sum, i) => sum + i.quantity, 0);
-                          const hasRequired = qtyInGroup >= grp.min_selection;
-                          return (
-                            <button
-                              key={grp.id}
-                              onClick={() => {
-                                setSelectedGroupId(grp.id);
-                                setView('DETAIL');
-                              }}
-                              className={`group w-[220px] h-20 rounded-md transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
-                                ? 'bg-[#00609a] ring-2 ring-white shadow-lg'
-                                : 'bg-[#004b79] hover:bg-[#005a8f] shadow-md'
-                                }`}
-                            >
-                              <span className={`text-base font-semibold uppercase tracking-tight transition-transform group-hover:scale-105 text-white`}>
-                                {grp.group_prompt || grp.name}
-                              </span>
-                              {(() => {
-                                const min = grp.min_selection;
-                                const max = grp.max_selection;
-                                if (min === 0 && (max === 0 || max >= 99)) return null;
-                                return (
-                                  <div className="flex items-center gap-4 text-[10px] font-medium text-white/90 tracking-wide mt-1 transition-transform group-hover:scale-105">
-                                    <span>Mínimo: {min}</span>
-                                    <span>Máximo: {max >= 99 ? '∞' : max}</span>
-                                  </div>
-                                );
-                              })()}
-                            </button>
-                          );
-                        })}
-                      </div>
+                <div className="flex-1 w-full flex flex-col justify-center py-6">
+                  <div className="max-w-4xl mx-auto w-full px-12">
+                    <div className="flex flex-wrap justify-center gap-6">
+                      {groups.filter(g => g.type === 'OPTION').map(grp => {
+                        const qtyInGroup = selectedItems.filter(i => i.group_id === grp.id).reduce((sum, i) => sum + i.quantity, 0);
+                        const hasRequired = qtyInGroup >= grp.min_selection;
+                        return (
+                          <button
+                            key={grp.id}
+                            onClick={() => {
+                              setSelectedGroupId(grp.id);
+                              setView('DETAIL');
+                            }}
+                            className={`group w-[220px] h-20 rounded-md transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
+                              ? 'bg-[#00609a] ring-2 ring-white shadow-lg'
+                              : 'bg-[#004b79] hover:bg-[#005a8f] shadow-md'
+                              }`}
+                          >
+                            <span className={`text-base font-semibold uppercase tracking-tight transition-transform group-hover:scale-105 text-white`}>
+                              {grp.group_prompt || grp.name}
+                            </span>
+                            {(() => {
+                              const min = grp.min_selection;
+                              const max = grp.max_selection;
+                              if (min === 0 && (max === 0 || max >= 99)) return null;
+                              return (
+                                <div className="flex items-center gap-4 text-[10px] font-medium text-white/90 tracking-wide mt-1 transition-transform group-hover:scale-105">
+                                  <span>Mínimo: {min}</span>
+                                  <span>Máximo: {max >= 99 ? '∞' : max}</span>
+                                </div>
+                              );
+                            })()}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                )}
+                </div>
 
                 {/* Full-width Separator Line — edge to edge */}
-                {groups.filter(g => g.type === 'OPTION').length > 0 && groups.filter(g => g.type === 'MODIFIER').length > 0 && (
-                  <div className="w-full h-[1px] bg-white/15 flex-shrink-0" />
-                )}
+                <div className="w-full h-[1px] bg-white/15 flex-shrink-0" />
 
                 {/* Modifiers Section */}
-                {groups.filter(g => g.type === 'MODIFIER').length > 0 && (
-                  <div className="flex-1 w-full flex flex-col justify-center py-6">
-                    <div className="max-w-4xl mx-auto w-full px-12">
-                      <div className="flex flex-wrap justify-center gap-6">
-                        {groups.filter(g => g.type === 'MODIFIER').map(grp => {
-                          const qtyInGroup = selectedItems.filter(i => i.group_id === grp.id).reduce((sum, i) => sum + i.quantity, 0);
-                          const hasRequired = qtyInGroup >= grp.min_selection;
-                          return (
-                            <button
-                              key={grp.id}
-                              onClick={() => { setSelectedGroupId(grp.id); setView('DETAIL'); }}
-                              className={`group w-[220px] h-20 rounded-md transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
-                                ? 'bg-[#357a80] ring-2 ring-white shadow-lg'
-                                : 'bg-[#2b6469] hover:bg-[#327379] shadow-md'
-                                }`}
-                            >
-                              <span className={`text-base font-semibold uppercase tracking-tight transition-transform group-hover:scale-105 text-white`}>
-                                {grp.group_prompt || grp.name}
-                              </span>
-                              {(() => {
-                                const min = grp.min_selection;
-                                const max = grp.max_selection;
-                                if (min === 0 && (max === 0 || max >= 99)) return null;
-                                return (
-                                  <div className="flex items-center gap-4 text-[10px] font-medium text-white/90 tracking-wide mt-1 transition-transform group-hover:scale-105">
-                                    <span>Mínimo: {min}</span>
-                                    <span>Máximo: {max >= 99 ? '∞' : max}</span>
-                                  </div>
-                                );
-                              })()}
-                            </button>
-                          );
-                        })}
-                      </div>
+                <div className="flex-1 w-full flex flex-col justify-center py-6">
+                  <div className="max-w-4xl mx-auto w-full px-12">
+                    <div className="flex flex-wrap justify-center gap-6">
+                      {groups.filter(g => g.type === 'MODIFIER').map(grp => {
+                        const qtyInGroup = selectedItems.filter(i => i.group_id === grp.id).reduce((sum, i) => sum + i.quantity, 0);
+                        const hasRequired = qtyInGroup >= grp.min_selection;
+                        return (
+                          <button
+                            key={grp.id}
+                            onClick={() => { setSelectedGroupId(grp.id); setView('DETAIL'); }}
+                            className={`group w-[220px] h-20 rounded-md transition-all duration-300 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden ${selectedGroupId === grp.id
+                              ? 'bg-[#357a80] ring-2 ring-white shadow-lg'
+                              : 'bg-[#2b6469] hover:bg-[#327379] shadow-md'
+                              }`}
+                          >
+                            <span className={`text-base font-semibold uppercase tracking-tight transition-transform group-hover:scale-105 text-white`}>
+                              {grp.group_prompt || grp.name}
+                            </span>
+                            {(() => {
+                              const min = grp.min_selection;
+                              const max = grp.max_selection;
+                              if (min === 0 && (max === 0 || max >= 99)) return null;
+                              return (
+                                <div className="flex items-center gap-4 text-[10px] font-medium text-white/90 tracking-wide mt-1 transition-transform group-hover:scale-105">
+                                  <span>Mínimo: {min}</span>
+                                  <span>Máximo: {max >= 99 ? '∞' : max}</span>
+                                </div>
+                              );
+                            })()}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                )}
+                </div>
 
               </div>
             ) : currentGroup ? (
@@ -613,7 +607,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                     onConfirm(product, transformedModifiers, notes, itemQuantity);
                     onClose();
                   }}
-                  className="flex flex-col items-center justify-center w-[125px] h-[120px] bg-transparent border border-white/40 rounded-lg hover:bg-white/5 disabled:opacity-30 transition-all gap-1.5"
+                  className="flex flex-col items-center justify-center w-[125px] h-[113.39px] bg-transparent border border-white/40 rounded-lg hover:bg-white/5 disabled:opacity-30 transition-all gap-1.5"
                 >
                   <svg viewBox="0 0 100 100" className="w-[72px] h-[72px]" stroke="none" fill="none">
                     <defs>
@@ -679,7 +673,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                   </span>
                 </button>
 
-                <div className="flex-1 flex flex-col justify-end pl-4 pb-1 h-[120px]">
+                <div className="flex-1 flex flex-col justify-end pl-4 pb-1 h-[113.39px]">
                   <div className="flex justify-between items-baseline border-t border-white/10 border-dashed pt-1 w-full">
                     <span className="text-[11px] font-semibold text-white">Sub-Total</span>
                     <span className="text-[11px] font-semibold text-white tabular-nums">
