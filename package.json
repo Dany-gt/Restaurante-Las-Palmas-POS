@@ -69,7 +69,7 @@
   },
   "build": {
     "appId": "com.restaurante-las-palmas.pos",
-    "productName": "restaurante las palmas pos",
+    "productName": "Restaurante las Palmas Pos",
     "publish": [
       {
         "provider": "github",
