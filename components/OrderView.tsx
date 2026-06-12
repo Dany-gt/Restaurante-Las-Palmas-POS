@@ -204,12 +204,12 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     }, []);
     const [loading, setLoading] = useState(true);
     const [_processing, _setProcessing] = useState(false);
-    const [processingMessage, setProcessingMessage] = useState({ title: 'Cargando...', subtitle: 'Espere por favor' });
+    const [processingMessage, setProcessingMessage] = useState({ title: 'Cargando', subtitle: 'Espere por favor...' });
     const processing = _processing;
     const setProcessing = (val: boolean | {title: string, subtitle: string}) => {
         if (typeof val === 'boolean') {
             if (val) {
-                setProcessingMessage({ title: 'Cargando...', subtitle: 'Espere por favor' });
+                setProcessingMessage({ title: 'Cargando', subtitle: 'Espere por favor...' });
             }
             _setProcessing(val);
         } else {
@@ -2216,7 +2216,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         const allUnsent = items.filter(i => !i.is_sent && (i as any).order_id);
         if (allUnsent.length === 0) return;
 
-        setProcessing({ title: 'Comandando', subtitle: 'Enviando a cocina...' });
+        setProcessing({ title: 'Guardando Orden', subtitle: 'Espere por favor...' });
         try {
             const nowWithOffset = new Date(Date.now() + serverOffset);
             // Group unsent items by order_id
