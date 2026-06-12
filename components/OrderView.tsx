@@ -203,7 +203,20 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         return () => window.removeEventListener('inventory-state-updated', handleInventoryRefresh);
     }, []);
     const [loading, setLoading] = useState(true);
-    const [processing, setProcessing] = useState(false);
+    const [_processing, _setProcessing] = useState(false);
+    const [processingMessage, setProcessingMessage] = useState({ title: 'Cargando...', subtitle: 'Espere por favor' });
+    const processing = _processing;
+    const setProcessing = (val: boolean | {title: string, subtitle: string}) => {
+        if (typeof val === 'boolean') {
+            if (val) {
+                setProcessingMessage({ title: 'Cargando...', subtitle: 'Espere por favor' });
+            }
+            _setProcessing(val);
+        } else {
+            setProcessingMessage(val);
+            _setProcessing(true);
+        }
+    };
     const [activeOrderId, setActiveOrderId] = useState<string | null>(initialOrder?.id || null);
     const [tableOrders, setTableOrders] = useState<any[]>([]);
     const [serverOffset, setServerOffset] = useState<number>(() => {
@@ -374,7 +387,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
         const proceedToDelete = async () => {
             setCustomDialog(null);
-            setProcessing(true);
+            setProcessing({ title: 'Anulando', subtitle: 'Procesando anulación...' });
             try {
                 // LOG: Registro de eliminación de cuenta antes de borrarla
                 activityLogService.logFinancial({
@@ -536,16 +549,10 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const handleEditItem = async (item: OrderItem) => {
         const isSaved = !item.id.startsWith('i-') && item.is_sent;
         if (isSaved) {
-            // v1.7.1 - El doble clic en un item enviado ya no inicia la anulación.
-            // Se reserva la anulación exclusivamente para el icono del basurero.
-            // En su lugar, abrimos la gestión de descuentos ya que "la que vale es descuento".
-            const canDiscount = canCajero('Aplicar Descuentos') || currentUser?.role === 'CAJERO' || currentUser?.role === 'ADMIN';
-            if (canDiscount) {
-                setDiscountingItem(item);
-                setShowDiscountModal(true);
-            }
+            showAlert('No se puede editar un platillo que ya fue enviado a cocina.');
             return;
         }
+
         // Check if item actually has modifiers/options before opening the modal
         try {
             const { data: isCustomizable, error } = await supabase.rpc('check_if_customizable', { p_id: item.product_id });
@@ -887,7 +894,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
             // Sync with DB if saved
             if (!discountingItem.id.startsWith('i-')) {
-                setProcessing(true);
+                setProcessing({ title: 'Aplicando Descuento', subtitle: 'Actualizando platillo...' });
                 try {
                     await supabase.from('order_items').update({
                         discount_id: newDiscount?.id || null,
@@ -949,7 +956,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
         // Update Database if order exists
         if (activeOrderId) {
-            setProcessing(true);
+            setProcessing({ title: 'Aplicando Descuento', subtitle: 'Actualizando orden...' });
             try {
                 await supabase.from('orders').update({
                     discount_id: newDiscount?.id || null,
@@ -992,7 +999,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
     const handleTableTransfer = async (targetTable: Table) => {
         if (!activeOrderId || !table) return;
-        setProcessing(true);
+        setProcessing({ title: 'Trasladando', subtitle: 'Actualizando mesa...' });
         try {
             await supabase.from('orders').update({ table_id: targetTable.id }).eq('id', activeOrderId);
             await supabase.from('tables').update({ status: 'available' }).eq('id', table.id);
@@ -1034,7 +1041,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
     const handleInvoiceSubmit = async (customer: CustomerData, paymentMethod: string, cardProcessor?: string) => {
         setShowInvoiceModal(false);
-        setProcessing(true);
+        setProcessing({ title: 'Procesando Cobro', subtitle: 'Generando factura...' });
         try {
             const currentOrder = tableOrders.find(o => o.id === activeOrderId) ||
                 (activeOrderId === initialOrder.id ? initialOrder : null);
@@ -1221,7 +1228,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
 
 
     const handleAddEmptyAccount = async (customName?: string) => {
-        setProcessing(true);
+        setProcessing({ title: 'Creando', subtitle: 'Generando cuenta...' });
         try {
             // If there are no orders in the database yet, we want to create BOTH Cuenta 1 (for current draft) and Cuenta 2
             if (tableOrders.length === 0) {
@@ -1367,7 +1374,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     };
 
     const handleAccountDivision = async (accounts: any[]) => {
-        setProcessing(true);
+        setProcessing({ title: 'Dividiendo', subtitle: 'Actualizando cuentas...' });
         try {
             const newOrderIds = new Set<string>(); // Track newly created order IDs
 
@@ -1894,9 +1901,14 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             return;
         }
 
-        // Si el item YA está en base de datos, solo ADMIN o CAJERO pueden anularlo directamente.
-        // Los meseros pueden iniciar el flujo pero requerirán PIN de administrador.
-        // v1.6.2 - FLUJO UNIFICADO: Siempre pedir motivo ANTES que el PIN
+        // Si el item YA está en base de datos, verificamos rol
+        const canVoid = canCajero('Anular Pedidos') || currentUser?.role === 'CAJERO' || currentUser?.role === 'ADMIN';
+        if (!canVoid) {
+            notify.error('El platillo ya fue enviado a cocina, solo puede ser eliminado en modo Cajero.');
+            return;
+        }
+
+        // Los cajeros o admins pueden iniciar el flujo de anulación
         setItemToVoid(item);
         setVoidReason('');
         setPendingAction('delete');
@@ -1914,7 +1926,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             return;
         }
 
-        setProcessing(true);
+        setProcessing({ title: 'Guardando Orden', subtitle: 'Espere por favor...' });
         const nowGuate = DateUtils.toGuatemalaISO(new Date());
 
         try {
@@ -2155,7 +2167,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
     const handleTransferWaiter = async (newWaiterId: string) => {
         if (!activeOrderId && tableOrders.length === 0) return;
 
-        setProcessing(true);
+        setProcessing({ title: 'Trasladando', subtitle: 'Actualizando mesero...' });
         try {
             const orderIdsToUpdate = activeOrderId ? [activeOrderId] : tableOrders.map(o => o.id);
             if (orderIdsToUpdate.length > 0) {
@@ -2204,7 +2216,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
         const allUnsent = items.filter(i => !i.is_sent && (i as any).order_id);
         if (allUnsent.length === 0) return;
 
-        setProcessing(true);
+        setProcessing({ title: 'Comandando', subtitle: 'Enviando a cocina...' });
         try {
             const nowWithOffset = new Date(Date.now() + serverOffset);
             // Group unsent items by order_id
@@ -2400,7 +2412,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             }
         }
 
-        setProcessing(true);
+        setProcessing({ title: 'Imprimiendo Pre-cuenta', subtitle: 'Enviando a impresora...' });
         try {
             const isElectron = !!(window as any).electron;
 
@@ -3601,7 +3613,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                 return;
                             }
 
-                            setProcessing(true);
+                            setProcessing({ title: 'Anulando', subtitle: 'Procesando anulación...' });
                             try {
                                 const nowGuate = DateUtils.toGuatemalaISO(new Date(Date.now() + serverOffset));
                                 let totalAnulado = 0;
@@ -4131,6 +4143,24 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                             setSingleItemToTransfer(null);
                         }}
                     />
+
+                    {processing && (
+                        <div key="processing-overlay" className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/20 pointer-events-none">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                transition={{ duration: 0.15 }}
+                                className="bg-[#2a2d3d]/95 backdrop-blur-md border border-white/10 rounded-lg shadow-2xl flex items-center px-6 py-5 gap-4"
+                            >
+                                <Loader2 className="w-8 h-8 text-[#6b6cf0] animate-spin shrink-0" />
+                                <div className="flex flex-col text-left">
+                                    <span className="text-white font-semibold text-[15px] tracking-wide">{processingMessage.title}</span>
+                                    <span className="text-gray-400 text-xs font-medium tracking-wide">{processingMessage.subtitle}</span>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
                 </AnimatePresence>
             </div>
         </div >

@@ -39,73 +39,60 @@ export const WindowsConfirmModal: React.FC<Props> = ({
     const isAlert = type === 'alert';
 
     return (
-        <div className="fixed inset-0 bg-black/20 flex justify-center items-center z-[999999] ">
+        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-[999999] font-['Montserrat']">
             <div
-                className="bg-[#f0f0f0] border border-[#333]  flex flex-col animate-in zoom-in-95 duration-100"
-                style={{ width: '420px', fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}
+                className="bg-[#2a2d3d] rounded-lg shadow-2xl flex flex-col overflow-hidden border border-white/10 animate-in zoom-in-95 duration-100"
+                style={{ width: '450px' }}
             >
-                {/* Title Bar - NEUTRALIZED */}
-                <div className="flex justify-between items-center bg-[#222] text-white px-3 py-1.5 select-none">
-                    <span className="text-[12px] font-medium whitespace-nowrap overflow-hidden text-ellipsis uppercase tracking-wider">{title}</span>
+                {/* Title Bar */}
+                <div className="bg-[#2a2d3d] border-b border-white/10 py-3 relative">
+                    <h3 className="text-sm font-medium text-white text-center tracking-wide">{title}</h3>
                     {onCancel && (
                         <button
                             onClick={onCancel}
-                            className="hover:bg-red-600 focus:outline-none w-6 h-6 flex items-center justify-center -mr-1 transition-colors"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                         >
-                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M1 1L9 9M9 1L1 9" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            <svg width="12" height="12" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </button>
                     )}
                 </div>
 
                 {/* Content Body */}
-                <div className="flex items-center gap-5 p-6 pt-8 pb-6 bg-[#f0f0f0]">
-                    {/* Neutralized Icon */}
-                    <div className="w-[42px] h-[42px] min-w-[42px] rounded-xl bg-[#333] flex justify-center items-center relative text-white border border-white/20  shrink-0">
-                        {isAlert ? (
-                            <span className="text-[22px] font-semibold">!</span>
-                        ) : (
-                            <span className="text-[24px] font-medium" style={{ fontFamily: 'Times New Roman, serif', marginTop: '-1px' }}>?</span>
-                        )}
-                    </div>
-
-                    <p className="text-[#000] text-[13px] pr-2 tracking-wide font-medium leading-relaxed flex-1">
+                <div className="p-8 text-center min-h-[140px] flex items-center justify-center">
+                    <p className="text-gray-200 text-[13px] font-medium leading-relaxed max-w-[90%] mx-auto">
                         {message}
                     </p>
                 </div>
 
                 {/* Button Bar */}
-                <div className="bg-[#f0f0f0] px-4 pb-4 pt-2 flex justify-end gap-2.5">
-                    <button
-                        ref={confirmBtnRef}
-                        onClick={onConfirm}
-                        className="min-w-[90px] h-[28px] bg-[#333] hover:bg-[#444] border border-[#000] text-white text-[11px] font-semibold uppercase tracking-widest focus:outline-none relative group transition-all active:scale-95 "
-                    >
-                        {/* Inner focus dotted line */}
-                        <div className="absolute inset-[2px] border border-dotted border-white/30 opacity-0 group-focus:opacity-100 pointer-events-none"></div>
-                        ACEPTAR
-                    </button>
-
+                <div className="pb-8 flex justify-center gap-4 px-8">
+                    {!isAlert && onCancel && (
+                        <button
+                            onClick={onCancel}
+                            className="px-8 py-2.5 bg-transparent border border-gray-500 hover:bg-white/5 text-white text-sm font-medium rounded-md transition-all uppercase tracking-wide min-w-[120px]"
+                        >
+                            CANCELAR
+                        </button>
+                    )}
+                    
                     {!isAlert && onDeny && (
                         <button
                             onClick={onDeny}
-                            className="min-w-[90px] h-[28px] bg-[#e1e1e1] hover:bg-[#d5d5d5] border border-[#adadad] text-black text-[11px] font-semibold uppercase tracking-widest focus:outline-none relative group transition-all active:scale-95 "
+                            className="px-8 py-2.5 bg-transparent border border-gray-500 hover:bg-white/5 text-white text-sm font-medium rounded-md transition-all uppercase tracking-wide min-w-[120px]"
                         >
-                            <div className="absolute inset-[2px] border border-dotted border-black/30 opacity-0 group-focus:opacity-100 pointer-events-none"></div>
                             NO
                         </button>
                     )}
 
-                    {!isAlert && onCancel && (
-                        <button
-                            onClick={onCancel}
-                            className="min-w-[90px] h-[28px] bg-[#e1e1e1] hover:bg-[#d5d5d5] border border-[#adadad] text-black text-[11px] font-semibold uppercase tracking-widest focus:outline-none relative group transition-all active:scale-95 "
-                        >
-                            <div className="absolute inset-[2px] border border-dotted border-black/30 opacity-0 group-focus:opacity-100 pointer-events-none"></div>
-                            CANCELAR
-                        </button>
-                    )}
+                    <button
+                        ref={confirmBtnRef}
+                        onClick={onConfirm}
+                        className="px-8 py-2.5 bg-[#6b6cf0] hover:bg-[#5b5ce0] text-white text-sm font-medium rounded-md transition-all uppercase tracking-wide min-w-[120px]"
+                    >
+                        ACEPTAR
+                    </button>
                 </div>
             </div>
         </div>
