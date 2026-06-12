@@ -2412,7 +2412,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
             }
         }
 
-        setProcessing({ title: 'Imprimiendo Pre-cuenta', subtitle: 'Enviando a impresora...' });
+        setProcessing({ title: 'Actualizando Orden', subtitle: 'Espere por favor...' });
         try {
             const isElectron = !!(window as any).electron;
 
