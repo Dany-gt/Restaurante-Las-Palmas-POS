@@ -482,8 +482,14 @@ export const DispatchView: React.FC<{
     }
 
     if (loading) return (
-        <div className="h-full flex items-center justify-center">
-            <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
+        <div className="h-full flex items-center justify-center pointer-events-none">
+            <div className="bg-[#2a2d3d] border border-white/10 rounded-lg shadow-2xl flex items-center px-6 py-5 gap-4">
+                <Loader2 className="w-8 h-8 text-[#6b6cf0] animate-spin shrink-0" />
+                <div className="flex flex-col text-left">
+                    <span className="text-white font-semibold text-[15px] tracking-wide">Cargando</span>
+                    <span className="text-gray-400 text-xs font-medium tracking-wide">Espere por favor...</span>
+                </div>
+            </div>
         </div>
     );
 

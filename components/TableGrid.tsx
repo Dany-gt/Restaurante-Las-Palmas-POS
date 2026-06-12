@@ -386,8 +386,14 @@ export const TableGrid: React.FC<TableGridProps> = ({ onSelectTable, isTransferM
         {/* Grid State Handling */}
         {tables.length === 0 ? (
           loading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <Loader2 className="animate-spin text-white/20" size={48} />
+            <div className="flex-1 flex items-center justify-center pointer-events-none">
+                <div className="bg-[#2a2d3d] border border-white/10 rounded-lg shadow-2xl flex items-center px-6 py-5 gap-4">
+                    <Loader2 className="w-8 h-8 text-[#6b6cf0] animate-spin shrink-0" />
+                    <div className="flex flex-col text-left">
+                        <span className="text-white font-semibold text-[15px] tracking-wide">Cargando</span>
+                        <span className="text-gray-400 text-xs font-medium tracking-wide">Espere por favor...</span>
+                    </div>
+                </div>
             </div>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-gray-500">

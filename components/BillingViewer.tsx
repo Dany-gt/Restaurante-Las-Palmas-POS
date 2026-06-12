@@ -554,8 +554,14 @@ export const BillingViewer: React.FC<BillingViewerProps> = ({ onBack, currentUse
                     {/* Records List */}
                     <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
                         {loading && records.length === 0 ? (
-                            <div className="h-full flex items-center justify-center py-20">
-                                <Loader2 className="animate-spin text-gray-500" size={32} />
+                            <div className="h-full flex items-center justify-center py-20 pointer-events-none">
+                                <div className="bg-[#2a2d3d] border border-white/10 rounded-lg shadow-2xl flex items-center px-6 py-5 gap-4">
+                                    <Loader2 className="w-8 h-8 text-[#6b6cf0] animate-spin shrink-0" />
+                                    <div className="flex flex-col text-left">
+                                        <span className="text-white font-semibold text-[15px] tracking-wide">Cargando</span>
+                                        <span className="text-gray-400 text-xs font-medium tracking-wide">Espere por favor...</span>
+                                    </div>
+                                </div>
                             </div>
                         ) : records.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center py-20 opacity-30 text-center">
