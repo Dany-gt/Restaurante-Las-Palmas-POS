@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Plus, Minus, CheckCircle, ShoppingCart, Loader2, MessageSquare, ChevronRight, Hash, Trash2, Utensils, ArrowLeft, FileEdit } from 'lucide-react';
+import { X, Plus, Minus, CheckCircle, ShoppingCart, Loader2, MessageSquare, ChevronRight, Hash, Trash2, Utensils, ArrowLeft } from 'lucide-react';
 import { Product } from '../types';
 import { supabase } from '../supabase';
 
@@ -327,7 +327,36 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
               <div className="w-full max-w-xl bg-[#1c1f26] rounded-xl border border-white/10  /50 p-6 sm:p-8 relative overflow-hidden">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 bg-white/20 text-white/60 rounded-xl flex items-center justify-center border border-white/10">
-                    <FileEdit size={20} />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="1 1 22 22"
+                      width="24"
+                      height="24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      {/* Documento / Papel completo */}
+                      <path d="M10 2H18a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z" />
+                      {/* Esquina doblada de la hoja (lado izquierdo) */}
+                      <polyline points="10 2 10 8 4 8" />
+                      {/* Líneas de texto */}
+                      <line x1="8" y1="13" x2="16" y2="13" />
+                      <line x1="8" y1="17" x2="16" y2="17" />
+                      <line x1="14" y1="9" x2="16" y2="9" />
+                      {/* MÁSCARA DEL LÁPIZ: Trazo grueso del color de fondo (#1c1f26) para tapar la hoja detrás */}
+                      <path d="M11.5 22L15.5 20L22.5 13a1.41 1.41 0 0 0-2-2L13.5 18z" stroke="#1c1f26" strokeWidth="4.5" fill="#1c1f26" strokeLinecap="round" strokeLinejoin="round" />
+                      {/* Lápiz perfectamente simétrico a 45° con borrador y virola */}
+                      <path d="M11.5 22L15.5 20L22.5 13a1.41 1.41 0 0 0-2-2L13.5 18z" fill="none" />
+                      {/* Línea del cuello de la punta */}
+                      <line x1="13.5" y1="18" x2="15.5" y2="20" />
+                      {/* Virola metálica del borrador */}
+                      <line x1="18.5" y1="13" x2="20.5" y2="15" />
+                      {/* Línea del borrador */}
+                      <line x1="19.5" y1="12" x2="21.5" y2="14" />
+                    </svg>
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold text-white uppercase tracking-tight">Instrucciones Especiales</h4>
@@ -566,30 +595,59 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                 <button
                   onClick={() => setShowNotes(true)}
                   title="Agregar / Editar Nota Especial"
-                  className="bg-white/5 border border-white/10 rounded-none flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/10"
+                  className="bg-white/10 border border-white/20 rounded-none flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/20"
                 >
-                  <FileEdit size={32} strokeWidth={1.5} />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="1 1 22 22"
+                    width="38"
+                    height="38"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    {/* Documento / Papel completo */}
+                    <path d="M10 2H18a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z" />
+                    {/* Esquina doblada de la hoja (lado izquierdo) */}
+                    <polyline points="10 2 10 8 4 8" />
+                    {/* Líneas de texto */}
+                    <line x1="8" y1="13" x2="16" y2="13" />
+                    <line x1="8" y1="17" x2="16" y2="17" />
+                    <line x1="14" y1="9" x2="16" y2="9" />
+                    {/* MÁSCARA DEL LÁPIZ: Trazo grueso del color de fondo (#2e303d) para tapar la hoja detrás */}
+                    <path d="M11.5 22L15.5 20L22.5 13a1.41 1.41 0 0 0-2-2L13.5 18z" stroke="#2e303d" strokeWidth="4.5" fill="#2e303d" strokeLinecap="round" strokeLinejoin="round" />
+                    {/* Lápiz perfectamente simétrico a 45° con borrador y virola */}
+                    <path d="M11.5 22L15.5 20L22.5 13a1.41 1.41 0 0 0-2-2L13.5 18z" fill="none" />
+                    {/* Línea del cuello de la punta */}
+                    <line x1="13.5" y1="18" x2="15.5" y2="20" />
+                    {/* Virola metálica del borrador */}
+                    <line x1="18.5" y1="13" x2="20.5" y2="15" />
+                    {/* Línea del borrador */}
+                    <line x1="19.5" y1="12" x2="21.5" y2="14" />
+                  </svg>
                 </button>
                 <button
                   onClick={() => { setNotes(''); setSelectedItems([]); setItemQuantity(1); }}
                   title="Limpiar Selección y Notas"
-                  className="bg-white/5 border border-white/10 rounded-none flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/10"
+                  className="bg-white/10 border border-white/20 rounded-none flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/20"
                 >
-                  <Trash2 size={32} strokeWidth={1.5} />
+                  <Trash2 size={38} strokeWidth={1.2} />
                 </button>
                 <button
                   onClick={() => setItemQuantity(prev => Math.max(1, prev - 1))}
                   title="Restar Cantidad"
-                  className="bg-white/5 border border-white/10 rounded-none flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/10"
+                  className="bg-white/10 border border-white/20 rounded-none flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/20"
                 >
-                  <Minus size={32} strokeWidth={1.5} />
+                  <Minus size={22} strokeWidth={2} />
                 </button>
                 <button
                   onClick={() => setItemQuantity(prev => prev + 1)}
                   title="Sumar Cantidad"
-                  className="bg-white/5 border border-white/10 rounded-none flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/10"
+                  className="bg-white/10 border border-white/20 rounded-none flex items-center justify-center text-white transition-all active:scale-95 hover:bg-white/20"
                 >
-                  <Plus size={32} strokeWidth={1.5} />
+                  <Plus size={22} strokeWidth={2} />
                 </button>
               </div>
 
