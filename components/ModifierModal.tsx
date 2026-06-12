@@ -283,7 +283,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
           <div className="px-6 py-4 bg-[#2e303d] flex justify-between items-center shrink-0 border-b border-white/5">
             <button
               onClick={() => {
-                if (view === 'DETAIL' && groups.length > 1) setView('CATEGORIES');
+                if (view === 'DETAIL') setView('CATEGORIES');
                 else onClose();
               }}
               className="w-[2.5cm] h-[1.3cm] bg-[#3e4153] hover:bg-[#464859] text-gray-400 hover:text-white rounded-md transition-all flex items-center justify-center border border-white/5"
