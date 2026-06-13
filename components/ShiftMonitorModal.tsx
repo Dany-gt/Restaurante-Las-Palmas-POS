@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, RefreshCw, Printer, LogOut, Calculator, ShoppingCart, Clock, DollarSign, Layout } from 'lucide-react';
+import { X, RefreshCw, Printer, LogOut, Calculator, ShoppingCart, Clock, DollarSign, Layout, Loader2 } from 'lucide-react';
 import { ShiftReportData, shiftService } from '../services/ShiftService';
 import { User } from '../types';
 
@@ -55,9 +55,12 @@ export const ShiftMonitorModal: React.FC<ShiftMonitorModalProps> = ({ currentUse
     if (!data) {
         return (
             <div className={`fixed inset-0 z-[100] flex items-center justify-center font-sans animate-fade-in ${(currentUser?.role === 'MESERO' || currentUser?.role === 'CAJERO') ? 'bg-[#323544]' : 'bg-[#0f1115]'}`}>
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-[10px] font-semibold text-white uppercase tracking-[0.3em] animate-pulse">Calculando Corte X...</span>
+                <div className="bg-[#2a2d3d] border border-white/10 px-6 py-4 rounded-xl shadow-xl flex items-center gap-4">
+                    <Loader2 size={28} className="text-white animate-spin" />
+                    <div className="text-left">
+                        <h3 className="text-white font-bold text-base tracking-wider uppercase mb-0.5">Cargando</h3>
+                        <p className="text-white/60 text-xs font-medium uppercase tracking-widest animate-pulse">Calculando Corte X...</p>
+                    </div>
                 </div>
             </div>
         );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Clock, MapPin, User, FileText, ArrowRight, Printer, XCircle, AlertOctagon, Truck, Package, Utensils, Percent, Split, Minus, Plus } from 'lucide-react';
+import { Search, Clock, MapPin, User, FileText, ArrowRight, Printer, XCircle, AlertOctagon, Truck, Package, Utensils, Percent, Split, Minus, Plus, Loader2 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { printService } from '../services/PrintService';
 import { billingService } from '../services/BillingService';
@@ -437,8 +437,14 @@ export const OrderViewer: React.FC<OrderViewerProps> = ({ onBack, onOpenOrder, c
 
                     <div className="flex-1 overflow-y-auto p-4 space-y-8 custom-scrollbar">
                         {loading ? (
-                            <div className="h-full flex items-center justify-center opacity-30">
-                                <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-sm animate-spin"></div>
+                            <div className="h-full flex items-center justify-center">
+                                <div className="bg-[#2a2d3d] border border-white/10 px-6 py-4 rounded-xl shadow-xl flex items-center gap-4">
+                                    <Loader2 size={28} className="text-white animate-spin" />
+                                    <div className="text-left">
+                                        <h3 className="text-white font-bold text-base tracking-wider uppercase mb-0.5">Cargando</h3>
+                                        <p className="text-white/60 text-xs font-medium uppercase tracking-widest">Espere por favor...</p>
+                                    </div>
+                                </div>
                             </div>
                         ) : filteredOrders.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center opacity-10">

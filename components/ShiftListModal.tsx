@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Printer, Mail } from 'lucide-react';
+import { X, Printer, Mail, Loader2 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { printService } from '../services/PrintService';
 import { reportTemplates } from '../services/ReportTemplates';
@@ -391,7 +391,13 @@ Generado: ${new Date().toLocaleString('es-GT')}
                 <div className="flex-1 overflow-y-auto p-6 min-h-[300px] max-h-[400px]">
                     {loading ? (
                         <div className="flex items-center justify-center h-64">
-                            <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                            <div className="bg-[#2a2d3d] border border-white/10 px-6 py-4 rounded-xl shadow-xl flex items-center gap-4">
+                                <Loader2 size={28} className="text-white animate-spin" />
+                                <div className="text-left">
+                                    <h3 className="text-white font-bold text-base tracking-wider uppercase mb-0.5">Cargando</h3>
+                                    <p className="text-white/60 text-xs font-medium uppercase tracking-widest">Espere por favor...</p>
+                                </div>
+                            </div>
                         </div>
                     ) : shifts.length === 0 ? (
                         <div className="flex items-center justify-center h-64">
