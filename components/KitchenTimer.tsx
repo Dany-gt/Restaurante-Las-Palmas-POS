@@ -86,7 +86,7 @@ export const KitchenTimer: React.FC<KitchenTimerProps> = ({
     };
 
     return (
-        <div className={`mx-auto px-3 py-1 rounded-md font-semibold text-white ${getStatusColor(elapsedSeconds)} shadow-lg shadow-red-900/20`}>
+        <div className={`mx-auto px-3 py-1 rounded-md font-semibold text-white text-center min-w-[90px] ${getStatusColor(elapsedSeconds)} shadow-lg shadow-red-900/20`}>
             <span className="leading-none text-lg tabular-nums tracking-tighter">
                 {formatTime(elapsedSeconds)}
             </span>

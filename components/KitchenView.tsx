@@ -997,15 +997,8 @@ export const KitchenView: React.FC = () => {
                     <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">{order.section} • {order.waiter_name}</span>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
-                    <button
-                      onClick={(e) => handleReprint(e, order.original_order_id)}
-                      className="p-1.5 hover:bg-white/10 rounded-lg text-gray-500 transition-colors"
-                      title="Re-imprimir Ticket"
-                    >
-                      <Printer size={12} />
-                    </button>
                     <div className="p-2 bg-white/5 rounded-xl">
-                      <Bell size={12} className={`${getTimeDiff(order.created_at) > 15 ? 'text-red-500 animate-bounce' : 'text-gray-600'}`} />
+                      <Bell size={20} className={`${getTimeDiff(order.created_at) > 15 ? 'text-red-500 animate-bounce' : 'text-gray-600'}`} />
                     </div>
                   </div>
                 </div>
@@ -1083,29 +1076,29 @@ export const KitchenView: React.FC = () => {
                           {filter === 'delivered' ? (
                             <button
                               onClick={(e) => { e.stopPropagation(); updateItemStatus(item.id, 'ready'); }}
-                              className="px-2 py-1 bg-amber-500/10 text-amber-500/80 hover:bg-amber-500 hover:text-white rounded-lg text-[7px] font-semibold uppercase tracking-tighter flex items-center justify-center border border-amber-500/20 transition-all"
+                              className="w-[100px] h-10 bg-amber-500/10 text-amber-500/80 hover:bg-amber-500 hover:text-white rounded-lg text-[10px] font-semibold uppercase tracking-tighter flex items-center justify-center gap-1.5 border border-amber-500/20 transition-all"
                             >
-                              <ChevronLeft size={8} className="mr-1" /> RETORNAR
+                              <ChevronLeft size={14} /> RETORNAR
                             </button>
                           ) : (
                             <>
                               {item.status === 'pending' ? (
                                 <button
                                   onClick={(e) => { e.stopPropagation(); updateItemStatus(item.id, 'preparing'); }}
-                                  className="w-16 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-[7px] font-semibold uppercase tracking-tighter flex items-center justify-center gap-1 border border-indigo-400/50 transition-all active:scale-95  -900/30"
+                                  className="w-[100px] h-10 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[10px] font-semibold uppercase tracking-tighter flex items-center justify-center gap-1.5 border border-indigo-400/50 transition-all active:scale-95"
                                 >
-                                  <Play size={8} /> INICIAR
+                                  <Play size={14} /> INICIAR
                                 </button>
                               ) : item.status === 'preparing' ? (
                                 <button
                                   onClick={(e) => { e.stopPropagation(); updateItemStatus(item.id, 'ready'); }}
-                                  className="w-16 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-[7px] font-semibold uppercase tracking-tighter flex items-center justify-center gap-1 border border-emerald-400/50 transition-all active:scale-95  -900/30"
+                                  className="w-[100px] h-10 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-semibold uppercase tracking-tighter flex items-center justify-center gap-1.5 border border-emerald-400/50 transition-all active:scale-95"
                                 >
-                                  <Check size={8} /> LISTO
+                                  <Check size={14} /> LISTO
                                 </button>
                               ) : (
-                                <div className="w-16 py-1 bg-white/10 text-white rounded-md text-[7px] font-semibold uppercase tracking-tighter flex items-center justify-center border border-white/20 ">
-                                  <CheckCircle2 size={8} className="mr-1 text-emerald-400" /> LISTO
+                                <div className="w-[100px] h-10 bg-white/10 text-white rounded-lg text-[10px] font-semibold uppercase tracking-tighter flex items-center justify-center gap-1.5 border border-white/20 ">
+                                  <CheckCircle2 size={14} className="text-emerald-400" /> LISTO
                                 </div>
                               )}
                             </>
@@ -1153,9 +1146,9 @@ export const KitchenView: React.FC = () => {
                             if (error) console.error("Error batch delivering:", error);
                             fetchKDSData(true);
                           }}
-                          className="w-full py-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-xl font-semibold text-[9px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 active:scale-95  -900/10"
+                          className="w-full h-11 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-lg font-semibold text-[10px] uppercase tracking-[0.25em] transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-indigo-900/10"
                         >
-                          <CheckCircle2 size={12} /> ENTREGAR
+                          <CheckCircle2 size={16} /> ENTREGAR
                         </button>
                       );
                     }
@@ -1194,9 +1187,9 @@ export const KitchenView: React.FC = () => {
 
                           fetchKDSData(true);
                         }}
-                        className="w-full py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 hover:text-indigo-300 rounded-lg font-semibold text-[8px] uppercase tracking-[0.2em] border border-indigo-500/20 transition-all flex items-center justify-center gap-2"
+                        className="w-full h-11 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-lg font-semibold text-[10px] uppercase tracking-[0.25em] transition-all flex items-center justify-center gap-2 active:scale-95"
                       >
-                        <Flame size={12} className="animate-pulse" /> SERVIR
+                        <Flame size={16} className="animate-pulse" /> SERVIR
                       </button>
                     );
                   })()}
