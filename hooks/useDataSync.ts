@@ -184,6 +184,15 @@ export const useDataSync = () => {
                             if (p.imagen_url) imageUrls.push(p.imagen_url);
                         });
                     }
+                    
+                    // Fetch images for modifiers/options which might be products with is_available = false
+                    const { data: allProductImages } = await supabase.from('products').select('image_url, imagen_url');
+                    if (allProductImages) {
+                        allProductImages.forEach((p: any) => {
+                            if (p.image_url) imageUrls.push(p.image_url);
+                            if (p.imagen_url) imageUrls.push(p.imagen_url);
+                        });
+                    }
                     finalCombined.forEach((c: any) => {
                         if (c.image_url) imageUrls.push(c.image_url);
                         if (c.imagen_url) imageUrls.push(c.imagen_url);
