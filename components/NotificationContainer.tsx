@@ -199,7 +199,7 @@ export const NotificationContainer: React.FC = () => {
     };
 
     return (
-        <div className="fixed bottom-12 right-4 z-[999999] flex flex-col gap-2 pointer-events-none items-end">
+        <div className="fixed top-12 right-4 z-[999999] flex flex-col gap-2 pointer-events-none items-end">
             {notifications.map(n => (
                 <div
                     key={n.id}
