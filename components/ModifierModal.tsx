@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Plus, Minus, CheckCircle, ShoppingCart, Loader2, MessageSquare, ChevronRight, Hash, Trash2, Utensils, ArrowLeft } from 'lucide-react';
+import { X, Plus, Minus, CheckCircle, ShoppingCart, Loader2, MessageSquare, ChevronRight, Hash, Trash2, Utensils, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { Product } from '../types';
 import { supabase } from '../supabase';
 
@@ -55,6 +55,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
   const [notes, setNotes] = useState('');
   const [showNotes, setShowNotes] = useState(false);
   const [itemQuantity, setItemQuantity] = useState(1);
+  const [showErrors, setShowErrors] = useState(false);
+  const [showMaxLimitError, setShowMaxLimitError] = useState(false);
   const notesRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -63,6 +65,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
       setNotes('');
       setSelectedItems([]);
       setShowNotes(false);
+      setShowErrors(false);
+      setShowMaxLimitError(false);
       setSelectedGroupId(null);
       setView('CATEGORIES');
     }
@@ -73,6 +77,21 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
       notesRef.current.focus();
     }
   }, [showNotes]);
+
+  useEffect(() => {
+    let timer1: NodeJS.Timeout;
+    let timer2: NodeJS.Timeout;
+    if (showErrors) {
+      timer1 = setTimeout(() => setShowErrors(false), 3500);
+    }
+    if (showMaxLimitError) {
+      timer2 = setTimeout(() => setShowMaxLimitError(false), 3500);
+    }
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, [showErrors, showMaxLimitError]);
 
   const fetchConfiguration = async () => {
     setLoading(true);
@@ -143,7 +162,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
               display_name: item.display_name || cat.display_name || prod.name || 'Sin Nombre',
               image_url: prod.image_url || null,
               color_code: item.color_code || cat.color_code,
-              extra_price: item.extra_price ?? 0,
+              extra_price: item.extra_price || prod.price || 0,
               type: (item.modifier_type?.toUpperCase() || 'ADD') as 'ADD' | 'REMOVE',
               group_id: item.option_group_id,
               group_type: 'OPTION',
@@ -199,39 +218,46 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
   };
 
   const incrementItem = (item: SelectionItem) => {
+    setShowErrors(false);
+    setShowMaxLimitError(false);
     const currentGroup = groups.find(g => g.id === item.group_id);
     if (!currentGroup) return;
 
+    const existing = selectedItems.find(i => i.id === item.id);
+    const grpQty = selectedItems.filter(i => i.group_id === item.group_id).reduce((sum, i) => sum + i.quantity, 0);
+
+    // Check limit for multi-selection before triggering state update
+    if (currentGroup.max_selection > 1 && grpQty >= currentGroup.max_selection) {
+      setShowMaxLimitError(true);
+      return;
+    }
+
     setSelectedItems(prev => {
-      const existing = prev.find(i => i.id === item.id);
-      const grpQty = prev.filter(i => i.group_id === item.group_id).reduce((sum, i) => sum + i.quantity, 0);
-
-      // Toggle Off: Si ya existe, al tocarlo lo quitamos
-      if (existing) {
-        return prev.filter(i => i.id !== item.id);
-      }
-
-      // Toggle On: Asignar de golpe el máximo permitido del grupo (si es 0, asigna 1), pero los modificadores siempre son 1
-      const qtyToSet = currentGroup.type === 'MODIFIER' ? 1 : (currentGroup.max_selection > 0 ? currentGroup.max_selection : 1);
-
       // Comportamiento de Radio Button (Solo 1 opción permitida)
       if (currentGroup.max_selection === 1) {
-        const withoutOthers = prev.filter(i => i.group_id !== item.group_id);
-        return [...withoutOthers, { ...item, quantity: qtyToSet }];
+        if (existing) {
+          // Toggle off if it's the exact same item
+          return prev.filter(i => i.id !== item.id);
+        } else {
+          // Swap to new item
+          const withoutOthers = prev.filter(i => i.group_id !== item.group_id);
+          return [...withoutOthers, { ...item, quantity: 1 }];
+        }
       }
       // Comportamiento de Multi-Selección
       else {
-        // Si ya hay otros ítems seleccionados que suman o superan el límite del grupo, no hacemos nada
-        if (currentGroup.max_selection > 0 && grpQty >= currentGroup.max_selection) {
-          return prev;
+        if (existing) {
+          // Add +1 to the existing quantity
+          return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+        } else {
+          // Add new item with quantity 1
+          return [...prev, { ...item, quantity: 1 }];
         }
-        return [...prev, { ...item, quantity: qtyToSet }];
       }
     });
 
-    // Regresar a la vista de categorías automáticamente solo para OPCIONES
-    // Los modificadores permiten selección múltiple, así que no deben regresar automáticamente
-    if (groups.length > 1 && currentGroup.type === 'OPTION') {
+    // Regresar a la vista de categorías automáticamente solo si es de selección única
+    if (groups.length > 1 && currentGroup.type === 'OPTION' && currentGroup.max_selection === 1) {
       setTimeout(() => {
         setView('CATEGORIES');
       }, 100);
@@ -239,11 +265,9 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
   };
 
   const decrementItem = (item: SelectionItem) => {
+    setShowErrors(false);
+    setShowMaxLimitError(false);
     setSelectedItems(prev => prev.filter(i => i.id !== item.id));
-  };
-
-  const handleDoubleClick = (item: SelectionItem) => {
-    setShowNotes(true);
   };
 
   const handleContextMenu = (e: React.MouseEvent, item: SelectionItem) => {
@@ -257,7 +281,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
       if (grp.type === 'MODIFIER') return; // Modificadores no tienen límites
       const selectedCount = selectedItems.filter(i => i.group_id === grp.id).reduce((sum, i) => sum + i.quantity, 0);
       if (selectedCount < grp.min_selection) {
-        errors.push(`Seleccione al menos ${grp.min_selection} en: ${grp.name}`);
+        const displayName = grp.group_prompt || grp.name;
+        errors.push(`Agregue el mínimo requerido para la opción ${displayName}`);
       }
     });
     return errors;
@@ -283,7 +308,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
           <div className="px-6 py-4 bg-[#2e303d] flex justify-between items-center shrink-0 border-b border-white/5">
             <button
               onClick={() => {
-                if (view === 'DETAIL') setView('CATEGORIES');
+                if (view === 'DETAIL' && groups.length > 1) setView('CATEGORIES');
                 else onClose();
               }}
               className="w-[2.5cm] h-[1.3cm] bg-[#3e4153] hover:bg-[#464859] text-gray-400 hover:text-white rounded-md transition-all flex items-center justify-center border border-white/5"
@@ -300,11 +325,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
             </div>
 
             <button
-              onClick={() => {
-                if (view === 'DETAIL') setView('CATEGORIES');
-                else onClose();
-              }}
-              title="Regresar"
+              onClick={onClose}
+              title="Regresar al Menú"
               className="w-[2.5cm] h-[1.3cm] bg-[#3e4153] hover:bg-[#464859] text-green-400 hover:text-green-300 rounded-md transition-all flex items-center justify-center border border-white/5"
             >
               <svg
@@ -332,7 +354,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                   <h4 className="text-lg font-medium text-white">Instrucciones Especiales</h4>
                   <p className="text-[11px] text-gray-400 mt-1">Notas opcionales para cocina</p>
                 </div>
-                
+
                 <textarea
                   ref={notesRef}
                   value={notes}
@@ -340,7 +362,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                   placeholder="Ej: Término medio, sin sal, etc..."
                   className="w-full h-32 bg-[#2a2d3d] border border-white/20 rounded-md p-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-white/40 transition-all resize-none shadow-inner"
                 />
-                
+
                 <div className="mt-6 flex justify-center gap-4">
                   <button
                     onClick={() => setNotes('')}
@@ -364,13 +386,8 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
 
             {loading ? (
               <div className="h-full flex flex-col items-center justify-center text-gray-500">
-                <div className="flex items-center gap-3">
-                  <Loader2 className="animate-spin text-white/40" size={32} />
-                  <div className="flex flex-col items-start">
-                    <span className="text-sm font-bold text-white uppercase tracking-wider">Cargando</span>
-                    <span className="text-xs text-gray-400">Espere por favor...</span>
-                  </div>
-                </div>
+                <Loader2 className="animate-spin mb-6 text-white/20" size={64} />
+                <span className="text-sm font-semibold uppercase tracking-[0.3em]">Cargando...</span>
               </div>
             ) : view === 'CATEGORIES' ? (
               <div className="h-full flex flex-col items-center animate-fade-in overflow-y-auto custom-scrollbar">
@@ -476,7 +493,6 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                         <button
                           disabled={isDisabled}
                           onClick={() => incrementItem(item)}
-                          onDoubleClick={() => handleDoubleClick(item)}
                           onContextMenu={(e) => handleContextMenu(e, item)}
                           style={bgColor ? {
                             backgroundColor: bgColor
@@ -535,6 +551,42 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                 </span>
                 <span className="text-xs font-medium text-white">Q{((Number(product.price) || 0) * itemQuantity).toFixed(2)}</span>
               </div>
+
+              {showMaxLimitError && (
+                <div className="m-2 bg-[#f8f9fa] rounded shadow-md overflow-hidden relative animate-fade-in">
+                  <div className="flex items-center p-3">
+                    <div className="text-[#3a3b4d] bg-[#3a3b4d]/10 rounded-full p-0.5 shrink-0">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#3a3b4d]">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                      </svg>
+                    </div>
+                    <div className="ml-3 flex-1">
+                      <p className="text-[11px] font-bold text-gray-800 leading-snug mb-0">
+                        Ha alcanzado el límite máximo para esta opción.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {showErrors && getValidationErrors().length > 0 && !showMaxLimitError && (
+                <div className="m-2 bg-[#f8f9fa] rounded shadow-md overflow-hidden relative animate-fade-in">
+                  <div className="flex items-start p-3">
+                    <div className="pt-0.5 text-[#ff9800]">
+                      <AlertTriangle size={24} fill="#ff9800" color="white" />
+                    </div>
+                    <div className="ml-3 flex-1">
+                      {getValidationErrors().map((err, i) => (
+                        <p key={i} className="text-[11px] font-bold text-gray-800 uppercase leading-snug mb-1 last:mb-0">
+                          {err}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {selectedItems.map(mod => (
                 <div key={mod.id} className="group flex justify-between items-center py-2 px-3 bg-[#3e4153]/40 border-b border-[#3e4153] hover:bg-[#3e4153]/80 transition-colors">
@@ -630,8 +682,12 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
               {/* Row 2: Main Confirmation & Price */}
               <div className="flex items-center justify-between p-2 bg-[#3a3b4d] rounded-md border border-white/10 shadow-sm">
                 <button
-                  disabled={getValidationErrors().length > 0}
                   onClick={() => {
+                    const errors = getValidationErrors();
+                    if (errors.length > 0) {
+                      setShowErrors(true);
+                      return;
+                    }
                     const transformedModifiers = selectedItems.map(item => ({
                       ...item,
                       name: item.name,
@@ -641,7 +697,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                     onConfirm(product, transformedModifiers, notes, itemQuantity);
                     onClose();
                   }}
-                  className="flex flex-col items-center justify-center w-[125px] h-[113.39px] bg-transparent border border-white/40 rounded-lg hover:bg-white/5 disabled:opacity-30 transition-all gap-1.5"
+                  className="flex flex-col items-center justify-center w-[125px] h-[113.39px] bg-transparent border border-white/40 rounded-lg hover:bg-white/5 transition-all gap-1.5"
                 >
                   <svg viewBox="0 0 100 100" className="w-[72px] h-[72px]" stroke="none" fill="none">
                     <defs>
@@ -703,7 +759,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                     />
                   </svg>
                   <span className="text-[10px] font-bold text-white uppercase tracking-wider text-center px-1 whitespace-nowrap">
-                    {getValidationErrors().length > 0 ? 'Faltan' : 'Enviar a Comanda'}
+                    Enviar a Comanda
                   </span>
                 </button>
 
@@ -717,15 +773,6 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
                 </div>
               </div>
 
-              {getValidationErrors().length > 0 && (
-                <div className="space-y-1 mt-1">
-                  {getValidationErrors().map((err, i) => (
-                    <p key={i} className="text-[9px] font-medium text-red-400 uppercase flex items-center gap-1">
-                      <X size={10} /> {err}
-                    </p>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         </div>

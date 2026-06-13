@@ -697,6 +697,9 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     isReprint: true // Mark as reprint/voucher
                 });
 
+                window.dispatchEvent(new CustomEvent('app-notification', {
+                    detail: { type: 'success', message: 'COBRO REALIZADO CON ÉXITO' }
+                }));
                 onComplete();
             } catch (err: any) {
                 console.error("Error finalizing existing invoice:", err);
@@ -875,10 +878,12 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                 await import('../services/OfflineDB').then(m => m.offlineDB.saveRecord('ORDER', orderData));
                 console.log('📦 Venta finalizada Offline (IndexedDB):', order.id);
 
-                alert('✅ Venta guardada localmente. Se sincronizará al reconectar.');
-
                 setInvoiceSuccess(true);
                 window.dispatchEvent(new CustomEvent('offline-sync-trigger'));
+                
+                window.dispatchEvent(new CustomEvent('app-notification', {
+                    detail: { type: 'success', message: 'COBRO REALIZADO CON ÉXITO (OFFLINE)' }
+                }));
                 onComplete(); // Navigate back to dashboard/tables
                 return;
             }
@@ -1514,6 +1519,9 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
                     setInvoicePdfUrl(undefined);
                     if (invoiceSuccess) {
                         if (!isAnticipatedMode) {
+                            window.dispatchEvent(new CustomEvent('app-notification', {
+                                detail: { type: 'success', message: 'COBRO REALIZADO CON ÉXITO' }
+                            }));
                             onComplete();
                         } else {
                             // If anticipated, just reset modal state, stay in Checkout
