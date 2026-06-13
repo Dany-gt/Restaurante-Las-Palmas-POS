@@ -1140,7 +1140,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ order, table, curren
 
             </header>
 
-            <div className="flex-1 flex overflow-hidden p-6 gap-6">
+            <div className="flex-1 flex overflow-hidden p-6 pt-20 gap-6">
 
                 {/* LEFT PANEL: TOTALS & SUMMARY */}
                 <div className="w-[300px] flex flex-col gap-4">
