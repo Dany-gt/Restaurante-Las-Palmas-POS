@@ -300,8 +300,11 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
             </div>
 
             <button
-              onClick={onClose}
-              title="Regresar al Menú"
+              onClick={() => {
+                if (view === 'DETAIL') setView('CATEGORIES');
+                else onClose();
+              }}
+              title="Regresar"
               className="w-[2.5cm] h-[1.3cm] bg-[#3e4153] hover:bg-[#464859] text-green-400 hover:text-green-300 rounded-md transition-all flex items-center justify-center border border-white/5"
             >
               <svg
@@ -361,8 +364,13 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
 
             {loading ? (
               <div className="h-full flex flex-col items-center justify-center text-gray-500">
-                <Loader2 className="animate-spin mb-6 text-white/20" size={64} />
-                <span className="text-sm font-semibold uppercase tracking-[0.3em]">Cargando...</span>
+                <div className="flex items-center gap-3">
+                  <Loader2 className="animate-spin text-white/40" size={32} />
+                  <div className="flex flex-col items-start">
+                    <span className="text-sm font-bold text-white uppercase tracking-wider">Cargando</span>
+                    <span className="text-xs text-gray-400">Espere por favor...</span>
+                  </div>
+                </div>
               </div>
             ) : view === 'CATEGORIES' ? (
               <div className="h-full flex flex-col items-center animate-fade-in overflow-y-auto custom-scrollbar">
