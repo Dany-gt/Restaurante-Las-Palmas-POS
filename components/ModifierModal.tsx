@@ -526,7 +526,7 @@ export const ModifierModal: React.FC<ModifierModalProps> = ({
 
                           {/* Price */}
                           <span className={`${isMod ? 'text-[11px]' : 'text-[10px]'} font-medium text-white/80 shrink-0`}>
-                            {item.extra_price > 0 && !isMod ? '+' : ''}Q{(Number(item.extra_price) || 0).toFixed(2)}
+                            Q{(Number(item.extra_price) || 0).toFixed(2)}
                           </span>
 
                           {/* Selected Badge eliminado a petición del usuario */}
