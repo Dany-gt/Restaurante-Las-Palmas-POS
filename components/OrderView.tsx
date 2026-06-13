@@ -3296,7 +3296,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                 <div className="flex-1">
                                                     <div className="flex justify-between items-start">
                                                         <div className="flex flex-col items-start gap-1">
-                                                            <span className={`font-medium leading-tight flex items-start gap-1.5 ${selectedItemIds.has(item.id) ? 'text-white' : 'text-gray-200'} ${isTablet ? 'text-[10px] truncate max-w-[150px]' : 'text-sm lg:text-xs'}`}>
+                                                            <span className={`font-medium leading-tight flex items-start gap-1.5 pr-2 ${selectedItemIds.has(item.id) ? 'text-white' : 'text-gray-200'} ${isTablet ? 'text-[10px]' : 'text-sm lg:text-xs'}`}>
                                                                 <span className="text-white font-semibold">{item.quantity}</span>
                                                                 <span>{item.product_name}</span>
                                                             </span>
@@ -3311,7 +3311,7 @@ export const OrderView: React.FC<OrderViewProps> = ({ order: initialOrder, table
                                                     </div>
                                                     {item.notes && formatNotesForDisplay(item.notes) && (
                                                         <div className="flex items-center gap-1 mt-0.5" onClick={(e) => { e.stopPropagation(); setTabletItemActionModal(item); }}>
-                                                            <span className={`truncate ${selectedItemIds.has(item.id) ? 'text-white/70' : 'text-gray-500'} ${isTablet ? 'text-[9px] max-w-[100px]' : 'text-xs lg:text-[10px] max-w-[150px]'}`}>{formatNotesForDisplay(item.notes)}</span>
+                                                            <span className={`leading-tight pr-2 ${selectedItemIds.has(item.id) ? 'text-white/70' : 'text-gray-500'} ${isTablet ? 'text-[9px]' : 'text-xs lg:text-[10px]'}`}>{formatNotesForDisplay(item.notes)}</span>
                                                         </div>
                                                     )}
                                                 </div>
